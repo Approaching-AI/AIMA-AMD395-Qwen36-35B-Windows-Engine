@@ -1,5 +1,33 @@
 # Real-model performance
 
+## Long complete-attention components, 2026-09-18
+
+Isolated source `d926858` combines range-aware narrow QK, fused
+probability/native PV with the original per-group error bounds, and original
+exact PV with register rescaling. The 512-group short-context final-bound
+proof is not extended. Native safety passes 100 configurations through
+264736 keys and 15 regressions of the unchanged short-template default.
+The first revision's rejected long replay launch remains in the evidence.
+
+| Captured queries after 16384 history | Original / 32 | Candidate / 32 | Original / 128 | Candidate / 128 |
+| --- | ---: | ---: | ---: | ---: |
+| 1024 original queries, ms | 472.5512 | 553.1999 | 414.5195 | 320.1435 |
+| 8192 extended queries, ms | 5645.5811 | 6441.6989 | 5121.4272 | 4083.1746 |
+
+Medians include candidate domain preparation; common range preparation and
+V transpose are another 4.2805/6.7683 ms respectively. Each route has one
+warmup and three rotated complete samples. Every candidate128 sample is
+faster than every original32 and original128 sample. Candidate32 regresses.
+All compared raw surfaces and completed outputs are bit exact, with identical
+PV candidate counts. Each route matches 4194304 original GB10 context cells;
+the extended 7168 rows have original-arithmetic coverage only.
+
+These component results support separately gated provider integration and a
+real-model comparison. They do not change the qualified q8192 median,
+package or release status. [Native commands, failures and results](../benchmarks/correctness/long-attention-pipeline-native-components-20260918.json):
+354770 bytes, SHA256
+`9d2d0094bf7bc175b99a3484e5972306ff77c704d86fabaf218d95040d24d8e9`.
+
 ## Current stack at 16k, 2026-09-18
 
 The same qualified whole `ddacdc9`, CK `1c2770d`, MoE `9235750`,
