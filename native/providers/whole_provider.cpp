@@ -106271,10 +106271,11 @@ bool emit_qwen36_exact_arbitrary_output_residual_trace(
     if (!raw_env_flag_enabled(
             "QRT_QWEN36_EXACT_ARBITRARY_LAYER_BOUNDARY_TRACE"
         ) ||
-        layer_index != env_u32_or_default(
+        (layer_index != env_u32_or_default(
             "QRT_QWEN36_EXACT_ARBITRARY_LAYER_BOUNDARY_TRACE_LAYER",
             UINT_MAX
-        )) {
+        ) && !raw_env_flag_enabled(
+            "QRT_QWEN36_EXACT_ARBITRARY_ALL_LAYER_BOUNDARY_TRACE"))) {
         return true;
     }
     const size_t expected_elements =
@@ -124323,7 +124324,9 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
         if (target_token_count == prefill_tokens &&
             (descriptor.layer_index ==
                 exact_arbitrary_layer_boundary_trace_layer ||
-             qwen36_all_norm_capture_active(prefill_tokens)) &&
+             qwen36_all_norm_capture_active(prefill_tokens) ||
+             raw_env_flag_enabled(
+                 "QRT_QWEN36_EXACT_ARBITRARY_ALL_LAYER_BOUNDARY_TRACE")) &&
             (!emit_qwen36_exact_arbitrary_layer_boundary_trace(
                  descriptor.layer_index,
                  prefill_tokens,
@@ -134806,7 +134809,9 @@ bool run_full_attention_prefill_resident_core_for_targets(
     if (target_token_count == prefill_tokens &&
         (descriptor.layer_index ==
             exact_arbitrary_layer_boundary_trace_layer ||
-         qwen36_all_norm_capture_active(prefill_tokens)) &&
+         qwen36_all_norm_capture_active(prefill_tokens) ||
+         raw_env_flag_enabled(
+             "QRT_QWEN36_EXACT_ARBITRARY_ALL_LAYER_BOUNDARY_TRACE")) &&
         (!emit_qwen36_exact_arbitrary_layer_boundary_trace(
              descriptor.layer_index,
              prefill_tokens,

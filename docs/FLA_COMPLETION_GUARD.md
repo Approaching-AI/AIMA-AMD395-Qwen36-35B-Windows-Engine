@@ -142,8 +142,32 @@ output IDs, first logit10.375 and512 callbacks pass. Load21313.516099 ms,
 TTFT23264.054501 ms and TPOT101.079970 ms are a single functional regression,
 not a new performance baseline. See the
 [native build and regression](../benchmarks/correctness/prefix-linear-capture-native-q8192-20260919.json).
-The actual first96k capture is running with the original90112–98303 target;
-it has not yet produced the selected window.
+The [completed original-input capture](../benchmarks/correctness/prefix96-layer16-original-input-divergence-20260919.json)
+runs all98304 original owner inputs on baiying and exits0 in2656581.994 ms;
+all host and cleanup checks pass. Output1 remains a diagnostic with no
+expected-token gate. Its524288-cell initial FP32 state is bitwise exact.
+Raw Q/K/V differ only at rows906–909, original positions91018–91021
+(788/893/1825 BF16 cells respectively); one FP32 gate differs at906 and beta
+is exact. Core first differs at906 and ends with75 different terminal BF16
+cells. The original terminal QKV/Z/A/B are exact; gated norm reproduces
+bitwise from actual core/Z. Canonical OUT replay has6 producer differences
+but gives the same consumed residual/norm, leaving the observed51 norm
+differences unchanged. The upstream cause at91018 remains unresolved.
+
+All16 captured files,409092860 bytes, are unchanged between the completed
+layer and completed run. The original PS5.1 wrapper fails after successful
+native completion because Measure-Object cannot sum ordered-dictionary
+properties. Its script and failed dispatch are preserved; a separate bounded
+archive command verifies the completed run and unchanged files. No native
+rerun or acceptance claim is made.
+
+Optional QRT_QWEN36_EXACT_ARBITRARY_ALL_LAYER_BOUNDARY_TRACE=1 extends the
+existing boundary-trace selector to all materialized layers. It still requires
+the boundary-trace flag and uses the existing selected row and extent checks.
+It reads input norm, attention residual/norm and output residual through the
+existing copy path. It neither dumps whole tensors nor changes arithmetic.
+The next observation selects row906, rather than only chunk-terminal rows;
+its native build and numerical regression are pending.
 
 Independent CPU controls now reproduce all9 original QKV/Z/OUT projection
 rows and all6 gated/residual-normalization cases at positions8191,90111 and
