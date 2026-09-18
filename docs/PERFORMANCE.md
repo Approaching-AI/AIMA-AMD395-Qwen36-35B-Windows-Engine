@@ -1,5 +1,15 @@
 # Real-model performance
 
+## Two-stream attention components, 2026-09-18
+
+Source `68df394` retains every numerical kernel while separating two128-query
+workspaces. All168 generated configurations and every full q8192 captured
+attempt pass original arithmetic, exact candidate membership and the original
+GB10 context boundary. Serial/independent-slab/stage-pipeline medians are
+533.8146/531.8948/532.8859 ms. Samples overlap; keep both schedules isolated
+without a model run. Runtime defaults and the23353.80795 ms qualified model
+TTFT remain unchanged. [Complete scope and native evidence](PIPELINED_ATTENTION.md).
+
 ## Long deferred-PV components, 2026-09-18
 
 Source `e0d7e4a` passes23652092 native bound comparisons,100 generated
