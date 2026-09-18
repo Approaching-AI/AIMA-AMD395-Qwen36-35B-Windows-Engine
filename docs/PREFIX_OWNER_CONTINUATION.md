@@ -39,8 +39,8 @@ replacing only Windows DLL preload and native engine calls. ASan/UBSan cases
 cover2/32/512 outputs, the unchanged default route, incorrect references,
 untrusted counts, input mutation, malformed/missing callbacks and restoration
 failures. A backend that falsely reports restoration is detected by the next
-ordinary hit. These tests are observer and orchestration checks only; native
-Windows compilation and GB10-attached real-model qualification remain open.
+ordinary hit. These tests are observer and orchestration checks only; the
+separate native qualification follows below.
 
 All45 host unit tests pass: five product tests,32 route contracts and eight
 packaging contracts. The new full-CLI fixture executes45 process cases,
@@ -52,3 +52,31 @@ and the Windows build script remain byte-identical to the qualified
 [Host commands, source hashes and complete results](../benchmarks/correctness/prefix-owner-continuation-local-20260918.json)
 retain the initial test fixture's signature correction. No real inference,
 model timing or release acceptance is claimed by that record.
+
+Native qualification, September18: CLI source
+`6d9602cb9e51096f4e336ecf07a2b220e53f6a54` builds on baiying. Its949248-byte
+executable SHA256 is
+`153c0970dc2c4d1d3f8536ed698005842169431d412741a736cee185f731c78d`.
+All eight compiled inputs match that commit. With the existing whole
+`ddacdc9`, CK `ea6faff`, MoE `9235750` and FLA `7b20c90`, the original
+q8192 request matches all512 GB10 IDs, first logit10.375 and all callbacks.
+The owner option is disabled for this regression. Load is21264.07 ms,
+TTFT23392.727499 ms and TPOT97.640613 ms; this unpaired run does not replace
+the retained performance baseline.
+
+The full16384-prefix run checks cold first token16/logit25.625, all31
+additional owner outputs and their callbacks, then both512-token suffix
+requests. Every original GB10 ID matches. Both suffix logits are5.6875;
+restoration and changed-prefix rejection pass. The additional owner
+transaction takes5037.9647 ms. Its index1 logit24.5 is checked for finite
+token-bound reporting only, because the original reference has no index1 raw
+logit. Load is21300.7954 ms; the later suffix hit takes8410.8466 ms TTFT and
+158.067077 ms TPOT. These remain separate from a single cold out32 request.
+
+The first external analyzer used the standard FNV offset basis, while this
+repository's existing CLI and original oracle use1469598103934665603. A
+versioned correction preserves the runtime and reference files, checks all
+raw IDs, and independently verifies original prompt/output u32le SHA256.
+[Native commands, binaries, reference boundaries and the analyzer correction](../benchmarks/correctness/prefix-owner-continuation-native-product-20260918.json)
+are attached to the same runs. Package, larger-context and retained-speed
+acceptance remain open.

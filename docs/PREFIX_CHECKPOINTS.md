@@ -25,11 +25,20 @@ Original GB10 references are available for complete128k/256k owners and their
 1024-token suffixes, with512 suffix outputs and raw first-logit authority.
 Reference availability does not establish Windows execution or restoration.
 See [large-prefix reference evidence](../benchmarks/correctness/gb10-large-prefix-actual-references-20260914.json).
+The September18 full128k attempt exits before output during its fifteenth
+owner chunk, after114688 completed inputs. An internal FLA100 ms check
+triggers; its old message lacks the failed interval. Host guards and cleanup
+pass. See [failure evidence](../benchmarks/correctness/long-final-pv-prefix128k-guard-failure-20260918.json)
+and the [independent completion-clock work](FLA_COMPLETION_GUARD.md).
 
 The optional CLI [cached-owner continuation check](PREFIX_OWNER_CONTINUATION.md)
 checks a complete owner's subsequent outputs from its restored cache. It is
 separate from saved partial checkpoints and from a single cold out32 request.
-Its native Windows and real-model checks remain pending.
+CLI `6d9602c` now passes its native build, original q8192/out512 regression
+and full16k owner32 check, including both512-token suffix requests and
+restoration. This qualification retains the runtime components listed above;
+it does not expand saved-checkpoint or larger-context admission. See
+[native owner evidence](../benchmarks/correctness/prefix-owner-continuation-native-product-20260918.json).
 
 ## Earlier qualification and implementation history
 
