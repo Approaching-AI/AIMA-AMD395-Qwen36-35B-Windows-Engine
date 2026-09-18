@@ -8,8 +8,17 @@ Complete original scalar PV, conservative candidate supersets and all original
 GB10 context cells pass. Across1024/8192 queries after16k history, complete
 attention medians improve318.2968 to263.5991 ms and3924.3890 to3418.2800 ms.
 Every candidate sample is faster than every control. Repeated rows in the
-larger shape have original-arithmetic coverage only. Default-off provider
-integration proceeds separately; no model TTFT or release gate changes.
+larger shape have original-arithmetic coverage only.
+
+Provider `ea6faff` now passes same-DLL real16384/out32 OFF/ON/ON/OFF checks:
+all128 original GB10 IDs, prompts, logits25.625/error0 and callbacks match.
+TTFT medians improve76932.886950 to73840.139151 ms, saving3092.747799 ms
+(4.02%), with every ON below every OFF. All loads are below30 seconds;
+TPOT shows no gain. A separate q8192/out512 regression passes all512 GB10 IDs
+and confirms that both requested long options remain inactive. Its unpaired
+23251.8877 ms TTFT does not replace the23353.80795 ms qualified q8192 median.
+The new DLL's prefix/larger-context qualification is pending. Defaults,
+packages and all retained performance/release gates remain unchanged.
 [Derivation, complete timing scope and evidence](LONG_FINAL_PV.md).
 
 ## Directional C64 projection components, 2026-09-18
