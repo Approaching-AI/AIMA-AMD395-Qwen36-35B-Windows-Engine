@@ -64,6 +64,20 @@ The later original-K16 last-row OUT comparison is recorded above.
 1542704 bytes, SHA256
 `1cb8d1b7e81e475424ffd6185dcf1e56c8b4961bda175fe1604fd9536becd375`.
 
+## Producer-local gate replay has no established product benefit, 2026-09-18
+
+Source `932b55b` moves original gate/up selection and K16 correction into the
+completed-up matrix tile, reusing existing shared storage. Generated q8192
+improves 123.521191 to 112.554649 ms, with every raw FP32 and BF16 comparison
+passing. Four same-DLL real-model processes also pass all2048 original GB10
+IDs, prompts, logit10.375/error0, actual callbacks and host/owner checks.
+
+OFF/ON TTFT medians are23829.64085/23800.3680ms. The29.27285ms reduction
+(0.1228%) has overlapping observed ranges, so no stable or material product
+benefit is established. Keep the option off and preserve the23902.4417ms
+qualified baseline with MoE9235750. No performance target, package or release
+state changes. [Implementation, all timings and evidence](MOE_PRODUCER_GATE_REPLAY.md).
+
 ## Classified MoE replay rejected for performance, 2026-09-18
 
 Source `078ef52` fuses Row36 preparation with row classification and orders the

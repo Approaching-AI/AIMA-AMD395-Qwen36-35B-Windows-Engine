@@ -19,6 +19,11 @@ GB10 continuation IDs in four runs but regresses median TTFT by 123.57325 ms.
 It remains default off and does not replace the qualified control or package.
 [Native and product evidence](MOE_CLASS_EXPERT_REPLAY.md).
 
+Producer-local gate/up correction `932b55b` also passes all 2048 original
+GB10 continuation IDs. Its four-run median improvement is only 29.27285 ms
+(0.1228%), with overlapping ON/OFF ranges. It remains default off and does
+not replace the baseline or package. [Evidence](MOE_PRODUCER_GATE_REPLAY.md).
+
 The last assembled archive, `v1.0.2-current-stack.20260915.r4`, remains
 unpublished. Its declared cold/prefix, protocol and one-hour soak evidence
 belongs to its original server `4fca963` and R3 runtime assets. The later
