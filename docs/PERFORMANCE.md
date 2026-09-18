@@ -82,6 +82,17 @@ The later original-K16 last-row OUT comparison is recorded above.
 1542704 bytes, SHA256
 `1cb8d1b7e81e475424ffd6185dcf1e56c8b4961bda175fe1604fd9536becd375`.
 
+## Query-row exact PV scheduling, 2026-09-18
+
+Source `d2a275a` groups the original selected columns by query/head and shares
+probability inputs through K128 shared staging or wave broadcasts. All 288
+generated cases, original raw surfaces and complete captured GB10 context
+boundaries pass. Complete q8192 PV medians including V transpose regress
+268.6239 to 334.8396/404.4658 ms; q7169 also regresses. Candidate collection,
+row reset/scatter and complete exact replay are included. Keep both schedules
+outside dispatch and preserve the 23353.80795 ms qualified model control.
+[Implementation, clocks and evidence](ROW_SHARED_PV.md).
+
 ## Exact narrow-domain GDN components, 2026-09-18
 
 Source `a77c043` extends the proved QK finite-domain carry to GDN scores,
