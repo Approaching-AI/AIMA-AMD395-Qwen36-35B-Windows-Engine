@@ -1,5 +1,23 @@
 # Real-model performance
 
+## Exact narrow-domain QK product, 2026-09-18
+
+CK `1c2770d` preserves the original ordered QK arithmetic while removing
+per-group exceptional checks only for complete tiles whose actual operands
+satisfy the proved finite domain. Four same-DLL OFF/ON/ON/OFF model runs
+pass all 2048 original GB10 IDs, prompts, first logits 10.375/error 0, actual
+callbacks and every owner/host check. Whole `ddacdc9`, MoE `9235750`,
+FLA `7b20c90`, CLI `24c4304` and all numerical coefficients remain fixed.
+
+OFF/ON TTFT medians are 24087.2361/23353.80795 ms, with both ON samples below
+both OFF samples. OFF ranges 23805.0149–24369.4573 ms; the median difference
+is an observation, not a universal savings estimate. ON is the current
+experimental control, with 589832 additional workspace bytes. Its load
+median is 21299.42725 ms. No decode gain, broader prompt/context qualification
+or release acceptance follows. Defaults/package remain unchanged; the
+10000 ms and retained 4187.415605 ms targets remain open.
+[Implementation, all four timings and complete evidence](NARROW_DOMAIN_QK.md).
+
 ## Final-layer output liveness, 2026-09-18
 
 Whole source `ddacdc9` computes only the last 2048 OUT values inside the
@@ -19,7 +37,7 @@ CK `df2ea51`, MoE `9235750`, FLA `7b20c90` and CLI `24c4304` are fixed.
 All 2048 original GB10 IDs, prompts, actual callbacks and first logits 10.375
 pass, as do every activation and host check. OFF/ON median TTFT improves
 24160.5272 to 23902.4417 ms, saving 258.0855 ms (1.0682%). Both ON samples
-are below both OFF samples. ON is the current experimental control. Load
+are below both OFF samples. ON became the preceding experimental control. Load
 median is 21281.16445 ms; no decode gain is established. The output change
 adds no workspace. Attention liveness still uses 83886080 bytes of staging.
 
@@ -71,8 +89,7 @@ Complete q8192 attention in source `397ddc8` improves from 605.9593 ms to
 288 generated cases, every raw captured score/output comparison and all
 29364224 original GB10 context values. The selected 2x4/K64 layout preserves
 ordered K16 arithmetic and original fallback. This is a component result;
-same-DLL real-model validation is pending and the qualified 23902.4417 ms
-TTFT baseline remains. [Implementation, all layouts and evidence](NARROW_DOMAIN_QK.md).
+the later same-DLL model qualification is recorded above. [Implementation, all layouts and evidence](NARROW_DOMAIN_QK.md).
 
 ## Inline attention-probability repair, 2026-09-18
 

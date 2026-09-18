@@ -79,6 +79,46 @@ RZ-tree or native matrix routes in its eligible cold scope. Decode, suffix
 and counts above 8192 retain existing dispatch. A mutex-owned 589832-byte
 allocation stores original-input domain flags and two tile counters. Every
 layer/call refreshes classification on the same stream; release frees it.
-The native fixture now calls the production workspace callbacks. Native
-provider and same-DLL q8192/out512 acceptance remain pending. The qualified
-23902.4417 ms model baseline and all release gates remain unchanged.
+The native fixture calls the production workspace callbacks. All 288 boundary
+configurations and the complete captured q8192 comparison pass again at
+source `1c2770d`, including the unchanged arithmetic headers. The selected
+complete attention total is 548.5977 ms versus 607.1770 ms control. The 46
+explicit owner-policy cases and existing exact/fused policies pass ASan/UBSan.
+[Provider build and native checks](../benchmarks/correctness/narrow-domain-qk-provider-native-20260918.json):
+195055 bytes, SHA256
+`8447171ec1b87c8e73f3521822032c178cd5db51d501751b57fbeda02160ead4`.
+
+Four fresh real-model q8192/out512 processes on baiying use one CK DLL and
+change only the narrow-domain flag. Whole `ddacdc9` with final query/output
+liveness, MoE `9235750`, FLA `7b20c90` and CLI `24c4304` remain fixed.
+
+| Order / mode | Load ms | TTFT ms | TPOT ms |
+| --- | ---: | ---: | ---: |
+| 1 / OFF | 21403.5530 | 23805.0149 | 100.776659 |
+| 2 / ON | 21362.0551 | 23365.6036 | 101.032919 |
+| 3 / ON | 21236.7994 | 23342.0123 | 101.322312 |
+| 4 / OFF | 21619.9015 | 24369.4573 | 103.205164 |
+
+Every original prompt, all 2048 GB10 IDs, first logit 10.375/error 0 and actual
+callback pass. Nine cold attention calls activate the candidate; original q1
+calls retain their prior path. The 130 dense, nine coarse OUT, 40 compact MoE
+and 30 adaptive-linear correction counts are unchanged. The first analyzer
+omitted ten normal q1 diagnostics; its corrected observer requires nine cold
+and ten q1 calls equal to the retained baseline. Native data and numerical
+thresholds were unchanged and no model rerun was needed for that correction.
+
+OFF/ON median TTFT is 24087.2361/23353.80795 ms, a 733.42815 ms difference
+(3.0449%). Both ON samples beat both OFF samples. OFF varies appreciably;
+the full observations remain attached and the median difference is not a
+universal savings estimate. ON becomes the next experimental control.
+Its load median is 21299.42725 ms; no decode gain is established. All code
+and package defaults stay off. Other prompts, prefix/long contexts, total
+peak memory and release gates remain open. The 10000 ms first boundary and
+4187.415605 ms retained target remain unchanged.
+
+The 1906176-byte CK DLL is
+`D:/projects/AIMA-public-narrow-domain-qk-provider-20260918-r1/build/narrow-domain-qk-provider/qrt_ck_fmha_sm121.dll`,
+SHA256 `0e889459cc837c3733ef613ff789cbfecd966efecaeb1633c91f41a4410b351d`.
+[Four complete model runs](../benchmarks/correctness/narrow-domain-qk-product-20260918.json):
+1557593 bytes, SHA256
+`fa87b27cacfcc50c67f5e89e47abfed25cce394a12d1947a1ca2193a07187273`.
