@@ -1,0 +1,162 @@
+{
+  "result": {
+    "schema_version": 1,
+    "kind": "actual_completed_failed_layer8_vs_original_gb10",
+    "native_host": "baiying",
+    "native_model": "D:\\models\\Qwen3.6-35B-A3B",
+    "native_provider_commit": "7a33fc99e248faaeebeb9b5ec3064246c133c6e7",
+    "native_command_file": "D:\\projects\\run-long-final-pv-prefix128k-guard-r1.ps1",
+    "native_run_record_sha256": "b4a5eac5726ec6040b89dd7cba8a4206c48d15581734c0089f884f6b70b9cbf3",
+    "native_capture": {
+      "kind": "completed_fla_output_guard_failure",
+      "tokens": 1024,
+      "chunks": 16,
+      "gpu_ms": 297.4851379394531,
+      "host_ms": 297.6137,
+      "guard_ms": 100,
+      "bytes": 54657024,
+      "copy_chunk_bytes": 1048576,
+      "maximum_bytes": 67108864,
+      "stage_completed": true,
+      "guard_accepted": false,
+      "complete": true,
+      "kernel_retried": false,
+      "native_tensor_inputs": false,
+      "numerical_acceptance": false
+    },
+    "native_capture_files": {
+      "capture.json": {
+        "file": "capture.json",
+        "bytes": 357,
+        "sha256": "1df67a7b31dc87e1725311eef408a8a4f8085c5d656cdc8945feaa54cf48842f"
+      },
+      "chunk-state-bf16.bin": {
+        "file": "chunk-state-bf16.bin",
+        "bytes": 16777216,
+        "sha256": "270c79d12aa71654f3ac384b3076ecc508f4be332faf76174fd664d9d2965a2b"
+      },
+      "g-cumsum-f32.bin": {
+        "file": "g-cumsum-f32.bin",
+        "bytes": 131072,
+        "sha256": "111d9d183ec9481b97720e53efe72b1a8ebdaf67ee5280c185d97b146007e090"
+      },
+      "k-bf16.bin": {
+        "file": "k-bf16.bin",
+        "bytes": 4194304,
+        "sha256": "a8e3f366f7aaeb29a0e2ed795220dd06708cb70a1796730886a3fea995a7a3a9"
+      },
+      "output-f32.bin": {
+        "file": "output-f32.bin",
+        "bytes": 16777216,
+        "sha256": "1f9b9b06a3aa38fb5f3e7129cebc028f26f749b2c755acf92592c8e9decb2cd3"
+      },
+      "q-bf16.bin": {
+        "file": "q-bf16.bin",
+        "bytes": 4194304,
+        "sha256": "7342a10add65c7b756bd4d2d053301502be4120daf7fc663b18c2ded6a5f7b28"
+      },
+      "scores-bf16.bin": {
+        "file": "scores-bf16.bin",
+        "bytes": 4194304,
+        "sha256": "6f0bc6f1dcc3e7fae2683536da3561b33ee4e17568f835883e2a4058f679688f"
+      },
+      "v-new-bf16.bin": {
+        "file": "v-new-bf16.bin",
+        "bytes": 8388608,
+        "sha256": "7db0f067f00ec58819ad3eb31edea56ba1e5ac348bf1a0919f96de81ee3c625e"
+      }
+    },
+    "alignment_plan": {
+      "file": "gb10-prefix128-layer8-native-segment-plan-r1.json",
+      "sha256": "7ab8e26835a6efe38cb9460456a3fb4f1a56c8d567a201fc95c8747a94df974f",
+      "record": {
+        "kind": "native_failed_segment_reference_alignment",
+        "native_run": "fla-output-failure-prefix128k-long-prefix131072-suffix1024-out512-mode1-r1",
+        "run_record_sha256": "b4a5eac5726ec6040b89dd7cba8a4206c48d15581734c0089f884f6b70b9cbf3",
+        "stderr_sha256": "939b3a5650e7d9919811df0eda1293e29e839af47b5da9bd742b89b900cc1cbe",
+        "provider_commit": "7a33fc99e248faaeebeb9b5ec3064246c133c6e7",
+        "layer": 8,
+        "transaction_first_position": 114688,
+        "transaction_tokens": 8192,
+        "completed_prior_segments": 5,
+        "segment_tokens": 1024,
+        "segment_offset": 5120,
+        "global_first_position": 119808,
+        "global_end_position_exclusive": 120832,
+        "gate_handoff": "BATCH_MARK resident_linear_attention_exact_gate_handoff layer=8 tokens=8192 gate_bytes=2097152 raw_log_gate=1 raw_log_gate_route=0 gb10_gate_lut=1",
+        "prior_completed_output_stages": [
+          "FLA_AUX stage=output_batched tokens=1024 chunks=16 calls=2 sequence_ms=3.231880 guard_ms=100 cooperative_lanes=1",
+          "FLA_AUX stage=output_batched tokens=1024 chunks=16 calls=2 sequence_ms=3.272149 guard_ms=100 cooperative_lanes=1",
+          "FLA_AUX stage=output_batched tokens=1024 chunks=16 calls=2 sequence_ms=3.284450 guard_ms=100 cooperative_lanes=1",
+          "FLA_AUX stage=output_batched tokens=1024 chunks=16 calls=2 sequence_ms=3.298540 guard_ms=100 cooperative_lanes=1",
+          "FLA_AUX stage=output_batched tokens=1024 chunks=16 calls=2 sequence_ms=3.289470 guard_ms=100 cooperative_lanes=1"
+        ],
+        "last_completed_chunk": "BATCH_MARK qwen36_chunked_prefill_chunk index=13 first_position=106496 input_tokens=8192 history_tokens=114688 sampled_to_caller=0 elapsed_ms=577520",
+        "capture_manifest_sha256": "8f357c5486dafdf0f0428f8d70d93fe6f3d567a589b8b04c708f1cf3f40e34e8",
+        "comparison_pending": true,
+        "inference_acceptance": false
+      },
+      "basis": "Five completed1024-token output segments follow the layer8 gate handoff in the owner transaction beginning114688. The retained provider submits segments in ascending token order; the failed sixth segment starts at5120 within that transaction."
+    },
+    "reference": {
+      "authority_host": "gb10-4t",
+      "runtime_host": "aitopatom-66c4",
+      "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+      "source_commit": "1c9511395bf7f9dcc78a8aedcb05c700feee0568",
+      "dependency_source_commit": "9b2a99edeede83ce77a4b775a509256f65894a7f",
+      "command_file": "run-qrt-gb10-prefix128-layer8-20260919-r1.py",
+      "command_file_sha256": "45046b4d857b7dba1944428392b80e8c91fdbdce26de1887f408e76efb36f996",
+      "analysis_sha256": "c769101a2b1d8a1917f11727665d3627cd5c9d4b581f7b7ab90011338f98c307",
+      "capture_sha256": "47a9f7e7eed7d2bb47fbf1cedd2f2c9a49b3bdfc24d1351b40ebaab8376ef937",
+      "original512_and_full_first_logits_reproduced": true,
+      "core_file": {
+        "file": "txn0014-full-prefill-linear-08-core-bf16.bin",
+        "dtype": "bf16",
+        "shape": [
+          8192,
+          4096
+        ],
+        "bytes": 67108864,
+        "sha256": "c060618ff33efa4cc813ff5f8cd1f408fcad76426fab92d329901f1caf1670b2",
+        "transaction": 14,
+        "label": "full-prefill-linear-08-core",
+        "local_file": "qrt-gb10-prefix128-layer8-20260919-r1/capture/long-prefix131072-owner-out512/txn0014-full-prefill-linear-08-core-bf16.bin",
+        "nonfinite_elements": 0
+      }
+    },
+    "comparison": {
+      "tokens": 1024,
+      "elements": 4194304,
+      "native_bf16_extension_exact": true,
+      "native_bf16_sha256": "45fc5f684d45cbf27e98b144d4ac7010367db1ae0cef74d231a9f7f4885fdbdb",
+      "reference_slice_bf16_sha256": "45fc5f684d45cbf27e98b144d4ac7010367db1ae0cef74d231a9f7f4885fdbdb",
+      "bit_mismatches": 0,
+      "maximum_absolute_error": 0.0,
+      "relative_l2": 0.0,
+      "first_differences": [],
+      "all_completed_failed_outputs_match_original_gb10": true
+    },
+    "comparator": {
+      "file": "compare_failed_layer8_to_gb10_r1.py",
+      "sha256": "bb5185e41d8d894e10ccc1dfb7d3220c507a42db1a9546e33fba79b6f6827f3c"
+    },
+    "captured_native_values_supplied_to_reference": false,
+    "additional_native_gpu_execution": false,
+    "reference_is_inference_compute_input": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "delay_root_cause_identified": false,
+    "release_qualified": false,
+    "scope": "Direct comparison of the original failed-run completed output to an independently captured original GB10 model window. This is external component evidence only; the failed native process produced no model output tokens, and full-model128k acceptance requires its own original prompt/token/logit boundary."
+  },
+  "original_failed_run": {
+    "file": "benchmarks/correctness/fla-output-failure-prefix128k-capture-20260919.json",
+    "bytes": 163176,
+    "sha256": "0d6b3c3becee398b054034af4dcd2b6148d6d77e657103fd568464537efca089"
+  },
+  "original_reference": {
+    "file": "benchmarks/correctness/gb10-prefix128-layer8-window-20260919.json",
+    "bytes": 171610,
+    "sha256": "f6fc2475f50d3c020c6c585083d27160dc99836925decdf4789f496fd11ef4cd"
+  }
+}

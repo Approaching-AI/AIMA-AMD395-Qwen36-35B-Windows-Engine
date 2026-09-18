@@ -58,3 +58,25 @@ matches bitwise, the seeded repeat is stable, and the zero-state control
 differs. The [native component evidence](../benchmarks/correctness/fla-completed-delay-native-diagnosis-20260919.json)
 pins the separate tool and provider identities. This remains a component
 comparison; full-model Windows128k qualification is pending.
+
+The same independent capture now covers layer8 at positions114688–122879.
+All 576 output IDs across the original owner and two controls pass, with
+zero first-logit error and the original full owner first-logit tensor.
+Eight finite tensors total207093760 bytes. Source, dependency, numerical
+configuration and observer remain unchanged. Command:
+`run-qrt-gb10-prefix128-layer8-20260919-r1.py` on `aitopatom-66c4`.
+
+The post-run wrapper mistakenly looked for `linear-8`; the observer writes
+`linear-08`. Its original failed validation record is preserved. A bounded
+download recovered the eight already captured files using their original
+hashes, and local verification checks all1619 files and the actual prompt
+transaction. The model was not rerun. The
+[layer8 window evidence](../benchmarks/correctness/gb10-prefix128-layer8-window-20260919.json)
+includes this recovery and the independently recomputed qualification.
+
+The Windows failure capture's completed output at positions119808–120831
+matches this reference slice bitwise: all4194304 cells, maximum error0.
+The [direct failed-output comparison](../benchmarks/correctness/fla-failed-layer8-gb10-output-comparison-20260919.json)
+binds the original Windows log, segment order and captured values. It
+provides external component evidence for the completed-latency repair;
+full-model Windows128k qualification remains separate.

@@ -87,6 +87,17 @@ This covers the earlier layer33 failure location, not the captured layer8
 segment or the full128k model. See the [native diagnosis and independent component evidence](../benchmarks/correctness/fla-completed-delay-native-diagnosis-20260919.json)
 and [original GB10 window](../benchmarks/correctness/gb10-prefix128-layer33-window-20260919.json).
 
+The actual failed layer8 output also matches an independent GB10 capture.
+The five completed 1024-token segments following the layer8 handoff locate
+the failed sixth segment at original prompt positions119808–120831. All
+4194304 BF16 output cells match the corresponding original GB10 core slice
+bitwise, with zero maximum error. The GB10 run independently reproduces all
+512 owner IDs and the full first-logit tensor; both immutable controls pass.
+No native tensor was supplied to GB10. This directly checks the output that
+the old 100 ms guard rejected, without identifying the delay's cause or
+qualifying the unfinished native token loop. See the
+[failed-output comparison](../benchmarks/correctness/fla-failed-layer8-gb10-output-comparison-20260919.json).
+
 Historical short-context qualification remains attached to its exact source.
 Provider `2b33665` passes captured q7169, full q8192/out512 and the original
 16k prefix-owner/suffix transactions. The16k run demonstrates a negative
