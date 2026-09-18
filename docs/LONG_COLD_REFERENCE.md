@@ -32,3 +32,22 @@ not captured in this run; existing long-prefix transaction evidence is separate.
 
 These references enable the Windows cold out512 checks. They do not establish
 Windows correctness or performance at any newly captured length.
+
+A separate bounded capture now observes the original layer33 transaction at
+positions114688–122879 of the same131072-token prompt. The pinned read-only
+observer saves Q/K/V, gates, beta, initial/final recurrent states and the core
+output, totaling207093760 bytes. Every value is finite. Its8192 input IDs
+match that exact slice of the original prompt. All512 outputs and the complete
+first-logit tensor reproduce the earlier independent reference; both immutable
+controls also pass. The original model methods, numerical configuration and
+frozen autotune inputs remain unchanged. This capture receives no Windows
+tensor as input.
+
+The [layer33 window evidence](../benchmarks/correctness/gb10-prefix128-layer33-window-20260919.json)
+binds all1619 downloaded files, the original transaction14, eight tensor
+identities, prompt/output checks, command and source hashes. The command is
+`run-qrt-gb10-prefix128-layer33-20260919-r1.py` on `aitopatom-66c4`; source and
+dependency commits are unchanged from the table above. Host, deadline and GPU
+cleanup checks pass. It supplies a GB10 comparison for the repeated Windows
+delay location, without claiming Windows128k acceptance or identifying the
+delay's cause.
