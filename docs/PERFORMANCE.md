@@ -107,6 +107,23 @@ The later original-K16 last-row OUT comparison is recorded above.
 1542704 bytes, SHA256
 `1cb8d1b7e81e475424ffd6185dcf1e56c8b4961bda175fe1604fd9536becd375`.
 
+## GDN segments on independent streams, 2026-09-18
+
+Isolated source `1bf6755` retains the exact paired-score/WU/shared-arena
+state8/output kernels and overlaps independent1024-token segments using
+HIP events. State updates remain ordered. All288 safety configurations and
+every original q7169/extended q8192 score, output and state boundary pass.
+The initial safety run exposed a missing join to the default-stream completion
+helper; both the failure and corrected dependency remain recorded.
+
+At q8192, serial/two/three-stream medians are86.7021/78.5150/77.3428ms with
+U=V and86.3189/77.4624/78.2368ms with separate U. All candidate samples beat
+their corresponding controls. The fixture includes all four stages and event
+operations but supplies normalization, gate scans, KKT and inverse inputs.
+Whole-invocation intermediate storage differs from the production single-segment
+owner. Keep the result as an isolated building block, without promoting a
+model TTFT or release result. [Design, scopes and complete evidence](PIPELINED_GDN.md).
+
 ## Sparse byte-metadata projection, 2026-09-18
 
 Source `8ae7879` combines original candidate tile reuse with the proved
