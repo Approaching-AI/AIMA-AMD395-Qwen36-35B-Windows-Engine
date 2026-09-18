@@ -1958,6 +1958,7 @@ struct ProviderState {
     uint32_t *moe_compacted_count = nullptr;
     bool moe_expert_order = false, moe_expert_order_active = false;
     bool moe_class_expert_order = false, moe_class_expert_order_active = false;
+    bool moe_producer_gate = false, moe_producer_gate_active = false;
     uint32_t *moe_half_input_classes = nullptr, *moe_half_weight_classes = nullptr;
     uint32_t *moe_expert_order_storage = nullptr;
     uint32_t sm121_moe_absolute_error_ppb = 0u;
@@ -14063,6 +14064,44 @@ hipError_t launch_lds_b_compact_tail_down(
 }
 #endif
 
+bool configure_moe_producer_gate() {
+    const char* value = std::getenv("QRT_QWEN36_MOE_PRODUCER_GATE_REPLAY");
+    if (value && *value && std::strcmp(value,"0") && std::strcmp(value,"1")) {
+        set_error_text("QRT_QWEN36_MOE_PRODUCER_GATE_REPLAY must be 0 or 1"); return false;
+    }
+    g_state.moe_producer_gate = value && std::strcmp(value,"1") == 0;
+    if (!g_state.moe_producer_gate) return true;
+    if (!QRT_MOE_PRODUCER_GATE_SUPPORTED || !g_state.sm121_routed_hawkeye ||
+        !g_state.compact_routed_hawkeye || !g_state.prevalidated_float || !g_state.staged_half_replay ||
+        !g_state.sm121_moe_absolute_error_ppb || g_state.partition_replay ||
+        g_state.scaled_significand_fallback || g_state.parallel_routed_gate || g_state.moe_class_expert_order) {
+        set_error_text("producer gate requires original M64 overflow32 serial N32 staged replay and positive original L2 bounds");
+        return false;
+    }
+    const char* audit = std::getenv("QRT_QWEN36_MOE_CONSUMER_INTERVAL_AUDIT");
+    if (audit && *audit && std::strcmp(audit,"0")) {
+        set_error_text("producer gate does not implement the optional consumer interval audit"); return false;
+    }
+    return true;
+}
+
+bool make_moe_producer_gate_bounds(MoeCorrectionBounds* bounds) {
+    const float* input = g_state.moe_l2[static_cast<size_t>(MoeL2::Input)];
+    const float* weights = g_state.moe_l2[static_cast<size_t>(MoeL2::RoutedGateUp)];
+    if (!bounds || !g_state.moe_producer_gate_active || !g_state.staged_half_replay_active ||
+        !g_state.prevalidated_float_active || !g_state.sm121_moe_absolute_error_ppb ||
+        !input || !weights || !g_state.prepared_replay_inputs || !g_state.prepared_replay_weights) {
+        set_error_text("producer gate requires current norm and lossless staged operand views"); return false;
+    }
+    *bounds = MoeCorrectionBounds{input, weights,
+        static_cast<float>(g_state.sm121_moe_absolute_error_ppb) * 1.0e-9f, 0u};
+    bounds->prepared_input = g_state.prepared_replay_inputs;
+    bounds->prepared_weights = g_state.prepared_replay_weights;
+    bounds->staged_half_replay = true;
+    bounds->prevalidated_float = true;
+    return true;
+}
+
 bool launch_routed_matrices_after_input_conversion(
     const uint16_t *gate_up_bf16,
     const uint16_t *down_bf16,
@@ -14086,6 +14125,7 @@ bool launch_routed_matrices_after_input_conversion(
             g_state.staged_half_replay_active = g_state.staged_half_replay && g_state.prevalidated_float_active;
             g_state.moe_expert_order_active = g_state.moe_expert_order && tokens == kTokens;
             g_state.moe_class_expert_order_active = g_state.moe_class_expert_order && tokens == kTokens;
+            g_state.moe_producer_gate_active = g_state.moe_producer_gate && tokens == kTokens;
         }
         ~PreparedReplayScope() {
             g_state.prepared_replay_active = false; g_state.float_replay_active = false;
@@ -14093,8 +14133,11 @@ bool launch_routed_matrices_after_input_conversion(
             g_state.staged_half_replay_active = false;
             g_state.moe_expert_order_active = false;
             g_state.moe_class_expert_order_active = false;
+            g_state.moe_producer_gate_active = false;
         }
     } prepared_replay_scope(token_count);
+    if (g_state.moe_producer_gate_active)
+        std::fprintf(stderr,"BATCH_MARK moe_producer_gate tokens=%u local_queue_bytes=6144 extra_workspace_bytes=0 reuse_matrix_lds=1 wait_native_up=1 original_predicates=1 original_k16=1 original_stream=1 profile_matrix_includes_correction=1\n", token_count);
     if (g_state.moe_class_expert_order_active)
         std::fprintf(stderr,"BATCH_MARK moe_class_expert_order tokens=%u buckets=768 classes=3 permutation_only=1 scratch_bytes=%zu class_bytes=%zu fused_prepare=1 host_count_reads=0 original_candidates=1 original_k16=1 original_stream=1\n",
             token_count,qrt_moe_class_expert_order::bytes(size_t(g_state.moe_compaction_blocks)*kNativeThreads),
@@ -14129,6 +14172,8 @@ bool launch_routed_matrices_after_input_conversion(
     if (!launch_moe_l2(g_state.input_bf16, MoeL2::Input, token_count, kHidden, stream) ||
         !launch_moe_l2(gate_up_bf16, MoeL2::RoutedGateUp,
                        kExperts * 2u * kIntermediate, kHidden, stream)) return false;
+    MoeCorrectionBounds producer_gate_bounds{};
+    if (g_state.moe_producer_gate_active && !make_moe_producer_gate_bounds(&producer_gate_bounds)) return false;
     if (routed_profile != nullptr) {
         const hipError_t status = hipEventRecord(
             (*routed_profile)[static_cast<size_t>(RoutedProfilePoint::GateNorm)], stream);
@@ -14394,7 +14439,12 @@ bool launch_routed_matrices_after_input_conversion(
 #if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_UP_N32
             native_wmma_gate_up_silu_lds_b_parallel_n32_kernel,
 #elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES
+#if QRT_MOE_PRODUCER_GATE_SUPPORTED
+            (g_state.moe_producer_gate_active ? native_wmma_gate_up_silu_lds_b_split_passes_kernel<true> :
+                native_wmma_gate_up_silu_lds_b_split_passes_kernel<false>),
+#else
             native_wmma_gate_up_silu_lds_b_split_passes_kernel<false>,
+#endif
 #else
             native_wmma_gate_up_silu_lds_b_kernel,
 #endif
@@ -14458,7 +14508,8 @@ bool launch_routed_matrices_after_input_conversion(
             routed_projection_debug_token
 #endif
 #if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES && !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_UP_N32
-            , MoeCorrectionBounds{}, 0u, 0u
+            , producer_gate_bounds, g_state.routed_gate_hawkeye_low_exponent_threshold,
+            g_state.routed_up_hawkeye_low_exponent_threshold
 #endif
         );
 #if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
@@ -14772,7 +14823,9 @@ bool launch_routed_matrices_after_input_conversion(
     // The retained conditional AOT uses an FP32 reduction tree. The SM121
     // component boundary instead requires the characterized group-16 MMA
     // accumulator and a materialized BF16 SiLU value before multiplication.
-    if (status == hipSuccess &&
+    if (status == hipSuccess && g_state.moe_producer_gate_active && routed_profile != nullptr)
+        status = hipEventRecord((*routed_profile)[static_cast<size_t>(RoutedProfilePoint::GateCorrection)], stream);
+    if (status == hipSuccess && !g_state.moe_producer_gate_active &&
         (!QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE || g_state.sm121_routed_hawkeye)) {
         const size_t projection_elements =
             static_cast<size_t>(token_count) * kTopK * kIntermediate;
@@ -17360,6 +17413,7 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         QRT_MOE_ROUTED_REPLAY_LANES != 4u)) {
         set_error_text("class expert ordering requires original compact staged-half expert replay"); return 0;
     }
+    if (!configure_moe_producer_gate()) return 0;
     g_state.routed_up_projection_hawkeye_midpoint_radius =
         requested_routed_up_projection_hawkeye_midpoint_radius();
     g_state.routed_up_hawkeye_low_exponent_threshold =
