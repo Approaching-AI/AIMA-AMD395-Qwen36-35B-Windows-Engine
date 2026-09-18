@@ -107,6 +107,24 @@ The later original-K16 last-row OUT comparison is recorded above.
 1542704 bytes, SHA256
 `1cb8d1b7e81e475424ffd6185dcf1e56c8b4961bda175fe1604fd9536becd375`.
 
+## Complete GDN provider pipeline, 2026-09-18
+
+Source `cf86fef` separates complete segment preparation, ordered state and
+output using three independent storage slots and HIP events. Thirteen native
+probes and the host ownership/seed/tail checks pass. The memory-only revision
+fixes the exported query to include all179945472 extra bytes; all32 GPU kernels
+retain identical executable sections and metadata across that revision.
+
+Four fresh same-DLL model runs pass all2048 original GB10 IDs, prompts, first
+logits10.375/error0, actual callbacks and every owner check. OFF/three-stream/
+two-stream/OFF TTFTs are23273.0217/23338.3490/23468.8446/23278.0577ms.
+Both enabled samples are slower than both controls. All30 layers activate,
+and all dense/coarse/adaptive/MoE candidate identities match. Loads stay below
+21391ms. Keep the schedule disabled and preserve the23353.80795ms qualified
+control; no decode, other-context, package or release gain is established.
+
+[Ownership, native evidence and complete model runs](PIPELINED_GDN_PROVIDER.md).
+
 ## Compact matrix QK with wave fallback, 2026-09-18
 
 Source `7c9628c` retains exact ordered carries with 60-byte lossless rows,
