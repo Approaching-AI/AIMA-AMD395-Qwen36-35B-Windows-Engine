@@ -28,6 +28,7 @@ typedef struct qrt_product_options_t {
     const char *tokens_path;
     const char *checkpoint_owner_path;
     const char *expected_output_path;
+    const char *expected_owner_output_path;
     const char *env_path;
     const char *provider_dll;
     size_t output_token_capacity;
@@ -49,6 +50,7 @@ typedef struct qrt_product_stream_t {
     uint64_t last_request_elapsed_ns;
     uint64_t request_start_ns;
     size_t request_index;
+    int owner_continuation;
     int failed;
 } qrt_product_stream_t;
 
@@ -70,6 +72,7 @@ static void qrt_product_usage(const char *program) {
         "[--prefix-tokens N] [--prefix-hits N] "
         "[--checkpoint-owner FILE] "
         "[--prefix-negative-guard] [--expected-output FILE] "
+        "[--expected-owner-output FILE] "
         "[--expected-prompt-fnv HEX] [--expected-output-fnv HEX] "
         "[--env-file FILE] [--provider-dll FILE] [--ignore-eos]\n",
         program
@@ -303,6 +306,8 @@ static int qrt_product_parse_options(
             options.checkpoint_owner_path = value;
         } else if (strcmp(name, "--expected-output") == 0) {
             options.expected_output_path = value;
+        } else if (strcmp(name, "--expected-owner-output") == 0) {
+            options.expected_owner_output_path = value;
         } else if (strcmp(name, "--env-file") == 0) {
             options.env_path = value;
         } else if (strcmp(name, "--provider-dll") == 0) {
@@ -359,7 +364,10 @@ static int qrt_product_parse_options(
         (options.prefix_token_count == 0u &&
          (options.prefix_hit_count != 1u ||
           options.prefix_negative_guard ||
-          options.checkpoint_owner_path != NULL))) {
+          options.checkpoint_owner_path != NULL ||
+          options.expected_owner_output_path != NULL)) ||
+        (options.expected_owner_output_path != NULL &&
+         options.checkpoint_owner_path != NULL)) {
         return 0;
     }
     *out_options = options;
@@ -654,7 +662,9 @@ static int QRT_CDECL qrt_product_stream_callback(
     stream->tokens[stream->callback_count++] = event->token_id;
     stream->last_callback_wall_ns = callback_wall_ns;
     stream->last_request_elapsed_ns = event->request_elapsed_ns;
-    fputs("{\"type\":\"token\",\"request_index\":", stdout);
+    fputs(stream->owner_continuation
+        ? "{\"type\":\"owner_token\",\"request_index\":"
+        : "{\"type\":\"token\",\"request_index\":", stdout);
     fprintf(
         stdout,
         "%zu,\"index\":%u,\"phase\":\"%s\",\"token_id\":%u,"
@@ -811,6 +821,144 @@ static int qrt_product_record_prefix_seed(
     return passed;
 }
 
+/* Continue the actual cold owner's first token through its restored cache.
+ * Expected IDs are comparison-only. This separately timed transaction does
+ * not represent a single cold request producing all of the owner outputs. */
+static int QRT_CDECL qrt_product_owner_stream_callback(
+    void *user_data,
+    const qrt_token_stream_event_v1_t *event
+) {
+    qrt_product_stream_t *stream = (qrt_product_stream_t *)user_data;
+    if (stream == NULL || event == NULL ||
+        event->struct_size != (uint32_t)sizeof(*event) ||
+        event->abi_version != QRT_TOKEN_STREAM_EVENT_ABI_VERSION ||
+        event->phase != (stream->callback_count == 0u
+            ? QRT_TOKEN_STREAM_PHASE_PREFILL : QRT_TOKEN_STREAM_PHASE_DECODE)) {
+        if (stream != NULL) stream->failed = 1;
+        return 0;
+    }
+    return qrt_product_stream_callback(user_data, event);
+}
+
+static int qrt_product_verify_owner_continuation(
+    qrt_engine_t *engine,
+    const uint32_t *input_tokens,
+    size_t prefix_token_count,
+    const qrt_qwen36_resident_prefix_cache_fallback_result_v1_t *seed,
+    const uint32_t *expected_tokens,
+    size_t expected_count,
+    uint64_t *out_wall_ns
+) {
+    uint32_t *prompt = NULL;
+    uint32_t outputs[QRT_QWEN36_WHOLE_PROVIDER_MAX_OUTPUT_TOKENS] = {0};
+    qrt_qwen36_resident_prefix_cache_result_v1_t *result = NULL;
+    qrt_product_stream_t stream;
+    qrt_status_t status;
+    uint64_t prompt_digest, owner_digest, tail_digest, output_digest;
+    size_t index, observed_count;
+    int contract_pass, inputs_unchanged, callbacks_match, tokens_match;
+    int callbacks_before_return, logit_available, passed;
+    float first_logit = 0.0f;
+    if (out_wall_ns == NULL) return 0;
+    *out_wall_ns = UINT64_C(0);
+    if (engine == NULL || input_tokens == NULL || seed == NULL ||
+        expected_tokens == NULL || prefix_token_count == 0u ||
+        prefix_token_count >= QRT_PRODUCT_MAX_INPUT_TOKENS ||
+        expected_count < 2u ||
+        expected_count > QRT_QWEN36_WHOLE_PROVIDER_MAX_OUTPUT_TOKENS ||
+        !seed->completed || !seed->fallback_invoked || !seed->retry_invoked ||
+        seed->seed_output_token_count != 1u ||
+        seed->seed_output_token >= QRT_QWEN36_VOCAB_SIZE ||
+        seed->full_prefill_token_count != prefix_token_count ||
+        !seed->hit_result.completed || !seed->hit_result.state_restored) {
+        return 0;
+    }
+    for (index = 0u; index < expected_count; ++index) {
+        if (expected_tokens[index] >= QRT_QWEN36_VOCAB_SIZE) return 0;
+    }
+    prompt = (uint32_t *)malloc((prefix_token_count + 1u) * sizeof(*prompt));
+    result = (qrt_qwen36_resident_prefix_cache_result_v1_t *)calloc(1u, sizeof(*result));
+    if (prompt == NULL || result == NULL) {
+        free(result); free(prompt); return 0;
+    }
+    memcpy(prompt, input_tokens, prefix_token_count * sizeof(*prompt));
+    prompt[prefix_token_count] = seed->seed_output_token;
+    outputs[0] = seed->seed_output_token;
+    owner_digest = qrt_product_fnv1a64_bytes(prompt, prefix_token_count * sizeof(*prompt));
+    prompt_digest = qrt_product_fnv1a64_bytes(prompt, (prefix_token_count + 1u) * sizeof(*prompt));
+    memset(&stream, 0, sizeof(stream));
+    stream.owner_continuation = 1;
+    stream.request_start_ns = qrt_product_now_ns();
+    status = qrt_engine_request_tokens_prefix_stream_v1(
+        engine, prompt, prefix_token_count + 1u, prefix_token_count,
+        outputs + 1u, expected_count - 1u, result,
+        qrt_product_owner_stream_callback, &stream);
+    *out_wall_ns = qrt_product_elapsed_ns(stream.request_start_ns);
+    /* Never trust a failed provider's returned count for a host memory read. */
+    observed_count = 1u + (result->output_token_count <= expected_count - 1u
+        ? result->output_token_count : 0u);
+    tail_digest = qrt_product_fnv1a64_bytes(outputs + 1u, (observed_count - 1u) * sizeof(*outputs));
+    output_digest = qrt_product_fnv1a64_bytes(outputs, observed_count * sizeof(*outputs));
+    inputs_unchanged = prompt[prefix_token_count] == seed->seed_output_token &&
+        memcmp(prompt, input_tokens, prefix_token_count * sizeof(*prompt)) == 0;
+    contract_pass = status == QRT_STATUS_OK && result->completed &&
+        result->provider_invoked && result->exact_prefix_match &&
+        result->copy_on_write_transaction && result->state_restored &&
+        result->prefix_token_count == prefix_token_count &&
+        result->suffix_token_count == 1u &&
+        result->output_token_count == expected_count - 1u &&
+        result->input_token_ids_fnv1a64 == prompt_digest &&
+        result->output_token_ids_fnv1a64 == tail_digest;
+    callbacks_match = !stream.failed &&
+        stream.callback_count == expected_count - 1u &&
+        result->output_token_count == stream.callback_count;
+    tokens_match = observed_count == expected_count;
+    for (index = 0u; index < observed_count; ++index) {
+        if (outputs[index] != expected_tokens[index]) tokens_match = 0;
+        if (index != 0u && outputs[index] != stream.tokens[index - 1u]) callbacks_match = 0;
+    }
+    callbacks_before_return = stream.callback_count != 0u &&
+        stream.last_callback_wall_ns <= *out_wall_ns;
+    logit_available = observed_count > 1u && qrt_prefix_first_logit_read(
+        result->reserved, outputs[1], &first_logit);
+    passed = contract_pass && inputs_unchanged && callbacks_match &&
+        tokens_match && callbacks_before_return && logit_available;
+    fprintf(stdout,
+        "{\"type\":\"prefix_owner_continuation\",\"status\":\"%s\","
+        "\"owner_input_tokens\":%zu,\"owner_first_token\":%u,"
+        "\"input_tokens\":%zu,\"suffix_tokens\":1,"
+        "\"expected_output_tokens\":%zu,\"output_tokens\":%zu,"
+        "\"provider_output_tokens\":%u,\"provider_status\":%d,"
+        "\"contract_pass\":%s,\"state_restored\":%s,"
+        "\"input_unchanged\":%s,\"expected_output_tokens_match\":%s,"
+        "\"stream_callback_count\":%zu,\"stream_matches_output\":%s,"
+        "\"callbacks_before_return\":%s,"
+        "\"owner_prompt_token_ids_fnv1a64\":\"%016" PRIx64 "\","
+        "\"prompt_token_ids_fnv1a64\":\"%016" PRIx64 "\","
+        "\"output_token_ids_fnv1a64\":\"%016" PRIx64 "\","
+        "\"wall_ms\":%.6f,\"continuation_first_raw_logit_available\":%s,"
+        "\"continuation_first_raw_logit\":",
+        passed ? "pass" : "fail", prefix_token_count, seed->seed_output_token,
+        prefix_token_count + 1u, expected_count, observed_count,
+        result->output_token_count, (int)status,
+        contract_pass ? "true" : "false", result->state_restored ? "true" : "false",
+        inputs_unchanged ? "true" : "false", tokens_match ? "true" : "false",
+        stream.callback_count, callbacks_match ? "true" : "false",
+        callbacks_before_return ? "true" : "false", owner_digest,
+        prompt_digest, output_digest, (double)*out_wall_ns / 1000000.0,
+        logit_available ? "true" : "false");
+    if (logit_available) fprintf(stdout, "%.9g", (double)first_logit);
+    else fputs("null", stdout);
+    fputs(",\"scope\":\"cold_owner_first_token_then_restored_prefix_continuation\","
+        "\"output_token_ids\":", stdout);
+    qrt_product_print_tokens(outputs, observed_count);
+    fputs("}\n", stdout);
+    fflush(stdout);
+    passed = passed && !ferror(stdout);
+    free(result); free(prompt);
+    return passed;
+}
+
 static int qrt_product_run(const qrt_product_options_t *options) {
     uint32_t *input_tokens = NULL;
     size_t input_token_count = 0u;
@@ -821,6 +969,8 @@ static int qrt_product_run(const qrt_product_options_t *options) {
     int checkpoint_owner_logit_valid = 0;
     uint32_t *expected_output_tokens = NULL;
     size_t expected_output_token_count = 0u;
+    uint32_t *expected_owner_output_tokens = NULL;
+    size_t expected_owner_output_token_count = 0u;
     uint32_t output_tokens[QRT_QWEN36_WHOLE_PROVIDER_MAX_OUTPUT_TOKENS];
     uint32_t guard_output_tokens[QRT_QWEN36_WHOLE_PROVIDER_MAX_OUTPUT_TOKENS];
     size_t output_token_count = 0u;
@@ -838,6 +988,7 @@ static int qrt_product_run(const qrt_product_options_t *options) {
     uint64_t engine_create_start_ns;
     uint64_t engine_create_wall_ns;
     uint64_t seed_wall_ns = UINT64_C(0);
+    uint64_t owner_continuation_wall_ns = UINT64_C(0);
     uint64_t request_wall_ns;
     uint64_t prompt_digest;
     uint64_t output_digest;
@@ -968,6 +1119,25 @@ static int qrt_product_run(const qrt_product_options_t *options) {
         free(input_tokens);
         return 3;
     }
+    if (options->expected_owner_output_path != NULL) {
+        int valid_owner_output = qrt_product_parse_token_array(
+            options->expected_owner_output_path, &expected_owner_output_tokens,
+            &expected_owner_output_token_count);
+        valid_owner_output = valid_owner_output &&
+            expected_owner_output_token_count >= 2u &&
+            expected_owner_output_token_count <= QRT_QWEN36_WHOLE_PROVIDER_MAX_OUTPUT_TOKENS;
+        for (index = 0u; valid_owner_output && index < expected_owner_output_token_count; ++index) {
+            if (expected_owner_output_tokens[index] >= QRT_QWEN36_VOCAB_SIZE) valid_owner_output = 0;
+        }
+        if (!valid_owner_output) {
+            fputs("expected owner output must contain 2 through 512 valid token IDs\n", stderr);
+            free(expected_owner_output_tokens);
+            free(checkpoint_owner_tokens);
+            free(expected_output_tokens);
+            free(input_tokens);
+            return 3;
+        }
+    }
     memset(&config, 0, sizeof(config));
     config.model_path = options->model_path;
     config.context_tokens = checkpoint_owner_count > input_token_count
@@ -979,6 +1149,7 @@ static int qrt_product_run(const qrt_product_options_t *options) {
             options->model_path,
             &preload
         )) {
+        free(expected_owner_output_tokens);
         free(checkpoint_owner_tokens);
         free(expected_output_tokens);
         free(input_tokens);
@@ -995,6 +1166,7 @@ static int qrt_product_run(const qrt_product_options_t *options) {
             qrt_strerror(status)
         );
         qrt_product_release_preload(&preload);
+        free(expected_owner_output_tokens);
         free(checkpoint_owner_tokens);
         free(expected_output_tokens);
         free(input_tokens);
@@ -1089,6 +1261,16 @@ static int qrt_product_run(const qrt_product_options_t *options) {
             exit_code = 6;
             goto cleanup;
         }
+    }
+
+    if (expected_owner_output_tokens != NULL &&
+        !qrt_product_verify_owner_continuation(
+            engine, input_tokens, options->prefix_token_count, prefix_seed_result,
+            expected_owner_output_tokens, expected_owner_output_token_count,
+            &owner_continuation_wall_ns)) {
+        fputs("cold owner continuation failed the token/stream/state contract\n", stderr);
+        exit_code = 6;
+        goto cleanup;
     }
 
     request_count = options->prefix_token_count != 0u
@@ -1375,6 +1557,9 @@ static int qrt_product_run(const qrt_product_options_t *options) {
         "\"provider_preload_dll_load_ms\":%.6f,"
         "\"provider_preload_stored_entries\":%" PRIu64 ","
         "\"engine_create_ms\":%.6f,\"prefix_seed_ms\":%.6f,"
+        "\"prefix_owner_continuation_requested\":%s,"
+        "\"prefix_owner_continuation_tokens\":%zu,"
+        "\"prefix_owner_continuation_ms\":%.6f,"
         "\"request_wall_ms\":%.6f,\"ttft_ms\":%.6f,"
         "\"provider_ttft_ms\":%.6f,"
         "\"prefill_tokens_per_second\":%.6f,"
@@ -1410,6 +1595,9 @@ static int qrt_product_run(const qrt_product_options_t *options) {
         preload.stored_entry_count,
         (double)engine_create_wall_ns / 1000000.0,
         (double)seed_wall_ns / 1000000.0,
+        options->expected_owner_output_path != NULL ? "true" : "false",
+        expected_owner_output_token_count,
+        (double)owner_continuation_wall_ns / 1000000.0,
         (double)request_wall_ns / 1000000.0,
         (double)stream.first_callback_wall_ns / 1000000.0,
         (double)ttft_ns / 1000000.0,
@@ -1502,6 +1690,7 @@ cleanup:
     free(report);
     free(prefix_seed_result);
     free(prefix_result);
+    free(expected_owner_output_tokens);
     free(expected_output_tokens);
     free(checkpoint_owner_tokens);
     free(input_tokens);

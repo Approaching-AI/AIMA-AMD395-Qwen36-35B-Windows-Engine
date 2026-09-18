@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "utc": "2026-09-18T13:28:25.225175+00:00",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "kind": "product_owner_continuation_host_validation",
+  "parent_commit": "d035216dd76ac9b7c8336a72943b2390a20002c5",
+  "source_sha256": {
+    "native/src/product_cli.c": "e937d3ea5fcb6e4752487e15fc4ad38ca1c5f6f738c1a944dcfdf809708c319e",
+    "tests/test_product_owner_continuation.py": "c9c6e49e4aebf736453d14c31a3c6e22649359c4349d3873677010b1279271ee",
+    "tests/test_product_prefix_seed.py": "55c17d91914600e7c89d3cdf7feb5529773410389ffb0b1c47c072f1e8af8ea1"
+  },
+  "unchanged_original_cli_source": "24c4304a16a1665701d05444619d46b832c73e43",
+  "unchanged_original_cli_source_sha256": {
+    "native/src/qrt.c": "851904c79ea9ff3230423f86a4d92bae27734df30bb6dd51632ffb219397c076",
+    "native/src/qrt.h": "c7af4d946b863eccbd98a540ffa0a034e1230685b5409514da05bfff9659bc4c",
+    "native/src/qwen36_baseline.c": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061",
+    "native/src/qwen36_baseline.h": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42",
+    "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+    "native/src/qrt_prefix_logit.h": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+    "native/src/qrt_prefix_checkpoint.h": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+    "scripts/build-product-cli.ps1": "78509f2b64700a957207398b4b12539bba3aeb53d6ca80674a30c23b6a99a4ce"
+  },
+  "checks": [
+    {
+      "command": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsyntax-only",
+        "-I",
+        "native/src",
+        "native/src/product_cli.c"
+      ],
+      "returncode": 0,
+      "wall_ms": 38.01870811730623,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_product_*.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "wall_ms": 3697.9440823197365,
+      "stdout": "",
+      "stderr": "test_backend_failures_stop_before_timed_hit (test_product_owner_continuation.ProductOwnerContinuationTests.test_backend_failures_stop_before_timed_hit) ... ok\ntest_full_workflow_default_and_owner_counts (test_product_owner_continuation.ProductOwnerContinuationTests.test_full_workflow_default_and_owner_counts) ... ok\ntest_invalid_options_and_owner_files_precede_model_load (test_product_owner_continuation.ProductOwnerContinuationTests.test_invalid_options_and_owner_files_precede_model_load) ... ok\ntest_reference_is_never_an_inference_input (test_product_owner_continuation.ProductOwnerContinuationTests.test_reference_is_never_an_inference_input) ... ok\ntest_retry_tokens_token_bound_logit_and_restoration (test_product_prefix_seed.ProductPrefixSeedTests.test_retry_tokens_token_bound_logit_and_restoration) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 3.660s\n\nOK\n"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_native_route_contracts.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "wall_ms": 108.1805843859911,
+      "stdout": "",
+      "stderr": "test_arbitrary_prefill_uses_terminal_q1_target_plan (test_native_route_contracts.NativeRouteContractTests.test_arbitrary_prefill_uses_terminal_q1_target_plan) ... ok\ntest_cli_and_health_expose_complete_contract (test_native_route_contracts.NativeRouteContractTests.test_cli_and_health_expose_complete_contract) ... ok\ntest_decode_corridor_clears_only_inherited_hip_launch_status (test_native_route_contracts.NativeRouteContractTests.test_decode_corridor_clears_only_inherited_hip_launch_status) ... ok\ntest_dynamic_attention_and_gdn_cover_sub_q4096_lengths (test_native_route_contracts.NativeRouteContractTests.test_dynamic_attention_and_gdn_cover_sub_q4096_lengths) ... ok\ntest_early_out_hawkeye_uses_compact_l2_upper_bounds (test_native_route_contracts.NativeRouteContractTests.test_early_out_hawkeye_uses_compact_l2_upper_bounds) ... ok\ntest_early_qkvz_hawkeye_uses_compact_l2_upper_bounds (test_native_route_contracts.NativeRouteContractTests.test_early_qkvz_hawkeye_uses_compact_l2_upper_bounds) ... ok\ntest_exact_arbitrary_can_diagnose_q8192_moe_tile_boundary (test_native_route_contracts.NativeRouteContractTests.test_exact_arbitrary_can_diagnose_q8192_moe_tile_boundary) ... ok\ntest_exact_arbitrary_can_trace_terminal_hidden_by_layer (test_native_route_contracts.NativeRouteContractTests.test_exact_arbitrary_can_trace_terminal_hidden_by_layer) ... ok\ntest_exact_arbitrary_final_reference_topology_is_numeric_only (test_native_route_contracts.NativeRouteContractTests.test_exact_arbitrary_final_reference_topology_is_numeric_only) ... ok\ntest_exact_arbitrary_moe_uses_smooth_tail_transactions (test_native_route_contracts.NativeRouteContractTests.test_exact_arbitrary_moe_uses_smooth_tail_transactions) ... ok\ntest_exact_arbitrary_q8192_disables_specialized_q1_route (test_native_route_contracts.NativeRouteContractTests.test_exact_arbitrary_q8192_disables_specialized_q1_route) ... ok\ntest_grouped_arbitration_covers_exact_arbitrary_shapes (test_native_route_contracts.NativeRouteContractTests.test_grouped_arbitration_covers_exact_arbitrary_shapes) ... ok\ntest_hawkeye_exact_recompute_is_wddm_bounded_and_isolatable (test_native_route_contracts.NativeRouteContractTests.test_hawkeye_exact_recompute_is_wddm_bounded_and_isolatable) ... ok\ntest_high_id_arbitration_is_bounded_and_arbitrary_only (test_native_route_contracts.NativeRouteContractTests.test_high_id_arbitration_is_bounded_and_arbitrary_only) ... ok\ntest_http_bridge_forces_complete_resident_route (test_native_route_contracts.NativeRouteContractTests.test_http_bridge_forces_complete_resident_route) ... ok\ntest_maximum_context_uses_parameterized_gpu_providers (test_native_route_contracts.NativeRouteContractTests.test_maximum_context_uses_parameterized_gpu_providers) ... ok\ntest_neighbor_product_profile_uses_accepted_arithmetic (test_native_route_contracts.NativeRouteContractTests.test_neighbor_product_profile_uses_accepted_arithmetic) ... ok\ntest_prefix_fallback_negotiates_single_token_seed_capture (test_native_route_contracts.NativeRouteContractTests.test_prefix_fallback_negotiates_single_token_seed_capture) ... ok\ntest_q1_decode_arbitration_is_position_scoped_and_numeric (test_native_route_contracts.NativeRouteContractTests.test_q1_decode_arbitration_is_position_scoped_and_numeric) ... ok\ntest_q8192_causal_verifier_is_reentrant_and_preserves_metadata (test_native_route_contracts.NativeRouteContractTests.test_q8192_causal_verifier_is_reentrant_and_preserves_metadata) ... ok\ntest_q8192_event_ring_applies_backpressure_and_reuses_aot (test_native_route_contracts.NativeRouteContractTests.test_q8192_event_ring_applies_backpressure_and_reuses_aot) ... ok\ntest_q8192_neighbors_keep_runtime_lengths_on_fast_providers (test_native_route_contracts.NativeRouteContractTests.test_q8192_neighbors_keep_runtime_lengths_on_fast_providers) ... ok\ntest_q8192_router_restores_bf16_logit_endpoint_before_topk (test_native_route_contracts.NativeRouteContractTests.test_q8192_router_restores_bf16_logit_endpoint_before_topk) ... ok\ntest_q8193_uses_isolated_one_ulp_low_id_policy (test_native_route_contracts.NativeRouteContractTests.test_q8193_uses_isolated_one_ulp_low_id_policy) ... ok\ntest_release_ck_build_includes_terminal_exact_variant (test_native_route_contracts.NativeRouteContractTests.test_release_ck_build_includes_terminal_exact_variant) ... ok\ntest_release_profile_activates_gb10_valid_terminal_route (test_native_route_contracts.NativeRouteContractTests.test_release_profile_activates_gb10_valid_terminal_route) ... ok\ntest_resident_q8191_seed_uses_causal_padded_q8192_ck (test_native_route_contracts.NativeRouteContractTests.test_resident_q8191_seed_uses_causal_padded_q8192_ck) ... ok\ntest_resident_route_can_include_retained_q8192 (test_native_route_contracts.NativeRouteContractTests.test_resident_route_can_include_retained_q8192) ... ok\ntest_retained_q8192_fused_f32_silu_is_explicitly_isolated (test_native_route_contracts.NativeRouteContractTests.test_retained_q8192_fused_f32_silu_is_explicitly_isolated) ... ok\ntest_retained_q8192_uses_independent_numeric_window (test_native_route_contracts.NativeRouteContractTests.test_retained_q8192_uses_independent_numeric_window) ... ok\ntest_routed_silu_preserves_vllm_bf16_intermediate (test_native_route_contracts.NativeRouteContractTests.test_routed_silu_preserves_vllm_bf16_intermediate) ... ok\ntest_whole_repeated_routed_expert_elides_unowned_event_timing (test_native_route_contracts.NativeRouteContractTests.test_whole_repeated_routed_expert_elides_unowned_event_timing) ... ok\n\n----------------------------------------------------------------------\nRan 32 tests in 0.076s\n\nOK\n"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_packaging_contracts.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "wall_ms": 32.48645830899477,
+      "stdout": "",
+      "stderr": "test_base_aot_is_copied_hashed_and_packaged (test_packaging_contracts.PackagingContractTests.test_base_aot_is_copied_hashed_and_packaged) ... ok\ntest_ck_snapshot_uses_tree_fingerprint_without_requiring_git (test_packaging_contracts.PackagingContractTests.test_ck_snapshot_uses_tree_fingerprint_without_requiring_git) ... ok\ntest_product_cli_has_a_reproducible_large_stack_build (test_packaging_contracts.PackagingContractTests.test_product_cli_has_a_reproducible_large_stack_build) ... ok\ntest_q8192_release_build_uses_the_qualified_native_shared_route (test_packaging_contracts.PackagingContractTests.test_q8192_release_build_uses_the_qualified_native_shared_route) ... ok\ntest_quick_start_binds_base_aot_and_production_scopes_eval_policy (test_packaging_contracts.PackagingContractTests.test_quick_start_binds_base_aot_and_production_scopes_eval_policy) ... ok\ntest_release_archive_and_checksum_are_cross_platform (test_packaging_contracts.PackagingContractTests.test_release_archive_and_checksum_are_cross_platform) ... ok\ntest_smooth_tail_providers_are_built_and_packaged_for_every_tile (test_packaging_contracts.PackagingContractTests.test_smooth_tail_providers_are_built_and_packaged_for_every_tile) ... ok\ntest_windows_powershell_51_path_compatibility (test_packaging_contracts.PackagingContractTests.test_windows_powershell_51_path_compatibility) ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 0.001s\n\nOK\n"
+    }
+  ],
+  "all_pass": true,
+  "owner_cli_fixture_process_cases": 45,
+  "fixture_replaces_windows_preloader_and_engine_calls": true,
+  "initial_fixture_compile_failure": "The first test backend report signature omitted const; corrected to match the existing ABI. Production C syntax already passed.",
+  "native_model_acceptance": false,
+  "source_record": {
+    "file": "owner-continuation-local-r1.json",
+    "sha256": "4a629575e489da7d524571cf5282252f4e4e47627d3e0134df516501c076f641"
+  },
+  "unit_tests": 45,
+  "native_windows_build_qualified": false,
+  "real_model_qualified": false,
+  "performance_qualified": false,
+  "release_qualified": false,
+  "published": false,
+  "owner_backend_failure_modes": 31
+}

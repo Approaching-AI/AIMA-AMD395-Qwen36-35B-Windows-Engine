@@ -5,24 +5,24 @@ Historical audit date: 2026-08-22
 ## Current unreleased work, 2026-09-18
 
 The mission and release gates remain open. The latest experimental q8192
-control is FLA `7b20c90`, whole `ddacdc9`, CK `df2ea51`, MoE `9235750` and
+control is FLA `7b20c90`, whole `ddacdc9`, CK `1c2770d`, MoE `9235750` and
 CLI `24c4304`. A same-DLL OFF/ON/ON/OFF comparison matches all 2,048 original
 GB10 output IDs, prompts, first logits and actual callbacks. Enabled median
-TTFT is 23902.4417 ms and load median 21281.16445 ms. Final-query and output
+TTFT is 23353.80795 ms and load median 21299.42725 ms. Final-query and output
 liveness preserve complete KV capture and remain default off. The 10000 ms operating
 boundary and retained 4187.415605 ms target remain unchanged. These components
 are not yet an updated portable package; full long-context and release
 qualification do not transfer from earlier binaries.
 
-The subsequent classified MoE replay experiment `078ef52` passes all 2,048
-GB10 continuation IDs in four runs but regresses median TTFT by 123.57325 ms.
-It remains default off and does not replace the qualified control or package.
-[Native and product evidence](MOE_CLASS_EXPERT_REPLAY.md).
-
-Producer-local gate/up correction `932b55b` also passes all 2048 original
-GB10 continuation IDs. Its four-run median improvement is only 29.27285 ms
-(0.1228%), with overlapping ON/OFF ranges. It remains default off and does
-not replace the baseline or package. [Evidence](MOE_PRODUCER_GATE_REPLAY.md).
+The long CK control `ea6faff` passes the q8192/out512 inactive-scope regression
+and four same-DLL cold16384/out32 runs. Its deferred bound reduces cold16k
+TTFT from76932.886950 to73840.139151 ms, with all128 GB10 IDs matching.
+The same DLL also passes actual16k/32k/64k prefixes plus1024 suffix tokens:
+both512-token continuations, first logits, callbacks, state restoration and
+changed-prefix rejection match the original references. Their hit TTFTs are
+8459.984999/13210.9695/25254.1475 ms; original speed ceilings remain unmet.
+Separate cold32k/64k continuations and128k/256k acceptance remain open.
+[Complete scope and evidence](LONG_FINAL_PV.md).
 
 The last assembled archive, `v1.0.2-current-stack.20260915.r4`, remains
 unpublished. Its declared cold/prefix, protocol and one-hour soak evidence
@@ -41,20 +41,21 @@ Earlier context results remain attached to their exact configurations; none
 lowers the required context/performance targets. The historical audit below
 is not approval to publish the current work.
 
-## Decision
+## Historical publication decision
 
 Version 1.0.1 remains suitable for public source publication for its declared,
 model-specific Windows target. The runtime source, AOT inventory, build entry
 points, lifecycle/API tests, licenses, and redacted real-model evidence are
 present in this repository. Model weights and vendor runtimes remain external.
 
-The current unreleased candidate is source-publication clean but is not yet
-eligible for promotion to `main` or a release. Its nine q8192 selected-MoE AOT
-objects reproduce byte-for-byte from neutral build roots after deterministic
-debug stripping; its 32-shape component smoke, real layer-3 GB10 comparison,
-Windows artifact transport check, and local C/Rust/Python/hygiene gates pass.
+The candidate described by the August audit was source-publication clean but
+not yet eligible for promotion to `main` or a release. Its nine q8192
+selected-MoE AOT objects reproduced byte-for-byte from neutral build roots
+after deterministic debug stripping; its32-shape component smoke, real
+layer-3 GB10 comparison, Windows artifact transport check, and local
+C/Rust/Python/hygiene gates passed.
 A fresh native Windows build and correctness-attached real-model product run on
-`baiying`, from the exact candidate commit, remains mandatory. Component and
+`baiying`, from that candidate commit, was still required. Component and
 transport evidence do not substitute for that product gate. The candidate
 record is
 `benchmarks/performance/prefill-diagnostic-public-complete-aot-r1187-r1190.json`.
