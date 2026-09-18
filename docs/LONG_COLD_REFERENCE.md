@@ -41,6 +41,19 @@ and rejection of duplicates, out-of-prompt positions and a33rd position.
 Host tests establish observation-plan handling only; a new capture must still
 reproduce the original token histories and full first-logit tensors.
 
+Observer source `5bc055d71b5c63f3610e54cbbb8dfc6e0afb4ea6` now passes that
+independent reference check. The bounded capture reproduces all1088 output
+IDs from the original128k owner/suffix512 cases and both short controls,
+with unchanged complete first-logit tensors. It observes all16 actual
+8192-token owner chunks, retaining40 layer outputs at every terminal row,
+and the original suffix transaction at position132217. All6727 downloaded
+files are verified; the host, frozen-autotune and cleanup checks pass.
+Only the optional observer position limit changes; capture source1c951139,
+dependency source9b2a99ed and model computation remain pinned. See the
+[all-chunk reference evidence](../benchmarks/correctness/gb10-prefix128-all-chunk-boundaries-20260919.json).
+This gives the Windows diagnostic an external comparison at each chunk
+boundary without changing the original acceptance cases or their outputs.
+
 These references enable the Windows cold out512 checks. They do not establish
 Windows correctness or performance at any newly captured length.
 
