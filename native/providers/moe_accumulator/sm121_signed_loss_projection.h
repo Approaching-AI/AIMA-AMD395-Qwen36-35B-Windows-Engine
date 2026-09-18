@@ -24,7 +24,7 @@ template<unsigned Rows,unsigned Fragments>struct Layout {
 template<unsigned Rows,unsigned Fragments>
 __device__ __forceinline__ void load(const uint16_t* weights,const uint16_t* inputs,
     const unsigned* valid,unsigned first_row,unsigned first_token,unsigned width,unsigned base,
-    uint32_t (&words)[Layout<Rows,Fragments>::words_per_thread]) {
+    uint32_t (&words)[(Layout<Rows,Fragments>::words_per_thread)]) {
 #pragma unroll
     for(unsigned i=0u;i<Layout<Rows,Fragments>::words_per_thread;++i) {
         const unsigned cell=threadIdx.x+i*256u,row=cell/32u,k=(cell%32u)*2u;
@@ -38,8 +38,8 @@ __device__ __forceinline__ void load(const uint16_t* weights,const uint16_t* inp
     }
 }
 template<unsigned Rows,unsigned Fragments>
-__device__ __forceinline__ void publish(uint32_t (&tile)[Layout<Rows,Fragments>::total][33],
-    const uint32_t (&words)[Layout<Rows,Fragments>::words_per_thread]) {
+__device__ __forceinline__ void publish(uint32_t (&tile)[(Layout<Rows,Fragments>::total)][33],
+    const uint32_t (&words)[(Layout<Rows,Fragments>::words_per_thread)]) {
 #pragma unroll
     for(unsigned i=0u;i<Layout<Rows,Fragments>::words_per_thread;++i) {
         const unsigned cell=threadIdx.x+i*256u;tile[cell/32u][cell%32u]=words[i];
