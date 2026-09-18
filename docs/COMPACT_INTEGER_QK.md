@@ -56,9 +56,30 @@ the original model capture.
 The next revision replaces the fallback's wide `Value[17]` temporary with
 the established one-word original product encoding and bounded modulo sum.
 It retains original products, exponent maxima and canonical normalization.
-The same host tests pass; native resource allocation and complete timings
-must determine whether this removes the observed overhead. The preceding
-native comparison does not qualify the revised fallback.
+The same host tests and native safety suite pass at `0813965`, but LDS remains
+46080/59392 bytes with 8 bytes private storage. This disproves the wide
+fallback temporary as the sole storage cause. No complete capture run was
+repeated for that intermediate revision.
+
+Disassembly instead places four 8-byte per-thread carries at LDS offset13312
+for K64, adding 32 bytes per maximum workgroup lane; two active flags use
+scratch bytes. Source `8310180` names the four carries and flags explicitly
+and declares the actual 256-thread launch bound. Native LDS becomes exactly
+13312/26624 bytes, with zero private storage and 95/102 VGPRs. All 131072
+native raw carries, 72 generated configurations and 6543114240 captured score
+comparisons still pass.
+
+Complete q8192 control/K64/K128 times are 313.6175/1427.3859/1521.9112 ms.
+Removing the storage problem substantially improves this candidate, but both
+schedules remain over 4.5 times slower than the control. Neither is integrated.
+Static resource declarations do not measure occupancy or explain all remaining
+time. Further scalar scheduling changes are not the current next step.
+
+[Explicit-carry comparison and intermediate diagnostic](../benchmarks/correctness/compact-integer-qk-explicit-carries-20260918.json):
+293619 bytes, SHA256
+`de71caf247bcc759f78a03f4cbe1618d4c18d054a8853d451f0a1d18fef44d40`.
+This record includes both native revisions, disassembly evidence and the
+unchanged independent original arithmetic checks.
 
 No provider dispatch, runtime defaults or package changes. The current model baseline remains
 23902.4417 ms TTFT; the 10000 ms boundary, retained 4187.415605 ms target

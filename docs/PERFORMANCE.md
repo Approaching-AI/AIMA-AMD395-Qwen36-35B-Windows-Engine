@@ -74,8 +74,12 @@ comparisons pass. Complete q8192 control/K64/K128 times are
 
 Compiled LDS is 46080/59392 bytes with 8 bytes of private storage, exceeding
 explicit row storage by 32768 bytes. The captured host sample takes original
-fallback for 12238/65536 groups. A revised packed fallback is being checked;
-these measurements do not qualify it. No model baseline or default changes.
+fallback for 12238/65536 groups. A packed fallback alone leaves the extra
+storage unchanged. Explicit independent carries at `8310180` remove it:
+LDS becomes 13312/26624 bytes, with zero private storage. Every original
+numerical check passes again, but full q8192 control/K64/K128 times remain
+313.6175/1427.3859/1521.9112 ms. Both candidates stay isolated; no model
+baseline or default changes. [Explicit-carry evidence](../benchmarks/correctness/compact-integer-qk-explicit-carries-20260918.json).
 [Implementation, compiler failure and scope](COMPACT_INTEGER_QK.md).
 [Complete evidence](../benchmarks/correctness/compact-integer-qk-native-components-20260918.json):
 161520 bytes, SHA256
