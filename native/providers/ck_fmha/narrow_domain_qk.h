@@ -33,16 +33,20 @@ __global__ void scores(const uint32_t* packed_query, const uint32_t* packed_key,
     const unsigned last_query = start + min(query_tile + rows, count) - 1u;
     const bool interior=query_tile+rows<=count && key_tile+columns<=stride &&
         key_tile+columns-1u<=start+query_tile;
-    __shared__ unsigned rejected;
-    if(!threadIdx.x)rejected=0u;
+    // Q staging is not live during classification. Reuse its first word so
+    // the K128 tile stays at exactly 32 KiB instead of requiring four more
+    // shared bytes. Every thread consumes the decision before staging starts.
+    auto* rejected=&qvalues[0][0];
+    if(!threadIdx.x)*rejected=0u;
     __syncthreads();
     if(interior){
         const unsigned t=threadIdx.x;
-        if(t<rows && !query_narrow[(start+query_tile+t)*16u+head])atomicOr(&rejected,1u);
-        if(t<columns && !key_narrow[(key_tile+t)*2u+kv_head])atomicOr(&rejected,1u);
+        if(t<rows && !query_narrow[(start+query_tile+t)*16u+head])atomicOr(rejected,1u);
+        if(t<columns && !key_narrow[(key_tile+t)*2u+kv_head])atomicOr(rejected,1u);
     }
     __syncthreads();
-    const bool accepted=interior && !rejected;
+    const bool accepted=interior && !*rejected;
+    __syncthreads();
     if(Narrow!=accepted)return;
     if(!threadIdx.x && tile_counts)atomicAdd(tile_counts+(Narrow?1u:0u),1u);
     if (key_tile > last_query) {
