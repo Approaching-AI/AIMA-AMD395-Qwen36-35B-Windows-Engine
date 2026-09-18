@@ -1,0 +1,836 @@
+{
+  "kind": "original_layer16_projection_and_consumer_cpu_controls",
+  "comparison_host_type": "local POSIX CPU",
+  "native_observation_host": "baiying",
+  "native_model": "D:/models/Qwen3.6-35B-A3B",
+  "reference_host": "aitopatom-66c4 via gb10-4t",
+  "reference_model": "/mnt/data/models/Qwen3.6-35B-A3B",
+  "arithmetic_header_commit": "41cbbb92a7995ca755f35d8524364998a64634af",
+  "arithmetic_header_sha256": {
+    "native/providers/gdn/sm121_q1_math.h": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+    "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+    "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+    "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a"
+  },
+  "original_windows_observation": {
+    "file": "benchmarks/correctness/prefix96-layer16-attention-divergence-20260919.json",
+    "bytes": 124205,
+    "sha256": "804e87864b07c12b73ecb53801037a4ac5daab852f39aab7f3f6fc1a2bd2c1a2"
+  },
+  "external_reference": {
+    "file": "benchmarks/correctness/gb10-prefix128-layer16-moe-20260919.json",
+    "bytes": 72935,
+    "sha256": "1ba28d5474afee41434b4ff1c618ce30b9043c3bd401202f8289a7f134ee32a1"
+  },
+  "results": {
+    "projection": [
+      {
+        "position": 8191,
+        "operation": "qkv",
+        "compared": {
+          "elements": 8192,
+          "f32_bit_mismatches": 8191,
+          "bf16_mismatches": 0,
+          "nonfinite": 0,
+          "bf16_rows_differ": 0,
+          "maximum_absolute_error": 0.0307769775390625,
+          "relative_l2": 0.0015973573979510202
+        },
+        "reference": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/8191-linear-16-qkv-bf16.bin",
+          "bytes": 16384,
+          "sha256": "7432156acca32101eef457c5095e82e929287ec4a744f7b5b598c64bd299c808"
+        },
+        "actual": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/8191-qkv-canonical-f32.bin",
+          "bytes": 32768,
+          "sha256": "300e582dbb8fdcbd9a5b33cf945988c7a4d98833037d65de5cac9b8d95d3d496"
+        },
+        "residual": null
+      },
+      {
+        "position": 8191,
+        "operation": "z",
+        "compared": {
+          "elements": 4096,
+          "f32_bit_mismatches": 4096,
+          "bf16_mismatches": 0,
+          "nonfinite": 0,
+          "bf16_rows_differ": 0,
+          "maximum_absolute_error": 0.015608787536621094,
+          "relative_l2": 0.0017493173496482546
+        },
+        "reference": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/8191-linear-16-z-projection-bf16.bin",
+          "bytes": 8192,
+          "sha256": "33ca2062e3cef3c0c0a29467692e18c8a7e4f9e4010ac27cd3f8f67bdd076aa6"
+        },
+        "actual": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/8191-z-canonical-f32.bin",
+          "bytes": 16384,
+          "sha256": "d3859362a3d6973dd78c175ea70c5ebfcee9ffcfc8cb98ea25b803e8f43dc2ff"
+        },
+        "residual": null
+      },
+      {
+        "position": 8191,
+        "operation": "out",
+        "compared": {
+          "elements": 2048,
+          "f32_bit_mismatches": 2048,
+          "bf16_mismatches": 0,
+          "nonfinite": 0,
+          "bf16_rows_differ": 0,
+          "maximum_absolute_error": 0.00018641352653503418,
+          "relative_l2": 0.0016942663810281479
+        },
+        "reference": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/8191-linear-16-output-projection-bf16.bin",
+          "bytes": 4096,
+          "sha256": "fa2b3b05d4f1747d14817419fbd05acad922d2c4db85ea907c7a3e00cbdae314"
+        },
+        "actual": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/8191-out-canonical-f32.bin",
+          "bytes": 8192,
+          "sha256": "e53cae71e1ec75122df44b46571fd51c384f1854b7d4422e1003942f2663c929"
+        },
+        "residual": null
+      },
+      {
+        "position": 90111,
+        "operation": "qkv",
+        "compared": {
+          "elements": 8192,
+          "f32_bit_mismatches": 8192,
+          "bf16_mismatches": 0,
+          "nonfinite": 0,
+          "bf16_rows_differ": 0,
+          "maximum_absolute_error": 0.031228065490722656,
+          "relative_l2": 0.0016927190235212098
+        },
+        "reference": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/90111-linear-16-qkv-bf16.bin",
+          "bytes": 16384,
+          "sha256": "426e1c6ac0ffde4b9141bd8e06b3de37974a0e7624a4e3b157623cb7c4c5ac37"
+        },
+        "actual": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/90111-qkv-canonical-f32.bin",
+          "bytes": 32768,
+          "sha256": "e0511ce56f44dd5afceaf4b415640a2451280b1a6ba4497ce32a02af6e5ce52c"
+        },
+        "residual": null
+      },
+      {
+        "position": 90111,
+        "operation": "z",
+        "compared": {
+          "elements": 4096,
+          "f32_bit_mismatches": 4096,
+          "bf16_mismatches": 0,
+          "nonfinite": 0,
+          "bf16_rows_differ": 0,
+          "maximum_absolute_error": 0.029546737670898438,
+          "relative_l2": 0.0017607763066310113
+        },
+        "reference": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/90111-linear-16-z-projection-bf16.bin",
+          "bytes": 8192,
+          "sha256": "f2025eefc256decb45b4f1decb9f639bfdd6aa6452274bc85dcec64f8ab73599"
+        },
+        "actual": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/90111-z-canonical-f32.bin",
+          "bytes": 16384,
+          "sha256": "3c945845547267bd2fb68141be3a1cc7cd8611b5ac2cfa9b644ae72dd96dc743"
+        },
+        "residual": null
+      },
+      {
+        "position": 90111,
+        "operation": "out",
+        "compared": {
+          "elements": 2048,
+          "f32_bit_mismatches": 2048,
+          "bf16_mismatches": 0,
+          "nonfinite": 0,
+          "bf16_rows_differ": 0,
+          "maximum_absolute_error": 0.00010141730308532715,
+          "relative_l2": 0.0014885196740741678
+        },
+        "reference": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/90111-linear-16-output-projection-bf16.bin",
+          "bytes": 4096,
+          "sha256": "4c939898797b345e806ba98ee9b3d8d4a5ea99429f215773df1754f3216b6dcc"
+        },
+        "actual": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/90111-out-canonical-f32.bin",
+          "bytes": 8192,
+          "sha256": "ed8e0e6f2dcf00ae3fc8856512081636b5ca6812cbce949a04637157b9ef248b"
+        },
+        "residual": null
+      },
+      {
+        "position": 98303,
+        "operation": "qkv",
+        "compared": {
+          "elements": 8192,
+          "f32_bit_mismatches": 8192,
+          "bf16_mismatches": 0,
+          "nonfinite": 0,
+          "bf16_rows_differ": 0,
+          "maximum_absolute_error": 0.02985382080078125,
+          "relative_l2": 0.0016083595472234959
+        },
+        "reference": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/98303-linear-16-qkv-bf16.bin",
+          "bytes": 16384,
+          "sha256": "ff58fa663e8f80e671df6b9a2160de50b0b074961f42acdbc93fb90fdfb0143a"
+        },
+        "actual": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/98303-qkv-canonical-f32.bin",
+          "bytes": 32768,
+          "sha256": "6e98cc04310d3d718c64113c61ab925b70848f2a07605bf9bbc8f9f4ff8a1220"
+        },
+        "residual": null
+      },
+      {
+        "position": 98303,
+        "operation": "z",
+        "compared": {
+          "elements": 4096,
+          "f32_bit_mismatches": 4096,
+          "bf16_mismatches": 0,
+          "nonfinite": 0,
+          "bf16_rows_differ": 0,
+          "maximum_absolute_error": 0.015616893768310547,
+          "relative_l2": 0.001721649134440711
+        },
+        "reference": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/98303-linear-16-z-projection-bf16.bin",
+          "bytes": 8192,
+          "sha256": "c9f2b230544379f95e767ea4bb14f0e0d2f59dc3196a03911e1f63608cf6d1d6"
+        },
+        "actual": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/98303-z-canonical-f32.bin",
+          "bytes": 16384,
+          "sha256": "05dee98be350085cae6e8db56f6a2bceb3c250417d1e57b6575cc7bbc5fc4b69"
+        },
+        "residual": null
+      },
+      {
+        "position": 98303,
+        "operation": "out",
+        "compared": {
+          "elements": 2048,
+          "f32_bit_mismatches": 2048,
+          "bf16_mismatches": 0,
+          "nonfinite": 0,
+          "bf16_rows_differ": 0,
+          "maximum_absolute_error": 0.00030194222927093506,
+          "relative_l2": 0.0017359264908467895
+        },
+        "reference": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/98303-linear-16-output-projection-bf16.bin",
+          "bytes": 4096,
+          "sha256": "6ed6c16611f9cd4aed37950585da176fc87bb36b39516b3245de4d7bcfeb4ac6"
+        },
+        "actual": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/98303-out-canonical-f32.bin",
+          "bytes": 8192,
+          "sha256": "58122e67f15ea29f9436d32c51566efc003cc68fade1b8a8ffdf07572bb6cc5b"
+        },
+        "residual": null
+      }
+    ],
+    "normalization": [
+      {
+        "position": 8191,
+        "operation": "gated",
+        "compared": {
+          "elements": 4096,
+          "f32_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "nonfinite": 0,
+          "bf16_rows_differ": 0,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0
+        },
+        "reference": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-norms-r1/8191-linear-16-gated-bf16.bin",
+          "bytes": 8192,
+          "sha256": "9ddfaf26bc03c227a8f5ae6b537aa0bc562ed699b853765074c030778e21e91f"
+        },
+        "actual": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-norms-r1/8191-gated-norm-bf16.bin",
+          "bytes": 8192,
+          "sha256": "9ddfaf26bc03c227a8f5ae6b537aa0bc562ed699b853765074c030778e21e91f"
+        },
+        "residual": null
+      },
+      {
+        "position": 8191,
+        "operation": "consumer",
+        "compared": {
+          "elements": 2048,
+          "f32_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "nonfinite": 0,
+          "bf16_rows_differ": 0,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0
+        },
+        "reference": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-norms-r1/8191-layer-16-post-attention-rmsnorm-bf16.bin",
+          "bytes": 4096,
+          "sha256": "7aa5a048d86e80187684bc06dc734d046ebe0b780ba1d326d116d04417b5085e"
+        },
+        "actual": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-norms-r1/8191-consumer-norm-bf16.bin",
+          "bytes": 4096,
+          "sha256": "7aa5a048d86e80187684bc06dc734d046ebe0b780ba1d326d116d04417b5085e"
+        },
+        "residual": {
+          "elements": 2048,
+          "f32_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "nonfinite": 0,
+          "bf16_rows_differ": 0,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0
+        }
+      },
+      {
+        "position": 90111,
+        "operation": "gated",
+        "compared": {
+          "elements": 4096,
+          "f32_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "nonfinite": 0,
+          "bf16_rows_differ": 0,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0
+        },
+        "reference": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-norms-r1/90111-linear-16-gated-bf16.bin",
+          "bytes": 8192,
+          "sha256": "6c4e0ae8da2e0d8ea7a429a86bce09fb0ccc8b628b7ea72b6c38c5f49a955cdc"
+        },
+        "actual": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-norms-r1/90111-gated-norm-bf16.bin",
+          "bytes": 8192,
+          "sha256": "6c4e0ae8da2e0d8ea7a429a86bce09fb0ccc8b628b7ea72b6c38c5f49a955cdc"
+        },
+        "residual": null
+      },
+      {
+        "position": 90111,
+        "operation": "consumer",
+        "compared": {
+          "elements": 2048,
+          "f32_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "nonfinite": 0,
+          "bf16_rows_differ": 0,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0
+        },
+        "reference": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-norms-r1/90111-layer-16-post-attention-rmsnorm-bf16.bin",
+          "bytes": 4096,
+          "sha256": "723ebc893b24cb2802239d56863dea5ff612d2b2937da19ce8d27b5c6d915e47"
+        },
+        "actual": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-norms-r1/90111-consumer-norm-bf16.bin",
+          "bytes": 4096,
+          "sha256": "723ebc893b24cb2802239d56863dea5ff612d2b2937da19ce8d27b5c6d915e47"
+        },
+        "residual": {
+          "elements": 2048,
+          "f32_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "nonfinite": 0,
+          "bf16_rows_differ": 0,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0
+        }
+      },
+      {
+        "position": 98303,
+        "operation": "gated",
+        "compared": {
+          "elements": 4096,
+          "f32_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "nonfinite": 0,
+          "bf16_rows_differ": 0,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0
+        },
+        "reference": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-norms-r1/98303-linear-16-gated-bf16.bin",
+          "bytes": 8192,
+          "sha256": "d04b4730f5479b424fa265cb72b6c9a0924d457004ab56c4f0e4d2cc371327f1"
+        },
+        "actual": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-norms-r1/98303-gated-norm-bf16.bin",
+          "bytes": 8192,
+          "sha256": "d04b4730f5479b424fa265cb72b6c9a0924d457004ab56c4f0e4d2cc371327f1"
+        },
+        "residual": null
+      },
+      {
+        "position": 98303,
+        "operation": "consumer",
+        "compared": {
+          "elements": 2048,
+          "f32_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "nonfinite": 0,
+          "bf16_rows_differ": 0,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0
+        },
+        "reference": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-norms-r1/98303-layer-16-post-attention-rmsnorm-bf16.bin",
+          "bytes": 4096,
+          "sha256": "4639d022c739d475ee8607acaffe1a9b209642c1ab0aa9039894bbe82cf53c8b"
+        },
+        "actual": {
+          "file": "prefix128-layer16-projection-weights-r1/original-row-norms-r1/98303-consumer-norm-bf16.bin",
+          "bytes": 4096,
+          "sha256": "4639d022c739d475ee8607acaffe1a9b209642c1ab0aa9039894bbe82cf53c8b"
+        },
+        "residual": {
+          "elements": 2048,
+          "f32_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "nonfinite": 0,
+          "bf16_rows_differ": 0,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0
+        }
+      }
+    ],
+    "actual_consumer": [
+      {
+        "position": 8191,
+        "kind": "actual",
+        "comparisons": {
+          "norm_vs_actual": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          },
+          "residual_vs_actual": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          },
+          "norm_vs_reference": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          },
+          "residual_vs_reference": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          }
+        }
+      },
+      {
+        "position": 8191,
+        "kind": "reference_update",
+        "comparisons": {
+          "norm_vs_actual": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          },
+          "residual_vs_actual": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          },
+          "norm_vs_reference": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          },
+          "residual_vs_reference": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          }
+        }
+      },
+      {
+        "position": 90111,
+        "kind": "actual",
+        "comparisons": {
+          "norm_vs_actual": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          },
+          "residual_vs_actual": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          },
+          "norm_vs_reference": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          },
+          "residual_vs_reference": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          }
+        }
+      },
+      {
+        "position": 90111,
+        "kind": "reference_update",
+        "comparisons": {
+          "norm_vs_actual": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          },
+          "residual_vs_actual": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          },
+          "norm_vs_reference": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          },
+          "residual_vs_reference": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          }
+        }
+      },
+      {
+        "position": 98303,
+        "kind": "actual",
+        "comparisons": {
+          "norm_vs_actual": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          },
+          "residual_vs_actual": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          },
+          "norm_vs_reference": {
+            "elements": 2048,
+            "f32_bit_mismatches": 51,
+            "bf16_mismatches": 51,
+            "nonfinite": 0,
+            "bf16_rows_differ": 1,
+            "maximum_absolute_error": 0.0078125,
+            "relative_l2": 0.0005735004378135746
+          },
+          "residual_vs_reference": {
+            "elements": 2048,
+            "f32_bit_mismatches": 55,
+            "bf16_mismatches": 55,
+            "nonfinite": 0,
+            "bf16_rows_differ": 1,
+            "maximum_absolute_error": 0.00048828125,
+            "relative_l2": 0.0002777173038026071
+          }
+        }
+      },
+      {
+        "position": 98303,
+        "kind": "reference_update",
+        "comparisons": {
+          "norm_vs_actual": {
+            "elements": 2048,
+            "f32_bit_mismatches": 51,
+            "bf16_mismatches": 51,
+            "nonfinite": 0,
+            "bf16_rows_differ": 1,
+            "maximum_absolute_error": 0.0078125,
+            "relative_l2": 0.000573490187690346
+          },
+          "residual_vs_actual": {
+            "elements": 2048,
+            "f32_bit_mismatches": 55,
+            "bf16_mismatches": 55,
+            "nonfinite": 0,
+            "bf16_rows_differ": 1,
+            "maximum_absolute_error": 0.00048828125,
+            "relative_l2": 0.0002777155074379737
+          },
+          "norm_vs_reference": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          },
+          "residual_vs_reference": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite": 0,
+            "bf16_rows_differ": 0,
+            "maximum_absolute_error": 0,
+            "relative_l2": 0
+          }
+        }
+      }
+    ]
+  },
+  "original_model_weights": {
+    "kind": "readonly_original_reference_model_projection_weights",
+    "host": "aitopatom-66c4",
+    "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+    "model_config_sha256": "93a4693fa9d8392fbfccd4b3c9873f4bfdcb14fdede978b123d07d19675efe99",
+    "command_file": "<private-home>/read_gb10_layer16_projection_weights_r1.py",
+    "command_file_sha256": "4488b546e274613eb15ef993c482d2ff061bd4f36b6dad5fe521b117f4feb443",
+    "files": [
+      {
+        "key": "model.language_model.layers.16.linear_attn.out_proj.weight",
+        "shape": [
+          2048,
+          4096
+        ],
+        "dtype": "bf16",
+        "shard": "model-00010-of-00026.safetensors",
+        "offset": 2856322952,
+        "file": "linear_attn-out_proj-weight-bf16.bin",
+        "bytes": 16777216,
+        "sha256": "74c96e4cd1c602f1df3d4d2f8d0611c657cc300affe6cb6a6e94558f9eec340b"
+      },
+      {
+        "key": "model.language_model.layers.16.linear_attn.in_proj_qkv.weight",
+        "shape": [
+          8192,
+          2048
+        ],
+        "dtype": "bf16",
+        "shard": "model-00010-of-00026.safetensors",
+        "offset": 2805991304,
+        "file": "linear_attn-in_proj_qkv-weight-bf16.bin",
+        "bytes": 33554432,
+        "sha256": "9360936d56c261a717bf7fc23186078ce61fa116e6618370ab88ec0d888bfa16"
+      },
+      {
+        "key": "model.language_model.layers.16.linear_attn.in_proj_z.weight",
+        "shape": [
+          4096,
+          2048
+        ],
+        "dtype": "bf16",
+        "shard": "model-00010-of-00026.safetensors",
+        "offset": 2839545736,
+        "file": "linear_attn-in_proj_z-weight-bf16.bin",
+        "bytes": 16777216,
+        "sha256": "0ec0826eb29c9b5672887ee8ddbbf782bf882e47dbf8f5b97ef4fa73e6d4a262"
+      },
+      {
+        "key": "model.language_model.layers.16.linear_attn.norm.weight",
+        "shape": [
+          128
+        ],
+        "dtype": "bf16",
+        "shard": "model-00011-of-00026.safetensors",
+        "offset": 552241360,
+        "file": "linear_attn-norm-weight-bf16.bin",
+        "bytes": 256,
+        "sha256": "3e445727cb26cda04a8853975753c4f3c881564f3d47cd2ca6b2185a7aa66053"
+      },
+      {
+        "key": "model.language_model.layers.16.post_attention_layernorm.weight",
+        "shape": [
+          2048
+        ],
+        "dtype": "bf16",
+        "shard": "model-00011-of-00026.safetensors",
+        "offset": 1096456656,
+        "file": "post_attention_layernorm-weight-bf16.bin",
+        "bytes": 4096,
+        "sha256": "efef91b2ce84caf85b1ed6db964ec531ee9d510a4444f4fdf6b98ddcb116d745"
+      }
+    ],
+    "shards": {
+      "model-00010-of-00026.safetensors": {
+        "bytes": 3946841992,
+        "sha256": "246560e66570fe746653b8443e245dc334c9b8b831ea43d2d9f1b7d98623994e"
+      },
+      "model-00011-of-00026.safetensors": {
+        "bytes": 1096460752,
+        "sha256": "7180392817fe3ecb3a27a1da43b7ff22c1a94806bac49975f9f122c3126df675"
+      }
+    },
+    "wall_seconds": 3.964688532985747,
+    "model_loaded": false,
+    "gpu_execution": false,
+    "diagnostic_only": true,
+    "inference_acceptance": false,
+    "reference_source_commit": "1c9511395bf7f9dcc78a8aedcb05c700feee0568",
+    "reference_analysis_sha256": "810fa2314b8aa0f63bb12eb8b3e7a80875338631a7c6f4c762c89d32080cc9b3",
+    "reference_capture_sha256": "c4adaff1003657b7d518006362496e76a756630037179376c4a0c4828e521550",
+    "dispatcher": "dispatch_gb10_layer16_projection_weights_r1.py",
+    "dispatcher_sha256": "ee2141e46be2f7b5f306b70d455d1f12c9393a92e1b484dca0915eb09bfcd9c7",
+    "all_downloaded_files_verified": true
+  },
+  "raw_analysis": {
+    "weights": {
+      "file": "prefix128-layer16-projection-weights-r1/verified-source.json",
+      "sha256": "6bb7c83d232a179fa7aec8db8bb6c5688c8a07da22c522c10c869fb55b669445",
+      "bytes": 3462
+    },
+    "projection": {
+      "file": "prefix128-layer16-projection-weights-r1/original-row-dots-r1/comparison.json",
+      "sha256": "23c9b694a83b0cf7c857079618d9a6cb29b3e4b71d143eaab2806c4820828aec",
+      "bytes": 60960
+    },
+    "normalization": {
+      "file": "prefix128-layer16-projection-weights-r1/original-row-norms-r1/comparison.json",
+      "sha256": "e0e928d1870d34bce7d53702c457190f0e6a4d7daac5f2fb5523db7ab504594d",
+      "bytes": 25853
+    },
+    "actual_consumer": {
+      "file": "prefix96-layer16-observer-r2/consumer-replay-r1/comparison.json",
+      "sha256": "04d01ce3d625737cf92b99bae2da004f2eebc573fae04282aa8d2579d65af63c",
+      "bytes": 66152
+    }
+  },
+  "sources": {
+    "prefix_linear_compare_r1.cpp": {
+      "sha256": "435cf3f9c7f41b7d18811e0361e7c241663db6eb6d0f8e076d83812afdbc2da6",
+      "text": "// Read-only host comparison of saved original F32/BF16 surfaces.\n#include <algorithm>\n#include <cmath>\n#include <cstdint>\n#include <cstring>\n#include <fstream>\n#include <iomanip>\n#include <iostream>\n#include <limits>\n#include <stdexcept>\n#include <string>\n#include <vector>\n\nstruct Surface {\n    std::vector<unsigned char> data;\n    size_t size;\n    Surface(const char *path,const char *kind):size(std::string(kind)==\"f32\"?4:2) {\n        if(std::string(kind)!=\"f32\" && std::string(kind)!=\"bf16\") throw std::runtime_error(\"dtype\");\n        std::ifstream f(path,std::ios::binary|std::ios::ate);\n        if(!f || f.tellg()<0) throw std::runtime_error(\"open\");\n        data.resize(size_t(f.tellg()));f.seekg(0);\n        if(data.size()%size || !f.read(reinterpret_cast<char*>(data.data()),data.size())) throw std::runtime_error(\"extent\");\n    }\n    uint32_t bits(size_t index)const {\n        if(index>=data.size()/size)throw std::runtime_error(\"index\");\n        uint32_t out=0;std::memcpy(&out,data.data()+index*size,size);\n        return size==2?out<<16u:out;\n    }\n};\nfloat value(uint32_t bits){float f;std::memcpy(&f,&bits,4);return f;}\nunsigned bf16(uint32_t bits){return ((bits+32767u+((bits>>16u)&1u))>>16u)&65535u;}\nstruct Stats {\n    uint64_t cells=0,wrong_bits=0,wrong_bf16=0,nonfinite=0,rows_differ=0;\n    double maximum=0,square_error=0,square_reference=0;\n};\nstruct Sample{size_t row,column;uint32_t actual,reference;};\nvoid add(Stats &s,uint32_t a,uint32_t b){\n    ++s.cells;s.wrong_bits+=a!=b;s.wrong_bf16+=bf16(a)!=bf16(b);\n    const double av=value(a),bv=value(b);\n    if(!std::isfinite(av)||!std::isfinite(bv)){++s.nonfinite;return;}\n    const double delta=av-bv;s.maximum=std::max(s.maximum,std::fabs(delta));\n    s.square_error+=delta*delta;s.square_reference+=bv*bv;\n}\nvoid emit(const Stats&s){\n    std::cout<<\"{\\\"elements\\\":\"<<s.cells<<\",\\\"f32_bit_mismatches\\\":\"<<s.wrong_bits\n        <<\",\\\"bf16_mismatches\\\":\"<<s.wrong_bf16<<\",\\\"nonfinite\\\":\"<<s.nonfinite\n        <<\",\\\"bf16_rows_differ\\\":\"<<s.rows_differ<<\",\\\"maximum_absolute_error\\\":\"<<s.maximum\n        <<\",\\\"relative_l2\\\":\";\n    if(s.square_reference>0)std::cout<<std::sqrt(s.square_error/s.square_reference);\n    else if(s.square_error==0)std::cout<<0;else std::cout<<\"null\";\n    std::cout<<\"}\";\n}\nint main(int argc,char**argv){try{\n    if(argc!=11)throw std::runtime_error(\"arguments\");\n    Surface a(argv[1],argv[2]),b(argv[3],argv[4]);\n    const size_t rows=std::stoull(argv[5]),cols=std::stoull(argv[6]),\n      as=std::stoull(argv[7]),ao=std::stoull(argv[8]),bs=std::stoull(argv[9]),bo=std::stoull(argv[10]);\n    if(!rows||!cols||ao+cols>as||bo+cols>bs||rows>8192||cols>524288||\n       rows*as>a.data.size()/a.size||rows*bs>b.data.size()/b.size)throw std::runtime_error(\"shape\");\n    Stats total;std::vector<Stats> chunks((rows+63)/64);std::vector<Sample> samples;\n    for(size_t row=0;row<rows;++row){\n        bool different=false;\n        for(size_t col=0;col<cols;++col){\n            auto av=a.bits(row*as+ao+col),bv=b.bits(row*bs+bo+col);\n            add(total,av,bv);add(chunks[row/64],av,bv);\n            if(bf16(av)!=bf16(bv))different=true;\n            if(av!=bv && samples.size()<16)samples.push_back({row,col,av,bv});\n        }\n        total.rows_differ+=different;chunks[row/64].rows_differ+=different;\n    }\n    std::cout<<std::setprecision(17)<<\"{\\\"summary\\\":\";emit(total);\n    std::cout<<\",\\\"chunks\\\":[\";\n    for(size_t i=0;i<chunks.size();++i){if(i)std::cout<<\",\";std::cout<<\"{\\\"first_row\\\":\"<<i*64<<\",\\\"stats\\\":\";emit(chunks[i]);std::cout<<\"}\";}\n    std::cout<<\"],\\\"first_differences\\\":[\";\n    for(size_t i=0;i<samples.size();++i){if(i)std::cout<<\",\";const auto&s=samples[i];\n        std::cout<<\"{\\\"row\\\":\"<<s.row<<\",\\\"column\\\":\"<<s.column<<\",\\\"actual_bits\\\":\"<<s.actual\n            <<\",\\\"reference_bits\\\":\"<<s.reference<<\",\\\"actual\\\":\";\n        if(std::isfinite(value(s.actual)))std::cout<<value(s.actual);else std::cout<<\"null\";\n        std::cout<<\",\\\"reference\\\":\";\n        if(std::isfinite(value(s.reference)))std::cout<<value(s.reference);else std::cout<<\"null\";\n        std::cout<<\"}\";\n    }\n    std::cout<<\"]}\\n\";return 0;\n}catch(const std::exception&e){std::cerr<<e.what()<<\"\\n\";return 2;}}\n"
+    },
+    "prefix_linear_dot_r1.cpp": {
+      "sha256": "92f0d70ad70c31f0dacd4e80cb4046ea9ef0213826647d1c60291eee32c1d39f",
+      "text": "#include \"native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h\"\n#include <cstdint>\n#include <cstring>\n#include <filesystem>\n#include <fstream>\n#include <iostream>\n#include <stdexcept>\n#include <string>\n#include <vector>\nstd::vector<uint16_t> load(const char* path,size_t count){\n    std::ifstream f(path,std::ios::binary|std::ios::ate);\n    if(!f || f.tellg()!=std::streamoff(count*2u))throw std::runtime_error(\"input extent\");\n    std::vector<uint16_t> data(count);f.seekg(0);\n    if(!f.read(reinterpret_cast<char*>(data.data()),count*2u))throw std::runtime_error(\"input read\");\n    return data;\n}\nint main(int argc,char**argv){try{\n    if(argc!=6)throw std::runtime_error(\"arguments\");\n    const unsigned rows=std::stoul(argv[3]),width=std::stoul(argv[4]);\n    if(!rows||rows>8192||!width||width>4096||width%16u)throw std::runtime_error(\"shape\");\n    const auto w=load(argv[1],size_t(rows)*width),x=load(argv[2],width);\n    if(std::filesystem::exists(argv[5]))throw std::runtime_error(\"output exists\");\n    std::vector<float> output(rows);\n    for(unsigned row=0;row<rows;++row)\n        output[row]=qrt_q1_moe_hawkeye::dot_bf16_hopper_blackwell(w.data()+size_t(row)*width,x.data(),width);\n    std::ofstream file(argv[5],std::ios::binary|std::ios::out);\n    file.write(reinterpret_cast<const char*>(output.data()),rows*4u);file.close();\n    if(!file)throw std::runtime_error(\"output write\");\n    std::cout<<\"{\\\"rows\\\":\"<<rows<<\",\\\"width\\\":\"<<width<<\",\\\"ascending_k16\\\":true,\\\"diagnostic_only\\\":true}\\n\";\n    return 0;\n}catch(const std::exception&e){std::cerr<<e.what()<<\"\\n\";return 2;}}\n"
+    },
+    "prefix_linear_norm_r1.cpp": {
+      "sha256": "274265042f93d561d149e9172b34a11f3f2537e01200793df8735328f83b27c3",
+      "text": "#include \"native/providers/gdn/sm121_q1_math.h\"\n#include <array>\n#include <filesystem>\n#include <fstream>\n#include <iostream>\n#include <stdexcept>\n#include <string>\n#include <vector>\nusing namespace qrt_sm121_q1;\ntemplate<class T>std::vector<T> read(const char *path){\n    std::ifstream f(path,std::ios::binary|std::ios::ate);\n    if(!f||f.tellg()<0||size_t(f.tellg())>(18u<<20)||size_t(f.tellg())%sizeof(T))throw std::runtime_error(\"input extent\");\n    std::vector<T> x(size_t(f.tellg())/sizeof(T));f.seekg(0);\n    if(!f.read(reinterpret_cast<char*>(x.data()),x.size()*sizeof(T)))throw std::runtime_error(\"input read\");\n    return x;\n}\ntemplate<class T>void write(const std::string&path,const std::vector<T>&x){\n    if(std::filesystem::exists(path))throw std::runtime_error(\"output exists\");\n    std::ofstream f(path,std::ios::binary);f.write(reinterpret_cast<const char*>(x.data()),x.size()*sizeof(T));f.close();\n    if(!f)throw std::runtime_error(\"output write\");\n}\nfloat residual_sumsq(const std::vector<float>&x){\n    std::array<float,256> partial;\n    for(unsigned lane=0;lane<256;++lane){const float*v=x.data()+lane*8;\n        float sum=std::fma(v[0],v[0],multiply(v[1],v[1]));\n        sum=std::fma(v[2],v[2],sum);sum=add(multiply(v[3],v[3]),sum);\n        sum=std::fma(v[4],v[4],sum);sum=add(multiply(v[5],v[5]),sum);\n        sum=std::fma(v[6],v[6],sum);partial[lane]=add(multiply(v[7],v[7]),sum);\n    }\n    for(unsigned step=16;step;step/=2)for(unsigned w=0;w<8;++w)for(unsigned lane=0;lane<step;++lane)\n        partial[w*32+lane]=add(partial[w*32+lane],partial[w*32+lane+step]);\n    std::array<float,8> warp;for(unsigned w=0;w<8;++w)warp[w]=partial[w*32];\n    for(unsigned step=4;step;step/=2)for(unsigned w=0;w<step;++w)warp[w]=add(warp[w],warp[w+step]);\n    return warp[0];\n}\nint main(int argc,char**argv){try{\n    if(argc!=8)throw std::runtime_error(\"mode input-f32 other-f32 weight-bf16 rsqrt silu output-prefix\");\n    const std::string mode(argv[1]),output(argv[7]);\n    const auto a=read<float>(argv[2]),b=read<float>(argv[3]);const auto w=read<uint16_t>(argv[4]);\n    const auto table=read<unsigned char>(argv[5]);\n    if(!qrt_sm121_rsqrt::valid_layout(table.data(),table.size()))throw std::runtime_error(\"rsqrt layout\");\n    std::vector<uint16_t> result(a.size()),residual;std::vector<float> inverse;\n    if(mode==\"gated\"){\n        const auto silu=read<float>(argv[6]);\n        if(a.size()!=4096||b.size()!=4096||w.size()!=128||silu.size()!=65536)throw std::runtime_error(\"gated shape\");\n        inverse.resize(32);\n        for(unsigned head=0;head<32;++head){std::array<float,16> partial;\n            for(unsigned lane=0;lane<16;++lane){const float*x=a.data()+head*128+lane*8;\n                float sum=std::fma(x[0],x[0],multiply(x[1],x[1]));\n                for(unsigned j=2;j<8;++j)sum=std::fma(x[j],x[j],sum);\n                partial[lane]=sum;\n            }\n            for(unsigned step=8;step;step/=2)for(unsigned lane=0;lane<step;++lane)partial[lane]=add(partial[lane],partial[lane+step]);\n            const float inv=qrt_sm121_rsqrt::evaluate(table.data(),add(multiply(partial[0],1.f/128.f),1.e-6f));inverse[head]=inv;\n            for(unsigned j=0;j<128;++j){const unsigned i=head*128+j;\n                result[i]=bf16(multiply(multiply(multiply(a[i],inv),widen(w[j])),silu[bf16(b[i])]));}\n        }\n    }else if(mode==\"consumer\"){\n        if(a.size()!=2048||b.size()!=2048||w.size()!=2048)throw std::runtime_error(\"consumer shape\");\n        std::vector<float> unrounded(2048);residual.resize(2048);inverse.resize(1);\n        for(unsigned i=0;i<2048;++i){unrounded[i]=add(widen(bf16(a[i])),widen(bf16(b[i])));residual[i]=bf16(unrounded[i]);}\n        const float inv=qrt_sm121_rsqrt::evaluate(table.data(),add(multiply(residual_sumsq(unrounded),1.f/2048.f),1.e-6f));inverse[0]=inv;\n        for(unsigned i=0;i<2048;++i)result[i]=bf16(multiply(multiply(widen(residual[i]),inv),add(1.f,widen(w[i]))));\n        write(output+\"-residual-bf16.bin\",residual);\n    }else throw std::runtime_error(\"mode\");\n    write(output+\"-norm-bf16.bin\",result);write(output+\"-inverse-f32.bin\",inverse);\n    std::cout<<\"{\\\"mode\\\":\\\"\"<<mode<<\"\\\",\\\"elements\\\":\"<<a.size()<<\",\\\"diagnostic_only\\\":true}\\n\";return 0;\n}catch(const std::exception&e){std::cerr<<e.what()<<\"\\n\";return 2;}}\n"
+    },
+    "analyze_prefix96_linear_capture_r1.py": {
+      "sha256": "1b462970345adad5c556d391a0848b0f69bef7b30257cf6a2fb84a6da3650bf5",
+      "text": "\"\"\"Compare actual original native operands/states with independently qualified GB10.\"\"\"\nfrom array import array\nfrom pathlib import Path\nimport hashlib,json,subprocess,sys\nB=Path(__file__).resolve().parent\nread=lambda p:json.loads(p.read_text(encoding='utf-8-sig'))\nsha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()\ndef file_id(p):return dict(file=str(p.relative_to(B)),bytes=p.stat().st_size,sha256=sha(p))\n\ndef compare(a,ak,b,bk,rows,cols,astride=None,aoffset=0,bstride=None,boffset=0):\n    command=[str(B/'prefix-linear-compare-r1'),str(a),ak,str(b),bk,str(rows),str(cols),\n             str(astride or cols),str(aoffset),str(bstride or cols),str(boffset)]\n    run=subprocess.run(command,capture_output=True,text=True,timeout=45)\n    run.check_returncode();result=json.loads(run.stdout)\n    result.update(native=file_id(a),reference=file_id(b),command=command)\n    return result\n\ndef canonical_state(source,destination,layout):\n    assert sys.byteorder=='little' and source.stat().st_size==524288*4\n    bits=array('I');bits.frombytes(source.read_bytes())\n    if layout=='key-major':\n        canonical=array('I',[0])*524288\n        for h in range(32):\n            for v in range(128):\n                for k in range(128):canonical[h*16384+v*128+k]=bits[h*16384+k*128+v]\n    else:\n        assert layout=='value-major';canonical=bits\n    with destination.open('xb') as f:f.write(canonical.tobytes())\n    return destination\n\ndef main():\n    tool=read(B/'prefix-linear-compare-local-r1.json')\n    assert sha(B/'prefix_linear_compare_r1.cpp')==tool['source_sha256']\n    assert sha(B/'prefix-linear-compare-r1')==tool['binary_sha256']\n    name='prefix96-linear-capture-r1';d=B/name;c=d/'capture/linear-16'\n    s=read(B/'prefix96-linear-capture-source-r1.json');r=read(d/'run-record.json')\n    assert r['host'].lower()=='baiying' and r['reason']=='completed' and r['exit_code']==0\n    assert r['host_checks_pass'] and all(r['host_checks'].values()) and not r['after_processes']\n    assert r['spec']['command_file_sha256']==s['script_sha256']==sha(B/s['script'])\n    assert sha(B/s['dispatcher'])==s['dispatcher_sha256']\n    assert (r['summary']['input_tokens'],r['summary']['output_tokens'])==(98304,1)\n    assert not r['spec']['expected_product_output_supplied']\n    capture=read(d/'capture-manifest.json');assert capture['source_commit']==s['whole_source_commit']\n    assert capture['archive_sha256']==sha(d/'capture.tar')\n    for f in capture['files']:\n        p=d/'capture'/f['file'];assert p.stat().st_size==f['bytes'] and sha(p)==f['sha256']\n    record=read(c/'capture.json')\n    assert record['complete'] and (record['layer'],record['first_position'],record['tokens'])==(16,90112,8192)\n    assert record['original_launch_count']==1\n    reference=B/'qrt-gb10-prefix128-layer16-20260919-r1'\n    authority=read(reference/'boundary-analysis.json')\n    assert authority['reference_qualified'] and authority['original512_output_ids_and_full_first_logits_reproduced']\n    assert authority['window']['plan']==dict(layer=16,first_position=90112,tokens=8192)\n    targets=authority['target_files']\n    for f in targets.values():\n        p=B/f['local_file'];assert p.stat().st_size==f['bytes'] and sha(p)==f['sha256']\n    out=d/'analysis-original-linear-r1';out.mkdir()\n    comparisons={}\n    for key,offset,cols in [('q-core-input',0,2048),('k-core-input',2048,2048),('v-core-input',4096,4096)]:\n        f=targets[key];comparisons[key]=compare(c/'raw-f32.bin','f32',B/f['local_file'],f['dtype'],8192,cols,8192,offset)\n    for key,offset in [('g-core-input',0),('beta-core-input',32)]:\n        f=targets[key];comparisons[key]=compare(c/'gates-f32.bin','f32',B/f['local_file'],f['dtype'],8192,32,64,offset)\n    f=targets['core'];comparisons['core']=compare(c/'output-f32.bin','f32',B/f['local_file'],f['dtype'],8192,4096)\n    for key in ('initial-state','final-state'):\n        original=c/(key+'-f32.bin');p=canonical_state(original,out/(key+'-canonical-f32.bin'),record['state_layout'])\n        f=targets[key];comparisons[key]=compare(p,'f32',B/f['local_file'],'f32',1,524288)\n        comparisons[key]['original_native_file']=file_id(original)\n        comparisons[key]['native_layout']=record['state_layout']\n        comparisons[key]['bit_preserving_axis_transpose']=record['state_layout']=='key-major'\n\n    row_ref=B/'qrt-gb10-prefix128-moe16-20260919-r1';qualified=read(row_ref/'boundary-analysis.json')\n    assert qualified['reference_qualified'] and qualified['original512_output_ids_and_full_first_logits_reproduced']\n    case=next(x for x in read(row_ref/'capture/capture.json')['cases'] if x['name']=='long-prefix131072-owner-out512')\n    w=case['worker']['runtime_boundaries']\n    selected=[(t,i,q) for t in w['transactions'] for i,q in enumerate(t['qualified_rows']) if q['position']==98303]\n    assert len(selected)==1;t,ri,q=selected[0];assert q['matches_generated_history'] and t['ordinal']==11\n    mapping={'qkv_projection':('qkv',8192),'z_projection':('z-projection',4096),\n        'a_projection':('a-projection',32),'b_projection':('b-projection',32),\n        'core':('core',4096),'gated_rmsnorm':('gated',4096),'out_projection':('output-projection',2048)}\n    terminal={}\n    for surface,(label,width) in mapping.items():\n        paths=list(c.glob('terminal-'+surface+'-*.bin'));assert len(paths)==1\n        actual=paths[0];ak='bf16' if actual.name.endswith('-bf16.bin') else 'f32'\n        f=next(f for f in w['files'].values() if f['transaction']==t['ordinal'] and f['label']=='linear-16-'+label)\n        original=row_ref/'capture'/case['name']/f['file'];assert original.stat().st_size==f['bytes'] and sha(original)==f['sha256']\n        data=original.read_bytes();size=2 if f['dtype']=='bf16' else 4\n        assert len(data)==len(t['qualified_rows'])*width*size\n        reference_row=out/('reference-'+surface+'-'+f['dtype']+'.bin')\n        with reference_row.open('xb') as handle:handle.write(data[ri*width*size:(ri+1)*width*size])\n        terminal[surface]=compare(actual,ak,reference_row,f['dtype'],1,width)\n        terminal[surface].update(original_reference_file=file_id(original),original_reference_row=q)\n    # Check that later row observation still sees the original seeded output.\n    with (c/'output-f32.bin').open('rb') as f:\n        f.seek(8191*4096*4);last=f.read(4096*4)\n    assert last==(c/'terminal-core-f32.bin').read_bytes()\n    proof=dict(kind='actual_original_prefix_linear_window_comparison',host='baiying',model=r['spec']['model'],\n        source_commit=s['whole_source_commit'],source_manifest=file_id(B/'prefix96-linear-capture-source-r1.json'),\n        command_file=r['spec']['command_file'],command_file_sha256=r['spec']['command_file_sha256'],\n        run_record=file_id(d/'run-record.json'),capture_manifest=file_id(d/'capture-manifest.json'),\n        host_checks=r['host_checks'],summary=r['summary'],capture_record=record,\n        reference_analysis=file_id(reference/'boundary-analysis.json'),selected_row_reference_analysis=file_id(row_ref/'boundary-analysis.json'),\n        full_window=comparisons,terminal_rows=terminal,core_terminal_unchanged_after_original_launch=True,\n        observer=file_id(Path(__file__)),comparison_tool_validation=tool,\n        selected_terminal_row_only_for_projections=True,\n        diagnostic_only=True,inference_acceptance=False,performance_acceptance=False,release_qualified=False)\n    path=d/'linear-boundary-analysis-r1.json'\n    with path.open('x') as f:json.dump(proof,f,indent=2,allow_nan=False);f.write('\\n')\n    print(json.dumps(dict(file=str(path.relative_to(B)),sha256=sha(path),\n        window={k:v['summary'] for k,v in comparisons.items()},terminal={k:v['summary'] for k,v in terminal.items()}),indent=2))\n\nif __name__=='__main__':main()\n"
+    },
+    "compare_gb10_layer16_projection_dots_r1.py": {
+      "sha256": "7bb09721f2011776d8c0c025c5b3ca934583377f4903aa35cc91d44d0d6ea51c",
+      "text": "\"\"\"Qualify offline canonical dots against original selected GB10 boundaries.\"\"\"\nfrom pathlib import Path\nimport hashlib,json,subprocess\nfrom analyze_prefix96_linear_capture_r1 import compare\nB=Path(__file__).resolve().parent\nP=Path('<private-home>/projects/AIMA-public-r1191-candidate')\nread=lambda p:json.loads(p.read_text(encoding='utf-8-sig'))\nsha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()\nd=B/'prefix128-layer16-projection-weights-r1';weights=read(d/'verified-source.json')\nassert weights['all_downloaded_files_verified'] and not weights['gpu_execution']\nfor row in weights['files']:\n    assert sha(d/row['file'])==row['sha256'] and (d/row['file']).stat().st_size==row['bytes']\nexe=B/'prefix-linear-dot-r1';source=B/'prefix_linear_dot_r1.cpp'\ncommand=['c++','-std=c++17','-O3','-ffp-contract=off','-Wall','-Wextra','-Werror','-I'+str(P),str(source),'-o',str(exe)]\ncompiled=subprocess.run(command,capture_output=True,text=True,timeout=30);compiled.check_returncode()\nreference=B/'qrt-gb10-prefix128-moe16-20260919-r1'\nauthority=read(reference/'boundary-analysis.json');assert authority['reference_qualified']\ncase=next(x for x in read(reference/'capture/capture.json')['cases'] if x['name']=='long-prefix131072-owner-out512')\nw=case['worker']['runtime_boundaries'];out=d/'original-row-dots-r1';out.mkdir()\nresults=[]\nfor position in (8191,90111,98303):\n    matches=[(t,i,q) for t in w['transactions'] for i,q in enumerate(t['qualified_rows']) if q['position']==position]\n    assert len(matches)==1;t,ri,q=matches[0];assert q['matches_generated_history']\n    def selected(label,width):\n        f=next(f for f in w['files'].values() if f['transaction']==t['ordinal'] and f['label']==label)\n        p=reference/'capture'/case['name']/f['file'];assert sha(p)==f['sha256'] and f['dtype']=='bf16'\n        data=p.read_bytes();assert len(data)==len(t['qualified_rows'])*width*2\n        path=out/(str(position)+'-'+label+'-bf16.bin')\n        if not path.exists():\n            with path.open('xb') as handle:handle.write(data[ri*width*2:(ri+1)*width*2])\n        return path\n    for projection,weight,input_label,reference_label,rows,width in (\n        ('qkv','in_proj_qkv','layer-16-input-rmsnorm','linear-16-qkv',8192,2048),\n        ('z','in_proj_z','layer-16-input-rmsnorm','linear-16-z-projection',4096,2048),\n        ('out','out_proj','linear-16-gated','linear-16-output-projection',2048,4096)):\n        inp=selected(input_label,width);ref=selected(reference_label,rows)\n        weight_file=d/next(r['file'] for r in weights['files'] if r['key'].endswith('linear_attn.'+weight+'.weight'))\n        generated=out/(str(position)+'-'+projection+'-canonical-f32.bin')\n        cmd=[str(exe),str(weight_file),str(inp),str(rows),str(width),str(generated)]\n        run=subprocess.run(cmd,capture_output=True,text=True,timeout=45);run.check_returncode()\n        compared=compare(generated,'f32',ref,'bf16',1,rows)\n        results.append(dict(position=position,projection=projection,command=cmd,weight_sha256=sha(weight_file),input_sha256=sha(inp),comparison=compared))\nproof=dict(kind='original_gb10_layer16_canonical_cpu_projection_dots',reference_analysis_sha256=sha(reference/'boundary-analysis.json'),\n    model=weights['model'],weights_source_sha256=sha(d/'verified-source.json'),\n    source_commit=authority['source_commit'],observer_source_sha256=sha(source),\n    accumulator_header_sha256=sha(P/'native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h'),\n    local_compile_command=command,executable_sha256=sha(exe),results=results,\n    diagnostic_only=True,model_inference=False,gpu_execution=False,inference_acceptance=False)\nwith (out/'comparison.json').open('x') as f:json.dump(proof,f,indent=2,allow_nan=False);f.write('\\n')\nprint(json.dumps([dict(position=r['position'],projection=r['projection'],**r['comparison']['summary']) for r in results],indent=2))\n"
+    },
+    "compare_gb10_layer16_norms_r1.py": {
+      "sha256": "59f5bbeb283ca44339eff001c7b517933a17c3935dbc96bb4db23cbb6f6fff4a",
+      "text": "\"\"\"Qualify literal normalization arithmetic against real selected GB10 rows.\"\"\"\nfrom pathlib import Path\nfrom array import array\nimport hashlib,json,subprocess,sys\nfrom analyze_prefix96_linear_capture_r1 import compare\nB=Path(__file__).resolve().parent\nP=Path('<private-home>/projects/AIMA-public-r1191-candidate')\nread=lambda p:json.loads(p.read_text(encoding='utf-8-sig'))\nsha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()\nd=B/'prefix128-layer16-projection-weights-r1';weights=read(d/'verified-source.json')\nassert weights['all_downloaded_files_verified'] and sys.byteorder=='little'\ntable=B/'qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin'\nsilu=B/'gated-compat-tables-r1/silu-f32.bin'\nassert sha(table)=='ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850'\nassert sha(silu)=='f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c'\nexe=B/'prefix-linear-norm-r1';source=B/'prefix_linear_norm_r1.cpp'\ncommand=['c++','-std=c++17','-O3','-ffp-contract=off','-Wall','-Wextra','-Werror','-I'+str(P),str(source),'-o',str(exe)]\ncompiled=subprocess.run(command,capture_output=True,text=True,timeout=30);compiled.check_returncode()\nreference=B/'qrt-gb10-prefix128-moe16-20260919-r1'\nauthority=read(reference/'boundary-analysis.json');assert authority['reference_qualified']\ncase=next(x for x in read(reference/'capture/capture.json')['cases'] if x['name']=='long-prefix131072-owner-out512')\nw=case['worker']['runtime_boundaries'];out=d/'original-row-norms-r1';out.mkdir()\nresults=[]\nfor position in (8191,90111,98303):\n    matches=[(t,i,q) for t in w['transactions'] for i,q in enumerate(t['qualified_rows']) if q['position']==position]\n    assert len(matches)==1;t,ri,q=matches[0];assert q['matches_generated_history']\n    def selected(label,width,as_float):\n        f=next(f for f in w['files'].values() if f['transaction']==t['ordinal'] and f['label']==label)\n        p=reference/'capture'/case['name']/f['file'];assert sha(p)==f['sha256'] and f['dtype'] in ('bf16','f32')\n        data=p.read_bytes();size=2 if f['dtype']=='bf16' else 4\n        assert len(data)==len(t['qualified_rows'])*width*size\n        data=data[ri*width*size:(ri+1)*width*size]\n        if as_float and f['dtype']=='bf16':\n            words=array('H');words.frombytes(data);data=array('I',(int(x)<<16 for x in words)).tobytes()\n        kind='f32' if as_float else f['dtype'];path=out/(str(position)+'-'+label+'-'+kind+'.bin')\n        if not path.exists():\n            with path.open('xb') as handle:handle.write(data)\n        return path,kind\n    for mode,first,second,norm,expected,width in (\n        ('gated','linear-16-core','linear-16-z-projection','linear_attn.norm.weight','linear-16-gated',4096),\n        ('consumer','layer-15-combined','linear-16-output-projection','post_attention_layernorm.weight','layer-16-post-attention-rmsnorm',2048)):\n        a,_=selected(first,width,True);b,_=selected(second,width,True);ref,kind=selected(expected,width,False)\n        row=next(r for r in weights['files'] if r['key']=='model.language_model.layers.16.'+norm)\n        weight=d/row['file'];assert sha(weight)==row['sha256']\n        prefix=out/(str(position)+'-'+mode)\n        cmd=[str(exe),mode,str(a),str(b),str(weight),str(table),str(silu),str(prefix)]\n        run=subprocess.run(cmd,capture_output=True,text=True,timeout=15);run.check_returncode()\n        result=compare(Path(str(prefix)+'-norm-bf16.bin'),'bf16',ref,kind,1,width)\n        entry=dict(position=position,mode=mode,command=cmd,weight_sha256=sha(weight),comparison=result)\n        if mode=='consumer':\n            ref,kind=selected('layer-16-residual',2048,False)\n            entry['residual']=compare(Path(str(prefix)+'-residual-bf16.bin'),'bf16',ref,kind,1,2048)\n        results.append(entry)\nproof=dict(kind='original_gb10_layer16_cpu_normalization',reference_analysis_sha256=sha(reference/'boundary-analysis.json'),\n    model=weights['model'],weights_source_sha256=sha(d/'verified-source.json'),source_commit=authority['source_commit'],\n    observer_source_sha256=sha(source),local_compile_command=command,executable_sha256=sha(exe),\n    table_sha256=sha(table),silu_sha256=sha(silu),\n    source_headers={str(p.relative_to(P)):sha(p) for p in [P/'native/providers/gdn'/f for f in ('sm121_q1_math.h','sm121_rsqrt_table.h','sm121_exp2_table.h')]},\n    results=results,diagnostic_only=True,model_inference=False,gpu_execution=False,inference_acceptance=False)\nwith (out/'comparison.json').open('x') as f:json.dump(proof,f,indent=2,allow_nan=False);f.write('\\n')\nprint(json.dumps([dict(position=r['position'],mode=r['mode'],**r['comparison']['summary']) for r in results],indent=2))\n"
+    },
+    "compare_prefix96_observed_consumer_r1.py": {
+      "sha256": "ed9840eebd402d0f927754e9105fbe765d0ad8637163e5eb36fd601341947e64",
+      "text": "\"\"\"Replay only the saved native residual consumer, without model intervention.\"\"\"\nfrom pathlib import Path\nimport hashlib,json,re,struct,subprocess\nfrom analyze_prefix96_linear_capture_r1 import compare\nB=Path(__file__).resolve().parent\nread=lambda p:json.loads(p.read_text(encoding='utf-8-sig'))\nsha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()\nd=B/'prefix96-layer16-observer-r2';out=d/'consumer-replay-r1';out.mkdir()\nqualified_path=B/'prefix128-layer16-projection-weights-r1/original-row-norms-r1/comparison.json'\nqualified=read(qualified_path)\nassert all(x['comparison']['summary']['bf16_mismatches']==0 for x in qualified['results'])\nassert sha(B/'prefix_linear_norm_r1.cpp')==qualified['observer_source_sha256']\nassert sha(B/'prefix-linear-norm-r1')==qualified['executable_sha256']\nrun=read(d/'run-record.json');assert run['exit_code']==0 and run['host_checks_pass']\nlog=d/'product.stderr.log';rows={};prefix=0\nfor line in log.read_text().splitlines():\n    if line.startswith('BATCH_MARK qwen36_chunked_prefill_chunk '):\n        fields=dict(re.findall(r'(\\w+)=([^ ]+)',line));assert int(fields['first_position'])==prefix\n        prefix=int(fields['history_tokens'])\n    elif line.startswith('BATCH_MARK qwen36_exact_arbitrary_layer_boundary_trace layer=16 '):\n        fields=dict(re.findall(r'(\\w+)=([^ ]+)',line));position=prefix+int(fields['trace_position'])\n        if position in (8191,90111,98303):\n            data=b''.join(struct.pack('<I',int(x,16)) for x in fields['f32_bits'].split(','))\n            assert len(data)==8192\n            p=out/(str(position)+'-'+fields['surface']+'-f32.bin')\n            with p.open('xb') as f:f.write(data)\n            rows.setdefault(position,{})[fields['surface']]=p\nweight=B/'prefix128-layer16-projection-weights-r1/post_attention_layernorm-weight-bf16.bin'\ntable=B/'qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin'\nassert sha(table)==qualified['table_sha256']\nreference=B/'prefix128-layer16-projection-weights-r1/original-row-norms-r1'\nresults=[]\nfor position,row in sorted(rows.items()):\n    for kind,update in [('actual',row['attention_update']),('reference_update',reference/(str(position)+'-linear-16-output-projection-f32.bin'))]:\n        generated=out/(str(position)+'-'+kind)\n        command=[str(B/'prefix-linear-norm-r1'),'consumer',str(row['seed_hidden']),str(update),str(weight),str(table),'-',str(generated)]\n        r=subprocess.run(command,capture_output=True,text=True,timeout=15);r.check_returncode()\n        norm=Path(str(generated)+'-norm-bf16.bin');residual=Path(str(generated)+'-residual-bf16.bin')\n        entry=dict(position=position,kind=kind,command=command,\n            norm_vs_actual=compare(norm,'bf16',row['post_attention_rmsnorm'],'f32',1,2048),\n            residual_vs_actual=compare(residual,'bf16',row['post_attention_hidden'],'f32',1,2048),\n            norm_vs_reference=compare(norm,'bf16',reference/(str(position)+'-layer-16-post-attention-rmsnorm-bf16.bin'),'bf16',1,2048),\n            residual_vs_reference=compare(residual,'bf16',reference/(str(position)+'-layer-16-residual-bf16.bin'),'bf16',1,2048))\n        results.append(entry)\nproof=dict(kind='observed_native_layer16_consumer_cpu_replay',host='baiying',model=run['spec']['model'],\n    native_source_commit=run['spec']['coarse_out_provider']['commit'],\n    native_run_sha256=sha(d/'run-record.json'),native_log_sha256=sha(log),\n    original_command_file=run['spec']['command_file'],original_command_file_sha256=run['spec']['command_file_sha256'],\n    reference_norm_qualification_sha256=sha(qualified_path),observer=Path(__file__).name,observer_sha256=sha(Path(__file__)),\n    actual_process_never_modified=True,reference_update_substitution_only_offline=True,\n    results=results,diagnostic_only=True,inference_acceptance=False,performance_acceptance=False)\nwith (out/'comparison.json').open('x') as f:json.dump(proof,f,indent=2,allow_nan=False);f.write('\\n')\nprint(json.dumps([dict(position=x['position'],kind=x['kind'],**{k:v['summary']['bf16_mismatches'] for k,v in x.items() if k.endswith(('_actual','_reference'))}) for x in results],indent=2))\n"
+    },
+    "read_gb10_layer16_projection_weights_r1.py": {
+      "sha256": "4488b546e274613eb15ef993c482d2ff061bd4f36b6dad5fe521b117f4feb443",
+      "text": "\"\"\"Read original reference model tensors; no model execution or GPU use.\"\"\"\nfrom pathlib import Path\nimport hashlib,json,socket,struct,time\nassert socket.gethostname()=='aitopatom-66c4'\nroot=Path('<private-home>/prefix128-layer16-projection-weights-r1');root.mkdir()\nmodel=Path('/mnt/data/models/Qwen3.6-35B-A3B')\ndef sha(p):\n    h=hashlib.sha256()\n    with p.open('rb') as f:\n        for part in iter(lambda:f.read(8<<20),b''):h.update(part)\n    return h.hexdigest()\nstart=time.monotonic()\nindex=model/'model.safetensors.index.json'\nassert sha(index)=='41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83'\nassert sha(model/'config.json')=='93a4693fa9d8392fbfccd4b3c9873f4bfdcb14fdede978b123d07d19675efe99'\nmapping=json.loads(index.read_text())['weight_map'];prefix='model.language_model.layers.16.'\ntargets={'linear_attn.out_proj.weight':[2048,4096],\n    'linear_attn.in_proj_qkv.weight':[8192,2048],\n    'linear_attn.in_proj_z.weight':[4096,2048],\n    'linear_attn.norm.weight':[128],\n    'post_attention_layernorm.weight':[2048]}\nfiles=[];shards={}\nfor name,shape in targets.items():\n    key=prefix+name;shard=mapping[key];path=model/shard\n    with path.open('rb') as f:\n        header_size=struct.unpack('<Q',f.read(8))[0];assert 0<header_size<=16<<20\n        header=json.loads(f.read(header_size));entry=header[key]\n        assert entry['dtype']=='BF16' and entry['shape']==shape\n        first,last=entry['data_offsets'];elements=1\n        for axis in shape:elements*=axis\n        assert last-first==elements*2 and 8+header_size+last<=path.stat().st_size\n        offset=8+header_size+first;f.seek(offset);raw=f.read(last-first)\n    assert len(raw)==elements*2\n    file=name.replace('.','-')+'-bf16.bin';destination=root/file\n    with destination.open('xb') as f:f.write(raw)\n    files.append(dict(key=key,shape=shape,dtype='bf16',shard=shard,offset=offset,file=file,\n        bytes=len(raw),sha256=sha(destination)))\n    if shard not in shards:shards[shard]=dict(bytes=path.stat().st_size,sha256=sha(path))\n    assert time.monotonic()-start<60\nrecord=dict(kind='readonly_original_reference_model_projection_weights',host=socket.gethostname(),model=str(model),\n    model_index_sha256=sha(index),model_config_sha256=sha(model/'config.json'),\n    command_file=__file__,command_file_sha256=sha(Path(__file__)),\n    files=files,shards=shards,wall_seconds=time.monotonic()-start,\n    model_loaded=False,gpu_execution=False,diagnostic_only=True,inference_acceptance=False)\n# The authoritative source identity is attached by the local dispatcher from\n# the original qualified capture, rather than inferred from this read command.\nwith (root/'weights-source.json').open('x') as f:json.dump(record,f,indent=2);f.write('\\n')\nprint(json.dumps(record))\n"
+    },
+    "dispatch_gb10_layer16_projection_weights_r1.py": {
+      "sha256": "ee2141e46be2f7b5f306b70d455d1f12c9393a92e1b484dca0915eb09bfcd9c7",
+      "text": "from pathlib import Path\nimport hashlib,json,socket,subprocess,time\nB=Path(__file__).resolve().parent\nassert socket.gethostname().split('.')[0].lower()!='baiying'\nsha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()\nread=lambda p:json.loads(p.read_text(encoding='utf-8-sig'))\nauthority_path=B/'qrt-gb10-prefix128-layer16-20260919-r1/boundary-analysis.json'\nauthority=read(authority_path);assert authority['reference_qualified']\nscript=B/'read_gb10_layer16_projection_weights_r1.py'\nname='prefix128-layer16-projection-weights-r1';d=B/name;d.mkdir()\nremote='<private-home>/'+name;opts=['-o','BatchMode=yes','-o','ConnectTimeout=10']\nsubprocess.run(['scp',*opts,str(script),'gb10-4t:<private-home>/'+script.name],check=True,timeout=20)\ncommand=['ssh',*opts,'gb10-4t','python3 <private-home>/'+script.name]\nstart=time.monotonic();r=subprocess.run(command,capture_output=True,text=True,timeout=75)\nwith (d/'dispatch.json').open('x') as f:json.dump(dict(command=command,returncode=r.returncode,stdout=r.stdout,stderr=r.stderr,wall_seconds=time.monotonic()-start),f,indent=2);f.write('\\n')\nr.check_returncode();record=json.loads(r.stdout)\nassert record['host']=='aitopatom-66c4' and record['command_file_sha256']==sha(script)\nfor file in ['weights-source.json']+[x['file'] for x in record['files']]:\n    subprocess.run(['scp',*opts,'gb10-4t:'+remote+'/'+file,str(d/file)],check=True,timeout=45)\nassert read(d/'weights-source.json')==record\nfor row in record['files']:\n    p=d/row['file'];assert sha(p)==row['sha256'] and p.stat().st_size==row['bytes']\nrecord.update(reference_source_commit=authority['source_commit'],\n    reference_analysis_sha256=sha(authority_path),reference_capture_sha256=authority['capture_sha256'],\n    dispatcher=Path(__file__).name,dispatcher_sha256=sha(Path(__file__)),all_downloaded_files_verified=True)\nwith (d/'verified-source.json').open('x') as f:json.dump(record,f,indent=2);f.write('\\n')\nprint(json.dumps(dict(files=len(record['files']),bytes=sum(x['bytes'] for x in record['files']),shards=len(record['shards']),gpu_execution=False),indent=2))\n"
+    }
+  },
+  "normalization_tables": {
+    "rsqrt_sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850",
+    "silu_sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
+  },
+  "capture_path_note": "The actual original Windows profile leaves FLA_DEVICE_PREPARATION absent/default-off and emits no device-preparation markers. The new capture keeps that decision; support for an absent legacy postconv buffer also makes the observer safe when the existing option is on.",
+  "conclusion": "All9 selected canonical projection cases and6 normalization cases reproduce GB10 BF16 outputs. Original native residual/norm outputs are bitwise reproduced from native attention updates. Only in an offline counterfactual, substituting the original GB10 update eliminates55 residual and51 norm differences at98303. The observed discrepancy originates before this residual/norm consumer; upstream raw operands, state and gated output remain under diagnosis.",
+  "actual_native_process_changed": false,
+  "reference_values_supplied_to_model": false,
+  "cpu_component_only": true,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

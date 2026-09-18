@@ -145,6 +145,21 @@ not a new performance baseline. See the
 The actual first96k capture is running with the original90112–98303 target;
 it has not yet produced the selected window.
 
+Independent CPU controls now reproduce all9 original QKV/Z/OUT projection
+rows and all6 gated/residual-normalization cases at positions8191,90111 and
+98303. They use the pinned original GB10 model weights and complete-domain
+math tables. The native residual/norm outputs are reproduced bitwise from
+the saved actual native attention update. In an offline counterfactual only,
+substituting the original GB10 update removes all55 residual and51 norm
+differences at98303. This locates the discrepancy before that consumer; it
+does not yet distinguish core, gated normalization or output projection.
+See the [qualified CPU boundary controls](../benchmarks/correctness/prefix96-layer16-cpu-boundary-controls-20260919.json).
+
+The actual diagnostic profile leaves `QRT_QWEN36_FLA_DEVICE_PREPARATION`
+absent/default-off and emits no device-preparation markers. The new observer
+preserves that existing decision. Its optional-null postconv handling also
+supports profiles where the existing preparation option is enabled.
+
 The policy repair follows three preserved failed 128k owner/suffix runs.
 Each completed 14 owner chunks through 114688 tokens and produced no output:
 
