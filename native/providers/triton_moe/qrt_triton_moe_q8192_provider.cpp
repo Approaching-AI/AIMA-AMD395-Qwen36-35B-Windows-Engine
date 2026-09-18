@@ -5955,7 +5955,7 @@ __global__ void native_wmma_gate_up_silu_lds_b_split_passes_kernel(
                 auto* count = reinterpret_cast<uint32_t*>(&shared.padding[0]);
                 moe_producer_projection_replay<false>(shared.routes, active_rows,
                     uint32_t(shared.expert), first_column, shared.a, count,
-                    post_attention_bf16, gate_up_bf16, batched_hawkeye_gate_up_native_f32,
+                    batched_hawkeye_gate_up_native_f32,
                     activated_bf16, cuda_vllm_silu_bf16_domain_lut,
                     routed_projection_hawkeye_midpoint_radius, producer_gate_low_exponent, producer_bounds
 #if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
@@ -5965,7 +5965,7 @@ __global__ void native_wmma_gate_up_silu_lds_b_split_passes_kernel(
                 );
                 moe_producer_projection_replay<true>(shared.routes, active_rows,
                     uint32_t(shared.expert), first_column, shared.a, count,
-                    post_attention_bf16, gate_up_bf16, batched_hawkeye_gate_up_native_f32,
+                    batched_hawkeye_gate_up_native_f32,
                     activated_bf16, cuda_vllm_silu_bf16_domain_lut,
                     routed_up_projection_hawkeye_midpoint_radius, producer_up_low_exponent, producer_bounds
 #if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG

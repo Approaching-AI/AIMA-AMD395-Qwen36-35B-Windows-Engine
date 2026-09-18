@@ -8,8 +8,7 @@
 template<bool Up>
 __device__ __forceinline__ void moe_producer_projection_replay(
     const int32_t* routes, uint32_t rows, uint32_t expert, uint32_t first_column,
-    uint16_t* queue, uint32_t* count, const uint16_t* input,
-    const uint16_t* weights, float* native, uint16_t* activated,
+    uint16_t* queue, uint32_t* count, float* native, uint16_t* activated,
     const uint16_t* silu_lut, uint32_t midpoint_radius,
     uint32_t low_exponent_threshold, const MoeCorrectionBounds& bounds
 #if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
@@ -68,8 +67,14 @@ __device__ __forceinline__ void moe_producer_projection_replay(
         const uint32_t index = route * kIntermediate + column;
         const uint32_t weight_row = expert * (2u * kIntermediate) +
             (Up ? kIntermediate : 0u) + column;
-        const float exact = moe_routed_replay_dot<4u>(input, weights,
-            route / kTopK, weight_row, kHidden, bounds);
+        // This producer variant is admitted only with lossless staged replay.
+        // Keep its original per-group fallback, without generating unrelated
+        // whole-row replay alternatives inside the matrix epilogue.
+        const float exact = qrt_sm121_staged_half_projection::dot<2u>(
+            reinterpret_cast<const qrt_sm121_staged_half_projection::Row*>(bounds.prepared_input) +
+                size_t(route / kTopK) * (kHidden / 16u),
+            reinterpret_cast<const qrt_sm121_staged_half_projection::Row*>(bounds.prepared_weights) +
+                size_t(weight_row) * (kHidden / 16u), kHidden);
         if ((threadIdx.x & 3u) == 0u) {
             if constexpr (Up) native[kActivatedElements + index] = exact;
             else activated[index] = float_to_bf16(exact);

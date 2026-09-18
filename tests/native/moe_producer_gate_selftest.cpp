@@ -97,7 +97,8 @@ void run(bool full, unsigned mode) {
     }
     // The generated norm controls exercise empty, dense and sparse selection;
     // they are not claimed as conservative bounds for model inference.
-    std::vector<float> inorm(tokens + 2u * guard, 1000.0f), wnorm(weight_rows + 2u * guard, 1000.0f);
+    const float norm_control = mode == 3u ? 1000.0f : 32.0f;
+    std::vector<float> inorm(tokens + 2u * guard, norm_control), wnorm(weight_rows + 2u * guard, norm_control);
     std::vector<float> blank(kActivatedElements + elements + 2u * guard, sentinel);
     std::vector<uint16_t> act(elements + 2u * guard, sentinel16);
     std::vector<uint16_t> debug(8u * kIntermediate + 2u * guard, sentinel16);
@@ -196,6 +197,7 @@ void run(bool full, unsigned mode) {
         if (mode == 0u) require(selected[guard] == 0u, "empty selector was not empty");
         else require(selected[guard] > 0u, "nonempty selector was empty");
         if (mode == 3u) require(selected[guard] == 2u * elements, "dense local queue was not full");
+        if (mode == 4u) require(selected[guard] < elements, "sparse selector was not sparse");
         if (trial == 0u) {
             reference = std::move(actual); reference_act = std::move(activated); reference_count = std::move(selected);
             reference_g = std::move(gate); reference_u = std::move(up); reference_gf = std::move(gf); reference_uf = std::move(uf);
