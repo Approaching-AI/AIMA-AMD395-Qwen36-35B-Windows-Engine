@@ -31,4 +31,10 @@ inline bool select(const char* option,unsigned start,unsigned count,
         all_pv||matrix||selective)return false;
     enabled=true;return true;
 }
+inline bool select_final_bound(const char* option,bool long_pipeline,bool& enabled) {
+    enabled=false;
+    if(option&&*option&&std::strcmp(option,"0")&&std::strcmp(option,"1"))return false;
+    enabled=long_pipeline&&option&&!std::strcmp(option,"1");
+    return true;
+}
 } // namespace qrt_long_attention_layout

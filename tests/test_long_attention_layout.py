@@ -59,6 +59,14 @@ int main() {
         }
     }
     bool enabled=true;
+    for(const char* option:std::initializer_list<const char*>{nullptr,"","0","1","2","01","1 ","true"}) {
+        for(bool pipeline:{false,true}) {
+            enabled=true;
+            const bool valid=!option||!*option||!std::strcmp(option,"0")||!std::strcmp(option,"1");
+            assert(select_final_bound(option,pipeline,enabled)==valid);
+            assert(enabled==(valid&&pipeline&&option&&!std::strcmp(option,"1")));
+        }
+    }
     assert(!select("1",UINT_MAX,2,true,true,true,1,false,false,false,enabled)&&!enabled);
     assert(!select("1",8192,8193,true,true,true,1,false,false,false,enabled)&&!enabled);
 }

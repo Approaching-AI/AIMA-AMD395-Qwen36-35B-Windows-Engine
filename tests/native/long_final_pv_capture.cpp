@@ -119,6 +119,46 @@ void lf_safety(const unsigned char* exp,const unsigned char* packed,const unsign
     }
     std::printf("{\"kind\":\"long_final_pv_safety\",\"configurations\":%u,\"shapes\":10,\"modes\":5,\"short_template_regressions\":%u,\"distinct_cells\":%llu,\"old_candidates\":%llu,\"new_candidates\":%llu,\"maximum_keys\":264736,\"native_arithmetic_bitexact\":true,\"canonical_bf16_and_selected_raw_pass\":true,\"error_dominance\":true,\"complete_candidate_superset\":true,\"guards_tails_inputs_pass\":true,\"inference_acceptance\":false}\n",configurations,short_cases,(unsigned long long)checked_cells,(unsigned long long)candidates[0],(unsigned long long)candidates[1]);
 }
+void lf_owner(const uint16_t* q,const uint16_t* kt,const uint16_t* v,const uint16_t* vt,
+    RangePrepared& prepared,AttentionOutputs& expected,unsigned start,unsigned count,unsigned n,
+    const unsigned char* exp,const unsigned char* packed,const unsigned char* rcp,Device& bad) {
+    constexpr unsigned output_start=3u;
+    const auto layout=qrt_long_attention_layout::layout(count,start+count);
+    Guarded scratch(layout.elements*4u),output(size_t(count+output_start+2u)*4096u*4u);
+    const qrt_native_exp2_workspace::Workspace owner{const_cast<unsigned char*>(packed),exp};
+    unsigned observed=0u;
+    SplitCompletionObserver observer{&observed,[](void* state,unsigned stage,hipStream_t stream)->int {
+        auto& next=*static_cast<unsigned*>(state);if(stage!=next)return int(hipErrorInvalidValue);
+        const auto status=hipStreamSynchronize(stream);if(status==hipSuccess)++next;return int(status);
+    }};
+    auto launch=[&](size_t extent){return qrt_long_attention_pipeline::launch(prepared.workspace,owner,
+        q,kt,v,vt,output.as<float>(),start,count,output_start,n,exp,rcp,scratch.as<float>(),extent,nullptr,&observer,true);};
+    if(launch(layout.elements-1u)!=int(hipErrorInvalidValue)||observed)throw std::runtime_error("undersized final-bound owner accepted");
+    output.immutable(std::vector<uint32_t>(output.bytes/4u,0xa5a5a5a5u));
+    scratch.immutable(std::vector<uint32_t>(scratch.bytes/4u,0xa5a5a5a5u));
+    check(hipError_t(launch(layout.elements)));finish();if(observed!=5u)throw std::runtime_error("long final owner stage order");
+    auto region=[&](const unsigned char* a,const unsigned char* b,size_t bytes){
+        hipLaunchKernelGGL(compare_words,dim3((bytes+255u)/256u),dim3(256u),0u,nullptr,a,b,bytes,bad.as<unsigned>());check(hipGetLastError());
+    };
+    const size_t cells=size_t(count)*16u*(start+count);
+    region(expected.tensor.scores.as<unsigned char>()+guard*4u,scratch.data(),cells*4u);
+    region(expected.tensor.probability.as<unsigned char>()+guard*2u,scratch.data()+layout.probability*4u,cells*2u);
+    region(expected.tensor.scales.as<unsigned char>()+guard*4u,scratch.data()+layout.scales*4u,(layout.errors-layout.scales)*4u);
+    region(expected.error.data(),scratch.data()+layout.errors*4u,size_t(count)*4096u*4u);
+    region(expected.count.data(),scratch.data()+layout.count*4u,4u);
+    region(expected.output.data(),output.data()+size_t(output_start)*4096u*4u,size_t(count)*4096u*4u);
+    finish();if(download<unsigned>(bad,1u)[0])throw std::runtime_error("contiguous deferred owner differs");
+    const auto old_ids=lf_read<unsigned>(expected.indices);const unsigned selected=lf_read<unsigned>(expected.count)[0];
+    std::vector<unsigned> ids(count*4096u);check(hipMemcpy(ids.data(),scratch.data()+layout.indices*4u,ids.size()*4u,hipMemcpyDeviceToHost));
+    std::vector<unsigned char> old_seen(ids.size(),0u),seen(ids.size(),0u);
+    for(unsigned i=0;i<selected;++i){old_seen[old_ids[i]]=1u;if(ids[i]>=ids.size()||seen[ids[i]])throw std::runtime_error("owner candidate permutation");seen[ids[i]]=1u;}
+    if(seen!=old_seen)throw std::runtime_error("owner candidate membership");
+    for(size_t i=selected;i<ids.size();++i)if(ids[i]!=0xa5a5a5a5u)throw std::runtime_error("owner unused candidate tail");
+    const auto words=lf_read<uint32_t>(output);
+    for(size_t i=0;i<words.size();++i)if((i<size_t(output_start)*4096u||i>=size_t(output_start+count)*4096u)&&words[i]!=0xa5a5a5a5u)
+        throw std::runtime_error("owner output padding changed");
+    scratch.guards();output.guards();
+}
 void lf_capture(unsigned queries,const char* qfile,const char* kfile,const char* vfile,const char* reference_file,
     const unsigned char* exp,const unsigned char* packed,const unsigned char* rcp){
     constexpr unsigned origin=16384u,source_queries=1024u,source_tokens=17408u,capacity=128u;
@@ -152,6 +192,8 @@ void lf_capture(unsigned queries,const char* qfile,const char* kfile,const char*
             exact_replay(dv.as<uint16_t>(),vt.as<uint16_t>(),actual,start,count,n,rcp,true);finish();
             const double ms=elapsed(begin);if(attempt)samples[variant][attempt-1u]+=ms;
             const unsigned selected=lf_verify(expected,actual,reference,start,count,bool(variant),bad);
+            if(!attempt&&variant)lf_owner(dq.as<uint16_t>(),dt.as<uint16_t>(),dv.as<uint16_t>(),vt.as<uint16_t>(),
+                prepared,actual,start,count,n,exp,packed,rcp,bad);
             if(!attempt){counts[variant]=selected;candidates[variant]+=selected;}
             else if(selected!=counts[variant])throw std::runtime_error("PV candidate work changed across attempts");
         }
@@ -163,6 +205,7 @@ void lf_capture(unsigned queries,const char* qfile,const char* kfile,const char*
         score_slots+=uint64_t(count)*16u*stride;
     }
     prepared.verify();dq.immutable(q);dk.immutable(k);dv.immutable(v);dr.immutable(golden);transpose_immutable(dt,k,n);transpose_immutable(vt,v,n);
+    std::fprintf(stderr,"LONG_FINAL_PV_OWNER_CAPTURE query_count=%u slabs=%u nonzero_output_offset=1 undersized_rejected=1 candidate_membership=1 complete_surfaces=1 stages=5\n",queries,(queries+127u)/128u);
     for(unsigned variant=0;variant<2u;++variant){auto sorted=std::vector<double>(samples[variant],samples[variant]+3u);std::sort(sorted.begin(),sorted.end());
         std::printf("{\"kind\":\"long_final_pv_capture\",\"query_start\":16384,\"query_count\":%u,\"key_tokens\":%u,\"source_queries\":1024,\"extended_queries\":%u,\"variant\":%u,\"query_batch\":128,\"pv_candidates\":%llu,\"score_slots\":%llu,\"cpu_dots\":%llu,\"gb10_context_cells\":4194304,\"completed_attention_samples_ms\":[%.9f,%.9f,%.9f],\"median_completed_attention_ms\":%.9f,\"common_preparation_ms\":%.9f,\"native_arithmetic_bitexact\":true,\"canonical_bf16_and_selected_raw_pass\":true,\"error_dominance\":true,\"complete_candidate_superset\":true,\"all_attempts_checked\":true,\"guards_tails_inputs_pass\":true,\"reference_is_compute_input\":false,\"model_loaded\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",queries,n,queries-source_queries,variant,(unsigned long long)candidates[variant],(unsigned long long)score_slots,(unsigned long long)cpu_dots,samples[variant][0],samples[variant][1],samples[variant][2],sorted[1],prepared.common_ms+prepared.domain_ms+transpose_ms);
     }

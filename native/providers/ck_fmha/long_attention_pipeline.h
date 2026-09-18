@@ -1,7 +1,7 @@
 #pragma once
 #include "long_attention_layout.h"
 #include "long_narrow_qk.h"
-#include "long_fused_probability_pv.h"
+#include "long_final_probability_pv.h"
 
 namespace qrt_long_attention_pipeline {
 inline int launch(const qrt_long_narrow_qk::Workspace& qk,
@@ -10,7 +10,7 @@ inline int launch(const qrt_long_narrow_qk::Workspace& qk,
     const uint16_t* transposed_value,float* output,unsigned start,unsigned count,
     unsigned output_start,unsigned key_stride,const unsigned char* exp,
     const unsigned char* rcp,float* scratch,size_t scratch_elements,hipStream_t stream,
-    qrt_blackwell_attention::SplitCompletionObserver* observer=nullptr) {
+    qrt_blackwell_attention::SplitCompletionObserver* observer=nullptr,bool final_bound=false) {
     namespace original=qrt_blackwell_attention;
     constexpr unsigned maximum=qrt_long_attention_layout::maximum_tokens;
     if(!query||!transposed_key||!value||!transposed_value||!output||!scratch||!exp||!rcp||
@@ -30,7 +30,8 @@ inline int launch(const qrt_long_narrow_qk::Workspace& qk,
     if(status!=int(hipSuccess))return status;
     status=original::observe_split_stage(observer,0u,stream);
     if(status!=int(hipSuccess))return status;
-    status=qrt_long_fused_probability_pv::launch(&exp_owner,scratch,value,p,scales,output,
+    const auto probability=final_bound?qrt_long_final_probability_pv::launch:qrt_long_fused_probability_pv::launch;
+    status=probability(&exp_owner,scratch,value,p,scales,output,
         errors,nullptr,nullptr,start,count,output_start,stride,exp,rcp,true,stream);
     if(status!=int(hipSuccess))return status;
     for(unsigned stage=1u;stage<=2u;++stage) {

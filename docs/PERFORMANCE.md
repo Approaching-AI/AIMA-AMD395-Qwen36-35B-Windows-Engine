@@ -1,5 +1,17 @@
 # Real-model performance
 
+## Long deferred-PV components, 2026-09-18
+
+Source `e0d7e4a` passes23652092 native bound comparisons,100 generated
+attention configurations through264736 keys and15 short-template regressions.
+Complete original scalar PV, conservative candidate supersets and all original
+GB10 context cells pass. Across1024/8192 queries after16k history, complete
+attention medians improve318.2968 to263.5991 ms and3924.3890 to3418.2800 ms.
+Every candidate sample is faster than every control. Repeated rows in the
+larger shape have original-arithmetic coverage only. Default-off provider
+integration proceeds separately; no model TTFT or release gate changes.
+[Derivation, complete timing scope and evidence](LONG_FINAL_PV.md).
+
 ## Directional C64 projection components, 2026-09-18
 
 Source `0d20e48` passes all88 native safety configurations and complete

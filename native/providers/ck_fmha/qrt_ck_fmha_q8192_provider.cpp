@@ -512,6 +512,9 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             direct_pv_operands,compact_pv_mode,all_pv_replay,matrix_mode!=0u,
             uses_selective_qk,long_pipeline) || (long_pipeline && !interpolated_exp2))
         return int(hipErrorInvalidValue);
+    bool long_final_pv_bound = false;
+    if (!qrt_long_attention_layout::select_final_bound(std::getenv("QRT_CK_SM121_LONG_FINAL_PV_BOUND"),
+            long_pipeline,long_final_pv_bound)) return int(hipErrorInvalidValue);
     const char* profile_option = std::getenv("QRT_CK_SM121_PROFILE_COMPLETED_STAGES");
     if (profile_option && *profile_option && std::strcmp(profile_option,"0") &&
         std::strcmp(profile_option,"1")) return int(hipErrorInvalidValue);
@@ -803,7 +806,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
                 q,transposed_keys,v,transposed_value,output,query_start+offset,
                 std::min(query_batch,query_count-offset),output_start+offset,key_stride,
                 g_sm121_exp2,g_sm121_rcp,long_scratch,long_scratch_elements,stream,
-                profile_stages?&observer:nullptr);
+                profile_stages?&observer:nullptr,long_final_pv_bound);
         } else if (selective_qk || offset < selective_prefix_queries) {
             status = qrt_selective_qk::launch_probability_attention(q, k, v, output, stream,
                 query_start + offset, std::min(query_batch, query_count - offset), output_start + offset,
@@ -897,8 +900,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         status = int(hipMemcpy(counts,long_narrow_workspace.tile_counts,sizeof(counts),hipMemcpyDeviceToHost));
         if (status != int(hipSuccess)) return status;
         const size_t domain_bytes = (size_t(8192u)*16u+size_t(g_sm121_long_pipeline.domain_capacity)*2u+2u)*sizeof(unsigned);
-        std::fprintf(stderr,"SM121_LONG_ATTENTION_PIPELINE query_start=%u query_count=%u query_batch=%u key_tokens=%u narrow_tiles=%u original_tiles=%u original_k16=1 original_per_group_bounds=1 fused_probability_pv=1 register_exact_rescale=1 refreshed=1 scratch_bytes=%zu domain_bytes=%zu additional_scratch_bytes=%zu stream_drained=1\n",
-            query_start,query_count,query_batch,key_stride,counts[1],counts[0],
+        std::fprintf(stderr,"SM121_LONG_ATTENTION_PIPELINE query_start=%u query_count=%u query_batch=%u key_tokens=%u narrow_tiles=%u original_tiles=%u original_k16=1 original_per_group_bounds=%u deferred_long_bound=%u fused_probability_pv=1 register_exact_rescale=1 refreshed=1 scratch_bytes=%zu domain_bytes=%zu additional_scratch_bytes=%zu stream_drained=1\n",
+            query_start,query_count,query_batch,key_stride,counts[1],counts[0],unsigned(!long_final_pv_bound),unsigned(long_final_pv_bound),
             long_scratch_elements*sizeof(float),domain_bytes,g_sm121_long_pipeline.scratch_elements*sizeof(float));
     }
     if (final_pv_bound)

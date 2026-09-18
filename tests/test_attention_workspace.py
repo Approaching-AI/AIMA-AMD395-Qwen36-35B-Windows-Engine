@@ -142,7 +142,7 @@ unsigned mask_preparations=0, mask_queries=0;
 bool masked_arena=false;
 unsigned range_preparations=0, range_queries=0, fail_range_prepare=0;
 unsigned range_start=0, range_count=0;
-unsigned long_queries=0,long_domain_preparations=0;
+unsigned long_queries=0,long_domain_preparations=0,long_final_queries=0;
 unsigned selective_qk_queries = 0;
 unsigned value_transposes = 0;
 bool fail_value_transpose = false;
@@ -444,8 +444,8 @@ namespace qrt_long_attention_pipeline {
 int launch(const qrt_long_narrow_qk::Workspace& w,const qrt_native_exp2_workspace::Workspace& e,
     const uint16_t*,const uint16_t* kt,const uint16_t*,const uint16_t* vt,float*,unsigned start,unsigned count,
     unsigned output_start,unsigned stride,const unsigned char* exp,const unsigned char*,float* scratch,
-    size_t extent,hipStream_t stream,qrt_blackwell_attention::SplitCompletionObserver* observer) {
-    ++long_queries;++queries;largest_batch=std::max(largest_batch,count);
+    size_t extent,hipStream_t stream,qrt_blackwell_attention::SplitCompletionObserver* observer,bool final_bound=false) {
+    long_final_queries+=unsigned(final_bound);++long_queries;++queries;largest_batch=std::max(largest_batch,count);
     if(track_submissions){++pending_submissions;maximum_pending=std::max(maximum_pending,pending_submissions);}
     submitted_ranges.push_back({start,count,output_start});
     if(count>128u || !long_domain_preparations || w.decoded.key_tokens!=stride ||
@@ -484,7 +484,7 @@ void reset() {
     float_alignment_queries = 0;decoded_preparations=decoded_queries=fail_decoded_prepare=0;
     mask_preparations=mask_queries=0;masked_arena=false;
     range_preparations=range_queries=fail_range_prepare=range_start=range_count=0;
-    long_queries=long_domain_preparations=0;
+    long_queries=long_domain_preparations=long_final_queries=0;
     fail_transpose = false;
     preparations = 0; fail_preparation = false;
     value_transposes = 0; fail_value_transpose = false;
@@ -1414,7 +1414,7 @@ int main() {
     for(unsigned start:{8192u,16384u,32768u,65536u,131072u,262144u,kSm121MaxTokens-129u}) {
         reset();track_submissions=true;
         if(launch(start,129)!=hipSuccess || long_queries!=2u || long_domain_preparations!=1u ||
-           largest_batch!=128u || pending_submissions || native_exp_builds!=1u)return 267;
+           largest_batch!=128u || pending_submissions || native_exp_builds!=1u || long_final_queries)return 267;
         const size_t required=qrt_long_attention_layout::layout(128u,start+129u).elements;
         const size_t original=start+129u>kSm121InitialTokens?kSm121ExtendedMantissaElements:kSm121MantissaElements;
         if((g_sm121_long_pipeline.scratch!=nullptr)!=(required>original))return 268;
@@ -1434,6 +1434,24 @@ int main() {
     fail_allocation=0;
     if(launch(65536,129)!=hipSuccess || !g_sm121_long_pipeline.scratch || pending_submissions)return 274;
     reset();if(launch(8192,1)!=hipSuccess || long_queries || g_sm121_long_pipeline.domain || native_exp_builds)return 275;
+    for(unsigned start:{8192u,16384u,65536u,262144u,kSm121MaxTokens-129u}) {
+        reset();track_submissions=true;setenv("QRT_CK_SM121_LONG_FINAL_PV_BOUND","1",1);
+        if(launch(start,129)!=hipSuccess || long_queries!=2u || long_final_queries!=2u || pending_submissions)return 276;
+        const unsigned before=allocations;
+        setenv("QRT_CK_SM121_LONG_FINAL_PV_BOUND","0",1);
+        if(launch(start,129)!=hipSuccess || long_queries!=4u || long_final_queries!=2u || allocations!=before || pending_submissions)return 277;
+    }
+    reset();track_submissions=true;fail_query=2u;setenv("QRT_CK_SM121_LONG_FINAL_PV_BOUND","1",1);
+    if(launch(65536,129)!=hipErrorUnknown || long_final_queries!=2u || pending_submissions || !syncs)return 278;
+    qrt_ck_fmha_q8192_release();if(!empty())return 279;
+    for(unsigned start:{0u,8192u,65536u}){
+        reset();if(launch(start,1)!=hipSuccess || long_final_queries)return 280;
+    }
+    for(const char* invalid:{"2","01","1 ","true"}){
+        reset();setenv("QRT_CK_SM121_LONG_FINAL_PV_BOUND",invalid,1);
+        if(launch(16384,129)!=hipErrorInvalidValue || allocations || queries)return 281;
+    }
+    unsetenv("QRT_CK_SM121_LONG_FINAL_PV_BOUND");
     for(const char* flag:{"QRT_CK_SM121_LONG_ATTENTION_PIPELINE","QRT_CK_SM121_LONG_PREPARED_DECODED_QK",
         "QRT_CK_SM121_LONG_TRANSPOSE_VALUE","QRT_CK_SM121_LONG_DIRECT_PV_OPERANDS"})unsetenv(flag);
     reset();
