@@ -1,0 +1,176 @@
+{
+  "host": "Jiawei-MacminideMac-mini.local",
+  "source_file": "tools/analyze_qk_integer_domain.cpp",
+  "source_sha256": "3b0321151c1cf925ed6574bcb5250e665bfeb7892bdbc8f7f7d11d7d792ad666",
+  "commands": [
+    {
+      "command": [
+        "c++",
+        "-std=c++17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "<private-home>/projects/AIMA-public-r1191-candidate/tools/analyze_qk_integer_domain.cpp",
+        "-o",
+        "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qk-integer-domain-audit-r1/audit"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.4733138335868716,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qk-integer-domain-audit-r1/audit",
+        "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/fla-model-q7169-fa-out-r1/layer3-full-full_attention_q_norm_rope-bf16.bin",
+        "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/fla-model-q7169-fa-out-r1/layer3-full-full_attention_k_norm_rope-bf16.bin"
+      ],
+      "returncode": 0,
+      "wall_seconds": 1.0734732504934072,
+      "stdout_sha256": "07f4c9a1c35beabfb861416cb805e99e6cac258396d1c7baa41f6a7f1b9e9c65",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "inputs": [
+    {
+      "file": "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/fla-model-q7169-fa-out-r1/layer3-full-full_attention_q_norm_rope-bf16.bin",
+      "bytes": 58728448,
+      "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d"
+    },
+    {
+      "file": "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/fla-model-q7169-fa-out-r1/layer3-full-full_attention_k_norm_rope-bf16.bin",
+      "bytes": 7341056,
+      "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8"
+    }
+  ],
+  "report": {
+    "kind": "captured_qk_integer_domain_audit",
+    "source_tokens": 7169,
+    "tokens": 8192,
+    "repeated_rows": 1023,
+    "sampled_dots": 65536,
+    "groups": 1048576,
+    "narrow_groups": 1048576,
+    "lossless_compact_groups": 850223,
+    "old_upper_alignment_certified_groups": 712488,
+    "exact_alignment_no_remainder_groups": 714728,
+    "paired_trailing_certified_groups": 714728,
+    "row_minimum_trailing_certified_groups": 444587,
+    "groups_with_core_exceptions": 198352,
+    "zero_product_groups": 0,
+    "fully_narrow_dots": 65536,
+    "fully_compact_dots": 2229,
+    "fully_exact_dots": 402,
+    "raw_carry_mismatches": 0,
+    "exact_by_group": [
+      59009,
+      50665,
+      58003,
+      46506,
+      43998,
+      43849,
+      42426,
+      42975,
+      41984,
+      41436,
+      41092,
+      40913,
+      41370,
+      41033,
+      39758,
+      39711
+    ],
+    "compact_by_group": [
+      59177,
+      52254,
+      59159,
+      48611,
+      53229,
+      53133,
+      50651,
+      53232,
+      52274,
+      51858,
+      53127,
+      53017,
+      53178,
+      53060,
+      51844,
+      52419
+    ],
+    "heads": [
+      3995,
+      4110,
+      4129,
+      4025,
+      4158,
+      4081,
+      4079,
+      4062,
+      4096,
+      4117,
+      4124,
+      4088,
+      4036,
+      4088,
+      4188,
+      4160
+    ],
+    "host_only": true,
+    "model_loaded": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "host_only": true,
+  "model_loaded": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "source_commit": "cf1f046fbf19100460c78c7f04a0e3d26bccc628",
+  "schema_version": 1,
+  "kind": "captured_qk_integer_admission_and_retained_submission_audit",
+  "current_retained_run": {
+    "name": "narrow-domain-qk-product-q8192-out512-mode1-r2",
+    "stderr_sha256": "47d4dae863837e27eff547d9a971617a1485fb49403fe724326495f22ad51bbd",
+    "observations": {
+      "hawkeye_dispatch_stream": {
+        "markers": 130,
+        "nonnegative_totals": {
+          "host_count_reads": 290.0,
+          "exact_dispatches": 1141.0,
+          "correction_ms": 3314.8880000000017
+        },
+        "invalid_intervals": []
+      },
+      "hawkeye_workspace_wall": {
+        "markers": 130,
+        "nonnegative_totals": {
+          "allocation_ms": 20.132000000000012,
+          "free_ms": 2.2304999999999997
+        },
+        "invalid_intervals": []
+      },
+      "FLA_STATE": {
+        "markers": 240,
+        "nonnegative_totals": {
+          "sequence_ms": 923.0224099999995
+        },
+        "invalid_intervals": []
+      },
+      "FLA_AUX": {
+        "markers": 480,
+        "nonnegative_totals": {
+          "sequence_ms": 1284.7667999999992
+        },
+        "invalid_intervals": []
+      }
+    },
+    "scope": "Read-only existing uninstrumented run. Correction and stage intervals include GPU work and are nested; they are not additive host overhead. Allocation/free alone are too small to explain seconds of TTFT."
+  },
+  "scope": "Host-only deterministic sample of65536 causal QK dots (1048576 ordered groups), with uniform triangular indices apart from64 explicit edges. Full8192 shape repeats1023 of the7169 captured rows. This does not inspect all scores or execute new model inference. Original CPU K16 raw carry is the arithmetic comparator; no hardware or model performance is inferred.",
+  "decision": "Exact paired alignment raises no-remainder admission only from712488 to714728 groups; replacing the existing certificate alone is not a broad optimization. Only402 sampled complete dots satisfy it throughout. A new matrix route would need smaller metadata, normal carry state and efficient mixed-group work distribution; the old per-group general matrix/remainder implementation is not retried unchanged.",
+  "runtime_dispatch_changed": false,
+  "package_changed": false
+}

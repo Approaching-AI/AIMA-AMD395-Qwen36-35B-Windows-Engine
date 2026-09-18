@@ -107,6 +107,30 @@ The later original-K16 last-row OUT comparison is recorded above.
 1542704 bytes, SHA256
 `1cb8d1b7e81e475424ffd6185dcf1e56c8b4961bda175fe1604fd9536becd375`.
 
+## Captured QK integer-domain and submission audit, 2026-09-18
+
+Host-only source `cf1f046` samples65536 deterministic causal QK dots from the
+pinned original capture, extending7169 inputs to8192 with1023 repeated rows.
+All1048576 original ordered groups are narrow;850223 support lossless signed16
+operands. The older upper-alignment certificate admits712488 groups, while
+exact paired alignment admits714728 with no product remainder; all admitted
+raw carries match. A cheaper minimum-trailing-row test admits only444587.
+Only402 complete dots stay in the exact matrix domain throughout. This is
+sampled operand/CPU evidence, not native throughput or model acceptance.
+
+The qualified uninstrumented q8192 control contains130 dense owners,290 host
+count reads and1141 exact dispatches. Dense allocation/free totals20.132/
+2.2305ms; pooling alone cannot explain seconds of TTFT. Correction3314.888ms,
+GDN state923.02241ms and WU/output1284.76680ms include GPU work and must not
+be treated as additive host overhead. No negative intervals occur in these
+selected markers. Existing completion batching remains a prior, not a route
+restriction. A matrix replacement needs compact metadata and efficient
+mixed-group execution; changing only the admission test offers little gain.
+
+[Complete audit](../benchmarks/correctness/qk-integer-domain-host-audit-20260918.json),6062bytes, SHA256
+`8a0898f647ab43bda61185771dd2304180d461abf66ebb2e5b558027553e8475`.
+The23353.80795ms qualified model control and open mission gates are unchanged.
+
 ## Whole-row narrow half projection, 2026-09-18
 
 Source `0714cea` keeps the retained four-lane lossless-half schedule and
