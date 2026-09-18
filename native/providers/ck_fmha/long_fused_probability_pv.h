@@ -5,6 +5,35 @@
 // Component-only long-history producer. Preserve every original per-group
 // error bound rather than extending the short-context final-envelope proof.
 namespace qrt_long_fused_probability_pv {
+inline int replay(const uint16_t* value,const uint16_t* transposed_value,
+    const uint16_t* probability,const float* scales,float* output,const float* errors,
+    float* raw_accumulator,float* raw_denominator,unsigned* indices,unsigned* selected,
+    unsigned start,unsigned count,unsigned output_start,unsigned stride,unsigned value_stride,
+    const unsigned char* rcp,bool register_rescale,hipStream_t stream) {
+    namespace original=qrt_blackwell_attention;
+    constexpr unsigned maximum=original::kSplitMaxTokens;
+    if(!value||!transposed_value||!probability||!scales||!output||!errors||!indices||!selected||!rcp||
+        !count||count>128u||start>=maximum||count>maximum-start||stride!=start+count||
+        value_stride<stride||value_stride>maximum||output_start>=maximum||count>maximum-output_start)
+        return int(hipErrorInvalidValue);
+    const unsigned cells=count*4096u,blocks=std::min((cells+63u)/64u,1024u);
+    auto status=hipMemsetAsync(selected,0,sizeof(unsigned),stream);
+    if(status!=hipSuccess)return int(status);
+    hipLaunchKernelGGL(original::blackwell_collect_pv_replay_kernel,
+        dim3((cells+255u)/256u),dim3(256u),0u,stream,
+        output,errors,output_start,cells,indices,selected);
+    status=hipGetLastError();if(status!=hipSuccess)return int(status);
+    if(register_rescale) {
+        hipLaunchKernelGGL((original::blackwell_compacted_pv_replay_kernel<true,false,true>),
+            dim3(blocks),dim3(256u),0u,stream,value,probability,scales,output,start,output_start,
+            stride,rcp,raw_accumulator,raw_denominator,indices,selected,transposed_value,value_stride,0u);
+    }else {
+        hipLaunchKernelGGL((original::blackwell_compacted_pv_replay_kernel<true,false,false>),
+            dim3(blocks),dim3(256u),0u,stream,value,probability,scales,output,start,output_start,
+            stride,rcp,raw_accumulator,raw_denominator,indices,selected,transposed_value,value_stride,0u);
+    }
+    return int(hipGetLastError());
+}
 inline int launch(const void* state,const float* scores,const uint16_t* value,
     uint16_t* probability,float* scales,float* output,float* errors,
     float* raw_accumulator,float* raw_denominator,unsigned start,unsigned count,

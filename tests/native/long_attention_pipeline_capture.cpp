@@ -2,6 +2,7 @@
 #include "combined_exact_attention_capture.cpp"
 #include "../../native/providers/ck_fmha/long_narrow_qk.h"
 #include "../../native/providers/ck_fmha/long_fused_probability_pv.h"
+#include "../../native/providers/ck_fmha/fused_probability_pv.h"
 
 namespace {
 namespace range=qrt_prepared_decoded_qk_range;
@@ -88,10 +89,17 @@ void native_producer(const uint16_t* q,const uint16_t* kt,const uint16_t* v,
 }
 void exact_replay(const uint16_t* v,const uint16_t* vt,AttentionOutputs& out,
     unsigned start,unsigned count,unsigned n,const unsigned char* rcp,bool candidate) {
-    check(hipError_t(launch_compacted_pv_replay(v,out.tensor.probability.as<uint16_t>()+guard,
-        out.tensor.scales.as<float>()+guard,out.output.as<float>(),start,count,0u,start+count,
-        rcp,out.accumulator.as<float>(),out.denominator.as<float>(),out.error.as<float>(),
-        out.indices.as<unsigned>(),out.count.as<unsigned>(),nullptr,nullptr,vt,n,0u,nullptr,candidate)));
+    if(!candidate&&count<=split_query_limit(22u,start+count)) {
+        check(hipError_t(launch_compacted_pv_replay(v,out.tensor.probability.as<uint16_t>()+guard,
+            out.tensor.scales.as<float>()+guard,out.output.as<float>(),start,count,0u,start+count,
+            rcp,out.accumulator.as<float>(),out.denominator.as<float>(),out.error.as<float>(),
+            out.indices.as<unsigned>(),out.count.as<unsigned>(),nullptr,nullptr,vt,n,0u,nullptr,false)));
+    }else {
+        check(hipError_t(qrt_long_fused_probability_pv::replay(v,vt,out.tensor.probability.as<uint16_t>()+guard,
+            out.tensor.scales.as<float>()+guard,out.output.as<float>(),out.error.as<float>(),
+            out.accumulator.as<float>(),out.denominator.as<float>(),out.indices.as<unsigned>(),out.count.as<unsigned>(),
+            start,count,0u,start+count,n,rcp,candidate,nullptr)));
+    }
 }
 __global__ void captured_context(const float* output,const uint16_t* reference,
     unsigned row_offset,unsigned count,unsigned reference_rows,unsigned* bad) {
@@ -111,7 +119,7 @@ void run_safety(const unsigned char* exp,const unsigned char* packed,const unsig
     struct Shape{unsigned n,start,count;};
     const Shape shapes[]={{1,0,1},{33,1,32},{129,1,128},{8193,8191,2},{8320,8192,128},
         {16385,16352,33},{32896,32768,128},{65537,65520,17},{131073,131041,32},{264736,264719,17}};
-    unsigned configurations=0;uint64_t cells=0,scores=0;
+    unsigned configurations=0,short_regressions=0;uint64_t cells=0,scores=0;
     for(const auto shape:shapes)for(unsigned mode=0;mode<5u;++mode) {
         const unsigned n=shape.n,start=shape.start,count=shape.count;
         std::vector<uint16_t> q(size_t(n)*4096u,0u),k(size_t(n)*512u),v(k.size());
@@ -133,11 +141,31 @@ void run_safety(const unsigned char* exp,const unsigned char* packed,const unsig
         }
         exact_replay(dv.as<uint16_t>(),vt.as<uint16_t>(),expected,start,count,n,rcp,false);finish();
         exact_replay(dv.as<uint16_t>(),vt.as<uint16_t>(),actual,start,count,n,rcp,true);finish();compare(expected,actual,bad);
+        if(n<=129u) {
+            expected.reset();actual.reset();
+            native_producer(dq.as<uint16_t>(),dt.as<uint16_t>(),dv.as<uint16_t>(),prepared,expected,start,count,n,exp,packed,rcp,false,true);finish();
+            hipLaunchKernelGGL((blackwell_mantissa_value_kernel<true,false,true,true,true,false>),
+                dim3(256u/kIntegerMatrixColumns,16u,(count+15u)/16u),dim3(256u),0u,nullptr,
+                dv.as<uint16_t>(),expected.tensor.probability.as<uint16_t>()+guard,expected.tensor.scales.as<float>()+guard,
+                expected.output.as<float>(),start,count,0u,start+count,rcp,
+                expected.accumulator.as<float>(),expected.denominator.as<float>(),nullptr,nullptr,expected.error.as<float>());
+            check(hipGetLastError());finish();
+            check(hipMemcpy(actual.tensor.scores.pointer,expected.tensor.scores.pointer,
+                (expected.tensor.cells+2u*guard)*4u,hipMemcpyDeviceToDevice));
+            const qrt_native_exp2_workspace::Workspace owner{const_cast<unsigned char*>(packed),exp};
+            check(hipError_t(qrt_fused_probability_pv::launch(&owner,actual.tensor.scores.as<float>()+guard,dv.as<uint16_t>(),
+                actual.tensor.probability.as<uint16_t>()+guard,actual.tensor.scales.as<float>()+guard,
+                actual.output.as<float>(),actual.error.as<float>(),actual.accumulator.as<float>(),actual.denominator.as<float>(),
+                start,count,0u,start+count,exp,rcp,true,nullptr)));finish();compare(expected,actual,bad);
+            exact_replay(dv.as<uint16_t>(),vt.as<uint16_t>(),expected,start,count,n,rcp,false);finish();
+            exact_replay(dv.as<uint16_t>(),vt.as<uint16_t>(),actual,start,count,n,rcp,true);finish();compare(expected,actual,bad);
+            ++short_regressions;
+        }
         prepared.verify();dq.immutable(q);dk.immutable(k);dv.immutable(v);transpose_immutable(dt,k,n);transpose_immutable(vt,v,n);
         cells+=uint64_t(count)*4096u;scores+=uint64_t(count)*16u*(start+count);
         std::fprintf(stderr,"LONG_ATTENTION_SAFETY tokens=%u start=%u count=%u mode=%u pass=1\n",n,start,count,mode);
     }
-    std::printf("{\"kind\":\"long_attention_pipeline_safety\",\"configurations\":%u,\"shapes\":10,\"data_modes\":5,\"distinct_output_cells\":%llu,\"distinct_score_slots\":%llu,\"all_native_surfaces_bitexact\":true,\"complete_replay_bitexact\":true,\"original_per_group_bounds\":true,\"range_metadata_and_guards_pass\":true,\"input_immutable\":true}\n",configurations,(unsigned long long)cells,(unsigned long long)scores);
+    std::printf("{\"kind\":\"long_attention_pipeline_safety\",\"configurations\":%u,\"shapes\":10,\"data_modes\":5,\"short_default_template_regressions\":%u,\"distinct_output_cells\":%llu,\"distinct_score_slots\":%llu,\"all_native_surfaces_bitexact\":true,\"complete_replay_bitexact\":true,\"original_per_group_bounds\":true,\"range_metadata_and_guards_pass\":true,\"input_immutable\":true}\n",configurations,short_regressions,(unsigned long long)cells,(unsigned long long)scores);
 }
 void run_capture(unsigned queries,const char* qfile,const char* kfile,const char* vfile,const char* reference_file,
     const unsigned char* exp,const unsigned char* packed,const unsigned char* rcp) {
