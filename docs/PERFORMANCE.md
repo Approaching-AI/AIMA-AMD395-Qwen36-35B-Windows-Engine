@@ -31,8 +31,12 @@ The new DLL also passes both512-token continuations for16384-prefix plus1024
 suffix, first logits, callbacks, state restoration and changed-prefix rejection.
 Hit TTFT is8459.984999 ms. Actual32768-prefix plus1024-suffix reuse also
 passes both512-token continuations, logits and state/stream checks, with
-13210.9695 ms hit TTFT. These are single functional runs;64/128/256k and
-retained prefix performance remain open. Defaults,
+13210.9695 ms hit TTFT. Actual65536-prefix plus1024-suffix reuse now also
+passes both512-token continuations, logits5.9375/error0 and all stream/state
+checks; hit TTFT is25254.1475 ms, load21354.2315 ms and TPOT349.575865 ms.
+Eight complete owner chunks pass their own first-token/logit boundary.
+These are single functional runs;128/256k, separate cold32k/64k continuations
+and retained prefix performance remain open. Defaults,
 packages and all retained performance/release gates remain unchanged.
 [Derivation, complete timing scope and evidence](LONG_FINAL_PV.md).
 

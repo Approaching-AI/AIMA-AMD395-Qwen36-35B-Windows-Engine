@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "kind": "linux_upstream_release_refresh",
+  "checked_at": "2026-09-18T12:59:49.309713+00:00",
+  "command": [
+    "gh",
+    "api",
+    "repos/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases?per_page=5"
+  ],
+  "returncode": 0,
+  "source_record": {
+    "file": "linux-release-refresh-20260918-r6.json",
+    "sha256": "ce40db6efaef86a1023f6267af2c3e39bfce1066a929223c86a16006b0043bc7"
+  },
+  "release_identities": [
+    {
+      "tag_name": "v1.5.1-native-vl.10",
+      "published_at": "2026-09-16T20:58:30Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.10",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "d69fbbcb839434ff9900ada60a733237b17717276a71a1557a1bcbdfcf6a77f5"
+    },
+    {
+      "tag_name": "v1.5.1-native-vl.9",
+      "published_at": "2026-09-14T09:54:52Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.9",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "add3c8dea37f57170da14b669d9815a1b5c943f12348e76c22f7f30f22ebd503"
+    },
+    {
+      "tag_name": "v1.5.1-native-vl.7",
+      "published_at": "2026-09-09T13:36:02Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.7",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "4e1d1ac062a9002d760ac7c6a3a740b4d7a52ff11071f6a04263e26ae0e9d9f9"
+    },
+    {
+      "tag_name": "v1.5.1-native-vl.6",
+      "published_at": "2026-09-08T04:54:46Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.6",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "5095ce0b6b3c0876cc752636806b66dc5b0f269cf88346b53591730108f56605"
+    },
+    {
+      "tag_name": "v1.5.1-native-vl.5",
+      "published_at": "2026-09-01T06:34:45Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.5",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "133f1c75088a23b53ba22446ca2b1537f826840b73b853a616d92d8e2eac4d05"
+    }
+  ],
+  "latest_five_unchanged": true,
+  "previous_public_record": {
+    "file": "benchmarks/correctness/linux-release-refresh-20260918-r5.json",
+    "bytes": 3442,
+    "sha256": "32d468c730c810c54d9df6605362b6b95c69e3ae8dd0031abc5592da349d9c16"
+  },
+  "scope": "Read-only upstream release identity/body check. No new code delta, native execution, model result, package or release qualification is claimed.",
+  "published": false
+}

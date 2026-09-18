@@ -85,8 +85,8 @@ replace the qualified q8192 median23353.80795 ms or establish a short-route
 speed gain.
 
 Retain the enabled deferred bound as the experimental long-context control.
-The64/128/256k prefix gates for this DLL remain open; earlier larger-prefix
-results belong to the preceding DLL. Code and package defaults remain off.
+The128/256k prefix gates for this DLL remain open. The16/32/64k functional
+boundaries are recorded below. Code and package defaults remain off.
 The10000 ms first q8192 gate and retained4187.415605 ms target are unchanged.
 No package or release is qualified.
 
@@ -131,6 +131,29 @@ run makes no paired performance claim and does not qualify64/128/256k.
 452452 bytes, SHA256
 `011a852631c01737d7bcafd681c74a39e3272ef74a5e9c7a2f7dc0ec53bc7434`.
 Command `run-long-final-pv-prefix32k-r1.ps1` has a900-second native deadline.
+
+Actual65536-prefix plus1024-suffix reuse now passes on the same DLL. Both
+512-token continuations match every original GB10 ID; their first logit is
+5.9375 with zero error. All512 timed callbacks, restoration after each suffix
+request and rejection of a changed prefix before provider invocation pass.
+The eight complete owner chunks match the original first token/logit16/24.25.
+Seventy owner and twenty suffix calls use the deferred bound; independent
+scratch grows through65536 keys and to73728-key capacity for the suffix.
+The separate cold64k owner's32-token continuation is not measured here.
+
+Load is21354.2315 ms; hit TTFT/TPOT/total are
+25254.1475/349.575865/203949.6439 ms. Seed time1313750.3791 ms and complete
+native wall1539553.733 ms remain attached. The run completes within its
+1800-second native deadline with all host guards passing. Original64k
+ceilings5432.415542/46.658882/29275.104254 ms remain unmet. This single
+functional run establishes no paired speed gain or larger-context acceptance.
+
+[Complete64k prefix boundary](../benchmarks/correctness/long-final-pv-prefix64k-20260918.json):
+490856 bytes, SHA256
+`09a3d2cdcb43cdc52e93515c66643fe21cb2c3b3436342b6a4c356c4eb62c1c4`.
+Command `run-long-final-pv-prefix64k-r1.ps1` runs on baiying with
+`D:\models\Qwen3.6-35B-A3B`, source `ea6faff` and the unchanged enabled
+cold16k component identities and environment.
 
 [Pinned sources, commands, failures and native results](../benchmarks/correctness/long-final-pv-native-components-20260918.json):
 157778 bytes, SHA256
