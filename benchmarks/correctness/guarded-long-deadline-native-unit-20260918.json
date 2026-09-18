@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "kind": "guarded_long_deadline_native_parameter_checks",
+  "host": "baiying",
+  "model": "none; parameter and argument transport tests only",
+  "source_commit": "aba9b3decc8ba427183370a7e07a3de1f2eeb651",
+  "original_64k_preexecution_failure": {
+    "record_sha256": "2d33e22f92bd7584046c382441c4200ada2ffe2ecf41e8a9b37b55356be57944",
+    "record": {
+      "command": [
+        "ssh",
+        "-o",
+        "BatchMode=yes",
+        "-o",
+        "ConnectTimeout=10",
+        "baiying",
+        "powershell.exe -NoProfile -ExecutionPolicy Bypass -File D:/projects/run-long-attention-prefix64k-r1.ps1 -LongPipeline 1 -Revision 1"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "D:\\projects\\AIMA-public-paired-score-gdn-provider-20260918-r1\\scripts\\baiying_guarded_inference.ps1 : \u65e0\u6cd5\u5bf9\u53c2\u6570\u201cTimeoutSeco\nnds\u201d\u6267\u884c\u53c2\u6570\u9a8c\u8bc1\u3002\u53c2\u6570 1800 \u5927\u4e8e\u5141\u8bb8\u7684\u6700\u5927\u8303\u56f4 900\u3002\u8bf7\u63d0\u4f9b\u4e00\u4e2a\u5c0f\u4e8e\u6216\u7b49\u4e8e 900 \u7684\u53c2\u6570\uff0c\u7136\u540e\u91cd\u8bd5\u6b64\u547d\u4ee4\u3002\n\u6240\u5728\u4f4d\u7f6e D:\\projects\\run-long-attention-prefix64k-r1.ps1:227 \u5b57\u7b26: 113\n+ ... e.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds 1800|Out-Nul ...\n+                                                              ~~~~\n    + CategoryInfo          : InvalidData: (:) [baiying_guarded_inference.ps1]\uff0cParentContainsErrorRecordException\n    + FullyQualifiedErrorId : ParameterArgumentValidationError,baiying_guarded_inference.ps1\n \n",
+      "wall_seconds": 2.7141044177114964
+    },
+    "native_started": false
+  },
+  "failed_test": {
+    "record_sha256": "996088dd71625f9ed1d6ceca65d2148feffb00ff1cf609a8c8ea5904991da3e5",
+    "record": {
+      "host": "baiying",
+      "source_commit": "839a09ff9837f5f4c01e132f6b46e4b9a4b0186f",
+      "source_files": [
+        {
+          "file": "scripts/baiying_guarded_inference.ps1",
+          "sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7"
+        },
+        {
+          "file": "tests/powershell/test_guarded_inference_arguments.ps1",
+          "sha256": "7f42c3eb2969173139cedc29ebf8c5e4a5110c9e0190bb4240a914b41fe57a11"
+        }
+      ],
+      "setup": {
+        "command": [
+          "ssh",
+          "-o",
+          "BatchMode=yes",
+          "-o",
+          "ConnectTimeout=10",
+          "baiying",
+          "powershell.exe -NoProfile -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAaQBmACgAWwBFAG4AdgBpAHIAbwBuAG0AZQBuAHQAXQA6ADoATQBhAGMAaABpAG4AZQBOAGEAbQBlAC4AVABvAEwAbwB3AGUAcgBJAG4AdgBhAHIAaQBhAG4AdAAoACkAIAAtAG4AZQAgACcAYgBhAGkAeQBpAG4AZwAnACkAewB0AGgAcgBvAHcAIAAnAGgAbwBzAHQAJwB9ADsAJABuAHUAbABsAD0ATgBlAHcALQBJAHQAZQBtACAALQBJAHQAZQBtAFQAeQBwAGUAIABEAGkAcgBlAGMAdABvAHIAeQAgAC0ARgBvAHIAYwBlACAALQBQAGEAdABoACAAJwBEADoALwBwAHIAbwBqAGUAYwB0AHMALwBBAEkATQBBAC0AZwB1AGEAcgBkAGUAZAAtAGwAbwBuAGcALQBkAGUAYQBkAGwAaQBuAGUALQA4ADMAOQBhADAAOQBmAC8AcwBjAHIAaQBwAHQAcwAnACwAJwBEADoALwBwAHIAbwBqAGUAYwB0AHMALwBBAEkATQBBAC0AZwB1AGEAcgBkAGUAZAAtAGwAbwBuAGcALQBkAGUAYQBkAGwAaQBuAGUALQA4ADMAOQBhADAAOQBmAC8AdABlAHMAdABzAC8AcABvAHcAZQByAHMAaABlAGwAbAAnAA=="
+        ],
+        "command_text": "$ErrorActionPreference='Stop';if([Environment]::MachineName.ToLowerInvariant() -ne 'baiying'){throw 'host'};$null=New-Item -ItemType Directory -Force -Path 'D:/projects/AIMA-guarded-long-deadline-839a09f/scripts','D:/projects/AIMA-guarded-long-deadline-839a09f/tests/powershell'",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "#< CLIXML\n<Objs Version=\"1.1.0.1\" xmlns=\"http://schemas.microsoft.com/powershell/2004/04\"><Obj S=\"progress\" RefId=\"0\"><TN RefId=\"0\"><T>System.Management.Automation.PSCustomObject</T><T>System.Object</T></TN><MS><I64 N=\"SourceId\">1</I64><PR N=\"Record\"><AV>\ufffd\ufffd\ufffd\ufffd\u05fc\ufffd\ufffd\ufffd\u05f4\ufffd\u02b9\ufffd\ufffd\u0123\ufffd\u9863</AV><AI>0</AI><Nil /><PI>-1</PI><PC>-1</PC><T>Completed</T><SR>-1</SR><SD> </SD></PR></MS></Obj></Objs>",
+        "wall_seconds": 0.45809595938771963
+      },
+      "transfers": [
+        {
+          "file": "scripts/baiying_guarded_inference.ps1",
+          "returncode": 0,
+          "stderr": ""
+        },
+        {
+          "file": "tests/powershell/test_guarded_inference_arguments.ps1",
+          "returncode": 0,
+          "stderr": ""
+        }
+      ],
+      "result": {
+        "command": [
+          "ssh",
+          "-o",
+          "BatchMode=yes",
+          "-o",
+          "ConnectTimeout=10",
+          "baiying",
+          "powershell.exe -NoProfile -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAWwBDAG8AbgBzAG8AbABlAF0AOgA6AE8AdQB0AHAAdQB0AEUAbgBjAG8AZABpAG4AZwA9AFsAVABlAHgAdAAuAFUAVABGADgARQBuAGMAbwBkAGkAbgBnAF0AOgA6AG4AZQB3ACgAJABmAGEAbABzAGUAKQA7AGkAZgAoAFsARQBuAHYAaQByAG8AbgBtAGUAbgB0AF0AOgA6AE0AYQBjAGgAaQBuAGUATgBhAG0AZQAuAFQAbwBMAG8AdwBlAHIASQBuAHYAYQByAGkAYQBuAHQAKAApACAALQBuAGUAIAAnAGIAYQBpAHkAaQBuAGcAJwApAHsAdABoAHIAbwB3ACAAJwBoAG8AcwB0ACcAfQA7AGkAZgAoACgARwBlAHQALQBGAGkAbABlAEgAYQBzAGgAIAAnAEQAOgAvAHAAcgBvAGoAZQBjAHQAcwAvAEEASQBNAEEALQBnAHUAYQByAGQAZQBkAC0AbABvAG4AZwAtAGQAZQBhAGQAbABpAG4AZQAtADgAMwA5AGEAMAA5AGYALwBzAGMAcgBpAHAAdABzAC8AYgBhAGkAeQBpAG4AZwBfAGcAdQBhAHIAZABlAGQAXwBpAG4AZgBlAHIAZQBuAGMAZQAuAHAAcwAxACcAIAAtAEEAbABnAG8AcgBpAHQAaABtACAAUwBIAEEAMgA1ADYAKQAuAEgAYQBzAGgALgBUAG8ATABvAHcAZQByAEkAbgB2AGEAcgBpAGEAbgB0ACgAKQAgAC0AbgBlACAAJwA4ADkANgBmADUAZABlADUAYQAyAGMAOQA1ADUAYQBjADQAOQA3ADgAZAAxADAAMwBiAGMANABkADAANwAzADUAYwAxAGUANAA5ADIANAA1ADIAMAA1ADQAMgBmAGYAMgBmADQAOQBhADUANgAxAGIAMwBlADkAZQAxADgAYgA3ACcAKQB7AHQAaAByAG8AdwAgACcAcwBvAHUAcgBjAGUAIABoAGEAcwBoACcAfQA7AGkAZgAoACgARwBlAHQALQBGAGkAbABlAEgAYQBzAGgAIAAnAEQAOgAvAHAAcgBvAGoAZQBjAHQAcwAvAEEASQBNAEEALQBnAHUAYQByAGQAZQBkAC0AbABvAG4AZwAtAGQAZQBhAGQAbABpAG4AZQAtADgAMwA5AGEAMAA5AGYALwB0AGUAcwB0AHMALwBwAG8AdwBlAHIAcwBoAGUAbABsAC8AdABlAHMAdABfAGcAdQBhAHIAZABlAGQAXwBpAG4AZgBlAHIAZQBuAGMAZQBfAGEAcgBnAHUAbQBlAG4AdABzAC4AcABzADEAJwAgAC0AQQBsAGcAbwByAGkAdABoAG0AIABTAEgAQQAyADUANgApAC4ASABhAHMAaAAuAFQAbwBMAG8AdwBlAHIASQBuAHYAYQByAGkAYQBuAHQAKAApACAALQBuAGUAIAAnADcAZgA0ADIAYwAzAGUAYgAyADkANgA5ADEANwAzADEAMwA5AGMAZQBkAGMAMgA5AGUAYgBmADgAYwA1AGUANABhADUAMQAxADAAYwA5AGUAMAAxADkAMABiAGIANAAyADQAMABhADkAMQA0AGIANAAxAGYAZQA1ADcAYQAxADEAJwApAHsAdABoAHIAbwB3ACAAJwBzAG8AdQByAGMAZQAgAGgAYQBzAGgAJwB9ADsAJgAgACcARAA6AC8AcAByAG8AagBlAGMAdABzAC8AQQBJAE0AQQAtAGcAdQBhAHIAZABlAGQALQBsAG8AbgBnAC0AZABlAGEAZABsAGkAbgBlAC0AOAAzADkAYQAwADkAZgAvAHQAZQBzAHQAcwAvAHAAbwB3AGUAcgBzAGgAZQBsAGwALwB0AGUAcwB0AF8AZwB1AGEAcgBkAGUAZABfAGkAbgBmAGUAcgBlAG4AYwBlAF8AYQByAGcAdQBtAGUAbgB0AHMALgBwAHMAMQAnAA=="
+        ],
+        "command_text": "$ErrorActionPreference='Stop';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false);if([Environment]::MachineName.ToLowerInvariant() -ne 'baiying'){throw 'host'};if((Get-FileHash 'D:/projects/AIMA-guarded-long-deadline-839a09f/scripts/baiying_guarded_inference.ps1' -Algorithm SHA256).Hash.ToLowerInvariant() -ne '896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7'){throw 'source hash'};if((Get-FileHash 'D:/projects/AIMA-guarded-long-deadline-839a09f/tests/powershell/test_guarded_inference_arguments.ps1' -Algorithm SHA256).Hash.ToLowerInvariant() -ne '7f42c3eb2969173139cedc29ebf8c5e4a5110c9e0190bb4240a914b41fe57a11'){throw 'source hash'};& 'D:/projects/AIMA-guarded-long-deadline-839a09f/tests/powershell/test_guarded_inference_arguments.ps1'",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "#< CLIXML\n<Objs Version=\"1.1.0.1\" xmlns=\"http://schemas.microsoft.com/powershell/2004/04\"><Obj S=\"progress\" RefId=\"0\"><TN RefId=\"0\"><T>System.Management.Automation.PSCustomObject</T><T>System.Object</T></TN><MS><I64 N=\"SourceId\">1</I64><PR N=\"Record\"><AV>\u6b63\u5728\u51c6\u5907\u9996\u6b21\u4f7f\u7528\u6a21\u5757\u3002</AV><AI>0</AI><Nil /><PI>-1</PI><PC>-1</PC><T>Completed</T><SR>-1</SR><SD> </SD></PR></MS></Obj><Obj S=\"progress\" RefId=\"1\"><TNRef RefId=\"0\" /><MS><I64 N=\"SourceId\">2</I64><PR N=\"Record\"><AV>\u6b63\u5728\u51c6\u5907\u9996\u6b21\u4f7f\u7528\u6a21\u5757\u3002</AV><AI>0</AI><Nil /><PI>-1</PI><PC>-1</PC><T>Completed</T><SR>-1</SR><SD> </SD></PR></MS></Obj><S S=\"Error\">\u627e\u4e0d\u5230\u7c7b\u578b [Management.Automation.ParameterBindingValidationException]\u3002_x000D__x000A_</S><S S=\"Error\">\u6240\u5728\u4f4d\u7f6e D:\\projects\\AIMA-guarded-long-deadline-839a09f\\tests\\powershell\\test_guarded_inference_arguments.ps1:23 \u5b57\u7b26: 11_x000D__x000A_</S><S S=\"Error\">+     catch [Management.Automation.ParameterBindingValidationException] ..._x000D__x000A_</S><S S=\"Error\">+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_x000D__x000A_</S><S S=\"Error\">    + CategoryInfo          : InvalidOperation: (Management.Auto...dationException:TypeName) []\uff0cParentContainsErrorRec _x000D__x000A_</S><S S=\"Error\">   ordException_x000D__x000A_</S><S S=\"Error\">    + FullyQualifiedErrorId : TypeNotFound_x000D__x000A_</S><S S=\"Error\"> _x000D__x000A_</S></Objs>",
+        "wall_seconds": 0.6162058347836137
+      },
+      "model_loaded": false,
+      "process_launch_mocked": true,
+      "gpu_lock_acquired": false,
+      "runtime_binaries_changed": false
+    },
+    "reason": "PowerShell5 cannot resolve the named validation exception type; the test now checks the stable error identifier. The guard itself is identical in both tests."
+  },
+  "completed_test": {
+    "record_sha256": "24d162ec1745dfb5d2ebcbe7ddb078d6d818cf2514aec2acf76d12a1a74fd5cf",
+    "record": {
+      "host": "baiying",
+      "source_commit": "aba9b3decc8ba427183370a7e07a3de1f2eeb651",
+      "source_files": [
+        {
+          "file": "scripts/baiying_guarded_inference.ps1",
+          "sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7"
+        },
+        {
+          "file": "tests/powershell/test_guarded_inference_arguments.ps1",
+          "sha256": "a6dafed7b5bffe70a801ad18bdceb5d79c3b9bb6ce78368ad9048e40983dfb56"
+        }
+      ],
+      "setup": {
+        "command": [
+          "ssh",
+          "-o",
+          "BatchMode=yes",
+          "-o",
+          "ConnectTimeout=10",
+          "baiying",
+          "powershell.exe -NoProfile -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAaQBmACgAWwBFAG4AdgBpAHIAbwBuAG0AZQBuAHQAXQA6ADoATQBhAGMAaABpAG4AZQBOAGEAbQBlAC4AVABvAEwAbwB3AGUAcgBJAG4AdgBhAHIAaQBhAG4AdAAoACkAIAAtAG4AZQAgACcAYgBhAGkAeQBpAG4AZwAnACkAewB0AGgAcgBvAHcAIAAnAGgAbwBzAHQAJwB9ADsAJABuAHUAbABsAD0ATgBlAHcALQBJAHQAZQBtACAALQBJAHQAZQBtAFQAeQBwAGUAIABEAGkAcgBlAGMAdABvAHIAeQAgAC0ARgBvAHIAYwBlACAALQBQAGEAdABoACAAJwBEADoALwBwAHIAbwBqAGUAYwB0AHMALwBBAEkATQBBAC0AZwB1AGEAcgBkAGUAZAAtAGwAbwBuAGcALQBkAGUAYQBkAGwAaQBuAGUALQBhAGIAYQA5AGIAMwBkAC8AcwBjAHIAaQBwAHQAcwAnACwAJwBEADoALwBwAHIAbwBqAGUAYwB0AHMALwBBAEkATQBBAC0AZwB1AGEAcgBkAGUAZAAtAGwAbwBuAGcALQBkAGUAYQBkAGwAaQBuAGUALQBhAGIAYQA5AGIAMwBkAC8AdABlAHMAdABzAC8AcABvAHcAZQByAHMAaABlAGwAbAAnAA=="
+        ],
+        "command_text": "$ErrorActionPreference='Stop';if([Environment]::MachineName.ToLowerInvariant() -ne 'baiying'){throw 'host'};$null=New-Item -ItemType Directory -Force -Path 'D:/projects/AIMA-guarded-long-deadline-aba9b3d/scripts','D:/projects/AIMA-guarded-long-deadline-aba9b3d/tests/powershell'",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "#< CLIXML\n<Objs Version=\"1.1.0.1\" xmlns=\"http://schemas.microsoft.com/powershell/2004/04\"><Obj S=\"progress\" RefId=\"0\"><TN RefId=\"0\"><T>System.Management.Automation.PSCustomObject</T><T>System.Object</T></TN><MS><I64 N=\"SourceId\">1</I64><PR N=\"Record\"><AV>\ufffd\ufffd\ufffd\ufffd\u05fc\ufffd\ufffd\ufffd\u05f4\ufffd\u02b9\ufffd\ufffd\u0123\ufffd\u9863</AV><AI>0</AI><Nil /><PI>-1</PI><PC>-1</PC><T>Completed</T><SR>-1</SR><SD> </SD></PR></MS></Obj></Objs>",
+        "wall_seconds": 0.6836091661825776
+      },
+      "transfers": [
+        {
+          "file": "scripts/baiying_guarded_inference.ps1",
+          "returncode": 0,
+          "stderr": ""
+        },
+        {
+          "file": "tests/powershell/test_guarded_inference_arguments.ps1",
+          "returncode": 0,
+          "stderr": ""
+        }
+      ],
+      "result": {
+        "command": [
+          "ssh",
+          "-o",
+          "BatchMode=yes",
+          "-o",
+          "ConnectTimeout=10",
+          "baiying",
+          "powershell.exe -NoProfile -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAWwBDAG8AbgBzAG8AbABlAF0AOgA6AE8AdQB0AHAAdQB0AEUAbgBjAG8AZABpAG4AZwA9AFsAVABlAHgAdAAuAFUAVABGADgARQBuAGMAbwBkAGkAbgBnAF0AOgA6AG4AZQB3ACgAJABmAGEAbABzAGUAKQA7AGkAZgAoAFsARQBuAHYAaQByAG8AbgBtAGUAbgB0AF0AOgA6AE0AYQBjAGgAaQBuAGUATgBhAG0AZQAuAFQAbwBMAG8AdwBlAHIASQBuAHYAYQByAGkAYQBuAHQAKAApACAALQBuAGUAIAAnAGIAYQBpAHkAaQBuAGcAJwApAHsAdABoAHIAbwB3ACAAJwBoAG8AcwB0ACcAfQA7AGkAZgAoACgARwBlAHQALQBGAGkAbABlAEgAYQBzAGgAIAAnAEQAOgAvAHAAcgBvAGoAZQBjAHQAcwAvAEEASQBNAEEALQBnAHUAYQByAGQAZQBkAC0AbABvAG4AZwAtAGQAZQBhAGQAbABpAG4AZQAtAGEAYgBhADkAYgAzAGQALwBzAGMAcgBpAHAAdABzAC8AYgBhAGkAeQBpAG4AZwBfAGcAdQBhAHIAZABlAGQAXwBpAG4AZgBlAHIAZQBuAGMAZQAuAHAAcwAxACcAIAAtAEEAbABnAG8AcgBpAHQAaABtACAAUwBIAEEAMgA1ADYAKQAuAEgAYQBzAGgALgBUAG8ATABvAHcAZQByAEkAbgB2AGEAcgBpAGEAbgB0ACgAKQAgAC0AbgBlACAAJwA4ADkANgBmADUAZABlADUAYQAyAGMAOQA1ADUAYQBjADQAOQA3ADgAZAAxADAAMwBiAGMANABkADAANwAzADUAYwAxAGUANAA5ADIANAA1ADIAMAA1ADQAMgBmAGYAMgBmADQAOQBhADUANgAxAGIAMwBlADkAZQAxADgAYgA3ACcAKQB7AHQAaAByAG8AdwAgACcAcwBvAHUAcgBjAGUAIABoAGEAcwBoACcAfQA7AGkAZgAoACgARwBlAHQALQBGAGkAbABlAEgAYQBzAGgAIAAnAEQAOgAvAHAAcgBvAGoAZQBjAHQAcwAvAEEASQBNAEEALQBnAHUAYQByAGQAZQBkAC0AbABvAG4AZwAtAGQAZQBhAGQAbABpAG4AZQAtAGEAYgBhADkAYgAzAGQALwB0AGUAcwB0AHMALwBwAG8AdwBlAHIAcwBoAGUAbABsAC8AdABlAHMAdABfAGcAdQBhAHIAZABlAGQAXwBpAG4AZgBlAHIAZQBuAGMAZQBfAGEAcgBnAHUAbQBlAG4AdABzAC4AcABzADEAJwAgAC0AQQBsAGcAbwByAGkAdABoAG0AIABTAEgAQQAyADUANgApAC4ASABhAHMAaAAuAFQAbwBMAG8AdwBlAHIASQBuAHYAYQByAGkAYQBuAHQAKAApACAALQBuAGUAIAAnAGEANgBkAGEAZgBlAGQANwBiADUAYgBmAGYAZQA3ADAAYQA4ADAAMQBhAGQAMQA4AGIAZABjAGUAYgA1AGQANwA5AGMAMwBiADkAYgBiADYAYwBlADcAOAAzADYAOABhAGQAOQAwADQAOABlADQAMAA5ADgAMwBkAGYAYgA1ADYAJwApAHsAdABoAHIAbwB3ACAAJwBzAG8AdQByAGMAZQAgAGgAYQBzAGgAJwB9ADsAJgAgACcARAA6AC8AcAByAG8AagBlAGMAdABzAC8AQQBJAE0AQQAtAGcAdQBhAHIAZABlAGQALQBsAG8AbgBnAC0AZABlAGEAZABsAGkAbgBlAC0AYQBiAGEAOQBiADMAZAAvAHQAZQBzAHQAcwAvAHAAbwB3AGUAcgBzAGgAZQBsAGwALwB0AGUAcwB0AF8AZwB1AGEAcgBkAGUAZABfAGkAbgBmAGUAcgBlAG4AYwBlAF8AYQByAGcAdQBtAGUAbgB0AHMALgBwAHMAMQAnAA=="
+        ],
+        "command_text": "$ErrorActionPreference='Stop';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false);if([Environment]::MachineName.ToLowerInvariant() -ne 'baiying'){throw 'host'};if((Get-FileHash 'D:/projects/AIMA-guarded-long-deadline-aba9b3d/scripts/baiying_guarded_inference.ps1' -Algorithm SHA256).Hash.ToLowerInvariant() -ne '896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7'){throw 'source hash'};if((Get-FileHash 'D:/projects/AIMA-guarded-long-deadline-aba9b3d/tests/powershell/test_guarded_inference_arguments.ps1' -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'a6dafed7b5bffe70a801ad18bdceb5d79c3b9bb6ce78368ad9048e40983dfb56'){throw 'source hash'};& 'D:/projects/AIMA-guarded-long-deadline-aba9b3d/tests/powershell/test_guarded_inference_arguments.ps1'",
+        "returncode": 0,
+        "stdout": "{\"kind\":\"guarded_process_arguments\",\"cases\":4,\"timeout_cases\":9,\"maximum_timeout_seconds\":1800,\"pass\":true,\"actual_guard_block\":true,\"actual_parameter_declarations\":true,\"process_started\":false}\n",
+        "stderr": "#< CLIXML\n<Objs Version=\"1.1.0.1\" xmlns=\"http://schemas.microsoft.com/powershell/2004/04\"><Obj S=\"progress\" RefId=\"0\"><TN RefId=\"0\"><T>System.Management.Automation.PSCustomObject</T><T>System.Object</T></TN><MS><I64 N=\"SourceId\">1</I64><PR N=\"Record\"><AV>\u6b63\u5728\u51c6\u5907\u9996\u6b21\u4f7f\u7528\u6a21\u5757\u3002</AV><AI>0</AI><Nil /><PI>-1</PI><PC>-1</PC><T>Completed</T><SR>-1</SR><SD> </SD></PR></MS></Obj><Obj S=\"progress\" RefId=\"1\"><TNRef RefId=\"0\" /><MS><I64 N=\"SourceId\">2</I64><PR N=\"Record\"><AV>\u6b63\u5728\u51c6\u5907\u9996\u6b21\u4f7f\u7528\u6a21\u5757\u3002</AV><AI>0</AI><Nil /><PI>-1</PI><PC>-1</PC><T>Completed</T><SR>-1</SR><SD> </SD></PR></MS></Obj></Objs>",
+        "wall_seconds": 1.4841573340818286
+      },
+      "model_loaded": false,
+      "process_launch_mocked": true,
+      "gpu_lock_acquired": false,
+      "runtime_binaries_changed": false
+    },
+    "result": {
+      "kind": "guarded_process_arguments",
+      "cases": 4,
+      "timeout_cases": 9,
+      "maximum_timeout_seconds": 1800,
+      "pass": true,
+      "actual_guard_block": true,
+      "actual_parameter_declarations": true,
+      "process_started": false
+    }
+  },
+  "changes": {
+    "previous_maximum_seconds": 900,
+    "maximum_seconds": 1800,
+    "default_seconds": 90,
+    "actual_parameter_declarations_tested": true,
+    "accepted_explicit": [
+      1,
+      90,
+      900,
+      1800
+    ],
+    "rejected": [
+      0,
+      -1,
+      1801,
+      2147483647
+    ],
+    "actual_argument_launch_block_tested": true,
+    "argument_cases": 4,
+    "process_job_memory_mutex_boot_cleanup_logic_changed": false
+  },
+  "scope": "Read-only AST and mocked process-launch tests execute in Windows PowerShell on baiying. No engine process or GPU work is launched by these tests. The original 64k command failed before native launch; its separate retry and outcome are outside this parameter-unit proof. A longer timeout is no performance or correctness acceptance.",
+  "runtime_binaries_changed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "published": false
+}

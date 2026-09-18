@@ -134,6 +134,10 @@ The default deadline is 90 seconds. Explicit deadlines from 1 through 1800
 seconds support the longer context checks; every run retains its declared
 deadline and the same process-tree cleanup. Parameter-only tests cover the
 default, accepted endpoints and rejection outside that interval.
+Windows PowerShell checks at `aba9b3d` pass all nine timeout cases and four
+actual argument-transport cases with process launch mocked. The original
+64k startup rejection and the test's corrected exception-type assumption are
+preserved in [the unit evidence](../benchmarks/correctness/guarded-long-deadline-native-unit-20260918.json).
 
 The runner holds a machine-wide experiment mutex, rejects an existing engine
 or compiler, reserves 8 GiB of host memory and 20 GiB of commit headroom,
