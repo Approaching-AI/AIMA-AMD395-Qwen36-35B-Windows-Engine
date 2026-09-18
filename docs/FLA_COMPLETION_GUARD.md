@@ -171,8 +171,14 @@ its494 GPU executable kernels and metadata remain identical to the control.
 All512 original q8192 outputs, callbacks and first logit10.375 pass. Load is
 21392.9991 ms and TTFT23404.0045 ms, a functional observation with no new
 performance claim. See the [native regression](../benchmarks/correctness/all-layer-boundary-native-q8192-20260919.json).
-The next first96k run is active with row906 selected at every chunk, all-layer
-norm/residual boundaries and existing layer16 linear/MoE surfaces.
+The first96k row906 observation reaches the diagnostic64MiB log ceiling and
+exits124 after1964375.798 ms. Ten chunks and416 layer rows complete; no token
+is produced. All2595 available comparisons through selected position82826
+retain exact consumed BF16 boundaries. Host and cleanup checks pass; target91018
+is not reached. The [preserved incomplete run](../benchmarks/correctness/prefix96-row906-log-limit-20260919.json)
+attaches its original command and the next named diagnostic. That active repeat
+keeps the same DLLs, inputs and5400-second deadline, bounds logs at128MiB and
+observes upstream MoE15 plus linear16 and all-layer norms/residuals.
 
 The new independent row906 GB10 capture fails its q7169 control before any
 long request: token220/logit9.375 instead of82/9.25. Its first observed
@@ -190,9 +196,17 @@ and [preserved rejected control](../benchmarks/correctness/gb10-row906-observer-
 The [additional layer3 attention observation](../benchmarks/correctness/gb10-prefix128-row906-full3-boundaries-20260919.json)
 passes all576 original control/owner IDs and complete owner first logits.
 All4325 downloaded files verify; eight original prefill attention endpoints
-are checked at selected rows. A same-configuration repeat remains active to
-investigate the reproducible alternate control result. This read-only observer
-changes no model arithmetic or original acceptance check.
+are checked at selected rows. The [same-configuration repeat](../benchmarks/correctness/gb10-prefix128-row906-full3-repeat-20260919.json)
+also passes all576 IDs and full owner first logits. All4281 tensor files match
+the first qualified run bitwise. The cause of the earlier alternate-control
+failures remains unresolved; neither oracle nor model arithmetic changes.
+
+The [upstream15 reference](../benchmarks/correctness/gb10-prefix128-row906-upstream15-boundaries-20260919.json)
+also passes all576 original IDs and full owner first logits. Its4370 verified
+downloads include eight selected attention stages,17 routed/shared MoE stages
+per prefill row and linear16 stages at the same original positions. These
+independent references support the active native diagnosis; Windows128k and
+performance acceptance remain open.
 
 [CPU arithmetic controls](../benchmarks/correctness/row906-cpu-arithmetic-controls-20260919.json)
 now qualify positions91017–91021 directly:15 QKV/Z/OUT projections,10 gated/
