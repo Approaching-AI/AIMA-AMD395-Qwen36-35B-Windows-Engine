@@ -19,9 +19,16 @@ struct NativeExp {
     }
 };
 
+struct ShortFinalizer {
+    __device__ __forceinline__ static float finalize(float state,unsigned groups) {
+        return bound::finalize(state,groups);
+    }
+};
+
 // The default remains the validated input-indexed native correction. Isolated
 // component tests may supply another independently verified EXP representation.
-template<bool FuseQk, class Exp = NativeExp, bool FinalBound = true>
+template<bool FuseQk, class Exp = NativeExp, bool FinalBound = true,
+    class Finalizer = ShortFinalizer>
 __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
     const uint16_t* value, const uint32_t* packed_query, const uint32_t* packed_key,
     const unsigned* query_flags, const unsigned* key_flags,
@@ -215,7 +222,7 @@ __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
                     const float reciprocal = qrt_sm121_attention_rcp::evaluate(rcp_table, denominator[local_row]);
                     output[cell] = accumulator[q][c][e] * reciprocal;
                     const float final_error = FinalBound
-                        ? bound::finalize(error[q][c][e], ((start + row + 32u) / 32u) * 2u)
+                        ? Finalizer::finalize(error[q][c][e], ((start + row + 32u) / 32u) * 2u)
                         : error[q][c][e];
                     errors[cell] = qrt_sm121_pv_bound::finish(final_error, accumulator[q][c][e], reciprocal);
                     if (raw_accumulator) raw_accumulator[cell] = accumulator[q][c][e];

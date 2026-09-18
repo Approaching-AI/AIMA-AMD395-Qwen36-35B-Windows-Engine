@@ -273,6 +273,7 @@ void run_capture(unsigned queries,const char* qfile,const char* kfile,const char
 }
 } // namespace
 
+#ifndef QRT_LONG_ATTENTION_PIPELINE_NO_MAIN
 int main(int argc,char** argv)try {
     const bool safety=argc==4&&!std::strcmp(argv[1],"safety");
     const unsigned queries=argc==8&&!std::strcmp(argv[1],"1024")?1024u:argc==8&&!std::strcmp(argv[1],"8192")?8192u:0u;
@@ -289,3 +290,4 @@ int main(int argc,char** argv)try {
     if(safety)run_safety(de.data(),dd.data(),dc.data());else run_capture(queries,argv[2],argv[3],argv[4],argv[5],de.data(),dd.data(),dc.data());
     de.immutable(exp);dc.immutable(rcp);dd.immutable(packed);return 0;
 }catch(const std::exception& e){std::fprintf(stderr,"long_attention_pipeline_error=%s\n",e.what());return 2;}
+#endif
