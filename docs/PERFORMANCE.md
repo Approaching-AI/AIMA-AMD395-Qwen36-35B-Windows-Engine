@@ -64,6 +64,16 @@ The later original-K16 last-row OUT comparison is recorded above.
 1542704 bytes, SHA256
 `1cb8d1b7e81e475424ffd6185dcf1e56c8b4961bda175fe1604fd9536becd375`.
 
+## Probability/PV ownership comparison, 2026-09-18
+
+Isolated source `ab6b9ce` preserves every tested native and captured GB10
+boundary but regresses complete q8192 attention from 586.8079 ms to
+1267.8185 ms (16 queries/256 threads) or 1091.4214 ms (32 queries/512 threads).
+All 120 generated cases pass, including native surfaces before exact replay.
+Keep both candidates outside dispatch. This is a component result, with no
+model run or change to the 23902.4417 ms qualified product baseline.
+[Measurements and complete evidence](REDISTRIBUTED_PROBABILITY_PV.md).
+
 ## Producer-local gate replay has no established product benefit, 2026-09-18
 
 Source `932b55b` moves original gate/up selection and K16 correction into the
