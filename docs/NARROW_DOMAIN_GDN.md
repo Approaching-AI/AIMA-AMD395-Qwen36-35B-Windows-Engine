@@ -28,7 +28,8 @@ zero signs, unsupported operands, strong decay, sparse groups, nonfinite
 values, exact domain endpoints and nearby excluded exponents. Independent
 original CPU dots and every score/output/state/checkpoint/intermediate bit
 remain the comparison boundary. The prior all-encoding and K16 host proof
-is reused unchanged; new native validation is pending.
+is reused unchanged. All 336 native configurations pass, with zero raw
+mismatches, intact guards and immutable inputs, and both U ownership modes.
 
 Captured tests use the original GB10 q7169 GDN inputs and outputs. The q8192
 extension repeats 1024 rows after 7168 original rows; those original rows
@@ -38,3 +39,37 @@ and three rotated completed-host samples cover the full score/WU/state/output
 sequence in the retained 1024-token segments. Allocation, reset, transfers
 and independent validation stay outside timing. Native component results do
 not establish model TTFT, continuation or release acceptance.
+
+Source `a77c0436402fcefd580526278b7c30661aec548f` completes native build,
+generated safety tests and both captures on baiying. The complete sequence
+has these medians:
+
+| Captured shape / U ownership | Retained ms | Narrow matrices ms | Narrow matrices and scores ms |
+| --- | ---: | ---: | ---: |
+| q7169 / separate U | 76.2969 | 74.6125 | 74.4770 |
+| q7169 / U=V | 76.7033 | 75.7583 | 74.1055 |
+| q8192 / separate U | 84.8017 | 84.0563 | 85.9618 |
+| q8192 / U=V | 83.8103 | 86.0711 | 84.9590 |
+
+The production U=V q8192 comparison establishes no gain. Keep both candidates
+outside runtime dispatch. Every original score, output, checkpoint,
+intermediate and final state comparison passes on every attempt. The q7169
+capture also matches all 29364224 original GB10 cells for each output, W, U
+and residual surface, 113 checkpoints and 524288 final-state values. The
+q8192 extension checks the 7168 original rows and 112 original checkpoints;
+it has no external final-state boundary for the extended sequence.
+
+Compiled VGPR counts rise from 78/113/77/70 to 114/148/111/105 for WU,
+state, output and paired scores. Shared allocations stay unchanged and all
+eight kernels have zero private storage and spills. This static metadata
+does not establish occupancy or explain the measured slowdown by itself.
+
+[Complete commands, source and binary hashes, original capture provenance,
+samples and validation](../benchmarks/correctness/narrow-domain-gdn-native-components-20260918.json):
+599900 bytes, SHA256
+`c540d027c460aca202808c77ab160a099097e9f31af992ec75cf272b014d892e`.
+The command file is `run-native-narrow-domain-gdn-r1.ps1`; its build, test,
+q7169 and q8192 actions complete within their declared native timeouts.
+All 333 compiler inputs and all 13 capture files are hash-audited. No model
+run follows this rejected component comparison. The current qualified QK
+control remains 23353.80795 ms; performance and release goals remain open.

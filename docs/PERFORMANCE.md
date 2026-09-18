@@ -82,6 +82,18 @@ The later original-K16 last-row OUT comparison is recorded above.
 1542704 bytes, SHA256
 `1cb8d1b7e81e475424ffd6185dcf1e56c8b4961bda175fe1604fd9536becd375`.
 
+## Exact narrow-domain GDN components, 2026-09-18
+
+Source `a77c043` extends the proved QK finite-domain carry to GDN scores,
+WU, recurrent state and output, preserving the retained shared arenas and
+both U ownership modes. All 336 generated cases, every captured original
+arithmetic comparison and all available original GB10 boundaries pass.
+Complete q8192 production U=V medians are 83.8103 ms for the retained
+control, 86.0711 ms for narrow matrices and 84.9590 ms with narrow scores
+as well. No gain is established; keep both routes outside dispatch. The
+qualified model baseline stays 23353.80795 ms. No model timing or release
+acceptance follows. [Implementation, all timings and evidence](NARROW_DOMAIN_GDN.md).
+
 ## Exact narrow-domain QK components, 2026-09-18
 
 Complete q8192 attention in source `397ddc8` improves from 605.9593 ms to
