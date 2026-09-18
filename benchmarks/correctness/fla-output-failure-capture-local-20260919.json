@@ -1,0 +1,104 @@
+{
+  "kind": "fla_output_failure_capture_local",
+  "prior_commit": "08586cd7a6a1ab92b280391a33e9b474daae1db9",
+  "source_sha256": {
+    "native/providers/gdn/completion_guard.h": "c54390e8cc023aa21cfcd64e26f7771fbf84557f5668e9a54a8ee97bab6ffb5c",
+    "native/providers/gdn/output_failure_capture.h": "d6e5eb8b9792f6e24513bf89edab4bc4c1ddd8fc55458953ff16c78c725c6a3f",
+    "native/providers/gdn/qrt_fla_chunk_gdn_q8192_provider.cpp": "42f62c868d15f92dcb4b4c4752cd5c193b6e60b59f5780325a386c267186875d",
+    "scripts/baiying_build_fla_gdn.ps1": "fe88d86c831fc89ddaa160a2b5e5733580975be07c427172fac3db8ac4cc08e6",
+    "tests/test_fla_output_failure_capture.py": "5e91471665792f5ab624e3d24422d7d57c71692a385a02bc2c1c589df5426371",
+    "tests/test_fla_sequence_launch.py": "8a83d9d7f4cc53f7d88153f16c624c1b94ecb97c609faaa8f19d0b556fb3d8d9",
+    "docs/FLA_COMPLETION_GUARD.md": "952c070cde5ebad6bc884945359319f96cceaf358fa547183c859f8282796ea4"
+  },
+  "validation": {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_fla*.py"
+    ],
+    "returncode": 0,
+    "stdout": "coarse_gdn_launch_cases=1200 original_checkpoint_route=1 null_statistics=1 failures_propagated=1\npaired_score_launch_cases=4320 checkpoint_fallback=1 errors_propagated=1\n{\"kind\":\"pipelined_segment_owner_host\",\"eligibility_cases\":640,\"complete_dependency_graphs\":10,\"partial_submission_failures\":6,\"event_allocation_failures\":4,\"ring_reuse_and_ordered_state\":true,\"caller_dependency_and_completion\":true,\"all_streams_drained_on_error\":true,\"original_storage_preserved\":true}\n",
+    "stderr": "......................................................FLA_PIPELINED_SEGMENTS mode=1 tokens=64 segments=1 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\nFLA_PIPELINED_SEGMENTS mode=1 tokens=1024 segments=1 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\nFLA_PIPELINED_SEGMENTS mode=1 tokens=2048 segments=2 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\nFLA_PIPELINED_SEGMENTS mode=1 tokens=7168 segments=7 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\nFLA_PIPELINED_SEGMENTS mode=1 tokens=8192 segments=8 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\nFLA_PIPELINED_SEGMENTS mode=2 tokens=64 segments=1 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\nFLA_PIPELINED_SEGMENTS mode=2 tokens=1024 segments=1 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\nFLA_PIPELINED_SEGMENTS mode=2 tokens=2048 segments=2 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\nFLA_PIPELINED_SEGMENTS mode=2 tokens=7168 segments=7 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\nFLA_PIPELINED_SEGMENTS mode=2 tokens=8192 segments=8 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\n............................owned capture deadline exceeded; inspect existing output, never automatically resubmit\n...s...............................\n----------------------------------------------------------------------\nRan 117 tests in 28.466s\n\nOK (skipped=1)\n",
+    "wall_seconds": 28.576769333
+  },
+  "targeted_checks": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_fla_output_failure_capture.py"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "....\n----------------------------------------------------------------------\nRan 4 tests in 1.875s\n\nOK\n",
+      "wall_seconds": 1.927772333
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_fla_sequence_launch.py"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.683s\n\nOK\n",
+      "wall_seconds": 0.7228450410000002
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_fla_segment_guard.py"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.661s\n\nOK\n",
+      "wall_seconds": 0.7017645829999997
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_fla_completion_guard.py"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.668s\n\nOK\n",
+      "wall_seconds": 0.7211965
+    }
+  ],
+  "guard_ms": 100,
+  "maximum_capture_bytes": 67108864,
+  "host_copy_buffer_bytes": 1048576,
+  "default_enabled": false,
+  "math_changed": false,
+  "native_build_pending": true,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "published": false
+}

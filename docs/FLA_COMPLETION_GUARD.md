@@ -59,5 +59,32 @@ The cause of the earlier128k failure remains unestablished.
 
 [Native build, captured comparison and complete product evidence](../benchmarks/correctness/fla-completion-guard-native-product-20260918.json)
 attach commands, source/binary identities and original numerical boundaries.
-The samples establish no paired speed gain. The new128k run, larger contexts,
-package qualification and performance acceptance remain open.
+The samples establish no paired speed gain.
+
+The repeated128k run also fails at layer33 of owner chunk14, after14
+completed chunks through114688 tokens. Native wall is4213592.288 ms,
+exit5, with no output. The failed `blackwell_output_segment` records
+283.885010 ms on the GPU and284.029600 ms on the monotonic host clock.
+Both exceed100 ms. Four earlier negative norm-stage GPU intervals pass
+independent host bounds. All host and cleanup guards pass. This establishes
+a completed delay at the repeated location; it does not identify which of
+the score/value kernels is slow or exclude scheduling and memory effects.
+See the [completed-delay failure record](../benchmarks/correctness/fla-completion-guard-prefix128k-delay-failure-20260919.json).
+No128k numerical acceptance exists.
+
+An opt-in diagnostic `QRT_FLA_GDN_CAPTURE_OUTPUT_FAILURE_DIR` now saves the
+failed segment only after successful event synchronization and elapsed-time
+query, with finite nonnegative clocks rejecting the original100 ms bound.
+It writes Q/K, V-new, chunk states, cumulative gates, scores and completed
+outputs to a new directory. Reads use at most1 MiB of host scratch and each
+capture is below64 MiB. Existing directories are refused. Failed or partial
+copies cannot publish a completion record. Original model failure is retained
+regardless of capture success; no kernel is retried or reference supplied to
+the model. The diagnostic is disabled in the portable profile.
+
+All117 local FLA tests pass, with one Linux-only test skipped on macOS.
+The new checks exercise partial/full segments, byte preservation, copy and
+filesystem failures, invalid completion evidence and the actual submission
+wrapper's observation reset. Native compilation, captured replay and another
+long diagnostic run are still required. Larger contexts, package qualification
+and performance acceptance remain open.

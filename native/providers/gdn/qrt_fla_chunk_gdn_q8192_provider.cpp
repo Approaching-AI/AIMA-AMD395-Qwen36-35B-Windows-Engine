@@ -9,6 +9,7 @@
 #include "first_call_capture.h"
 #include "pipelined_segment_policy.h"
 #include "completion_guard.h"
+#include "output_failure_capture.h"
 #include <algorithm>
 
 #include <array>
@@ -226,7 +227,9 @@ int completed_stage_profile_mode() {
 // 100 ms guard to the entire sequence also bounds each kernel within it.
 template<class Operation>
 bool launch_blackwell_math(const char* name, hipStream_t stream, Operation operation,
-                           float* completed_ms = nullptr) {
+                           float* completed_ms = nullptr,
+                           qrt_fla_completion::Observation* observation = nullptr) {
+    if (observation) *observation = {};
     const int profile = completed_stage_profile_mode();
     if (profile < 0) return false;
     if (auto* segment = BlackwellSegmentGuard::active) {
@@ -266,6 +269,7 @@ bool launch_blackwell_math(const char* name, hipStream_t stream, Operation opera
     float milliseconds = 0;
     status = hipEventElapsedTime(&milliseconds, begin.handle, end.handle);
     if (status != hipSuccess) { set_error(name, status); return false; }
+    if (observation) *observation = {true, static_cast<double>(milliseconds), host_ms};
     const auto timing = qrt_fla_completion::evaluate(milliseconds, host_ms);
     if (timing.source != qrt_fla_completion::ClockSource::gpu) {
         std::fprintf(stderr,
@@ -1096,11 +1100,27 @@ int launch_segment_async(
             set_error_text("Blackwell batch score scratch is unavailable"); return 0;
         }
         float sequence_ms = 0.0f;
+        qrt_fla_completion::Observation observation;
         if (!launch_blackwell_math("blackwell_output_segment", stream, [&] {
             return qrt_fla_blackwell_aux::output_segment(q_pointer, k_pointer, v_new_pointer,
                 chunk_state_pointer, g_pointer, g_state.blackwell_residual, output_pointer,
                 static_cast<unsigned>(valid_tokens), stream);
-        }, &sequence_ms)) return 0;
+        }, &sequence_ms, &observation)) {
+            const char* directory = std::getenv("QRT_FLA_GDN_CAPTURE_OUTPUT_FAILURE_DIR");
+            if (directory && *directory) {
+                const bool captured = qrt_fla_output_failure::capture(directory,
+                    static_cast<unsigned>(valid_tokens), q_pointer, k_pointer, v_new_pointer,
+                    chunk_state_pointer, g_pointer, g_state.blackwell_residual, output_pointer,
+                    observation, [&](void* host, const void* device, size_t bytes) {
+                        const hipError_t copied = hipMemcpyAsync(host, device, bytes, hipMemcpyDeviceToHost, stream);
+                        return copied == hipSuccess && hipStreamSynchronize(stream) == hipSuccess;
+                    });
+                std::fprintf(stderr,
+                    "FLA_OUTPUT_FAILURE_CAPTURE complete=%u tokens=%d stage_completed=%u original_failure_preserved=1 numerical_acceptance=0\n",
+                    captured ? 1u : 0u, valid_tokens, observation.completed ? 1u : 0u);
+            }
+            return 0;
+        }
         if (!BlackwellSegmentGuard::active) std::fprintf(stderr, "FLA_AUX stage=output_batched tokens=%d chunks=%u calls=2 sequence_ms=%.6f guard_ms=100 cooperative_lanes=%u\n",
             tokens, chunks, static_cast<double>(sequence_ms),
             qrt_fla_blackwell_cooperative::matrix_lanes());

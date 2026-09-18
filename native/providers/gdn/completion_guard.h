@@ -9,6 +9,12 @@ namespace qrt_fla_completion {
 constexpr double kLimitMs = 100.0;
 enum class ClockSource { unavailable, gpu, host };
 
+struct Observation {
+    bool completed = false;
+    double gpu_ms = 0.0;
+    double host_ms = 0.0;
+};
+
 struct Decision {
     ClockSource source;
     double milliseconds;

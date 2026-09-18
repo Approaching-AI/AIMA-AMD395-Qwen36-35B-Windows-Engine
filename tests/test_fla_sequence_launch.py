@@ -126,6 +126,21 @@ int main() {
         reset();duration=value;host_duration=101;
         if(run(1024u,2u)||operations!=32u||waits!=1u||drains) return 14;
     }
+    qrt_fla_completion::Observation observed{true,999,999};
+    reset();duration=284;host_duration=285;
+    if(launch_blackwell_math("completed_rejection",nullptr,[]{++operations;return hipSuccess;},nullptr,&observed) ||
+       !observed.completed||observed.gpu_ms!=284||observed.host_ms!=285||operations!=1) return 16;
+    reset();fail_wait=true;
+    if(launch_blackwell_math("incomplete",nullptr,[]{++operations;return hipSuccess;},nullptr,&observed)||
+       observed.completed||drains!=1) return 17;
+    reset();fail_elapsed=true;
+    if(launch_blackwell_math("elapsed_error",nullptr,[]{++operations;return hipSuccess;},nullptr,&observed)||
+       observed.completed) return 18;
+    reset();
+    {BlackwellSegmentGuard outer(nullptr);
+     observed={true,999,999};
+     if(!launch_blackwell_math("deferred",nullptr,[]{++operations;return hipSuccess;},nullptr,&observed)||
+        observed.completed||creates||waits||operations!=1) return 19;}
     return 0;
 }
 '''
