@@ -116,6 +116,8 @@ int main() {
     def test_actual_stream_launcher_transports_absolute_indices_and_stops_on_fault(self):
         provider = (ROOT / "native/providers/whole_provider.cpp").read_text()
         actual = function(provider, "hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(")
+        self.assertIn("std::chrono::steady_clock::now()", actual)
+        actual = actual.replace("std::chrono::steady_clock::now()", "mock_completed_clock_now()")
         source = (ROOT / "tests/native/hawkeye_stream_host_mock.cpp").read_text()
         source = source.replace("// QRT_ACTUAL_LAUNCHER", actual)
         with tempfile.TemporaryDirectory(prefix="qrt-hawkeye-stream-") as tmp:
@@ -128,12 +130,17 @@ int main() {
                     input=source, text=True, check=True, timeout=30,
                 )
                 result = subprocess.run([exe], check=True, timeout=15, capture_output=True, text=True)
+                self.assertIn("completed_latency_owner_pass", result.stdout)
+                self.assertIn("completed_matrix_latency_owner_pass", result.stdout)
+                self.assertIn("hawkeye_completed_latency", result.stderr)
+                self.assertIn("hawkeye_dispatch_invalid_clock", result.stderr)
+                self.assertNotIn("hawkeye_dispatch_budget_exceeded", result.stderr)
                 if lanes == 4:
                     self.assertIn("out_residual_filter_owner_pass", result.stdout)
                     self.assertIn("staged_device_owner_pass", result.stdout)
                     print(result.stdout.strip())
 
-    def test_dense_work_and_exhausted_time_are_rejected(self):
+    def test_workspace_limits_and_nominal_timing_classification(self):
         source = r'''
 #include "hawkeye_dispatch_policy.h"
 #include "projection_output_policy.h"
@@ -151,16 +158,25 @@ static_assert(!admitted(16777217, 1), "one window cannot exceed scratch capacity
 static_assert(!admitted(1, 65), "one dense block must also be rejected");
 static_assert(!admitted(UINT32_MAX, UINT32_MAX), "no integer wraparound");
 static_assert(time_remaining(100.0, 10000.0), "inclusive time boundary");
-static_assert(!time_remaining(100.001, 1.0), "slow dispatch stops submission");
-static_assert(!time_remaining(1.0, 10000.001), "aggregate deadline");
+static_assert(!time_remaining(100.001, 1.0), "slow dispatch is reported");
+static_assert(!time_remaining(1.0, 10000.001), "aggregate nominal interval");
 static_assert(maximum_device_window_elements == 4194304u, "bounded device index arena");
 static_assert(maximum_device_replay_blocks == 1024u, "bounded persistent grid");
 static_assert(device_time_remaining(250.0, 10000.0), "completed device window boundary");
-static_assert(!device_time_remaining(250.001, 1.0), "slow device window stops submission");
-static_assert(!device_time_remaining(1.0, 10000.001), "device aggregate deadline");
+static_assert(!device_time_remaining(250.001, 1.0), "slow device window is reported");
+static_assert(!device_time_remaining(1.0, 10000.001), "device aggregate nominal interval");
 static_assert(matrix_time_remaining(250.0, 10000.0), "completed resident matrix boundary");
-static_assert(!matrix_time_remaining(250.001, 1.0), "slow resident matrix stops submission");
-static_assert(!matrix_time_remaining(1.0, 10000.001), "matrix aggregate deadline");
+static_assert(!matrix_time_remaining(250.001, 1.0), "slow resident matrix is reported");
+static_assert(!matrix_time_remaining(1.0, 10000.001), "matrix aggregate nominal interval");
+static_assert(completed_intervals_valid(0.0, -0.0), "completed zero intervals");
+static_assert(completed_intervals_valid(100.001, 10000.001), "completed slow work continues");
+static_assert(completed_intervals_valid(251.0, 7200000.0), "outer process deadline is independent");
+static_assert(!completed_intervals_valid(-1.0, 1.0), "negative dispatch is invalid");
+static_assert(!completed_intervals_valid(1.0, -1.0), "negative correction is invalid");
+static_assert(!completed_intervals_valid(std::numeric_limits<double>::infinity(), 1.0), "infinite dispatch");
+static_assert(!completed_intervals_valid(1.0, std::numeric_limits<double>::infinity()), "infinite correction");
+static_assert(!completed_intervals_valid(std::numeric_limits<double>::quiet_NaN(), 1.0), "NaN dispatch");
+static_assert(!completed_intervals_valid(1.0, std::numeric_limits<double>::quiet_NaN()), "NaN correction");
 using namespace qrt_projection_output;
 static_assert(!needs_f32_buffer(false, false), "ordinary fused BF16 retains its allocation plan");
 static_assert(needs_f32_buffer(false, true), "layer 2 WMMA must allocate F32 despite BF16 fusion");

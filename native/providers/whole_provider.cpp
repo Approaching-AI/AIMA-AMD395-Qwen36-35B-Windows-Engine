@@ -38028,7 +38028,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     }
     // The producer can still be queued on this stream. Complete it before
     // timing a collection dispatch, otherwise the first collection inherits
-    // the preceding full projection's wall time and can fail a false deadline.
+    // the preceding full projection's wall time in its latency diagnostic.
     // End-to-end product TTFT continues to include this upstream work.
     const auto input_wait_start = std::chrono::steady_clock::now();
     hipError_t status = hipStreamSynchronize(stream);
@@ -38214,18 +38214,29 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         const double correction_ms = std::chrono::duration<double, std::milli>(
             completed_at - correction_start).count();
         maximum_dispatch_ms = (std::max)(maximum_dispatch_ms, dispatch_ms);
+        if (!qrt_hawkeye_dispatch::completed_intervals_valid(dispatch_ms, correction_ms)) {
+            std::fprintf(stderr,
+                "BATCH_MARK hawkeye_dispatch_invalid_clock window=%u "
+                "dispatch_ms=%.3f correction_ms=%.3f completed=1 accepted=0\n",
+                windows, dispatch_ms, correction_ms);
+            std::fflush(stderr);
+            return hipErrorInvalidConfiguration;
+        }
         const bool within_time = matrix_window
             ? qrt_hawkeye_dispatch::matrix_time_remaining(dispatch_ms, correction_ms) : device_count_replay
             ? qrt_hawkeye_dispatch::device_time_remaining(dispatch_ms, correction_ms)
             : qrt_hawkeye_dispatch::time_remaining(dispatch_ms, correction_ms);
         if (!within_time) {
             std::fprintf(stderr,
-                "BATCH_MARK hawkeye_dispatch_budget_exceeded window=%u "
+                "BATCH_MARK hawkeye_completed_latency window=%u "
                 "dispatch_ms=%.3f correction_ms=%.3f "
-                "diagnostic_only=1 numerical_correctness_claimed=0\n",
-                windows, dispatch_ms, correction_ms);
+                "nominal_dispatch_ms=%.3f nominal_correction_ms=%.3f "
+                "completed=1 action=continue diagnostic_only=1 numerical_correctness_claimed=0\n",
+                windows, dispatch_ms, correction_ms,
+                matrix_window ? qrt_hawkeye_dispatch::maximum_matrix_window_ms : device_count_replay
+                    ? qrt_hawkeye_dispatch::maximum_device_window_ms : qrt_hawkeye_dispatch::maximum_dispatch_ms,
+                qrt_hawkeye_dispatch::maximum_correction_ms);
             std::fflush(stderr);
-            return hipErrorInvalidConfiguration;
         }
         return hipSuccess;
     };

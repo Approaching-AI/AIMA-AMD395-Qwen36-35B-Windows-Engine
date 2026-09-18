@@ -33,6 +33,10 @@ constexpr unsigned int kThreads = 256u;
 struct dim3 { unsigned int x, y; explicit dim3(unsigned int value, unsigned int second = 1u) : x(value), y(second) {} };
 static unsigned int allocations = 0, frees = 0, collections = 0, corrections = 0, rounds = 0;
 static unsigned int reject_collection = 0, fail_sync = 0, syncs = 0;
+static int64_t simulated_clock_ms = 0, completed_delay_ms = 0;
+std::chrono::steady_clock::time_point mock_completed_clock_now() {
+    return std::chrono::steady_clock::time_point(std::chrono::milliseconds(simulated_clock_ms));
+}
 static unsigned int exact_blocks = 0;
 static unsigned int requested_blocks = 8u;
 static unsigned int count_reads = 0u;
@@ -122,6 +126,7 @@ hipError_t hipGetLastError() {
     return failed ? hipErrorUnknown : hipSuccess;
 }
 hipError_t hipStreamSynchronize(hipStream_t) {
+    simulated_clock_ms += completed_delay_ms;
     if (defer_work) {
         if (pending_replays) completed_replay_bursts.push_back(pending_replays);
         pending_replays=0;
@@ -625,6 +630,7 @@ void device_mode(bool enabled) {
 #endif
 }
 void reset() {
+    simulated_clock_ms = completed_delay_ms = 0;
     submitted_replays=fail_replay_submission=pending_replays=0;
     submission_fault=false;completed_replay_bursts.clear();pending_work.clear();
     allocations = frees = collections = corrections = rounds = 0;
@@ -725,6 +731,26 @@ int main() {
         if (output[i] != expected) return 19;
     }
     requested_blocks = 8u;
+    // Exercise the actual wrapper after completed work crosses both nominal
+    // dispatch limits and the aggregate correction interval. No real sleep,
+    // output shortcut or numerical stand-in chooses continuation here.
+    for (bool device : {false, true}) for (int64_t delay : {101, 251, 10001}) {
+        device_mode(device); reset(); completed_delay_ms=delay; output=initial;
+        if (invoke(output)!=hipSuccess || collections!=3u || invalid_grid || invalid_range ||
+            allocations!=frees || !allocation_records.empty()) return 201;
+        for (size_t i=0; i<total_elements; ++i) {
+            const float expected=initial[i]==1.00390625f
+                ? static_cast<float>((i/rows)*2u+i%rows) : 1.0f;
+            if (output[i]!=expected) return 202;
+        }
+    }
+    device_mode(false); reset(); completed_delay_ms=-1; output=initial;
+    if (invoke(output)!=hipErrorInvalidConfiguration || collections!=1u || corrections ||
+        allocations!=frees || !allocation_records.empty()) return 203;
+    reset(); completed_delay_ms=10001; fail_sync=2u; output=initial;
+    if (invoke(output)!=hipErrorUnknown || collections!=1u || corrections ||
+        allocations!=frees || !allocation_records.empty()) return 204;
+    std::printf("completed_latency_owner_pass slow_cases=6 rollback_rejected=1 hip_failure_preserved=1\n");
     reset(); count_only(true); output = initial;
     if (invoke(output) != hipErrorInvalidConfiguration || collections != 3u ||
         rounds || corrections || output != initial || allocations != frees) return 5;
@@ -927,13 +953,14 @@ int main() {
     }
     prepared_mode("1"); absolute_hipblaslt_mode("invalid"); reset(); output=prepared_initial;
     if(run_bound()!=hipErrorInvalidValue || allocations || syncs || output!=prepared_initial)return 56;
-    absolute_hipblaslt_mode("1"); reset(); output=prepared_initial;
+    absolute_hipblaslt_mode("1"); reset(); completed_delay_ms=251; output=prepared_initial;
     if(run_bound()!=hipSuccess || preparations!=2u || magnitude_preparations!=2u || matrix_calls!=16u ||
         bound_windows!=16u || collections!=16u || allocations!=4u || frees!=4u || invalid_range || invalid_grid)return 57;
     for(size_t i=0;i<total_elements;++i) {
         const float expected=i%37u ? 1.0f : float((i/1024u)*2u+i%1024u);
         if(output[i]!=expected)return 58;
     }
+    std::printf("completed_matrix_latency_owner_pass windows=16 nominal_ms=250 completed_ms=251\n");
     reset();fail_allocation=4u;output=prepared_initial;
     if(run_bound()!=hipErrorUnknown || allocations!=4u || frees!=3u || preparations || magnitude_preparations ||
         collections || output!=prepared_initial || invalid_range)return 59;

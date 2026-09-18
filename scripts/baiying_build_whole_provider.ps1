@@ -238,6 +238,12 @@ $record = [ordered]@{
         -LiteralPath $compileSource).Hash.ToLowerInvariant()
     hawkeye_dispatch_policy_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\hawkeye_dispatch_policy.h')).Hash.ToLowerInvariant()
+    hawkeye_completed_latency_is_runtime_failure = $false
+    hawkeye_completion_requires_stream_sync = $true
+    hawkeye_nominal_dispatch_ms = 100
+    hawkeye_nominal_device_window_ms = 250
+    hawkeye_nominal_matrix_window_ms = 250
+    hawkeye_nominal_correction_ms = 10000
     gate_input_capture_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\gate_input_capture.h')).Hash.ToLowerInvariant()
     gb10_gate_lookup_sha256 = (Get-FileHash -Algorithm SHA256 `
