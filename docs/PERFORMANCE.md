@@ -19,9 +19,9 @@ Dense correction3170.529ms, coarse OUT1176.7438ms and adaptive linear OUT
 GPU intervals remain recorded as invalid and are excluded. Original dense
 and coarse candidate identities/counts match the uninstrumented control.
 
-The next component examines independent producer/state/output streams across
-bounded GDN segments with unchanged arithmetic. No runtime or release change
-follows from the profile. [Complete profile evidence](../benchmarks/correctness/narrow-stack-completed-profile-20260918.json):
+The completed GDN stream and narrow-half projection experiments below keep
+the qualified runtime unchanged. The profile identifies work for broader
+provider scheduling; its instrumentation does not establish a new baseline. [Complete profile evidence](../benchmarks/correctness/narrow-stack-completed-profile-20260918.json):
 641793bytes, SHA256
 `523b2e7ee26b8b71626635f7f86157d54b9e5b38aca6310645e85cfd696416df`.
 
@@ -106,6 +106,22 @@ The later original-K16 last-row OUT comparison is recorded above.
 [Four complete model runs](../benchmarks/correctness/final-query-liveness-product-20260918.json):
 1542704 bytes, SHA256
 `1cb8d1b7e81e475424ffd6185dcf1e56c8b4961bda175fe1604fd9536becd375`.
+
+## Whole-row narrow half projection, 2026-09-18
+
+Source `0714cea` keeps the retained four-lane lossless-half schedule and
+ordered K16 arithmetic, but preclassifies complete operand rows before using
+normal FP32 carries without per-group exceptional checks. All28 native
+configurations and2645036 carry endpoints pass. Captured QKV/OUT preserve
+all67108864/16777216 GB10 BF16 outputs,4331635/8471989 raw selected values,
+inactive cells, row flags, prepared words and guards after every attempt.
+
+QKV preparation/classification/replay medians regress42.7773ms to49.2372/
+48.1558ms; original midpoint OUT improves157.272ms to143.006/142.877ms.
+QKV admits3458934 selected dots; OUT admits8469953. This is not the retained
+coarse-OUT owner and no MoE or model gain follows. Keep the component isolated;
+the qualified model median remains23353.80795ms.
+[Implementation and complete evidence](NARROW_HALF_PROJECTION.md).
 
 ## GDN segments on independent streams, 2026-09-18
 
