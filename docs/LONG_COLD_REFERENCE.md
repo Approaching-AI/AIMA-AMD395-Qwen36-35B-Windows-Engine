@@ -30,6 +30,17 @@ binds all53 downloaded files, prompt/output fingerprints, all six full-vocabular
 logit files, source and command identities. Intermediate layer transactions were
 not captured in this run; existing long-prefix transaction evidence is separate.
 
+For subsequent diagnosis, the optional `QRT_GB10_CASE_PREFILL_POSITIONS`
+observer accepts up to32 distinct actual prompt positions per case. This
+allows one terminal row from each8192-token chunk through256k. The existing
+case count, prompt extent, per-case512 MiB artifact cap and observation
+deadlines remain. Default positions and control observations are unchanged;
+no tensor value or model computation changes. Seventeen boundary tests and
+six token-matrix tests pass, including exact row identities for all32 chunks
+and rejection of duplicates, out-of-prompt positions and a33rd position.
+Host tests establish observation-plan handling only; a new capture must still
+reproduce the original token histories and full first-logit tensors.
+
 These references enable the Windows cold out512 checks. They do not establish
 Windows correctness or performance at any newly captured length.
 

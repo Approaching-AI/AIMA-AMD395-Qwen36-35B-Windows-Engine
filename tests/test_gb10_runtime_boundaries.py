@@ -40,12 +40,30 @@ class RuntimeBoundaryTests(unittest.TestCase):
             self.assertEqual(observation_positions('q8192-out32', 8192), {8191, 8192})
             with self.assertRaises(ValueError):
                 observation_positions(case, 18555)
-        for plan in ([], {}, {case: []}, {case: [0, 1, 2, 3]}, {case: [1, 1]},
+        for plan in ([], {}, {case: []}, {case: list(range(33))}, {case: [1, 1]},
                      {case: [-1]}, {case: [263168]}, {case: [True]}, {case: '18554'},
                      {'undeclared': [1]}, {'case-out513': [1]}):
             with patch.dict(os.environ, {setting: json.dumps(plan)}, clear=True):
                 with self.assertRaises(ValueError):
                     observation_positions(case, 32768)
+
+    def test_long_chunk_end_observations_preserve_real_row_identity(self):
+        case = 'long-prefix262144-owner-out512'
+        ends = list(range(8191, 262144, 8192))
+        environment = {'QRT_GB10_CASE_PREFILL_POSITIONS': json.dumps({case: ends})}
+        with patch.dict(os.environ, environment, clear=True):
+            selected = observation_positions(case, 262144)
+            self.assertEqual(selected, set(ends) | {262144})
+            for start in range(0, 262144, 8192):
+                ids = list(range(start, start + 8192))
+                rows = target_rows(ids, ids, [], selected)
+                self.assertEqual(rows, [dict(row=8191, position=start + 8191,
+                    input_token_id=start + 8191, logit_row=None)])
+            self.assertEqual(observation_positions('q8192-out32', 8192), {8191, 8192})
+            self.assertEqual(observation_positions('q7169-out32', 7169), {7168, 7169})
+            with self.assertRaisesRegex(ValueError, 'beyond the original prompt'):
+                observation_positions(case, 262143)
+            self.assertEqual(observation_timeout_seconds(262144), 900)
 
     def test_suffix_attention_window_binds_original_extent_and_leaves_controls_unselected(self):
         case = 'long-prefix16384-suffix1024-out512'

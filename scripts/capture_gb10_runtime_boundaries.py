@@ -142,10 +142,10 @@ def extra_prefill_positions(case, prompt_tokens):
     for name, positions in plan.items():
         match = re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}-out([1-9][0-9]*)', name)
         if (match is None or not 2 <= int(match.group(1)) <= 512 or
-                not isinstance(positions, list) or not 1 <= len(positions) <= 3 or
+                not isinstance(positions, list) or not 1 <= len(positions) <= 32 or
                 any(type(position) is not int or not 0 <= position < 263168 for position in positions) or
                 len(set(positions)) != len(positions)):
-            raise ValueError('prefill positions require at most three distinct original rows')
+            raise ValueError('prefill positions require at most32 distinct original rows')
         if name == case and any(position >= prompt_tokens for position in positions):
             raise ValueError('prefill observation extends beyond the original prompt')
     return set(plan.get(case, []))
