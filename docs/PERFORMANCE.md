@@ -82,6 +82,18 @@ The later original-K16 last-row OUT comparison is recorded above.
 1542704 bytes, SHA256
 `1cb8d1b7e81e475424ffd6185dcf1e56c8b4961bda175fe1604fd9536becd375`.
 
+## Byte-exponent exact QK component, 2026-09-18
+
+Source `5f0fcc1` obtains exact K16 alignment scales from packed exponent
+deficits, then consumes each product immediately. The original narrow-domain
+proof, general fallback, probability/PV consumer and candidate set remain.
+All host checks, 240 native configurations and complete q8192 original/GB10
+boundaries pass. Attention including route preparation improves 534.6539 to
+522.8729/510.6473 ms for 2x4/4x4 layouts. The best 24.0066 ms saving is a
+modest component gain; keep it isolated while seeking a broader reduction
+in arithmetic. No provider/model run or baseline change follows.
+[Implementation, memory cost and evidence](BYTE_EXPONENT_QK.md).
+
 ## Query-row exact PV scheduling, 2026-09-18
 
 Source `d2a275a` groups the original selected columns by query/head and shares
