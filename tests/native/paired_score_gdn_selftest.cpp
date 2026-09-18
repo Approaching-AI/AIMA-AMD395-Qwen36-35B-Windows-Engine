@@ -83,7 +83,14 @@ __global__ void capture_scores(const uint16_t* q,const uint16_t* k,const float* 
  if(!lane){sum=original::group_sum<26,kZeroExponent>(&sum,1u);
   scores[index]=to_bf16(original::value_to_float(sum)*scalar::exponential(g[token*32u+head]-g[source*32u+head],table));}
 }
-void paired_run(unsigned count,unsigned mode,unsigned measured,Device& table,const std::vector<unsigned char>& host_table,const char* capture_root=nullptr){
+struct PairedFixturePolicy {
+ const char* kind;
+ decltype(&paired_launch) launch;
+ bool output_arena_reuse[3];
+ unsigned streams[3];
+};
+const PairedFixturePolicy original_paired_policy{"paired_score_gdn_component",paired_launch,{false,false,true},{1u,1u,1u}};
+void paired_run(unsigned count,unsigned mode,unsigned measured,Device& table,const std::vector<unsigned char>& host_table,const char* capture_root=nullptr,const PairedFixturePolicy& policy=original_paired_policy){
  const size_t small=size_t(count)*2048u,large=size_t(count)*4096u,gate=size_t(count)*32u,checkpoints=size_t((count+63u)/64u)*state_cells,score_cells=small;
  std::vector<uint16_t> q(small),k(small),v(large),beta(gate),inverse(small),scores(score_cells);std::vector<float> g(gate),seed(state_cells);
  auto fill=[&](std::vector<uint16_t>& x,unsigned salt,unsigned exponent){for(size_t i=0u;i<x.size();++i){const unsigned r=random_word(unsigned(i)^salt);x[i]=mode?uint16_t((r&0x807fu)|((exponent+r%4u)<<7u)):uint16_t(r&0x8000u);if(mode==2u && i%29u==0u)x[i]=uint16_t(r&0x807fu);}};
@@ -137,7 +144,9 @@ void paired_run(unsigned count,unsigned mode,unsigned measured,Device& table,con
  for(unsigned attempt=0u;attempt<attempts;++attempt)for(unsigned position=0u;position<6u;++position){
   const unsigned choice=(attempt+position)%6u,variant=choice%3u;const bool alias=choice>=3u;
   dv.reset();dv.upload(v);du.reset();dw.reset();output.reset();state.reset();state.upload(seed);h.reset();vn.reset();ds.reset();finish();
-  const auto begin=std::chrono::steady_clock::now();paired_launch(variant,count,dq,dk,dv,db,dinv,dg,ds,du,dw,output,h,vn,state,table,alias);finish();
+  const auto begin=std::chrono::steady_clock::now();
+  try {policy.launch(variant,count,dq,dk,dv,db,dinv,dg,ds,du,dw,output,h,vn,state,table,alias);finish();}
+  catch(...) {(void)hipDeviceSynchronize();throw;}
   if(attempt){
    samples[unsigned(alias)][variant][attempt-1u]=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-begin).count();
 
@@ -174,10 +183,11 @@ void paired_run(unsigned count,unsigned mode,unsigned measured,Device& table,con
  }
  for(unsigned alias=0u;alias<2u;++alias)for(unsigned variant=0u;variant<3u;++variant){
   double sorted[3]={samples[alias][variant][0],samples[alias][variant][1],samples[alias][variant][2]};std::sort(sorted,sorted+3u);
-  std::printf("{\"kind\":\"paired_score_gdn_component\",\"tokens\":%u,\"mode\":%u,\"variant\":%u,\"output_arena_reuse\":%s,\"segment_tokens\":1024,\"segments\":%u,\"u_aliases_v\":%s,\"score_cells\":%zu,\"independent_score_dots\":%zu,\"output_cells\":%zu,\"state_cells\":%zu,\"checkpoint_cells\":%zu,\"wu_and_residual_cells\":%zu,\"independent_cpu_dots\":%zu,\"warmups\":1,\"measured_attempts\":%u,\"complete_score_wu_state_output_ms\":%.6f,\"samples_ms\":[%.6f,%.6f,%.6f],\"captured_inputs\":%s,\"gb10_output_cells\":%zu,\"repeated_capture_rows\":%u,\"intermediate_host_synchronization\":false,\"all_attempts_verified\":true,\"raw_bit_mismatches\":0,\"intermediate_and_alias_ownership_checked\":true,\"redzones_pass\":true,\"immutable_nonaliased_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",count,mode,variant,variant==2u?"true":"false",(count+1023u)/1024u,alias?"true":"false",score_cells,(mode<2u || mode==3u || mode==4u || capture_root)?size_t((count+63u)/64u)*3u:0u,large,state_cells,checkpoints,large*3u,cpu_dots,measured,sorted[1],samples[alias][variant][0],samples[alias][variant][1],samples[alias][variant][2],capture_root?"true":"false",capture_root?size_t(count==8192u?7168u:7169u)*4096u:0u,capture_root && count==8192u?1024u:0u);
+  std::printf("{\"kind\":\"%s\",\"streams\":%u,\"tokens\":%u,\"mode\":%u,\"variant\":%u,\"output_arena_reuse\":%s,\"segment_tokens\":1024,\"segments\":%u,\"u_aliases_v\":%s,\"score_cells\":%zu,\"independent_score_dots\":%zu,\"output_cells\":%zu,\"state_cells\":%zu,\"checkpoint_cells\":%zu,\"wu_and_residual_cells\":%zu,\"independent_cpu_dots\":%zu,\"warmups\":1,\"measured_attempts\":%u,\"complete_score_wu_state_output_ms\":%.6f,\"samples_ms\":[%.6f,%.6f,%.6f],\"captured_inputs\":%s,\"gb10_output_cells\":%zu,\"repeated_capture_rows\":%u,\"intermediate_host_synchronization\":false,\"all_attempts_verified\":true,\"raw_bit_mismatches\":0,\"intermediate_and_alias_ownership_checked\":true,\"redzones_pass\":true,\"immutable_nonaliased_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",policy.kind,policy.streams[variant],count,mode,variant,policy.output_arena_reuse[variant]?"true":"false",(count+1023u)/1024u,alias?"true":"false",score_cells,(mode<2u || mode==3u || mode==4u || capture_root)?size_t((count+63u)/64u)*3u:0u,large,state_cells,checkpoints,large*3u,cpu_dots,measured,sorted[1],samples[alias][variant][0],samples[alias][variant][1],samples[alias][variant][2],capture_root?"true":"false",capture_root?size_t(count==8192u?7168u:7169u)*4096u:0u,capture_root && count==8192u?1024u:0u);
  }
  std::fflush(stdout);
 }
+#ifndef QRT_PAIRED_SCORE_FIXTURE_ONLY
 int main(int argc,char** argv)try{
  require(argc==3 || argc==4,"requires verified SM121 exponential table and safety or throughput");hipDeviceProp_t p{};check(hipGetDeviceProperties(&p,0));require(!std::strncmp(p.gcnArchName,"gfx1151",7u),"requires gfx1151");
  const bool timing=!std::strcmp(argv[2],"throughput"),captured=!std::strcmp(argv[2],"q7169") || !std::strcmp(argv[2],"q8192");require(timing || captured || !std::strcmp(argv[2],"safety"),"unknown action");require(captured==(argc==4),"capture argument ownership");
@@ -186,3 +196,4 @@ int main(int argc,char** argv)try{
  if(captured)paired_run(!std::strcmp(argv[2],"q7169")?7169u:8192u,6u,3u,dt,table,argv[3]);else if(timing){paired_run(8192u,1u,3u,dt,table);paired_run(8192u,3u,3u,dt,table);}else for(unsigned count:{1u,63u,64u,65u,129u,1023u,1024u,1025u})for(unsigned mode=0u;mode<6u;++mode)paired_run(count,mode,0u,dt,table);
  unchanged(dt,table_words);return 0;
 }catch(const std::exception& e){std::fprintf(stderr,"%s\n",e.what());return 1;}
+#endif

@@ -1,5 +1,30 @@
 # Real-model performance
 
+
+## Current narrow-QK stack profile, 2026-09-18
+
+A completed real q8192/out512 profile on the qualified narrow-QK and final
+query/output stack preserves all512 GB10 IDs, original prompt IDs, actual
+callbacks and first logit10.375. All binaries and numerical options match the
+retained enabled control; only five profiling flags and marker filtering change.
+Load is21344.8137ms and instrumented TTFT is27321.9776ms. This is not a new
+performance baseline; the uninstrumented median remains23353.80795ms.
+
+Linear projections/core total4362.125/7165.56ms, including3327.918ms recurrence,
+1970.7119ms output projection and740.014ms convolution. Nine full-query CK
+calls total5477.5099ms:2317.5885ms QK,1446.7542ms probability/nativePV and
+1539.6902ms exactPV. MoE totals4968.8112ms; routed/shared intervals overlap.
+Dense correction3170.529ms, coarse OUT1176.7438ms and adaptive linear OUT
+1820.2961ms are nested work, not additional totals. Nine negative residual
+GPU intervals remain recorded as invalid and are excluded. Original dense
+and coarse candidate identities/counts match the uninstrumented control.
+
+The next component examines independent producer/state/output streams across
+bounded GDN segments with unchanged arithmetic. No runtime or release change
+follows from the profile. [Complete profile evidence](../benchmarks/correctness/narrow-stack-completed-profile-20260918.json):
+641793bytes, SHA256
+`523b2e7ee26b8b71626635f7f86157d54b9e5b38aca6310645e85cfd696416df`.
+
 ## Exact narrow-domain QK product, 2026-09-18
 
 CK `1c2770d` preserves the original ordered QK arithmetic while removing
