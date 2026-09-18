@@ -166,8 +166,23 @@ existing boundary-trace selector to all materialized layers. It still requires
 the boundary-trace flag and uses the existing selected row and extent checks.
 It reads input norm, attention residual/norm and output residual through the
 existing copy path. It neither dumps whole tensors nor changes arithmetic.
-The next observation selects row906, rather than only chunk-terminal rows;
-its native build and numerical regression are pending.
+Sourcef726539 builds on baiying in94223.601 ms with all91 inputs verified;
+its494 GPU executable kernels and metadata remain identical to the control.
+All512 original q8192 outputs, callbacks and first logit10.375 pass. Load is
+21392.9991 ms and TTFT23404.0045 ms, a functional observation with no new
+performance claim. See the [native regression](../benchmarks/correctness/all-layer-boundary-native-q8192-20260919.json).
+The next first96k run is active with row906 selected at every chunk, all-layer
+norm/residual boundaries and existing layer16 linear/MoE surfaces.
+
+The new independent row906 GB10 capture fails its q7169 control before any
+long request: token220/logit9.375 instead of82/9.25. Its first observed
+prefill difference is again3 cells at layer3 post-attention norm. All470
+common tensor files,32 outputs and the complete first-logit tensor match the
+previous rejected routed16 run exactly. These values are not a qualified
+reference; the original expectations remain unchanged. Host, cleanup and
+frozen-Triton-cache checks pass. The identical-configuration row906 repeat
+is running while that reproducible alternate reference result is investigated.
+See the [preserved rejected control](../benchmarks/correctness/gb10-row906-observer-control-rejection-20260919.json).
 
 Independent CPU controls now reproduce all9 original QKV/Z/OUT projection
 rows and all6 gated/residual-normalization cases at positions8191,90111 and
