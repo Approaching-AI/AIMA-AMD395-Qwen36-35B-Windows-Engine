@@ -60,6 +60,11 @@ class AttentionWorkspaceTests(unittest.TestCase):
             "#pragma once", "") + actual
         actual = (ROOT / "native/providers/ck_fmha/fused_probability_pv_policy.h").read_text().replace(
             "#pragma once", "") + actual
+        actual = (ROOT / "native/providers/ck_fmha/narrow_domain_qk_policy.h").read_text().replace(
+            "#pragma once", "") + actual
+        long_layout = (ROOT / "native/providers/ck_fmha/long_attention_layout.h").read_text()
+        long_layout = '\n'.join(line for line in long_layout.splitlines()
+                                if not line.startswith(('#pragma', '#include')))
         harness = r'''
 #include <algorithm>
 #include <chrono>
@@ -76,7 +81,7 @@ using hipStream_t = void*;
 enum hipError_t { hipSuccess, hipErrorUnknown, hipErrorInvalidValue, hipErrorLaunchTimeOut };
 constexpr unsigned kQueryHeads = 16, kKvHeads = 2, kHeadDim = 256;
 constexpr unsigned kQ262144Tokens = 262144;
-''' + attention_capacity() + r'''
+''' + attention_capacity() + long_layout + r'''
 namespace qrt_blackwell_attention {
 ''' + maximum + r'''
 }
@@ -137,6 +142,7 @@ unsigned mask_preparations=0, mask_queries=0;
 bool masked_arena=false;
 unsigned range_preparations=0, range_queries=0, fail_range_prepare=0;
 unsigned range_start=0, range_count=0;
+unsigned long_queries=0,long_domain_preparations=0;
 unsigned selective_qk_queries = 0;
 unsigned value_transposes = 0;
 bool fail_value_transpose = false;
@@ -168,6 +174,10 @@ hipError_t hipStreamSynchronize(hipStream_t) {
     pending_submissions = 0u;
     ++syncs; clock_ms += sync_ms;
     return syncs == fail_sync ? hipErrorUnknown : hipSuccess;
+}
+enum hipMemcpyKind {hipMemcpyDeviceToHost};
+hipError_t hipMemcpy(void* destination,const void*,size_t bytes,hipMemcpyKind) {
+    std::memset(destination,0,bytes);return hipSuccess;
 }
 template<class Validate>
 hipError_t load_sm121_table(const char*, size_t bytes, const unsigned char*, Validate,
@@ -211,6 +221,29 @@ int prepare_workspace(const uint16_t*,const uint16_t*,uint16_t* transposed,
     ++transposes;return hipSuccess;
 }
 int launch_workspace(const void*,const uint16_t*,const uint16_t*,float*,hipStream_t,unsigned,unsigned,unsigned,unsigned) {
+    return hipSuccess;
+}
+}
+namespace qrt_rz_tree_qk {
+int launch_workspace(const void*,const uint16_t*,const uint16_t*,float*,hipStream_t,unsigned,unsigned,unsigned,unsigned){return hipSuccess;}
+int prepare_workspace(const uint16_t* q,const uint16_t* k,uint16_t* t,
+    const qrt_prepared_decoded_qk::Workspace& w,hipStream_t s){return qrt_prepared_decoded_qk::prepare_workspace(q,k,t,w,s);}
+}
+namespace qrt_narrow_domain_qk {
+constexpr size_t domain_words=8192u*18u+2u;
+struct Workspace {unsigned* tile_counts;};
+Workspace attach(const qrt_prepared_decoded_qk::Workspace&,unsigned* domain){return {domain};}
+int prepare_domain(const uint16_t*,const uint16_t*,const Workspace&,hipStream_t){return hipSuccess;}
+int launch_workspace(const void*,const uint16_t*,const uint16_t*,float*,hipStream_t,unsigned,unsigned,unsigned,unsigned){return hipSuccess;}
+}
+namespace qrt_long_narrow_qk {
+struct Workspace {qrt_prepared_decoded_qk_range::Workspace decoded;unsigned *query_domain,*key_domain,*tile_counts;};
+int prepare_domain(const uint16_t*,const uint16_t*,const Workspace& w,hipStream_t){
+    ++long_domain_preparations;
+    if(w.query_domain!=g_sm121_long_pipeline.domain ||
+       uintptr_t(w.key_domain)!=uintptr_t(w.query_domain)+8192u*16u*4u ||
+       uintptr_t(w.tile_counts)!=uintptr_t(w.key_domain)+size_t(g_sm121_long_pipeline.domain_capacity)*2u*4u)
+        std::abort();
     return hipSuccess;
 }
 }
@@ -407,13 +440,36 @@ int launch_probability_attention(const uint16_t* q, const uint16_t* k, const uin
         false,nullptr,nullptr,0u,nullptr,nullptr,transposed_value,value_stride,1u,1u,final_bound,direct_pv);
 }
 }
+namespace qrt_long_attention_pipeline {
+int launch(const qrt_long_narrow_qk::Workspace& w,const qrt_native_exp2_workspace::Workspace& e,
+    const uint16_t*,const uint16_t* kt,const uint16_t*,const uint16_t* vt,float*,unsigned start,unsigned count,
+    unsigned output_start,unsigned stride,const unsigned char* exp,const unsigned char*,float* scratch,
+    size_t extent,hipStream_t stream,qrt_blackwell_attention::SplitCompletionObserver* observer) {
+    ++long_queries;++queries;largest_batch=std::max(largest_batch,count);
+    if(track_submissions){++pending_submissions;maximum_pending=std::max(maximum_pending,pending_submissions);}
+    submitted_ranges.push_back({start,count,output_start});
+    if(count>128u || !long_domain_preparations || w.decoded.key_tokens!=stride ||
+       !e.packed || e.original!=exp || exp!=g_sm121_exp2 || vt!=g_sm121_long_values.cells ||
+       kt!=(stride>kSm121InitialTokens?g_sm121_extended.transposed_keys:g_sm121_transposed_keys) ||
+       !scratch || extent<qrt_long_attention_layout::layout(count,start+count).elements)
+        std::abort();
+    if(queries==fail_query)return hipErrorUnknown;
+    if(observer)for(unsigned stage=0;stage<5u;++stage){
+        ++profile_observations;const int status=observer->observe(observer->state,stage,stream);
+        if(status!=hipSuccess)return status;
+    }
+    return hipSuccess;
+}
+}
 ''' + actual + r'''
 bool empty() {
     return live.empty() && !g_sm121_native_exp2.packed && !g_sm121_native_exp2.original && !g_sm121_exp2 && !g_sm121_rcp && !g_sm121_scores &&
            !g_sm121_transposed_keys && !g_sm121_transposed_values && !g_sm121_mantissa_scores && !g_sm121_prepared_values && !g_sm121_selective_qk && !g_sm121_prepared_decoded_qk &&
            !g_sm121_extended.scores && !g_sm121_extended.transposed_keys && !g_sm121_extended.mantissa_scores && !g_sm121_extended.prepared_values &&
            !g_sm121_long_values.cells && !g_sm121_long_values.capacity_tokens &&
-           !g_sm121_long_decoded_qk.words && !g_sm121_long_decoded_qk.capacity_tokens;
+           !g_sm121_long_decoded_qk.words && !g_sm121_long_decoded_qk.capacity_tokens &&
+           !g_sm121_long_pipeline.scratch && !g_sm121_long_pipeline.scratch_elements &&
+           !g_sm121_long_pipeline.domain && !g_sm121_long_pipeline.domain_capacity;
 }
 void reset() {
     qrt_ck_fmha_q8192_release();
@@ -428,6 +484,7 @@ void reset() {
     float_alignment_queries = 0;decoded_preparations=decoded_queries=fail_decoded_prepare=0;
     mask_preparations=mask_queries=0;masked_arena=false;
     range_preparations=range_queries=fail_range_prepare=range_start=range_count=0;
+    long_queries=long_domain_preparations=0;
     fail_transpose = false;
     preparations = 0; fail_preparation = false;
     value_transposes = 0; fail_value_transpose = false;
@@ -1351,6 +1408,35 @@ int main() {
     }
     unsetenv("QRT_CK_SM121_FUSED_PROBABILITY_PV");
     reset();unsetenv("QRT_CK_SM121_EXACT_ATTENTION_PIPELINE");unsetenv("QRT_CK_SM121_REGISTER_PV_RESCALE");
+    for(const char* flag:{"QRT_CK_SM121_LONG_ATTENTION_PIPELINE","QRT_CK_SM121_LONG_PREPARED_DECODED_QK",
+        "QRT_CK_SM121_LONG_TRANSPOSE_VALUE","QRT_CK_SM121_LONG_DIRECT_PV_OPERANDS"})setenv(flag,"1",1);
+    setenv("QRT_CK_SM121_PREFILL_QUERY_BATCH","128",1);
+    for(unsigned start:{8192u,16384u,32768u,65536u,131072u,262144u,kSm121MaxTokens-129u}) {
+        reset();track_submissions=true;
+        if(launch(start,129)!=hipSuccess || long_queries!=2u || long_domain_preparations!=1u ||
+           largest_batch!=128u || pending_submissions || native_exp_builds!=1u)return 267;
+        const size_t required=qrt_long_attention_layout::layout(128u,start+129u).elements;
+        const size_t original=start+129u>kSm121InitialTokens?kSm121ExtendedMantissaElements:kSm121MantissaElements;
+        if((g_sm121_long_pipeline.scratch!=nullptr)!=(required>original))return 268;
+        const auto* saved=g_sm121_long_pipeline.domain;const auto* saved_scratch=g_sm121_long_pipeline.scratch;
+        const unsigned before=allocations;
+        if(launch(start,129)!=hipSuccess || allocations!=before || long_queries!=4u ||
+           g_sm121_long_pipeline.domain!=saved || g_sm121_long_pipeline.scratch!=saved_scratch)return 269;
+        qrt_ck_fmha_q8192_release();if(!empty())return 270;
+    }
+    reset();track_submissions=true;fail_query=2u;
+    if(launch(65536,129)!=hipErrorUnknown || long_queries!=2u || pending_submissions)return 271;
+    reset();track_submissions=true;
+    if(launch(16384,129)!=hipSuccess)return 272;
+    auto* retained=g_sm121_long_pipeline.domain;
+    transposes=value_transposes=0;fail_allocation=allocations+1u;
+    if(launch(65536,129)!=hipErrorUnknown || g_sm121_long_pipeline.domain!=retained || pending_submissions)return 273;
+    fail_allocation=0;
+    if(launch(65536,129)!=hipSuccess || !g_sm121_long_pipeline.scratch || pending_submissions)return 274;
+    reset();if(launch(8192,1)!=hipSuccess || long_queries || g_sm121_long_pipeline.domain || native_exp_builds)return 275;
+    for(const char* flag:{"QRT_CK_SM121_LONG_ATTENTION_PIPELINE","QRT_CK_SM121_LONG_PREPARED_DECODED_QK",
+        "QRT_CK_SM121_LONG_TRANSPOSE_VALUE","QRT_CK_SM121_LONG_DIRECT_PV_OPERANDS"})unsetenv(flag);
+    reset();
     return 0;
 }
 '''

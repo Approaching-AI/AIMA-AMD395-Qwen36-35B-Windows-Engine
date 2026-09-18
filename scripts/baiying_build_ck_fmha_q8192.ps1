@@ -68,6 +68,11 @@ foreach ($required in @(
     (Join-Path $sourceDir "float_pv_replay.h"),
     (Join-Path $sourceDir "prepared_decoded_qk.h"),
     (Join-Path $sourceDir "prepared_decoded_qk_workspace.h"),
+    (Join-Path $sourceDir "long_attention_layout.h"),
+    (Join-Path $sourceDir "long_attention_pipeline.h"),
+    (Join-Path $sourceDir "long_narrow_qk.h"),
+    (Join-Path $sourceDir "long_fused_probability_pv.h"),
+    (Join-Path $sourceDir "streamed_exact_attention.h"),
     (Join-Path $sourceDir "selective_qk_tail_policy.h"),
     (Join-Path $sourceDir "register_pv_policy.h"),
     (Join-Path $sourceDir "exact_attention_policy.h"),
@@ -273,6 +278,16 @@ $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $OutPath).Hash.ToLowerInv
         -LiteralPath (Join-Path $sourceDir "..\..\src\qrt_context_limits.h")).Hash.ToLowerInvariant()
     blackwell_attention_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir "blackwell_attention.h")).Hash.ToLowerInvariant()
+    long_attention_layout_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "long_attention_layout.h")).Hash.ToLowerInvariant()
+    long_attention_pipeline_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "long_attention_pipeline.h")).Hash.ToLowerInvariant()
+    long_narrow_qk_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "long_narrow_qk.h")).Hash.ToLowerInvariant()
+    long_fused_probability_pv_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "long_fused_probability_pv.h")).Hash.ToLowerInvariant()
+    streamed_exact_attention_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "streamed_exact_attention.h")).Hash.ToLowerInvariant()
     prepared_decoded_qk_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir "prepared_decoded_qk.h")).Hash.ToLowerInvariant()
     prepared_decoded_qk_workspace_header_sha256 = (Get-FileHash -Algorithm SHA256 `

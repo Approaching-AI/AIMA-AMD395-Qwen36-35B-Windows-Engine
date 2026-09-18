@@ -2,6 +2,7 @@
 #include "combined_exact_attention_capture.cpp"
 #include "../../native/providers/ck_fmha/long_narrow_qk.h"
 #include "../../native/providers/ck_fmha/long_fused_probability_pv.h"
+#include "../../native/providers/ck_fmha/long_attention_pipeline.h"
 #include "../../native/providers/ck_fmha/fused_probability_pv.h"
 
 namespace {
@@ -115,11 +116,50 @@ void check_tail(AttentionOutputs& out,unsigned start,unsigned count,Device& bad)
         out.tensor.cells,out.tensor.scale_cells,start,count,start+count,bad.as<unsigned>());
     check(hipGetLastError());finish();if(download<unsigned>(bad,1u)[0])throw std::runtime_error("range tensor tail changed");
 }
+void check_pipeline_owner(const uint16_t* q,const uint16_t* kt,const uint16_t* v,const uint16_t* vt,
+    RangePrepared& prepared,AttentionOutputs& expected,unsigned start,unsigned count,unsigned n,
+    const unsigned char* exp,const unsigned char* packed,const unsigned char* rcp,Device& bad) {
+    constexpr unsigned output_start=3u;
+    const auto layout=qrt_long_attention_layout::layout(count,start+count);
+    Guarded scratch(layout.elements*4u),output(size_t(count+output_start+2u)*4096u*4u);
+    const qrt_native_exp2_workspace::Workspace owner{const_cast<unsigned char*>(packed),exp};
+    unsigned observed=0u;
+    SplitCompletionObserver observer{&observed,[](void* state,unsigned stage,hipStream_t stream)->int {
+        auto& next=*static_cast<unsigned*>(state);
+        if(stage!=next)return int(hipErrorInvalidValue);
+        const auto status=hipStreamSynchronize(stream);if(status==hipSuccess)++next;return int(status);
+    }};
+    auto launch=[&](size_t extent) {return qrt_long_attention_pipeline::launch(prepared.workspace,owner,
+        q,kt,v,vt,output.as<float>(),start,count,output_start,n,exp,rcp,scratch.as<float>(),extent,nullptr,&observer);};
+    if(launch(layout.elements-1u)!=int(hipErrorInvalidValue)||observed)
+        throw std::runtime_error("undersized owner was accepted");
+    output.immutable(std::vector<uint32_t>(output.bytes/4u,0xa5a5a5a5u));
+    check(hipError_t(launch(layout.elements)));finish();
+    if(observed!=5u)throw std::runtime_error("owner stage sequence");
+    auto compare_region=[&](const unsigned char* a,const unsigned char* b,size_t bytes) {
+        hipLaunchKernelGGL(compare_words,dim3((bytes+255u)/256u),dim3(256u),0u,nullptr,
+            a,b,bytes,bad.as<unsigned>());check(hipGetLastError());
+    };
+    const size_t cells=size_t(count)*16u*(start+count);
+    compare_region(expected.tensor.scores.as<unsigned char>()+guard*4u,scratch.data(),cells*4u);
+    compare_region(expected.tensor.probability.as<unsigned char>()+guard*2u,scratch.data()+layout.probability*4u,cells*2u);
+    compare_region(expected.tensor.scales.as<unsigned char>()+guard*4u,scratch.data()+layout.scales*4u,(layout.errors-layout.scales)*4u);
+    compare_region(expected.error.data(),scratch.data()+layout.errors*4u,size_t(count)*4096u*4u);
+    compare_region(expected.count.data(),scratch.data()+layout.count*4u,4u);
+    compare_region(expected.output.data(),output.data()+size_t(output_start)*4096u*4u,size_t(count)*4096u*4u);
+    finish();if(download<unsigned>(bad,1u)[0])throw std::runtime_error("contiguous long owner differs");
+    std::vector<uint32_t> prefix(size_t(output_start)*4096u),suffix(2u*4096u);
+    check(hipMemcpy(prefix.data(),output.data(),prefix.size()*4u,hipMemcpyDeviceToHost));
+    check(hipMemcpy(suffix.data(),output.data()+size_t(output_start+count)*4096u*4u,suffix.size()*4u,hipMemcpyDeviceToHost));
+    for(const auto& padding:{prefix,suffix})for(uint32_t word:padding)
+        if(word!=0xa5a5a5a5u)throw std::runtime_error("owner output padding changed");
+    scratch.guards();output.guards();
+}
 void run_safety(const unsigned char* exp,const unsigned char* packed,const unsigned char* rcp) {
     struct Shape{unsigned n,start,count;};
     const Shape shapes[]={{1,0,1},{33,1,32},{129,1,128},{8193,8191,2},{8320,8192,128},
         {16385,16352,33},{32896,32768,128},{65537,65520,17},{131073,131041,32},{264736,264719,17}};
-    unsigned configurations=0,short_regressions=0;uint64_t cells=0,scores=0;
+    unsigned configurations=0,short_regressions=0,owner_cases=0;uint64_t cells=0,scores=0;
     for(const auto shape:shapes)for(unsigned mode=0;mode<5u;++mode) {
         const unsigned n=shape.n,start=shape.start,count=shape.count;
         std::vector<uint16_t> q(size_t(n)*4096u,0u),k(size_t(n)*512u),v(k.size());
@@ -141,6 +181,8 @@ void run_safety(const unsigned char* exp,const unsigned char* packed,const unsig
         }
         exact_replay(dv.as<uint16_t>(),vt.as<uint16_t>(),expected,start,count,n,rcp,false);finish();
         exact_replay(dv.as<uint16_t>(),vt.as<uint16_t>(),actual,start,count,n,rcp,true);finish();compare(expected,actual,bad);
+        check_pipeline_owner(dq.as<uint16_t>(),dt.as<uint16_t>(),dv.as<uint16_t>(),vt.as<uint16_t>(),
+            prepared,expected,start,count,n,exp,packed,rcp,bad);++owner_cases;
         if(n<=129u) {
             expected.reset();actual.reset();
             native_producer(dq.as<uint16_t>(),dt.as<uint16_t>(),dv.as<uint16_t>(),prepared,expected,start,count,n,exp,packed,rcp,false,true);finish();
@@ -165,6 +207,8 @@ void run_safety(const unsigned char* exp,const unsigned char* packed,const unsig
         cells+=uint64_t(count)*4096u;scores+=uint64_t(count)*16u*(start+count);
         std::fprintf(stderr,"LONG_ATTENTION_SAFETY tokens=%u start=%u count=%u mode=%u pass=1\n",n,start,count,mode);
     }
+    if(owner_cases!=50u)throw std::runtime_error("incomplete owner safety cases");
+    std::fprintf(stderr,"LONG_ATTENTION_OWNER_SAFETY cases=%u nonzero_output_offset=1 undersized_rejected=1 complete_surfaces=1 stages=5\n",owner_cases);
     std::printf("{\"kind\":\"long_attention_pipeline_safety\",\"configurations\":%u,\"shapes\":10,\"data_modes\":5,\"short_default_template_regressions\":%u,\"distinct_output_cells\":%llu,\"distinct_score_slots\":%llu,\"all_native_surfaces_bitexact\":true,\"complete_replay_bitexact\":true,\"original_per_group_bounds\":true,\"range_metadata_and_guards_pass\":true,\"input_immutable\":true}\n",configurations,short_regressions,(unsigned long long)cells,(unsigned long long)scores);
 }
 void run_capture(unsigned queries,const char* qfile,const char* kfile,const char* vfile,const char* reference_file,
@@ -198,6 +242,9 @@ void run_capture(unsigned queries,const char* qfile,const char* kfile,const char
             hipLaunchKernelGGL(captured_context,dim3((count*4096u+255u)/256u),dim3(256u),0u,nullptr,
                 expected.output.as<float>(),dr.as<uint16_t>(),offset,count,source_queries,bad.as<unsigned>());check(hipGetLastError());check_tail(expected,start,count,bad);
             if(download<unsigned>(bad,1u)[0])throw std::runtime_error("original long context differs from GB10");
+            if(!attempt&&variant==3u)
+                check_pipeline_owner(dq.as<uint16_t>(),dt.as<uint16_t>(),dv.as<uint16_t>(),vt.as<uint16_t>(),
+                    prepared,expected,start,count,n,exp,packed,rcp,bad);
             actual.reset();finish();begin=std::chrono::steady_clock::now();
             native_producer(dq.as<uint16_t>(),dt.as<uint16_t>(),dv.as<uint16_t>(),prepared,actual,start,count,n,exp,packed,rcp,candidate);
             exact_replay(dv.as<uint16_t>(),vt.as<uint16_t>(),actual,start,count,n,rcp,candidate);finish();const double ms=elapsed(begin);
@@ -217,6 +264,7 @@ void run_capture(unsigned queries,const char* qfile,const char* kfile,const char
         }
     }
     for(unsigned variant=0;variant<4u;++variant)if(candidates[variant]!=candidates[0])throw std::runtime_error("slab width changed PV candidate count");
+    std::fprintf(stderr,"LONG_ATTENTION_OWNER_CAPTURE query_count=%u slabs=%u nonzero_output_offset=1 undersized_rejected=1 complete_surfaces=1 stages=5\n",queries,(queries+127u)/128u);
     prepared.verify();dq.immutable(q);dk.immutable(k);dv.immutable(v);dr.immutable(reference);transpose_immutable(dt,k,n);transpose_immutable(vt,v,n);
     for(unsigned variant=0;variant<4u;++variant) {
         auto sorted=std::vector<double>(samples[variant],samples[variant]+3u);std::sort(sorted.begin(),sorted.end());

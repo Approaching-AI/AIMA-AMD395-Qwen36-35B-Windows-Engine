@@ -45,6 +45,7 @@
 #include "prepared_decoded_qk.h"
 #include "exponent_mask_qk.h"
 #include "prepared_decoded_qk_range.h"
+#include "long_attention_pipeline.h"
 #endif
 
 #if defined(_WIN32)
@@ -214,6 +215,13 @@ struct Sm121LongDecodedQkWorkspace {
     unsigned capacity_tokens = 0u;
 };
 Sm121LongDecodedQkWorkspace g_sm121_long_decoded_qk;
+struct Sm121LongPipelineWorkspace {
+    float* scratch = nullptr;
+    size_t scratch_elements = 0u;
+    unsigned* domain = nullptr;
+    unsigned domain_capacity = 0u;
+};
+Sm121LongPipelineWorkspace g_sm121_long_pipeline;
 constexpr unsigned int kSm121QueryBatch = 8u;
 constexpr unsigned int kSm121MatrixQueryBatch = 32u;
 // Match the exact kernel's checked extent, including the first token beyond
@@ -498,6 +506,12 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if (!qrt_narrow_domain_qk_policy::select(std::getenv("QRT_CK_SM121_NARROW_DOMAIN_QK"),
             query_start,query_count,exact_attention,prepared_decoded_qk,exponent_mask_qk,
             rz_tree_qk,matrix_mode,narrow_domain_qk)) return int(hipErrorInvalidValue);
+    bool long_pipeline = false;
+    if (!qrt_long_attention_layout::select(std::getenv("QRT_CK_SM121_LONG_ATTENTION_PIPELINE"),
+            query_start,query_count,long_prepared_decoded_qk,transpose_value,
+            direct_pv_operands,compact_pv_mode,all_pv_replay,matrix_mode!=0u,
+            uses_selective_qk,long_pipeline) || (long_pipeline && !interpolated_exp2))
+        return int(hipErrorInvalidValue);
     const char* profile_option = std::getenv("QRT_CK_SM121_PROFILE_COMPLETED_STAGES");
     if (profile_option && *profile_option && std::strcmp(profile_option,"0") &&
         std::strcmp(profile_option,"1")) return int(hipErrorInvalidValue);
@@ -522,7 +536,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     std::lock_guard<std::mutex> lock(g_sm121_mutex);
     int status = prepare_sm121_attention_locked();
     if (status != int(hipSuccess)) return status;
-    if (exact_attention) {
+    if (exact_attention || long_pipeline) {
         const bool creating = !g_sm121_native_exp2.packed;
         status = qrt_native_exp2_workspace::prepare(g_sm121_native_exp2, g_sm121_exp2, stream);
         if (status != int(hipSuccess)) return status;
@@ -589,7 +603,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const unsigned int memory_layout = compact_pv_mode ? 21u + compact_pv_mode : prepared_value ? 17u : warp_softmax ? 16u : tiled_qk ? 15u : matrix_mode >= 3u ? 10u + matrix_mode : matrix_mode ? 5u + matrix_mode
         : (mantissa_wmma ? 5u : (independent_dots ? 4u : 2u));
     const bool wider_slab = (compact_pv_mode == 1u || compact_pv_mode == 3u) &&
-        query_start + query_count <= 8192u;
+        (query_start + query_count <= 8192u || long_pipeline);
     const unsigned int query_batch = wider_slab ? requested_batch :
         matrix_mode || tiled_qk ? kSm121MatrixQueryBatch : kSm121QueryBatch;
     // The existing long-context scratch already covers a 128-query q8192 slab.
@@ -614,6 +628,28 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         status = int(hipMalloc(reinterpret_cast<void**>(&mantissa_scores),
             mantissa_elements * sizeof(float)));
         if (status != int(hipSuccess)) { mantissa_scores = nullptr; return status; }
+    }
+    // Reuse the existing slab while it fits. Larger histories get a separate
+    // checked owner, grown before any producer is submitted under this lease.
+    float* long_scratch = mantissa_scores;
+    size_t long_scratch_elements = mantissa_elements;
+    if (long_pipeline) {
+        const size_t required = qrt_long_attention_layout::layout(query_batch,key_stride).elements;
+        if (!required) return int(hipErrorInvalidValue);
+        if (required > mantissa_elements) {
+            if (g_sm121_long_pipeline.scratch_elements < required) {
+                const unsigned capacity = std::min(kSm121MaxTokens,(key_stride+8191u)/8192u*8192u);
+                const size_t elements = qrt_long_attention_layout::layout(query_batch,capacity).elements;
+                float* next = nullptr;
+                status = int(hipMalloc(reinterpret_cast<void**>(&next),elements*sizeof(float)));
+                if (status != int(hipSuccess)) return status;
+                (void)hipFree(g_sm121_long_pipeline.scratch);
+                g_sm121_long_pipeline.scratch = next;
+                g_sm121_long_pipeline.scratch_elements = elements;
+            }
+            long_scratch = g_sm121_long_pipeline.scratch;
+            long_scratch_elements = g_sm121_long_pipeline.scratch_elements;
+        }
     }
     if (uses_selective_qk && !g_sm121_selective_qk) {
         status = int(hipMalloc(reinterpret_cast<void**>(&g_sm121_selective_qk),
@@ -653,6 +689,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     qrt_blackwell_attention::SplitProbabilityValueProducer fused_probability_value{
         &g_sm121_native_exp2, qrt_fused_probability_pv::launch};
     qrt_prepared_decoded_qk_range::Workspace long_decoded_workspace;
+    qrt_long_narrow_qk::Workspace long_narrow_workspace;
     qrt_blackwell_attention::SplitQkProducer long_decoded_producer{&long_decoded_workspace,
         qrt_prepared_decoded_qk_range::launch_workspace};
     if (prepared_decoded_qk) {
@@ -705,6 +742,23 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         status = qrt_prepared_decoded_qk_range::prepare_workspace(q, k, transposed_keys,
             long_decoded_workspace, stream);
         if (status != int(hipSuccess)) { (void)hipStreamSynchronize(stream); return status; }
+        if (long_pipeline) {
+            constexpr size_t query_words = size_t(8192u)*16u;
+            if (g_sm121_long_pipeline.domain_capacity < capacity) {
+                const size_t words = query_words+size_t(capacity)*2u+2u;
+                unsigned* next = nullptr;
+                status = int(hipMalloc(reinterpret_cast<void**>(&next),words*sizeof(unsigned)));
+                if (status != int(hipSuccess)) { (void)hipStreamSynchronize(stream); return status; }
+                (void)hipFree(g_sm121_long_pipeline.domain);
+                g_sm121_long_pipeline.domain = next;
+                g_sm121_long_pipeline.domain_capacity = capacity;
+            }
+            auto* domain = g_sm121_long_pipeline.domain;
+            long_narrow_workspace = {long_decoded_workspace,domain,domain+query_words,
+                domain+query_words+size_t(g_sm121_long_pipeline.domain_capacity)*2u};
+            status = qrt_long_narrow_qk::prepare_domain(q,k,long_narrow_workspace,stream);
+            if (status != int(hipSuccess)) { (void)hipStreamSynchronize(stream); return status; }
+        }
     }
     if (prepared_value) {
         if (!prepared_values) {
@@ -744,7 +798,13 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     unsigned pending_slabs = 0u, completion_groups = 0u;
     for (unsigned int offset = 0; offset < query_count; offset += query_batch) {
         if (profile_stages) profile.last = std::chrono::steady_clock::now();
-        if (selective_qk || offset < selective_prefix_queries) {
+        if (long_pipeline) {
+            status = qrt_long_attention_pipeline::launch(long_narrow_workspace,g_sm121_native_exp2,
+                q,transposed_keys,v,transposed_value,output,query_start+offset,
+                std::min(query_batch,query_count-offset),output_start+offset,key_stride,
+                g_sm121_exp2,g_sm121_rcp,long_scratch,long_scratch_elements,stream,
+                profile_stages?&observer:nullptr);
+        } else if (selective_qk || offset < selective_prefix_queries) {
             status = qrt_selective_qk::launch_probability_attention(q, k, v, output, stream,
                 query_start + offset, std::min(query_batch, query_count - offset), output_start + offset,
                 g_sm121_exp2, g_sm121_rcp, memory_layout, mantissa_scores, mantissa_elements,
@@ -832,6 +892,15 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         std::fprintf(stderr,"SM121_TRANSPOSED_PV_VALUE query_start=%u query_count=%u value_tokens=%u workspace_bytes=%zu refreshed=1 capacity_tokens=%u long_workspace=%u\n",
             query_start,query_count,key_stride,transposed_value_elements*sizeof(uint16_t),
             transposed_value_capacity,unsigned(long_transpose_value));
+    if (long_pipeline) {
+        unsigned counts[2]{};
+        status = int(hipMemcpy(counts,long_narrow_workspace.tile_counts,sizeof(counts),hipMemcpyDeviceToHost));
+        if (status != int(hipSuccess)) return status;
+        const size_t domain_bytes = (size_t(8192u)*16u+size_t(g_sm121_long_pipeline.domain_capacity)*2u+2u)*sizeof(unsigned);
+        std::fprintf(stderr,"SM121_LONG_ATTENTION_PIPELINE query_start=%u query_count=%u query_batch=%u key_tokens=%u narrow_tiles=%u original_tiles=%u original_k16=1 original_per_group_bounds=1 fused_probability_pv=1 register_exact_rescale=1 refreshed=1 scratch_bytes=%zu domain_bytes=%zu additional_scratch_bytes=%zu stream_drained=1\n",
+            query_start,query_count,query_batch,key_stride,counts[1],counts[0],
+            long_scratch_elements*sizeof(float),domain_bytes,g_sm121_long_pipeline.scratch_elements*sizeof(float));
+    }
     if (final_pv_bound)
         std::fprintf(stderr,"SM121_FINAL_PV_BOUND query_start=%u query_count=%u maximum_k16_groups=512 enlarged_envelope=1\n",
             query_start,query_count);
@@ -869,7 +938,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if (exponent_mask_qk)
         std::fprintf(stderr,"SM121_EXPONENT_MASK_QK query_start=%u query_count=%u exact_maximum=1 carry_bound=1 original_fallback=1 refreshed=1 additional_workspace_bytes=0\n",
             query_start,query_count);
-    if (long_prepared_decoded_qk)
+    if (long_prepared_decoded_qk && !long_pipeline)
         std::fprintf(stderr,"SM121_LONG_PREPARED_DECODED_QK query_start=%u query_count=%u key_tokens=%u capacity_tokens=%u window=128 query_rows=16 key_columns=16 workspace_bytes=%zu refreshed=1 original_fallback=1 prepared_query_history=0\n",
             query_start,query_count,key_stride,long_decoded_workspace.key_capacity,
             long_decoded_workspace.word_count*sizeof(uint32_t));
@@ -1760,6 +1829,9 @@ QRT_CK_EXPORT int qrt_ck_fmha_q8192_release() {
         (void)hipFree(g_sm121_narrow_qk_domain);
         (void)hipFree(g_sm121_long_decoded_qk.words);
         g_sm121_long_decoded_qk = Sm121LongDecodedQkWorkspace{};
+        (void)hipFree(g_sm121_long_pipeline.scratch);
+        (void)hipFree(g_sm121_long_pipeline.domain);
+        g_sm121_long_pipeline = Sm121LongPipelineWorkspace{};
         (void)hipFree(g_sm121_extended.prepared_values);
         (void)hipFree(g_sm121_extended.transposed_keys);
         (void)hipFree(g_sm121_extended.mantissa_scores);

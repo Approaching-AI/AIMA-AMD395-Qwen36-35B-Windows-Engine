@@ -9,7 +9,8 @@ inline int replay(const uint16_t* value,const uint16_t* transposed_value,
     const uint16_t* probability,const float* scales,float* output,const float* errors,
     float* raw_accumulator,float* raw_denominator,unsigned* indices,unsigned* selected,
     unsigned start,unsigned count,unsigned output_start,unsigned stride,unsigned value_stride,
-    const unsigned char* rcp,bool register_rescale,hipStream_t stream) {
+    const unsigned char* rcp,bool register_rescale,hipStream_t stream,
+    qrt_blackwell_attention::SplitCompletionObserver* observer=nullptr) {
     namespace original=qrt_blackwell_attention;
     constexpr unsigned maximum=original::kSplitMaxTokens;
     if(!value||!transposed_value||!probability||!scales||!output||!errors||!indices||!selected||!rcp||
@@ -23,6 +24,8 @@ inline int replay(const uint16_t* value,const uint16_t* transposed_value,
         dim3((cells+255u)/256u),dim3(256u),0u,stream,
         output,errors,output_start,cells,indices,selected);
     status=hipGetLastError();if(status!=hipSuccess)return int(status);
+    const int collected=original::observe_split_stage(observer,3u,stream);
+    if(collected!=int(hipSuccess))return collected;
     if(register_rescale) {
         hipLaunchKernelGGL((original::blackwell_compacted_pv_replay_kernel<true,false,true>),
             dim3(blocks),dim3(256u),0u,stream,value,probability,scales,output,start,output_start,
@@ -32,7 +35,8 @@ inline int replay(const uint16_t* value,const uint16_t* transposed_value,
             dim3(blocks),dim3(256u),0u,stream,value,probability,scales,output,start,output_start,
             stride,rcp,raw_accumulator,raw_denominator,indices,selected,transposed_value,value_stride,0u);
     }
-    return int(hipGetLastError());
+    status=hipGetLastError();
+    return status==hipSuccess?original::observe_split_stage(observer,4u,stream):int(status);
 }
 inline int launch(const void* state,const float* scores,const uint16_t* value,
     uint16_t* probability,float* scales,float* output,float* errors,
