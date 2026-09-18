@@ -14,6 +14,11 @@ boundary and retained 4187.415605 ms target remain unchanged. These components
 are not yet an updated portable package; full long-context and release
 qualification do not transfer from earlier binaries.
 
+The subsequent classified MoE replay experiment `078ef52` passes all 2,048
+GB10 continuation IDs in four runs but regresses median TTFT by 123.57325 ms.
+It remains default off and does not replace the qualified control or package.
+[Native and product evidence](MOE_CLASS_EXPERT_REPLAY.md).
+
 The last assembled archive, `v1.0.2-current-stack.20260915.r4`, remains
 unpublished. Its declared cold/prefix, protocol and one-hour soak evidence
 belongs to its original server `4fca963` and R3 runtime assets. The later

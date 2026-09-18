@@ -64,6 +64,18 @@ The later original-K16 last-row OUT comparison is recorded above.
 1542704 bytes, SHA256
 `1cb8d1b7e81e475424ffd6185dcf1e56c8b4961bda175fe1604fd9536becd375`.
 
+## Classified MoE replay rejected for performance, 2026-09-18
+
+Source `078ef52` fuses Row36 preparation with row classification and orders the
+original candidates by arithmetic class and expert. Four same-DLL q8192/out512
+OFF/ON/ON/OFF runs pass all 2,048 GB10 IDs, prompt and logit boundaries, actual
+callbacks and host checks. OFF/ON median TTFT is 23890.02305/24013.59630 ms;
+both ON samples are slower than both OFF samples. The 123.57325 ms regression
+rejects this performance route despite lower static VGPR counts. All loads
+remain below 30 seconds. Keep the 23902.4417 ms qualified control with original
+expert-only ordering and MoE `9235750`; defaults and package remain unchanged.
+[Implementation, native checks and four product runs](MOE_CLASS_EXPERT_REPLAY.md).
+
 ## Native RZ tree QK rejection, 2026-09-18
 
 CK source `0cc0459` replaces per-product integer alignment with a native FP32
