@@ -64,6 +64,17 @@ The later original-K16 last-row OUT comparison is recorded above.
 1542704 bytes, SHA256
 `1cb8d1b7e81e475424ffd6185dcf1e56c8b4961bda175fe1604fd9536becd375`.
 
+## Inline attention-probability repair, 2026-09-18
+
+Isolated source `878d8c0` combines maximum/probability repair and denominator
+interval construction. All 80 generated configurations, independent initial
+probability checks and complete captured GB10 boundaries pass. However,
+130495 of 131072 rows still need full remaining-score fallback. Final original
+score work is 99.7533% of the control and complete q8192 attention regresses
+588.7369 to 1406.7957 ms. Keep this route outside dispatch and preserve the
+23902.4417 ms qualified model baseline. No model run or release claim follows.
+[Dataflow, counts and evidence](INLINE_PROBABILITY_REPAIR.md).
+
 ## Probability/PV ownership comparison, 2026-09-18
 
 Isolated source `ab6b9ce` preserves every tested native and captured GB10
