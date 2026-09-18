@@ -28,8 +28,20 @@ macOS. The actual submission and segment wrappers are exercised with slow
 completed work, invalid clocks, every HIP failure path, deferred submission,
 stream mismatches and cleanup. The 121 clock pairs separately retain strict
 diagnostic classification and test the completed-runtime policy. These are
-host tests; the repaired provider still needs native compilation and full
-model qualification. See the [local policy checks](../benchmarks/correctness/fla-completed-latency-policy-local-20260919.json).
+host tests. See the [local policy checks](../benchmarks/correctness/fla-completed-latency-policy-local-20260919.json).
+
+Repair source `1d11bf742268924ecf5df1e0e66a0e19fb7cec15` now builds on
+baiying in56377.047 ms, with all46 compiled inputs checked. The984064-byte
+DLL SHA256 is
+`a6b110c3482ca8bc1bb7ef1b6c8213133bb98d53afa5d3a491ba4194bc1d3a88`.
+Captured q7169 output and final state match bitwise. Full q8192/out512 matches
+all512 original GB10 IDs and actual callbacks, with first logit10.375/error0.
+Load is21278.6683 ms, TTFT23363.176899 ms and TPOT101.670414 ms. The run has
+no latency outlier or host-clock fallback. This is a functional regression,
+not a paired speed comparison or a new retained performance median. See the
+[native build and original q8192 boundary](../benchmarks/correctness/fla-completed-latency-native-q8192-20260919.json).
+The repaired original128k owner/suffix run is active under the same7200-second
+process deadline, with capture disabled and all original comparisons retained.
 
 The policy repair follows three preserved failed 128k owner/suffix runs.
 Each completed 14 owner chunks through 114688 tokens and produced no output:
@@ -86,5 +98,5 @@ ID, callback and first logit10.375/error0, with capture disabled. Its load is
 is not a replacement performance median; see the [diagnostic provider regression](../benchmarks/correctness/fla-output-failure-capture-native-q8192-20260919.json).
 
 The unpublished R6 portable candidate retains FLA `2b33665`. The current
-policy repair has not been put in that archive. Native qualification,
-128k recovery, product performance and release acceptance remain open.
+policy repair has not been put in that archive. Full128k recovery, product
+performance and release acceptance remain open.
