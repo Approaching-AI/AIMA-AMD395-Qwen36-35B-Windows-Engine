@@ -1,13 +1,39 @@
 # Saved partial prefixes
 
-September 14 reference coverage now includes complete original 128k/256k owners
-and their original 1024-token suffixes, each with 512 continuation outputs and
-raw first-logit authority. All earlier controls reproduce exactly. This closes
-the missing reference-capture prerequisite; Windows capacity, complete owner
-execution and saved-checkpoint restoration still need their own verification.
+Current qualification, September18: the experimental whole `ddacdc9`, CK
+`ea6faff`, MoE `9235750`, FLA `7b20c90` and CLI `24c4304` stack passes the
+complete original16384/32768/65536 prefixes plus1024 suffix tokens. For each
+case, both512-token suffix requests match every original GB10 ID and first
+logit. Actual streaming callbacks, restored state and changed-prefix rejection
+also pass. Complete owner first tokens/logits are checked separately. These
+tests retain complete owners with saved partial checkpoint capture disabled.
+They do not expand saved partial checkpoint admission or qualify a release.
+
+| Complete resident owner | Hit TTFT ms | TPOT ms | Evidence |
+| --- | ---: | ---: | --- |
+|16384|8459.984999|158.733105|[16k](../benchmarks/correctness/long-final-pv-prefix16k-20260918.json)|
+|32768|13210.9695|221.946075|[32k](../benchmarks/correctness/long-final-pv-prefix32k-20260918.json)|
+|65536|25254.1475|349.575865|[64k](../benchmarks/correctness/long-final-pv-prefix64k-20260918.json)|
+
+These are single functional runs. Their timings exclude owner/retry seeding
+and do not meet the original prefix performance ceilings. Complete cold
+owner32-token requests at32k/64k, current-stack saved partial checkpoints and
+128k/256k execution remain open. The separately qualified cold16384/out32
+case is described in [long attention evidence](LONG_FINAL_PV.md).
+
+Original GB10 references are available for complete128k/256k owners and their
+1024-token suffixes, with512 suffix outputs and raw first-logit authority.
+Reference availability does not establish Windows execution or restoration.
 See [large-prefix reference evidence](../benchmarks/correctness/gb10-large-prefix-actual-references-20260914.json).
 
-September 14 full-owner result: the current whole `27cfc32`, CK `4a5a5b0`,
+The optional CLI [cached-owner continuation check](PREFIX_OWNER_CONTINUATION.md)
+checks a complete owner's subsequent outputs from its restored cache. It is
+separate from saved partial checkpoints and from a single cold out32 request.
+Its native Windows and real-model checks remain pending.
+
+## Earlier qualification and implementation history
+
+September14 full-owner result: the then-current whole `27cfc32`, CK `4a5a5b0`,
 MoE `9f00db5`, FLA `2ee6215` state 8 and CLI `a797b62` stack completes the
 original 65536+1024 case on baiying. All 512 outputs and stream callbacks
 match GB10, first 3709 and exact logit 5.9375; restoration and changed-prefix
@@ -17,7 +43,7 @@ outputs/callbacks. Warm callback TTFT is 52683.7323 ms and TPOT 355.022114 ms,
 both above target. The preceding qualified baseline is 59288.2245 ms TTFT.
 This uses complete owners with checkpoint capture disabled and does not
 expand saved-checkpoint admission. See
-[current 64k evidence](../benchmarks/correctness/long-direct-pv-prefix64k-20260914.json).
+[September14 64k evidence](../benchmarks/correctness/long-direct-pv-prefix64k-20260914.json).
 
 The first real 64k attempt with the expanded capacity stops after 24576
 completed inputs because a later attention window exceeds the old flat
@@ -34,7 +60,7 @@ preserve all 512 original q8192 outputs and callbacks. The subsequent real
 admission nor the model position limit, and does not cover 128k/256k plus a
 suffix. See [capacity control](../benchmarks/correctness/prefix64k-capacity-q8192-control-20260914.json).
 
-Current scope, September13: saved partial checkpoints remain bounded to the
+Scope at September13: saved partial checkpoints remain bounded to the
 declared short-owner cases below8192 tokens. The relocated r4 HTTP test passes
 four divergent branches after decode. Separate full-owner routes now pass all512
 GB10 continuations at16384+1024 and32768+1024, including restoration and fallback;
