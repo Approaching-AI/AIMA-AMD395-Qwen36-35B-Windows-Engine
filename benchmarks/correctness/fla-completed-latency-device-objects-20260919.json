@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "component": "fla",
+  "kind": "completed_latency_repair_device_executable_and_metadata_comparison",
+  "artifact_build_host": "baiying",
+  "control": {
+    "source_commit": "7b20c9041e14b2db133afb7e5b05b4e3223ed04c",
+    "remote_file": "D:/projects/AIMA-public-paired-score-gdn-provider-20260918-r1/build/fla/qrt_fla_chunk_gdn_provider.dll",
+    "local_file": "qualified-stack-resources-r1/fla.dll",
+    "bytes": 943104,
+    "sha256": "67209121af32c1e7dce883c8ba4abfb7ea5152fac822dc0909b94aa586aad3a5",
+    "objects": [
+      {
+        "kernel_names": [
+          "_Z27transpose_seeded_state_bitsPKjPj",
+          "_ZN17qrt_fla_blackwell10dot_kernelEPKtS1_Pfj",
+          "_ZN17qrt_fla_blackwell11gate_kernelEPfPKfjjPKh",
+          "_ZN17qrt_fla_blackwell16tiled_dot_kernelILb0EEEvPKtS2_Pfj",
+          "_ZN17qrt_fla_blackwell16tiled_dot_kernelILb1EEEvPKtS2_Pfj"
+        ],
+        "executable_sections": [
+          {
+            "name": ".text",
+            "bytes": 15468,
+            "sha256": "c97006f2f77c13cc7028b5e494690d3f406b454bc1746a94707e17676878393b"
+          }
+        ],
+        "metadata_sha256": "6c2ca66d171333228789c478b26c9ce43515ad168b01c9a2732b9ad0939411f9"
+      },
+      {
+        "kernel_names": [
+          "_ZN23qrt_fla_blackwell_state12_GLOBAL__N_113update_kernelEPKtS2_PKfS4_PfjPKh",
+          "_ZN23qrt_fla_blackwell_state12_GLOBAL__N_114project_kernelEPKtS2_PKfS4_PtS5_S5_jPKh",
+          "_ZN23qrt_fla_blackwell_state12_GLOBAL__N_114segment_kernelEPKtS2_S2_PKfPtS5_PfjPKh"
+        ],
+        "executable_sections": [
+          {
+            "name": ".text",
+            "bytes": 13220,
+            "sha256": "26cce85a2e7c65135ceed5c3f3068afcc09276e9c59e5ea5dc0a4b6ba8069696"
+          }
+        ],
+        "metadata_sha256": "dce4602c265031482a9cc79e336608ca671c679cba22038e312a776af9ddec03"
+      },
+      {
+        "kernel_names": [
+          "_ZN21qrt_fla_blackwell_aux12_GLOBAL__N_112score_kernelEPKtS2_PKfPtjPKh",
+          "_ZN21qrt_fla_blackwell_aux12_GLOBAL__N_113output_kernelEPKtS2_S2_PKfS2_PfjPKh",
+          "_ZN21qrt_fla_blackwell_aux12_GLOBAL__N_19wu_kernelEPKtS2_S2_S2_PKfPtS5_jPKh"
+        ],
+        "executable_sections": [
+          {
+            "name": ".text",
+            "bytes": 15172,
+            "sha256": "ec70cef26c942674c541e83160ca6345fe4c1c740c49bf3874554f97489fb07b"
+          }
+        ],
+        "metadata_sha256": "8ad2e2e56a2d2977e43ee5397bca4eb33183e774f82c38b7ccb295951d059909"
+      },
+      {
+        "kernel_names": [
+          "_ZN16qrt_fla_interval12state_kernelILb1ELb0EEEvPKtS2_S2_PKfPtS5_PfjPKhPj",
+          "_ZN16qrt_fla_interval13output_kernelILb1ELb0EEEvPKtS2_S2_PKfS2_PfjPKhPj",
+          "_ZN16qrt_fla_interval9wu_kernelILb1ELb0EEEvPKtS2_S2_S2_PKfPtS5_jPKhPj",
+          "_ZN16qrt_fla_lifetime12state_kernelILj8EEEvPKtS2_S2_PKfPtS5_PfjPKh",
+          "_ZN16qrt_fla_lifetime13output_kernelEPKtS1_S1_PKfS1_PfjPKh",
+          "_ZN20qrt_fla_paired_score6kernelEPKtS1_PKfPtjPKh",
+          "_ZN24qrt_fla_blackwell_scalar12state_kernelILj4EEEvPKtS2_S2_PKfPtS5_PfjPKh",
+          "_ZN24qrt_fla_blackwell_scalar12state_kernelILj8EEEvPKtS2_S2_PKfPtS5_PfjPKh",
+          "_ZN24qrt_fla_blackwell_scalar13output_kernelEPKtS1_S1_PKfS1_PfjPKh",
+          "_ZN24qrt_fla_blackwell_scalar9wu_kernelEPKtS1_S1_S1_PKfPtS4_jPKh",
+          "_ZN26qrt_fla_fused_state_output6kernelILj4ELb0EEEvPKtS2_S2_S2_PKfS2_PfPtS6_S5_jPKh",
+          "_ZN26qrt_fla_fused_state_output6kernelILj4ELb1EEEvPKtS2_S2_S2_PKfS2_PfPtS6_S5_jPKh",
+          "_ZN26qrt_fla_fused_state_output6kernelILj8ELb0EEEvPKtS2_S2_S2_PKfS2_PfPtS6_S5_jPKh",
+          "_ZN26qrt_fla_fused_state_output6kernelILj8ELb1EEEvPKtS2_S2_S2_PKfS2_PfPtS6_S5_jPKh",
+          "_ZN29qrt_fla_blackwell_cooperative12_GLOBAL__N_112state_kernelILb0EEEvPKtS3_S3_PKfPtS6_PfjPKhN18qrt_fla_checkpoint7SegmentE",
+          "_ZN29qrt_fla_blackwell_cooperative12_GLOBAL__N_112state_kernelILb1EEEvPKtS3_S3_PKfPtS6_PfjPKhN18qrt_fla_checkpoint7SegmentE",
+          "_ZN29qrt_fla_blackwell_cooperative12_GLOBAL__N_113output_kernelEPKtS2_S2_PKfS2_PfjPKh",
+          "_ZN29qrt_fla_blackwell_cooperative12_GLOBAL__N_113scores_kernelEPKtS2_PKfPtjPKh",
+          "_ZN29qrt_fla_blackwell_cooperative12_GLOBAL__N_19wu_kernelEPKtS2_S2_S2_PKfPtS5_jPKh"
+        ],
+        "executable_sections": [
+          {
+            "name": ".text",
+            "bytes": 345256,
+            "sha256": "d3f08ed752ed7308ad8231f7f774df8a0421dfb7572f16a3b8dd6e97d97d96b4"
+          }
+        ],
+        "metadata_sha256": "1322cbb2d6b6dcb96526615ce7d24ec2736ffdadebb3509753eace1e814a6ce9"
+      },
+      {
+        "kernel_names": [
+          "_ZN22qrt_fla_blackwell_norm12_GLOBAL__N_111norm_kernelEPKfPtS3_jPKh"
+        ],
+        "executable_sections": [
+          {
+            "name": ".text",
+            "bytes": 3448,
+            "sha256": "71967b98a640dde21b38d21cca8cd32d19fa901c4482099cd9a211446c14185c"
+          }
+        ],
+        "metadata_sha256": "2b3c26e5a7a2e8741897f6d173f97c31899cd6d8b443d183678ebb6c33f2b906"
+      },
+      {
+        "kernel_names": [
+          "_ZN25qrt_fla_blackwell_inverse12_GLOBAL__N_114inverse_kernelEPKfPtj"
+        ],
+        "executable_sections": [
+          {
+            "name": ".text",
+            "bytes": 8300,
+            "sha256": "adb0d058c2d0437b98e4ec1f37afa8055279042161ed9d76199f96912344110f"
+          }
+        ],
+        "metadata_sha256": "3b347ac6a736394d64c80808ca4f1c5cd6bd83322feee24f5321408a24457d9e"
+      }
+    ],
+    "qualified_product_source": "boundary-analysis.json",
+    "qualified_product_boundary_sha256": "9a2d68c6b2b57d1ae1376ad9999f8cb383f7f5278f9b3b75e2dbbb1199eab2d9"
+  },
+  "candidate": {
+    "build": {
+      "source": "fla-completed-latency-native-source-r1.json",
+      "source_sha256": "9f93c3080fbc63c6f3bfa5fabc4e6c31becfb7a786522c70efcf3cf637894648",
+      "source_commit": "1d11bf742268924ecf5df1e0e66a0e19fb7cec15",
+      "artifact": {
+        "file": "qrt_fla_chunk_gdn_provider.dll",
+        "bytes": 984064,
+        "sha256": "a6b110c3482ca8bc1bb7ef1b6c8213133bb98d53afa5d3a491ba4194bc1d3a88"
+      },
+      "build_metadata_sha256": "1286c84384fc9dd71fff7db8b7f2b2e59b5c7b0665a0320b2d96c3560a817eba",
+      "build_run_sha256": "2922fa818d9496e52cd67003dfb0d999e5feca53dbad7ae301fd429bf591807a"
+    },
+    "local_file": "fla-completed-latency-build-r1/qrt_fla_chunk_gdn_provider.dll",
+    "objects": [
+      {
+        "kernel_names": [
+          "_Z27transpose_seeded_state_bitsPKjPj",
+          "_ZN17qrt_fla_blackwell10dot_kernelEPKtS1_Pfj",
+          "_ZN17qrt_fla_blackwell11gate_kernelEPfPKfjjPKh",
+          "_ZN17qrt_fla_blackwell16tiled_dot_kernelILb0EEEvPKtS2_Pfj",
+          "_ZN17qrt_fla_blackwell16tiled_dot_kernelILb1EEEvPKtS2_Pfj"
+        ],
+        "executable_sections": [
+          {
+            "name": ".text",
+            "bytes": 15468,
+            "sha256": "c97006f2f77c13cc7028b5e494690d3f406b454bc1746a94707e17676878393b"
+          }
+        ],
+        "metadata_sha256": "6c2ca66d171333228789c478b26c9ce43515ad168b01c9a2732b9ad0939411f9"
+      },
+      {
+        "kernel_names": [
+          "_ZN23qrt_fla_blackwell_state12_GLOBAL__N_113update_kernelEPKtS2_PKfS4_PfjPKh",
+          "_ZN23qrt_fla_blackwell_state12_GLOBAL__N_114project_kernelEPKtS2_PKfS4_PtS5_S5_jPKh",
+          "_ZN23qrt_fla_blackwell_state12_GLOBAL__N_114segment_kernelEPKtS2_S2_PKfPtS5_PfjPKh"
+        ],
+        "executable_sections": [
+          {
+            "name": ".text",
+            "bytes": 13220,
+            "sha256": "26cce85a2e7c65135ceed5c3f3068afcc09276e9c59e5ea5dc0a4b6ba8069696"
+          }
+        ],
+        "metadata_sha256": "dce4602c265031482a9cc79e336608ca671c679cba22038e312a776af9ddec03"
+      },
+      {
+        "kernel_names": [
+          "_ZN21qrt_fla_blackwell_aux12_GLOBAL__N_112score_kernelEPKtS2_PKfPtjPKh",
+          "_ZN21qrt_fla_blackwell_aux12_GLOBAL__N_113output_kernelEPKtS2_S2_PKfS2_PfjPKh",
+          "_ZN21qrt_fla_blackwell_aux12_GLOBAL__N_19wu_kernelEPKtS2_S2_S2_PKfPtS5_jPKh"
+        ],
+        "executable_sections": [
+          {
+            "name": ".text",
+            "bytes": 15172,
+            "sha256": "ec70cef26c942674c541e83160ca6345fe4c1c740c49bf3874554f97489fb07b"
+          }
+        ],
+        "metadata_sha256": "8ad2e2e56a2d2977e43ee5397bca4eb33183e774f82c38b7ccb295951d059909"
+      },
+      {
+        "kernel_names": [
+          "_ZN16qrt_fla_interval12state_kernelILb1ELb0EEEvPKtS2_S2_PKfPtS5_PfjPKhPj",
+          "_ZN16qrt_fla_interval13output_kernelILb1ELb0EEEvPKtS2_S2_PKfS2_PfjPKhPj",
+          "_ZN16qrt_fla_interval9wu_kernelILb1ELb0EEEvPKtS2_S2_S2_PKfPtS5_jPKhPj",
+          "_ZN16qrt_fla_lifetime12state_kernelILj8EEEvPKtS2_S2_PKfPtS5_PfjPKh",
+          "_ZN16qrt_fla_lifetime13output_kernelEPKtS1_S1_PKfS1_PfjPKh",
+          "_ZN20qrt_fla_paired_score6kernelEPKtS1_PKfPtjPKh",
+          "_ZN24qrt_fla_blackwell_scalar12state_kernelILj4EEEvPKtS2_S2_PKfPtS5_PfjPKh",
+          "_ZN24qrt_fla_blackwell_scalar12state_kernelILj8EEEvPKtS2_S2_PKfPtS5_PfjPKh",
+          "_ZN24qrt_fla_blackwell_scalar13output_kernelEPKtS1_S1_PKfS1_PfjPKh",
+          "_ZN24qrt_fla_blackwell_scalar9wu_kernelEPKtS1_S1_S1_PKfPtS4_jPKh",
+          "_ZN26qrt_fla_fused_state_output6kernelILj4ELb0EEEvPKtS2_S2_S2_PKfS2_PfPtS6_S5_jPKh",
+          "_ZN26qrt_fla_fused_state_output6kernelILj4ELb1EEEvPKtS2_S2_S2_PKfS2_PfPtS6_S5_jPKh",
+          "_ZN26qrt_fla_fused_state_output6kernelILj8ELb0EEEvPKtS2_S2_S2_PKfS2_PfPtS6_S5_jPKh",
+          "_ZN26qrt_fla_fused_state_output6kernelILj8ELb1EEEvPKtS2_S2_S2_PKfS2_PfPtS6_S5_jPKh",
+          "_ZN29qrt_fla_blackwell_cooperative12_GLOBAL__N_112state_kernelILb0EEEvPKtS3_S3_PKfPtS6_PfjPKhN18qrt_fla_checkpoint7SegmentE",
+          "_ZN29qrt_fla_blackwell_cooperative12_GLOBAL__N_112state_kernelILb1EEEvPKtS3_S3_PKfPtS6_PfjPKhN18qrt_fla_checkpoint7SegmentE",
+          "_ZN29qrt_fla_blackwell_cooperative12_GLOBAL__N_113output_kernelEPKtS2_S2_PKfS2_PfjPKh",
+          "_ZN29qrt_fla_blackwell_cooperative12_GLOBAL__N_113scores_kernelEPKtS2_PKfPtjPKh",
+          "_ZN29qrt_fla_blackwell_cooperative12_GLOBAL__N_19wu_kernelEPKtS2_S2_S2_PKfPtS5_jPKh"
+        ],
+        "executable_sections": [
+          {
+            "name": ".text",
+            "bytes": 345256,
+            "sha256": "d3f08ed752ed7308ad8231f7f774df8a0421dfb7572f16a3b8dd6e97d97d96b4"
+          }
+        ],
+        "metadata_sha256": "1322cbb2d6b6dcb96526615ce7d24ec2736ffdadebb3509753eace1e814a6ce9"
+      },
+      {
+        "kernel_names": [
+          "_ZN22qrt_fla_blackwell_norm12_GLOBAL__N_111norm_kernelEPKfPtS3_jPKh"
+        ],
+        "executable_sections": [
+          {
+            "name": ".text",
+            "bytes": 3448,
+            "sha256": "71967b98a640dde21b38d21cca8cd32d19fa901c4482099cd9a211446c14185c"
+          }
+        ],
+        "metadata_sha256": "2b3c26e5a7a2e8741897f6d173f97c31899cd6d8b443d183678ebb6c33f2b906"
+      },
+      {
+        "kernel_names": [
+          "_ZN25qrt_fla_blackwell_inverse12_GLOBAL__N_114inverse_kernelEPKfPtj"
+        ],
+        "executable_sections": [
+          {
+            "name": ".text",
+            "bytes": 8300,
+            "sha256": "adb0d058c2d0437b98e4ec1f37afa8055279042161ed9d76199f96912344110f"
+          }
+        ],
+        "metadata_sha256": "3b347ac6a736394d64c80808ca4f1c5cd6bd83322feee24f5321408a24457d9e"
+      }
+    ]
+  },
+  "parser": {
+    "file": "read_amdgpu_metadata_r1.py",
+    "sha256": "3a73e524f738a8f325ccd2b880c60886c28f9f26cf87b6cb5c61d47613f4413f"
+  },
+  "observer": {
+    "file": "audit_completed_latency_device_objects_r1.py",
+    "sha256": "b0a0ee387e80969a11ad259a8b6259b5a8e98b14851b42fe622fa250f536a684"
+  },
+  "control_artifact_provenance": {
+    "file": "qualified-stack-resources-r1/resources.json",
+    "sha256": "d7092dd984119bbc1648348136bdefaf001add479c5fc1e2be728cf15fccf4cf"
+  },
+  "code_object_count": 6,
+  "kernel_count": 32,
+  "device_executable_sections_and_metadata_identical": true,
+  "scope": "Read-only comparison of embedded AMDGPU executable sections and complete AMDHSA metadata. Both complete DLL hashes are validated against their native builds. It does not compare all host code or device non-executable storage, measure performance, execute kernels or establish new model/context correctness. Separate actual model boundaries remain mandatory.",
+  "native_executed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "observer_host_type": "local POSIX host",
+  "canonical_record": {
+    "file": "fla-completed-latency-device-object-audit-r1.json",
+    "bytes": 12487,
+    "sha256": "f05ad6e2e3ef9b0d5771b741d303d6a4bb2c9f4e53d570cf2bfc1c832c0322aa"
+  },
+  "actual_model_regression": {
+    "file": "benchmarks/correctness/fla-completed-latency-native-q8192-20260919.json",
+    "bytes": 255245,
+    "sha256": "6d78cb30281e248cb228740909cb1f5141207fb5462bcaf2e04cd41003a8128f"
+  }
+}

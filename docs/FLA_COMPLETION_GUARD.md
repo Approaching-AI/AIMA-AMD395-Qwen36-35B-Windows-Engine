@@ -108,6 +108,14 @@ ID, callback and first logit10.375/error0, with capture disabled. Its load is
 21345.493299 ms, TTFT23192.6479 ms and TPOT101.249491 ms. That single sample
 is not a replacement performance median; see the [diagnostic provider regression](../benchmarks/correctness/fla-output-failure-capture-native-q8192-20260919.json).
 
+The compiled repair also preserves all GPU executable sections and complete
+AMDHSA metadata from the qualified `7b20c90` control: six embedded code objects
+containing 32 kernels compare identically. Both DLL identities are checked
+against their native build records. This read-only comparison covers neither
+all host code nor device non-executable storage; it complements the actual
+q7169/q8192 numerical checks and does not qualify another context. See the
+[compiled GPU comparison](../benchmarks/correctness/fla-completed-latency-device-objects-20260919.json).
+
 The unpublished R6 portable candidate retains FLA `2b33665`. The current
 policy repair has not been put in that archive. Full128k recovery, product
 performance and release acceptance remain open.
