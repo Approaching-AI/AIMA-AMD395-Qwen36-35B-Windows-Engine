@@ -221,6 +221,49 @@ def selected_prefill_moe_observation(prompt_tokens, first_position, token_count)
             1 <= token_count <= 8192 and first_position + token_count <= prompt_tokens)
 
 
+def prefill_moe_routed_rows_enabled():
+    value = os.environ.get('QRT_GB10_PREFILL_MOE_ROUTED_ROWS', '0')
+    if value not in ('0', '1'):
+        raise ValueError('routed prefill MoE observation requires 0 or 1')
+    if value == '1' and os.environ.get('QRT_GB10_PREFILL_MOE_SELECTED_ROWS') != '1':
+        raise ValueError('routed prefill MoE observation requires selected prefill rows')
+    return value == '1'
+
+
+def observe_original_moe_routed(forward, module, observe, tokens, *args, **kwargs):
+    """Read original Triton projection boundaries and restore on every exit."""
+    if type(tokens) is not int or not 1 <= tokens <= 8192:
+        raise ValueError('routed MoE observation chunk extent changed')
+    original_dispatch = module.invoke_fused_moe_triton_kernel
+    dispatch_count = 0
+
+    def dispatch(*pos, **kw):
+        nonlocal dispatch_count
+        if dispatch_count >= 2 or len(pos) < 3:
+            raise ValueError('original routed MoE projection call changed')
+        width = 1024 if dispatch_count == 0 else 2048
+        if tuple(pos[2].shape) != (tokens, 8, width):
+            raise ValueError('original routed MoE projection shape changed')
+        if dispatch_count == 1:
+            if tuple(pos[0].shape) != (tokens * 8, 512):
+                raise ValueError('original routed MoE activation shape changed')
+            observe('routed-activated', pos[0], 8 * 512)
+        result = original_dispatch(*pos, **kw)
+        observe('routed-gate-up' if dispatch_count == 0 else 'routed-weighted',
+                pos[2], 8 * width)
+        dispatch_count += 1
+        return result
+
+    module.invoke_fused_moe_triton_kernel = dispatch
+    try:
+        result = forward(*args, **kwargs)
+        if dispatch_count != 2:
+            raise ValueError('incomplete original routed MoE observations')
+        return result
+    finally:
+        module.invoke_fused_moe_triton_kernel = original_dispatch
+
+
 def full_prefill_linear_core_only():
     value = os.environ.get('QRT_GB10_FULL_PREFILL_LINEAR_CORE_ONLY', '0')
     if value not in ('0', '1'):
@@ -472,6 +515,15 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
             'QRT_GB10_BOUNDARY_MOE_LAYERS', [0, 2])
         prefill_moe_selected_rows = selected_prefill_moe_observation(
             prompt_tokens, 0, min(prompt_tokens, 8192))
+        self._qrt_boundary_prefill_moe_routed_rows = prefill_moe_routed_rows_enabled()
+        routed_moe_source = None
+        if self._qrt_boundary_prefill_moe_routed_rows:
+            import importlib
+            routed_module = importlib.import_module('vllm.model_executor.layers.fused_moe.fused_moe')
+            routed_path = Path(inspect.getsourcefile(routed_module))
+            routed_moe_source = dict(file=str(routed_path), sha256=file_sha(routed_path))
+            if routed_moe_source['sha256'] != '607c0a459306a71ff7d01445772494367f3924098739bbd3b4f43020738297d4':
+                raise ValueError('original routed MoE source changed')
         if 39 in self._qrt_boundary_moe_layers:
             raise ValueError('MoE next-norm observation requires a following layer')
         def attach_moe(index):
@@ -505,6 +557,27 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 def observe(module, args):
                     moe_stage(label, args[0], width)
                 return observe
+
+            if self._qrt_boundary_prefill_moe_routed_rows:
+                original_expert_forward = mlp.experts.forward
+                self._qrt_boundary_restores.append((mlp.experts, 'forward', original_expert_forward))
+
+                def expert_forward(*args, **kwargs):
+                    transaction = self._qrt_boundary_active
+                    if (transaction is None or not transaction['rows'] or
+                            not selected_prefill_moe_observation(prompt_tokens,
+                                transaction['first_position'], transaction['token_count'])):
+                        return original_expert_forward(*args, **kwargs)
+
+                    def routed_stage(label, value, width):
+                        if value.dtype != torch.bfloat16:
+                            raise ValueError('original routed MoE dtype changed')
+                        moe_stage(label, value.view(transaction['token_count'], width), width)
+
+                    return observe_original_moe_routed(original_expert_forward, routed_module,
+                        routed_stage, transaction['token_count'], *args, **kwargs)
+
+                mlp.experts.forward = expert_forward
 
             def moe_output(label, width):
                 def observe(module, args, output):
@@ -921,6 +994,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 internal_router=first_mlp.experts.is_internal_router,
                 router_is_original_module=first_mlp.experts.gate is first_mlp.gate),
             prefill_moe_selected_rows=prefill_moe_selected_rows,
+            prefill_moe_routed_rows=self._qrt_boundary_prefill_moe_routed_rows,
+            prefill_moe_routed_source=routed_moe_source,
             decode_full_attention_layers=[full_layer],
             decode_full_attention_cache=capture_full_cache,
             prefill_attention_selected_rows=prefill_attention_selected_rows,
@@ -958,6 +1033,12 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                         for label in self._qrt_boundary_moe_labels}
                     if not prefill_moe_required <= observed:
                         raise ValueError("incomplete original selected prefill MoE observations")
+                    if self._qrt_boundary_prefill_moe_routed_rows:
+                        routed_required = {f'moe-{layer:02d}-' + label
+                            for layer in self._qrt_boundary_moe_layers
+                            for label in ('routed-gate-up', 'routed-activated', 'routed-weighted')}
+                        if not routed_required <= observed:
+                            raise ValueError('incomplete original selected routed MoE observations')
                 if transaction["first_position"] >= self._qrt_boundary_prompt_tokens:
                     decode_required = {f"linear-{layer:02d}-{stage}"
                         for layer in self._qrt_boundary_linear_layers

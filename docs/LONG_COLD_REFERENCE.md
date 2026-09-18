@@ -76,6 +76,16 @@ and dependency9b2a99ed unchanged. See the
 [selected layer16 MoE reference](../benchmarks/correctness/gb10-prefix128-layer16-moe-20260919.json).
 No Windows tensor is supplied to the reference computation.
 
+Optional `QRT_GB10_PREFILL_MOE_ROUTED_ROWS=1` adds the original routed
+gate/up, activated input and weighted-down endpoints for those same selected
+prefill rows. It requires the selected-row option and the pinned original
+Triton MoE source. The observer reads the two original projection calls,
+returns their results unchanged and restores the original entry point even
+on errors. It retains the existing artifact and transaction limits; missing
+stages fail qualification. Twenty-one boundary tests and six token-matrix
+tests pass. Actual capture still requires all original outputs and first-logit
+tensors to reproduce before the new endpoints can be used as references.
+
 These references enable the Windows cold out512 checks. They do not establish
 Windows correctness or performance at any newly captured length.
 

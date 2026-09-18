@@ -4,6 +4,7 @@ import os
 import json
 import sys
 import unittest
+from types import SimpleNamespace
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
@@ -15,10 +16,56 @@ from capture_gb10_runtime_boundaries import (  # noqa: E402
     observation_positions, observation_timeout_seconds, prepared_token_ids, qualify_transaction,
     recurrent_state_selection, selected_prefill_moe_observation,
     short_prefill_moe_observation, target_rows,
+    observe_original_moe_routed, prefill_moe_routed_rows_enabled,
 )
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_routed_moe_option_requires_bounded_selected_rows(self):
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertFalse(prefill_moe_routed_rows_enabled())
+        with patch.dict(os.environ, {'QRT_GB10_PREFILL_MOE_ROUTED_ROWS': '1'}, clear=True):
+            with self.assertRaisesRegex(ValueError, 'requires selected prefill rows'):
+                prefill_moe_routed_rows_enabled()
+        with patch.dict(os.environ, {'QRT_GB10_PREFILL_MOE_ROUTED_ROWS': '1',
+                'QRT_GB10_PREFILL_MOE_SELECTED_ROWS': '1'}, clear=True):
+            self.assertTrue(prefill_moe_routed_rows_enabled())
+        with patch.dict(os.environ, {'QRT_GB10_PREFILL_MOE_ROUTED_ROWS': 'yes'}, clear=True):
+            with self.assertRaises(ValueError):
+                prefill_moe_routed_rows_enabled()
+
+    def test_routed_moe_observer_preserves_results_arguments_and_restores_on_errors(self):
+        original_calls, observed = [], []
+        projection_result, forward_result = object(), object()
+        def dispatch(*args, **kwargs):
+            original_calls.append((args, kwargs))
+            return projection_result
+        module = SimpleNamespace(invoke_fused_moe_triton_kernel=dispatch)
+        tensors = [SimpleNamespace(shape=shape) for shape in
+                   ((8192, 8, 1024), (8192 * 8, 512), (8192, 8, 2048))]
+        def forward(argument, *, marker):
+            self.assertEqual((argument, marker), ('original-input', 13))
+            self.assertIs(module.invoke_fused_moe_triton_kernel('a', 'b', tensors[0], mode=4), projection_result)
+            self.assertIs(module.invoke_fused_moe_triton_kernel(tensors[1], 'd', tensors[2], mode=5), projection_result)
+            return forward_result
+        def observe(*args):
+            observed.append(args)
+        result = observe_original_moe_routed(forward, module, observe, 8192, 'original-input', marker=13)
+        self.assertIs(result, forward_result)
+        self.assertEqual([x[0] for x in observed], ['routed-gate-up', 'routed-activated', 'routed-weighted'])
+        self.assertEqual([x[2] for x in observed], [8192, 4096, 16384])
+        self.assertEqual(original_calls[0], (('a', 'b', tensors[0]), {'mode': 4}))
+        self.assertIs(module.invoke_fused_moe_triton_kernel, dispatch)
+        def fail(*args):
+            raise RuntimeError('original forward failed')
+        with self.assertRaisesRegex(RuntimeError, 'original forward failed'):
+            observe_original_moe_routed(fail, module, observe, 8192)
+        self.assertIs(module.invoke_fused_moe_triton_kernel, dispatch)
+        tensors[2].shape = (8191, 8, 2048)
+        with self.assertRaisesRegex(ValueError, 'projection shape changed'):
+            observe_original_moe_routed(forward, module, observe, 8192, 'original-input', marker=13)
+        self.assertIs(module.invoke_fused_moe_triton_kernel, dispatch)
+
     def test_complete_large_request_has_a_bounded_observation_deadline(self):
         for count in (1, 7169, 8192, 32768, 65536, 66560, 131072, 132096):
             self.assertEqual(observation_timeout_seconds(count), 180)
