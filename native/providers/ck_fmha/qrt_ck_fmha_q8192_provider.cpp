@@ -38,6 +38,7 @@
 #include "fused_probability_pv_policy.h"
 #include "fused_probability_pv.h"
 #include "microtile_exact_qk.h"
+#include "rz_tree_qk.h"
 #include "native_exp2_workspace.h"
 #include "prepared_decoded_qk.h"
 #include "exponent_mask_qk.h"
@@ -483,6 +484,13 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if (!qrt_fused_probability_pv_policy::select(std::getenv("QRT_CK_SM121_FUSED_PROBABILITY_PV"),
             query_start,query_count,exact_attention,fused_probability_pv))
         return int(hipErrorInvalidValue);
+    const char* rz_tree_option = std::getenv("QRT_CK_SM121_QK_RZ_TREE");
+    if (rz_tree_option && *rz_tree_option && std::strcmp(rz_tree_option, "0") &&
+        std::strcmp(rz_tree_option, "1")) return int(hipErrorInvalidValue);
+    const bool rz_tree_qk = rz_tree_option && std::strcmp(rz_tree_option, "1") == 0 &&
+        query_start == 0u && query_count == 8192u;
+    if (rz_tree_qk && (!exact_attention || !prepared_decoded_qk || exponent_mask_qk || matrix_mode))
+        return int(hipErrorInvalidValue);
     const char* profile_option = std::getenv("QRT_CK_SM121_PROFILE_COMPLETED_STAGES");
     if (profile_option && *profile_option && std::strcmp(profile_option,"0") &&
         std::strcmp(profile_option,"1")) return int(hipErrorInvalidValue);
@@ -629,6 +637,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const size_t transposed_value_elements = size_t(transposed_value_capacity) * kKvHeads * kHeadDim;
     qrt_prepared_decoded_qk::Workspace decoded_workspace;
     qrt_blackwell_attention::SplitQkProducer decoded_producer{&decoded_workspace,
+        rz_tree_qk ? qrt_rz_tree_qk::launch_workspace :
         exact_attention ? qrt_microtile_exact_qk::launch_workspace :
         exponent_mask_qk ? qrt_exponent_mask_qk::launch_workspace : qrt_prepared_decoded_qk::launch_workspace};
     qrt_blackwell_attention::SplitProbabilityProducer exact_probability{
@@ -647,7 +656,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         decoded_workspace = {g_sm121_prepared_decoded_qk, key_stride};
         // Reuse the arena but refresh its representation and matching consumer
         // together. Nothing from a previous call or layer is reused implicitly.
-        status = exponent_mask_qk
+        status = rz_tree_qk ? qrt_rz_tree_qk::prepare_workspace(q, k, transposed_keys, decoded_workspace, stream)
+            : exponent_mask_qk
             ? qrt_exponent_mask_qk::prepare_workspace(q, k, transposed_keys, decoded_workspace, stream)
             : qrt_prepared_decoded_qk::prepare_workspace(q, k, transposed_keys, decoded_workspace, stream);
         if (status != int(hipSuccess)) { (void)hipStreamSynchronize(stream); return status; }
@@ -808,18 +818,21 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if (register_pv_rescale)
         std::fprintf(stderr,"SM121_REGISTER_PV_RESCALE query_start=%u query_count=%u native_and_exact=1 original_k16=1 additional_workspace_bytes=0\n",
             query_start,query_count);
-    if (exact_attention)
+    if (exact_attention && !rz_tree_qk)
         std::fprintf(stderr,"SM121_EXACT_ATTENTION_PIPELINE query_start=%u query_count=%u query_rows=32 key_columns=32 exact_native_exp=1 verified_inputs=%u workspace_bytes=%zu\n",
             query_start,query_count,qrt_sm121_exp2_native_delta::cells,qrt_sm121_exp2_native_delta::packed_bytes);
+    if (rz_tree_qk)
+        std::fprintf(stderr,"SM121_QK_RZ_TREE query_start=%u query_count=%u query_rows=32 key_columns=32 group_size=16 original_qk=0 narrow_bf16_exponents=96:158 original_exceptional_dot_replay=1 wave_mode_restored=1 exact_native_exp=1 original_pv=1 additional_workspace_bytes=0 gb10_product_gate_required=1\n",
+            query_start,query_count);
     if (all_pv_replay)
         std::fprintf(stderr,"SM121_ALL_PV_REPLAY query_start=%u query_count=%u original_k16=1 approximate_pv=0 compaction=0 additional_workspace_bytes=0\n",
             query_start,query_count);
     if (fused_probability_pv)
-        std::fprintf(stderr,"SM121_FUSED_PROBABILITY_PV query_start=%u query_count=%u independent_exact_qk=1 original_probability_recurrence=1 original_final_bound=1 original_exact_replay=1 additional_workspace_bytes=0 profile_stage1_includes_native_pv=1\n",
-            query_start,query_count);
+        std::fprintf(stderr,"SM121_FUSED_PROBABILITY_PV query_start=%u query_count=%u independent_exact_qk=%u original_probability_recurrence=1 original_final_bound=1 original_exact_replay=1 additional_workspace_bytes=0 profile_stage1_includes_native_pv=1\n",
+            query_start,query_count,unsigned(!rz_tree_qk));
     if (float_alignment_qk)
-        std::fprintf(stderr,"SM121_FLOAT_ALIGNMENT_QK query_start=%u query_count=%u canonical_k16=1 original_fallback=1 additional_workspace_bytes=0 selective_prefix_queries=%u\n",
-            query_start,query_count,selective_prefix_queries);
+        std::fprintf(stderr,"SM121_FLOAT_ALIGNMENT_QK query_start=%u query_count=%u canonical_k16=%u original_fallback=1 additional_workspace_bytes=0 selective_prefix_queries=%u\n",
+            query_start,query_count,unsigned(!rz_tree_qk),selective_prefix_queries);
     if (prepared_decoded_qk)
         std::fprintf(stderr,"SM121_PREPARED_DECODED_QK query_start=%u query_count=%u window=128 query_rows=%u key_columns=%u workspace_bytes=%zu refreshed=1 original_fallback=1\n",
             query_start,query_count,exact_attention?32u:16u,exact_attention?32u:16u,qrt_prepared_decoded_qk::workspace_words*sizeof(uint32_t));
@@ -838,7 +851,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             query_start,query_count,exact_tail,selective_prefix_queries,
             query_count-selective_prefix_queries,query_batch,unsigned(selective_prefix_queries != 0u));
     std::fprintf(stderr, "SM121_FULL_ATTENTION query_start=%u query_count=%u maximum_queries_per_dispatch=%u split_qk_pv=1 transposed_keys=%u native_products=%u mantissa_wmma=%u native_bf16_matrix=%u tiled_exact_qk=%u warp_softmax=%u prepared_value=%u diagnostic_only=1\n",
-        query_start, query_count, query_batch, unsigned(independent_dots), unsigned(native_products), unsigned(mantissa_wmma), matrix_mode, unsigned(tiled_qk), unsigned(warp_softmax), unsigned(prepared_value));
+        query_start, query_count, query_batch, unsigned(independent_dots), unsigned(native_products), unsigned(mantissa_wmma), matrix_mode, unsigned(tiled_qk && !rz_tree_qk), unsigned(warp_softmax), unsigned(prepared_value));
     return int(hipSuccess);
 }
 
