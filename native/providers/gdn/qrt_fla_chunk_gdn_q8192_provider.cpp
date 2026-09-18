@@ -1679,6 +1679,14 @@ QRT_FLA_GDN_EXPORT uint64_t qrt_fla_chunk_gdn_scratch_bytes(
 ) {
     const int32_t scratch_tokens = !supported_tokens(tokens) ? 0
         : (tokens > kSegmentTokens ? kSegmentTokens : padded_tokens(tokens));
+    const bool pipeline_storage = g_pipeline.ready ||
+        (qrt_fla_pipeline_policy::mode() > 0 && pipeline_compatible() && !pipeline_diagnostic());
+    // Count every preallocated slot even if a later call disables the route.
+    // Its original batch-score allocation is independent of later settings.
+    const uint64_t pipeline_bytes = uint64_t(qrt_fla_pipeline_policy::slots) *
+        (uint64_t(kSegmentTokens) * kMainScratchBytesPerToken + kTailPaddingBytes +
+         uint64_t(kStateElements) * sizeof(float) +
+         uint64_t(kSegmentTokens) * kValueHeads * kChunk * sizeof(uint16_t));
     return scratch_tokens > 0
         ? static_cast<uint64_t>(scratch_tokens) *
               kMainScratchBytesPerToken +
@@ -1687,6 +1695,7 @@ QRT_FLA_GDN_EXPORT uint64_t qrt_fla_chunk_gdn_scratch_bytes(
                   ? blackwell_state_scratch_bytes() : 0u) + qrt_fla_blackwell_state::exp2_table_storage_bytes()
                   + qrt_fla_blackwell_norm::table_storage_bytes()
                   + (g_state.seeded_row_state ? qrt_fla_checkpoint::kStateBytes : 0u)
+                  + (pipeline_storage ? pipeline_bytes : 0u)
         : 0u;
 }
 
