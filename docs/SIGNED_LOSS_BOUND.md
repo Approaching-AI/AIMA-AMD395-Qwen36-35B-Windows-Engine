@@ -1,6 +1,6 @@
 # Directed canonical loss experiment
 
-This isolated host experiment keeps the coarse producer's conditional native
+This isolated experiment keeps the coarse producer's conditional native
 error coefficient at `2^-19`. It uses each operand's sign and nonzero masks to
 charge positive product truncation only downward and negative truncation only
 upward. A complete C64 prefix barrier, including the previous uncertainty,
@@ -28,12 +28,47 @@ The first QKV diagnostic stopped at the domain guard because the harness had
 omitted whole-row fallback. The revised harness retains that fallback and
 reports its work explicitly; it does not extend the admitted exponent domain.
 
-Keep this as a host building block. Selection falls modestly before counting
-metadata preparation, extra bound arithmetic or replay scheduling. It does not
-establish a native component gain or a seconds-scale product route. No provider,
-runtime option, qualified model result or package changes.
+The native comparison below includes metadata preparation, bound arithmetic
+and complete replay. No provider, runtime option, qualified model result or
+package changes.
 
 Evidence: [host record](../benchmarks/correctness/signed-loss-bound-host-20260918.json),
 12,635 bytes, SHA256
 `5da40ee7382e06700362f3581681c140d652d4133b7de80db33c2cbd02ff2b85`,
 pins source `af735be`, all commands, input hashes and the revised harness result.
+
+## Complete native comparison, 2026-09-18
+
+Source `0d20e48` constructs actual C64 sign/nonzero masks inside a shared
+producer. Its 64x64 and 64x32 schedules preserve every raw center, directional
+endpoint and selected cell. All 88 generated configurations pass, including
+unsupported operands, independent two-byte skews, exponent limits, tails,
+sign-stable blocks and sign crossing. Every generated cell has an independent
+CPU comparison. Each captured warmup and measured attempt checks all original
+GPU endpoints, external GB10 BF16 projection outputs, 256 independent CPU
+dots, complete candidate permutations, prepared words and storage guards.
+
+| q8192 operator shape | Symmetric shared ms | Directed 64x64 ms | Directed 64x32 ms | Selected, symmetric / directed |
+| --- | ---: | ---: | ---: | ---: |
+| OUT | 85.8026 | 153.7327 | 96.0616 | 3124922 / 2487560 |
+| QKV | 138.5076 | 318.2591 | 172.4419 | 8285915 / 6957701 |
+
+Medians cover three rotated complete samples after one warmup. Preparation,
+mask construction, production, compaction, host count and all selected original
+K16 replay are included. The smaller tile eliminates the original 34 VGPR
+spills and 140 private bytes, using 169 VGPRs and 14592 LDS bytes; these are
+static compiler resources, not measured occupancy. Its OUT/QKV producer and
+selection medians still rise from 26.706/54.6145 to 49.0112/103.2104 ms.
+Every directional owner sample is slower than every shared control sample.
+Keep both schedules isolated despite the 20.40%/16.03% candidate reductions.
+
+The shapes extend 7169 captured rows by repeating 1023 rows. OUT has a complete
+8192-row external operator reference; QKV repeats corresponding reference rows.
+This is component evidence, without a real 8192-token model request or a proof
+of the native error premise. The qualified model TTFT remains 23353.80795 ms.
+The earlier spilling prototype and a subsequent C++ array-declaration build
+failure are preserved; that failed build executed no numerical GPU work.
+
+[Native source, bounded commands and results](../benchmarks/correctness/signed-loss-projection-native-components-20260918.json):
+524761 bytes, SHA256
+`88acccca492dc46272de60954bab387fd71ae140251a32c05007cc05b15ce6c9`.

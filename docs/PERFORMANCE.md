@@ -1,5 +1,18 @@
 # Real-model performance
 
+## Directional C64 projection components, 2026-09-18
+
+Source `0d20e48` passes all88 native safety configurations and complete
+captured OUT/QKV checks, including original GB10 operator references. Its
+directional loss accounting reduces selected cells20.40%/16.03%, but the
+complete64x32 medians regress85.8026 to96.0616 ms for OUT and138.5076 to
+172.4419 ms for QKV. Every candidate sample exceeds every shared control.
+The smaller tile removes the64x64 producer's spills while preserving all raw
+centers, bounds and candidates; additional bound work still costs more than
+the saved replay. Keep both schedules isolated. These repeated-row operator
+shapes do not change the23353.80795 ms qualified model TTFT or release status.
+[Design, all variants and native evidence](SIGNED_LOSS_BOUND.md).
+
 ## Persistent deferred GDN components, 2026-09-18
 
 Isolated source `6ef29d3` gives each persistent CTA eight complete recurrent
