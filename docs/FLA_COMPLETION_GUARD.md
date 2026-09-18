@@ -36,6 +36,28 @@ Host tests cover121 clock pairs, exact and adjacent100 ms boundaries,
 negative/nonfinite values, monotonic interval measurement, the actual
 submission wrapper and segment wrapper, deferred completion, HIP errors,
 stream mismatches and cleanup. Local FLA regression runs113 tests, with
-one existing Linux parent-death-signal test skipped on macOS. Native build, real-model regression
-and a new long-context run remain required. No cause or successful repair of
-the original128k failure is claimed from these host tests.
+one existing Linux parent-death-signal test skipped on macOS. No cause or
+successful repair of the original128k failure is claimed from these host tests.
+
+Native source `2b33665676223a4cded4b1df10437f4d1456aae9` now builds on
+baiying, with all45 compiled inputs checked. Its972800-byte DLL SHA256 is
+`73bd48b27ff696135b5902d1d693bc4d6a08e7f308f79b63e587c169e1ba83f7`.
+Captured q7169 output and final state match the GB10 reference bitwise.
+Full q8192/out512 matches every original token and callback, with first
+logit10.375/error0. Load is21317.5197 ms, TTFT23327.2313 ms and
+TPOT100.546425 ms. No host-clock fallback occurs in that run.
+
+The full16384 owner first token/logit and31 cached continuation tokens match
+the original owner32. Both512-token suffix requests, raw first logits,
+callbacks, restoration and changed-prefix rejection also pass. Load is
+21298.4029 ms; the timed suffix TTFT is8450.1209 ms, TPOT156.542066 ms and
+owner continuation4897.6403 ms. One inverse-stage GPU interval is−0.048 ms;
+the enclosing monotonic host interval is0.3358 ms, independently satisfying
+the100 ms bound. The fallback is recorded and no invalid GPU duration is
+accepted as a profile sample. This demonstrates a negative event interval.
+The cause of the earlier128k failure remains unestablished.
+
+[Native build, captured comparison and complete product evidence](../benchmarks/correctness/fla-completion-guard-native-product-20260918.json)
+attach commands, source/binary identities and original numerical boundaries.
+The samples establish no paired speed gain. The new128k run, larger contexts,
+package qualification and performance acceptance remain open.
