@@ -28,12 +28,45 @@ The native suite adds72 generated shapes/data/selection combinations with
 three routes, reversed queues, empty and dense candidates, tails, subnormal
 inputs and span32 rejection. It compares every raw output against independent
 CPU original arithmetic, with metadata, candidate masks, all prepared words
-and guards checked. Captured QKV and OUT retain the original current midpoint
-selector, PPB1000/10000, QKV matrix4 and OUT matrix0. Full original GB10 BF16
+and guards checked. Captured QKV and OUT use the current midpoint predicate,
+PPB1000/10000, QKV matrix4 and OUT matrix0. The OUT comparison is the original
+midpoint owner, not the newer retained coarse-OUT model owner. Full GB10 BF16
 outputs and all unrounded selected values are checked after each attempt.
 
 Timing includes original half preparation, candidate metadata preparation,
 bitmap reset/scatter and complete replay. Allocation, fixture reset, common
 matrix production and selection, transfer and validation are outside. One
-warmup precedes three rotated samples. Native validation is pending; runtime
-dispatch, model baseline and packaging remain unchanged.
+warmup precedes three rotated samples.
+
+Source `8ae7879235feba5ede2d62038eb0e43e409e1ab7` passes the Windows build,
+all216 generated configurations and both captured operators. Every generated
+raw output matches18744 distinct independent CPU dots, including all original
+fallbacks. Eight invalid launches reject before submission. Every captured
+attempt preserves67108864 QKV and16777216 OUT GB10 BF16 outputs and all
+4331635/8471989 unrounded selected values. Complete row metadata, original
+half encodings, candidate membership, inactive output and guard checks pass.
+
+| Shape | Original staged2 ms | Sparse32 ms | Sparse64 ms |
+| --- | ---: | ---: | ---: |
+| q8192 QKV, K2048 | 42.4972 | 115.753 | 256.317 |
+| q8192 midpoint OUT, K4096 | 156.823 | 272.651 | 325.829 |
+
+The QKV candidates execute3404873/2470133 fast dots, with the remainder
+using original arithmetic. Every OUT tile exceeds the sparse capacity, so
+all8471989 selected values use original fallback; its timing measures the
+additional owner overhead. The common replacement already regresses QKV,
+so no current coarse-OUT or real-model integration follows.
+
+Extra metadata, flags, bitmap and counters require50397200 bytes for QKV or
+54566928 bytes for OUT, alongside the original prepared operands and queue.
+Original/Sparse32/Sparse64 kernels declare49/72/71 VGPRs and0/14084/27652
+shared bytes, with zero private bytes and spills. These static declarations
+do not measure occupancy or establish a cause for the regression.
+
+[Commands, native results, host checks and source/binary hashes](../benchmarks/correctness/sparse-byte-projection-native-components-20260918.json):
+435801 bytes, SHA256
+`4662ab9cf7d9125434c576d4a369bb6c4bcc661c3142183fc884fb3bb5b11f68`.
+All717 repository source-inventory entries match the commit; this inventory
+also includes files not compiled by this fixture. The native command file is
+`run-native-sparse-byte-projection-r1.ps1`. Both routes remain isolated and
+the23353.80795 ms qualified model control, package and release state remain.

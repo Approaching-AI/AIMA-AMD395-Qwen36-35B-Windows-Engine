@@ -82,6 +82,17 @@ The later original-K16 last-row OUT comparison is recorded above.
 1542704 bytes, SHA256
 `1cb8d1b7e81e475424ffd6185dcf1e56c8b4961bda175fe1604fd9536becd375`.
 
+## Sparse byte-metadata projection, 2026-09-18
+
+Source `8ae7879` combines original candidate tile reuse with the proved
+wide-dot byte arithmetic. All host tests,216 native configurations and
+complete original/GB10 operator boundaries pass. Preparation plus replay
+regresses42.4972 to115.753/256.317ms on retained matrix4 QKV. The original
+midpoint OUT owner also regresses156.823 to272.651/325.829ms, with every tile
+taking dense fallback; that comparison does not measure current coarse OUT.
+Keep both schedules isolated and preserve the23353.80795ms model control.
+[Arithmetic, coverage, clocks and evidence](SPARSE_BYTE_PROJECTION.md).
+
 ## Checked narrow QK lookahead, 2026-09-18
 
 Source `774e5e8` prepares two or four K16 groups from exact byte metadata,
