@@ -1,5 +1,35 @@
 # Real-model performance
 
+## Persistent deferred GDN components, 2026-09-18
+
+Isolated source `6ef29d3` gives each persistent CTA eight complete recurrent
+state columns and their replay history. Original interval propagation, BF16
+checkpoints, cached ordered K64 replay and final FP32 state remain unchanged.
+The control uses the qualified shared-arena state/output route. WU and output
+are identical across arms; candidates use scalar or coarse-certified WH.
+
+All 144 generated safety configurations pass. Every q8192 warmup and rotated
+sample matches complete original output, state and intermediate surfaces,
+with 172032 independent CPU dots. Observer-only original state64 traces are
+contained by all checked candidate intervals. The original state-dot count
+remains 38218556 of 67108864, matching the earlier deferred primitive.
+
+| U ownership | Control ms | Persistent / scalar WH ms | Persistent / coarse WH ms |
+| --- | ---: | ---: | ---: |
+| Separate | 70.0704 | 162.6714 | 161.8188 |
+| U = V | 69.9304 | 159.5315 | 160.1558 |
+
+Each median covers three complete q8192 samples in eight 1024-token
+segments, including initialization, history, replay, diagnostic records and
+finalization. Every candidate sample is slower than every matching control
+sample. Keep both candidates isolated and choose a different structural
+route. Runtime defaults, the qualified 23353.80795 ms model TTFT and package
+remain unchanged. These generated components have no model-token acceptance.
+
+[Native evidence](../benchmarks/correctness/persistent-deferred-state-gdn-native-components-20260918.json):
+343059 bytes, SHA256
+`75384809220778fddededdbcf38cedd655f3e92ee13d195ff6bbd1f4d83d3489`.
+
 ## Exact long-attention provider, 2026-09-18
 
 CK `65a2139` passes four real cold16384/out32 runs in OFF/ON/ON/OFF order:
