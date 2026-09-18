@@ -72,3 +72,37 @@ failure are preserved; that failed build executed no numerical GPU work.
 [Native source, bounded commands and results](../benchmarks/correctness/signed-loss-projection-native-components-20260918.json):
 524761 bytes, SHA256
 `88acccca492dc46272de60954bab387fd71ae140251a32c05007cc05b15ce6c9`.
+
+## Deferred envelopes and reusable masks
+
+Source `ec96fbd` prepares each operand's 16-byte C64 sign/nonzero mask once.
+The producer accumulates nonnegative error statistics and finalizes their
+coupled conservative bound once, removing per-block inherited-error, exponent
+and outward-rounding calculations. The original native coefficient remains
+2^-19. The bound derivation and exact rational growth check cover at most128
+C64 blocks; unsupported widths and operands require original replay.
+
+Host ASan/UBSan checks701616 boundaries at nine widths16..8192, three synthetic
+producer modes,65536 BF16 encodings and65536 support masks. All88 native
+configurations pass. Every deferred bound contains the original directional
+bound, and both schedules preserve all raw centers, bounds and selections.
+Complete captured attempts also pass the original arithmetic, GB10 operator
+references, independent CPU dots, prepared masks, candidate and storage checks.
+
+| q8192 operator shape | Symmetric shared ms | Deferred64x64 ms | Deferred64x32 ms | Selected, symmetric / deferred |
+| --- | ---: | ---: | ---: | ---: |
+| OUT | 85.8982 | 91.1399 | 88.0962 | 3124922 / 2999076 |
+| QKV | 139.7932 | 177.6558 | 183.6243 | 8285915 / 8011330 |
+
+All preparation, selection and original replay are included in the three
+rotated complete samples. Each candidate sample remains slower than every
+matching shared control. Extra masks occupy10485760/8388608 bytes. Compiler
+metadata reports256/169 VGPRs and24 private bytes for the two candidates,
+with no reported VGPR/SGPR spills; this does not establish their runtime cost.
+The looser finalization retains only4.03%/3.31% candidate reduction. Keep both
+routes isolated and pursue another provider surface. Model TTFT, package and
+release status remain unchanged; these captures are repeated-row operators.
+
+[Deferred source, derivation, bounded commands and complete results](../benchmarks/correctness/deferred-loss-projection-native-components-20260918.json):
+295333 bytes, SHA256
+`7f49f94db543fa474c3912f25d4eeae48cb9981936493accd77159d6e2153108`.

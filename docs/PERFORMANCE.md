@@ -13,6 +13,15 @@ the saved replay. Keep both schedules isolated. These repeated-row operator
 shapes do not change the23353.80795 ms qualified model TTFT or release status.
 [Design, all variants and native evidence](SIGNED_LOSS_BOUND.md).
 
+The subsequent deferred-envelope source `ec96fbd` passes701616 host boundaries
+and88 native configurations, reusing prepared masks and finalizing its error
+bound once. Complete OUT improves relative to the first directional route,
+but remains88.0962 ms versus85.8982 ms for its shared control. QKV is
+177.6558/183.6243 ms versus139.7932 ms. Every candidate sample is slower than
+every shared control; all complete original/GB10 operator checks pass.
+Both schedules remain isolated. Their proof and limits are in the same
+[experiment record](SIGNED_LOSS_BOUND.md).
+
 ## Persistent deferred GDN components, 2026-09-18
 
 Isolated source `6ef29d3` gives each persistent CTA eight complete recurrent
