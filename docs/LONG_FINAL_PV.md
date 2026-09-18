@@ -85,7 +85,7 @@ replace the qualified q8192 median23353.80795 ms or establish a short-route
 speed gain.
 
 Retain the enabled deferred bound as the experimental long-context control.
-The16/32/64/128/256k prefix gates for this DLL remain open; earlier prefix
+The64/128/256k prefix gates for this DLL remain open; earlier larger-prefix
 results belong to the preceding DLL. Code and package defaults remain off.
 The10000 ms first q8192 gate and retained4187.415605 ms target are unchanged.
 No package or release is qualified.
@@ -96,6 +96,41 @@ No package or release is qualified.
 Commands are `run-long-final-pv-provider-r1.ps1`,
 `run-long-final-pv-product-r1.ps1` and
 `run-long-final-pv-q8192-product-r1.ps1` on baiying.
+
+The same DLL also passes actual16384-prefix plus1024-suffix reuse. Both the
+initial512-token retry and the timed512-token hit match every original GB10
+ID and first logit5.6875 with zero error. All512 timed callbacks, prefix-state
+restoration and rejection of a changed prefix before provider invocation pass.
+The complete cold owner's first token/logit16/25.625 matches its own oracle.
+Load is21259.5319 ms; hit TTFT/TPOT/total are
+8459.984999/158.733105/89633.2183 ms. The161768.5366 ms initial seed and
+273152.083 ms complete native wall remain attached. This is a single
+functional qualification, without a paired prefix speed claim. Retained
+prefix16k ceilings2977.539631/37.718887/22251.890998 ms remain unmet.
+
+[Complete16k prefix boundary](../benchmarks/correctness/long-final-pv-prefix16k-20260918.json):
+439877 bytes, SHA256
+`9234455b8121c10d473eee199255c1b5771fc41b7a163176b1303c7f5bd031e8`.
+Command `run-long-final-pv-prefix16k-r1.ps1` keeps the enabled cold-control
+environment and binaries, with a480-second native deadline.
+
+Actual32768-prefix plus1024-suffix reuse also passes on the same DLL. Both
+512-token continuations, first logits5.59375/error0, original prompt and512
+timed callbacks match GB10. Prefix restoration, changed-prefix rejection and
+scratch growth through32768/40960-key capacities pass. Four complete owner
+chunks produce the original first token/logit16/24.75. The separate cold32k
+owner continuation is not measured by this prefix run.
+
+Load is21343.4597 ms; hit TTFT/TPOT/total are
+13210.9695/221.946075/126689.7307 ms. Seed time383894.826701 ms and complete
+native wall532415.326 ms remain attached. Original prefix32k ceilings
+3710.594246/40.954169/24638.174622 ms remain unmet. This single functional
+run makes no paired performance claim and does not qualify64/128/256k.
+
+[Complete32k prefix boundary](../benchmarks/correctness/long-final-pv-prefix32k-20260918.json):
+452452 bytes, SHA256
+`011a852631c01737d7bcafd681c74a39e3272ef74a5e9c7a2f7dc0ec53bc7434`.
+Command `run-long-final-pv-prefix32k-r1.ps1` has a900-second native deadline.
 
 [Pinned sources, commands, failures and native results](../benchmarks/correctness/long-final-pv-native-components-20260918.json):
 157778 bytes, SHA256

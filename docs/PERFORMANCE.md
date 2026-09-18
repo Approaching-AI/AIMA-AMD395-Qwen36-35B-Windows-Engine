@@ -17,7 +17,12 @@ TTFT medians improve76932.886950 to73840.139151 ms, saving3092.747799 ms
 TPOT shows no gain. A separate q8192/out512 regression passes all512 GB10 IDs
 and confirms that both requested long options remain inactive. Its unpaired
 23251.8877 ms TTFT does not replace the23353.80795 ms qualified q8192 median.
-The new DLL's prefix/larger-context qualification is pending. Defaults,
+The new DLL also passes both512-token continuations for16384-prefix plus1024
+suffix, first logits, callbacks, state restoration and changed-prefix rejection.
+Hit TTFT is8459.984999 ms. Actual32768-prefix plus1024-suffix reuse also
+passes both512-token continuations, logits and state/stream checks, with
+13210.9695 ms hit TTFT. These are single functional runs;64/128/256k and
+retained prefix performance remain open. Defaults,
 packages and all retained performance/release gates remain unchanged.
 [Derivation, complete timing scope and evidence](LONG_FINAL_PV.md).
 
