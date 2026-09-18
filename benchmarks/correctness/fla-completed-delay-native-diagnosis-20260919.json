@@ -1,0 +1,1771 @@
+{
+  "schema_version": 1,
+  "kind": "completed_fla_delay_native_diagnosis",
+  "host": "baiying",
+  "model_reference": "D:\\models\\Qwen3.6-35B-A3B",
+  "model_loaded": false,
+  "captured_failure": {
+    "file": "benchmarks/correctness/fla-output-failure-prefix128k-capture-20260919.json",
+    "bytes": 163176,
+    "sha256": "0d6b3c3becee398b054034af4dcd2b6148d6d77e657103fd568464537efca089"
+  },
+  "standalone_source": {
+    "file": "fla-output-failure-replay-source-r1.json",
+    "sha256": "76139fc907c3561d8d723ed6bedfe40388805c7ef3cb18c24e6d8bf2f318b2a5",
+    "commit": "5ed1f233ea68fce8c25dd56cf9987d0fa215eec2",
+    "script": "run-native-fla-output-failure-replay-r1.ps1",
+    "script_sha256": "c49832de1bfd1ae68909be7184c0f32c59032f1e383b6617a100f796b99ce4b3",
+    "bundle": "fla-output-failure-replay-5ed1f23.bundle",
+    "bundle_sha256": "b3e4fde0cdc1a062a23f3a56426621789a550a67228c7e9b57e5ce1db45e22f8"
+  },
+  "standalone_build": {
+    "name": "fla-output-failure-replay-build-r1",
+    "host": "BAIYING",
+    "command_file": "D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1\\scripts\\baiying_guarded_inference.ps1",
+    "spec": {
+      "executable": "C:\\Windows\\System32\\cmd.exe",
+      "arguments": [
+        "/d",
+        "/s",
+        "/c",
+        "D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1\\build\\output-failure-replay\\build.cmd"
+      ],
+      "working_directory": "D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1",
+      "repo_commit": "5ed1f233ea68fce8c25dd56cf9987d0fa215eec2",
+      "command_file": "D:\\projects\\run-native-fla-output-failure-replay-r1.ps1",
+      "command_file_sha256": "c49832de1bfd1ae68909be7184c0f32c59032f1e383b6617a100f796b99ce4b3",
+      "source_manifest_sha256": "76139fc907c3561d8d723ed6bedfe40388805c7ef3cb18c24e6d8bf2f318b2a5",
+      "prior_run": "D:/projects/AIMA-public-long-final-pv-provider-20260918-r1/build/fla-output-failure-prefix128k-long-prefix131072-suffix1024-out512-mode1-r1/run-record.json",
+      "prior_run_sha256": "b4a5eac5726ec6040b89dd7cba8a4206c48d15581734c0089f884f6b70b9cbf3",
+      "model": "none; standalone replay of actual completed failed native tensors",
+      "model_loaded": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "completion_guard_ms": 100,
+      "mode": "build",
+      "compiler_command": "\"C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe\" -std=c++17 -O2 --offload-arch=gfx1151 -DQRT_SM121_DPP_REDUCTION=1 -DQRT_SM121_COMPACT_NORMALIZE=1 \"D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1\\native\\providers\\gdn\\output_failure_replay.cpp\" \"D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1\\native\\providers\\gdn\\blackwell_state.cpp\" \"D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1\\native\\providers\\gdn\\blackwell_wu_output.cpp\" \"D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1\\native\\providers\\gdn\\blackwell_cooperative.cpp\" -o \"D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1\\build\\output-failure-replay\\qrt-fla-output-failure-replay.exe\"",
+      "translation_units": [
+        "native/providers/gdn/output_failure_replay.cpp",
+        "native/providers/gdn/blackwell_state.cpp",
+        "native/providers/gdn/blackwell_wu_output.cpp",
+        "native/providers/gdn/blackwell_cooperative.cpp"
+      ],
+      "compiler_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+      "command_batch_sha256": "ccdafd7b9a5d996b647208512b5d08694eed763efe1913753af5c66be9bce6a1"
+    },
+    "launch": {
+      "pid": 4924,
+      "utc": "2026-09-18T17:45:20.2503377Z",
+      "timeout_seconds": 180,
+      "job_kill_on_close": true
+    },
+    "reason": "completed",
+    "exit_code": 0,
+    "wall_ms": 13823.822,
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "host_checks_pass": true,
+    "executable_sha256": "97ac98b1a92c286054cce55239cfccdfc23a5517bd07fe693072c9ca96c7dabb",
+    "canonical_raw_sha256": {
+      "build-provenance.json": "9ea7a36bdf482378c5224eddae9cf75de00d1538d81def94fcfd3aa283525502",
+      "build.cmd": "ccdafd7b9a5d996b647208512b5d08694eed763efe1913753af5c66be9bce6a1",
+      "dispatch.json": "8256d165c49159b7525f8730702f2ddb6487a22a07160613a7069febf0ff509f",
+      "launch.json": "aa901762560eac28fbc0854fbefe5c30b3cd381be4717ef582fa11c562dfd13f",
+      "preflight.json": "52eb5ef268811282b56c5f3cf0efba04c773f4a501e08de5abcaabfbf53be4e6",
+      "product.stderr.log": "859f46960f57baa80a27d57f059d6069f971cbc0e1d39ea0b2d0e6b1bb27f734",
+      "product.stdout.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qrt-fla-output-failure-replay.exe": "2ffedaf75d1863041481fa1acf1c290ee91317003a4cc6d85f1de216d35e7aa4",
+      "run-record.json": "da99ac9023312b3367500179fb2f2e2501ebdaec1d5c673b5c1eca3dab846387",
+      "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+      "transfers.json": "5cd1f37a0cb0bcbc6d244d2900ff9c28fe0d85985bc8755cbda94ad28f553d3e"
+    },
+    "build_provenance": {
+      "repo_commit": "5ed1f233ea68fce8c25dd56cf9987d0fa215eec2",
+      "dirty_tree": false,
+      "translation_units": [
+        "native/providers/gdn/output_failure_replay.cpp",
+        "native/providers/gdn/blackwell_state.cpp",
+        "native/providers/gdn/blackwell_wu_output.cpp",
+        "native/providers/gdn/blackwell_cooperative.cpp"
+      ],
+      "source_inputs": [
+        {
+          "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+          "file": "native/providers/gdn/blackwell_accumulator.h"
+        },
+        {
+          "sha256": "d6d1d60f212e2f52cb84948dd2c51a226016442dd6e21553d3de62b76a45e1a0",
+          "file": "native/providers/gdn/blackwell_cooperative.cpp"
+        },
+        {
+          "sha256": "edc0f2a46fa1fec3dc2e3673b36617e4b8b3ad8afe4e28fb152de967403e6b98",
+          "file": "native/providers/gdn/blackwell_cooperative.h"
+        },
+        {
+          "sha256": "daa28f39654a7fb102c5cf8f44fa9ad1bde8df47fc6662eb398cb0136fb72c7e",
+          "file": "native/providers/gdn/blackwell_inverse.cpp"
+        },
+        {
+          "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+          "file": "native/providers/gdn/blackwell_inverse.h"
+        },
+        {
+          "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+          "file": "native/providers/gdn/blackwell_inverse_math.h"
+        },
+        {
+          "sha256": "72a1af6ddcfa51334859081dbc3372f9bcb31362599c3e77e3b0ecb73d1bbf7d",
+          "file": "native/providers/gdn/blackwell_kkt.h"
+        },
+        {
+          "sha256": "bb6d61d0584c377c06e2aacc682a6fe4d752887986671f54645a3b9e616c8b07",
+          "file": "native/providers/gdn/blackwell_l2norm.cpp"
+        },
+        {
+          "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+          "file": "native/providers/gdn/blackwell_l2norm.h"
+        },
+        {
+          "sha256": "fd252e85a357d15d7319be06e6172eee69b0ab10369ae2702219e1a07ee7acce",
+          "file": "native/providers/gdn/blackwell_lifetime_matrices.h"
+        },
+        {
+          "sha256": "b5afca4c6505188b010dea011493b839499aa3dc1972109b2e29d9111d521aaf",
+          "file": "native/providers/gdn/blackwell_scalar_matrices.h"
+        },
+        {
+          "sha256": "5343f29f341763574afa65f1352112a3d2cf6b688592f3bef34ff3464e4a7ae8",
+          "file": "native/providers/gdn/blackwell_scalar_state.h"
+        },
+        {
+          "sha256": "5990b1fdacb25840be7e38451a60b3f71f000067d2f0b5d051df71666a0b0564",
+          "file": "native/providers/gdn/blackwell_state.cpp"
+        },
+        {
+          "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+          "file": "native/providers/gdn/blackwell_state.h"
+        },
+        {
+          "sha256": "cdc11bd66b3b821ad9a389ac024c983c3dfef22863c0b2b44b55f6536f2d3503",
+          "file": "native/providers/gdn/blackwell_wu_output.cpp"
+        },
+        {
+          "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+          "file": "native/providers/gdn/blackwell_wu_output.h"
+        },
+        {
+          "sha256": "34b5d01655bce0a92c4979bcaa3749b0a45f9f7998fc3361ff1215d7329880a5",
+          "file": "native/providers/gdn/coarse_interval.h"
+        },
+        {
+          "sha256": "8e574b308afbf2193e09d910fa27ba10d0014ad9ca2a25a571fbd23f7980f542",
+          "file": "native/providers/gdn/coarse_interval_policy.h"
+        },
+        {
+          "sha256": "c54390e8cc023aa21cfcd64e26f7771fbf84557f5668e9a54a8ee97bab6ffb5c",
+          "file": "native/providers/gdn/completion_guard.h"
+        },
+        {
+          "sha256": "f21ecbf1836b9a1c5b72e2408d303c89fe46d229d888271f70ec5a47170cacfa",
+          "file": "native/providers/gdn/consumer_interval.h"
+        },
+        {
+          "sha256": "db409421ee2f3d31238e07347d260c44307b7bdda11487d566eb1f971b011747",
+          "file": "native/providers/gdn/conv_consumer_audit.h"
+        },
+        {
+          "sha256": "83074ab596ffa85f889d83ce10235b2ac5824e2755271bb86a3954b0b0f0a6b8",
+          "file": "native/providers/gdn/conv_consumer_interval.h"
+        },
+        {
+          "sha256": "0d1ca14e522ca6f5ef11e3c7fa8900e327ca5130ad113d28909012698101acd1",
+          "file": "native/providers/gdn/deferred_state_interval.h"
+        },
+        {
+          "sha256": "ea9cbfa832e4ec9643efcc0dd975c3e6151b5d77ea8052d5cf243fa9ad9b51ae",
+          "file": "native/providers/gdn/deferred_state_matrices.h"
+        },
+        {
+          "sha256": "6f6e45ca4c950c4e3489779cfe078b637a0dbdcc10f3a0c03c68230fbf88852c",
+          "file": "native/providers/gdn/exponent_mask_matrices.h"
+        },
+        {
+          "sha256": "0ac58e53f17926f21ebb4bd34c5eeab479fd4f57edd717ef6987bd51dfe40417",
+          "file": "native/providers/gdn/f32_carry_matrices.h"
+        },
+        {
+          "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667",
+          "file": "native/providers/gdn/first_call_capture.h"
+        },
+        {
+          "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+          "file": "native/providers/gdn/fla_checkpoint.h"
+        },
+        {
+          "sha256": "98afbd9c4caed9f836dc868dd0262d75d299663cc8c65c401dcc8734c0f4ca5f",
+          "file": "native/providers/gdn/fla_output_capture_replay.cpp"
+        },
+        {
+          "sha256": "3ee6cbff4c75c75b69396ab94248c80e85913f1d508ce4cebca3c6fe77c000a9",
+          "file": "native/providers/gdn/fla_seeded_capture_replay.cpp"
+        },
+        {
+          "sha256": "8bff519f586c9abb3b9cca06cc471586a10982605f7ecc5e220a18a2ae0b64b8",
+          "file": "native/providers/gdn/fla_upstream_capture_replay.cpp"
+        },
+        {
+          "sha256": "17230acfe1b4f7da52dd942faeda1dc38f52ac89c482b263c341d2308b069094",
+          "file": "native/providers/gdn/fused_state_output.h"
+        },
+        {
+          "sha256": "8fbdf69258599e8b84ee91e25cd3cdf2833f13aac1297cfbbef0ed2805f27a2a",
+          "file": "native/providers/gdn/fused_state_output_policy.h"
+        },
+        {
+          "sha256": "926729def66c5c32cc95c4fc2ebf7dc0f5b5de7d83f368a863343f4e97bdfe2c",
+          "file": "native/providers/gdn/gb10_gate_lookup.h"
+        },
+        {
+          "sha256": "d161bec1015455bcffd9fd03ff24dcaf368980072993b65a01bbdc42917d8560",
+          "file": "native/providers/gdn/group_window_matrices.h"
+        },
+        {
+          "sha256": "a0d921e13a65674133bca20e1a55318767c982a451a0e2570188bbce07f0e72e",
+          "file": "native/providers/gdn/interval_matrices.h"
+        },
+        {
+          "sha256": "b7a7ce7cca54018b9ea0fd15b384abb39adaa51f2e684e016fcc5e5af99773dd",
+          "file": "native/providers/gdn/linear_input_contract.h"
+        },
+        {
+          "sha256": "9674992fe5461fbbcb649a72485f08d75822d987daf22f88242390096ee5a786",
+          "file": "native/providers/gdn/linear_input_preparation.h"
+        },
+        {
+          "sha256": "547593a490b6f63643234f61c48d2ee2ea75ebaee465e287767f634739f20716",
+          "file": "native/providers/gdn/narrow_domain_matrices.h"
+        },
+        {
+          "sha256": "d6e5eb8b9792f6e24513bf89edab4bc4c1ddd8fc55458953ff16c78c725c6a3f",
+          "file": "native/providers/gdn/output_failure_capture.h"
+        },
+        {
+          "sha256": "1186d044fd3e4e6fcaab8282ec3018f8030cc78175d6c393af4c6f947a0a73d9",
+          "file": "native/providers/gdn/output_failure_replay.cpp"
+        },
+        {
+          "sha256": "8f4ad8dde236962d94d2de7a82415a3dd28046c2f9e3542e2d452c918817224b",
+          "file": "native/providers/gdn/paired_score_matrices.h"
+        },
+        {
+          "sha256": "11dac7c5e12bbb33fb3a8b4799e8f3bf572df7e28e88dd4bcc7477b4967e1e60",
+          "file": "native/providers/gdn/paired_score_policy.h"
+        },
+        {
+          "sha256": "e422ca5ccb8d9e438a1e814a7f175b6f7dd893d4aa93205f66908c6ad079e61f",
+          "file": "native/providers/gdn/persistent_deferred_state.h"
+        },
+        {
+          "sha256": "c60e960fb6567f767a4ad731abb6d5f383c3af00c88ea0b03e6c4e808af947e2",
+          "file": "native/providers/gdn/pipelined_segment_owner.h"
+        },
+        {
+          "sha256": "b5551604f7269f0104d94763323ae69dbf3012f293336d0e79420c1637331822",
+          "file": "native/providers/gdn/pipelined_segment_policy.h"
+        },
+        {
+          "sha256": "6190a91d61cbd612986c9308179190c856058e4fee6090a77c1fec66001eb65b",
+          "file": "native/providers/gdn/postnorm_capture_replay.cpp"
+        },
+        {
+          "sha256": "2b5c7ba4301797d6853ffc717b5aef35396c54a86f0cb2a12217e6fcf5bf5c04",
+          "file": "native/providers/gdn/prepared_gate_matrices.h"
+        },
+        {
+          "sha256": "c58b3824deb8b8fb747a233040620de1c24b019b95e8975dd5977670caa4f11b",
+          "file": "native/providers/gdn/prepared_half_matrices.h"
+        },
+        {
+          "sha256": "66f7cdd5144c9f2a1f679cdaf1da34effc97fce4d8151ef17cf4582ec613b58c",
+          "file": "native/providers/gdn/q130560_chunked1024_aiter_fused_gdn_smoke.cpp"
+        },
+        {
+          "sha256": "eb96b6decc3a88fc51f4b59204982fbc77e7855b33c27475d306261fe88e8e9d",
+          "file": "native/providers/gdn/q16384_suffix1024_complete_linear_transformer_layer_smoke.cpp"
+        },
+        {
+          "sha256": "e4970c1aec647a63513f7b13c47a904f5f2eaca445772766a600b33dd4c17f89",
+          "file": "native/providers/gdn/q16384_suffix1024_connected_linear_core_smoke.cpp"
+        },
+        {
+          "sha256": "7e75bcee131157079e3fd01f5c4ae49ca52939a2d4de9c11452fe7a14ebd918e",
+          "file": "native/providers/gdn/q16384_suffix1024_full_linear_attention_sublayer_smoke.cpp"
+        },
+        {
+          "sha256": "389db73179fa7ff1eb1df0315f102dee7d290b46813a187cd0c2ac1c138bba42",
+          "file": "native/providers/gdn/q16384_suffix1024_qkv_convolution_halo_smoke.cpp"
+        },
+        {
+          "sha256": "b8120718d34603281eb8c2f50f213d11cc9bf965e77804bdb50b4780b2983d4d",
+          "file": "native/providers/gdn/q16384_suffix1024_seeded_aiter_fused_gdn_smoke.cpp"
+        },
+        {
+          "sha256": "19508dc07210fa8c1b30baee7487d813ea679f05d73cf89c1bfc7f6d5d4ef3a7",
+          "file": "native/providers/gdn/q64_fla_chunk_gdn_smoke.cpp"
+        },
+        {
+          "sha256": "e0090ffa7cc52ec0621a89e0328eed9ce3c6ad894618d3b4e22d646ebc9d3246",
+          "file": "native/providers/gdn/q65536_chunked_seeded_bf16_aiter_fused_gdn_smoke.cpp"
+        },
+        {
+          "sha256": "14daf4e64a97ea101fa04dd3ba103738f984db9c8bba48201cfd8f097a59e5df",
+          "file": "native/providers/gdn/q65536_fla_chunk_gdn_stream_smoke.cpp"
+        },
+        {
+          "sha256": "f332ae0f86d9aa301b2dc8cf5ec1db7146cb61eed0bd610908e702387809a112",
+          "file": "native/providers/gdn/q8192_aiter_fused_gdn_smoke.cpp"
+        },
+        {
+          "sha256": "91db35d1bd2fa0dfa4d4dfd0f3bbdf8bfdcd73acbd0189f49b444d2d383e715f",
+          "file": "native/providers/gdn/qrt_aiter_fused_gdn_q8192_provider.cpp"
+        },
+        {
+          "sha256": "42f62c868d15f92dcb4b4c4752cd5c193b6e60b59f5780325a386c267186875d",
+          "file": "native/providers/gdn/qrt_fla_chunk_gdn_q8192_provider.cpp"
+        },
+        {
+          "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+          "file": "native/providers/gdn/sm121_attention_rcp.h"
+        },
+        {
+          "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+          "file": "native/providers/gdn/sm121_exp2_interpolated.h"
+        },
+        {
+          "sha256": "18514c6dc67c0f55be29a33e524abe56d3a11735b3c1279e20a488c059725c33",
+          "file": "native/providers/gdn/sm121_exp2_native_delta.h"
+        },
+        {
+          "sha256": "693ddcd5b0fb618772a03b789a5217177f9306926140cfcbf0c4001cfca54a88",
+          "file": "native/providers/gdn/sm121_exp2_reduced_delta.h"
+        },
+        {
+          "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+          "file": "native/providers/gdn/sm121_exp2_table.h"
+        },
+        {
+          "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+          "file": "native/providers/gdn/sm121_q1_attention.h"
+        },
+        {
+          "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+          "file": "native/providers/gdn/sm121_q1_full.h"
+        },
+        {
+          "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+          "file": "native/providers/gdn/sm121_q1_gdn.h"
+        },
+        {
+          "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+          "file": "native/providers/gdn/sm121_q1_math.h"
+        },
+        {
+          "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+          "file": "native/providers/gdn/sm121_rsqrt_table.h"
+        },
+        {
+          "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+          "file": "native/providers/gdn/sm121_silu_table.h"
+        },
+        {
+          "sha256": "986a5d8afd96442b871a1d44dd2276f4823d47bb7620c3d5151cf4d21636cb6d",
+          "file": "native/providers/gdn/sparse_group_matrices.h"
+        },
+        {
+          "sha256": "0065e9e0ce4209bf08774408cc786a1728dc874465c89fed036eb3bfeb8c8dcd",
+          "file": "native/providers/gdn/tiled_scalar_matrices.h"
+        },
+        {
+          "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+          "file": "native/providers/moe_accumulator/bf16_absolute_product_matrix.h"
+        },
+        {
+          "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+          "file": "native/providers/moe_accumulator/bf16_absolute_product_views.h"
+        },
+        {
+          "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+          "file": "native/providers/moe_accumulator/bf16_midpoint_selector.h"
+        },
+        {
+          "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+          "file": "native/providers/moe_accumulator/bf16_positive_sum_bound.h"
+        },
+        {
+          "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+          "file": "native/providers/moe_accumulator/bf16_scaled_l2.h"
+        },
+        {
+          "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+          "file": "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
+        },
+        {
+          "sha256": "2cd3d638336965602bc59586a1490b246770306bc8e1316267d15ec225cbbcf8",
+          "file": "native/providers/moe_accumulator/replay_weight_bucket_plan.h"
+        },
+        {
+          "sha256": "882f38d9cb0a9374cc6206367ff0bff360658bf026ee4b06b6ebae73ce2d0baf",
+          "file": "native/providers/moe_accumulator/replay_weight_buckets.h"
+        },
+        {
+          "sha256": "52bce35321f773c81ddd1d2ea58e88c0210601061226e3fa88809d662d88a998",
+          "file": "native/providers/moe_accumulator/sm121_biased_karatsuba_core.h"
+        },
+        {
+          "sha256": "81f62f2f1613e71b9386b2cb859b65d0dd04850998924c2c83f2c91d8be5815f",
+          "file": "native/providers/moe_accumulator/sm121_blocked_half_layout.h"
+        },
+        {
+          "sha256": "0498bd411424913d8cb92af956c68519496a72c0d5ae301c2697b9a320a2317d",
+          "file": "native/providers/moe_accumulator/sm121_blocked_half_projection.h"
+        },
+        {
+          "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+          "file": "native/providers/moe_accumulator/sm121_bounded_projection.h"
+        },
+        {
+          "sha256": "f1781daea21a1d7e023a60f1f68f5deecf6d4040b329ce3f672a752111032489",
+          "file": "native/providers/moe_accumulator/sm121_byte_exponents.h"
+        },
+        {
+          "sha256": "f237ffc22f90a65fa3b398d7bcbcf7eed64407551c34610ce55e7d6f4439b3eb",
+          "file": "native/providers/moe_accumulator/sm121_byte_residue32_core.h"
+        },
+        {
+          "sha256": "6240e3ac060f408ae080fb6184b7269c379cd5586631898ff22c66018c4f88cb",
+          "file": "native/providers/moe_accumulator/sm121_byte_residue4_core.h"
+        },
+        {
+          "sha256": "75d4f8fa8df275d2564c0577a33e53fe7a4e7728a48d398c33170b36b43400bf",
+          "file": "native/providers/moe_accumulator/sm121_byte_residue_core.h"
+        },
+        {
+          "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+          "file": "native/providers/moe_accumulator/sm121_canonical_normalize.h"
+        },
+        {
+          "sha256": "29fdf460bb2c45193c11276de8f75c5e5139fb61b99825b13f491173bca2f641",
+          "file": "native/providers/moe_accumulator/sm121_carry_transfer.h"
+        },
+        {
+          "sha256": "6e659617209b38e91b07ae617c642c578f7a72e20c44130c9b979b9910736aaa",
+          "file": "native/providers/moe_accumulator/sm121_centered_karatsuba_core.h"
+        },
+        {
+          "sha256": "d782f0505eed9fcac73c0acbd84f23319b2c8579ff17a79be2701282dc4ba36e",
+          "file": "native/providers/moe_accumulator/sm121_certified_f32_group.h"
+        },
+        {
+          "sha256": "e77691d9a5c41cf96005baf004cbfcb9214067e35af7b4373375f655f3a3111c",
+          "file": "native/providers/moe_accumulator/sm121_classified_half_projection.h"
+        },
+        {
+          "sha256": "4dddf8106a4ab91ba4beaca6a2e3ce9046902b2c646f8b8bb4201efedc7001d8",
+          "file": "native/providers/moe_accumulator/sm121_coarse_projection_bound.h"
+        },
+        {
+          "sha256": "314582249a1b628d894308872db7dfafb2dd1607dfaefdf816187eff73d179da",
+          "file": "native/providers/moe_accumulator/sm121_coarse_projection_matrix.h"
+        },
+        {
+          "sha256": "a4c2ec8b40e24e778b2e87cab40e57ab7a270f35c9b8051781ebbd3059a60ed8",
+          "file": "native/providers/moe_accumulator/sm121_compact_byte_core.h"
+        },
+        {
+          "sha256": "dd88abde3847cc63159fd1884bbaa4e242266ed5cdd6dd6085b44d16fbbdc47e",
+          "file": "native/providers/moe_accumulator/sm121_compact_integer_dot4.h"
+        },
+        {
+          "sha256": "282151268703522059965ec017e02ed3c4c5705b26eaf3740273efda098c955d",
+          "file": "native/providers/moe_accumulator/sm121_compact_matrix_group.h"
+        },
+        {
+          "sha256": "64d864d35eaa731a6b5a863946ab437b2e59ed2a6ea844775530e5e1ee2238ce",
+          "file": "native/providers/moe_accumulator/sm121_compact_wide_integer_core.h"
+        },
+        {
+          "sha256": "6ae5eca7bef74662339d281a4230cc5046de810f702b633403b87f454f8c2fce",
+          "file": "native/providers/moe_accumulator/sm121_cooperative_half_projection.h"
+        },
+        {
+          "sha256": "1eef579ab2be4c3a9d03f1e7377e42720a710bf0da7a005fb2a034565a736820",
+          "file": "native/providers/moe_accumulator/sm121_cooperative_norm_metadata.h"
+        },
+        {
+          "sha256": "18a45385daa5405c198c8b2a46ac204cbdb97d5b6688c6aaf9be8f486d5f5bb8",
+          "file": "native/providers/moe_accumulator/sm121_crt_integer_core.h"
+        },
+        {
+          "sha256": "861b7984ca4cb87c4f3d71c1e17b8e310aedaf32fe06257bca433ee03097b605",
+          "file": "native/providers/moe_accumulator/sm121_decoded_bf16.h"
+        },
+        {
+          "sha256": "e8a40456e17f92bc440b9df8159e031db44a7027c40de3a05e67f1158daa15c2",
+          "file": "native/providers/moe_accumulator/sm121_decoded_projection.h"
+        },
+        {
+          "sha256": "eeb720a31d1518a3977e85413727df99f32afb034a91e46a314dd485bd1abbe4",
+          "file": "native/providers/moe_accumulator/sm121_deferred_loss_bound.h"
+        },
+        {
+          "sha256": "d24bb2f609bc5b335bffe9fff3fdf5e4ee6b25640ba95eb345ac46c8d7a01db7",
+          "file": "native/providers/moe_accumulator/sm121_deferred_loss_projection.h"
+        },
+        {
+          "sha256": "dc608a780d0d201f2ecc7a56a5aff1e7710e41bb575ca4384c07f2f7694b59ab",
+          "file": "native/providers/moe_accumulator/sm121_domain_coarse_bound.h"
+        },
+        {
+          "sha256": "f579129483ba1fe4af8918a0c966fe1d5fb15416adde0df0c766ea293d35eb80",
+          "file": "native/providers/moe_accumulator/sm121_dominant_half_products.h"
+        },
+        {
+          "sha256": "e8350f9e732798712cd8ff16445e9c72a027f7f0d870ed636a967b84e264e45f",
+          "file": "native/providers/moe_accumulator/sm121_dominant_half_projection.h"
+        },
+        {
+          "sha256": "2b03ef2ffb6327fac2904e8f7d8a1d9ee64a1b3419c4eb0b49e110f6fb81fe6c",
+          "file": "native/providers/moe_accumulator/sm121_dominant_integer_core.h"
+        },
+        {
+          "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+          "file": "native/providers/moe_accumulator/sm121_dot_certificate.h"
+        },
+        {
+          "sha256": "38ea79b4cfd01bb5faec9c7d2b099ad139d4ce8f9c4e0929813939f31e152523",
+          "file": "native/providers/moe_accumulator/sm121_dual_lane_projection.h"
+        },
+        {
+          "sha256": "44e4a2197f8d1a0d7e781738421edf04513c81dcec8bc4e8a7032d426d16d8f0",
+          "file": "native/providers/moe_accumulator/sm121_dyadic_carry_scan.h"
+        },
+        {
+          "sha256": "44a0fd9914fb64f34cdf76d646d4ed03fc2cf78e1333edb0744d5f8c8a876113",
+          "file": "native/providers/moe_accumulator/sm121_embedded_half_operands.h"
+        },
+        {
+          "sha256": "0fc194d6444195074430076140a478b1404aa4b5337befc82ab31ac1fd460ad5",
+          "file": "native/providers/moe_accumulator/sm121_embedded_half_projection.h"
+        },
+        {
+          "sha256": "ccf55e266d504992e7061b0c1372c0a1f8a5cc1a2459ae2b52c45c7fc3dd28ea",
+          "file": "native/providers/moe_accumulator/sm121_exponent_loss_bound.h"
+        },
+        {
+          "sha256": "bb62412721e3f7597654a6b66a5bae78a7bd3fbf9c90799dcf0da9ec8faae29e",
+          "file": "native/providers/moe_accumulator/sm121_exponent_loss_matrix.h"
+        },
+        {
+          "sha256": "879c21210883a74a27ccc00ffc5401f6d771f9a9436d6b5f7651699714c55f28",
+          "file": "native/providers/moe_accumulator/sm121_exponent_mask.h"
+        },
+        {
+          "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+          "file": "native/providers/moe_accumulator/sm121_f32_carry.h"
+        },
+        {
+          "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+          "file": "native/providers/moe_accumulator/sm121_f32_carry_projection.h"
+        },
+        {
+          "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+          "file": "native/providers/moe_accumulator/sm121_float_alignment.h"
+        },
+        {
+          "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+          "file": "native/providers/moe_accumulator/sm121_float_row_bounds.h"
+        },
+        {
+          "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+          "file": "native/providers/moe_accumulator/sm121_float_subgroup.h"
+        },
+        {
+          "sha256": "c5c23b9ae7bbd823d81a6a133b6094c23b2b50aaeb2aa21192c00b69651b0fc5",
+          "file": "native/providers/moe_accumulator/sm121_folded_half_products.h"
+        },
+        {
+          "sha256": "8a9de13b2c1714208df879082569c9a27476e7bb01d0d9dbd5932b00110522fd",
+          "file": "native/providers/moe_accumulator/sm121_folded_half_projection.h"
+        },
+        {
+          "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+          "file": "native/providers/moe_accumulator/sm121_group16_modulo.h"
+        },
+        {
+          "sha256": "91164c66cba4a4533352ff6699ec18721785ba4e7e907bacf8ff6ff54005e93b",
+          "file": "native/providers/moe_accumulator/sm121_group_window.h"
+        },
+        {
+          "sha256": "1f8a61dfd5fc27828c247954f9c8c723ccfa0ca14a39434d59b72e10cd7a7376",
+          "file": "native/providers/moe_accumulator/sm121_half_f32_carry.h"
+        },
+        {
+          "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+          "file": "native/providers/moe_accumulator/sm121_integer_core.h"
+        },
+        {
+          "sha256": "82afce3aa589ad01d054771f3db61311d885dd4ec7ad3f59b318bbd5c0d5bb87",
+          "file": "native/providers/moe_accumulator/sm121_integer_interval.h"
+        },
+        {
+          "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+          "file": "native/providers/moe_accumulator/sm121_integer_parts.h"
+        },
+        {
+          "sha256": "ffea4b806ad6abc41576ba8e8919bc589b55fb3ca4f81c3cd92035836ccc40df",
+          "file": "native/providers/moe_accumulator/sm121_interleaved_projection.h"
+        },
+        {
+          "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+          "file": "native/providers/moe_accumulator/sm121_karatsuba_core.h"
+        },
+        {
+          "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+          "file": "native/providers/moe_accumulator/sm121_lane_reduce.h"
+        },
+        {
+          "sha256": "698ccfbd9246f9a58337f5490405496f5c0371940256d1ebea87f70f4da6408a",
+          "file": "native/providers/moe_accumulator/sm121_macro_norm_bound.h"
+        },
+        {
+          "sha256": "a51bce0304d2d2e0a75b112d0c8987d16db29962b84fba5730b7a1c33d649c7a",
+          "file": "native/providers/moe_accumulator/sm121_macro_norm_projection.h"
+        },
+        {
+          "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+          "file": "native/providers/moe_accumulator/sm121_mantissa_parts.h"
+        },
+        {
+          "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+          "file": "native/providers/moe_accumulator/sm121_mantissa_row_certificate.h"
+        },
+        {
+          "sha256": "6a2f53c1bb42774152dbce1442c45228269ea392a3b17b61282815575c6bc748",
+          "file": "native/providers/moe_accumulator/sm121_matrix_float_fallback.h"
+        },
+        {
+          "sha256": "b0b77f9cbda76ea63fe4f2d0c49b0169a89ef04a65aec9c16f0521bc21998585",
+          "file": "native/providers/moe_accumulator/sm121_matrix_maximum.h"
+        },
+        {
+          "sha256": "2a1227c758f6d54e5e08b6ccfade82184535c5fb474e9763056e3f54fe61c8ee",
+          "file": "native/providers/moe_accumulator/sm121_matrix_predicted_group.h"
+        },
+        {
+          "sha256": "e61d49407aa210ce81c9209a23c999d763d965579480cc1e041268e333892c76",
+          "file": "native/providers/moe_accumulator/sm121_matrix_projection.h"
+        },
+        {
+          "sha256": "09c5a1d7fd43aa1be48cc4ed0d11d6e3d22849ecdc975c129724125b10925af3",
+          "file": "native/providers/moe_accumulator/sm121_modular_integer_core.h"
+        },
+        {
+          "sha256": "85ab733dd564a8dbc5948f5700fcb6c66fbbc5239d0f55e405dbe7e4e210eca9",
+          "file": "native/providers/moe_accumulator/sm121_narrow_f32_carry.h"
+        },
+        {
+          "sha256": "8ad9d31befefc573a9132326e694b0d1f658ed2fdc7812a9a6526a083028eba2",
+          "file": "native/providers/moe_accumulator/sm121_narrow_half_carry.h"
+        },
+        {
+          "sha256": "2bbec193c355b30b14b6e8233b1cab3421fc21a6c6553fde9574006c52ec99cd",
+          "file": "native/providers/moe_accumulator/sm121_narrow_half_projection.h"
+        },
+        {
+          "sha256": "75960198aa7c008549b50b204eb150213439bc1da9b470fbe8dfeec966474d9f",
+          "file": "native/providers/moe_accumulator/sm121_narrow_qk_plan.h"
+        },
+        {
+          "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+          "file": "native/providers/moe_accumulator/sm121_native_product.h"
+        },
+        {
+          "sha256": "d1f07bd751c578d20c1c1734da7b7223787607c74be8ec2db92585d89d1b5901",
+          "file": "native/providers/moe_accumulator/sm121_native_rz_carry.h"
+        },
+        {
+          "sha256": "29a33f43aecce0418546376dafba9694ca68a855bcea37a9080c58f58448f55d",
+          "file": "native/providers/moe_accumulator/sm121_observed_prefix_bound.h"
+        },
+        {
+          "sha256": "a1d65812dba51ef9c30da605a9745300f29a3caa35b7785b4533ba715cc55692",
+          "file": "native/providers/moe_accumulator/sm121_observed_prefix_projection.h"
+        },
+        {
+          "sha256": "4cbf70b4b423073560fdb8eec0333a15d463a74b1f09c79e123a6a6fc553d2e5",
+          "file": "native/providers/moe_accumulator/sm121_packed_core_remainder.h"
+        },
+        {
+          "sha256": "1a40f8a3e3cc176ee3f4d080f8a107d8b5ebf01b7f52bfcd413374e47770942d",
+          "file": "native/providers/moe_accumulator/sm121_packed_dot_tile.h"
+        },
+        {
+          "sha256": "51ec33eae60c2ed3ab88930fec7fbb77d8c415007151073e0e0c33590aa0c419",
+          "file": "native/providers/moe_accumulator/sm121_packed_exponent_masks.h"
+        },
+        {
+          "sha256": "635e94351893d47a5db10e5e5e42b8cba983a67b443de556ec9cae5dd5d9dd26",
+          "file": "native/providers/moe_accumulator/sm121_packed_exponents.h"
+        },
+        {
+          "sha256": "e8e0260ee7bb28f4cb037d3d95f6942842a26378678815ca2de7c20eef3d4889",
+          "file": "native/providers/moe_accumulator/sm121_packed_f32_dot.h"
+        },
+        {
+          "sha256": "9cf0a93658c695647a3cb5cee5da6805d03e34ebbe46d8f692fc7a8dc3bb200c",
+          "file": "native/providers/moe_accumulator/sm121_packed_float_tiles.h"
+        },
+        {
+          "sha256": "a8d45f8f118d20cdf16d557a603411066501991974f0926890882698deac5d9f",
+          "file": "native/providers/moe_accumulator/sm121_pair_projection.h"
+        },
+        {
+          "sha256": "1b7ab288791d187a580dce611d00b1f5882c625103fb3f321a2b28a1b1cd8c74",
+          "file": "native/providers/moe_accumulator/sm121_pair_projection_products.h"
+        },
+        {
+          "sha256": "c74a5efecd22a0531928a45a5009706df11db1721654d1583468501b07d0e93b",
+          "file": "native/providers/moe_accumulator/sm121_pair_residue.h"
+        },
+        {
+          "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+          "file": "native/providers/moe_accumulator/sm121_paired_products.h"
+        },
+        {
+          "sha256": "194f1cdbfcbecdcce94d5c21bd88276fabb8eb1a585d63aa40448ced698830f4",
+          "file": "native/providers/moe_accumulator/sm121_parallel_transfer_projection.h"
+        },
+        {
+          "sha256": "83ba8f36cc940b579ed948c8c1c6c54a6e39d792c2c372d05558a8520c9f53b3",
+          "file": "native/providers/moe_accumulator/sm121_partitioned_half_projection.h"
+        },
+        {
+          "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+          "file": "native/providers/moe_accumulator/sm121_positive_karatsuba.h"
+        },
+        {
+          "sha256": "af673bcbbde5584a980a8ea52faaa439fb8ccfd3751ef8736e4cdd9f8a330778",
+          "file": "native/providers/moe_accumulator/sm121_predicted_group.h"
+        },
+        {
+          "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+          "file": "native/providers/moe_accumulator/sm121_prefill_projection.h"
+        },
+        {
+          "sha256": "6c98d804a50d68185e61990828fdfd5ea8b7388a292afbc531f0782a4dddb4ae",
+          "file": "native/providers/moe_accumulator/sm121_prefix_replay_bound.h"
+        },
+        {
+          "sha256": "1e525048d2a572123f558874073866012e29eeddbd20b8f8c9f934b01df911c9",
+          "file": "native/providers/moe_accumulator/sm121_prefix_replay_projection.h"
+        },
+        {
+          "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+          "file": "native/providers/moe_accumulator/sm121_prepared_bf16.h"
+        },
+        {
+          "sha256": "fc611756401aee8f4fcef546747a7510c1b60fa6a930b6aced3d3c1e02effe6c",
+          "file": "native/providers/moe_accumulator/sm121_prepared_integer_pairs.h"
+        },
+        {
+          "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+          "file": "native/providers/moe_accumulator/sm121_prepared_projection.h"
+        },
+        {
+          "sha256": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+          "file": "native/providers/moe_accumulator/sm121_projection_interval.h"
+        },
+        {
+          "sha256": "cdbdef7c798efb6999198c9c99f04c19ad09258536c08eb576c8f98d9d786927",
+          "file": "native/providers/moe_accumulator/sm121_projection_interval_filter.h"
+        },
+        {
+          "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+          "file": "native/providers/moe_accumulator/sm121_pv_error_bound.h"
+        },
+        {
+          "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+          "file": "native/providers/moe_accumulator/sm121_pv_final_bound.h"
+        },
+        {
+          "sha256": "07f4f02a919d9c515abb2606437ec20185c16422360eff456e3d3b5fb375e291",
+          "file": "native/providers/moe_accumulator/sm121_pv_group_plan.h"
+        },
+        {
+          "sha256": "e0391a1a4476e2a436a179620fd180b4400c108e06a840f23aa504a5e79270b6",
+          "file": "native/providers/moe_accumulator/sm121_pv_long_final_bound.h"
+        },
+        {
+          "sha256": "43db7ba4ca44d9c1057be1075e4860d884e87f99d4cc5d857b5d8e8bd1945c70",
+          "file": "native/providers/moe_accumulator/sm121_pv_prefix_bound.h"
+        },
+        {
+          "sha256": "5ba85b0a74be1fe40c3c6d1378271fadde79436a1e95904e2dc9f2038079b08a",
+          "file": "native/providers/moe_accumulator/sm121_pv_transfer_bound.h"
+        },
+        {
+          "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+          "file": "native/providers/moe_accumulator/sm121_q1_moe.h"
+        },
+        {
+          "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+          "file": "native/providers/moe_accumulator/sm121_range_normalize.h"
+        },
+        {
+          "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+          "file": "native/providers/moe_accumulator/sm121_range_projection.h"
+        },
+        {
+          "sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+          "file": "native/providers/moe_accumulator/sm121_replay_partition.h"
+        },
+        {
+          "sha256": "29931e9f9462a27e375224159c2948eb6ffc128fa407cf6eaf7bba3bfba00662",
+          "file": "native/providers/moe_accumulator/sm121_resident_input_projection.h"
+        },
+        {
+          "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+          "file": "native/providers/moe_accumulator/sm121_router_exp.h"
+        },
+        {
+          "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+          "file": "native/providers/moe_accumulator/sm121_row_max_projection.h"
+        },
+        {
+          "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+          "file": "native/providers/moe_accumulator/sm121_row_maximum.h"
+        },
+        {
+          "sha256": "971268433b7a7bd9e5b0ca3116af333376fef4cc333f7e0d01f9d52348a54f4f",
+          "file": "native/providers/moe_accumulator/sm121_rz_tree_spec.h"
+        },
+        {
+          "sha256": "adf2dd5d24e98632ef0239d3ea40170c683e1d06b5902b5f08e0e578ae010d66",
+          "file": "native/providers/moe_accumulator/sm121_scalar_integer_core.h"
+        },
+        {
+          "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+          "file": "native/providers/moe_accumulator/sm121_scalar_projection.h"
+        },
+        {
+          "sha256": "4374eb6599d630475e23bf49a45484441a541d827325a8eef3b737da941e1f69",
+          "file": "native/providers/moe_accumulator/sm121_scaled_fallback.h"
+        },
+        {
+          "sha256": "5433e85786b3a9b17fb1e55376a9c05b32725c34c8e8016c32204178b1566202",
+          "file": "native/providers/moe_accumulator/sm121_scaled_half_products.h"
+        },
+        {
+          "sha256": "6d0b6f1a250b79acd364bf5c490abd04d1686e1ff684ed2d26b7bb451ae6df12",
+          "file": "native/providers/moe_accumulator/sm121_scaled_half_projection.h"
+        },
+        {
+          "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+          "file": "native/providers/moe_accumulator/sm121_scaled_projection.h"
+        },
+        {
+          "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+          "file": "native/providers/moe_accumulator/sm121_scaled_significand.h"
+        },
+        {
+          "sha256": "ec935aff716f3fd239e49c3d2b8ddd642b09a042767d8a33cdc97bdfedd219a8",
+          "file": "native/providers/moe_accumulator/sm121_shared_coarse_projection.h"
+        },
+        {
+          "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+          "file": "native/providers/moe_accumulator/sm121_shared_gate.h"
+        },
+        {
+          "sha256": "f7cacdd802e6ea3b5a212fd81b33c8e2e1ec10f1dac29afeb01d0b770738ec22",
+          "file": "native/providers/moe_accumulator/sm121_signed_loss_bound.h"
+        },
+        {
+          "sha256": "b2e6f877fe002b84f47919a07aac3622e2cabd735a121011f436c4bb45d20e57",
+          "file": "native/providers/moe_accumulator/sm121_signed_loss_projection.h"
+        },
+        {
+          "sha256": "d35fca2e70992bdecea4456bb3fc5edcd47c6cd850e2d16f28760b24497ed06c",
+          "file": "native/providers/moe_accumulator/sm121_slab_half_layout.h"
+        },
+        {
+          "sha256": "a29cc4a67133eafc0a96b92859aea75cefa07308fdb7cb9d7c1b4036495e4d37",
+          "file": "native/providers/moe_accumulator/sm121_slab_half_projection.h"
+        },
+        {
+          "sha256": "3d7195e7e4544ca0b0a8be0a0e8e9df8df5d8e3144aac92994bb31b55c5a4f6e",
+          "file": "native/providers/moe_accumulator/sm121_sparse_byte_projection.h"
+        },
+        {
+          "sha256": "2298fd0d5b2de183e97f29c05f1568bf903a6ce9670fba53406288750d7709fc",
+          "file": "native/providers/moe_accumulator/sm121_sparse_group.h"
+        },
+        {
+          "sha256": "d3c91c9feee8d734b461176bcfa0df75904de290017cb44ed0decb339fc6836f",
+          "file": "native/providers/moe_accumulator/sm121_spatial_indices.h"
+        },
+        {
+          "sha256": "1e65c563bcb923c47088b75e4fd5d9d1f85ddfa1921c15a7c9c3da8ed0b461bc",
+          "file": "native/providers/moe_accumulator/sm121_staged_half_f32_projection.h"
+        },
+        {
+          "sha256": "a6e580c1e4e8a27a8f5502bdd9e2e71c60a0029b0c3cb28efb9342c28635f672",
+          "file": "native/providers/moe_accumulator/sm121_staged_half_projection.h"
+        },
+        {
+          "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+          "file": "native/providers/moe_accumulator/sm121_strided_pair.h"
+        },
+        {
+          "sha256": "cd07391bad22587e437cceff204d794091150b899ea608e43a3dc2ccade49bf9",
+          "file": "native/providers/moe_accumulator/sm121_strong_float_subgroup.h"
+        },
+        {
+          "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+          "file": "native/providers/moe_accumulator/sm121_subgroup.h"
+        },
+        {
+          "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+          "file": "native/providers/moe_accumulator/sm121_tiled_projection.h"
+        },
+        {
+          "sha256": "187653f6b4c090840074a1da782e31f889d7fb0a159f26a2ee94ab38cbbed447",
+          "file": "native/providers/moe_accumulator/sm121_transfer_projection.h"
+        },
+        {
+          "sha256": "b02cd7024964f7f85016d46803d33c0f93e4f274160be725de53d4e67aa89f39",
+          "file": "native/providers/moe_accumulator/sm121_two_pass_packed_group.h"
+        },
+        {
+          "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+          "file": "native/providers/moe_accumulator/sm121_wave16.h"
+        },
+        {
+          "sha256": "972b6c61dbdc08cee02b5cc46cdff69e8426f50b5e9272adb8ab427f6371c6b2",
+          "file": "native/providers/moe_accumulator/sm121_weight_control.h"
+        },
+        {
+          "sha256": "b42ed2552491b83164a9dfd8cef0351cd32dcb74a068f4b4ee6c577bf705e40f",
+          "file": "native/providers/moe_accumulator/sm121_weight_control_projection.h"
+        },
+        {
+          "sha256": "d18c19e038add09cef4cdbf0ec585673930a6ca1bedcf12188533a9c293adf4d",
+          "file": "native/providers/moe_accumulator/sm121_whole_dot_bound.h"
+        },
+        {
+          "sha256": "1e5f78594084e371472336d43b167cec7e08e2284771f3b8435e4b2d4d427246",
+          "file": "native/providers/moe_accumulator/sm121_whole_dot_projection.h"
+        },
+        {
+          "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+          "file": "native/providers/moe_accumulator/sm121_wide_integer_core.h"
+        },
+        {
+          "sha256": "acfb766ac78697c80546290e42737372fd48241c24114f98418250794e1404e9",
+          "file": "native/providers/moe_accumulator/sm121_wmma_operand_load.h"
+        },
+        {
+          "sha256": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+          "file": "scripts/baiying_boot_identity.ps1"
+        },
+        {
+          "sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+          "file": "scripts/baiying_guarded_inference.ps1"
+        }
+      ],
+      "compiler_command": "\"C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe\" -std=c++17 -O2 --offload-arch=gfx1151 -DQRT_SM121_DPP_REDUCTION=1 -DQRT_SM121_COMPACT_NORMALIZE=1 \"D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1\\native\\providers\\gdn\\output_failure_replay.cpp\" \"D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1\\native\\providers\\gdn\\blackwell_state.cpp\" \"D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1\\native\\providers\\gdn\\blackwell_wu_output.cpp\" \"D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1\\native\\providers\\gdn\\blackwell_cooperative.cpp\" -o \"D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1\\build\\output-failure-replay\\qrt-fla-output-failure-replay.exe\"",
+      "compiler_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+      "command_batch_sha256": "ccdafd7b9a5d996b647208512b5d08694eed763efe1913753af5c66be9bce6a1",
+      "source_scope": "All checked-in headers and C++ sources in GDN and accumulator directories plus guard support; translation units identify actual compilation entry points.",
+      "artifact": {
+        "sha256": "2ffedaf75d1863041481fa1acf1c290ee91317003a4cc6d85f1de216d35e7aa4",
+        "file": "qrt-fla-output-failure-replay.exe",
+        "bytes": 823808
+      },
+      "model_loaded": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false
+    }
+  },
+  "captured_inputs": {
+    "directory": "D:/projects/AIMA-public-long-final-pv-provider-20260918-r1/build/fla-output-failure-prefix128k-capture-r1",
+    "files": {
+      "capture.json": {
+        "bytes": 357,
+        "sha256": "1df67a7b31dc87e1725311eef408a8a4f8085c5d656cdc8945feaa54cf48842f"
+      },
+      "chunk-state-bf16.bin": {
+        "bytes": 16777216,
+        "sha256": "270c79d12aa71654f3ac384b3076ecc508f4be332faf76174fd664d9d2965a2b"
+      },
+      "g-cumsum-f32.bin": {
+        "bytes": 131072,
+        "sha256": "111d9d183ec9481b97720e53efe72b1a8ebdaf67ee5280c185d97b146007e090"
+      },
+      "k-bf16.bin": {
+        "bytes": 4194304,
+        "sha256": "a8e3f366f7aaeb29a0e2ed795220dd06708cb70a1796730886a3fea995a7a3a9"
+      },
+      "output-f32.bin": {
+        "bytes": 16777216,
+        "sha256": "1f9b9b06a3aa38fb5f3e7129cebc028f26f749b2c755acf92592c8e9decb2cd3"
+      },
+      "q-bf16.bin": {
+        "bytes": 4194304,
+        "sha256": "7342a10add65c7b756bd4d2d053301502be4120daf7fc663b18c2ded6a5f7b28"
+      },
+      "scores-bf16.bin": {
+        "bytes": 4194304,
+        "sha256": "6f0bc6f1dcc3e7fae2683536da3561b33ee4e17568f835883e2a4058f679688f"
+      },
+      "v-new-bf16.bin": {
+        "bytes": 8388608,
+        "sha256": "7db0f067f00ec58819ad3eb31edea56ba1e5ac348bf1a0919f96de81ee3c625e"
+      }
+    },
+    "prior_run_sha256": "b4a5eac5726ec6040b89dd7cba8a4206c48d15581734c0089f884f6b70b9cbf3",
+    "captured_run": "fla-output-failure-prefix128k-long-prefix131072-suffix1024-out512-mode1-r1",
+    "capture": {
+      "kind": "completed_fla_output_guard_failure",
+      "tokens": 1024,
+      "chunks": 16,
+      "gpu_ms": 297.4851379394531,
+      "host_ms": 297.6137,
+      "guard_ms": 100,
+      "bytes": 54657024,
+      "copy_chunk_bytes": 1048576,
+      "maximum_bytes": 67108864,
+      "stage_completed": true,
+      "guard_accepted": false,
+      "complete": true,
+      "kernel_retried": false,
+      "native_tensor_inputs": false,
+      "numerical_acceptance": false
+    },
+    "native_tensor_inputs_from_reference": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "standalone_replays": [
+    {
+      "name": "fla-output-failure-replay-combined-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1\\build\\output-failure-replay\\qrt-fla-output-failure-replay.exe",
+        "arguments": [
+          "D:/projects/AIMA-public-long-final-pv-provider-20260918-r1/build/fla-output-failure-prefix128k-capture-r1",
+          "1024",
+          "combined"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1",
+        "repo_commit": "5ed1f233ea68fce8c25dd56cf9987d0fa215eec2",
+        "command_file": "D:\\projects\\run-native-fla-output-failure-replay-r1.ps1",
+        "command_file_sha256": "c49832de1bfd1ae68909be7184c0f32c59032f1e383b6617a100f796b99ce4b3",
+        "source_manifest_sha256": "76139fc907c3561d8d723ed6bedfe40388805c7ef3cb18c24e6d8bf2f318b2a5",
+        "prior_run": "D:/projects/AIMA-public-long-final-pv-provider-20260918-r1/build/fla-output-failure-prefix128k-long-prefix131072-suffix1024-out512-mode1-r1/run-record.json",
+        "prior_run_sha256": "b4a5eac5726ec6040b89dd7cba8a4206c48d15581734c0089f884f6b70b9cbf3",
+        "model": "none; standalone replay of actual completed failed native tensors",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "completion_guard_ms": 100,
+        "mode": "combined",
+        "capture": {
+          "directory": "D:/projects/AIMA-public-long-final-pv-provider-20260918-r1/build/fla-output-failure-prefix128k-capture-r1",
+          "files": {
+            "capture.json": {
+              "bytes": 357,
+              "sha256": "1df67a7b31dc87e1725311eef408a8a4f8085c5d656cdc8945feaa54cf48842f"
+            },
+            "chunk-state-bf16.bin": {
+              "bytes": 16777216,
+              "sha256": "270c79d12aa71654f3ac384b3076ecc508f4be332faf76174fd664d9d2965a2b"
+            },
+            "g-cumsum-f32.bin": {
+              "bytes": 131072,
+              "sha256": "111d9d183ec9481b97720e53efe72b1a8ebdaf67ee5280c185d97b146007e090"
+            },
+            "k-bf16.bin": {
+              "bytes": 4194304,
+              "sha256": "a8e3f366f7aaeb29a0e2ed795220dd06708cb70a1796730886a3fea995a7a3a9"
+            },
+            "output-f32.bin": {
+              "bytes": 16777216,
+              "sha256": "1f9b9b06a3aa38fb5f3e7129cebc028f26f749b2c755acf92592c8e9decb2cd3"
+            },
+            "q-bf16.bin": {
+              "bytes": 4194304,
+              "sha256": "7342a10add65c7b756bd4d2d053301502be4120daf7fc663b18c2ded6a5f7b28"
+            },
+            "scores-bf16.bin": {
+              "bytes": 4194304,
+              "sha256": "6f0bc6f1dcc3e7fae2683536da3561b33ee4e17568f835883e2a4058f679688f"
+            },
+            "v-new-bf16.bin": {
+              "bytes": 8388608,
+              "sha256": "7db0f067f00ec58819ad3eb31edea56ba1e5ac348bf1a0919f96de81ee3c625e"
+            }
+          },
+          "prior_run_sha256": "b4a5eac5726ec6040b89dd7cba8a4206c48d15581734c0089f884f6b70b9cbf3",
+          "captured_run": "fla-output-failure-prefix128k-long-prefix131072-suffix1024-out512-mode1-r1",
+          "capture": {
+            "kind": "completed_fla_output_guard_failure",
+            "tokens": 1024,
+            "chunks": 16,
+            "gpu_ms": 297.4851379394531,
+            "host_ms": 297.6137,
+            "guard_ms": 100,
+            "bytes": 54657024,
+            "copy_chunk_bytes": 1048576,
+            "maximum_bytes": 67108864,
+            "stage_completed": true,
+            "guard_accepted": false,
+            "complete": true,
+            "kernel_retried": false,
+            "native_tensor_inputs": false,
+            "numerical_acceptance": false
+          },
+          "native_tensor_inputs_from_reference": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        "capture_manifest_sha256": "c0de1ff80ea47241818e71d44bc6a3e1777bcfaecb6bfc0fa4fdeb27aca63a8b",
+        "exp2_table": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-exp2-negative-f490940d.bin",
+        "exp2_table_sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+        "build_run_sha256": "da99ac9023312b3367500179fb2f2e2501ebdaec1d5c673b5c1eca3dab846387",
+        "build_metadata_sha256": "9ea7a36bdf482378c5224eddae9cf75de00d1538d81def94fcfd3aa283525502"
+      },
+      "launch": {
+        "pid": 9684,
+        "utc": "2026-09-18T17:46:27.6071745Z",
+        "timeout_seconds": 60,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 663.15,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "2ffedaf75d1863041481fa1acf1c290ee91317003a4cc6d85f1de216d35e7aa4",
+      "canonical_raw_sha256": {
+        "diagnostic-analysis.json": "1830e00a7d4231d4fd75f31bd0df92d19f64d329d7eba127311f75f8dd6b3dba",
+        "dispatch.json": "65b119a261c280b0f1ff183b7c274447ebb59c9f40fc057f53777c8348bc91d3",
+        "launch.json": "328d0990dcbd159f222dbab880300e256f6f71d53f9dda806964b65dc61a78e7",
+        "preflight.json": "50643a169c0c6e85114ebad3a952e3d37a9ec67fbafd21d1327e230e991a9ff2",
+        "product.stderr.log": "d6931acc373861cc9987e2bf6dc313ecfd75c2fa4daaff08bf48907f8a1e92f1",
+        "product.stdout.jsonl": "05dd901a7ba59f82c5e46d5736a269172292614c995770bd0de68d6046d75c4f",
+        "run-record.json": "f99b6dec29389ca1a16627407f60b6cf651e2a8e157a87a8afee487c3d95fcf5",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+        "transfers.json": "e9be32dec5a7e27c76253305ad54b65c545e63802c56dd81f6ee32241c75e652"
+      },
+      "reports": [
+        {
+          "kind": "fla_output_replay_interval",
+          "stage": "scores_and_output",
+          "first_token": 0,
+          "tokens": 1024,
+          "gpu_ms": 3.990499973297119,
+          "host_ms": 7.3388,
+          "guard_ms": 100,
+          "completed": true,
+          "accepted": true,
+          "gpu_clock_finite_nonnegative": true,
+          "selected_clock": "gpu"
+        },
+        {
+          "kind": "fla_output_failure_replay",
+          "mode": "combined",
+          "tokens": 1024,
+          "score_rows_recomputed": 1024,
+          "output_rows_recomputed": 1024,
+          "score_bit_mismatches": 0,
+          "output_bit_mismatches": 0,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "completed_bound_pass": true,
+          "model_loaded": false,
+          "gb10_acceptance": false,
+          "performance_acceptance": false
+        }
+      ]
+    },
+    {
+      "name": "fla-output-failure-replay-split-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1\\build\\output-failure-replay\\qrt-fla-output-failure-replay.exe",
+        "arguments": [
+          "D:/projects/AIMA-public-long-final-pv-provider-20260918-r1/build/fla-output-failure-prefix128k-capture-r1",
+          "1024",
+          "split"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-fla-output-failure-replay-20260919-r1",
+        "repo_commit": "5ed1f233ea68fce8c25dd56cf9987d0fa215eec2",
+        "command_file": "D:\\projects\\run-native-fla-output-failure-replay-r1.ps1",
+        "command_file_sha256": "c49832de1bfd1ae68909be7184c0f32c59032f1e383b6617a100f796b99ce4b3",
+        "source_manifest_sha256": "76139fc907c3561d8d723ed6bedfe40388805c7ef3cb18c24e6d8bf2f318b2a5",
+        "prior_run": "D:/projects/AIMA-public-long-final-pv-provider-20260918-r1/build/fla-output-failure-prefix128k-long-prefix131072-suffix1024-out512-mode1-r1/run-record.json",
+        "prior_run_sha256": "b4a5eac5726ec6040b89dd7cba8a4206c48d15581734c0089f884f6b70b9cbf3",
+        "model": "none; standalone replay of actual completed failed native tensors",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "completion_guard_ms": 100,
+        "mode": "split",
+        "capture": {
+          "directory": "D:/projects/AIMA-public-long-final-pv-provider-20260918-r1/build/fla-output-failure-prefix128k-capture-r1",
+          "files": {
+            "capture.json": {
+              "bytes": 357,
+              "sha256": "1df67a7b31dc87e1725311eef408a8a4f8085c5d656cdc8945feaa54cf48842f"
+            },
+            "chunk-state-bf16.bin": {
+              "bytes": 16777216,
+              "sha256": "270c79d12aa71654f3ac384b3076ecc508f4be332faf76174fd664d9d2965a2b"
+            },
+            "g-cumsum-f32.bin": {
+              "bytes": 131072,
+              "sha256": "111d9d183ec9481b97720e53efe72b1a8ebdaf67ee5280c185d97b146007e090"
+            },
+            "k-bf16.bin": {
+              "bytes": 4194304,
+              "sha256": "a8e3f366f7aaeb29a0e2ed795220dd06708cb70a1796730886a3fea995a7a3a9"
+            },
+            "output-f32.bin": {
+              "bytes": 16777216,
+              "sha256": "1f9b9b06a3aa38fb5f3e7129cebc028f26f749b2c755acf92592c8e9decb2cd3"
+            },
+            "q-bf16.bin": {
+              "bytes": 4194304,
+              "sha256": "7342a10add65c7b756bd4d2d053301502be4120daf7fc663b18c2ded6a5f7b28"
+            },
+            "scores-bf16.bin": {
+              "bytes": 4194304,
+              "sha256": "6f0bc6f1dcc3e7fae2683536da3561b33ee4e17568f835883e2a4058f679688f"
+            },
+            "v-new-bf16.bin": {
+              "bytes": 8388608,
+              "sha256": "7db0f067f00ec58819ad3eb31edea56ba1e5ac348bf1a0919f96de81ee3c625e"
+            }
+          },
+          "prior_run_sha256": "b4a5eac5726ec6040b89dd7cba8a4206c48d15581734c0089f884f6b70b9cbf3",
+          "captured_run": "fla-output-failure-prefix128k-long-prefix131072-suffix1024-out512-mode1-r1",
+          "capture": {
+            "kind": "completed_fla_output_guard_failure",
+            "tokens": 1024,
+            "chunks": 16,
+            "gpu_ms": 297.4851379394531,
+            "host_ms": 297.6137,
+            "guard_ms": 100,
+            "bytes": 54657024,
+            "copy_chunk_bytes": 1048576,
+            "maximum_bytes": 67108864,
+            "stage_completed": true,
+            "guard_accepted": false,
+            "complete": true,
+            "kernel_retried": false,
+            "native_tensor_inputs": false,
+            "numerical_acceptance": false
+          },
+          "native_tensor_inputs_from_reference": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        "capture_manifest_sha256": "c0de1ff80ea47241818e71d44bc6a3e1777bcfaecb6bfc0fa4fdeb27aca63a8b",
+        "exp2_table": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-exp2-negative-f490940d.bin",
+        "exp2_table_sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+        "build_run_sha256": "da99ac9023312b3367500179fb2f2e2501ebdaec1d5c673b5c1eca3dab846387",
+        "build_metadata_sha256": "9ea7a36bdf482378c5224eddae9cf75de00d1538d81def94fcfd3aa283525502"
+      },
+      "launch": {
+        "pid": 12172,
+        "utc": "2026-09-18T17:47:10.3079740Z",
+        "timeout_seconds": 60,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 393.335,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "2ffedaf75d1863041481fa1acf1c290ee91317003a4cc6d85f1de216d35e7aa4",
+      "canonical_raw_sha256": {
+        "diagnostic-analysis.json": "4e5eb0c548c511aae71f0d97913fdb240ec12af9337d720f52998c246b3d44c8",
+        "dispatch.json": "c162b81d331c2a5de3c66d07d11c05c85866cf5868c0fbcaaaf343d684727e9c",
+        "launch.json": "6c0d27ee4a5286bab9f7cb11887f2e679dfa3145d65951141a577cd3954f45b7",
+        "preflight.json": "b9bfd3837c63c5be1979f25be954bfa1666dad75e08542e03f68ee07cc5c5864",
+        "product.stderr.log": "d6931acc373861cc9987e2bf6dc313ecfd75c2fa4daaff08bf48907f8a1e92f1",
+        "product.stdout.jsonl": "8ccba520480a0205225602f60e2b6b7f8afea82a0f18dafb9bb043d29958d4a1",
+        "run-record.json": "159dde3ffe9070c6d18f95a466ed79eaa29001b7659c342011f38d6256019026",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+        "transfers.json": "e9be32dec5a7e27c76253305ad54b65c545e63802c56dd81f6ee32241c75e652"
+      },
+      "reports": [
+        {
+          "kind": "fla_output_replay_interval",
+          "stage": "scores",
+          "first_token": 0,
+          "tokens": 1024,
+          "gpu_ms": 0.6065999865531921,
+          "host_ms": 3.5371,
+          "guard_ms": 100,
+          "completed": true,
+          "accepted": true,
+          "gpu_clock_finite_nonnegative": true,
+          "selected_clock": "gpu"
+        },
+        {
+          "kind": "fla_output_replay_interval",
+          "stage": "output",
+          "first_token": 0,
+          "tokens": 1024,
+          "gpu_ms": 2.8797900676727295,
+          "host_ms": 2.9516,
+          "guard_ms": 100,
+          "completed": true,
+          "accepted": true,
+          "gpu_clock_finite_nonnegative": true,
+          "selected_clock": "gpu"
+        },
+        {
+          "kind": "fla_output_failure_replay",
+          "mode": "split",
+          "tokens": 1024,
+          "score_rows_recomputed": 1024,
+          "output_rows_recomputed": 1024,
+          "score_bit_mismatches": 0,
+          "output_bit_mismatches": 0,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "completed_bound_pass": true,
+          "model_loaded": false,
+          "gb10_acceptance": false,
+          "performance_acceptance": false
+        }
+      ]
+    }
+  ],
+  "independent_reference": {
+    "file": "benchmarks/correctness/gb10-prefix128-layer33-window-20260919.json",
+    "bytes": 170185,
+    "sha256": "cd4674792a9b35aaca616b4dcc6b11afd9830b992bbb5ae9d9c36dd82398f8b4"
+  },
+  "independent_seeded_source": {
+    "file": "gb10-prefix128-layer33-native-source-r1.json",
+    "sha256": "fde1fcc3667da2f3ae9cbc46ff90dfca073301bdc11fa1128d5ab19d8ac080a7",
+    "metadata": {
+      "source_commit": "7a33fc99e248faaeebeb9b5ec3064246c133c6e7",
+      "repo": "D:/projects/AIMA-public-fla-output-failure-capture-20260919-r1",
+      "script": "run-native-gb10-prefix128-layer33-seeded-r1.ps1",
+      "script_sha256": "477730bec92daa1baf256fde95f7e414a393cec01a2e18a591625c58b3c2c2d6",
+      "build_metadata_sha256": "02aa7cfa4c0170908941473b4c2e977b02d27f77792a383b3fbbb3a69d9af3da",
+      "tool_source_commit": "37c8504d1a059ec889b8ca3775d19bb374dec066",
+      "tool_metadata": "D:/projects/AIMA-public-seeded-fla-core8192-20260912/build/seeded-fla-replay-tool-r1/build-provenance.json",
+      "tool_metadata_sha256": "e3ae6568e02c1264cb24f4039ef363fb2fd36333c261c27339828e63519a50f6",
+      "tool_artifact": {
+        "sha256": "d820dc1c2dc0ad2372691fdc1a42bd9e0a24001bf6c03a0746eb94cded8fca21",
+        "file": "D:\\projects\\AIMA-public-seeded-fla-core8192-20260912\\build\\seeded-fla-replay-tool-r1\\fla-seeded-capture-replay.exe",
+        "bytes": 356864
+      },
+      "fixture": {
+        "directory": "gb10-prefix128-layer33-seeded-inputs-r1",
+        "archive": "gb10-prefix128-layer33-seeded-inputs-r1.tar",
+        "bytes": 341862400,
+        "sha256": "7691e06de7b1249fd62ea4e02fb036a3c147d0b11e3312e382462d7433686e5f",
+        "manifest_sha256": "f493ebf22bc376e0d926dd988c7afdbe2a3117409c188fa3f6c84907b864c99f"
+      },
+      "profile": "D:/projects/AIMA-public-long-final-pv-provider-20260918-r1/build/fla-output-failure-q8192-product-q8192-out512-mode1-r1.env",
+      "profile_sha256": "8dc1154f77b2c623a7f8de5622e41724bec620b8510816e9195cdc7780bd8456",
+      "prior_run": "D:/projects/AIMA-public-long-final-pv-provider-20260918-r1/build/fla-output-failure-prefix128k-long-prefix131072-suffix1024-out512-mode1-r1/run-record.json",
+      "prior_local": "fla-output-failure-prefix128k-long-prefix131072-suffix1024-out512-mode1-r1",
+      "capture_directory": "D:/projects/AIMA-public-fla-output-failure-capture-20260919-r1/build/gb10-prefix128-layer33-failed-output-r1",
+      "tables": [
+        {
+          "path": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-exp2-negative-f490940d.bin",
+          "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
+        },
+        {
+          "path": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-rsqrt-positive-ca0230a8.bin",
+          "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+        }
+      ],
+      "native_timeout_seconds": 90,
+      "transport_timeout_seconds": 210,
+      "native_executed": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "generator": "prepare_gb10_prefix128_layer33_native_r1.py",
+      "generator_sha256": "5be115d3c5f2efd67d29cd7f92d9f80733d02297992277f7822f9caa80ce5979",
+      "dispatcher": "dispatch_gb10_prefix128_layer33_native_r1.py",
+      "dispatcher_sha256": "7aa6d62a73cbecc949361c74db4d12fe1429ad8baa039d339588384023380afb"
+    }
+  },
+  "independent_fixture": {
+    "kind": "gb10_original128k_layer33_seeded_fixture",
+    "source_commit": "1c9511395bf7f9dcc78a8aedcb05c700feee0568",
+    "dependency_source_commit": "9b2a99edeede83ce77a4b775a509256f65894a7f",
+    "model_reference": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "authority_host": "gb10-4t",
+    "reference_runtime_host": "aitopatom-66c4",
+    "assembly_host": "Mac",
+    "command_file": "assemble_gb10_prefix128_layer33_r1.py",
+    "command_file_sha256": "7b112497214b22fd3b86494f121690e3e7f4c1fb6fbf3bc856d425ea1a61e4b1",
+    "reference_analysis_sha256": "948f578f52d7be55fa7eefa4c6308903dbec3d66cf11f054d89388af25673372",
+    "reference_capture_sha256": "e1bf6ed8e32d25b41c5e38fd01a0fd709969dce12fb17903632f7a346a20fe37",
+    "case": "long-prefix131072-owner-out512",
+    "layer": 33,
+    "first_position": 114688,
+    "tokens": 8192,
+    "original_transaction": 14,
+    "original512_output_ids_and_full_first_logits_reproduced": true,
+    "reference_qualified": true,
+    "state_layout": "value_head_value_key_fp32",
+    "initial_state_from_original_call": true,
+    "existing_state_layout_source": {
+      "file": "<private-home>/seeded-fla-layout-source-r2.py",
+      "sha256": "bcce3501c8213a446895467e16180a0256d7b289d9317bde7549959e00029fd2",
+      "original_path": "fla/ops/chunk.py",
+      "initial_and_final_layout": "N,H,V,K"
+    },
+    "original_source_files": {
+      "q-core-input": {
+        "file": "txn0014-full-prefill-linear-33-q-core-input-bf16.bin",
+        "dtype": "bf16",
+        "shape": [
+          8192,
+          2048
+        ],
+        "bytes": 33554432,
+        "sha256": "467a1fd2592d99eb2814896ef484ec895732100e515ed26a34dbe8bc1adc92f8",
+        "transaction": 14,
+        "label": "full-prefill-linear-33-q-core-input",
+        "local_file": "qrt-gb10-prefix128-layer33-20260919-r1/capture/long-prefix131072-owner-out512/txn0014-full-prefill-linear-33-q-core-input-bf16.bin",
+        "nonfinite_elements": 0
+      },
+      "k-core-input": {
+        "file": "txn0014-full-prefill-linear-33-k-core-input-bf16.bin",
+        "dtype": "bf16",
+        "shape": [
+          8192,
+          2048
+        ],
+        "bytes": 33554432,
+        "sha256": "49ebaf8fee4fa62906267d3d6d22e09d1cc16964d738d01ee6c7d00afaab360f",
+        "transaction": 14,
+        "label": "full-prefill-linear-33-k-core-input",
+        "local_file": "qrt-gb10-prefix128-layer33-20260919-r1/capture/long-prefix131072-owner-out512/txn0014-full-prefill-linear-33-k-core-input-bf16.bin",
+        "nonfinite_elements": 0
+      },
+      "v-core-input": {
+        "file": "txn0014-full-prefill-linear-33-v-core-input-bf16.bin",
+        "dtype": "bf16",
+        "shape": [
+          8192,
+          4096
+        ],
+        "bytes": 67108864,
+        "sha256": "e58bdd6efc3aa62ff95e7f3503f44b36f04f9c56b9e1f3636727b47d2f7aff48",
+        "transaction": 14,
+        "label": "full-prefill-linear-33-v-core-input",
+        "local_file": "qrt-gb10-prefix128-layer33-20260919-r1/capture/long-prefix131072-owner-out512/txn0014-full-prefill-linear-33-v-core-input-bf16.bin",
+        "nonfinite_elements": 0
+      },
+      "g-core-input": {
+        "file": "txn0014-full-prefill-linear-33-g-core-input-f32.bin",
+        "dtype": "f32",
+        "shape": [
+          8192,
+          32
+        ],
+        "bytes": 1048576,
+        "sha256": "7ac211ecf483a281984c472a0b4f24b2089a4858daaa6bd3b8563808df45d635",
+        "transaction": 14,
+        "label": "full-prefill-linear-33-g-core-input",
+        "local_file": "qrt-gb10-prefix128-layer33-20260919-r1/capture/long-prefix131072-owner-out512/txn0014-full-prefill-linear-33-g-core-input-f32.bin",
+        "nonfinite_elements": 0
+      },
+      "beta-core-input": {
+        "file": "txn0014-full-prefill-linear-33-beta-core-input-bf16.bin",
+        "dtype": "bf16",
+        "shape": [
+          8192,
+          32
+        ],
+        "bytes": 524288,
+        "sha256": "ff110d283a87ac04589ebbb3631417d8f8e85e165d53f165d9ab4ddc914841ed",
+        "transaction": 14,
+        "label": "full-prefill-linear-33-beta-core-input",
+        "local_file": "qrt-gb10-prefix128-layer33-20260919-r1/capture/long-prefix131072-owner-out512/txn0014-full-prefill-linear-33-beta-core-input-bf16.bin",
+        "nonfinite_elements": 0
+      },
+      "initial-state": {
+        "file": "txn0014-full-prefill-linear-33-initial-state-f32.bin",
+        "dtype": "f32",
+        "shape": [
+          1,
+          32,
+          128,
+          128
+        ],
+        "bytes": 2097152,
+        "sha256": "a6d4d5a7accb2eb4c11a8b08066f6a5cef32e6dfc028b477778664ff6ca3cd89",
+        "transaction": 14,
+        "label": "full-prefill-linear-33-initial-state",
+        "local_file": "qrt-gb10-prefix128-layer33-20260919-r1/capture/long-prefix131072-owner-out512/txn0014-full-prefill-linear-33-initial-state-f32.bin",
+        "nonfinite_elements": 0
+      },
+      "final-state": {
+        "file": "txn0014-full-prefill-linear-33-final-state-f32.bin",
+        "dtype": "f32",
+        "shape": [
+          1,
+          32,
+          128,
+          128
+        ],
+        "bytes": 2097152,
+        "sha256": "b64b60a520ef720752faa6ddd4e0c8166b2f7db8046a32ff13d83221e7fe5191",
+        "transaction": 14,
+        "label": "full-prefill-linear-33-final-state",
+        "local_file": "qrt-gb10-prefix128-layer33-20260919-r1/capture/long-prefix131072-owner-out512/txn0014-full-prefill-linear-33-final-state-f32.bin",
+        "nonfinite_elements": 0
+      },
+      "core": {
+        "file": "txn0014-full-prefill-linear-33-core-bf16.bin",
+        "dtype": "bf16",
+        "shape": [
+          8192,
+          4096
+        ],
+        "bytes": 67108864,
+        "sha256": "4151cc25e0c2040b0a44b0609d99ba6001048a2f598ab9b0694cefa7ec83f74b",
+        "transaction": 14,
+        "label": "full-prefill-linear-33-core",
+        "local_file": "qrt-gb10-prefix128-layer33-20260919-r1/capture/long-prefix131072-owner-out512/txn0014-full-prefill-linear-33-core-bf16.bin",
+        "nonfinite_elements": 0
+      }
+    },
+    "raw_layout": "token_q2048_k2048_v4096_fp32_exact_bf16_extension",
+    "gate_layout": "token_g32_fp32_beta32_exact_bf16_extension",
+    "reference_values_select_runtime_work": false,
+    "diagnostic_only": true,
+    "model_inference_acceptance": false,
+    "files": {
+      "expected-output-bf16.bin": {
+        "bytes": 67108864,
+        "sha256": "4151cc25e0c2040b0a44b0609d99ba6001048a2f598ab9b0694cefa7ec83f74b"
+      },
+      "expected-value-major-f32.bin": {
+        "bytes": 2097152,
+        "sha256": "b64b60a520ef720752faa6ddd4e0c8166b2f7db8046a32ff13d83221e7fe5191"
+      },
+      "gates-f32.bin": {
+        "bytes": 2097152,
+        "sha256": "c9fbb3520d4c0fd8f89ed83ce59d64e1bb4ae7b8ed1e65c7912131f2814b9379"
+      },
+      "initial-value-major-f32.bin": {
+        "bytes": 2097152,
+        "sha256": "a6d4d5a7accb2eb4c11a8b08066f6a5cef32e6dfc028b477778664ff6ca3cd89"
+      },
+      "raw-f32.bin": {
+        "bytes": 268435456,
+        "sha256": "08774c7fda9014c1b1cc4ba6dc0fd7c381c732fc38e1663f6af90ede02b307de"
+      }
+    }
+  },
+  "independent_seeded_run": {
+    "name": "gb10-prefix128-layer33-seeded-key-major-r1",
+    "host": "BAIYING",
+    "command_file": "D:\\projects\\AIMA-public-fla-output-failure-capture-20260919-r1\\scripts\\baiying_guarded_inference.ps1",
+    "spec": {
+      "executable": "D:\\projects\\AIMA-public-fla-output-failure-capture-20260919-r1\\build\\gb10-prefix128-layer33-seeded-key-major-r1-tool\\qrt-fla-seeded-capture-replay.exe",
+      "arguments": [
+        "D:\\projects\\AIMA-public-fla-output-failure-capture-20260919-r1\\build\\fla",
+        "D:\\projects\\AIMA-public-fla-output-failure-capture-20260919-r1\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+        "D:\\projects\\gb10-prefix128-layer33-seeded-inputs-r1",
+        "D:\\projects\\AIMA-public-fla-output-failure-capture-20260919-r1\\build\\gb10-prefix128-layer33-seeded-key-major-r1-outputs",
+        "8192",
+        "key-major"
+      ],
+      "working_directory": "D:\\projects\\AIMA-public-fla-output-failure-capture-20260919-r1",
+      "repo_commit": "7a33fc99e248faaeebeb9b5ec3064246c133c6e7",
+      "command_file": "D:\\projects\\run-native-gb10-prefix128-layer33-seeded-r1.ps1",
+      "command_file_sha256": "477730bec92daa1baf256fde95f7e414a393cec01a2e18a591625c58b3c2c2d6",
+      "source_manifest_sha256": "fde1fcc3667da2f3ae9cbc46ff90dfca073301bdc11fa1128d5ab19d8ac080a7",
+      "model": "GB10 Qwen3.6-35B-A3B original131072-token prompt, layer33 transaction14 positions114688..122879",
+      "model_loaded": false,
+      "native_tensor_inputs": true,
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "purpose": "Independent seeded component comparison of original GB10 operands and state. No full-model acceptance. Preserve original100 ms provider guard and record any rejected completed output. Repeat exact seed and zero-state negative control only if preceding launch completed successfully.",
+      "tool_source_commit": "37c8504d1a059ec889b8ca3775d19bb374dec066",
+      "tool_metadata_sha256": "e3ae6568e02c1264cb24f4039ef363fb2fd36333c261c27339828e63519a50f6",
+      "tool_source_inputs": [
+        {
+          "sha256": "3ee6cbff4c75c75b69396ab94248c80e85913f1d508ce4cebca3c6fe77c000a9",
+          "file": "D:\\projects\\AIMA-public-seeded-fla-core8192-20260912\\native\\providers\\gdn\\fla_seeded_capture_replay.cpp"
+        },
+        {
+          "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+          "file": "D:\\projects\\AIMA-public-seeded-fla-core8192-20260912\\native\\providers\\gdn\\fla_checkpoint.h"
+        }
+      ],
+      "build_metadata_sha256": "02aa7cfa4c0170908941473b4c2e977b02d27f77792a383b3fbbb3a69d9af3da",
+      "provider_sha256": "ac234c0b416967b4c0978bd22a3d36a5bc3546287934c614ff6d6bb68c4789a1",
+      "reference_manifest_sha256": "f493ebf22bc376e0d926dd988c7afdbe2a3117409c188fa3f6c84907b864c99f",
+      "reference_capture_sha256": "e1bf6ed8e32d25b41c5e38fd01a0fd709969dce12fb17903632f7a346a20fe37",
+      "reference_source_commit": "1c9511395bf7f9dcc78a8aedcb05c700feee0568",
+      "reference_all512_and_logits_pass": true,
+      "interface_state_layout": "key-major",
+      "capture_state_layout": "value_head_value_key_fp32",
+      "environment": {
+        "QRT_FLA_GDN_SYNC_EACH_STAGE": "0",
+        "QRT_FLA_GDN_STATE_BLACKWELL": "1",
+        "QRT_FLA_GDN_KKT_BLACKWELL": "1",
+        "QRT_FLA_GDN_SM121_EXP2_TABLE": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-exp2-negative-f490940d.bin",
+        "QRT_FLA_GDN_WU_BLACKWELL": "1",
+        "QRT_FLA_GDN_OUTPUT_BLACKWELL": "1",
+        "QRT_FLA_GDN_NORM_BLACKWELL": "1",
+        "QRT_FLA_GDN_INVERSE_BLACKWELL": "1",
+        "QRT_FLA_GDN_SM121_RSQRT_TABLE": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-rsqrt-positive-ca0230a8.bin",
+        "QRT_FLA_GDN_COOPERATIVE_EXACT": "1",
+        "QRT_FLA_GDN_BATCHED_EXACT": "1",
+        "QRT_FLA_GDN_CAPTURE_FIRST_DIR": "",
+        "QRT_FLA_GDN_SEGMENT_GUARD": "0",
+        "QRT_FLA_GDN_TILED_KKT": "2",
+        "QRT_FLA_GDN_SCALAR_FLOAT_MATRICES": "1",
+        "QRT_FLA_GDN_SCALAR_FLOAT_STATE": "8",
+        "QRT_FLA_GDN_COARSE_INTERVAL": "0",
+        "QRT_FLA_GDN_FUSED_STATE_OUTPUT": "0",
+        "QRT_FLA_GDN_PAIRED_SCORE_ARENAS": "1",
+        "QRT_FLA_GDN_CAPTURE_OUTPUT_FAILURE_DIR": "D:/projects/AIMA-public-fla-output-failure-capture-20260919-r1/build/gb10-prefix128-layer33-failed-output-r1"
+      },
+      "prior_run_sha256": "b4a5eac5726ec6040b89dd7cba8a4206c48d15581734c0089f884f6b70b9cbf3",
+      "tables": [
+        {
+          "path": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-exp2-negative-f490940d.bin",
+          "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
+        },
+        {
+          "path": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-rsqrt-positive-ca0230a8.bin",
+          "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+        }
+      ]
+    },
+    "launch": {
+      "pid": 12380,
+      "utc": "2026-09-18T17:48:16.2469765Z",
+      "timeout_seconds": 90,
+      "job_kill_on_close": true
+    },
+    "reason": "completed",
+    "exit_code": 0,
+    "wall_ms": 1193.225,
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "host_checks_pass": true,
+    "executable_sha256": "d820dc1c2dc0ad2372691fdc1a42bd9e0a24001bf6c03a0746eb94cded8fca21",
+    "canonical_raw_sha256": {
+      "dispatch.json": "4ba9680bdb51ec25a8ff5658ee6406fdeefdd1abffd857aa8446942d045ecc2e",
+      "input-transfer.json": "b7dd78d21eb150b9b9522a123f0b27d76cf421ff9c7fb3d968a2f8ae5038a314",
+      "launch.json": "2cfd59beb8e85db6919d75400e1bbe4c652e08e7a2b411fba1616964811a2717",
+      "output-manifest.json": "843d417e29d2d78eb1b37095d257e61bc74a8e8744d6cdc4a8ac6be8a2902220",
+      "preflight.json": "8367fe0f328df867b18555137f365467e133680f605eb824b57dde29fcc59cbf",
+      "product.stderr.log": "20f5a7897fa48081be1ef152f7c133e3b2e58e5cfd574a2407dabdadb9259f3e",
+      "product.stdout.jsonl": "f3d91ab7343fef894d7cf1d142d56edc8c1fec96a9deef4f07917448d6624879",
+      "result.json": "14f9e7bfe8c62892de5893ed46597ede4ffb52529e5b49b8ff40b6b6a26fa3f1",
+      "run-record.json": "3ede7d8322c425f858bc755d4fd8fb0b286cb7d95c792cd8e55bcc62f751f832",
+      "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+      "transfers.json": "6fb89ec8005e738e39c7da8166ac65e673f770b4a02fe04fcef02fcd037893ed"
+    }
+  },
+  "independent_seeded_result": {
+    "kind": "original_seeded_fla_capture_replay",
+    "host": "baiying",
+    "tokens": 8192,
+    "capture_state_layout": "value_head_value_key_fp32",
+    "interface_state_layout": "key-major",
+    "fixture_state_transpose": true,
+    "diagnostic_only": true,
+    "product_acceptance": false,
+    "component_pass": true,
+    "output_bf16": {
+      "elements": 33554432,
+      "bit_mismatches": 0,
+      "maximum_absolute_error": 0,
+      "relative_l2": 0
+    },
+    "state_f32": {
+      "elements": 524288,
+      "bit_mismatches": 0,
+      "maximum_absolute_error": 0,
+      "relative_l2": 0
+    },
+    "state_absolute_and_relative_tolerance": 1e-05,
+    "seeded_repeat_bitwise": true,
+    "inputs_unchanged": true,
+    "zero_initial_state_vs_seeded": {
+      "elements": 33554432,
+      "bit_mismatches": 13660175,
+      "maximum_absolute_error": 0.0321044921875,
+      "relative_l2": 0.11601246271507966
+    },
+    "operator_gpu_ms": [
+      91.28870391845703,
+      88.08015441894531,
+      89.09455108642578
+    ]
+  },
+  "commands": {
+    "run-native-fla-output-failure-replay-r1.ps1": {
+      "sha256": "c49832de1bfd1ae68909be7184c0f32c59032f1e383b6617a100f796b99ce4b3",
+      "text": "param([ValidateSet('build','combined','scores','output','split','tiles')][string]$Action='build')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$sourcePath='D:\\projects\\fla-output-failure-replay-source-r1.json'\n$m=[IO.File]::ReadAllText($sourcePath)|ConvertFrom-Json\nfunction Verify-File([string]$Path,[string]$Sha){if((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Sha){throw ('Changed input: '+$Path)}}\nVerify-File $PSCommandPath $m.script_sha256\n$prior=[IO.File]::ReadAllText($m.prior_run)|ConvertFrom-Json\nif($prior.reason -ne 'completed' -or -not $prior.host_checks_pass -or @($prior.after_processes).Count -ne 0){throw 'Long run is not fully complete'}\n$repo=$m.repo.Replace('/','\\');$seed=$m.seed.Replace('/','\\');$commit=$m.source_commit\n$bundle=Join-Path 'D:\\projects' $m.bundle;Verify-File $bundle $m.bundle_sha256\nif(-not(Test-Path $repo)){\n & git -C $seed fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'}\n & git -C $seed worktree add --detach $repo $commit;if($LASTEXITCODE -ne 0){throw 'Worktree failed'}\n}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $commit -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$inputs=@()\nforeach($e in $m.source_sha256.PSObject.Properties){\n Verify-File (Join-Path $repo $e.Name) $e.Value\n $inputs+=@{file=$e.Name;sha256=$e.Value}\n}\n$build=Join-Path $repo 'build\\output-failure-replay'\n$exe=Join-Path $build 'qrt-fla-output-failure-replay.exe'\n$name='fla-output-failure-replay-'+$Action+'-r1'\n$out=Join-Path $repo ('build\\'+$name);$specPath=$out+'.json'\nforeach($p in @($out,$specPath)){if(Test-Path $p){throw 'Evidence exists'}}\n$spec=[ordered]@{executable='';arguments=@();working_directory=$repo;repo_commit=$commit\n command_file=$PSCommandPath;command_file_sha256=$m.script_sha256\n source_manifest_sha256=(Get-FileHash $sourcePath -Algorithm SHA256).Hash.ToLowerInvariant()\n source_inputs=$inputs;prior_run=$m.prior_run;prior_run_sha256=(Get-FileHash $m.prior_run -Algorithm SHA256).Hash.ToLowerInvariant()\n model='none; standalone replay of actual completed failed native tensors';model_loaded=$false\n inference_acceptance=$false;performance_acceptance=$false;completion_guard_ms=100;mode=$Action\n}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\nif($Action -eq 'build'){\n if(Test-Path $build){throw 'Build evidence exists'}\n $null=New-Item -ItemType Directory -Path $build\n $hipcc=(Get-Command hipcc.exe -ErrorAction Stop).Source\n $vs=@('D:\\BuildTools\\Common7\\Tools\\VsDevCmd.bat','C:\\Program Files\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\Tools\\VsDevCmd.bat','C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\Tools\\VsDevCmd.bat')|Where-Object {Test-Path $_}|Select-Object -First 1\n if(-not $vs){throw 'Missing MSVC setup'}\n $units=@($m.translation_units|ForEach-Object {'\"'+(Join-Path $repo $_)+'\"'})\n $compiler='\"'+$hipcc+'\" -std=c++17 -O2 --offload-arch=gfx1151 -DQRT_SM121_DPP_REDUCTION=1 -DQRT_SM121_COMPACT_NORMALIZE=1 '+($units -join ' ')+' -o \"'+$exe+'\"'\n $lines=@('@echo off',('call \"'+$vs+'\" -arch=x64 -host_arch=x64 >nul'),'if not \"%errorlevel%\"==\"0\" exit /b 21',$compiler,'exit /b %errorlevel%')\n $batch=Join-Path $build 'build.cmd'\n [IO.File]::WriteAllText($batch,($lines -join \"`r`n\")+\"`r`n\",[Text.UTF8Encoding]::new($false))\n $spec.executable='C:\\Windows\\System32\\cmd.exe';$spec.arguments=@('/d','/s','/c',$batch)\n $spec.compiler_command=$compiler;$spec.translation_units=@($m.translation_units)\n $spec.compiler_sha256=(Get-FileHash $hipcc -Algorithm SHA256).Hash.ToLowerInvariant()\n $spec.command_batch_sha256=(Get-FileHash $batch -Algorithm SHA256).Hash.ToLowerInvariant()\n $timeout=180\n}else{\n $buildRecord=Join-Path $repo 'build\\fla-output-failure-replay-build-r1\\run-record.json'\n $buildRun=[IO.File]::ReadAllText($buildRecord)|ConvertFrom-Json\n if($buildRun.reason -ne 'completed' -or $buildRun.exit_code -ne 0 -or -not $buildRun.host_checks_pass){throw 'Build not qualified'}\n $meta=[IO.File]::ReadAllText((Join-Path $build 'build-provenance.json'))|ConvertFrom-Json\n if($meta.repo_commit -ne $commit){throw 'Wrong replay build'}\n Verify-File $exe $meta.artifact.sha256\n $captureManifestPath='D:\\projects\\fla-output-failure-replay-inputs-r1.json'\n $capture=[IO.File]::ReadAllText($captureManifestPath)|ConvertFrom-Json\n Verify-File $m.prior_run $capture.prior_run_sha256\n if($prior.exit_code -ne 5 -or @($capture.files.PSObject.Properties).Count -ne 8){throw 'Requires actual failed captured run'}\n foreach($e in $capture.files.PSObject.Properties){\n  $path=Join-Path $capture.directory $e.Name;Verify-File $path $e.Value.sha256\n  if((Get-Item $path).Length -ne $e.Value.bytes){throw 'Capture size changed'}\n }\n $c=[IO.File]::ReadAllText((Join-Path $capture.directory 'capture.json'))|ConvertFrom-Json\n if(-not $c.complete -or -not $c.stage_completed -or $c.guard_accepted -or $c.kernel_retried -or $c.tokens -lt 1 -or $c.tokens -gt 1024){throw 'Invalid capture contract'}\n Verify-File $m.exp2_table $m.exp2_table_sha256\n $env:QRT_FLA_GDN_SM121_EXP2_TABLE=$m.exp2_table\n $spec.executable=$exe;$spec.arguments=@($capture.directory,[string]$c.tokens,$Action)\n $spec.capture=$capture;$spec.capture_manifest_sha256=(Get-FileHash $captureManifestPath -Algorithm SHA256).Hash.ToLowerInvariant()\n $spec.exp2_table=$m.exp2_table;$spec.exp2_table_sha256=$m.exp2_table_sha256\n $spec.build_run_sha256=(Get-FileHash $buildRecord -Algorithm SHA256).Hash.ToLowerInvariant()\n $spec.build_metadata_sha256=(Get-FileHash (Join-Path $build 'build-provenance.json') -Algorithm SHA256).Hash.ToLowerInvariant()\n $timeout=60\n}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nif($r.reason -ne 'completed' -or -not $r.host_checks_pass){throw 'Native completion or host checks failed'}\nif($Action -eq 'build'){\n if($r.exit_code -ne 0){throw 'Build failed'}\n $meta=[ordered]@{repo_commit=$commit;dirty_tree=$false;translation_units=@($m.translation_units);source_inputs=$inputs;compiler_command=$compiler;compiler_sha256=$spec.compiler_sha256;command_batch_sha256=$spec.command_batch_sha256\n  source_scope='All checked-in headers and C++ sources in GDN and accumulator directories plus guard support; translation units identify actual compilation entry points.'\n  artifact=@{file=[IO.Path]::GetFileName($exe);bytes=(Get-Item $exe).Length;sha256=(Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()}\n  model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false}\n [IO.File]::WriteAllText((Join-Path $build 'build-provenance.json'),($meta|ConvertTo-Json -Depth 10),[Text.UTF8Encoding]::new($false))\n}elseif($r.exit_code -notin @(0,3,4)){throw 'Replay API/input error'}\nGet-Content (Join-Path $out 'product.stdout.jsonl') -Tail 18\n"
+    },
+    "run-native-gb10-prefix128-layer33-seeded-r1.ps1": {
+      "sha256": "477730bec92daa1baf256fde95f7e414a393cec01a2e18a591625c58b3c2c2d6",
+      "text": "$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$sourcePath='D:\\projects\\gb10-prefix128-layer33-native-source-r1.json'\n$m=[IO.File]::ReadAllText($sourcePath)|ConvertFrom-Json\nfunction Verify-File([string]$Path,[string]$Sha){if((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Sha){throw ('Changed input: '+$Path)}}\nVerify-File $PSCommandPath $m.script_sha256\n$prior=[IO.File]::ReadAllText($m.prior_run)|ConvertFrom-Json\nif($prior.reason -ne 'completed' -or -not $prior.host_checks_pass -or @($prior.after_processes).Count -ne 0){throw 'Long run not fully complete'}\n$repo=$m.repo.Replace('/','\\');$commit=$m.source_commit\nif((& git -C $repo rev-parse HEAD).Trim() -ne $commit -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Provider source mismatch'}\n$metadata=Join-Path $repo 'build\\fla\\build-provenance.json';Verify-File $metadata $m.build_metadata_sha256\n$build=[IO.File]::ReadAllText($metadata)|ConvertFrom-Json\nif($build.repo_commit -ne $commit -or $build.dirty_tree){throw 'Wrong provider build'}\n$kernels=Join-Path $repo 'build\\fla';$dll=Join-Path $kernels 'qrt_fla_chunk_gdn_provider.dll'\nforeach($f in $build.sources){Verify-File $f.path $f.sha256}\nforeach($f in $build.artifacts){Verify-File (Join-Path $kernels $f.file) $f.sha256}\nVerify-File $m.tool_metadata $m.tool_metadata_sha256\n$tool=[IO.File]::ReadAllText($m.tool_metadata)|ConvertFrom-Json\nif($tool.repo_commit -ne $m.tool_source_commit){throw 'Replay source mismatch'}\nVerify-File $tool.artifact.file $tool.artifact.sha256\nforeach($f in $tool.source_inputs){Verify-File $f.file $f.sha256}\n$fixture=Join-Path 'D:\\projects' $m.fixture.directory\n$archive=Join-Path 'D:\\projects' $m.fixture.archive;Verify-File $archive $m.fixture.sha256\nif(Test-Path $fixture){throw 'Input extraction exists'}\n$null=New-Item -ItemType Directory -Path $fixture\n& tar.exe -xf $archive -C $fixture;if($LASTEXITCODE -ne 0){throw 'Extraction failed'}\n$manifest=Join-Path $fixture 'manifest.json';Verify-File $manifest $m.fixture.manifest_sha256\n$inputs=[IO.File]::ReadAllText($manifest)|ConvertFrom-Json\nif($inputs.layer -ne 33 -or $inputs.first_position -ne 114688 -or $inputs.tokens -ne 8192 -or $inputs.original_transaction -ne 14 -or -not $inputs.original512_output_ids_and_full_first_logits_reproduced -or -not $inputs.reference_qualified){throw 'Wrong reference window'}\nforeach($f in $inputs.files.PSObject.Properties){\n $p=Join-Path $fixture $f.Name;Verify-File $p $f.Value.sha256\n if((Get-Item $p).Length -ne $f.Value.bytes){throw 'Input size changed'}\n}\nif(@(Get-ChildItem $fixture -File).Count -ne 6){throw 'Input inventory changed'}\n$name='gb10-prefix128-layer33-seeded-key-major-r1';$out=Join-Path $repo ('build\\'+$name)\n$outputs=$out+'-outputs';$specPath=$out+'.json';$toolCopy=$out+'-tool'\nforeach($p in @($out,$outputs,$specPath,$toolCopy,$m.capture_directory)){if(Test-Path $p){throw 'Evidence exists'}}\n$null=New-Item -ItemType Directory -Path $toolCopy\n$exe=Join-Path $toolCopy 'qrt-fla-seeded-capture-replay.exe'\nCopy-Item -LiteralPath $tool.artifact.file -Destination $exe;Verify-File $exe $tool.artifact.sha256\nVerify-File $m.profile $m.profile_sha256\nforeach($e in @(Get-ChildItem Env:|Where-Object {$_.Name.StartsWith('QRT_FLA_')})){[Environment]::SetEnvironmentVariable($e.Name,$null,'Process')}\n$environment=[ordered]@{}\nforeach($line in [IO.File]::ReadAllLines($m.profile)){if($line -match '^(QRT_FLA_[A-Z0-9_]+)=(.*)$'){$environment[$Matches[1]]=$Matches[2]}}\n$environment['QRT_FLA_GDN_CAPTURE_OUTPUT_FAILURE_DIR']=$m.capture_directory\nforeach($key in $environment.Keys){[Environment]::SetEnvironmentVariable($key,[string]$environment[$key],'Process')}\nforeach($table in $m.tables){Verify-File $table.path $table.sha256}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n$spec=[ordered]@{executable=$exe;arguments=@($kernels,$dll,$fixture,$outputs,'8192','key-major');working_directory=$repo;repo_commit=$commit\n command_file=$PSCommandPath;command_file_sha256=$m.script_sha256;source_manifest_sha256=(Get-FileHash $sourcePath -Algorithm SHA256).Hash.ToLowerInvariant()\n model='GB10 Qwen3.6-35B-A3B original131072-token prompt, layer33 transaction14 positions114688..122879';model_loaded=$false;native_tensor_inputs=$true\n inference_acceptance=$false;performance_acceptance=$false;purpose='Independent seeded component comparison of original GB10 operands and state. No full-model acceptance. Preserve original100 ms provider guard and record any rejected completed output. Repeat exact seed and zero-state negative control only if preceding launch completed successfully.'\n tool_source_commit=$m.tool_source_commit;tool_metadata_sha256=$m.tool_metadata_sha256;tool_source_inputs=$tool.source_inputs\n build_metadata_sha256=$m.build_metadata_sha256;provider_sha256=(Get-FileHash $dll -Algorithm SHA256).Hash.ToLowerInvariant()\n reference_manifest_sha256=$m.fixture.manifest_sha256;reference_capture_sha256=$inputs.reference_capture_sha256;reference_source_commit=$inputs.source_commit\n reference_all512_and_logits_pass=$true;interface_state_layout='key-major';capture_state_layout=$inputs.state_layout;environment=$environment\n prior_run_sha256=(Get-FileHash $m.prior_run -Algorithm SHA256).Hash.ToLowerInvariant();tables=$m.tables\n}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds 90|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks_pass|ConvertTo-Json\nif($r.reason -ne 'completed' -or -not $r.host_checks_pass -or $r.exit_code -notin @(0,2,6)){throw 'Diagnostic completion failed'}\n$files=@()\nif(Test-Path $outputs){$files=@(Get-ChildItem $outputs -File|ForEach-Object{@{file=$_.Name;bytes=$_.Length;sha256=(Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}})}\n[IO.File]::WriteAllText((Join-Path $out 'output-manifest.json'),($files|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))\nif(Test-Path (Join-Path $outputs 'result.json')){Get-Content (Join-Path $outputs 'result.json') -Raw}\nGet-Content (Join-Path $out 'product.stderr.log') -Tail 10\n"
+    }
+  },
+  "observations": "The captured layer8 scores/output reproduce every bit in3.9905 ms; separate launches measure scores0.6066 ms and output2.87979 ms. The original297.485138 ms completed interval does not reproduce in this small-memory standalone process. Separately, the original GB10 layer33 window at position114688 matches every output and final-state bit through the seeded native ABI, including exact repeat and a discriminating zero-state control.",
+  "inference": "Changed failure location and fast exact replays do not support a deterministic slow-input diagnosis. Scheduling, paging and other runtime delay causes remain unresolved. A post-completion latency threshold is not evidence of an arithmetic or HIP execution failure. A runtime policy repair can preserve completed work while retaining explicit process deadlines and original numerical/performance gates.",
+  "limits": "Layer8 standalone comparison uses native captured values, not a GB10 oracle. Layer33 GB10 comparison is an isolated component at an earlier failure location, not full-model128k acceptance. No product throughput or latency acceptance follows.",
+  "runtime_arithmetic_changed": false,
+  "delay_root_cause_identified": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "published": false
+}

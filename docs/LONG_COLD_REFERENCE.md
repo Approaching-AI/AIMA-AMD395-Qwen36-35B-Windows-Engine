@@ -51,3 +51,10 @@ dependency commits are unchanged from the table above. Host, deadline and GPU
 cleanup checks pass. It supplies a GB10 comparison for the repeated Windows
 delay location, without claiming Windows128k acceptance or identifying the
 delay's cause.
+
+The original window now passes the native seeded key-major interface using
+FLA provider `7a33fc9`: every33554432 BF16 output and524288 FP32 state cell
+matches bitwise, the seeded repeat is stable, and the zero-state control
+differs. The [native component evidence](../benchmarks/correctness/fla-completed-delay-native-diagnosis-20260919.json)
+pins the separate tool and provider identities. This remains a component
+comparison; full-model Windows128k qualification is pending.

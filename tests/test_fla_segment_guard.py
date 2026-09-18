@@ -101,7 +101,7 @@ int main(){
  reset();fail_record=1;assert(!run()&&!operations&&!body_calls&&!drains&&destroys==2);
  reset();fail_record=2;assert(!run()&&operations==6&&!waits&&drains==1&&!BlackwellSegmentGuard::active);
  reset();fail_wait=true;assert(!run()&&operations==6&&waits==1&&drains==1&&!BlackwellSegmentGuard::active);
- reset();duration=100.01f;host_duration=101;assert(!run()&&operations==6&&waits==1&&!drains&&!BlackwellSegmentGuard::active);
+ reset();duration=100.01f;host_duration=101;assert(run()&&operations==6&&waits==1&&!drains&&!BlackwellSegmentGuard::active);
  reset();duration=100;assert(run()&&operations==6&&waits==1);
  reset();{BlackwellSegmentGuard scope(expected_stream);assert(!run()&&!creates&&!scratch&&BlackwellSegmentGuard::active==&scope);
   assert(!launch_blackwell_math("foreign",nullptr,[]{++operations;return hipSuccess;}));assert(!operations);
@@ -120,8 +120,11 @@ int main(){
  reset();fail_elapsed=true;duration=std::numeric_limits<float>::quiet_NaN();assert(!run()&&waits==1&&operations==6&&!drains&&!BlackwellSegmentGuard::active);
  for(float value:{-1.0f,100.01f,std::numeric_limits<float>::infinity(),std::numeric_limits<float>::quiet_NaN()}){
   reset();duration=value;assert(run()&&waits==1&&operations==6);
-  reset();duration=value;host_duration=101;assert(!run()&&waits==1&&operations==6&&!BlackwellSegmentGuard::active);
-  assert(std::strstr(g_state.error,"stage=blackwell_complete_segment")&&std::strstr(g_state.error,"host_ms=101.000000"));
+  reset();duration=value;host_duration=101;assert(run()&&waits==1&&operations==6&&!BlackwellSegmentGuard::active);
+  reset();duration=value;host_duration=std::numeric_limits<double>::quiet_NaN();
+  const bool valid_gpu=std::isfinite(value)&&value>=0;
+  assert(bool(run())==valid_gpu&&waits==1&&operations==6&&!BlackwellSegmentGuard::active);
+  if(!valid_gpu)assert(std::strstr(g_state.error,"stage=blackwell_complete_segment")&&std::strstr(g_state.error,"no valid clock"));
  }
 }
 '''

@@ -1,119 +1,90 @@
-# FLA completion guard
+# Completed FLA stages and latency
 
-The September18 full128k-prefix run stopped during layer33 of its fifteenth
-owner chunk. It exited5 after4219017.852 ms, before producing any output.
-Fourteen chunks through114688 tokens completed. All14255 preceding logged
-FLA intervals were finite and at most6.039 ms. The original failure message
-omitted the failed interval and its operation name. The record cannot
-distinguish execution delay, scheduling delay or an invalid GPU clock value.
-Host, memory, boot and cleanup checks passed. See the
-[original failure record](../benchmarks/correctness/long-final-pv-prefix128k-guard-failure-20260918.json).
-This is a failed context qualification; it supplies no128k correctness or
-performance result.
+The retained non-pipelined runtime checks successful HIP submission, end-event synchronization and
+elapsed-time API status before using a completed interval. A finite,
+nonnegative GPU or enclosing monotonic host interval permits continuation.
+An interval above the nominal 100 ms is now reported as
+`FLA_COMPLETED_LATENCY`, including both clocks and the selected source. It
+does not turn already completed work into a runtime error. The normal clock
+selection and invalid-GPU-clock host fallback are preserved.
 
-The completion wrapper now measures an independent monotonic host interval
-from before recording the start event until after successful end-event
-synchronization. It retains the100 ms bound. A finite, nonnegative GPU
-interval within that bound remains sufficient. If that interval is invalid
-or exceeds100 ms, a finite, nonnegative host interval within100 ms independently
-proves that the enclosed submissions completed within the same bound.
-If neither clock supplies that evidence, submission stops.
+HIP API failures and a pair of invalid clocks still fail. Partial submission
+is drained before scratch reuse, and deferred stages require their outer
+completion. Kernel arithmetic, dispatch, segment sizes and memory ownership
+are unchanged. External bounded process execution remains required. The
+q8192 product latency target, retained performance target, model-load limit
+and every GB10 numerical boundary remain unchanged.
 
-HIP creation, recording, synchronization and elapsed-time API errors retain
-their failure paths. Partial submission is drained before scratch can be
-released. Deferred segment stages still rely on the single outer completion.
-There is no retry, extra device work, changed arithmetic, extended deadline
-or altered segmentation.
+The strict 100 ms `evaluate` helper remains available for the standalone
+failure diagnostic. Runtime dispatch uses `evaluate_completed`; its build
+metadata explicitly labels 100 ms as a nominal latency and records that
+completed latency is not a runtime failure. The historical failure-only
+capture hook does not run for an accepted completed latency outlier.
+The disabled experimental pipeline retains its separate phase guard; this
+repair changes the ordinary stage and deferred-segment completion wrapper.
 
-Every host-clock fallback or failed bound reports the operation, raw GPU
-time, enclosing host time, selected clock and completion result in
-`FLA_COMPLETION_GUARD`. Profiling retains the raw GPU value and marks it
-invalid when only host evidence is usable. A generic `sequence_ms` result
-then uses the accepted host interval; it must not be treated as a valid GPU
-profile sample without checking the adjacent diagnostic.
+All 121 local FLA tests pass, with one existing Linux-only test skipped on
+macOS. The actual submission and segment wrappers are exercised with slow
+completed work, invalid clocks, every HIP failure path, deferred submission,
+stream mismatches and cleanup. The 121 clock pairs separately retain strict
+diagnostic classification and test the completed-runtime policy. These are
+host tests; the repaired provider still needs native compilation and full
+model qualification. See the [local policy checks](../benchmarks/correctness/fla-completed-latency-policy-local-20260919.json).
 
-Host tests cover121 clock pairs, exact and adjacent100 ms boundaries,
-negative/nonfinite values, monotonic interval measurement, the actual
-submission wrapper and segment wrapper, deferred completion, HIP errors,
-stream mismatches and cleanup. Local FLA regression runs113 tests, with
-one existing Linux parent-death-signal test skipped on macOS. No cause or
-successful repair of the original128k failure is claimed from these host tests.
+The policy repair follows three preserved failed 128k owner/suffix runs.
+Each completed 14 owner chunks through 114688 tokens and produced no output:
 
-Native source `2b33665676223a4cded4b1df10437f4d1456aae9` now builds on
-baiying, with all45 compiled inputs checked. Its972800-byte DLL SHA256 is
-`73bd48b27ff696135b5902d1d693bc4d6a08e7f308f79b63e587c169e1ba83f7`.
-Captured q7169 output and final state match the GB10 reference bitwise.
-Full q8192/out512 matches every original token and callback, with first
-logit10.375/error0. Load is21317.5197 ms, TTFT23327.2313 ms and
-TPOT100.546425 ms. No host-clock fallback occurs in that run.
+| Provider | Failure layer | Completed GPU / host interval | Native process wall |
+| --- | --- | --- | --- |
+| Original `7b20c90` | 33 | Failed interval not recorded | 4219017.852 ms |
+| Dual-clock `2b33665` | 33 | 283.885010 / 284.029600 ms | 4213592.288 ms |
+| Capture `7a33fc9` | 8 | 297.485138 / 297.613700 ms | 3832371.554 ms |
 
-The full16384 owner first token/logit and31 cached continuation tokens match
-the original owner32. Both512-token suffix requests, raw first logits,
-callbacks, restoration and changed-prefix rejection also pass. Load is
-21298.4029 ms; the timed suffix TTFT is8450.1209 ms, TPOT156.542066 ms and
-owner continuation4897.6403 ms. One inverse-stage GPU interval is−0.048 ms;
-the enclosing monotonic host interval is0.3358 ms, independently satisfying
-the100 ms bound. The fallback is recorded and no invalid GPU duration is
-accepted as a profile sample. This demonstrates a negative event interval.
-The cause of the earlier128k failure remains unestablished.
+The [original failure](../benchmarks/correctness/long-final-pv-prefix128k-guard-failure-20260918.json),
+[dual-clock repeat](../benchmarks/correctness/fla-completion-guard-prefix128k-delay-failure-20260919.json)
+and [captured failure](../benchmarks/correctness/fla-output-failure-prefix128k-capture-20260919.json)
+retain the commands, binary identities, host checks and raw artifact hashes.
+All completed before the unchanged 7200-second process deadline, with normal
+cleanup and no numerical acceptance. The changed layer weakens the earlier
+fixed-input-location hypothesis.
 
-[Native build, captured comparison and complete product evidence](../benchmarks/correctness/fla-completion-guard-native-product-20260918.json)
-attach commands, source/binary identities and original numerical boundaries.
-The samples establish no paired speed gain.
+The capture preserves 54657024 bytes across seven surfaces: Q/K, V-new,
+chunk states, cumulative gates, scores and completed output. All values are
+finite. Static eligibility rejects no prior-state dot cells and 380928 of
+4194304 local-value dot cells; this alone does not explain the delay. Copies
+use at most 1 MiB of host scratch, publish a final record only on completion,
+and never retry a kernel or provide captured inputs to model inference.
 
-The repeated128k run also fails at layer33 of owner chunk14, after14
-completed chunks through114688 tokens. Native wall is4213592.288 ms,
-exit5, with no output. The failed `blackwell_output_segment` records
-283.885010 ms on the GPU and284.029600 ms on the monotonic host clock.
-Both exceed100 ms. Four earlier negative norm-stage GPU intervals pass
-independent host bounds. All host and cleanup guards pass. This establishes
-a completed delay at the repeated location; it does not identify which of
-the score/value kernels is slow or exclude scheduling and memory effects.
-See the [completed-delay failure record](../benchmarks/correctness/fla-completion-guard-prefix128k-delay-failure-20260919.json).
-No128k numerical acceptance exists.
+Standalone replay source `5ed1f233ea68fce8c25dd56cf9987d0fa215eec2` builds
+on baiying. The 823808-byte executable SHA256 is
+`2ffedaf75d1863041481fa1acf1c290ee91317003a4cc6d85f1de216d35e7aa4`.
+The same captured layer8 segment reproduces every score and output bit in
+3.990500 ms. Separate launches measure scores at 0.606600 ms and output at
+2.879790 ms, again with no bit mismatch. Immutable inputs, redzones and all
+completion/process checks pass. This small-memory component process does
+not reproduce the original delay; it does not identify scheduling, paging
+or another root cause, and native self-comparison is not a GB10 oracle.
 
-An opt-in diagnostic `QRT_FLA_GDN_CAPTURE_OUTPUT_FAILURE_DIR` now saves the
-failed segment only after successful event synchronization and elapsed-time
-query, with finite nonnegative clocks rejecting the original100 ms bound.
-It writes Q/K, V-new, chunk states, cumulative gates, scores and completed
-outputs to a new directory. Reads use at most1 MiB of host scratch and each
-capture is below64 MiB. Existing directories are refused. Failed or partial
-copies cannot publish a completion record. Original model failure is retained
-regardless of capture success; no kernel is retried or reference supplied to
-the model. The diagnostic is disabled in the portable profile.
+A separate original GB10 layer33 window, from position114688 for8192 tokens,
+passes the seeded key-major native interface with provider `7a33fc9` and
+independently pinned tool `37c8504`. All33554432 BF16 output cells and524288
+FP32 state cells match the reference bitwise. Repeating the original seed
+is bitwise stable; a zero-state negative control differs in13660175 output
+cells. Completed operator clocks are91.288704,88.080154 and89.094551 ms.
+This covers the earlier layer33 failure location, not the captured layer8
+segment or the full128k model. See the [native diagnosis and independent component evidence](../benchmarks/correctness/fla-completed-delay-native-diagnosis-20260919.json)
+and [original GB10 window](../benchmarks/correctness/gb10-prefix128-layer33-window-20260919.json).
 
-All117 local FLA tests pass, with one Linux-only test skipped on macOS.
-The new checks exercise partial/full segments, byte preservation, copy and
-filesystem failures, invalid completion evidence and the actual submission
-wrapper's observation reset. Diagnostic source
-`7a33fc99e248faaeebeb9b5ec3064246c133c6e7` builds natively on baiying;
-all46 compiler inputs match. Its979968-byte DLL SHA256 is
-`ac234c0b416967b4c0978bd22a3d36a5bc3546287934c614ff6d6bb68c4789a1`.
-The original q7169 output and final state match bitwise. With capture disabled,
-q8192/out512 passes every original GB10 ID, callback and first logit
-10.375/error0. Load is21345.493299 ms, TTFT23192.6479 ms and
-TPOT101.249491 ms. This single run does not replace the qualified performance
-median. See the [native diagnostic build and short regression](../benchmarks/correctness/fla-output-failure-capture-native-q8192-20260919.json).
+Historical short-context qualification remains attached to its exact source.
+Provider `2b33665` passes captured q7169, full q8192/out512 and the original
+16k prefix-owner/suffix transactions. The16k run demonstrates a negative
+GPU interval with a valid0.3358 ms enclosing host interval. See the
+[dual-clock product evidence](../benchmarks/correctness/fla-completion-guard-native-product-20260918.json).
+Capture provider `7a33fc9` also passes captured q7169 and every q8192/out512
+ID, callback and first logit10.375/error0, with capture disabled. Its load is
+21345.493299 ms, TTFT23192.6479 ms and TPOT101.249491 ms. That single sample
+is not a replacement performance median; see the [diagnostic provider regression](../benchmarks/correctness/fla-output-failure-capture-native-q8192-20260919.json).
 
-The original128k owner/suffix diagnostic is running with capture enabled and
-the unchanged7200-second process budget. Actual failed-input capture, delay
-identification and long-context recovery remain pending. The unpublished R6
-portable candidate retains FLA `2b33665`; this diagnostic is not part of its
-archive. Performance and release acceptance remain open.
-
-`native/providers/gdn/output_failure_replay.cpp` is a standalone diagnostic
-for these seven captured surfaces. It supports combined, scores-only,
-output-only, split, and64-token tile modes using the same production kernels
-and validated original exp2 table. Every interval requires successful HIP
-completion and the same100 ms bound. A rejected interval stops subsequent
-kernel submissions; completed rows are still compared bitwise against the
-native failed-stage capture. Immutable inputs, outer redzones and unsubmitted
-output rows are checked. This comparison is diagnostic, not a GB10 oracle
-or product performance result. The replay is not linked into the runtime.
-
-Four local tests compile this executable against a CPU HIP shim with address
-and undefined-behavior sanitizers. They exercise1/65/1024-token shapes in all
-five modes, rebased chunk-state pointers, exact comparison spans, failed
-completion/API calls, immutable inputs, redzones, malformed input and cleanup.
-These tests validate orchestration only; native compilation and actual
-captured GPU execution remain pending.
+The unpublished R6 portable candidate retains FLA `2b33665`. The current
+policy repair has not been put in that archive. Native qualification,
+128k recovery, product performance and release acceptance remain open.

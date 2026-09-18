@@ -223,8 +223,9 @@ int completed_stage_profile_mode() {
 }
 
 // A segment contains at most sixteen q64 chunks. The callers below enqueue
-// no more than 32 ordered kernels before this completion check. Applying the
-// 100 ms guard to the entire sequence also bounds each kernel within it.
+// no more than 32 ordered kernels before this completion check. The 100 ms
+// nominal latency is diagnostic after successful completion; an external
+// process deadline, not this post-completion observation, bounds execution.
 template<class Operation>
 bool launch_blackwell_math(const char* name, hipStream_t stream, Operation operation,
                            float* completed_ms = nullptr,
@@ -270,8 +271,9 @@ bool launch_blackwell_math(const char* name, hipStream_t stream, Operation opera
     status = hipEventElapsedTime(&milliseconds, begin.handle, end.handle);
     if (status != hipSuccess) { set_error(name, status); return false; }
     if (observation) *observation = {true, static_cast<double>(milliseconds), host_ms};
-    const auto timing = qrt_fla_completion::evaluate(milliseconds, host_ms);
-    if (timing.source != qrt_fla_completion::ClockSource::gpu) {
+    const auto timing = qrt_fla_completion::evaluate_completed(milliseconds, host_ms);
+    if (timing.source != qrt_fla_completion::ClockSource::gpu &&
+        (!timing.accepted() || qrt_fla_completion::bounded(timing.milliseconds))) {
         std::fprintf(stderr,
             "FLA_COMPLETION_GUARD stage=%s gpu_ms=%.6f host_ms=%.6f guard_ms=100 clock=%s completed=1 accepted=%u\n",
             name, static_cast<double>(milliseconds), host_ms,
@@ -280,10 +282,16 @@ bool launch_blackwell_math(const char* name, hipStream_t stream, Operation opera
     if (!timing.accepted()) {
         char message[384];
         std::snprintf(message, sizeof(message),
-            "Blackwell math sequence exceeds 100 ms or has invalid clocks: stage=%s gpu_ms=%.6f host_ms=%.6f; no further submission",
+            "Blackwell completed math sequence has no valid clock: stage=%s gpu_ms=%.6f host_ms=%.6f; no further submission",
             name, static_cast<double>(milliseconds), host_ms);
         set_error_text(message);
         return false;
+    }
+    if (!qrt_fla_completion::bounded(timing.milliseconds)) {
+        std::fprintf(stderr,
+            "FLA_COMPLETED_LATENCY stage=%s gpu_ms=%.6f host_ms=%.6f nominal_ms=100 clock=%s completed=1 exceeded=1 action=continue\n",
+            name, static_cast<double>(milliseconds), host_ms,
+            timing.source == qrt_fla_completion::ClockSource::gpu ? "gpu" : "host");
     }
     if (completed_ms) *completed_ms = static_cast<float>(timing.milliseconds);
     if (profile) std::fprintf(stderr,

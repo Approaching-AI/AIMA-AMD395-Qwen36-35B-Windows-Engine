@@ -1,4 +1,4 @@
-"""Exercise completion evidence, invalid clocks and the unchanged100 ms bound."""
+"""Distinguish strict diagnostic latency bounds from completed runtime work."""
 import json
 import os
 from pathlib import Path
@@ -22,5 +22,7 @@ class FlaCompletionGuardTests(unittest.TestCase):
             self.assertEqual(report["comparisons"], 121)
             self.assertEqual(report["host_fallbacks"], 30)
             self.assertEqual(report["rejections"], 36)
+            self.assertEqual(report["slow_completed"], 20)
+            self.assertEqual(report["invalid_completed_clocks"], 16)
             self.assertEqual(report["guard_ms"], 100)
             self.assertTrue(report["pass"])

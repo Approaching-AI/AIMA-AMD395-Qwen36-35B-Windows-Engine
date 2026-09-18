@@ -115,7 +115,7 @@ int main() {
     reset(); fail_wait = true;
     if (run(1024u, 2u) || operations != 32u || waits != 1u || drains != 1u) return 10;
     reset(); duration = 100.01f; host_duration=101;
-    if (run(1024u, 2u) || operations != 32u || waits != 1u || drains) return 11;
+    if (!run(1024u, 2u) || operations != 32u || waits != 1u || drains) return 11;
     reset(); duration = 100.0f;
     if (!run(1024u, 2u) || operations != 32u || waits != 1u) return 12;
     reset(); fail_elapsed=true; duration=std::numeric_limits<float>::quiet_NaN();
@@ -124,11 +124,14 @@ int main() {
         reset();duration=value;
         if(!run(1024u,2u)||operations!=32u||waits!=1u||drains) return 13;
         reset();duration=value;host_duration=101;
-        if(run(1024u,2u)||operations!=32u||waits!=1u||drains) return 14;
+        if(!run(1024u,2u)||operations!=32u||waits!=1u||drains) return 14;
+        reset();duration=value;host_duration=std::numeric_limits<double>::quiet_NaN();
+        const bool valid_gpu=std::isfinite(value)&&value>=0;
+        if(run(1024u,2u)!=valid_gpu||operations!=32u||waits!=1u||drains) return 20;
     }
     qrt_fla_completion::Observation observed{true,999,999};
     reset();duration=284;host_duration=285;
-    if(launch_blackwell_math("completed_rejection",nullptr,[]{++operations;return hipSuccess;},nullptr,&observed) ||
+    if(!launch_blackwell_math("completed_slow",nullptr,[]{++operations;return hipSuccess;},nullptr,&observed) ||
        !observed.completed||observed.gpu_ms!=284||observed.host_ms!=285||operations!=1) return 16;
     reset();fail_wait=true;
     if(launch_blackwell_math("incomplete",nullptr,[]{++operations;return hipSuccess;},nullptr,&observed)||

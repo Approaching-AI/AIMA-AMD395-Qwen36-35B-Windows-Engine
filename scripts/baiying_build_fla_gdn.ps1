@@ -197,7 +197,8 @@ $record = [ordered]@{
     native_blackwell_state=$true; cooperative_exact_available=$true; cooperative_exact_lanes=4
     paired_score_arenas_available=$true; paired_score_arenas_default=0
     pipelined_segments_available=$true; pipelined_segments_default=0
-    completion_guard_ms=100; completion_guard_host_clock='std::chrono::steady_clock'
+    completion_nominal_latency_ms=100; completed_latency_is_runtime_failure=$false
+    completion_guard_host_clock='std::chrono::steady_clock'
     completion_guard_requires_completed_end_event=$true
     sm121_dpp_reduction=($DppReduction -ne 0)
     sm121_compact_normalize=($CompactNormalize -ne 0)
