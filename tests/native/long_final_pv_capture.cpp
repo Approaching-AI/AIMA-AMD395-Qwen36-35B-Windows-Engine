@@ -64,7 +64,7 @@ unsigned lf_verify(AttentionOutputs& expected,AttentionOutputs& actual,const LfR
         const bool old_selected=!qrt_sm121_pv_bound::same_bf16(reference.native[cell],reference.error[cell]);
         const bool new_selected=!qrt_sm121_pv_bound::same_bf16(reference.native[cell],errors[cell]);
         if(bool(seen[cell])!=new_selected||(old_selected&&!new_selected))throw std::runtime_error("PV full candidate identity");
-        if(!std::isfinite(out[cell])||f32_to_bf16(out[cell])!=f32_to_bf16(reference.exact[cell]))throw std::runtime_error("PV canonical BF16 differs");
+        if(!std::isfinite(out[cell])||qrt_sm121_pv_bound::bf16(out[cell])!=qrt_sm121_pv_bound::bf16(reference.exact[cell]))throw std::runtime_error("PV canonical BF16 differs");
         if(bits(out[cell])!=bits(seen[cell]?reference.exact[cell]:reference.native[cell])||
             bits(acc[cell])!=bits(seen[cell]?reference.exact_accumulator[cell]:reference.accumulator[cell]))throw std::runtime_error("PV raw replay differs");
         if(std::abs(double(reference.native[cell])-double(reference.exact[cell]))>double(errors[cell]))throw std::runtime_error("PV original interval undercoverage");
