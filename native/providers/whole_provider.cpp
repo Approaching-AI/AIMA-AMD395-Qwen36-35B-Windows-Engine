@@ -59611,6 +59611,10 @@ struct Qwen36ResidentSessionFullAttentionLayer {
     size_t decode_tail_capacity_tokens = 0u;
     size_t decode_tail_token_count = 0u;
     size_t history_tokens = 0u;
+    // Only a cold chunk transaction may reserve beyond the committed history.
+    // V follows the reserved K capacity until the final append fills it. The
+    // field returns to zero before publishing the completed resident owner.
+    size_t prefill_reserved_tokens = 0u;
     bool decode_tail_contiguous = false;
     Qwen36ResidentSessionElementKind element_kind =
         Qwen36ResidentSessionElementKind::kNone;

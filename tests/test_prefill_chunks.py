@@ -30,7 +30,10 @@ enum hipError_t{hipSuccess,hipErrorInvalidValue};
 const char* hipGetErrorString(hipError_t){return "injected";}
 constexpr size_t kQwen36ResidentDecodeTailCapacityTokens=1536;
 struct Linear{bool valid=true;size_t prefix_tokens=8192,decode_qkv_token_count=0,decode_recurrent_token_count=0;};
-struct Attention{size_t decode_tail_k_bytes=1536*1024,decode_tail_v_bytes=1536*1024;};
+struct Attention{
+ size_t decode_tail_k_bytes=1536*1024,decode_tail_v_bytes=1536*1024;
+ size_t prefill_reserved_tokens=0,history_tokens=8192,k_bytes=8192*1024,v_bytes=8192*1024;
+};
 struct Workspace{size_t full_attention_score_scratch_token_capacity=0;};
 struct Session{
  bool valid=false,current_token_valid=false,last_decode_top2_valid=false,mtp_target_hidden_valid=false;
@@ -53,7 +56,7 @@ uint64_t qrt_fnv1a64_update_bytes(uint64_t h,const void* p,size_t n){return h^qr
 bool raw_env_flag_enabled(const char*){return false;}
 bool env_flag_enabled(const char*){return true;}
 bool qwen36_resident_decode_activation_workspace_layout_valid(const Workspace&){return true;}
-unsigned seeds=0,suffixes=0,callbacks=0,releases=0,fail_suffix=0;
+unsigned seeds=0,suffixes=0,callbacks=0,releases=0,fail_suffix=0,reservations=0,fail_reservation=0;
 bool fail_seed=false,cancel=false,bad_counter=false;
 const uint32_t* actual_prompt=nullptr;size_t requested_total=0;
 void qrt_qwen36_whole_provider_set_failure(qrt_qwen36_whole_provider_result_t* r,const std::string& stage,const std::string&,uint64_t start){
@@ -70,7 +73,17 @@ int qrt_qwen36_whole_provider_prefill_v1(const qrt_qwen36_whole_provider_request
  return !fail_seed;
 }
 hipError_t resize_qwen36_prefill_chunk_tail(Attention& a,size_t count){a.decode_tail_k_bytes=a.decode_tail_v_bytes=count*1024;return hipSuccess;}
-hipError_t promote_qwen36_prefill_chunk_attention(Attention&,size_t,size_t){return hipSuccess;}
+hipError_t reserve_qwen36_prefill_chunk_attention(Attention& a,size_t count){
+ assert(count==requested_total&&a.history_tokens==8192&&!a.prefill_reserved_tokens);
+ if(++reservations==fail_reservation)return hipErrorInvalidValue;
+ a.prefill_reserved_tokens=count;return hipSuccess;
+}
+hipError_t promote_qwen36_prefill_chunk_attention(Attention& a,size_t prefix,size_t count){
+ assert(a.history_tokens==prefix&&prefix+count<=a.prefill_reserved_tokens);
+ a.history_tokens=prefix+count;a.k_bytes=a.v_bytes=a.history_tokens*1024;
+ if(a.history_tokens==a.prefill_reserved_tokens)a.prefill_reserved_tokens=0;
+ return hipSuccess;
+}
 bool run_qwen36_resident_batch_suffix(const qrt_qwen36_whole_provider_prefix_request_v1_t& r,uint32_t* teachers,
  std::string* stage,std::string* failure,bool terminal_only,qrt_qwen36_whole_provider_result_t* out){
  ++suffixes;auto& s=g_qwen36_resident_session;
@@ -95,7 +108,7 @@ int main(){
  for(size_t i=0;i<prompt.size();++i)prompt[i]=uint32_t(i%245000);
  actual_prompt=prompt.data();auto result=std::make_unique<qrt_qwen36_whole_provider_result_t>();
  auto run=[&](size_t total){
-  requested_total=total;seeds=suffixes=callbacks=releases=0;*result={};result->preload_wall_clock_ns=789;
+  requested_total=total;seeds=suffixes=callbacks=releases=reservations=0;*result={};result->preload_wall_clock_ns=789;
   qrt_qwen36_whole_provider_request_t r{};r.resident_engine=reinterpret_cast<qrt_engine_t*>(uintptr_t(16));
   r.input_tokens=prompt.data();r.input_token_count=total;r.output_token_capacity=512;r.prefill_emit_callback=emit;
   r.expected_prompt_token_ids_fnv1a64=qrt_fnv1a64_bytes(prompt.data(),total*4);
@@ -103,12 +116,18 @@ int main(){
  };
  for(size_t total:{16384u,17408u,32768u,65536u,66560u,122880u,123904u,131072u,132096u,262144u,263168u}){
   assert(run(total)==1&&callbacks==1&&seeds==1&&suffixes==(total+8191)/8192-1&&!releases);
+  assert(reservations==10);
   assert(result->resident_session_valid&&result->resident_session_prefix_token_count==total);
   assert(result->resident_session_generation==99&&result->output_tokens[0]==42&&result->output_token_capacity==512);
   assert(result->preload_wall_clock_ns==789&&result->prefill_emit_completed&&!result->prefill_emit_rejected);
   assert(result->prompt_token_ids_fnv1a64==qrt_fnv1a64_bytes(prompt.data(),total*4));
  }
  fail_seed=true;assert(!run(16384)&&!callbacks&&releases==1&&!g_qwen36_resident_session.valid);fail_seed=false;
+ for(unsigned failure:{1u,5u,10u}){
+  fail_reservation=failure;
+  assert(!run(32768)&&reservations==failure&&!suffixes&&!callbacks&&releases==1&&!g_qwen36_resident_session.valid);
+ }
+ fail_reservation=0;
  for(unsigned failure:{1u,2u}){fail_suffix=failure;assert(!run(32768)&&!callbacks&&releases==1&&!g_qwen36_resident_session.valid);}
  fail_suffix=0;bad_counter=true;assert(!run(16384)&&!callbacks&&releases==1);bad_counter=false;
  // A failure after crossing the old 64k limit must discard every partially
@@ -139,6 +158,7 @@ int main(){
             'enum class Qwen36ResidentSessionElementKind',
             'struct Qwen36ResidentSessionFullAttentionLayer'))
         operations = '\n'.join(function(chunk, name) for name in (
+            'hipError_t reserve_qwen36_prefill_chunk_attention(',
             'hipError_t resize_qwen36_prefill_chunk_tail(',
             'hipError_t promote_qwen36_prefill_chunk_attention('))
         source = r'''
@@ -152,12 +172,13 @@ enum hipError_t {hipSuccess,hipErrorInvalidValue,hipErrorOutOfMemory,hipErrorUnk
 constexpr int hipMemcpyDeviceToDevice=1;
 std::set<void*> live;
 bool fail_allocate=false;
+void* fail_free=nullptr;
 unsigned copies=0,fail_copy=0;
 hipError_t hipMalloc(void** out,size_t bytes) {
  if(fail_allocate){*out=nullptr;return hipErrorOutOfMemory;}
  *out=std::malloc(bytes);assert(*out&&live.insert(*out).second);return hipSuccess;
 }
-hipError_t hipFree(void* p){assert(p&&live.erase(p)==1);std::free(p);return hipSuccess;}
+hipError_t hipFree(void* p){if(p==fail_free)return hipErrorUnknown;assert(p&&live.erase(p)==1);std::free(p);return hipSuccess;}
 hipError_t hipMemcpy(void* out,const void* in,size_t bytes,int kind){
  assert(kind==hipMemcpyDeviceToDevice);
  if(++copies==fail_copy)return hipErrorUnknown;
@@ -222,6 +243,77 @@ int main(){
  }
  assert(resize_qwen36_prefill_chunk_tail(layer,1536)==hipSuccess&&live.size()==2);
  assert(layer.decode_tail_capacity_tokens==1536&&layer.decode_tail_k_bytes==1536u*1024);
+ hipFree(layer.device_allocation);hipFree(layer.device_decode_tail_allocation);assert(live.empty());
+
+ // A reserved owner appends the same original bytes without allocating or
+ // recopying any committed history. Its larger V stride is private until the
+ // last real tail fills it, restoring the ordinary compact published layout.
+ layer={};layer.valid=true;layer.history_tokens=prefix;
+ layer.element_kind=Qwen36ResidentSessionElementKind::kBf16;
+ layer.k_bytes=layer.v_bytes=initial_bytes;
+ assert(hipMalloc(&layer.device_allocation,initial_bytes*2)==hipSuccess);
+ layer.device_k=layer.device_allocation;
+ layer.device_v=static_cast<unsigned char*>(layer.device_k)+initial_bytes;
+ std::memset(layer.device_k,3,initial_bytes);std::memset(layer.device_v,5,initial_bytes);
+ layer.decode_tail_capacity_tokens=tokens;layer.decode_tail_k_bytes=layer.decode_tail_v_bytes=tokens*1024;
+ assert(hipMalloc(&layer.device_decode_tail_allocation,tokens*2048)==hipSuccess);
+ layer.device_decode_tail_k=layer.device_decode_tail_allocation;
+ layer.device_decode_tail_v=static_cast<unsigned char*>(layer.device_decode_tail_k)+tokens*1024;
+ std::memset(layer.device_decode_tail_k,7,tokens*1024);std::memset(layer.device_decode_tail_v,11,tokens*1024);
+ const auto seed_owner=layer.device_allocation;
+ constexpr size_t capacity=17408;
+ for(size_t invalid:{size_t(0),prefix,qrt_sm121_attention_capacity::kTokens+size_t(1)})
+  assert(reserve_qwen36_prefill_chunk_attention(layer,invalid)==hipErrorInvalidValue&&live.size()==2);
+ for(unsigned failure=0;failure<4;++failure){
+  copies=0;fail_copy=failure<3?failure:0;fail_allocate=failure==0;
+  fail_free=failure==3?seed_owner:nullptr;
+  assert(reserve_qwen36_prefill_chunk_attention(layer,capacity)==(failure?hipErrorUnknown:hipErrorOutOfMemory));
+  assert(layer.device_allocation==seed_owner&&!layer.prefill_reserved_tokens&&layer.history_tokens==prefix&&live.size()==2);
+  assert(layer.device_v==static_cast<unsigned char*>(seed_owner)+initial_bytes);
+  for(auto pair:{std::pair<void*,unsigned char>{layer.device_k,3},{layer.device_v,5}}){
+   auto* bytes=static_cast<unsigned char*>(pair.first);
+   assert(std::all_of(bytes,bytes+initial_bytes,[&](unsigned char v){return v==pair.second;}));
+  }
+ }
+ fail_free=nullptr;fail_allocate=false;copies=fail_copy=0;
+ assert(reserve_qwen36_prefill_chunk_attention(layer,capacity)==hipSuccess&&copies==2&&live.size()==2);
+ const auto reserved_owner=layer.device_allocation;
+ assert(layer.prefill_reserved_tokens==capacity&&layer.device_v==static_cast<unsigned char*>(reserved_owner)+capacity*1024);
+ assert(reserve_qwen36_prefill_chunk_attention(layer,capacity)==hipErrorInvalidValue);
+ layer.decode_tail_token_count=tokens;
+ fail_allocate=true; // Every subsequent append must succeed with allocation disabled.
+ for(unsigned failure:{1u,2u}){
+  copies=0;fail_copy=failure;
+  assert(promote_qwen36_prefill_chunk_attention(layer,prefix,tokens)==hipErrorUnknown);
+  assert(layer.device_allocation==reserved_owner&&layer.history_tokens==prefix&&layer.k_bytes==initial_bytes);
+  assert(layer.decode_tail_token_count==tokens&&layer.prefill_reserved_tokens==capacity&&live.size()==2);
+  for(auto pair:{std::pair<void*,unsigned char>{layer.device_k,3},{layer.device_v,5}}){
+   auto* bytes=static_cast<unsigned char*>(pair.first);
+   assert(std::all_of(bytes,bytes+initial_bytes,[&](unsigned char v){return v==pair.second;}));
+  }
+ }
+ copies=fail_copy=0;
+ assert(promote_qwen36_prefill_chunk_attention(layer,prefix,tokens)==hipSuccess&&copies==2);
+ assert(layer.device_allocation==reserved_owner&&layer.prefill_reserved_tokens==capacity&&layer.history_tokens==16384);
+ assert(layer.device_v==static_cast<unsigned char*>(reserved_owner)+capacity*1024);
+ // Reject corrupt capacity before writing either tensor or publishing counters.
+ layer.decode_tail_token_count=1024;layer.prefill_reserved_tokens=16384;
+ copies=0;assert(promote_qwen36_prefill_chunk_attention(layer,16384,1024)==hipErrorInvalidValue&&!copies);
+ layer.prefill_reserved_tokens=capacity;
+ auto* reserved_v=layer.device_v;layer.device_v=static_cast<unsigned char*>(reserved_v)+1;
+ assert(promote_qwen36_prefill_chunk_attention(layer,16384,1024)==hipErrorInvalidValue&&!copies);
+ layer.device_v=reserved_v;
+ std::memset(layer.device_decode_tail_k,13,1024u*1024);std::memset(layer.device_decode_tail_v,17,1024u*1024);
+ assert(promote_qwen36_prefill_chunk_attention(layer,16384,1024)==hipSuccess&&copies==2);
+ assert(layer.device_allocation==reserved_owner&&!layer.prefill_reserved_tokens&&!layer.decode_tail_token_count);
+ assert(layer.history_tokens==capacity&&layer.k_bytes==capacity*1024&&layer.v_bytes==layer.k_bytes);
+ assert(layer.device_v==static_cast<unsigned char*>(layer.device_k)+layer.k_bytes);
+ for(auto pair:{std::pair<void*,unsigned char>{layer.device_k,3},{layer.device_v,5}}){
+  auto* bytes=static_cast<unsigned char*>(pair.first);
+  assert(std::all_of(bytes,bytes+initial_bytes,[&](unsigned char v){return v==pair.second;}));
+  assert(std::all_of(bytes+initial_bytes,bytes+initial_bytes*2,[&](unsigned char v){return v==(pair.second==3?7:11);}));
+  assert(std::all_of(bytes+initial_bytes*2,bytes+capacity*1024,[&](unsigned char v){return v==(pair.second==3?13:17);}));
+ }
  hipFree(layer.device_allocation);hipFree(layer.device_decode_tail_allocation);assert(live.empty());
 }
 '''

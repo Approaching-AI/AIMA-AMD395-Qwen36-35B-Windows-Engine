@@ -3,6 +3,33 @@
 // ready. Intermediate samples never cross the streaming ABI.
 #pragma once
 
+hipError_t reserve_qwen36_prefill_chunk_attention(
+    Qwen36ResidentSessionFullAttentionLayer &layer, size_t capacity
+) {
+    if (!layer.valid || layer.decode_tail_contiguous || layer.decode_tail_token_count ||
+        layer.prefill_reserved_tokens || !layer.history_tokens ||
+        capacity <= layer.history_tokens || capacity > qrt_sm121_attention_capacity::kTokens ||
+        layer.element_kind != Qwen36ResidentSessionElementKind::kBf16 ||
+        layer.k_bytes != layer.history_tokens * 1024u || layer.v_bytes != layer.k_bytes ||
+        !layer.device_allocation || layer.device_k != layer.device_allocation ||
+        layer.device_v != static_cast<unsigned char *>(layer.device_k) + layer.k_bytes)
+        return hipErrorInvalidValue;
+    const size_t bytes = capacity * 1024u;
+    void *next = nullptr;
+    hipError_t status = hipMalloc(&next, bytes * 2u);
+    if (status != hipSuccess) return status;
+    auto *next_v = static_cast<unsigned char *>(next) + bytes;
+    status = hipMemcpy(next, layer.device_k, layer.k_bytes, hipMemcpyDeviceToDevice);
+    if (status == hipSuccess)
+        status = hipMemcpy(next_v, layer.device_v, layer.v_bytes, hipMemcpyDeviceToDevice);
+    if (status == hipSuccess) status = hipFree(layer.device_allocation);
+    if (status != hipSuccess) { (void)hipFree(next); return status; }
+    layer.device_allocation = layer.device_k = next;
+    layer.device_v = next_v;
+    layer.prefill_reserved_tokens = capacity;
+    return hipSuccess;
+}
+
 hipError_t resize_qwen36_prefill_chunk_tail(
     Qwen36ResidentSessionFullAttentionLayer &layer, size_t capacity
 ) {
@@ -37,6 +64,29 @@ hipError_t promote_qwen36_prefill_chunk_attention(
         !layer.device_decode_tail_k || !layer.device_decode_tail_v)
         return hipErrorInvalidValue;
     const size_t bytes = (prefix + tokens) * 1024u;
+    if (layer.prefill_reserved_tokens) {
+        if (layer.prefill_reserved_tokens > qrt_sm121_attention_capacity::kTokens ||
+            prefix + tokens > layer.prefill_reserved_tokens ||
+            layer.device_k != layer.device_allocation ||
+            layer.device_v != static_cast<unsigned char *>(layer.device_k) +
+                layer.prefill_reserved_tokens * 1024u)
+            return hipErrorInvalidValue;
+        // The preceding chunk is fenced. Append only to uncommitted storage;
+        // either copy may fail without altering the published history. A retry
+        // overwrites both spans, and the coordinator discards a failed owner.
+        auto status = hipMemcpy(static_cast<unsigned char *>(layer.device_k) + prefix * 1024u,
+            layer.device_decode_tail_k, tokens * 1024u, hipMemcpyDeviceToDevice);
+        if (status == hipSuccess)
+            status = hipMemcpy(static_cast<unsigned char *>(layer.device_v) + prefix * 1024u,
+                layer.device_decode_tail_v, tokens * 1024u, hipMemcpyDeviceToDevice);
+        if (status != hipSuccess) return status;
+        layer.k_bytes = layer.v_bytes = bytes;
+        layer.history_tokens = prefix + tokens;
+        layer.decode_tail_token_count = 0u;
+        if (layer.history_tokens == layer.prefill_reserved_tokens)
+            layer.prefill_reserved_tokens = 0u;
+        return hipSuccess;
+    }
     void *next = nullptr;
     hipError_t status = hipMalloc(&next, bytes * 2u);
     if (status != hipSuccess) return status;
@@ -117,6 +167,19 @@ int run_qwen36_chunked_prefill(
             return fail("qwen36_chunked_prefill_seed",
                 chunk_result->failure[0] ? chunk_result->failure : "first real 8192 inputs did not create a complete resident seed");
         auto &owner = g_qwen36_resident_session;
+        // The complete prompt size is already known. Keep one KV allocation
+        // per layer throughout the cold transaction instead of repeatedly
+        // allocating and copying the growing history at every chunk boundary.
+        for (unsigned i = 3u; i < QRT_QWEN36_LAYER_COUNT; i += 4u) {
+            const auto status = reserve_qwen36_prefill_chunk_attention(
+                owner.full_attention_layers[i], total);
+            if (status != hipSuccess)
+                return fail("qwen36_chunked_prefill_kv_reserve", hipGetErrorString(status));
+        }
+        std::cerr << "BATCH_MARK qwen36_chunked_prefill_kv_reservation layers="
+                  << QRT_QWEN36_LAYER_COUNT / 4u << " capacity_tokens=" << total
+                  << " allocation_bytes=" << total * 2048u * (QRT_QWEN36_LAYER_COUNT / 4u)
+                  << " history_copy_on_append=0 completed=1" << std::endl;
         auto resize_tails = [&](size_t capacity) {
             for (unsigned i = 3u; i < QRT_QWEN36_LAYER_COUNT; i += 4u) {
                 auto &layer = owner.full_attention_layers[i];
@@ -175,6 +238,13 @@ int run_qwen36_chunked_prefill(
         }
         status = resize_tails(kQwen36ResidentDecodeTailCapacityTokens);
         if (status != hipSuccess) return fail("qwen36_chunked_prefill_decode_tail", hipGetErrorString(status));
+        for (unsigned i = 3u; i < QRT_QWEN36_LAYER_COUNT; i += 4u) {
+            const auto &layer = owner.full_attention_layers[i];
+            if (layer.prefill_reserved_tokens || layer.history_tokens != total ||
+                layer.k_bytes != total * 1024u || layer.v_bytes != layer.k_bytes)
+                return fail("qwen36_chunked_prefill_kv_publication",
+                    "the final KV append did not fill the reserved compact owner");
+        }
         if (owner.prefix_tokens != total || owner.prompt_token_ids_fnv1a64 != prompt_digest ||
             !owner.current_token_valid || !owner.last_decode_top2_valid ||
             owner.last_decode_top2_position != total - 1u ||
