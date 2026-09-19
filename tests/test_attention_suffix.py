@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 import unittest
 
-from test_attention_workspace import attention_capacity, function
+from test_attention_workspace import attention_capacity, function, workspace_capacity_policy
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -27,10 +27,11 @@ class AttentionSuffixTests(unittest.TestCase):
 #include <initializer_list>
 #include <mutex>
 #include <set>
+#include <string>
 #include <utility>
 using hipStream_t=void*;
 enum hipError_t {hipSuccess,hipErrorInvalidValue,hipErrorNotSupported,hipErrorUnknown};
-''' + attention_capacity() + r'''
+''' + attention_capacity() + workspace_capacity_policy() + r'''
 constexpr unsigned kQueryFeatures=4096,kKvFeatures=512,kSm121MaxTokens=qrt_sm121_attention_capacity::kTokens;
 constexpr unsigned kPrefillChunkTokens=8192;
 constexpr int hipMemcpyDeviceToDevice=1;
@@ -78,6 +79,7 @@ int launch_sm121_attention(const uint16_t* q,const uint16_t* k,const uint16_t* v
 ''' + implementation + r'''
 int main(){
  unsetenv("QRT_CK_SM121_LONG_ATTENTION_PIPELINE");
+ unsetenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS");
  // Only mock transport inspects these allocations; no data pages need touching.
  for(unsigned i=0;i<5;++i){expected_inputs[i]=std::malloc(i?size_t(kSm121MaxTokens)*1024u:8192u*8192u);assert(expected_inputs[i]);}
  expected_output=static_cast<float*>(std::malloc(8192u*4096u*4u));assert(expected_output);
@@ -148,6 +150,31 @@ int main(){
  assert(call(262144,1)==hipSuccess&&copies==5&&allocations==before);
  unsetenv("QRT_CK_SM121_LONG_ATTENTION_PIPELINE");
  assert(call(262144,1024)==hipSuccess&&copies==5&&g_sm121_suffix.cells==retained&&g_sm121_compact_suffix.cells==compact);
+ // Reserve compact KV once; every copy and launcher still uses true extents.
+ hipFree(g_sm121_compact_suffix.cells);g_sm121_compact_suffix={};
+ setenv("QRT_CK_SM121_LONG_ATTENTION_PIPELINE","1",1);expected_compact=true;
+ const auto reservation=std::to_string(kSm121MaxTokens);
+ for(const char* invalid:{"-1","+1","true","1 ","99999999999999999999"}){
+  before=allocations;setenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS",invalid,1);
+  assert(call(8192,129)==hipErrorInvalidValue&&allocations==before&&!copies&&!launches);
+ }
+ setenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS",reservation.c_str(),1);
+ fail_allocate=true;
+ assert(call(8192,129)==hipErrorUnknown&&!copies&&!g_sm121_compact_suffix.cells);
+ fail_allocate=false;
+ assert(call(8192,129)==hipSuccess&&g_sm121_compact_suffix.capacity_tokens==kSm121MaxTokens);
+ compact=g_sm121_compact_suffix.cells;before=allocations;
+ for(auto shape:{std::pair<unsigned,unsigned>{16384,8192},{131072,8192},{262144,1024},{kSm121MaxTokens-2u,2u}}){
+  assert(call(shape.first,shape.second)==hipSuccess&&copies==4&&launches==1&&allocations==before&&
+         g_sm121_compact_suffix.cells==compact&&g_sm121_suffix.cells==retained);
+ }
+ for(unsigned failure=1;failure<=4;++failure){
+  fail_copy=failure;assert(call(16384,129)==hipErrorUnknown&&copies==failure&&!launches&&syncs==1);
+ }
+ fail_copy=0;fail_launch=true;
+ assert(call(16384,129)==hipErrorUnknown&&copies==4&&launches==1&&syncs==1);
+ fail_launch=false;
+ unsetenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS");
  hipFree(g_sm121_suffix.cells);hipFree(g_sm121_compact_suffix.cells);assert(live.empty());
  for(auto p:expected_inputs)std::free(const_cast<void*>(p));std::free(expected_output);
 }
@@ -160,6 +187,6 @@ int main(){
             result = subprocess.run([exe],check=True,timeout=15,capture_output=True,text=True)
             markers = [line for line in result.stderr.splitlines()
                        if line.startswith('SM121_COMPACT_SUFFIX_QUERY ')]
-            self.assertEqual(len(markers), 7)
+            self.assertEqual(len(markers), 12)
             self.assertTrue(all('query_staging_bytes=0 copies=4 original_q_view=1 stream_drained=1'
                                 in line for line in markers))

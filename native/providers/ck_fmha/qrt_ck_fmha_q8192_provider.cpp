@@ -47,6 +47,7 @@
 #include "prepared_decoded_qk_range.h"
 #include "long_attention_pipeline.h"
 #include "discardable_workspace.h"
+#include "attention_workspace_capacity.h"
 #endif
 
 #if defined(_WIN32)
@@ -522,6 +523,11 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     bool long_final_pv_bound = false;
     if (!qrt_long_attention_layout::select_final_bound(std::getenv("QRT_CK_SM121_LONG_FINAL_PV_BOUND"),
             long_pipeline,long_final_pv_bound)) return int(hipErrorInvalidValue);
+    unsigned long_workspace_capacity = 0u, requested_workspace_tokens = 0u;
+    if (!qrt_attention_workspace_capacity::select(
+            std::getenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS"),
+            query_start + query_count, 8192u, long_workspace_capacity,
+            requested_workspace_tokens)) return int(hipErrorInvalidValue);
     const char* profile_option = std::getenv("QRT_CK_SM121_PROFILE_COMPLETED_STAGES");
     if (profile_option && *profile_option && std::strcmp(profile_option,"0") &&
         std::strcmp(profile_option,"1")) return int(hipErrorInvalidValue);
@@ -637,10 +643,13 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const size_t required_long_elements = long_pipeline
         ? qrt_long_attention_layout::layout(query_batch,key_stride).elements : 0u;
     if (long_pipeline && !required_long_elements) return int(hipErrorInvalidValue);
+    const size_t reserved_long_elements = long_pipeline
+        ? qrt_long_attention_layout::layout(query_batch,
+            requested_workspace_tokens ? long_workspace_capacity : key_stride).elements : 0u;
     // A larger long slab has its own producer/consumer owner. Allocating an
     // unused short/extended matrix slab as well only increases peak memory.
     if (expanded_scratch && !mantissa_scores &&
-        (!long_pipeline || required_long_elements <= mantissa_elements)) {
+        (!long_pipeline || reserved_long_elements <= mantissa_elements)) {
         status = int(hipMalloc(reinterpret_cast<void**>(&mantissa_scores),
             mantissa_elements * sizeof(float)));
         if (status != int(hipSuccess)) { mantissa_scores = nullptr; return status; }
@@ -650,11 +659,11 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     float* long_scratch = mantissa_scores;
     size_t long_scratch_elements = mantissa_elements;
     if (long_pipeline) {
-        const size_t required = required_long_elements;
+        const size_t required = reserved_long_elements;
         if (required > mantissa_elements) {
             if (g_sm121_long_pipeline.scratch_elements < required) {
-                const unsigned capacity = std::min(kSm121MaxTokens,(key_stride+8191u)/8192u*8192u);
-                const size_t elements = qrt_long_attention_layout::layout(query_batch,capacity).elements;
+                const size_t elements = qrt_long_attention_layout::layout(
+                    query_batch,long_workspace_capacity).elements;
                 status = int(qrt_discardable_workspace::grow(g_sm121_long_pipeline.scratch,
                     g_sm121_long_pipeline.scratch_elements,elements,elements*sizeof(float)));
                 if (status != int(hipSuccess)) return status;
@@ -673,10 +682,10 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             kSm121TransposedValueElements * sizeof(uint16_t)));
         if (status != int(hipSuccess)) { g_sm121_transposed_values = nullptr; return status; }
     }
-    if (transpose_value && long_transpose_value && g_sm121_long_values.capacity_tokens < key_stride) {
+    if (transpose_value && long_transpose_value && g_sm121_long_values.capacity_tokens < long_workspace_capacity) {
         // The short owner stays fixed. Every long V cell is refreshed below;
         // discard drained scratch before allocating its larger replacement.
-        const unsigned capacity = std::min(kSm121MaxTokens, (key_stride + 8191u) / 8192u * 8192u);
+        const unsigned capacity = long_workspace_capacity;
         const size_t bytes = size_t(capacity) * kKvHeads * kHeadDim * sizeof(uint16_t);
         const unsigned previous = g_sm121_long_values.capacity_tokens;
         status = int(qrt_discardable_workspace::grow(g_sm121_long_values.cells,
@@ -733,8 +742,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         decoded_producer = {&narrow_workspace,qrt_narrow_domain_qk::launch_workspace};
     }
     if (long_prepared_decoded_qk) {
-        if (g_sm121_long_decoded_qk.capacity_tokens < key_stride) {
-            const unsigned capacity = std::min(kSm121MaxTokens, (key_stride + 8191u) / 8192u * 8192u);
+        if (g_sm121_long_decoded_qk.capacity_tokens < long_workspace_capacity) {
+            const unsigned capacity = long_workspace_capacity;
             const size_t bytes = qrt_prepared_decoded_qk_range::workspace_words(capacity) * sizeof(uint32_t);
             const unsigned previous = g_sm121_long_decoded_qk.capacity_tokens;
             status = int(qrt_discardable_workspace::grow(g_sm121_long_decoded_qk.words,
@@ -950,6 +959,11 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         std::fprintf(stderr,"SM121_LONG_PREPARED_DECODED_QK query_start=%u query_count=%u key_tokens=%u capacity_tokens=%u window=128 query_rows=16 key_columns=16 workspace_bytes=%zu refreshed=1 original_fallback=1 prepared_query_history=0\n",
             query_start,query_count,key_stride,long_decoded_workspace.key_capacity,
             long_decoded_workspace.word_count*sizeof(uint32_t));
+    if (long_pipeline && requested_workspace_tokens)
+        std::fprintf(stderr,"SM121_LONG_WORKSPACE_RESERVATION key_tokens=%u requested_tokens=%u capacity_tokens=%u query_batch=%u scratch_bytes=%zu decoded_capacity=%u value_capacity=%u domain_capacity=%u actual_input_extent=1 stream_drained=1\n",
+            key_stride,requested_workspace_tokens,long_workspace_capacity,query_batch,
+            long_scratch_elements*sizeof(float),g_sm121_long_decoded_qk.capacity_tokens,
+            g_sm121_long_values.capacity_tokens,g_sm121_long_pipeline.domain_capacity);
     if (selective_qk)
         std::fprintf(stderr,"SM121_SELECTIVE_QK_PROBABILITY query_start=%u query_count=%u probability_endpoint_repair=1 approximate_denominator=1 workspace_bytes=%zu gb10_product_gate_required=1\n",
             query_start,query_count,kSm121SelectiveQkElements*sizeof(float));
@@ -994,11 +1008,17 @@ int launch_sm121_suffix_attention(
     const char* long_option=std::getenv("QRT_CK_SM121_LONG_ATTENTION_PIPELINE");
     const bool compact_query=suffix_tokens>1u && suffix_tokens<=8192u && total>8192u &&
         long_option && std::strcmp(long_option,"1")==0;
+    unsigned capacity = total, requested = 0u;
+    // The compact owner contains KV only. Ordinary and one-token callers keep
+    // their existing Q/K/V allocation policy and do not reserve extra Q cells.
+    if (compact_query && !qrt_attention_workspace_capacity::select(
+            std::getenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS"), total, 1u,
+            capacity, requested)) return int(hipErrorInvalidValue);
     auto& owner=compact_query?g_sm121_compact_suffix:g_sm121_suffix;
-    if (owner.capacity_tokens < total) {
+    if (owner.capacity_tokens < capacity) {
         const auto status = qrt_discardable_workspace::grow(owner.cells,
-            owner.capacity_tokens,total,
-            size_t(total) * ((compact_query?0u:kQueryFeatures) + 2u * kKvFeatures) * sizeof(uint16_t));
+            owner.capacity_tokens,capacity,
+            size_t(capacity) * ((compact_query?0u:kQueryFeatures) + 2u * kKvFeatures) * sizeof(uint16_t));
         if (status != hipSuccess) return int(status);
     }
     auto* staged_q = owner.cells;

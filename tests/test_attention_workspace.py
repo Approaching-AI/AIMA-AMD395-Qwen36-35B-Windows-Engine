@@ -19,6 +19,12 @@ def attention_capacity():
     )
 
 
+def workspace_capacity_policy():
+    header = (ROOT / "native/providers/ck_fmha/attention_workspace_capacity.h").read_text()
+    return "\n".join(line for line in header.splitlines()
+                     if not line.startswith(("#pragma", "#include")))
+
+
 def function(source, signature):
     begin = source.index(signature)
     opening = source.index("{", begin)
@@ -77,13 +83,14 @@ class AttentionWorkspaceTests(unittest.TestCase):
 #include <cstring>
 #include <mutex>
 #include <set>
+#include <string>
 #include <array>
 #include <vector>
 using hipStream_t = void*;
 enum hipError_t { hipSuccess, hipErrorUnknown, hipErrorInvalidValue, hipErrorLaunchTimeOut };
 constexpr unsigned kQueryHeads = 16, kKvHeads = 2, kHeadDim = 256;
 constexpr unsigned kQ262144Tokens = 262144;
-''' + attention_capacity() + long_layout + r'''
+''' + attention_capacity() + workspace_capacity_policy() + long_layout + r'''
 namespace qrt_blackwell_attention {
 ''' + maximum + r'''
 }
@@ -497,6 +504,7 @@ void reset() {
     submitted_ranges.clear();
 }
 int main() {
+    unsetenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS");
     for (unsigned failure = 1; failure <= 4; ++failure) {
         reset(); fail_allocation = failure;
         if (prepare_sm121_attention_locked() != hipErrorUnknown || !empty()) return 1;
@@ -1484,6 +1492,54 @@ int main() {
         if(launch(16384,129)!=hipErrorInvalidValue || allocations || queries)return 281;
     }
     unsetenv("QRT_CK_SM121_LONG_FINAL_PV_BOUND");
+    // Reserve every growing long owner at the declared context capacity.
+    // Original query/key extents, output positions and drains remain active.
+    for(const char* invalid:{"-1","+1","1 ","true","4294967296","999999999999999999999"}){
+        reset();setenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS",invalid,1);
+        if(launch(8192,129)!=hipErrorInvalidValue || allocations || queries)return 290;
+    }
+    const auto reservation=std::to_string(kSm121MaxTokens);
+    setenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS",reservation.c_str(),1);
+    reset();track_submissions=true;
+    if(launch(8192,129)!=hipSuccess || pending_submissions ||
+       g_sm121_long_decoded_qk.capacity_tokens!=kSm121MaxTokens ||
+       g_sm121_long_values.capacity_tokens!=kSm121MaxTokens ||
+       g_sm121_long_pipeline.domain_capacity!=kSm121MaxTokens ||
+       g_sm121_long_pipeline.scratch_elements!=qrt_long_attention_layout::layout(128,kSm121MaxTokens).elements ||
+       g_sm121_mantissa_scores)return 291;
+    const unsigned first_allocations=allocations;
+    const auto* reserved_qk=g_sm121_long_decoded_qk.words;
+    const auto* reserved_v=g_sm121_long_values.cells;
+    const auto* reserved_domain=g_sm121_long_pipeline.domain;
+    const auto* reserved_scratch=g_sm121_long_pipeline.scratch;
+    for(unsigned start:{16384u,32768u,65536u,131072u,262144u,kSm121MaxTokens-129u}){
+        transposes=value_transposes=0u;
+        if(launch(start,129)!=hipSuccess || pending_submissions || range_start!=start || range_count!=129 ||
+           g_sm121_long_decoded_qk.words!=reserved_qk || g_sm121_long_values.cells!=reserved_v ||
+           g_sm121_long_pipeline.domain!=reserved_domain || g_sm121_long_pipeline.scratch!=reserved_scratch ||
+           allocations!=first_allocations+(start>=131072u?2u:0u))return 292;
+    }
+    // Every preparation allocation can fail, drain and retry at the same full capacity.
+    for(unsigned failure=1;failure<=first_allocations;++failure){
+        reset();track_submissions=true;fail_allocation=failure;
+        if(launch(8192,129)!=hipErrorUnknown || queries || pending_submissions)return 293;
+        fail_allocation=0u;transposes=value_transposes=0u;
+        if(launch(8192,129)!=hipSuccess || pending_submissions ||
+           g_sm121_long_decoded_qk.capacity_tokens!=kSm121MaxTokens ||
+           g_sm121_long_values.capacity_tokens!=kSm121MaxTokens ||
+           g_sm121_long_pipeline.domain_capacity!=kSm121MaxTokens)return 294;
+    }
+    reset();track_submissions=true;fail_query=2u;
+    if(launch(8192,129)!=hipErrorUnknown || pending_submissions || queries!=2u || !syncs)return 295;
+    reset();track_submissions=true;fail_sync=1u;
+    if(launch(8192,129)!=hipErrorUnknown || pending_submissions || !queries)return 296;
+    reset();
+    if(launch(0,8192)!=hipSuccess || g_sm121_long_decoded_qk.words ||
+       g_sm121_long_values.cells || g_sm121_long_pipeline.domain || g_sm121_long_pipeline.scratch)return 297;
+    reset();
+    if(launch(8192,1)!=hipSuccess || g_sm121_long_decoded_qk.words ||
+       g_sm121_long_values.cells || g_sm121_long_pipeline.domain || g_sm121_long_pipeline.scratch)return 298;
+    unsetenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS");
     for(const char* flag:{"QRT_CK_SM121_LONG_ATTENTION_PIPELINE","QRT_CK_SM121_LONG_PREPARED_DECODED_QK",
         "QRT_CK_SM121_LONG_TRANSPOSE_VALUE","QRT_CK_SM121_LONG_DIRECT_PV_OPERANDS"})unsetenv(flag);
     reset();
