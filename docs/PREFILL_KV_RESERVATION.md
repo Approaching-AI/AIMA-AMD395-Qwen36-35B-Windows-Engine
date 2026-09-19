@@ -38,6 +38,27 @@ Source `b35ae93a2ea6c123801ff71dc6108fd88af32d16` now builds on baiying in
 The 13508608-byte DLL has SHA256
 `f4c7742fb510c81b4617c6f3ebe520cc10eaecc3d6dcb496ed49e4f58e605390`.
 The [native build record](../benchmarks/correctness/prefill-kv-reservation-native-build-20260919.json)
-does not load a model. Original GB10 token comparisons and a measured memory
-comparison remain required. No performance improvement or release acceptance
-is claimed.
+does not load a model.
+
+The compiled candidate now passes the original cold32k/out512 request on
+baiying: all 512 IDs and callbacks match, first logit is 24.75 with zero error,
+all four chunks complete, and the exact 671088640-byte reservation marker is
+present. Source and host/cleanup checks pass. Load is 21280.1456 ms, TTFT
+257781.5184 ms and TPOT 217.390692 ms. See the
+[original cold32k boundary](../benchmarks/correctness/prefill-kv-reservation-cold32k-out512-20260919.json).
+
+The paired original whole32a run also passes. Minimum sampled system available
+physical memory is 21918986240 bytes for the control and 21916213248 bytes for
+the candidate, a difference of -2772992 bytes. Peak process private bytes
+differ by +1409024 bytes. These single runs do not establish a memory
+improvement or resolve the earlier 256k stop. The
+[sampled memory comparison](../benchmarks/correctness/prefill-kv-reservation-cold32k-memory-20260919.json)
+includes startup and cleanup and is subject to other system activity.
+
+The same DLL also passes original q8192/out512, all callbacks and first
+logit 10.375 with zero error. Load is 21298.2486 ms, TTFT 23422.0822 ms and
+TPOT 101.650893 ms. See the
+[q8192 regression](../benchmarks/correctness/prefill-kv-reservation-native-q8192-20260919.json).
+The original 256k owner/suffix case is being rerun with the unchanged memory
+guards and 28800-second process deadline. Full context, retained performance
+and release acceptance remain open.

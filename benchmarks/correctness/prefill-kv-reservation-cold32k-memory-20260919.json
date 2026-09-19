@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "kind": "prefill_kv_reservation_cold32_sampled_memory",
+  "host": "baiying",
+  "model": "D:\\models\\Qwen3.6-35B-A3B",
+  "native_control": {
+    "file": "benchmarks/correctness/rope-single-round-cold32k-out512-20260919.json",
+    "bytes": 489758,
+    "sha256": "19f468c5795d58ea547f8b85450dd99ddef6e90689de17928719194e76a6e5e0"
+  },
+  "native_candidate": {
+    "file": "benchmarks/correctness/prefill-kv-reservation-cold32k-out512-20260919.json",
+    "bytes": 491253,
+    "sha256": "9c41c0389bc2881316a4e52a6ecc3f5e5f1343cad1db76fac643c1b6c78fa851"
+  },
+  "analysis": {
+    "file": "prefill-kv-reservation-cold32k-memory-comparison-r1.json",
+    "sha256": "3322ba12dafdda3c2df3d578463cd988e7a3d187d40a1768aaa317ecd60532a2",
+    "record": {
+      "schema_version": 1,
+      "kind": "original_cold_kv_reservation_memory_observation",
+      "host": "baiying",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "input_tokens": 32768,
+      "output_tokens": 512,
+      "original_tokens_identical": true,
+      "unchanged_spec_keys": [
+        "model",
+        "oracle_sha256",
+        "oracle_case",
+        "reference_case_sha256",
+        "reference_data_manifest_sha256",
+        "prompt_file_sha256",
+        "expected_file_sha256",
+        "exact_attention_provider",
+        "expert_order_moe_provider",
+        "paired_gdn_provider",
+        "executable",
+        "cli_commit",
+        "cli_sha256",
+        "runtime_manifest_sha256",
+        "source_profile_sha256",
+        "selector_overrides",
+        "dense_ppb",
+        "moe_ppb",
+        "native_process_timeout_seconds",
+        "diagnostic_options"
+      ],
+      "identical_environment": true,
+      "changed_component": "coarse_out_provider",
+      "entries": {
+        "control": {
+          "name": "rope-single-round-cold512-q32768-long-prefix32768-owner-out512-mode1-r1",
+          "source_commit": "32a1b96af4126d44c7e80208dc76ea31160a010e",
+          "source_file": "rope-single-round-cold512-q32768-source-r1.json",
+          "source_sha256": "80ce0bd5ef8ad85e02427ffd296de1255586780552422cee643bb432ef5a5da6",
+          "run_record_sha256": "13ceaf14b66b4337cde8a1f15c988b71f19b32791ce68f57ebb74a06cc2c3e87",
+          "boundary_sha256": "db0679128a1f830cb1a0fcd959d277916623177d4f0227640cfd4a9801a8eaa6",
+          "telemetry": {
+            "file": "rope-single-round-cold512-q32768-long-prefix32768-owner-out512-mode1-r1/telemetry.jsonl",
+            "bytes": 186559,
+            "sha256": "68708025ca293b68147762f670fcc1678df5e15f91a29862d4c0de8fc7ac93de",
+            "samples": 1520,
+            "first": {
+              "elapsed_ms": 295,
+              "available_physical": 23516094464,
+              "available_commit": 143737659392,
+              "process_private_bytes": 99934208
+            },
+            "last": {
+              "elapsed_ms": 387385,
+              "available_physical": 22583586816,
+              "available_commit": 105876455424,
+              "process_private_bytes": 25848414208
+            },
+            "minimum_available_physical": 21918986240,
+            "minimum_available_commit": 57160175616,
+            "maximum_process_private_bytes": 63349825536
+          },
+          "timing": {
+            "engine_load_ms": 21214.8914,
+            "ttft_ms": 257595.0424,
+            "tpot_ms": 211.930275,
+            "request_wall_ms": 365891.759
+          },
+          "output_tokens": 512,
+          "first_token": 16,
+          "first_logit": 24.75,
+          "host_cleanup_pass": true
+        },
+        "candidate": {
+          "name": "prefill-kv-reservation-cold512-q32768-long-prefix32768-owner-out512-mode1-r1",
+          "source_commit": "b35ae93a2ea6c123801ff71dc6108fd88af32d16",
+          "source_file": "prefill-kv-reservation-cold512-q32768-source-r1.json",
+          "source_sha256": "c4a1eb9437c42208162c73179b9994254efa20ea5935e34a42977e9883beeb3a",
+          "run_record_sha256": "544c63f984520bec62c4374f11b45783785427b65600d609750f04137b41279b",
+          "boundary_sha256": "95a5001a46890815ec18d222a03041173c37cd2d01199c9f486189849410a560",
+          "telemetry": {
+            "file": "prefill-kv-reservation-cold512-q32768-long-prefix32768-owner-out512-mode1-r1/telemetry.jsonl",
+            "bytes": 189263,
+            "sha256": "b094e845c33c03b9e86f7afc5a3bec86ae3fe773c68b1810866f614b86d58db5",
+            "samples": 1542,
+            "first": {
+              "elapsed_ms": 270,
+              "available_physical": 23521193984,
+              "available_commit": 143714340864,
+              "process_private_bytes": 99856384
+            },
+            "last": {
+              "elapsed_ms": 390403,
+              "available_physical": 22592905216,
+              "available_commit": 109576228864,
+              "process_private_bytes": 23697829888
+            },
+            "minimum_available_physical": 21916213248,
+            "minimum_available_commit": 57787715584,
+            "maximum_process_private_bytes": 63351234560
+          },
+          "timing": {
+            "engine_load_ms": 21280.1456,
+            "ttft_ms": 257781.5184,
+            "tpot_ms": 217.390692,
+            "request_wall_ms": 368868.5674
+          },
+          "output_tokens": 512,
+          "first_token": 16,
+          "first_logit": 24.75,
+          "host_cleanup_pass": true
+        }
+      },
+      "delta_candidate_minus_control_bytes": {
+        "minimum_available_physical": -2772992,
+        "minimum_available_commit": 627539968,
+        "maximum_process_private_bytes": 1409024
+      },
+      "actual_reservation_markers": [
+        {
+          "layers": "10",
+          "capacity_tokens": "32768",
+          "allocation_bytes": "671088640",
+          "history_copy_on_append": "0",
+          "completed": "1"
+        }
+      ],
+      "acceptance": {
+        "all512_original_ids_both_runs": true,
+        "first_logits_and_callbacks_both_runs": true,
+        "source_and_cleanup": true,
+        "full256k": false,
+        "memory_pressure_resolved": false,
+        "performance": false,
+        "release": false
+      },
+      "limitations": "Single sequential runs with sampled system-wide available memory and process private bytes. Startup and cleanup are included; available memory also reflects other system activity. These32k observations do not establish256k completion, GPU allocation ownership, a leak diagnosis, or retained performance."
+    }
+  },
+  "acceptance": {
+    "all512_original_ids_both_runs": true,
+    "first_logits_and_callbacks_both_runs": true,
+    "source_and_cleanup": true,
+    "full256k": false,
+    "memory_pressure_resolved": false,
+    "performance": false,
+    "release": false
+  },
+  "limitations": "Single sequential runs with sampled system-wide available memory and process private bytes. Startup and cleanup are included; available memory also reflects other system activity. These32k observations do not establish256k completion, GPU allocation ownership, a leak diagnosis, or retained performance."
+}
