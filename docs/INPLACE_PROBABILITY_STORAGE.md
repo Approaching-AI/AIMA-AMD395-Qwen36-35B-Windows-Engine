@@ -26,8 +26,10 @@ two-byte probability reads while reusing the same score owner. It remains an
 unrun component candidate; the original tagged preparation below stays pinned
 to its recorded source and command.
 
-The original template defaults still use packed BF16 probabilities. No runtime
-option or provider dispatch selects the new path. The active ordered-storage
+The original template defaults still use separate BF16 probabilities. The
+original component preparation below has no runtime selector. The subsequent
+[provider integration](PACKED_PROBABILITY_STORAGE.md#provider-selection) adds
+an explicit option with the original default. The active ordered-storage
 full256k run uses its existing binaries and allocations.
 
 ASan/UBSan host checks pass all 65536 payload encodings, 1588053 complete layouts

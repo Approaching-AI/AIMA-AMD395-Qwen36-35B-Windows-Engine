@@ -46,6 +46,7 @@
 #include "exponent_mask_qk.h"
 #include "prepared_decoded_qk_range.h"
 #include "long_attention_pipeline.h"
+#include "long_probability_pipeline.h"
 #include "discardable_workspace.h"
 #include "attention_workspace_capacity.h"
 #include "compact_decode_query_policy.h"
@@ -528,6 +529,9 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     bool long_final_pv_bound = false;
     if (!qrt_long_attention_layout::select_final_bound(std::getenv("QRT_CK_SM121_LONG_FINAL_PV_BOUND"),
             long_pipeline,long_final_pv_bound)) return int(hipErrorInvalidValue);
+    unsigned long_probability_storage = 0u;
+    if (!qrt_long_probability_storage::select(std::getenv("QRT_CK_SM121_LONG_PROBABILITY_STORAGE"),
+            long_pipeline, long_probability_storage)) return int(hipErrorInvalidValue);
     unsigned long_workspace_capacity = 0u, requested_workspace_tokens = 0u;
     if (!qrt_attention_workspace_capacity::select(
             std::getenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS"),
@@ -646,10 +650,10 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const size_t mantissa_elements = extended ? kSm121ExtendedMantissaElements : kSm121MantissaElements;
     const size_t key_elements = extended ? kSm121ExtendedKeyElements : kSm121KeyElements;
     const size_t required_long_elements = long_pipeline
-        ? qrt_long_attention_layout::layout(query_batch,key_stride).elements : 0u;
+        ? qrt_long_probability_storage::layout(long_probability_storage,query_batch,key_stride).elements : 0u;
     if (long_pipeline && !required_long_elements) return int(hipErrorInvalidValue);
     const size_t reserved_long_elements = long_pipeline
-        ? qrt_long_attention_layout::layout(query_batch,
+        ? qrt_long_probability_storage::layout(long_probability_storage,query_batch,
             requested_workspace_tokens ? long_workspace_capacity : key_stride).elements : 0u;
     // A larger long slab has its own producer/consumer owner. Allocating an
     // unused short/extended matrix slab as well only increases peak memory.
@@ -667,8 +671,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         const size_t required = reserved_long_elements;
         if (required > mantissa_elements) {
             if (g_sm121_long_pipeline.scratch_elements < required) {
-                const size_t elements = qrt_long_attention_layout::layout(
-                    query_batch,long_workspace_capacity).elements;
+                const size_t elements = qrt_long_probability_storage::layout(
+                    long_probability_storage,query_batch,long_workspace_capacity).elements;
                 status = int(qrt_discardable_workspace::grow(g_sm121_long_pipeline.scratch,
                     g_sm121_long_pipeline.scratch_elements,elements,elements*sizeof(float)));
                 if (status != int(hipSuccess)) return status;
@@ -821,7 +825,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     for (unsigned int offset = 0; offset < query_count; offset += query_batch) {
         if (profile_stages) profile.last = std::chrono::steady_clock::now();
         if (long_pipeline) {
-            status = qrt_long_attention_pipeline::launch(long_narrow_workspace,g_sm121_native_exp2,
+            status = qrt_long_probability_pipeline::launch(long_probability_storage,long_narrow_workspace,g_sm121_native_exp2,
                 q,transposed_keys,v,transposed_value,output,query_start+offset,
                 std::min(query_batch,query_count-offset),output_start+offset,key_stride,
                 g_sm121_exp2,g_sm121_rcp,long_scratch,long_scratch_elements,stream,
@@ -922,6 +926,12 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         std::fprintf(stderr,"SM121_LONG_ATTENTION_PIPELINE query_start=%u query_count=%u query_batch=%u key_tokens=%u narrow_tiles=%u original_tiles=%u original_k16=1 original_per_group_bounds=%u deferred_long_bound=%u fused_probability_pv=1 register_exact_rescale=1 refreshed=1 scratch_bytes=%zu domain_bytes=%zu additional_scratch_bytes=%zu stream_drained=1\n",
             query_start,query_count,query_batch,key_stride,counts[1],counts[0],unsigned(!long_final_pv_bound),unsigned(long_final_pv_bound),
             long_scratch_elements*sizeof(float),domain_bytes,g_sm121_long_pipeline.scratch_elements*sizeof(float));
+        if (long_probability_storage)
+            std::fprintf(stderr,"SM121_LONG_PROBABILITY_STORAGE mode=%u query_start=%u query_count=%u key_tokens=%u query_batch=%u score_row_bytes_per_key=4 probability_read_bytes=%u required_scratch_bytes=%zu reserved_scratch_bytes=%zu allocated_scratch_bytes=%zu reserved_capacity_tokens=%u requested_reserve_tokens=%u original_arithmetic=1 stream_drained=1\n",
+                long_probability_storage,query_start,query_count,key_stride,query_batch,
+                long_probability_storage==1u?4u:2u,required_long_elements*sizeof(float),
+                reserved_long_elements*sizeof(float),long_scratch_elements*sizeof(float),
+                long_workspace_capacity,requested_workspace_tokens);
     }
     if (final_pv_bound)
         std::fprintf(stderr,"SM121_FINAL_PV_BOUND query_start=%u query_count=%u maximum_k16_groups=512 enlarged_envelope=1\n",

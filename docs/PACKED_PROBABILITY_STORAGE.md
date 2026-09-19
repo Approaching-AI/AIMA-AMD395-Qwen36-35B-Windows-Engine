@@ -17,8 +17,9 @@ The original, tagged and packed routes share the probability producer and
 exact replay kernel. Softmax reductions, native PV, both error-bound policies,
 candidate collection and original K16 arithmetic retain their operations.
 Both in-place formats share pipeline orchestration. Template defaults retain
-separate BF16 storage, and no provider option selects either candidate.
-The active full256k model still uses its existing binaries.
+separate BF16 storage. The isolated component preparation below predates the
+provider selector described at the end. The active full256k model still uses
+its existing binaries.
 
 At 128 queries and 264736 keys, both candidates require 2240692228 scratch
 bytes instead of 3325050884, a reduction of 1084358656 bytes. These are layout
@@ -58,3 +59,27 @@ are 240/1500/600/900 seconds for build/generated cases/original1024/extended8192
 Both dispatch sides require final cleanup of the current original full256k
 run and verify its command identity; model success is not required to begin
 component repair. All four native actions remain unrun.
+
+## Provider selection
+
+The subsequent provider adds `QRT_CK_SM121_LONG_PROBABILITY_STORAGE`: unset,
+empty or `0` retains separate BF16 storage; `1` uses the tagged representation
+and `2` uses packed pairs. Other values fail before device allocation. Valid
+options select a candidate only when the existing long pipeline is active;
+cold q8192 and single-query dispatch retain their original paths.
+
+The selected layout controls required, reserved and growing scratch capacity.
+`QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS` remains independent. Every producer
+uses the actual input extent, and its matching replay consumes the same
+representation. Switching to a larger layout grows drained storage; returning
+to a smaller one may keep the larger owner. A completed marker reports mode,
+actual keys, requested capacity and required/reserved/allocated bytes.
+
+ASan/UBSan checks execute the actual provider and selector in 138 cases with
+mocked HIP, including reservation on/off, three modes, exact submitted query
+ranges, every initial allocation failure/retry, failed launches and completion,
+switching formats and unchanged short/decode selection. An independent byte
+inventory covers 4764159 layouts and 26 option/activation choices. All nine
+attention regressions pass. Native build, original model tokens and physical
+memory benefit remain unmeasured for this integration. Package defaults are
+unchanged.

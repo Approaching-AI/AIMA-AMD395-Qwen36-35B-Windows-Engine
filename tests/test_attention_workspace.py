@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import os
+import json
 import re
 import subprocess
 import tempfile
@@ -79,6 +80,14 @@ class AttentionWorkspaceTests(unittest.TestCase):
         long_layout = (ROOT / "native/providers/ck_fmha/long_attention_layout.h").read_text()
         long_layout = '\n'.join(line for line in long_layout.splitlines()
                                 if not line.startswith(('#pragma', '#include')))
+        storage_headers = []
+        for filename in ("inplace_probability_storage.h", "long_probability_storage_policy.h"):
+            text = (ROOT / "native/providers/ck_fmha" / filename).read_text()
+            storage_headers.append("\n".join(line for line in text.splitlines()
+                if not line.startswith(("#pragma once", "#include"))))
+        storage_policy = "\n".join(storage_headers)
+        storage_dispatch = (ROOT / "native/providers/ck_fmha/long_probability_pipeline.h").read_text()
+        storage_dispatch = storage_dispatch[storage_dispatch.index("namespace qrt_long_probability_pipeline"):]
         harness = r'''
 #include <algorithm>
 #include <chrono>
@@ -96,7 +105,7 @@ using hipStream_t = void*;
 enum hipError_t { hipSuccess, hipErrorUnknown, hipErrorInvalidValue, hipErrorLaunchTimeOut };
 constexpr unsigned kQueryHeads = 16, kKvHeads = 2, kHeadDim = 256;
 constexpr unsigned kQ262144Tokens = 262144;
-''' + attention_capacity() + workspace_capacity_policy() + compact_decode_policy() + long_layout + r'''
+''' + attention_capacity() + workspace_capacity_policy() + compact_decode_policy() + long_layout + storage_policy + r'''
 namespace qrt_blackwell_attention {
 ''' + maximum + r'''
 }
@@ -159,6 +168,7 @@ unsigned range_preparations=0, range_queries=0, fail_range_prepare=0;
 unsigned range_start=0, range_count=0, range_origin=0;
 unsigned observed_query_origin=0;
 unsigned long_queries=0,long_domain_preparations=0,long_final_queries=0;
+std::array<unsigned,3> long_storage_calls{};
 unsigned selective_qk_queries = 0;
 unsigned value_transposes = 0;
 bool fail_value_transpose = false;
@@ -461,17 +471,18 @@ int launch_probability_attention(const uint16_t* q, const uint16_t* k, const uin
 }
 }
 namespace qrt_long_attention_pipeline {
-int launch(const qrt_long_narrow_qk::Workspace& w,const qrt_native_exp2_workspace::Workspace& e,
+template<unsigned Storage>int launch_storage(const qrt_long_narrow_qk::Workspace& w,const qrt_native_exp2_workspace::Workspace& e,
     const uint16_t*,const uint16_t* kt,const uint16_t*,const uint16_t* vt,float*,unsigned start,unsigned count,
     unsigned output_start,unsigned stride,const unsigned char* exp,const unsigned char*,float* scratch,
     size_t extent,hipStream_t stream,qrt_blackwell_attention::SplitCompletionObserver* observer,bool final_bound=false) {
+    ++long_storage_calls[Storage];
     long_final_queries+=unsigned(final_bound);++long_queries;++queries;largest_batch=std::max(largest_batch,count);
     if(track_submissions){++pending_submissions;maximum_pending=std::max(maximum_pending,pending_submissions);}
     submitted_ranges.push_back({start,count,output_start});
     if(count>128u || !long_domain_preparations || w.decoded.key_tokens!=stride ||
        !e.packed || e.original!=exp || exp!=g_sm121_exp2 || vt!=g_sm121_long_values.cells ||
        kt!=(stride>kSm121InitialTokens?g_sm121_extended.transposed_keys:g_sm121_transposed_keys) ||
-       !scratch || extent<qrt_long_attention_layout::layout(count,start+count).elements)
+       !scratch || extent<qrt_long_attention_layout::layout(count,start+count).elements-(Storage?size_t(count)*16u*(start+count)/2u:0u))
         std::abort();
     if(queries==fail_query)return hipErrorUnknown;
     if(observer)for(unsigned stage=0;stage<5u;++stage){
@@ -480,8 +491,11 @@ int launch(const qrt_long_narrow_qk::Workspace& w,const qrt_native_exp2_workspac
     }
     return hipSuccess;
 }
+inline constexpr auto launch=launch_storage<0>;
 }
-''' + actual + r'''
+namespace qrt_inplace_probability_pipeline {inline constexpr auto launch=qrt_long_attention_pipeline::launch_storage<1>;}
+namespace qrt_packed_probability_pipeline {inline constexpr auto launch=qrt_long_attention_pipeline::launch_storage<2>;}
+''' + storage_dispatch + actual + r'''
 bool empty() {
     return live.empty() && !g_sm121_native_exp2.packed && !g_sm121_native_exp2.original && !g_sm121_exp2 && !g_sm121_rcp && !g_sm121_scores &&
            !g_sm121_transposed_keys && !g_sm121_transposed_values && !g_sm121_mantissa_scores && !g_sm121_prepared_values && !g_sm121_selective_qk && !g_sm121_prepared_decoded_qk &&
@@ -505,7 +519,7 @@ void reset() {
     mask_preparations=mask_queries=0;masked_arena=false;
     range_preparations=range_queries=fail_range_prepare=range_start=range_count=range_origin=0;
     observed_query_origin=0;
-    long_queries=long_domain_preparations=long_final_queries=0;
+    long_queries=long_domain_preparations=long_final_queries=0;long_storage_calls.fill(0u);
     fail_transpose = false;
     preparations = 0; fail_preparation = false;
     value_transposes = 0; fail_value_transpose = false;
@@ -515,6 +529,7 @@ void reset() {
     submitted_ranges.clear();
 }
 int main() {
+    unsetenv("QRT_CK_SM121_LONG_PROBABILITY_STORAGE");
     unsetenv("QRT_CK_SM121_COMPACT_DECODE_QUERY");
     unsetenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS");
     for (unsigned failure = 1; failure <= 4; ++failure) {
@@ -1551,6 +1566,74 @@ int main() {
     reset();
     if(launch(8192,1)!=hipSuccess || g_sm121_long_decoded_qk.words ||
        g_sm121_long_values.cells || g_sm121_long_pipeline.domain || g_sm121_long_pipeline.scratch)return 298;
+    unsigned storage_cases=0;
+    for(const char* invalid:{"3","-1","+1","01"," 1","1 ","true"})for(unsigned start:{0u,8192u}){
+        reset();setenv("QRT_CK_SM121_LONG_PROBABILITY_STORAGE",invalid,1);
+        if(launch(start,129u)!=hipErrorInvalidValue || allocations || queries)return 320;
+        ++storage_cases;
+    }
+    for(unsigned mode:{0u,1u,2u})for(bool reserve:{false,true}){
+        const auto selected=std::to_string(mode);
+        setenv("QRT_CK_SM121_LONG_PROBABILITY_STORAGE",selected.c_str(),1);
+        if(reserve)setenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS",reservation.c_str(),1);
+        else unsetenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS");
+        reset();track_submissions=true;
+        if(launch(8192u,129u)!=hipSuccess || pending_submissions || long_storage_calls[mode]!=2u)return 321;
+        const unsigned first=allocations;++storage_cases;
+        if(reserve && g_sm121_long_pipeline.scratch_elements!=
+            qrt_long_attention_layout::layout(128u,kSm121MaxTokens).elements-
+                (mode?size_t(128u)*16u*kSm121MaxTokens/2u:0u))return 322;
+        unsigned wanted=2u;
+        for(unsigned start:{16384u,65536u,131072u,262144u,kSm121MaxTokens-129u}){
+            if(launch(start,129u)!=hipSuccess || pending_submissions || long_storage_calls[mode]!=(wanted+=2u) ||
+               range_start!=start || range_count!=129u)return 323;
+            if(reserve && allocations!=first+(start>=131072u?2u:0u))return 324;
+            const auto& a=submitted_ranges[submitted_ranges.size()-2u];const auto& b=submitted_ranges.back();
+            if(a!=std::array<unsigned,3>{start,128u,0u} || b!=std::array<unsigned,3>{start+128u,1u,128u})return 325;
+            ++storage_cases;
+        }
+        for(unsigned failure=1u;failure<=first;++failure){
+            reset();track_submissions=true;fail_allocation=failure;
+            if(launch(8192u,129u)!=hipErrorUnknown || queries || pending_submissions)return 326;
+            fail_allocation=0u;
+            if(launch(8192u,129u)!=hipSuccess || pending_submissions || long_storage_calls[mode]!=2u)return 327;
+            ++storage_cases;
+        }
+        for(unsigned failure:{1u,2u}){
+            reset();track_submissions=true;fail_query=failure;
+            if(launch(8192u,129u)!=hipErrorUnknown || queries!=failure || long_storage_calls[mode]!=failure ||
+               pending_submissions || !syncs)return 328;
+            ++storage_cases;
+        }
+        reset();track_submissions=true;fail_sync=1u;
+        if(launch(8192u,129u)!=hipErrorUnknown || pending_submissions || !queries)return 329;
+        ++storage_cases;
+        reset();
+        if(launch(0u,8192u)!=hipSuccess || long_queries || g_sm121_long_pipeline.scratch)return 330;
+        ++storage_cases;
+        reset();
+        if(launch(8192u,1u)!=hipSuccess || long_queries || g_sm121_long_pipeline.scratch)return 331;
+        ++storage_cases;
+    }
+    // Switching storage refreshes complete QK first and grows only when needed.
+    reset();setenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS",reservation.c_str(),1);
+    setenv("QRT_CK_SM121_LONG_PROBABILITY_STORAGE","2",1);
+    if(launch(8192u,129u)!=hipSuccess)return 332;
+    const unsigned packed_allocations=allocations;
+    const auto* packed_owner=g_sm121_long_pipeline.scratch;
+    setenv("QRT_CK_SM121_LONG_PROBABILITY_STORAGE","1",1);
+    if(launch(8192u,129u)!=hipSuccess || allocations!=packed_allocations ||
+       g_sm121_long_pipeline.scratch!=packed_owner)return 333;
+    setenv("QRT_CK_SM121_LONG_PROBABILITY_STORAGE","0",1);
+    if(launch(8192u,129u)!=hipSuccess || allocations!=packed_allocations+1u)return 334;
+    const auto* original_owner=g_sm121_long_pipeline.scratch;
+    setenv("QRT_CK_SM121_LONG_PROBABILITY_STORAGE","2",1);
+    if(launch(8192u,129u)!=hipSuccess || allocations!=packed_allocations+1u ||
+       g_sm121_long_pipeline.scratch!=original_owner)return 335;
+    storage_cases+=4u;
+    std::printf("{\"long_probability_provider_cases\":%u,\"three_modes\":true,\"reservation_on_off\":true,"
+        "\"actual_provider_and_dispatch\":true,\"original_extents_and_failure_drains\":true,\"gpu_execution\":false}\n",storage_cases);
+    unsetenv("QRT_CK_SM121_LONG_PROBABILITY_STORAGE");
     unsetenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS");
     for(const char* flag:{"QRT_CK_SM121_LONG_ATTENTION_PIPELINE","QRT_CK_SM121_LONG_PREPARED_DECODED_QK",
         "QRT_CK_SM121_LONG_TRANSPOSE_VALUE","QRT_CK_SM121_LONG_DIRECT_PV_OPERANDS"})unsetenv(flag);
@@ -1588,10 +1671,16 @@ int main() {
             executable = str(Path(tmp) / "workspace")
             subprocess.run(
                 [os.environ.get("CXX", "c++"), "-std=c++17", "-Wall", "-Wextra",
-                 "-Werror", "-x", "c++", "-", "-o", executable],
+                 "-Werror", "-O1", "-fsanitize=address,undefined", "-fno-omit-frame-pointer",
+                 "-x", "c++", "-", "-o", executable],
                 input=harness, text=True, check=True, timeout=30,
             )
             result = subprocess.run([executable], check=True, timeout=5, capture_output=True, text=True)
+            storage_report = json.loads(result.stdout)
+            self.assertTrue(storage_report["actual_provider_and_dispatch"])
+            self.assertTrue(storage_report["original_extents_and_failure_drains"])
+            self.assertFalse(storage_report["gpu_execution"])
+            print(json.dumps(storage_report))
             profiles = [dict(re.findall(r"(\w+)=([^ ]+)", line))
                         for line in result.stderr.splitlines()
                         if line.startswith("SM121_COMPLETED_STAGE_PROFILE ")]
