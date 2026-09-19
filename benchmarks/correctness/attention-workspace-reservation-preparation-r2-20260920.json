@@ -1,0 +1,338 @@
+{
+  "schema_version": 1,
+  "kind": "attention_workspace_reservation_preparation_revision2",
+  "source_commit": "abbd7b17e7ac9042e6b8be77275e655207c0c1ea",
+  "source_and_bundle_unchanged": true,
+  "source_manifest": {
+    "file": "attention-workspace-reservation-native-source-r2.json",
+    "sha256": "1f33bb8723a3084bbad094a0d3c602727620ca06b5b8f20012be421ac7b52e4e",
+    "record": {
+      "source_commit": "abbd7b17e7ac9042e6b8be77275e655207c0c1ea",
+      "prerequisite_commit": "37014953c28e5b5a91573c6233fdda00bb279b85",
+      "comparison_commit": "37014953c28e5b5a91573c6233fdda00bb279b85",
+      "repo": "D:/projects/AIMA-public-attention-workspace-reservation-20260920-r2",
+      "seed": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2",
+      "bundle": "attention-workspace-reservation-abbd7b1.bundle",
+      "script": "run-native-attention-workspace-reservation-r2.ps1",
+      "dispatcher": "dispatch_attention_workspace_reservation_native_r2.py",
+      "source_sha256": {
+        "native/providers/ck_fmha/attention_deadline.h": "d1f09cb678af6da392bf152da4f88a681afcb1b20363bc8b4ae8555e9ef82da0",
+        "native/providers/ck_fmha/attention_workspace_capacity.h": "ad7e42e6dbf626a76f4b7e93a591d8004284d89aafd9c0fd30e32d4fa077e247",
+        "native/providers/ck_fmha/blackwell_attention.h": "837b92c220d62c6e2889452dfe0d318867e3e44f9dfe10580e58ebe943647fbc",
+        "native/providers/ck_fmha/decoded_window_qk.h": "ec66d4193c2445f8bd404868237a28f04e8064e658238c672891bb081e28f54d",
+        "native/providers/ck_fmha/deferred_qk_fallback.h": "3acf7a41842e7f9e2e85450b00ceb2ae384bf35b01e085c6df64ecda03abe490",
+        "native/providers/ck_fmha/discardable_workspace.h": "3cc4f565656ff776d76c000ca556d9d848412e347ffdabafe95d3d88bd752c84",
+        "native/providers/ck_fmha/exact_attention_policy.h": "869c165c0352f6e3e98089be58ec6fb5e65274abb4d32eb636d6a4d99072fec8",
+        "native/providers/ck_fmha/exponent_mask_qk.h": "6f6c9e154c6d2d8f713641c8eedc675f5a76213086435d83d69cff3156f73e3b",
+        "native/providers/ck_fmha/float_pv_replay.h": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+        "native/providers/ck_fmha/fmha_fwd_api.cpp": "60a145abeda7d8b403f81dc5e0408d2e3028b8cdb100b3f8b9d7c2b622c16548",
+        "native/providers/ck_fmha/fmha_fwd_gfx1151_d256_bf16_f32out.cpp": "34abfc8e9187f6ca07deba430fa975adab0f67d054b0e829d230450b62252799",
+        "native/providers/ck_fmha/fused_probability_pv.h": "5957829d67fd3e055d9507b678e2e275a43286a64acdaf58895ddf6b311e9345",
+        "native/providers/ck_fmha/fused_probability_pv_policy.h": "c3c23a6133952b1851ad03662adb4ac754e3031673548efdddae4618002ae9a1",
+        "native/providers/ck_fmha/long_attention_layout.h": "b94f16310020a757076e6f9bd7d97bea81f91d90567e006a419d5de4acfd1f19",
+        "native/providers/ck_fmha/long_attention_pipeline.h": "86731af5f5e055278083985608dd9dee449e3afa0127c64ff515c91943d8cde9",
+        "native/providers/ck_fmha/long_final_probability_pv.h": "4538d7fde8704454a485ef8ac8e432946d0f43f8b197ff22fbf20d35bf66506a",
+        "native/providers/ck_fmha/long_fused_probability_pv.h": "c8adf466adc6b426ba4bef4260e5e70c76d837aa25460e324fdb4f3d4aa01896",
+        "native/providers/ck_fmha/long_narrow_qk.h": "6b85ffbd52c2a197a09d0279c740137de15c6b722a0a78121581eaf0ffc199d9",
+        "native/providers/ck_fmha/microtile_exact_qk.h": "3de72cfeec586a4609e2a759279307246d4b18444f52536917bd0829c66aeb04",
+        "native/providers/ck_fmha/narrow_domain_qk.h": "9dbc7ee3a9a292b610d1bc0823374e61b7a2feee01a35da123c0ed3454c02463",
+        "native/providers/ck_fmha/narrow_domain_qk_policy.h": "6ae512946e544500ea347b91786535099f3cac51a44e0068ade7ac365def480e",
+        "native/providers/ck_fmha/narrow_domain_qk_workspace.h": "ced9a51778b6463750f491ef06ebb701fb06131458d39de462e695324a43ad1d",
+        "native/providers/ck_fmha/native_delta_probability.h": "4a1bb411ef7641f02db818eef1e85adf4b62fcf74b294a1758cedb6cd2ec32ea",
+        "native/providers/ck_fmha/native_exp2_workspace.h": "a33f65e490070b23224978eaa3a5ea4ae9a6861631caa3fec59c681557cb828b",
+        "native/providers/ck_fmha/prepared_decoded_qk.h": "5b2c12fcc59eba1f8e7445101c3ffc7624f81bf01e9f3fa8d4ce5d90f48782d2",
+        "native/providers/ck_fmha/prepared_decoded_qk_range.h": "275cdf1b5acfc623312b6841f6ce58a0895f2956419c0bae4dddc5cf59fb22e8",
+        "native/providers/ck_fmha/prepared_decoded_qk_range_workspace.h": "4a65c898d237e604a5e23383c311ba7d4e9b584d0ad6611f2864eaff45967028",
+        "native/providers/ck_fmha/prepared_decoded_qk_workspace.h": "f7aeef4016b182ad11c30aab4b3b8d178847b035b993473ed4acca7e99771774",
+        "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp": "ded4b5b038d67a86031820f4a1173defa2c8668712808fd8b5ea4b3c4049f7f5",
+        "native/providers/ck_fmha/register_pv_policy.h": "009b7df1060fd2ed55a47b537d75da17507d0a7048cf2dc8e5fec7e467e1d9c4",
+        "native/providers/ck_fmha/rz_tree_qk.h": "82b01c2f6080b7570f5a0ed851fc64b13173fbbcd45aa622691a15b7dafe4bb5",
+        "native/providers/ck_fmha/selective_qk.h": "4470f9b35d46fb29468aa7e2cdf5e4ef286de86c7252796967219764f7b47324",
+        "native/providers/ck_fmha/selective_qk_tail_policy.h": "9ecd1679270881edacc8d435e1107771b8af8738bdfc42617d341d0b5a6f6aa4",
+        "native/providers/ck_fmha/streamed_exact_attention.h": "c4c0083338cda1516833b52f76f85bad60ad1edc25b3738a87c44725b2160d17",
+        "native/providers/gdn/sm121_attention_rcp.h": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+        "native/providers/gdn/sm121_exp2_interpolated.h": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+        "native/providers/gdn/sm121_exp2_native_delta.h": "18514c6dc67c0f55be29a33e524abe56d3a11735b3c1279e20a488c059725c33",
+        "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+        "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+        "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+        "native/providers/moe_accumulator/sm121_decoded_bf16.h": "861b7984ca4cb87c4f3d71c1e17b8e310aedaf32fe06257bca433ee03097b605",
+        "native/providers/moe_accumulator/sm121_dot_certificate.h": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+        "native/providers/moe_accumulator/sm121_exponent_mask.h": "879c21210883a74a27ccc00ffc5401f6d771f9a9436d6b5f7651699714c55f28",
+        "native/providers/moe_accumulator/sm121_f32_carry.h": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+        "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+        "native/providers/moe_accumulator/sm121_float_subgroup.h": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+        "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+        "native/providers/moe_accumulator/sm121_integer_core.h": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+        "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+        "native/providers/moe_accumulator/sm121_lane_reduce.h": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+        "native/providers/moe_accumulator/sm121_mantissa_parts.h": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+        "native/providers/moe_accumulator/sm121_narrow_f32_carry.h": "85ab733dd564a8dbc5948f5700fcb6c66fbbc5239d0f55e405dbe7e4e210eca9",
+        "native/providers/moe_accumulator/sm121_native_product.h": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+        "native/providers/moe_accumulator/sm121_native_rz_carry.h": "d1f07bd751c578d20c1c1734da7b7223787607c74be8ec2db92585d89d1b5901",
+        "native/providers/moe_accumulator/sm121_paired_products.h": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+        "native/providers/moe_accumulator/sm121_prepared_bf16.h": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+        "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+        "native/providers/moe_accumulator/sm121_pv_final_bound.h": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+        "native/providers/moe_accumulator/sm121_pv_long_final_bound.h": "e0391a1a4476e2a436a179620fd180b4400c108e06a840f23aa504a5e79270b6",
+        "native/providers/moe_accumulator/sm121_rz_tree_spec.h": "971268433b7a7bd9e5b0ca3116af333376fef4cc333f7e0d01f9d52348a54f4f",
+        "native/providers/moe_accumulator/sm121_strided_pair.h": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+        "native/providers/moe_accumulator/sm121_subgroup.h": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+        "native/providers/moe_accumulator/sm121_wave16.h": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+        "native/providers/sm121_attention_capacity.h": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+        "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+        "scripts/baiying_build_ck_fmha_q8192.ps1": "1e03bfbca780f4e6006b301eb0b991a35cfe2f4b5e1991973b3b6561cff88088",
+        "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7"
+      },
+      "local_compilation_input_count": 65,
+      "source_comparison": {
+        "changed": [
+          "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp"
+        ],
+        "added": [
+          "native/providers/ck_fmha/attention_workspace_capacity.h"
+        ]
+      },
+      "external_quoted_includes": [
+        "ck_tile/ops/fmha/block/variants.hpp",
+        "fmha_fwd.hpp"
+      ],
+      "active_run_must_finish_before_dispatch": "resident-ordered-compact-query-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+      "active_run_remote_directory": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/resident-ordered-compact-query-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+      "active_run_model_success_required": false,
+      "active_run_cleanup_required": true,
+      "native_timeout_seconds": 240,
+      "transport_timeout_seconds": 390,
+      "option": "QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS",
+      "default_enabled": false,
+      "maximum_capacity_tokens": 264736,
+      "actual_input_extent_unchanged": true,
+      "arithmetic_changed": false,
+      "memory_guards_unchanged": true,
+      "native_dispatched": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "release_qualified": false,
+      "generator": "prepare_attention_workspace_reservation_native_r2.py",
+      "generator_sha256": "2fc8b283ce93431c017c90ff0a4ec2133248e72e573b5ce018c63b7cf9576c5e",
+      "local_validation": {
+        "attention-workspace-reservation-local-r1/result.json": {
+          "sha256": "32631b5dd2e04768433d8a9fa4e6e8cc46db9529a1b6858cc3253fe95e78359b",
+          "record": {
+            "host": "Jiawei-MacminideMac-mini.local",
+            "source_sha256": {
+              "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp": "ded4b5b038d67a86031820f4a1173defa2c8668712808fd8b5ea4b3c4049f7f5",
+              "native/providers/ck_fmha/attention_workspace_capacity.h": "ad7e42e6dbf626a76f4b7e93a591d8004284d89aafd9c0fd30e32d4fa077e247",
+              "native/providers/ck_fmha/discardable_workspace.h": "3cc4f565656ff776d76c000ca556d9d848412e347ffdabafe95d3d88bd752c84",
+              "native/providers/ck_fmha/long_attention_layout.h": "b94f16310020a757076e6f9bd7d97bea81f91d90567e006a419d5de4acfd1f19",
+              "native/providers/ck_fmha/prepared_decoded_qk_range_workspace.h": "4a65c898d237e604a5e23383c311ba7d4e9b584d0ad6611f2864eaff45967028",
+              "native/providers/sm121_attention_capacity.h": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+              "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+              "tests/test_attention_workspace_capacity.py": "2173f7220f1b832f15d87169e1a28eb6bd06fb1d217b376bec84bdee0a7a7af0",
+              "tests/test_attention_workspace.py": "028ec8a804b6c9a86fb31063920bdce53f3fe889bdfcc9bfee1b15a08d909b9c",
+              "tests/test_attention_suffix.py": "c52afcc12e82d21b9419797b53c981fdfe5dce1ad4a79593e95156f6e1df7ee2",
+              "tests/test_discardable_workspace.py": "2a2ffd3cebcc81df5bd504ab4a86023adf305952ab1824be6ddcc0d1ea64da07"
+            },
+            "checks": [
+              {
+                "command": [
+                  "python3",
+                  "-m",
+                  "unittest",
+                  "discover",
+                  "-s",
+                  "tests",
+                  "-p",
+                  "test_attention*.py",
+                  "-v"
+                ],
+                "returncode": 0,
+                "seconds": 6.0366377920000005,
+                "stdout_sha256": "972ad0248b22cd1b7bc8b72a5628ed6bf1bb014ab4afab08178fd4386b1735f5",
+                "stderr_sha256": "5e3c7624a73c1751fa8732d7f3d5ffde0ca112a39ae8bfdd755e16a581b65a9b"
+              },
+              {
+                "command": [
+                  "python3",
+                  "-m",
+                  "unittest",
+                  "discover",
+                  "-s",
+                  "tests",
+                  "-p",
+                  "test_discardable_workspace.py",
+                  "-v"
+                ],
+                "returncode": 0,
+                "seconds": 0.6075744170000004,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "stderr_sha256": "94c722ff83d7a5382c1416dcf6582a43ed8312814d4c7cb4aa8b492afdee83dc"
+              },
+              {
+                "command": [
+                  "make",
+                  "c-smoke"
+                ],
+                "returncode": 0,
+                "seconds": 0.01224100000000039,
+                "stdout_sha256": "e753f9141ab0fe986c48a173957b30ed8564e0ad8b8d475962c80b0cd630960c",
+                "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              {
+                "command": [
+                  "git",
+                  "diff",
+                  "--check"
+                ],
+                "returncode": 0,
+                "seconds": 0.01802079199999973,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              {
+                "command": [
+                  "python3",
+                  "tools/public_hygiene.py"
+                ],
+                "returncode": 0,
+                "seconds": 11.949355292,
+                "stdout_sha256": "ae116979fe56d24a6cdcbb5bdbf28313bd51c3034eba393cd422c0275969c780",
+                "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              }
+            ],
+            "capacity_cases": 3706308,
+            "invalid_policy_cases": 21,
+            "maximum_capacity_tokens": 264736,
+            "actual_provider_and_suffix_functions": true,
+            "allocation_failure_retry": true,
+            "original_input_extents": true,
+            "partial_submission_drain": true,
+            "default_demand_growth_unchanged": true,
+            "native_build_run": false,
+            "model_loaded": false,
+            "physical_memory_reduction_established": false,
+            "inference_acceptance": false,
+            "performance_acceptance": false,
+            "release_acceptance": false,
+            "runner_sha256": "1a3faaef4288f4d6023744ed7e93b68193da2495312b0578fbce91ff1c9d4423"
+          }
+        }
+      },
+      "bundle_sha256": "99e5eadde32fcd38ca3616afe25230cc0a1c345a8c1f3b8991835917e206c696",
+      "script_sha256": "8e95ea7478d52a795a4444abb27af7d4a6861d88ec0e9ed0df8442b6e6a77d9e",
+      "dispatcher_sha256": "07fe94e88ba7f413d7f35dc1fc3883a4bb534261b1f65797644f165cfe146ee8",
+      "active_source_manifest": {
+        "file": "resident-ordered-compact-query-prefix256k-source-r1.json",
+        "sha256": "5d9ad636b80efaa7949f26bba5eb1855fa7e56a06008e7e3202d316227da0756"
+      },
+      "preparation_revision": 2,
+      "original_preparation": {
+        "file": "attention-workspace-reservation-native-source-r1.json",
+        "sha256": "9d6e7ba4f52e9f9cce54f1e6f857bc05fe159d3eae6fb6bf9f12da6e294b63b9"
+      },
+      "frozen_source_and_bundle_unchanged": true
+    }
+  },
+  "previous_preparation": {
+    "file": "benchmarks/correctness/attention-workspace-reservation-preparation-20260919.json",
+    "bytes": 21844,
+    "sha256": "e73060e9b3131c4ae294fa9436b920d3b7871fcaee5d335bec399dad8c46e202"
+  },
+  "current_memory_observations": {
+    "file": "benchmarks/correctness/runtime-memory-accounting-20260920.json",
+    "bytes": 145565,
+    "sha256": "bfea27f565f817b06e24826b39b74492c99221476fd51066f8b72722a2365f1d"
+  },
+  "command_text": "param([Parameter(Mandatory=$true)][ValidateSet('ck')][string]$Action)\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-attention-workspace-reservation-20260920-r2';$source='D:\\projects\\AIMA-public-compact-suffix-query-20260919-r2'\n$sha='abbd7b17e7ac9042e6b8be77275e655207c0c1ea';$bundle='D:\\projects\\attention-workspace-reservation-abbd7b1.bundle'\nif((Get-FileHash $bundle -Algorithm SHA256).Hash.ToLowerInvariant() -ne '99e5eadde32fcd38ca3616afe25230cc0a1c345a8c1f3b8991835917e206c696'){throw 'Bundle changed'}\n$m=[IO.File]::ReadAllText('D:\\projects\\attention-workspace-reservation-native-source-r2.json')|ConvertFrom-Json\nif($m.source_commit -ne $sha -or $m.repo.Replace('/','\\') -ne $repo){throw 'Source manifest changed'}\nif((Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $m.script_sha256){throw 'Script changed'}\nif($m.active_run_must_finish_before_dispatch -ne 'resident-ordered-compact-query-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1'){throw 'Wrong preceding owner'}\n$prior=[IO.File]::ReadAllText((Join-Path $m.active_run_remote_directory 'run-record.json'))|ConvertFrom-Json\nif(-not $prior.host_checks_pass -or @($prior.after_processes).Count -ne 0 -or\n   -not $prior.host.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Prior owner cleanup failed'}\nforeach($check in $prior.host_checks.PSObject.Properties){if(-not $check.Value){throw 'Prior host check failed'}}\nif(-not (Test-Path $repo)){& git -C $source fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'};& git -C $source worktree add --detach $repo $sha;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$specDir=Join-Path $repo 'build\\batch-specs';$null=New-Item -ItemType Directory -Path $specDir -Force\n$buildName='attention-workspace-reservation-ck';$runTag='r2'\n$out=Join-Path $repo ('build\\'+$buildName);$recordDir=Join-Path $repo 'build\\attention-workspace-reservation-build-r2';$specPath=Join-Path $specDir ($Action+'-build-'+$runTag+'.json')\nforeach($p in @($out,$recordDir,$specPath)){if(Test-Path $p){throw ('Existing evidence: '+$p)}}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n$exe='C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'\n$sourceInputs=@()\nif($m.source_commit -ne $sha){throw 'Source manifest commit changed'}\nforeach($input in $m.source_sha256.PSObject.Properties){\n $path=Join-Path $repo $input.Name\n if((Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $input.Value){throw ('Build input changed: '+$input.Name)}\n $sourceInputs+=@{file=$input.Name;sha256=$input.Value}\n}\n$spec=[ordered]@{executable=$exe;working_directory=$repo;repo_commit=$sha;sm121_dpp_reduction=$true;sm121_compact_normalize=$true;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();model='none; native CK build only';model_loaded=$false;inference_acceptance=$false;source_inputs=$sourceInputs;purpose='Reserve declared long attention scratch capacity while preserving actual input extents and original arithmetic';exact_attention_maximum_tokens=264736}\nswitch($Action){\n 'ck'{\n $null=New-Item -ItemType Directory -Path $out -Force\n $ck='D:\\projects\\composable-kernel-fdf4bb7';$dll=Join-Path $out 'qrt_ck_fmha_sm121.dll'\n $headers=@(Get-ChildItem -LiteralPath $ck -Recurse -File|Where-Object {$_.Extension -in @('.h','.hpp','.cpp')}|Sort-Object FullName|ForEach-Object {@{file=$_.FullName.Substring($ck.Length+1);bytes=$_.Length;sha256=(Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}})\n $headerPath=Join-Path $out 'ck-source-inputs.json';[IO.File]::WriteAllText($headerPath,($headers|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))\n\n $spec.sm121_interpolated_exp2=$true;$spec.source_inputs=$sourceInputs;$spec.ck_source_manifest_sha256=(Get-FileHash $headerPath -Algorithm SHA256).Hash.ToLowerInvariant();$spec.ck_source_files=$headers.Count\n $arguments=@('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $repo 'scripts\\baiying_build_ck_fmha_q8192.ps1'),'-CkRoot',$ck,'-Sm121InterpolatedExp2','-DppReduction','1','-CompactNormalize','1','-OutPath',$dll,'-HipccPath','C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe');$timeout=240\n }\n}\n$spec.arguments=$arguments\n$spec.preceding_run_record_sha256=(Get-FileHash (Join-Path $m.active_run_remote_directory 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant()\n$spec.preceding_original_model_source_sha256=$m.active_source_manifest.sha256\n\n$spec.source_manifest_sha256=(Get-FileHash 'D:\\projects\\attention-workspace-reservation-native-source-r2.json' -Algorithm SHA256).Hash.ToLowerInvariant()\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $recordDir -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $recordDir 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nforeach($file in @('product.stdout.jsonl','product.stderr.log')){if(Test-Path (Join-Path $recordDir $file)){Get-Content (Join-Path $recordDir $file) -Tail 4|ForEach-Object {$_.Substring(0,[Math]::Min(800,$_.Length))}}}\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw ('Native build failed: '+$Action)}\nif($Action -eq 'ck'){\n $meta=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;sm121_dpp_reduction=$true;sm121_compact_normalize=$true;sm121_interpolated_exp2=$true;source_inputs=$sourceInputs;ck_source_manifest_sha256=$spec.ck_source_manifest_sha256;ck_source_files=$spec.ck_source_files;command_file=$PSCommandPath;command_file_sha256=$spec.command_file_sha256;arguments=$arguments;dirty_tree=$false;run_record_sha256=(Get-FileHash (Join-Path $recordDir 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant();artifact=@{file=$dll;bytes=(Get-Item $dll).Length;sha256=(Get-FileHash $dll -Algorithm SHA256).Hash.ToLowerInvariant()}}\n [IO.File]::WriteAllText((Join-Path $out 'build-provenance.json'),($meta|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n}\n",
+  "dispatcher_text": "from pathlib import Path\nimport base64,hashlib,json,socket,subprocess,time\nB=Path(__file__).resolve().parent\nassert socket.gethostname().split('.')[0].lower()!='baiying'\nread=lambda p:json.loads(p.read_text(encoding='utf-8-sig'))\nsha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()\nmanifest=B/'attention-workspace-reservation-native-source-r2.json';source=read(manifest)\n# A failed model run can be followed by a repair build, but only after its\n# completed host record proves cleanup. Never dispatch alongside the owner.\nactive=read(B/source['active_run_must_finish_before_dispatch']/'run-record.json')\nassert active['host'].lower()=='baiying' and active['host_checks_pass']\nassert all(active['host_checks'].values()) and not active['after_processes']\nfor key in ('bundle','script','dispatcher'):\n assert sha(B/source[key])==source[key+'_sha256']\nname='attention-workspace-reservation-build-r2';d=B/name;d.mkdir(exist_ok=False)\nopts=['-o','BatchMode=yes','-o','ConnectTimeout=10']\nsubprocess.run(['scp',*opts,str(manifest),str(B/source['bundle']),str(B/source['script']),'baiying:D:/projects/'],check=True,timeout=60)\nps=\"$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';$t=$null;$e=$null;$null=[Management.Automation.Language.Parser]::ParseFile('D:/projects/\"+source['script']+\"',[ref]$t,[ref]$e);if($e.Count){throw ($e|Out-String)}\"\nparsed=subprocess.run(['ssh',*opts,'baiying','powershell.exe -NoProfile -EncodedCommand '+base64.b64encode(ps.encode('utf-16le')).decode()],capture_output=True,text=True,errors='replace',timeout=30)\nwith (d/'script-parse.json').open('x') as f:json.dump(dict(returncode=parsed.returncode,stdout=parsed.stdout,stderr=parsed.stderr),f,indent=2);f.write('\\n')\nparsed.check_returncode()\ncommand=['ssh',*opts,'baiying','powershell.exe -NoProfile -ExecutionPolicy Bypass -File D:/projects/'+source['script']+' -Action ck']\nstart=time.monotonic()\ntry:\n result=subprocess.run(command,capture_output=True,text=True,errors='replace',timeout=source['transport_timeout_seconds'])\n dispatch=dict(command=command,returncode=result.returncode,stdout=result.stdout,stderr=result.stderr,wall_seconds=time.monotonic()-start)\nexcept subprocess.TimeoutExpired as error:\n dispatch=dict(command=command,returncode=None,timeout=True,stdout=str(error.stdout),stderr=str(error.stderr),wall_seconds=time.monotonic()-start)\n with (d/'dispatch.json').open('x') as f:json.dump(dispatch,f,indent=2);f.write('\\n')\n raise\nwith (d/'dispatch.json').open('x') as f:json.dump(dispatch,f,indent=2);f.write('\\n')\nremote=source['repo']+'/build/'+name;transfers=[]\nfor file in ('run-record.json','product.stdout.jsonl','product.stderr.log','preflight.json','launch.json','telemetry.jsonl'):\n t=subprocess.run(['scp',*opts,'baiying:'+remote+'/'+file,str(d/file)],capture_output=True,text=True,errors='replace',timeout=30)\n transfers.append(dict(file=file,returncode=t.returncode,stderr=t.stderr))\nwith (d/'transfers.json').open('x') as f:json.dump(transfers,f,indent=2);f.write('\\n')\nassert all(t['returncode']==0 for t in transfers)\nrun=read(d/'run-record.json');print({k:run[k] for k in ('reason','exit_code','wall_ms','host_checks_pass')},flush=True)\nif result.returncode or run['exit_code']:print(result.stderr[-2000:]+(d/'product.stderr.log').read_text(errors='replace')[-7000:],flush=True)\nresult.check_returncode();assert run['reason']=='completed' and run['exit_code']==0 and run['host_checks_pass'] and not run['after_processes']\nfor file in ('build-provenance.json','qrt_ck_fmha_sm121.dll','ck-source-inputs.json'):\n subprocess.run(['scp',*opts,'baiying:'+source['repo']+'/build/attention-workspace-reservation-ck/'+file,str(d/file)],check=True,timeout=45)\n",
+  "native_grammar": {
+    "file": "attention-workspace-reservation-command-syntax-r2.json",
+    "sha256": "74460d392a395a17bd70ef8eb95d57a1dccc7f3d1c346447dc4ded26f847aedb",
+    "record": {
+      "host": "Jiawei-MacminideMac-mini.local",
+      "files": [
+        {
+          "file": "run-native-attention-workspace-reservation-r2.ps1",
+          "sha256": "8e95ea7478d52a795a4444abb27af7d4a6861d88ec0e9ed0df8442b6e6a77d9e"
+        }
+      ],
+      "commands": [
+        {
+          "command": [
+            "ssh",
+            "-o",
+            "BatchMode=yes",
+            "-o",
+            "ConnectTimeout=10",
+            "baiying",
+            "powershell.exe -NoProfile -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAJABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAaQBmACgALQBuAG8AdAAgAFsARQBuAHYAaQByAG8AbgBtAGUAbgB0AF0AOgA6AE0AYQBjAGgAaQBuAGUATgBhAG0AZQAuAEUAcQB1AGEAbABzACgAJwBiAGEAaQB5AGkAbgBnACcALABbAFMAdAByAGkAbgBnAEMAbwBtAHAAYQByAGkAcwBvAG4AXQA6ADoATwByAGQAaQBuAGEAbABJAGcAbgBvAHIAZQBDAGEAcwBlACkAKQB7AHQAaAByAG8AdwAgACcASABvAHMAdAAgAG0AaQBzAG0AYQB0AGMAaAAnAH0AOwBpAGYAKABUAGUAcwB0AC0AUABhAHQAaAAgACcARAA6AC8AcAByAG8AagBlAGMAdABzAC8AYQB0AHQAZQBuAHQAaQBvAG4ALQB3AG8AcgBrAHMAcABhAGMAZQAtAHIAZQBzAGUAcgB2AGEAdABpAG8AbgAtAGMAbwBtAG0AYQBuAGQALQBzAHkAbgB0AGEAeAAtAHIAMgAnACkAewB0AGgAcgBvAHcAIAAnAFMAdABhAGcAaQBuAGcAIABlAHgAaQBzAHQAcwAnAH0AOwAkAG4AdQBsAGwAPQBOAGUAdwAtAEkAdABlAG0AIAAtAEkAdABlAG0AVAB5AHAAZQAgAEQAaQByAGUAYwB0AG8AcgB5ACAALQBQAGEAdABoACAAJwBEADoALwBwAHIAbwBqAGUAYwB0AHMALwBhAHQAdABlAG4AdABpAG8AbgAtAHcAbwByAGsAcwBwAGEAYwBlAC0AcgBlAHMAZQByAHYAYQB0AGkAbwBuAC0AYwBvAG0AbQBhAG4AZAAtAHMAeQBuAHQAYQB4AC0AcgAyACcA"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.8426449587568641
+        },
+        {
+          "command": [
+            "scp",
+            "-o",
+            "BatchMode=yes",
+            "-o",
+            "ConnectTimeout=10",
+            "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/run-native-attention-workspace-reservation-r2.ps1",
+            "baiying:D:/projects/attention-workspace-reservation-command-syntax-r2/"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.46931266598403454
+        },
+        {
+          "command": [
+            "ssh",
+            "-o",
+            "BatchMode=yes",
+            "-o",
+            "ConnectTimeout=10",
+            "baiying",
+            "powershell.exe -NoProfile -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAJABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnAAoAWwBDAG8AbgBzAG8AbABlAF0AOgA6AE8AdQB0AHAAdQB0AEUAbgBjAG8AZABpAG4AZwA9AFsAVABlAHgAdAAuAFUAVABGADgARQBuAGMAbwBkAGkAbgBnAF0AOgA6AG4AZQB3ACgAJABmAGEAbABzAGUAKQAKACQAZgBpAGwAZQBzAD0AWwBUAGUAeAB0AC4ARQBuAGMAbwBkAGkAbgBnAF0AOgA6AFUAVABGADgALgBHAGUAdABTAHQAcgBpAG4AZwAoAFsAQwBvAG4AdgBlAHIAdABdADoAOgBGAHIAbwBtAEIAYQBzAGUANgA0AFMAdAByAGkAbgBnACgAJwBXADMAcwBpAFoAbQBsAHMAWgBTAEkANgBJAEMASgB5AGQAVwA0AHQAYgBtAEYAMABhAFgAWgBsAEwAVwBGADAAZABHAFYAdQBkAEcAbAB2AGIAaQAxADMAYgAzAEoAcgBjADMAQgBoAFkAMgBVAHQAYwBtAFYAegBaAFgASgAyAFkAWABSAHAAYgAyADQAdABjAGoASQB1AGMASABNAHgASQBpAHcAZwBJAG4ATgBvAFkAVABJADEATgBpAEkANgBJAEMASQA0AFoAVABrADEAWgBXAEUAMwBOAEQAYwA0AFoARABVAHkAWQBUAGMANQBOAFcARQAwAE4ARABRADAAWQBXAEoAaQBNAGoAZABoAFoAagBkAGsATgBHAEUAMgBPAEQAWQB4AFoARABnADQAWgBXAE0AdwBaAFQAbABsAFoARABCAGsAWgBqAGcAMABOAEQASgBpAE4AbQBVADIAWQBUAGMAMwBaAEQAbABsAEkAbgAxAGQAJwApACkAfABDAG8AbgB2AGUAcgB0AEYAcgBvAG0ALQBKAHMAbwBuAAoAJAByAG8AdwBzAD0AQAAoACkAOwBmAG8AcgBlAGEAYwBoACgAJABlAG4AdAByAHkAIABpAG4AIAAkAGYAaQBsAGUAcwApAHsACgAgACQAcABhAHQAaAA9AEoAbwBpAG4ALQBQAGEAdABoACAAJwBEADoALwBwAHIAbwBqAGUAYwB0AHMALwBhAHQAdABlAG4AdABpAG8AbgAtAHcAbwByAGsAcwBwAGEAYwBlAC0AcgBlAHMAZQByAHYAYQB0AGkAbwBuAC0AYwBvAG0AbQBhAG4AZAAtAHMAeQBuAHQAYQB4AC0AcgAyACcAIAAkAGUAbgB0AHIAeQAuAGYAaQBsAGUACgAgACQAaABhAHMAaAA9ACgARwBlAHQALQBGAGkAbABlAEgAYQBzAGgAIAAkAHAAYQB0AGgAIAAtAEEAbABnAG8AcgBpAHQAaABtACAAUwBIAEEAMgA1ADYAKQAuAEgAYQBzAGgALgBUAG8ATABvAHcAZQByAEkAbgB2AGEAcgBpAGEAbgB0ACgAKQAKACAAaQBmACgAJABoAGEAcwBoACAALQBuAGUAIAAkAGUAbgB0AHIAeQAuAHMAaABhADIANQA2ACkAewB0AGgAcgBvAHcAIAAnAFMAYwByAGkAcAB0ACAAYgB5AHQAZQBzACAAYwBoAGEAbgBnAGUAZAAnAH0ACgAgACQAdABvAGsAZQBuAHMAPQAkAG4AdQBsAGwAOwAkAGUAcgByAG8AcgBzAD0AJABuAHUAbABsAAoAIAAkAG4AdQBsAGwAPQBbAE0AYQBuAGEAZwBlAG0AZQBuAHQALgBBAHUAdABvAG0AYQB0AGkAbwBuAC4ATABhAG4AZwB1AGEAZwBlAC4AUABhAHIAcwBlAHIAXQA6ADoAUABhAHIAcwBlAEYAaQBsAGUAKAAkAHAAYQB0AGgALABbAHIAZQBmAF0AJAB0AG8AawBlAG4AcwAsAFsAcgBlAGYAXQAkAGUAcgByAG8AcgBzACkACgAgACQAcgBvAHcAcwArAD0AQAB7AGYAaQBsAGUAPQAkAGUAbgB0AHIAeQAuAGYAaQBsAGUAOwBzAGgAYQAyADUANgA9ACQAaABhAHMAaAA7AGUAcgByAG8AcgBzAD0AQAAoACQAZQByAHIAbwByAHMAfABGAG8AcgBFAGEAYwBoAC0ATwBiAGoAZQBjAHQAIAB7ACQAXwAuAE0AZQBzAHMAYQBnAGUAfQApADsAcABhAHMAcwA9ACgAJABlAHIAcgBvAHIAcwAuAEMAbwB1AG4AdAAgAC0AZQBxACAAMAApAH0ACgB9AAoAWwBvAHIAZABlAHIAZQBkAF0AQAB7AGgAbwBzAHQAPQBbAEUAbgB2AGkAcgBvAG4AbQBlAG4AdABdADoAOgBNAGEAYwBoAGkAbgBlAE4AYQBtAGUAOwB1AHQAYwA9AFsARABhAHQAZQBUAGkAbQBlAF0AOgA6AFUAdABjAE4AbwB3AC4AVABvAFMAdAByAGkAbgBnACgAJwBvACcAKQA7AHMAYwByAGkAcAB0AHMAPQAkAHIAbwB3AHMAOwAKACAAcwBjAHIAaQBwAHQAXwBlAHgAZQBjAHUAdABpAG8AbgA9ACQAZgBhAGwAcwBlADsAbQBvAGQAZQBsAF8AbABvAGEAZABlAGQAPQAkAGYAYQBsAHMAZQA7AGkAbgBmAGUAcgBlAG4AYwBlAF8AYQBjAGMAZQBwAHQAYQBuAGMAZQA9ACQAZgBhAGwAcwBlAH0AfABDAG8AbgB2AGUAcgB0AFQAbwAtAEoAcwBvAG4AIAAtAEQAZQBwAHQAaAAgADYACgBpAGYAKABAACgAJAByAG8AdwBzAHwAVwBoAGUAcgBlAC0ATwBiAGoAZQBjAHQAIAB7AC0AbgBvAHQAIAAkAF8ALgBwAGEAcwBzAH0AKQAuAEMAbwB1AG4AdAApAHsAZQB4AGkAdAAgADEAfQAKAA=="
+          ],
+          "returncode": 0,
+          "stdout": "{\n    \"host\":  \"BAIYING\",\n    \"utc\":  \"2026-09-19T16:17:37.3044338Z\",\n    \"scripts\":  [\n                    {\n                        \"sha256\":  \"8e95ea7478d52a795a4444abb27af7d4a6861d88ec0e9ed0df8442b6e6a77d9e\",\n                        \"errors\":  [\n\n                                   ],\n                        \"file\":  \"run-native-attention-workspace-reservation-r2.ps1\",\n                        \"pass\":  true\n                    }\n                ],\n    \"script_execution\":  false,\n    \"model_loaded\":  false,\n    \"inference_acceptance\":  false\n}\n",
+          "stderr": "",
+          "wall_seconds": 1.2620335007086396
+        }
+      ],
+      "native_grammar": {
+        "host": "BAIYING",
+        "utc": "2026-09-19T16:17:37.3044338Z",
+        "scripts": [
+          {
+            "sha256": "8e95ea7478d52a795a4444abb27af7d4a6861d88ec0e9ed0df8442b6e6a77d9e",
+            "errors": [],
+            "file": "run-native-attention-workspace-reservation-r2.ps1",
+            "pass": true
+          }
+        ],
+        "script_execution": false,
+        "model_loaded": false,
+        "inference_acceptance": false
+      }
+    }
+  },
+  "change": "Both dispatch sides now require the current whole-b3/CK370 original full256k run to finish and pass final host/process cleanup, instead of the earlier whole334 experiment. The prepared build uses a new staging directory and preserves the frozen abbd source, bundle, 65 compilation inputs, two build/guard scripts, local checks and 240/390-second native/transport bounds. The native build record will attach the exact preceding run-record hash.",
+  "planned_option": "QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS",
+  "default_off": true,
+  "final_live_size_reduced": false,
+  "physical_memory_benefit_measured": false,
+  "native_dispatched": false,
+  "hip_compilation": false,
+  "model_acceptance": false,
+  "performance_acceptance": false,
+  "package_acceptance": false,
+  "release_qualified": false,
+  "recorder": {
+    "file": "record_attention_workspace_reservation_preparation_r2.py",
+    "sha256": "98e125d7c0a38408ab9dc10c5912f1ec2fd36f33a38a1d9afacf523e9b8e314a"
+  }
+}

@@ -45,6 +45,15 @@ pins source `abbd7b17e7ac9042e6b8be77275e655207c0c1ea`, 65 local compilation
 inputs and two build/guard scripts. Only the CK provider and added capacity
 policy differ from CK370 among compilation inputs. Ten local attention and
 ownership tests, C smoke and public hygiene pass. The bounded build command
-passes baiying's PowerShell parser at 2026-09-19T11:46:19Z; native dispatch
-retains 240/390-second native/transport limits and requires the active model's
-completed cleanup record.
+passes baiying's PowerShell parser at 2026-09-19T11:46:19Z. That first command
+was prepared while the earlier whole334 full256k experiment was active.
+
+The [second preparation](../benchmarks/correctness/attention-workspace-reservation-preparation-r2-20260920.json)
+now requires the current wholeb3/CK370 original full256k run's final
+host/process cleanup on both dispatch sides. A separate output directory
+preserves earlier evidence. The source, bundle, all 67 build/guard inputs,
+local checks and 240/390-second native/transport limits are unchanged.
+PowerShell accepts `run-native-attention-workspace-reservation-r2.ps1` at
+2026-09-19T16:17:37Z with zero parse errors and no script execution. The
+eventual build record will include the exact preceding run-record hash.
+The candidate remains unbuilt and unrun.
