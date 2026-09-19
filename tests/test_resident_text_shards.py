@@ -9,39 +9,23 @@ from test_attention_workspace import function
 ROOT = Path(__file__).resolve().parents[1]
 
 
-class ResidentTextShardTests(unittest.TestCase):
-    def compile_run(self, source):
-        with tempfile.TemporaryDirectory() as temporary:
-            directory = Path(temporary)
-            unit = directory / 'test.cpp'
-            unit.write_text(source)
-            binary = directory / 'test'
-            compiled = subprocess.run(['c++', '-std=c++17', '-O1', '-Wall', '-Wextra', '-Werror',
-                            '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
-                            '-I', str(ROOT), str(unit), '-o', str(binary)],
-                           capture_output=True, text=True, timeout=60)
-            self.assertEqual(compiled.returncode, 0, compiled.stderr)
-            result = subprocess.run([str(binary)], check=True, capture_output=True,
-                                    text=True, timeout=60)
-            self.assertIn('"mismatches":0', result.stdout)
-
-    def test_generated_bytes_holes_failed_copies_and_wide_offsets(self):
-        self.compile_run('#include "tests/native/resident_text_shard_layout_host.cpp"\n')
-
-    def test_actual_runtime_copy_and_tensor_views(self):
-        whole = (ROOT / 'native/providers/whole_provider.cpp').read_text()
-        declarations = '\n'.join(function(whole, name) + ';' for name in (
-            'struct ResidentModelShardStoreMetrics',
-            'struct ResidentModelShardStoreShard',
-            'struct ResidentModelShardStoreTensor',
-            'struct ResidentModelShardStore {'))
-        functions = '\n'.join(function(whole, name) for name in (
-            'bool copy_resident_model_shard_store_chunk(',
-            'bool try_resident_model_shard_store_device_bf16_view(',
-            'bool copy_resident_model_shard_store_host_slice(',
-            'void release_resident_model_shard_store('))
-        source = r'''
+def runtime_host_source(extra_globals="", extra_functions="", extra_main=""):
+    whole = (ROOT / 'native/providers/whole_provider.cpp').read_text()
+    declarations = '\n'.join(function(whole, name) + ';' for name in (
+        'struct ResidentModelShardStoreMetrics',
+        'struct ResidentModelShardStoreShard',
+        'struct ResidentModelShardStoreTensor',
+        'struct ResidentModelShardStore {'))
+    functions = '\n'.join(function(whole, name) for name in (
+        'bool resident_model_shard_device_location(',
+        'bool copy_resident_model_shard_range(',
+        'bool copy_resident_model_shard_store_chunk(',
+        'bool try_resident_model_shard_store_device_bf16_view(',
+        'bool copy_resident_model_shard_store_host_slice(',
+        'void release_resident_model_shard_store('))
+    source = r'''
 #include "native/providers/resident_text_shard_layout.h"
+#include "native/providers/resident_ordered_shard_layout.h"
 #include <cassert>
 #include <cstring>
 #include <mutex>
@@ -91,7 +75,7 @@ bool check_hip(hipError_t value,const char* stage,std::string* where,std::string
 }
 ''' + declarations + r'''
 ResidentModelShardStore g_resident_model_shard_store;
-''' + functions + r'''
+''' + extra_globals + '\n' + functions + '\n' + extra_functions + r'''
 int main(){
  std::vector<unsigned char> source(8197),device(4096+128,0xa5);
  for(size_t i=0;i<source.size();++i)source[i]=static_cast<unsigned char>(i*19+i/7);
@@ -159,10 +143,34 @@ int main(){
  assert(!std::memcmp(result.data(),source.data()+1152+23,result.size()));
  release_resident_model_shard_store();
  assert(store.shards.empty()&&store.tensors.empty()&&!store.valid&&!store.text_only);
- std::puts("{\"kind\":\"resident_text_shard_runtime_host\",\"actual_runtime_functions\":4,\"mismatches\":0}");
+''' + extra_main + r'''
+ std::puts("{\"kind\":\"resident_text_shard_runtime_host\",\"actual_runtime_functions\":6,\"mismatches\":0}");
 }
 '''
-        self.compile_run(source)
+    return source
+
+
+class ResidentTextShardTests(unittest.TestCase):
+    def compile_run(self, source):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            unit = directory / 'test.cpp'
+            unit.write_text(source)
+            binary = directory / 'test'
+            compiled = subprocess.run(['c++', '-std=c++17', '-O1', '-Wall', '-Wextra', '-Werror',
+                            '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
+                            '-I', str(ROOT), str(unit), '-o', str(binary)],
+                           capture_output=True, text=True, timeout=60)
+            self.assertEqual(compiled.returncode, 0, compiled.stderr)
+            result = subprocess.run([str(binary)], check=True, capture_output=True,
+                                    text=True, timeout=60)
+            self.assertIn('"mismatches":0', result.stdout)
+
+    def test_generated_bytes_holes_failed_copies_and_wide_offsets(self):
+        self.compile_run('#include "tests/native/resident_text_shard_layout_host.cpp"\n')
+
+    def test_actual_runtime_copy_and_tensor_views(self):
+        self.compile_run(runtime_host_source())
 
 
 if __name__ == '__main__':

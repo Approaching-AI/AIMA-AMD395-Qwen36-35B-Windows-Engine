@@ -24,6 +24,8 @@
 #include "qrt_prefix_checkpoint.h"
 #include "prefix_checkpoint_policy.h"
 #include "resident_text_shard_layout.h"
+#include "resident_fixed_weight_order.h"
+#include "resident_ordered_shard_layout.h"
 #include "gdn/fla_checkpoint.h"
 #include "gdn/gb10_gate_lookup.h"
 #include "gdn/sm121_bf16_fma.h"
@@ -76298,6 +76300,7 @@ uint32_t g_q1_linear_rocblas_qkvz_ab_layer_count = 0u;
 bool g_q1_linear_rocblas_qkvz_ab_active = false;
 bool g_q1_linear_rocblas_qkvz_ab_decode_order_arena_alias = false;
 uint8_t *g_q1_decode_order_fixed_bf16_storage = nullptr;
+bool g_q1_decode_order_fixed_bf16_storage_borrowed = false;
 uint64_t g_q1_decode_order_fixed_bf16_storage_bytes = UINT64_C(0);
 uint32_t g_q1_decode_order_fixed_bf16_entry_count = 0u;
 bool g_q1_decode_order_fixed_bf16_active = false;
@@ -77706,6 +77709,18 @@ void release_q1_moe_avx512bf16_host_provider() {
 }
 #endif
 
+void release_q1_decode_order_fixed_bf16_arena() {
+    if (g_q1_decode_order_fixed_bf16_storage != nullptr) {
+        if (!g_q1_decode_order_fixed_bf16_storage_borrowed)
+            (void)hipFree(g_q1_decode_order_fixed_bf16_storage);
+        g_q1_decode_order_fixed_bf16_storage = nullptr;
+    }
+    g_q1_decode_order_fixed_bf16_storage_borrowed = false;
+    g_q1_decode_order_fixed_bf16_storage_bytes = UINT64_C(0);
+    g_q1_decode_order_fixed_bf16_entry_count = 0u;
+    g_q1_decode_order_fixed_bf16_active = false;
+}
+
 void release_whole_repeated_layer_fixed_weights() {
     // The q8192 RoPE table is a provider-owned fixed input derived from the
     // token-position surface.  Retire it with the same lifecycle before any
@@ -77721,13 +77736,7 @@ void release_whole_repeated_layer_fixed_weights() {
     g_q1_linear_rocblas_qkvz_ab_layer_count = 0u;
     g_q1_linear_rocblas_qkvz_ab_active = false;
     g_q1_linear_rocblas_qkvz_ab_decode_order_arena_alias = false;
-    if (g_q1_decode_order_fixed_bf16_storage != nullptr) {
-        (void)hipFree(g_q1_decode_order_fixed_bf16_storage);
-        g_q1_decode_order_fixed_bf16_storage = nullptr;
-    }
-    g_q1_decode_order_fixed_bf16_storage_bytes = UINT64_C(0);
-    g_q1_decode_order_fixed_bf16_entry_count = 0u;
-    g_q1_decode_order_fixed_bf16_active = false;
+    release_q1_decode_order_fixed_bf16_arena();
     for (WholeRepeatedLayerFixedWeightEntry &entry :
          g_whole_repeated_layer_fixed_weights) {
         if (entry.device_dense_packed_w6_scales != nullptr) {
@@ -78213,6 +78222,9 @@ bool q1_decode_order_fixed_bf16_arena_requested() {
     );
 }
 
+bool bind_resident_model_ordered_fixed_arena(
+    const std::vector<uint64_t>& offsets, uint64_t bytes, uint8_t** output);
+
 void print_q1_decode_order_fixed_bf16_arena_marker(
     bool requested,
     bool active,
@@ -78221,7 +78233,8 @@ void print_q1_decode_order_fixed_bf16_arena_marker(
     uint64_t arena_bytes,
     double elapsed_ms,
     bool pass,
-    const std::string &failure_stage
+    const std::string &failure_stage,
+    bool resident_alias = false
 ) {
     std::cerr << "BATCH_MARK q1_decode_order_fixed_bf16_arena_preload"
               << " requested=" << (requested ? 1 : 0)
@@ -78230,7 +78243,8 @@ void print_q1_decode_order_fixed_bf16_arena_marker(
               << " source_bytes=" << source_bytes
               << " arena_bytes=" << arena_bytes
               << " entry_alignment_bytes=256"
-              << " copy_kind=device_to_device"
+              << " copy_kind=" << (resident_alias ? "none" : "device_to_device")
+              << " resident_storage_alias=" << (resident_alias ? 1 : 0)
               << " tensor_order=layer_then_runtime_kind_then_lm_head"
               << " routed_expert_weights_reordered=0"
               << " elapsed_ms=" << elapsed_ms
@@ -78382,46 +78396,54 @@ bool prepare_q1_decode_order_fixed_bf16_arena(
     }
 
     uint8_t *storage = nullptr;
-    hipError_t status = hipMalloc(
-        reinterpret_cast<void **>(&storage),
-        static_cast<size_t>(arena_bytes)
-    );
-    if (status != hipSuccess || storage == nullptr) {
-        return fail(
-            "q1_decode_order_fixed_bf16_arena_allocate",
-            std::string("decode-order fixed BF16 arena allocation failed: ") +
-                hipGetErrorString(status)
+    const bool resident_alias = env_flag_enabled(
+        "QRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_ORDERED_FIXED");
+    if (resident_alias) {
+        if (!bind_resident_model_ordered_fixed_arena(offsets, arena_bytes, &storage))
+            return fail("q1_decode_order_fixed_bf16_arena_resident_alias",
+                "fixed-weight entries do not match the complete ordered resident owner");
+    } else {
+        hipError_t status = hipMalloc(
+            reinterpret_cast<void **>(&storage),
+            static_cast<size_t>(arena_bytes)
         );
-    }
-    for (size_t index = 0u;
-         index < g_whole_repeated_layer_fixed_weights.size();
-         ++index) {
-        const WholeRepeatedLayerFixedWeightEntry &entry =
-            g_whole_repeated_layer_fixed_weights[index];
-        status = hipMemcpyAsync(
-            storage + offsets[index],
-            entry.device_weights,
-            static_cast<size_t>(entry.bytes),
-            hipMemcpyDeviceToDevice,
-            nullptr
-        );
-        if (status != hipSuccess) {
-            (void)hipFree(storage);
+        if (status != hipSuccess || storage == nullptr) {
             return fail(
-                "q1_decode_order_fixed_bf16_arena_copy",
-                std::string("decode-order fixed BF16 arena copy failed: ") +
+                "q1_decode_order_fixed_bf16_arena_allocate",
+                std::string("decode-order fixed BF16 arena allocation failed: ") +
                     hipGetErrorString(status)
             );
         }
-    }
-    status = hipDeviceSynchronize();
-    if (status != hipSuccess) {
-        (void)hipFree(storage);
-        return fail(
-            "q1_decode_order_fixed_bf16_arena_sync",
-            std::string("decode-order fixed BF16 arena sync failed: ") +
-                hipGetErrorString(status)
-        );
+        for (size_t index = 0u;
+             index < g_whole_repeated_layer_fixed_weights.size();
+             ++index) {
+            const WholeRepeatedLayerFixedWeightEntry &entry =
+                g_whole_repeated_layer_fixed_weights[index];
+            status = hipMemcpyAsync(
+                storage + offsets[index],
+                entry.device_weights,
+                static_cast<size_t>(entry.bytes),
+                hipMemcpyDeviceToDevice,
+                nullptr
+            );
+            if (status != hipSuccess) {
+                (void)hipFree(storage);
+                return fail(
+                    "q1_decode_order_fixed_bf16_arena_copy",
+                    std::string("decode-order fixed BF16 arena copy failed: ") +
+                        hipGetErrorString(status)
+                );
+            }
+        }
+        status = hipDeviceSynchronize();
+        if (status != hipSuccess) {
+            (void)hipFree(storage);
+            return fail(
+                "q1_decode_order_fixed_bf16_arena_sync",
+                std::string("decode-order fixed BF16 arena sync failed: ") +
+                    hipGetErrorString(status)
+            );
+        }
     }
     for (size_t index = 0u;
          index < g_whole_repeated_layer_fixed_weights.size();
@@ -78430,6 +78452,7 @@ bool prepare_q1_decode_order_fixed_bf16_arena(
             reinterpret_cast<uint16_t *>(storage + offsets[index]);
     }
     g_q1_decode_order_fixed_bf16_storage = storage;
+    g_q1_decode_order_fixed_bf16_storage_borrowed = resident_alias;
     g_q1_decode_order_fixed_bf16_storage_bytes = arena_bytes;
     g_q1_decode_order_fixed_bf16_entry_count = static_cast<uint32_t>(
         g_whole_repeated_layer_fixed_weights.size()
@@ -78444,7 +78467,8 @@ bool prepare_q1_decode_order_fixed_bf16_arena(
         static_cast<double>(qrt_elapsed_ns(start_ns, qrt_now_ns())) /
             1000000.0,
         true,
-        ""
+        "",
+        resident_alias
     );
     return true;
 }
@@ -78839,6 +78863,8 @@ struct ResidentModelShardStoreShard {
     bool host_mapped = false;
     bool registered_host = false;
     qrt_resident_text_shard::Layout layout;
+    qrt_resident_text_shard::Layout fixed_layout;
+    void *fixed_device_base = nullptr; // Borrowed from the store's single owner.
 };
 
 struct ResidentModelShardStoreTensor {
@@ -78878,6 +78904,10 @@ struct ResidentModelShardStore {
     uint64_t managed_tail_shards = UINT64_C(0);
     uint64_t host_mapped_tail_shards = UINT64_C(0);
     uint64_t registered_host_tail_shards = UINT64_C(0);
+    void *fixed_device_arena = nullptr;
+    qrt_resident_ordered_shard::Plan ordered_plan;
+    std::vector<std::string> ordered_headers;
+    std::vector<std::string> ordered_fixed_names;
 #ifdef _WIN32
     std::array<ResidentModelShardStoreIoSlot,
                kResidentModelShardStoreQueueDepth> slots{};
@@ -78886,10 +78916,74 @@ struct ResidentModelShardStore {
     bool ring_ready = false;
     bool single_device_arena = false;
     bool text_only = false;
+    bool ordered_fixed = false;
     bool valid = false;
 };
 
 ResidentModelShardStore g_resident_model_shard_store;
+
+bool bind_resident_model_ordered_fixed_arena(
+    const std::vector<uint64_t>& offsets, uint64_t bytes, uint8_t** output) {
+    const auto& store = g_resident_model_shard_store;
+    if (!output || !store.valid || !store.ordered_fixed || !store.fixed_device_arena ||
+        bytes != store.ordered_plan.fixed_bytes ||
+        offsets.size() != store.ordered_fixed_names.size() ||
+        offsets.size() != g_whole_repeated_layer_fixed_weights.size()) return false;
+    auto* base = static_cast<uint8_t*>(store.fixed_device_arena);
+    for (size_t i = 0; i < offsets.size(); ++i) {
+        const auto& entry = g_whole_repeated_layer_fixed_weights[i];
+        if (entry.tensor_name != store.ordered_fixed_names[i] || !entry.borrowed ||
+            offsets[i] > bytes || entry.bytes > bytes - offsets[i] ||
+            entry.device_weights != reinterpret_cast<uint16_t*>(base + offsets[i])) return false;
+    }
+    *output = base;
+    return true;
+}
+
+bool resident_model_shard_device_location(const ResidentModelShardStoreShard& shard,
+    uint64_t source, uint64_t bytes, const void** base, uint64_t* offset) {
+    if (!base || !offset) return false;
+    const qrt_resident_text_shard::Layout* layouts[] = {&shard.layout, &shard.fixed_layout};
+    const void* owners[] = {shard.device_base, shard.fixed_device_base};
+    for (unsigned i = 0; i < 2u; ++i) {
+        uint64_t destination = 0;
+        if (owners[i] && qrt_resident_text_shard::offset(*layouts[i], source, bytes, &destination)) {
+            *base = owners[i];
+            *offset = destination;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool copy_resident_model_shard_range(const ResidentModelShardStoreShard& shard,
+    const void* source, uint64_t first, uint64_t bytes, hipStream_t stream,
+    const char* stage, std::string* failure_stage, std::string* failure) {
+    if (!source || !bytes || first > shard.file_bytes || bytes > shard.file_bytes - first) {
+        if (failure_stage) *failure_stage = stage;
+        if (failure) *failure = "resident shard copy range exceeds the original file";
+        return false;
+    }
+    const qrt_resident_text_shard::Layout* layouts[] = {&shard.layout, &shard.fixed_layout};
+    void* owners[] = {shard.device_base, shard.fixed_device_base};
+    for (unsigned i = 0; i < 2u; ++i) {
+        if (layouts[i]->spans.empty()) continue;
+        if (!owners[i]) {
+            if (failure_stage) *failure_stage = stage;
+            if (failure) *failure = "resident shard copy has no owner for a retained interval";
+            return false;
+        }
+        if (!qrt_resident_text_shard::copy(*layouts[i], first, bytes,
+                [&](uint64_t destination, uint64_t relative, uint64_t count) {
+                    return check_hip(hipMemcpyAsync(
+                        static_cast<unsigned char*>(owners[i]) + destination,
+                        static_cast<const unsigned char*>(source) + relative,
+                        static_cast<size_t>(count), hipMemcpyHostToDevice, stream),
+                        stage, failure_stage, failure);
+                })) return false;
+    }
+    return true;
+}
 
 // Keep every long-context kernel and allocation below the Windows watchdog /
 // large-allocation boundary.  The q262144 linear stack consumes one temporal
@@ -79830,6 +79924,9 @@ void print_resident_model_shard_store_marker(
               << " device_bytes=" << metrics.device_bytes
               << " ordinary_device_bytes=" << metrics.ordinary_device_bytes
               << " text_only=" << (store.text_only ? 1 : 0)
+              << " ordered_fixed=" << (store.ordered_fixed ? 1 : 0)
+              << " ordered_fixed_device_bytes="
+              << (store.fixed_device_arena ? store.ordered_plan.fixed_bytes : UINT64_C(0))
               << " omitted_tensor_count=" << metrics.omitted_tensor_count
               << " omitted_tensor_bytes=" << metrics.omitted_tensor_bytes
               << " managed_bytes=" << metrics.managed_bytes
@@ -80261,6 +80358,10 @@ void release_resident_model_shard_store() {
             }
         }
     }
+    if (store.fixed_device_arena) {
+        (void)hipFree(store.fixed_device_arena);
+        store.fixed_device_arena = nullptr;
+    }
     store.shards.clear();
     store.tensors.clear();
 #ifdef _WIN32
@@ -80299,6 +80400,10 @@ void release_resident_model_shard_store() {
     store.ring_ready = false;
     store.single_device_arena = false;
     store.text_only = false;
+    store.ordered_fixed = false;
+    store.ordered_plan = {};
+    store.ordered_headers.clear();
+    store.ordered_fixed_names.clear();
     store.valid = false;
 }
 
@@ -81666,16 +81771,16 @@ bool try_resident_model_shard_store_device_bf16_view(
     const ResidentModelShardStoreShard &shard =
         store.shards[found->second.shard_index];
     uint64_t device_offset = 0;
-    if (shard.device_base == nullptr ||
-        !qrt_resident_text_shard::offset(shard.layout,
-            found->second.absolute_begin, expected_bytes, &device_offset)) {
+    const void* device_base = nullptr;
+    if (!resident_model_shard_device_location(shard,
+            found->second.absolute_begin, expected_bytes, &device_base, &device_offset)) {
         if (failure != nullptr) {
             *failure = "resident model tensor view is absent from the selected resident scope";
         }
         return false;
     }
     *out = reinterpret_cast<const uint16_t *>(
-        static_cast<const unsigned char *>(shard.device_base) +
+        static_cast<const unsigned char *>(device_base) +
         device_offset
     );
     ++store.metrics.device_view_hit_count;
@@ -82095,8 +82200,9 @@ bool copy_resident_model_shard_store_host_slice(
     const uint64_t absolute_begin =
         found->second.absolute_begin + relative_begin;
     uint64_t device_offset = 0;
-    if (!shard.device_base || !qrt_resident_text_shard::offset(
-            shard.layout, absolute_begin, byte_count, &device_offset)) {
+    const void* device_base = nullptr;
+    if (!resident_model_shard_device_location(shard, absolute_begin, byte_count,
+            &device_base, &device_offset)) {
         if (failure != nullptr)
             *failure = "resident model host slice is absent from the selected resident scope";
         return false;
@@ -82114,7 +82220,7 @@ bool copy_resident_model_shard_store_host_slice(
         store.metrics.host_backing_slice_copy_bytes += byte_count;
     } else {
         const unsigned char *source =
-            static_cast<const unsigned char *>(shard.device_base) +
+            static_cast<const unsigned char *>(device_base) +
             device_offset;
         const hipError_t status = hipMemcpy(
             out,
@@ -82644,14 +82750,8 @@ bool copy_resident_model_shard_store_chunk(
             failure_stage,
             failure
         ) ||
-        !qrt_resident_text_shard::copy(shard->layout, relative, count,
-            [&](uint64_t destination, uint64_t source, uint64_t bytes) {
-                return check_hip(hipMemcpyAsync(
-                    static_cast<unsigned char *>(shard->device_base) + destination,
-                    static_cast<unsigned char *>(slot->host) + source,
-                    static_cast<size_t>(bytes), hipMemcpyHostToDevice, slot->stream),
-                    "resident_model_shard_store_h2d", failure_stage, failure);
-            }) ||
+        !copy_resident_model_shard_range(*shard, slot->host, relative, count,
+            slot->stream, "resident_model_shard_store_h2d", failure_stage, failure) ||
         !check_hip(
             hipEventRecord(slot->copy_end, slot->stream),
             "resident_model_shard_store_h2d_end",
@@ -82694,6 +82794,171 @@ bool copy_resident_model_shard_store_chunk(
 #endif
 
 #ifdef _WIN32
+bool read_resident_model_shard_metadata(
+    HANDLE handle, uint64_t deadline_ns, ResidentModelShardStoreMetrics* metrics,
+    uint64_t& file_bytes, std::string& header,
+    std::string* failure_stage, std::string* failure) {
+    LARGE_INTEGER size{};
+    if (!GetFileSizeEx(handle, &size) || size.QuadPart <= 8) {
+        set_resident_model_shard_store_win32_failure(
+            "resident_model_shard_store_file_size",
+            GetLastError(),
+            failure_stage,
+            failure
+        );
+        return false;
+    }
+    file_bytes = static_cast<uint64_t>(size.QuadPart);
+    std::array<unsigned char, 8> length_bytes{};
+    const uint64_t header_start_ns = qrt_now_ns();
+    if (!resident_model_shard_store_read_at(
+            handle,
+            UINT64_C(0),
+            length_bytes.data(),
+            static_cast<DWORD>(length_bytes.size()),
+            deadline_ns,
+            &metrics->read_wait_ns,
+            "resident_model_shard_store_header_length",
+            failure_stage,
+            failure
+        )) {
+        return false;
+    }
+    const uint64_t header_len = read_le64(length_bytes.data());
+    if (header_len == 0u || header_len > UINT64_C(64) * UINT64_C(1024) *
+            UINT64_C(1024) ||
+        header_len > file_bytes - UINT64_C(8) ||
+        header_len > static_cast<uint64_t>(UINT32_MAX)) {
+        if (failure_stage != nullptr) {
+            *failure_stage = "resident_model_shard_store_header_length";
+        }
+        if (failure != nullptr) {
+            *failure = "resident model shard store observed an invalid header length";
+        }
+        return false;
+    }
+    header.assign(static_cast<size_t>(header_len), '\0');
+    if (!resident_model_shard_store_read_at(
+            handle,
+            UINT64_C(8),
+            &header[0],
+            static_cast<DWORD>(header_len),
+            deadline_ns,
+            &metrics->read_wait_ns,
+            "resident_model_shard_store_header_json",
+            failure_stage,
+            failure
+        )) {
+        return false;
+    }
+    metrics->header_ns += qrt_elapsed_ns(header_start_ns, qrt_now_ns());
+    metrics->header_bytes += header_len;
+
+    return true;
+}
+
+bool prepare_resident_model_ordered_storage(
+    const std::string& model_dir, const std::vector<std::string>& shard_names,
+    uint64_t deadline_ns, ResidentModelShardStore* store,
+    std::string* failure_stage, std::string* failure) {
+    std::vector<qrt_resident_ordered_shard::Input> inputs;
+    std::unordered_map<std::string, ResidentModelShardStoreTensor> tensors;
+    uint64_t tensor_bytes = 0, tensor_count = 0;
+    for (size_t i = 0; i < shard_names.size(); ++i) {
+        ResidentModelShardStoreFile file;
+        file.handle = CreateFileA(join_path(model_dir, shard_names[i]).c_str(),
+            GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING,
+            FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED | FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
+        if (file.handle == INVALID_HANDLE_VALUE) {
+            set_resident_model_shard_store_win32_failure(
+                "resident_ordered_storage_header_open", GetLastError(), failure_stage, failure);
+            return false;
+        }
+        uint64_t bytes = 0;
+        std::string header;
+        if (!read_resident_model_shard_metadata(file.handle, deadline_ns, &store->metrics,
+                bytes, header, failure_stage, failure)) return false;
+        if (!parse_resident_model_shard_header(header, shard_names[i], header.size(), bytes, i,
+                &tensors, &tensor_bytes, &tensor_count, failure)) {
+            if (failure_stage) *failure_stage = "resident_ordered_storage_header_parse";
+            return false;
+        }
+        qrt_resident_ordered_shard::Input input;
+        input.file_bytes = bytes;
+        for (const auto& item : tensors) if (item.second.shard_index == i)
+            input.tensors.push_back({item.first, item.second.absolute_begin, item.second.bytes});
+        inputs.push_back(std::move(input));
+        store->ordered_headers.push_back(std::move(header));
+    }
+    if (!qrt_resident_fixed_order::complete_names(&store->ordered_fixed_names) ||
+        !qrt_resident_ordered_shard::build(inputs, store->ordered_fixed_names,
+            store->text_only, &store->ordered_plan)) {
+        if (failure_stage) *failure_stage = "resident_ordered_storage_layout";
+        if (failure) *failure = "original shards cannot supply disjoint ordinary and fixed tensor owners";
+        return false;
+    }
+    const uint64_t bytes = store->ordered_plan.fixed_bytes;
+    const uint64_t requested = parse_env_u64_or_default(
+        "QRT_PREFILL_DESCRIPTOR_BATCH_REQUEST_PREFILL_TOKENS", UINT64_C(0));
+    if (requested <= UINT32_MAX && maximum_context_streamed_prefill_tokens(static_cast<unsigned>(requested))) {
+        size_t available = 0, total = 0;
+        if (hipMemGetInfo(&available, &total) != hipSuccess ||
+            available < kQ262144ResidentModelGpuReserveBytes ||
+            bytes > available - kQ262144ResidentModelGpuReserveBytes) {
+            if (failure_stage) *failure_stage = "resident_ordered_storage_q262144_gpu_reserve";
+            if (failure) *failure = "ordered fixed storage would consume the retained 20 GiB GPU safety reserve";
+            return false;
+        }
+    }
+    const uint64_t start = qrt_now_ns();
+    if (bytes > static_cast<uint64_t>((std::numeric_limits<size_t>::max)()) ||
+        !check_hip(hipMalloc(&store->fixed_device_arena, static_cast<size_t>(bytes)),
+            "resident_ordered_storage_allocate", failure_stage, failure)) return false;
+    store->metrics.allocation_ns += qrt_elapsed_ns(start, qrt_now_ns());
+    store->metrics.device_bytes += bytes;
+    store->metrics.ordinary_device_bytes += bytes;
+    std::cerr << "BATCH_MARK resident_model_ordered_storage_plan"
+              << " fixed_tensors=" << store->ordered_plan.fixed_tensors
+              << " fixed_tensor_bytes=" << store->ordered_plan.fixed_tensor_bytes
+              << " fixed_bytes=" << bytes
+              << " ordinary_bytes=" << store->ordered_plan.ordinary_bytes
+              << " total_device_bytes=" << (bytes + store->ordered_plan.ordinary_bytes)
+              << " omitted_tensors=" << store->ordered_plan.omitted_tensors
+              << " omitted_tensor_bytes=" << store->ordered_plan.omitted_tensor_bytes
+              << " original_disk_offsets=1 shared_fixed_owner=1 quantized=0"
+              << " numerical_correctness_claimed=0" << std::endl;
+    return true;
+}
+
+bool assign_resident_model_ordered_shard_layout(
+    ResidentModelShardStore* store, ResidentModelShardStoreShard& resident_shard,
+    size_t shard_index, uint64_t file_bytes, const std::string& header,
+    std::string* failure_stage, std::string* failure) {
+    if (shard_index >= store->ordered_plan.shards.size() ||
+        shard_index >= store->ordered_headers.size() ||
+        header != store->ordered_headers[shard_index] ||
+        file_bytes != store->ordered_plan.shards[shard_index].ordinary.file_bytes) {
+        if (failure_stage) *failure_stage = "resident_ordered_storage_header_changed";
+        if (failure) *failure = "model shard metadata changed after the ordered layout was prepared";
+        return false;
+    }
+    const auto& planned = store->ordered_plan.shards[shard_index];
+    resident_shard.layout = planned.ordinary;
+    resident_shard.fixed_layout = planned.fixed;
+    resident_shard.fixed_device_base = store->fixed_device_arena;
+    store->metrics.omitted_tensor_count += planned.omitted_tensors;
+    store->metrics.omitted_tensor_bytes += planned.omitted_tensor_bytes;
+    std::cerr << "BATCH_MARK resident_model_ordered_shard_layout shard_index=" << shard_index
+              << " file_bytes=" << file_bytes << " ordinary_bytes=" << planned.ordinary.device_bytes
+              << " ordinary_spans=" << planned.ordinary.spans.size()
+              << " fixed_spans=" << planned.fixed.spans.size()
+              << " fixed_tensors=" << planned.fixed.kept_tensors
+              << " omitted_tensors=" << planned.omitted_tensors
+              << " omitted_tensor_bytes=" << planned.omitted_tensor_bytes
+              << " original_disk_offsets=1 shared_fixed_owner=1 quantized=0" << std::endl;
+    return true;
+}
+
 bool load_resident_model_shard_store_shard(
     const std::string &model_dir,
     const std::string &shard_name,
@@ -82723,61 +82988,11 @@ bool load_resident_model_shard_store_shard(
         );
         return false;
     }
-    LARGE_INTEGER size{};
-    if (!GetFileSizeEx(buffered.handle, &size) || size.QuadPart <= 8) {
-        set_resident_model_shard_store_win32_failure(
-            "resident_model_shard_store_file_size",
-            GetLastError(),
-            failure_stage,
-            failure
-        );
-        return false;
-    }
-    const uint64_t file_bytes = static_cast<uint64_t>(size.QuadPart);
-    std::array<unsigned char, 8> length_bytes{};
-    const uint64_t header_start_ns = qrt_now_ns();
-    if (!resident_model_shard_store_read_at(
-            buffered.handle,
-            UINT64_C(0),
-            length_bytes.data(),
-            static_cast<DWORD>(length_bytes.size()),
-            deadline_ns,
-            &store->metrics.read_wait_ns,
-            "resident_model_shard_store_header_length",
-            failure_stage,
-            failure
-        )) {
-        return false;
-    }
-    const uint64_t header_len = read_le64(length_bytes.data());
-    if (header_len == 0u || header_len > UINT64_C(64) * UINT64_C(1024) *
-            UINT64_C(1024) ||
-        header_len > file_bytes - UINT64_C(8) ||
-        header_len > static_cast<uint64_t>(UINT32_MAX)) {
-        if (failure_stage != nullptr) {
-            *failure_stage = "resident_model_shard_store_header_length";
-        }
-        if (failure != nullptr) {
-            *failure = "resident model shard store observed an invalid header length";
-        }
-        return false;
-    }
-    std::string header(static_cast<size_t>(header_len), '\0');
-    if (!resident_model_shard_store_read_at(
-            buffered.handle,
-            UINT64_C(8),
-            &header[0],
-            static_cast<DWORD>(header_len),
-            deadline_ns,
-            &store->metrics.read_wait_ns,
-            "resident_model_shard_store_header_json",
-            failure_stage,
-            failure
-        )) {
-        return false;
-    }
-    store->metrics.header_ns += qrt_elapsed_ns(header_start_ns, qrt_now_ns());
-    store->metrics.header_bytes += header_len;
+    uint64_t file_bytes = 0;
+    std::string header;
+    if (!read_resident_model_shard_metadata(buffered.handle, deadline_ns, &store->metrics,
+            file_bytes, header, failure_stage, failure)) return false;
+    const uint64_t header_len = static_cast<uint64_t>(header.size());
 
     ResidentModelShardStoreShard shard;
     shard.name = shard_name;
@@ -82803,22 +83018,27 @@ bool load_resident_model_shard_store_shard(
         return false;
     }
 
-    std::vector<qrt_resident_text_shard::Tensor> shard_tensors;
-    for (const auto &item : store->tensors) {
-        if (item.second.shard_index == shard_index)
-            shard_tensors.push_back({item.second.absolute_begin, item.second.bytes,
-                qrt_resident_text_shard::keep(item.first)});
-    }
-    if (!qrt_resident_text_shard::build(file_bytes, std::move(shard_tensors),
-            store->text_only, &resident_shard.layout)) {
-        if (failure_stage) *failure_stage = "resident_model_shard_store_layout";
-        if (failure) *failure = "resident model shard has overlapping or invalid tensor ranges";
-        return false;
+    if (store->ordered_fixed) {
+        if (!assign_resident_model_ordered_shard_layout(store, resident_shard,
+                shard_index, file_bytes, header, failure_stage, failure)) return false;
+    } else {
+        std::vector<qrt_resident_text_shard::Tensor> shard_tensors;
+        for (const auto &item : store->tensors) {
+            if (item.second.shard_index == shard_index)
+                shard_tensors.push_back({item.second.absolute_begin, item.second.bytes,
+                    qrt_resident_text_shard::keep(item.first)});
+        }
+        if (!qrt_resident_text_shard::build(file_bytes, std::move(shard_tensors),
+                store->text_only, &resident_shard.layout)) {
+            if (failure_stage) *failure_stage = "resident_model_shard_store_layout";
+            if (failure) *failure = "resident model shard has overlapping or invalid tensor ranges";
+            return false;
+        }
+        store->metrics.omitted_tensor_count += resident_shard.layout.omitted_tensors;
+        store->metrics.omitted_tensor_bytes += resident_shard.layout.omitted_tensor_bytes;
     }
     const uint64_t device_bytes = resident_shard.layout.device_bytes;
-    store->metrics.omitted_tensor_count += resident_shard.layout.omitted_tensors;
-    store->metrics.omitted_tensor_bytes += resident_shard.layout.omitted_tensor_bytes;
-    if (store->text_only)
+    if (store->text_only && !store->ordered_fixed)
         std::cerr << "BATCH_MARK resident_model_text_shard_layout shard_index=" << shard_index
                   << " file_bytes=" << file_bytes << " device_bytes=" << device_bytes
                   << " retained_spans=" << resident_shard.layout.spans.size()
@@ -82826,7 +83046,7 @@ bool load_resident_model_shard_store_shard(
                   << " omitted_tensors=" << resident_shard.layout.omitted_tensors
                   << " omitted_tensor_bytes=" << resident_shard.layout.omitted_tensor_bytes
                   << " original_disk_offsets=1 quantized=0" << std::endl;
-    if (!device_bytes) {
+    if (!device_bytes && resident_shard.fixed_layout.spans.empty()) {
         store->metrics.file_bytes += file_bytes;
         ++store->metrics.shard_count;
         return true;
@@ -82908,7 +83128,7 @@ bool load_resident_model_shard_store_shard(
             static_cast<unsigned char *>(store->device_arena) +
             aligned_offset;
         store->device_arena_next_offset = aligned_offset + file_bytes;
-    } else {
+    } else if (device_bytes) {
         const uint64_t allocation_start_ns = qrt_now_ns();
         const bool use_managed =
             store->managed_tail_shards != UINT64_C(0) &&
@@ -83188,15 +83408,9 @@ bool load_resident_model_shard_store_shard(
                     failure_stage,
                     failure
                 ) ||
-                !qrt_resident_text_shard::copy(resident_shard.layout,
-                    streamed_bytes, tail_bytes,
-                    [&](uint64_t destination, uint64_t source, uint64_t bytes) {
-                        return check_hip(hipMemcpyAsync(
-                            static_cast<unsigned char *>(resident_shard.device_base) + destination,
-                            static_cast<unsigned char *>(slot.host) + source,
-                            static_cast<size_t>(bytes), hipMemcpyHostToDevice, slot.stream),
-                            "resident_model_shard_store_tail_h2d", failure_stage, failure);
-                    }) ||
+                !copy_resident_model_shard_range(resident_shard, slot.host,
+                    streamed_bytes, tail_bytes, slot.stream,
+                    "resident_model_shard_store_tail_h2d", failure_stage, failure) ||
                 !check_hip(
                     hipEventRecord(slot.copy_end, slot.stream),
                     "resident_model_shard_store_tail_end",
@@ -83237,7 +83451,11 @@ bool load_resident_model_shard_store_shard(
     const uint64_t verify_start_ns = qrt_now_ns();
     std::array<unsigned char, kResidentModelShardStoreVerifyBytes> source{};
     ResidentModelShardStoreIoSlot &verify_slot = store->slots[0];
-    for (const auto &span : resident_shard.layout.spans) {
+    const qrt_resident_text_shard::Layout* verification_layouts[] = {
+        &resident_shard.layout, &resident_shard.fixed_layout};
+    const void* verification_bases[] = {resident_shard.device_base, resident_shard.fixed_device_base};
+    for (unsigned region = 0; region < 2u; ++region) {
+      for (const auto &span : verification_layouts[region]->spans) {
         const size_t verify_bytes = static_cast<size_t>((std::min<uint64_t>)(
             static_cast<uint64_t>(kResidentModelShardStoreVerifyBytes),
             span.bytes
@@ -83282,7 +83500,7 @@ bool load_resident_model_shard_store_shard(
                         hipMemcpyAsync(
                             verify_slot.host,
                             static_cast<const unsigned char *>(
-                                resident_shard.device_base
+                                verification_bases[region]
                             ) + span.destination + sample_offset,
                             verify_bytes,
                             hipMemcpyDeviceToHost,
@@ -83319,6 +83537,7 @@ bool load_resident_model_shard_store_shard(
             }
             ++store->metrics.verification_sample_count;
         }
+    }
     }
     store->metrics.verify_ns += qrt_elapsed_ns(verify_start_ns, qrt_now_ns());
     size_t gpu_free_ready_bytes = 0u;
@@ -83359,6 +83578,20 @@ bool ensure_resident_model_shard_store(
     ResidentModelShardStore &store = g_resident_model_shard_store;
     const bool text_only = env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_TEXT_ONLY");
+    const bool ordered_fixed = env_flag_enabled(
+        "QRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_ORDERED_FIXED");
+    if (ordered_fixed && (!text_only || !q1_decode_order_fixed_bf16_arena_requested() ||
+            !qwen36_whole_early_layer_provider_requested() ||
+            !qwen36_whole_repeated_layer_provider_requested() ||
+            !qwen36_whole_full_attention_layer_provider_requested() ||
+            !qwen36_final_layer_full_prefix_requested(kRetainedPrefillTokens) ||
+            !env_flag_enabled("QRT_PREFILL_DESCRIPTOR_BATCH_LM_HEAD_HIPBLASLT_PROVIDER") ||
+            !env_flag_enabled("QRT_PREFILL_DESCRIPTOR_BATCH_TRUST_LM_HEAD_GPU_TOPK") ||
+            decode_quantized_route_requested())) {
+        if (failure_stage) *failure_stage = "resident_ordered_storage_contract";
+        if (failure) *failure = "ordered resident storage requires the complete text BF16 fixed-weight route";
+        return false;
+    }
     if (text_only) {
         const char *conflicts[] = {
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_W8A8_FULL",
@@ -83394,6 +83627,7 @@ bool ensure_resident_model_shard_store(
         resident_model_shard_store_registered_host_tail_shards_requested();
     if (store.valid && store.model_dir == model_dir &&
         store.text_only == text_only &&
+        store.ordered_fixed == ordered_fixed &&
         store.single_device_arena == single_device_arena_requested &&
         store.managed_tail_shards == managed_tail_shards_requested &&
         store.host_mapped_tail_shards ==
@@ -83423,6 +83657,7 @@ bool ensure_resident_model_shard_store(
     const uint64_t deadline_ns = start_ns + kResidentModelShardStoreTimeoutNs;
     store.model_dir = model_dir;
     store.text_only = text_only;
+    store.ordered_fixed = ordered_fixed;
     store.single_device_arena = single_device_arena_requested;
     store.managed_tail_shards = managed_tail_shards_requested;
     store.host_mapped_tail_shards = host_mapped_tail_shards_requested;
@@ -83523,6 +83758,14 @@ bool ensure_resident_model_shard_store(
         static_cast<uint64_t>(ordered_shards.size());
     store.shards.reserve(ordered_shards.size());
     store.tensors.reserve(index_tensor_count);
+    if (store.ordered_fixed && !prepare_resident_model_ordered_storage(
+            model_dir, ordered_shards, deadline_ns, &store, failure_stage, failure)) {
+        store.metrics.total_ns = qrt_elapsed_ns(start_ns, qrt_now_ns());
+        print_resident_model_shard_store_marker(store, false,
+            failure_stage ? *failure_stage : "resident_ordered_storage_prepare");
+        release_resident_model_shard_store();
+        return false;
+    }
     if (store.single_device_arena) {
         uint64_t arena_bytes = UINT64_C(0);
         const uint64_t alignment =
@@ -83676,7 +83919,16 @@ bool ensure_resident_model_shard_store(
             return false;
         }
     }
-    if (store.metrics.shard_count != static_cast<uint64_t>(shard_count) ||
+    uint64_t ordered_verification_samples = 0;
+    if (store.ordered_fixed) for (const auto& planned : store.ordered_plan.shards)
+        ordered_verification_samples += 3u * (planned.ordinary.spans.size() + planned.fixed.spans.size());
+    const bool ordered_complete = !store.ordered_fixed ||
+        (store.fixed_device_arena &&
+         store.metrics.device_bytes == store.ordered_plan.fixed_bytes + store.ordered_plan.ordinary_bytes &&
+         store.metrics.omitted_tensor_count == store.ordered_plan.omitted_tensors &&
+         store.metrics.omitted_tensor_bytes == store.ordered_plan.omitted_tensor_bytes &&
+         store.metrics.verification_sample_count == ordered_verification_samples);
+    if (!ordered_complete || store.metrics.shard_count != static_cast<uint64_t>(shard_count) ||
         store.metrics.tensor_count != static_cast<uint64_t>(index_tensor_count) ||
         store.metrics.managed_shard_count != managed_tail_shards_requested ||
         store.metrics.host_mapped_shard_count !=
@@ -83825,59 +84077,10 @@ bool preload_whole_repeated_layer_fixed_weights(
     }
 
     release_whole_repeated_layer_fixed_weights();
-    const std::array<qrt_qwen36_tensor_kind_t, 16> linear_tensor_kinds = {
-        QRT_QWEN36_TENSOR_INPUT_NORM,
-        QRT_QWEN36_TENSOR_LINEAR_ATTN_QKV,
-        QRT_QWEN36_TENSOR_LINEAR_ATTN_Z,
-        QRT_QWEN36_TENSOR_LINEAR_ATTN_A,
-        QRT_QWEN36_TENSOR_LINEAR_ATTN_B,
-        QRT_QWEN36_TENSOR_LINEAR_ATTN_CONV,
-        QRT_QWEN36_TENSOR_LINEAR_ATTN_A_LOG,
-        QRT_QWEN36_TENSOR_LINEAR_ATTN_DT_BIAS,
-        QRT_QWEN36_TENSOR_LINEAR_ATTN_NORM,
-        QRT_QWEN36_TENSOR_LINEAR_ATTN_OUT_PROJ,
-        QRT_QWEN36_TENSOR_POST_ATTENTION_NORM,
-        QRT_QWEN36_TENSOR_MOE_ROUTER,
-        QRT_QWEN36_TENSOR_MOE_SHARED_GATE,
-        QRT_QWEN36_TENSOR_MOE_SHARED_GATE_PROJ,
-        QRT_QWEN36_TENSOR_MOE_SHARED_UP_PROJ,
-        QRT_QWEN36_TENSOR_MOE_SHARED_DOWN
-    };
-    const std::array<qrt_qwen36_tensor_kind_t, 13>
-        full_attention_tensor_kinds = {
-            QRT_QWEN36_TENSOR_INPUT_NORM,
-            QRT_QWEN36_TENSOR_FULL_ATTN_Q,
-            QRT_QWEN36_TENSOR_FULL_ATTN_K,
-            QRT_QWEN36_TENSOR_FULL_ATTN_V,
-            QRT_QWEN36_TENSOR_FULL_ATTN_Q_NORM,
-            QRT_QWEN36_TENSOR_FULL_ATTN_K_NORM,
-            QRT_QWEN36_TENSOR_FULL_ATTN_O,
-            QRT_QWEN36_TENSOR_POST_ATTENTION_NORM,
-            QRT_QWEN36_TENSOR_MOE_ROUTER,
-            QRT_QWEN36_TENSOR_MOE_SHARED_GATE,
-            QRT_QWEN36_TENSOR_MOE_SHARED_GATE_PROJ,
-            QRT_QWEN36_TENSOR_MOE_SHARED_UP_PROJ,
-            QRT_QWEN36_TENSOR_MOE_SHARED_DOWN
-        };
-    const std::array<qrt_qwen36_tensor_kind_t, 8>
-        fixed_attention_tensor_kinds = {
-            QRT_QWEN36_TENSOR_INPUT_NORM,
-            QRT_QWEN36_TENSOR_FULL_ATTN_Q,
-            QRT_QWEN36_TENSOR_FULL_ATTN_K,
-            QRT_QWEN36_TENSOR_FULL_ATTN_V,
-            QRT_QWEN36_TENSOR_FULL_ATTN_Q_NORM,
-            QRT_QWEN36_TENSOR_FULL_ATTN_K_NORM,
-            QRT_QWEN36_TENSOR_FULL_ATTN_O,
-            QRT_QWEN36_TENSOR_POST_ATTENTION_NORM
-        };
-    const std::array<qrt_qwen36_tensor_kind_t, 5>
-        selected_moe_full_v2_tensor_kinds = {
-            QRT_QWEN36_TENSOR_MOE_ROUTER,
-            QRT_QWEN36_TENSOR_MOE_SHARED_GATE,
-            QRT_QWEN36_TENSOR_MOE_SHARED_GATE_PROJ,
-            QRT_QWEN36_TENSOR_MOE_SHARED_UP_PROJ,
-            QRT_QWEN36_TENSOR_MOE_SHARED_DOWN
-    };
+    const auto& linear_tensor_kinds = qrt_resident_fixed_order::linear_tensor_kinds;
+    const auto& full_attention_tensor_kinds = qrt_resident_fixed_order::full_attention_tensor_kinds;
+    const auto& fixed_attention_tensor_kinds = qrt_resident_fixed_order::fixed_attention_tensor_kinds;
+    const auto& selected_moe_full_v2_tensor_kinds = qrt_resident_fixed_order::selected_moe_full_v2_tensor_kinds;
     const uint64_t preload_start_ns = qrt_now_ns();
     unsigned int preloaded_layer_count = 0u;
     uint64_t file_backed_host_shadow_count = UINT64_C(0);
@@ -84271,6 +84474,11 @@ bool preload_whole_repeated_layer_fixed_weights(
               << g_q1_decode_order_fixed_bf16_entry_count
               << " q1_decode_order_fixed_bf16_arena_bytes="
               << g_q1_decode_order_fixed_bf16_storage_bytes
+              << " q1_decode_order_fixed_bf16_owned_bytes="
+              << (g_q1_decode_order_fixed_bf16_storage_borrowed
+                    ? UINT64_C(0) : g_q1_decode_order_fixed_bf16_storage_bytes)
+              << " q1_decode_order_fixed_bf16_resident_alias="
+              << (g_q1_decode_order_fixed_bf16_storage_borrowed ? 1 : 0)
               << " q1_decode_order_fixed_bf16_weight_bits=16"
               << " q1_decode_order_fixed_bf16_quantized=0"
               << " q1_decode_order_fixed_bf16_dflash_active=0"
