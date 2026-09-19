@@ -204,8 +204,9 @@ builds source02e2a13 on baiying in94977.644 ms with all92 inputs checked.
 All494 GPU executable kernels and metadata are unchanged. Every original
 q8192 output/callback and first logit10.375 passes. Load21331.5202 ms,
 TTFT23241.1652 ms and TPOT100.587183 ms are one functional sample. The new
-96k attention15 capture is active, with the same original input and all
-process/host guards; it carries no new correctness or performance acceptance.
+96k attention15 capture completes in2661453.722 ms with all process/host
+guards passing. Its diagnostic output is248046/logit31.875; the truncated
+owner has no supplied expected output and grants no product acceptance.
 The [original full attention15 window](../benchmarks/correctness/gb10-prefix128-full15-window-20260919.json)
 passes all576 original IDs and complete owner first logits. Its10 tensors
 total671088640 bytes and retain the8192 actual queries plus98304 logical KV
@@ -215,7 +216,27 @@ the original K RoPE/V projection. All4380 downloaded files verify.
 reproduce18 Q/K/V projections and10 complete selected attention contexts,
 including91017–91021 and98303, bitwise in BF16. Both declared separate/FMA
 denominator variants match these consumed outputs; no intermediate FP32
-equivalence is inferred. Native operands remain to be compared at91018.
+equivalence is inferred.
+
+The [complete native operand comparison and single-round repair](../benchmarks/correctness/prefix96-rope-single-round-root-cause-20260919.json)
+identify the earlier defect. All98304 original K/V rows match. Among33554432
+Q cells, only position91018/head10/channel16 differs: native-1.9375 instead
+of original-1.9453125. Q/K/V projections match at this position. The rotary
+product2.21875*(-0.875) is exactly a BF16 midpoint; the rounded cross term
+selects its lower neighbour. FP32 FMA discards that tiny term before BF16
+rounding, whereas the original BF16 FMA rounds the exact sum once.
+
+Replaying actual Q reproduces all20 context BF16 differences. Original Q
+removes all20 with the same complete KV. Actual O projection and residual/norm
+replay match native output, locating the defect before those consumers.
+The candidate uses a FP32 fast path away from BF16 midpoints and an integer
+single-round endpoint at midpoints and edge cases in both prefill and decode.
+Full-FP32 legacy coefficients retain their arithmetic. All33554432 original
+Q and4194304 K RoPE cells match with the new helper; the old helper reproduces
+the same single Q mismatch. Six local FMA tests cover244568 cases, signed
+zeros, overflow, subnormals, cancellation and the captured real endpoint.
+Windows build, GPU arithmetic and real-model regressions remain pending.
+This finding does not qualify full128k continuation or product performance.
 
 The new independent row906 GB10 capture fails its q7169 control before any
 long request: token220/logit9.375 instead of82/9.25. Its first observed

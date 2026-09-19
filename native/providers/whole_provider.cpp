@@ -25,6 +25,7 @@
 #include "prefix_checkpoint_policy.h"
 #include "gdn/fla_checkpoint.h"
 #include "gdn/gb10_gate_lookup.h"
+#include "gdn/sm121_bf16_fma.h"
 #include "gdn/conv_consumer_interval.h"
 #include "qrt_qwen36_q1024_owner.h"
 #include "hawkeye_dispatch_policy.h"
@@ -9827,16 +9828,12 @@ __device__ float layer3_full_attention_rope_value(
             const float rounded_second_sin = device_bf16_round_to_float(
                 second * s
             );
-            return device_bf16_round_to_float(
-                fmaf(first, c, -rounded_second_sin)
-            );
+            return qrt_sm121_bf16_fma::rounded(first, c, -rounded_second_sin);
         }
         const float rounded_first_sin = device_bf16_round_to_float(
             first * s
         );
-        return device_bf16_round_to_float(
-            fmaf(second, c, rounded_first_sin)
-        );
+        return qrt_sm121_bf16_fma::rounded(second, c, rounded_first_sin);
     }
     if (dim < half_rotary) {
         return first * c - second * s;
@@ -10651,11 +10648,12 @@ __device__ void full_attention_compact_wave32_store_rope_table_bf16(
     // Match the sm121 Triton MRoPE instructions rather than merely their
     // algebraic expression: mul.bf16 supplies the rounded cross term and
     // fma.rn.bf16 supplies the final endpoint.  The packed store below is the
-    // final BF16 rounding; BF16 operands make the FP32 fmaf exact before it.
+    // final BF16 rounding. A FP32 FMA can itself land on a BF16 midpoint and
+    // discard a smaller term, so use the single-round BF16 endpoint helper.
     const float rounded_second_sin = device_bf16_round_to_float(second * s);
     const float rounded_first_sin = device_bf16_round_to_float(first * s);
-    const float rotated_first = fmaf(first, c, -rounded_second_sin);
-    const float rotated_second = fmaf(second, c, rounded_first_sin);
+    const float rotated_first = qrt_sm121_bf16_fma::rounded(first, c, -rounded_second_sin);
+    const float rotated_second = qrt_sm121_bf16_fma::rounded(second, c, rounded_first_sin);
     output[output_base + lane] = device_float_to_bf16_ck_wrapper(
         rotated_first
     );

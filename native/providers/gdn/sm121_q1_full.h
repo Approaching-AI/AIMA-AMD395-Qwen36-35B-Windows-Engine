@@ -2,6 +2,7 @@
 #define QRT_SM121_Q1_FULL_H
 #include <hip/hip_runtime.h>
 #include "sm121_q1_math.h"
+#include "sm121_bf16_fma.h"
 
 namespace qrt_sm121_q1_full {
 // One CTA owns a Q or K head. Preserve each original compiled head-256
@@ -48,8 +49,8 @@ __global__ void prepare_qkv(
         const float s = widen(rope_cache[static_cast<size_t>(position) * 64u + 32u + pair]);
         const float first = normalized[pair], second = normalized[pair + 32u];
         result = dim < 32u
-            ? widen(bf16(fmaf(first, c, -widen(bf16(multiply(second, s))))))
-            : widen(bf16(fmaf(second, c, widen(bf16(multiply(first, s))))));
+            ? qrt_sm121_bf16_fma::rounded(first, c, -widen(bf16(multiply(second, s))))
+            : qrt_sm121_bf16_fma::rounded(second, c, widen(bf16(multiply(first, s))));
     }
     if (is_key) {
         rope[8192u + local_head * 256u + dim] = result;
