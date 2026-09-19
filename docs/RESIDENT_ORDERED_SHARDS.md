@@ -53,8 +53,36 @@ Load is 21750.9763 ms, TTFT 23250.782 ms and TPOT 101.226319 ms. The
 [native build and q8192 record](../benchmarks/correctness/resident-ordered-compact-query-native-q8192-20260919.json)
 binds source, actual allocation markers and final host/process cleanup. These
 are functional and allocation observations, not retained performance or
-physical-memory qualification. Separate cold32k is active; full256k remains
-unrun with this candidate. It is not enabled in a package or release.
+physical-memory qualification.
+
+The separate [original cold32k/out512 run](../benchmarks/correctness/resident-ordered-compact-query-cold32k-out512-20260919.json)
+also passes all 512 IDs and callbacks, first logit 24.75 with zero error, all
+four cold chunks and 30 compact-Q continuations. The same original tensor
+samples and shared fixed aliases pass. Load is 21594.5557 ms, TTFT
+256706.5187 ms, TPOT 208.317485 ms and native wall 385096.409 ms. Final host
+and process cleanup checks pass.
+
+The [cold32k memory comparison](../benchmarks/correctness/resident-ordered-cold32k-memory-20260919.json)
+compares that run with the original scratch-reuse control on the same boot,
+with identical arithmetic options and only the two declared storage flags
+added. Minimum sampled available commit rises from 59165630464 to 65716465664
+bytes; minimum available physical memory rises from 21861294080 to 22105653248
+bytes. Accounting for their different preflight baselines, the maximum sampled
+commit drop decreases by 6492917760 bytes and the physical drop by 102625280
+bytes. These are system observations; process private bytes do not measure
+GPU residency. The commit difference is consistent with the allocation
+reduction but does not qualify full256k capacity or retained performance.
+
+The original 262144-token owner32 and both 1024-token suffix/out512
+continuations are now active via `run-resident-ordered-compact-query-prefix256k-r1.ps1`.
+Source manifest SHA256 is
+`5d9ad636b80efaa7949f26bba5eb1855fa7e56a06008e7e3202d316227da0756`.
+The completed q8192 and cold32k boundaries and the previous full256k cleanup
+are prerequisites. The original inputs, 8 GiB physical and 20 GiB commit
+reserves, 28800-second native deadline and numerical tolerance are unchanged.
+No optional row/stage observers are enabled. No output-token or full256k
+acceptance is inferred from partial chunks. This candidate is not enabled in
+a package or release.
 
 The [preparation record](../benchmarks/correctness/resident-ordered-storage-preparation-20260919.json)
 pins source `b3af8b6177c8bbf756be2b63af99bc7bb70b436e`, all 101 local
