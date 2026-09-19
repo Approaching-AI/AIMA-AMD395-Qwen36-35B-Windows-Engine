@@ -21,6 +21,11 @@ errors, indices and candidate count retain disjoint checked ranges. The larger
 probability read width may affect speed; allocation sizes do not establish
 physical-memory savings, GPU residency or inference performance.
 
+The separate [packed-row variant](PACKED_PROBABILITY_STORAGE.md) preserves
+two-byte probability reads while reusing the same score owner. It remains an
+unrun component candidate; the original tagged preparation below stays pinned
+to its recorded source and command.
+
 The original template defaults still use packed BF16 probabilities. No runtime
 option or provider dispatch selects the new path. The active ordered-storage
 full256k run uses its existing binaries and allocations.

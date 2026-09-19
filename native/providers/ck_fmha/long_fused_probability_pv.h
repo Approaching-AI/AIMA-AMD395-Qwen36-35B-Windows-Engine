@@ -5,7 +5,7 @@
 // Component-only long-history producer. Preserve every original per-group
 // error bound rather than extending the short-context final-envelope proof.
 namespace qrt_long_fused_probability_pv {
-template<bool InplaceProbability = false>
+template<bool InplaceProbability = false, bool PackedProbability = false>
 inline int replay(const uint16_t* value,const uint16_t* transposed_value,
     const uint16_t* probability,const float* scales,float* output,const float* errors,
     float* raw_accumulator,float* raw_denominator,unsigned* indices,unsigned* selected,
@@ -28,11 +28,11 @@ inline int replay(const uint16_t* value,const uint16_t* transposed_value,
     const int collected=original::observe_split_stage(observer,3u,stream);
     if(collected!=int(hipSuccess))return collected;
     if(register_rescale) {
-        hipLaunchKernelGGL((original::blackwell_compacted_pv_replay_kernel<true,false,true,InplaceProbability>),
+        hipLaunchKernelGGL((original::blackwell_compacted_pv_replay_kernel<true,false,true,InplaceProbability,PackedProbability>),
             dim3(blocks),dim3(256u),0u,stream,value,probability,scales,output,start,output_start,
             stride,rcp,raw_accumulator,raw_denominator,indices,selected,transposed_value,value_stride,0u);
     }else {
-        hipLaunchKernelGGL((original::blackwell_compacted_pv_replay_kernel<true,false,false,InplaceProbability>),
+        hipLaunchKernelGGL((original::blackwell_compacted_pv_replay_kernel<true,false,false,InplaceProbability,PackedProbability>),
             dim3(blocks),dim3(256u),0u,stream,value,probability,scales,output,start,output_start,
             stride,rcp,raw_accumulator,raw_denominator,indices,selected,transposed_value,value_stride,0u);
     }

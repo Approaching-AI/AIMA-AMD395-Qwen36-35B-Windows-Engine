@@ -22,6 +22,7 @@
 #include "../gdn/sm121_attention_rcp.h"
 #include "float_pv_replay.h"
 #include "inplace_probability_storage.h"
+#include "packed_probability_storage.h"
 namespace qrt_blackwell_attention {
 #if defined(QRT_CK_SM121_INTERPOLATED_EXP2) && QRT_CK_SM121_INTERPOLATED_EXP2
 namespace exp2_backend = qrt_sm121_exp2_interpolated;
@@ -1165,7 +1166,7 @@ __global__ void blackwell_collect_pv_replay_kernel(
 // An optional lossless V transpose makes each cooperative subgroup read
 // contiguous K positions. Candidate ownership and the ordered dot are shared.
 template<bool TransposedValue = false, bool AllCells = false, bool RegisterRescale = false,
-    bool InplaceProbability = false>
+    bool InplaceProbability = false, bool PackedProbability = false>
 __global__ void blackwell_compacted_pv_replay_kernel(
     const uint16_t* value, const uint16_t* probabilities, const float* scales,
     float* output, unsigned query_start, unsigned output_start, unsigned score_stride,
@@ -1173,6 +1174,7 @@ __global__ void blackwell_compacted_pv_replay_kernel(
     const unsigned* indices, const unsigned* count,
     const uint16_t* transposed_value, unsigned value_stride,
     unsigned all_cells) {
+    static_assert(!PackedProbability || InplaceProbability);
     constexpr unsigned lanes = 4u, items = kBlackwellMmaGroup / lanes;
     const unsigned lane = threadIdx.x & (lanes - 1u);
     const unsigned stride = gridDim.x * blockDim.x / lanes;
@@ -1203,8 +1205,10 @@ __global__ void blackwell_compacted_pv_replay_kernel(
                 for (unsigned item = 0u; item < items; ++item) {
                     const unsigned key = tile * kExactTileTokens + begin + lane * items + item;
                     const uint16_t p = key < tokens
-                        ? qrt_inplace_probability_storage::load<InplaceProbability>(
-                            probabilities, size_t(row) * score_stride + key) : 0u;
+                        ? (PackedProbability ? qrt_packed_probability_storage::load(
+                            reinterpret_cast<const float*>(probabilities), row, key, score_stride)
+                            : qrt_inplace_probability_storage::load<InplaceProbability>(
+                                probabilities, size_t(row) * score_stride + key)) : 0u;
                     const uint16_t v = key < tokens ? (TransposedValue
                         ? transposed_value[(size_t(kv_head) * kHeadDim + column) * value_stride + key]
                         : value[(size_t(key) * kKvHeads + kv_head) * kHeadDim + column]) : 0u;

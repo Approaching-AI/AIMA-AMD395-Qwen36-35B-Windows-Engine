@@ -5,7 +5,8 @@
 // bounds, candidate collection and original K16 replay keep their arithmetic.
 // Only score/P ownership differs. No runtime environment option selects it.
 namespace qrt_inplace_probability_pipeline {
-inline int probability(const qrt_native_exp2_workspace::Workspace& owner,
+template<bool PackedProbability>
+inline int probability_storage(const qrt_native_exp2_workspace::Workspace& owner,
     float* scores,const uint16_t* value,float* scales,float* output,float* errors,
     float* raw_accumulator,float* raw_denominator,unsigned start,unsigned count,
     unsigned output_start,unsigned stride,const unsigned char* exp,
@@ -19,7 +20,7 @@ inline int probability(const qrt_native_exp2_workspace::Workspace& owner,
     auto* p=reinterpret_cast<uint16_t*>(scores);
     if(final_bound) {
         hipLaunchKernelGGL((qrt_streamed_exact_attention::produce<false,
-            qrt_streamed_exact_attention::NativeExp,true,qrt_sm121_pv_long_final_bound::Finalizer,true>),
+            qrt_streamed_exact_attention::NativeExp,true,qrt_sm121_pv_long_final_bound::Finalizer,true,PackedProbability>),
             dim3(16u,(count+31u)/32u),dim3(256u),0u,stream,
             nullptr,nullptr,value,nullptr,nullptr,nullptr,nullptr,p,scales,output+offset,errors,
             raw_accumulator?raw_accumulator+offset:nullptr,
@@ -27,7 +28,7 @@ inline int probability(const qrt_native_exp2_workspace::Workspace& owner,
             start,count,stride,stride,exp,owner.packed,rcp,true,scores);
     } else {
         hipLaunchKernelGGL((qrt_streamed_exact_attention::produce<false,
-            qrt_streamed_exact_attention::NativeExp,false,qrt_streamed_exact_attention::ShortFinalizer,true>),
+            qrt_streamed_exact_attention::NativeExp,false,qrt_streamed_exact_attention::ShortFinalizer,true,PackedProbability>),
             dim3(16u,(count+31u)/32u),dim3(256u),0u,stream,
             nullptr,nullptr,value,nullptr,nullptr,nullptr,nullptr,p,scales,output+offset,errors,
             raw_accumulator?raw_accumulator+offset:nullptr,
@@ -36,7 +37,8 @@ inline int probability(const qrt_native_exp2_workspace::Workspace& owner,
     }
     return int(hipGetLastError());
 }
-inline int launch(const qrt_long_narrow_qk::Workspace& qk,
+template<bool PackedProbability>
+inline int launch_storage(const qrt_long_narrow_qk::Workspace& qk,
     const qrt_native_exp2_workspace::Workspace& exp_owner,
     const uint16_t* query,const uint16_t* transposed_key,const uint16_t* value,
     const uint16_t* transposed_value,float* output,unsigned start,unsigned count,
@@ -62,15 +64,17 @@ inline int launch(const qrt_long_narrow_qk::Workspace& qk,
     if(status!=int(hipSuccess))return status;
     status=original::observe_split_stage(observer,0u,stream);
     if(status!=int(hipSuccess))return status;
-    status=probability(exp_owner,scratch,value,scales,output,errors,nullptr,nullptr,
+    status=probability_storage<PackedProbability>(exp_owner,scratch,value,scales,output,errors,nullptr,nullptr,
         start,count,output_start,stride,exp,rcp,stream,final_bound);
     if(status!=int(hipSuccess))return status;
     for(unsigned stage=1u;stage<=2u;++stage) {
         status=original::observe_split_stage(observer,stage,stream);
         if(status!=int(hipSuccess))return status;
     }
-    return qrt_long_fused_probability_pv::replay<true>(value,transposed_value,p,scales,output,
+    return qrt_long_fused_probability_pv::replay<true,PackedProbability>(value,transposed_value,p,scales,output,
         errors,nullptr,nullptr,indices,selected,start,count,output_start,stride,key_stride,
         rcp,true,stream,observer);
 }
+inline constexpr auto probability = probability_storage<false>;
+inline constexpr auto launch = launch_storage<false>;
 } // namespace qrt_inplace_probability_pipeline

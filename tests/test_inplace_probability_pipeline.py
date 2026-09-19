@@ -34,7 +34,7 @@ enum hipError_t:int{hipSuccess=0,hipErrorInvalidValue=1};
 struct dim3{unsigned x,y,z;dim3(unsigned a=1,unsigned b=1,unsigned c=1):x(a),y(b),z(c){}};
 constexpr unsigned start0=8192u,count0=33u,stride0=start0+count0,output0=3u;
 const auto layout0=qrt_inplace_probability_storage::layout(count0,stride0);
-float* memory=nullptr;float* output_memory=nullptr;bool expected_final=false;
+float* memory=nullptr;float* output_memory=nullptr;bool expected_final=false,expected_packed=false;
 const uint16_t operand[1]{};const unsigned char table[1]{},packed_table[1]{};
 unsigned kernels=0,observed=0,memsets=0,qks=0;
 unsigned fail_kernel=0,fail_observer=99u;bool fail_qk=false,fail_memset=false;
@@ -52,6 +52,7 @@ namespace qrt_sm121_pv_long_final_bound{struct Finalizer{};}
 namespace qrt_streamed_exact_attention{struct NativeExp{};struct ShortFinalizer{};
 ''' + producer + r'''{
     static_assert(!FuseQk&&InplaceProbability);
+    assert(PackedProbability==expected_packed);
     assert(FinalBound==expected_final&&query==nullptr&&transposed_key==nullptr&&value==operand);
     assert(source_scores==memory&&reinterpret_cast<float*>(probabilities)==memory);
     assert(scales==memory+layout0.scales&&errors==memory+layout0.errors);
@@ -70,6 +71,7 @@ void blackwell_collect_pv_replay_kernel(const float* output,const float* errors,
 }
 ''' + replay + r'''{
     static_assert(TransposedValue&&!AllCells&&InplaceProbability);
+    assert(PackedProbability==expected_packed);
     assert(RegisterRescale&&value==operand&&transposed_value==operand&&value_stride==stride0);
     assert(reinterpret_cast<const float*>(probabilities)==memory&&scales==memory+layout0.scales);
     assert(output==output_memory&&query_start==start0&&output_start==output0&&score_stride==stride0&&rcp_table==table);
@@ -94,12 +96,12 @@ int main(){
         assert(!s&&stage==observed);++observed;return stage==fail_observer?74:0;
     }};
     auto reset=[](){kernels=observed=memsets=qks=0;fail_kernel=0;fail_observer=99u;fail_qk=fail_memset=false;};
-    auto call=[&](size_t extent){return qrt_inplace_probability_pipeline::launch(qk,exp,
+    auto call=[&](size_t extent){auto launch=expected_packed?qrt_inplace_probability_pipeline::launch_storage<true>:qrt_inplace_probability_pipeline::launch;return launch(qk,exp,
         operand,operand,operand,operand,output_memory,start0,count0,output0,stride0,table,table,
         memory,extent,nullptr,&observer,expected_final);};
     unsigned cases=0;
-    for(bool final:{false,true}){
-        expected_final=final;reset();assert(call(layout0.elements)==0);
+    for(bool packed:{false,true})for(bool final:{false,true}){
+        expected_packed=packed;expected_final=final;reset();assert(call(layout0.elements)==0);
         assert(qks==1&&kernels==3&&memsets==1&&observed==5);++cases;
         reset();assert(call(layout0.elements-1u)==1&&!qks&&!kernels&&!memsets&&!observed);++cases;
         reset();fail_qk=true;assert(call(layout0.elements)==73&&qks==1&&!kernels&&!memsets&&!observed);++cases;
@@ -116,7 +118,8 @@ int main(){
         for(unsigned invalid=0;invalid<12u;++invalid){
             reset();auto owner=exp;
             if(invalid==8u)owner.packed=nullptr;if(invalid==9u)owner.original=nullptr;
-            const int status=qrt_inplace_probability_pipeline::launch(qk,owner,
+            auto launch=expected_packed?qrt_inplace_probability_pipeline::launch_storage<true>:qrt_inplace_probability_pipeline::launch;
+            const int status=launch(qk,owner,
                 invalid==0u?nullptr:operand,invalid==1u?nullptr:operand,invalid==2u?nullptr:operand,
                 invalid==3u?nullptr:operand,invalid==4u?nullptr:output_memory,
                 start0,invalid==5u?129u:count0,output0,invalid==6u?stride0-1u:stride0,

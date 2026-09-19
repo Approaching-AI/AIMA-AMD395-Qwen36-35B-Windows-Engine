@@ -28,7 +28,8 @@ struct ShortFinalizer {
 // The default remains the validated input-indexed native correction. Isolated
 // component tests may supply another independently verified EXP representation.
 template<bool FuseQk, class Exp = NativeExp, bool FinalBound = true,
-    class Finalizer = ShortFinalizer, bool InplaceProbability = false>
+    class Finalizer = ShortFinalizer, bool InplaceProbability = false,
+    bool PackedProbability = false>
 __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
     const uint16_t* value, const uint32_t* packed_query, const uint32_t* packed_key,
     const unsigned* query_flags, const unsigned* key_flags,
@@ -39,6 +40,7 @@ __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
     const unsigned char* rcp_table, bool vllm_sum, const float* source_scores = nullptr) {
     static_assert(attention::kHeadDim == 256u && attention::kQueryHeads == 16u && attention::kKvHeads == 2u);
     static_assert(!InplaceProbability || !FuseQk, "in-place P requires completed independent QK");
+    static_assert(!PackedProbability || InplaceProbability);
     __shared__ uint32_t qvalues[FuseQk ? 32 : 1][FuseQk ? 256 : 1];
     __shared__ uint32_t kvalues[FuseQk ? 128 : 1][FuseQk ? 32 : 1];
     __shared__ float scores[FuseQk ? 32 : 1][FuseQk ? 32 : 1], alpha[32], denominator[32];
@@ -142,10 +144,21 @@ __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
                     (running_max[r] - next_max) * attention::kExactLog2e);
                 p = key < tokens ? Exp::evaluate(exp2_table, packed_exp,
                     (score - next_max) * attention::kExactLog2e) : 0.0f;
-                // In-place storage writes only this lane's already-consumed
-                // score cell. Other lanes/rows and later K32 tiles remain live.
-                if (key < stride) qrt_inplace_probability_storage::store<InplaceProbability>(
-                    probabilities, (size_t(row) * 16u + head) * stride + key, attention::f32_to_bf16(p));
+                if constexpr (PackedProbability) {
+                    const uint16_t bits = attention::f32_to_bf16(p);
+                    // Every lane has consumed this row's K32 scores before
+                    // the maximum reduction above. Pair destinations stay in
+                    // this row at key/2, never in a later score tile. All lanes
+                    // participate in transport; one even lane owns each word.
+                    const uint16_t next = uint16_t(__shfl_down(unsigned(bits), 1u, 32u));
+                    if (!(lane & 1u) && key < stride)
+                        qrt_packed_probability_storage::store_pair(
+                            reinterpret_cast<float*>(probabilities), size_t(row) * 16u + head,
+                            key, stride, bits, next);
+                } else {
+                    if (key < stride) qrt_inplace_probability_storage::store<InplaceProbability>(
+                        probabilities, (size_t(row) * 16u + head) * stride + key, attention::f32_to_bf16(p));
+                }
                 float sum = p;
                 if (vllm_sum) {
                     constexpr unsigned order[] = {1u, 4u, 2u, 16u, 8u};
