@@ -51,6 +51,8 @@ class AttentionWorkspaceTests(unittest.TestCase):
             "int launch_sm121_attention(",
             "QRT_CK_EXPORT int qrt_ck_fmha_q8192_release()",
         ))
+        actual = (ROOT / "native/providers/ck_fmha/discardable_workspace.h").read_text().replace(
+            "#pragma once", "") + actual
         actual = actual.replace("std::chrono::steady_clock::now()", "mock_now()")
         actual = (ROOT / "native/providers/ck_fmha/selective_qk_tail_policy.h").read_text().replace(
             "#pragma once", "") + actual
@@ -785,10 +787,9 @@ int main() {
        g_sm121_long_values.capacity_tokens || transposes || queries || live.size()!=5u) return 208;
     reset();
     if(launch(8192,65)!=hipSuccess || g_sm121_long_values.capacity_tokens!=16384u) return 209;
-    const auto* retained_value=g_sm121_long_values.cells;
     queries=transposes=value_transposes=syncs=0u;fail_allocation=allocations+1u;
-    if(launch(16384,65)!=hipErrorUnknown || g_sm121_long_values.cells!=retained_value ||
-       g_sm121_long_values.capacity_tokens!=16384u || queries || transposes || live.size()!=6u) return 210;
+    if(launch(16384,65)!=hipErrorUnknown || g_sm121_long_values.cells ||
+       g_sm121_long_values.capacity_tokens || queries || transposes || live.size()!=5u) return 210;
     fail_allocation=0u;
     if(launch(16384,65)!=hipSuccess || value_transposes!=1u ||
        g_sm121_long_values.capacity_tokens!=24576u || live.size()!=6u) return 211;
@@ -1220,10 +1221,9 @@ int main() {
     fail_allocation=0u;
     if(launch(8192,65)!=hipSuccess || range_preparations!=1u || range_queries!=3u ||
        g_sm121_long_decoded_qk.capacity_tokens!=16384u) return 221;
-    const auto* retained_qk=g_sm121_long_decoded_qk.words;
     transposes=queries=syncs=range_queries=0u;fail_allocation=allocations+1u;
-    if(launch(16384,65)!=hipErrorUnknown || g_sm121_long_decoded_qk.words!=retained_qk ||
-       g_sm121_long_decoded_qk.capacity_tokens!=16384u || queries || transposes || live.size()!=6u) return 222;
+    if(launch(16384,65)!=hipErrorUnknown || g_sm121_long_decoded_qk.words ||
+       g_sm121_long_decoded_qk.capacity_tokens || queries || transposes || live.size()!=5u) return 222;
     fail_allocation=0u;
     if(launch(16384,65)!=hipSuccess || range_preparations!=2u || range_queries!=3u ||
        g_sm121_long_decoded_qk.capacity_tokens!=24576u || live.size()!=6u) return 223;
@@ -1418,6 +1418,9 @@ int main() {
         const size_t required=qrt_long_attention_layout::layout(128u,start+129u).elements;
         const size_t original=start+129u>kSm121InitialTokens?kSm121ExtendedMantissaElements:kSm121MantissaElements;
         if((g_sm121_long_pipeline.scratch!=nullptr)!=(required>original))return 268;
+        const auto* matrix_slab=start+129u>kSm121InitialTokens
+            ?g_sm121_extended.mantissa_scores:g_sm121_mantissa_scores;
+        if((matrix_slab!=nullptr)!=(required<=original))return 282;
         const auto* saved=g_sm121_long_pipeline.domain;const auto* saved_scratch=g_sm121_long_pipeline.scratch;
         const unsigned before=allocations;
         if(launch(start,129)!=hipSuccess || allocations!=before || long_queries!=4u ||
@@ -1433,6 +1436,24 @@ int main() {
     if(launch(65536,129)!=hipErrorUnknown || g_sm121_long_pipeline.domain!=retained || pending_submissions)return 273;
     fail_allocation=0;
     if(launch(65536,129)!=hipSuccess || !g_sm121_long_pipeline.scratch || pending_submissions)return 274;
+    // A later caller may choose the ordinary matrix path. Its slab must be
+    // created then, and both paths must remain reusable under the same lease.
+    for(unsigned start:{65536u,131072u,262144u}){
+        reset();track_submissions=true;
+        if(launch(start,129)!=hipSuccess||pending_submissions)return 283;
+        auto*& matrix_slab=start+129u>kSm121InitialTokens
+            ?g_sm121_extended.mantissa_scores:g_sm121_mantissa_scores;
+        if(matrix_slab)return 284;
+        const auto* long_scratch=g_sm121_long_pipeline.scratch;
+        transposes=value_transposes=0u;
+        setenv("QRT_CK_SM121_LONG_ATTENTION_PIPELINE","0",1);
+        if(launch(start,129)!=hipSuccess||!matrix_slab||pending_submissions||
+           g_sm121_long_pipeline.scratch!=long_scratch)return 285;
+        const auto* retained_matrix=matrix_slab;const auto before=allocations;
+        setenv("QRT_CK_SM121_LONG_ATTENTION_PIPELINE","1",1);
+        if(launch(start,129)!=hipSuccess||allocations!=before||pending_submissions||
+           matrix_slab!=retained_matrix||g_sm121_long_pipeline.scratch!=long_scratch)return 286;
+    }
     reset();if(launch(8192,1)!=hipSuccess || long_queries || g_sm121_long_pipeline.domain || native_exp_builds)return 275;
     for(unsigned start:{8192u,16384u,65536u,262144u,kSm121MaxTokens-129u}) {
         reset();track_submissions=true;setenv("QRT_CK_SM121_LONG_FINAL_PV_BOUND","1",1);

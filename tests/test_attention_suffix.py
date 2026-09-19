@@ -14,6 +14,8 @@ class AttentionSuffixTests(unittest.TestCase):
         text = (ROOT/'native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp').read_text()
         workspace = function(text, 'struct Sm121SuffixWorkspace') + ';'
         implementation = function(text, 'int launch_sm121_suffix_attention(')
+        implementation = (ROOT/'native/providers/ck_fmha/discardable_workspace.h').read_text().replace(
+            '#pragma once', '') + implementation
         source = r'''
 #include <algorithm>
 #include <cassert>
@@ -101,12 +103,12 @@ int main(){
  fail_copy=0;fail_launch=true;
  assert(call(16384,1024)==hipErrorUnknown&&copies==5&&launches==1&&syncs==1);
  fail_launch=false;fail_allocate=true;
- assert(call(32768,1024)==hipErrorUnknown&&copies==0&&g_sm121_suffix.cells==retained&&live.size()==1);
+ assert(call(32768,1024)==hipErrorUnknown&&copies==0&&!g_sm121_suffix.cells&&!g_sm121_suffix.capacity_tokens&&live.empty());
  fail_allocate=false;assert(call(32768,1024)==hipSuccess&&g_sm121_suffix.capacity_tokens==33792&&live.size()==1);
  assert(call(32768,8192)==hipSuccess&&copies==5&&g_sm121_suffix.capacity_tokens==40960);
  assert(call(32768,1)==hipSuccess&&copies==5);
  retained=g_sm121_suffix.cells;fail_allocate=true;
- assert(call(65536,1024)==hipErrorUnknown&&copies==0&&g_sm121_suffix.cells==retained&&live.size()==1);
+ assert(call(65536,1024)==hipErrorUnknown&&copies==0&&!g_sm121_suffix.cells&&!g_sm121_suffix.capacity_tokens&&live.empty());
  fail_allocate=false;
  assert(call(65536,1024)==hipSuccess&&copies==5&&g_sm121_suffix.capacity_tokens==66560&&live.size()==1);
  assert(call(66560,512)==hipSuccess&&copies==5&&g_sm121_suffix.capacity_tokens==67072&&live.size()==1);

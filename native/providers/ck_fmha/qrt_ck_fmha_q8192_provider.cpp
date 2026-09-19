@@ -46,6 +46,7 @@
 #include "exponent_mask_qk.h"
 #include "prepared_decoded_qk_range.h"
 #include "long_attention_pipeline.h"
+#include "discardable_workspace.h"
 #endif
 
 #if defined(_WIN32)
@@ -627,7 +628,13 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const size_t score_elements = extended ? kSm121ExtendedScoreElements : kSm121ScoreElements;
     const size_t mantissa_elements = extended ? kSm121ExtendedMantissaElements : kSm121MantissaElements;
     const size_t key_elements = extended ? kSm121ExtendedKeyElements : kSm121KeyElements;
-    if (expanded_scratch && !mantissa_scores) {
+    const size_t required_long_elements = long_pipeline
+        ? qrt_long_attention_layout::layout(query_batch,key_stride).elements : 0u;
+    if (long_pipeline && !required_long_elements) return int(hipErrorInvalidValue);
+    // A larger long slab has its own producer/consumer owner. Allocating an
+    // unused short/extended matrix slab as well only increases peak memory.
+    if (expanded_scratch && !mantissa_scores &&
+        (!long_pipeline || required_long_elements <= mantissa_elements)) {
         status = int(hipMalloc(reinterpret_cast<void**>(&mantissa_scores),
             mantissa_elements * sizeof(float)));
         if (status != int(hipSuccess)) { mantissa_scores = nullptr; return status; }
@@ -637,18 +644,14 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     float* long_scratch = mantissa_scores;
     size_t long_scratch_elements = mantissa_elements;
     if (long_pipeline) {
-        const size_t required = qrt_long_attention_layout::layout(query_batch,key_stride).elements;
-        if (!required) return int(hipErrorInvalidValue);
+        const size_t required = required_long_elements;
         if (required > mantissa_elements) {
             if (g_sm121_long_pipeline.scratch_elements < required) {
                 const unsigned capacity = std::min(kSm121MaxTokens,(key_stride+8191u)/8192u*8192u);
                 const size_t elements = qrt_long_attention_layout::layout(query_batch,capacity).elements;
-                float* next = nullptr;
-                status = int(hipMalloc(reinterpret_cast<void**>(&next),elements*sizeof(float)));
+                status = int(qrt_discardable_workspace::grow(g_sm121_long_pipeline.scratch,
+                    g_sm121_long_pipeline.scratch_elements,elements,elements*sizeof(float)));
                 if (status != int(hipSuccess)) return status;
-                (void)hipFree(g_sm121_long_pipeline.scratch);
-                g_sm121_long_pipeline.scratch = next;
-                g_sm121_long_pipeline.scratch_elements = elements;
             }
             long_scratch = g_sm121_long_pipeline.scratch;
             long_scratch_elements = g_sm121_long_pipeline.scratch_elements;
@@ -665,16 +668,14 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         if (status != int(hipSuccess)) { g_sm121_transposed_values = nullptr; return status; }
     }
     if (transpose_value && long_transpose_value && g_sm121_long_values.capacity_tokens < key_stride) {
-        // Keep the short owner fixed. Publish growth only after allocation
-        // succeeds; a failed growth preserves the previous reusable owner.
+        // The short owner stays fixed. Every long V cell is refreshed below;
+        // discard drained scratch before allocating its larger replacement.
         const unsigned capacity = std::min(kSm121MaxTokens, (key_stride + 8191u) / 8192u * 8192u);
         const size_t bytes = size_t(capacity) * kKvHeads * kHeadDim * sizeof(uint16_t);
-        uint16_t* next = nullptr;
-        status = int(hipMalloc(reinterpret_cast<void**>(&next), bytes));
-        if (status != int(hipSuccess)) return status;
         const unsigned previous = g_sm121_long_values.capacity_tokens;
-        (void)hipFree(g_sm121_long_values.cells);
-        g_sm121_long_values = Sm121LongValueWorkspace{next, capacity};
+        status = int(qrt_discardable_workspace::grow(g_sm121_long_values.cells,
+            g_sm121_long_values.capacity_tokens,capacity,bytes));
+        if (status != int(hipSuccess)) return status;
         std::fprintf(stderr, "SM121_LONG_PV_VALUE_WORKSPACE previous_tokens=%u capacity_tokens=%u workspace_bytes=%zu independent_short_owner=1\n",
             previous, capacity, bytes);
     }
@@ -729,12 +730,10 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         if (g_sm121_long_decoded_qk.capacity_tokens < key_stride) {
             const unsigned capacity = std::min(kSm121MaxTokens, (key_stride + 8191u) / 8192u * 8192u);
             const size_t bytes = qrt_prepared_decoded_qk_range::workspace_words(capacity) * sizeof(uint32_t);
-            uint32_t* next = nullptr;
-            status = int(hipMalloc(reinterpret_cast<void**>(&next), bytes));
-            if (status != int(hipSuccess)) return status;
             const unsigned previous = g_sm121_long_decoded_qk.capacity_tokens;
-            (void)hipFree(g_sm121_long_decoded_qk.words);
-            g_sm121_long_decoded_qk = Sm121LongDecodedQkWorkspace{next, capacity};
+            status = int(qrt_discardable_workspace::grow(g_sm121_long_decoded_qk.words,
+                g_sm121_long_decoded_qk.capacity_tokens,capacity,bytes));
+            if (status != int(hipSuccess)) return status;
             std::fprintf(stderr, "SM121_LONG_DECODED_QK_WORKSPACE previous_tokens=%u capacity_tokens=%u workspace_bytes=%zu independent_short_owner=1\n",
                 previous, capacity, bytes);
         }
@@ -987,12 +986,10 @@ int launch_sm121_suffix_attention(
     // Every call refreshes all consumed cells, even when the addresses repeat.
     std::lock_guard<std::mutex> lock(g_sm121_suffix_mutex);
     if (g_sm121_suffix.capacity_tokens < total) {
-        uint16_t* next = nullptr;
-        const auto status = hipMalloc(reinterpret_cast<void**>(&next),
+        const auto status = qrt_discardable_workspace::grow(g_sm121_suffix.cells,
+            g_sm121_suffix.capacity_tokens,total,
             size_t(total) * (kQueryFeatures + 2u * kKvFeatures) * sizeof(uint16_t));
         if (status != hipSuccess) return int(status);
-        (void)hipFree(g_sm121_suffix.cells);
-        g_sm121_suffix = Sm121SuffixWorkspace{next, total};
     }
     auto* staged_q = g_sm121_suffix.cells;
     auto* staged_k = staged_q + size_t(g_sm121_suffix.capacity_tokens) * kQueryFeatures;
