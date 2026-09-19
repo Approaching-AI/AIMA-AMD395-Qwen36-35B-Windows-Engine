@@ -92,3 +92,8 @@ parse on baiying at 2026-09-19T11:22:34Z. Compile/native/transport bounds remain
 240/300/390 seconds. The build and q8192 regression started after the earlier
 whole334/CK370 full256k run stopped at the physical reserve after26/32 chunks
 and completed cleanup.
+
+The separate [compact single-query candidate](COMPACT_DECODE_QUERY.md) removes
+historical Q storage from decode and reuses compact KV across generated tokens.
+It remains default-off and is absent from the active full256k stack; native
+and original model boundaries are pending.

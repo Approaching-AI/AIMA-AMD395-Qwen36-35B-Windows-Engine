@@ -1,0 +1,560 @@
+{
+  "schema_version": 1,
+  "kind": "compact_decode_query_preparation",
+  "source_commit": "3d8f94c552ddb31baf768fda5a054e07411a429e",
+  "option": "QRT_CK_SM121_COMPACT_DECODE_QUERY",
+  "default_off": true,
+  "source_manifest": {
+    "file": "compact-decode-query-native-source-r2.json",
+    "sha256": "694c293ad5ee43fe5a42e668fccff498bd8a90091786a54b05058c63dc4b7a55",
+    "record": {
+      "source_commit": "3d8f94c552ddb31baf768fda5a054e07411a429e",
+      "prerequisite_commit": "37014953c28e5b5a91573c6233fdda00bb279b85",
+      "repo": "D:/projects/AIMA-public-compact-decode-query-20260919-r1",
+      "seed": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2",
+      "bundle": "compact-decode-query-3d8f94c.bundle",
+      "script": "run-native-compact-decode-query-r2.ps1",
+      "dispatcher": "dispatch_compact_decode_query_r2.py",
+      "source_sha256": {
+        "native/providers/ck_fmha/attention_deadline.h": "d1f09cb678af6da392bf152da4f88a681afcb1b20363bc8b4ae8555e9ef82da0",
+        "native/providers/ck_fmha/attention_workspace_capacity.h": "ad7e42e6dbf626a76f4b7e93a591d8004284d89aafd9c0fd30e32d4fa077e247",
+        "native/providers/ck_fmha/blackwell_attention.h": "faeaaf5c9793bbb683663b059d3821982e898f82351db0d20670ee9df7b9db65",
+        "native/providers/ck_fmha/compact_decode_query_policy.h": "549267f98051427eefa04fd86b56d049e169ddd0909f369cee2bdf1c48ddc188",
+        "native/providers/ck_fmha/decoded_window_qk.h": "ec66d4193c2445f8bd404868237a28f04e8064e658238c672891bb081e28f54d",
+        "native/providers/ck_fmha/deferred_qk_fallback.h": "3acf7a41842e7f9e2e85450b00ceb2ae384bf35b01e085c6df64ecda03abe490",
+        "native/providers/ck_fmha/discardable_workspace.h": "3cc4f565656ff776d76c000ca556d9d848412e347ffdabafe95d3d88bd752c84",
+        "native/providers/ck_fmha/exact_attention_policy.h": "869c165c0352f6e3e98089be58ec6fb5e65274abb4d32eb636d6a4d99072fec8",
+        "native/providers/ck_fmha/exponent_mask_qk.h": "6f6c9e154c6d2d8f713641c8eedc675f5a76213086435d83d69cff3156f73e3b",
+        "native/providers/ck_fmha/float_pv_replay.h": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+        "native/providers/ck_fmha/fmha_fwd_api.cpp": "60a145abeda7d8b403f81dc5e0408d2e3028b8cdb100b3f8b9d7c2b622c16548",
+        "native/providers/ck_fmha/fmha_fwd_gfx1151_d256_bf16_f32out.cpp": "34abfc8e9187f6ca07deba430fa975adab0f67d054b0e829d230450b62252799",
+        "native/providers/ck_fmha/fused_probability_pv.h": "5957829d67fd3e055d9507b678e2e275a43286a64acdaf58895ddf6b311e9345",
+        "native/providers/ck_fmha/fused_probability_pv_policy.h": "c3c23a6133952b1851ad03662adb4ac754e3031673548efdddae4618002ae9a1",
+        "native/providers/ck_fmha/long_attention_layout.h": "b94f16310020a757076e6f9bd7d97bea81f91d90567e006a419d5de4acfd1f19",
+        "native/providers/ck_fmha/long_attention_pipeline.h": "86731af5f5e055278083985608dd9dee449e3afa0127c64ff515c91943d8cde9",
+        "native/providers/ck_fmha/long_final_probability_pv.h": "4538d7fde8704454a485ef8ac8e432946d0f43f8b197ff22fbf20d35bf66506a",
+        "native/providers/ck_fmha/long_fused_probability_pv.h": "c8adf466adc6b426ba4bef4260e5e70c76d837aa25460e324fdb4f3d4aa01896",
+        "native/providers/ck_fmha/long_narrow_qk.h": "6b85ffbd52c2a197a09d0279c740137de15c6b722a0a78121581eaf0ffc199d9",
+        "native/providers/ck_fmha/microtile_exact_qk.h": "3de72cfeec586a4609e2a759279307246d4b18444f52536917bd0829c66aeb04",
+        "native/providers/ck_fmha/narrow_domain_qk.h": "9dbc7ee3a9a292b610d1bc0823374e61b7a2feee01a35da123c0ed3454c02463",
+        "native/providers/ck_fmha/narrow_domain_qk_policy.h": "6ae512946e544500ea347b91786535099f3cac51a44e0068ade7ac365def480e",
+        "native/providers/ck_fmha/narrow_domain_qk_workspace.h": "ced9a51778b6463750f491ef06ebb701fb06131458d39de462e695324a43ad1d",
+        "native/providers/ck_fmha/native_delta_probability.h": "4a1bb411ef7641f02db818eef1e85adf4b62fcf74b294a1758cedb6cd2ec32ea",
+        "native/providers/ck_fmha/native_exp2_workspace.h": "a33f65e490070b23224978eaa3a5ea4ae9a6861631caa3fec59c681557cb828b",
+        "native/providers/ck_fmha/prepared_decoded_qk.h": "5b2c12fcc59eba1f8e7445101c3ffc7624f81bf01e9f3fa8d4ce5d90f48782d2",
+        "native/providers/ck_fmha/prepared_decoded_qk_range.h": "275cdf1b5acfc623312b6841f6ce58a0895f2956419c0bae4dddc5cf59fb22e8",
+        "native/providers/ck_fmha/prepared_decoded_qk_range_workspace.h": "4a65c898d237e604a5e23383c311ba7d4e9b584d0ad6611f2864eaff45967028",
+        "native/providers/ck_fmha/prepared_decoded_qk_workspace.h": "f7aeef4016b182ad11c30aab4b3b8d178847b035b993473ed4acca7e99771774",
+        "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp": "92ebe9ad1252e4792a36586a514334b434c5e6a548e4c4ca779edf247f23c685",
+        "native/providers/ck_fmha/register_pv_policy.h": "009b7df1060fd2ed55a47b537d75da17507d0a7048cf2dc8e5fec7e467e1d9c4",
+        "native/providers/ck_fmha/rz_tree_qk.h": "82b01c2f6080b7570f5a0ed851fc64b13173fbbcd45aa622691a15b7dafe4bb5",
+        "native/providers/ck_fmha/selective_qk.h": "4470f9b35d46fb29468aa7e2cdf5e4ef286de86c7252796967219764f7b47324",
+        "native/providers/ck_fmha/selective_qk_tail_policy.h": "9ecd1679270881edacc8d435e1107771b8af8738bdfc42617d341d0b5a6f6aa4",
+        "native/providers/ck_fmha/streamed_exact_attention.h": "c4c0083338cda1516833b52f76f85bad60ad1edc25b3738a87c44725b2160d17",
+        "native/providers/gdn/sm121_attention_rcp.h": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+        "native/providers/gdn/sm121_exp2_interpolated.h": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+        "native/providers/gdn/sm121_exp2_native_delta.h": "18514c6dc67c0f55be29a33e524abe56d3a11735b3c1279e20a488c059725c33",
+        "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+        "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+        "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+        "native/providers/moe_accumulator/sm121_decoded_bf16.h": "861b7984ca4cb87c4f3d71c1e17b8e310aedaf32fe06257bca433ee03097b605",
+        "native/providers/moe_accumulator/sm121_dot_certificate.h": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+        "native/providers/moe_accumulator/sm121_exponent_mask.h": "879c21210883a74a27ccc00ffc5401f6d771f9a9436d6b5f7651699714c55f28",
+        "native/providers/moe_accumulator/sm121_f32_carry.h": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+        "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+        "native/providers/moe_accumulator/sm121_float_subgroup.h": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+        "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+        "native/providers/moe_accumulator/sm121_integer_core.h": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+        "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+        "native/providers/moe_accumulator/sm121_lane_reduce.h": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+        "native/providers/moe_accumulator/sm121_mantissa_parts.h": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+        "native/providers/moe_accumulator/sm121_narrow_f32_carry.h": "85ab733dd564a8dbc5948f5700fcb6c66fbbc5239d0f55e405dbe7e4e210eca9",
+        "native/providers/moe_accumulator/sm121_native_product.h": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+        "native/providers/moe_accumulator/sm121_native_rz_carry.h": "d1f07bd751c578d20c1c1734da7b7223787607c74be8ec2db92585d89d1b5901",
+        "native/providers/moe_accumulator/sm121_paired_products.h": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+        "native/providers/moe_accumulator/sm121_prepared_bf16.h": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+        "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+        "native/providers/moe_accumulator/sm121_pv_final_bound.h": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+        "native/providers/moe_accumulator/sm121_pv_long_final_bound.h": "e0391a1a4476e2a436a179620fd180b4400c108e06a840f23aa504a5e79270b6",
+        "native/providers/moe_accumulator/sm121_rz_tree_spec.h": "971268433b7a7bd9e5b0ca3116af333376fef4cc333f7e0d01f9d52348a54f4f",
+        "native/providers/moe_accumulator/sm121_strided_pair.h": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+        "native/providers/moe_accumulator/sm121_subgroup.h": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+        "native/providers/moe_accumulator/sm121_wave16.h": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+        "native/providers/sm121_attention_capacity.h": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+        "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+        "scripts/baiying_build_ck_fmha_q8192.ps1": "1e03bfbca780f4e6006b301eb0b991a35cfe2f4b5e1991973b3b6561cff88088",
+        "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+        "tests/native/compact_decode_query_selftest.cpp": "04725008ad049aabfc840910f1b18680cbea8b5c77b36320d3cdb36048541cda"
+      },
+      "compilation_units": [
+        "tests/native/compact_decode_query_selftest.cpp",
+        "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp",
+        "native/providers/ck_fmha/fmha_fwd_api.cpp",
+        "native/providers/ck_fmha/fmha_fwd_gfx1151_d256_bf16_f32out.cpp"
+      ],
+      "local_compilation_inputs": 67,
+      "changed_compilation_inputs_from_ck370": [
+        "native/providers/ck_fmha/attention_workspace_capacity.h",
+        "native/providers/ck_fmha/blackwell_attention.h",
+        "native/providers/ck_fmha/compact_decode_query_policy.h",
+        "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp",
+        "tests/native/compact_decode_query_selftest.cpp"
+      ],
+      "numerical_dependencies_unchanged_except_query_address": true,
+      "inherited_workspace_reservation": {
+        "source": "abbd7b17e7ac9042e6b8be77275e655207c0c1ea",
+        "option": "QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS",
+        "default_off": true,
+        "decode_uses_only_checked_rounding": true,
+        "numerical_extents_unchanged": true
+      },
+      "previous_model_run": "resident-ordered-compact-query-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+      "previous_model_remote": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/resident-ordered-compact-query-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+      "previous_model_success_required": false,
+      "previous_cleanup_required": true,
+      "native_timeouts_seconds": {
+        "build": 240,
+        "safety": 900,
+        "capture": 300,
+        "build-ck": 240
+      },
+      "transport_timeout_seconds": {
+        "build": 420,
+        "safety": 1080,
+        "capture": 480,
+        "build-ck": 420
+      },
+      "local_validation": {
+        "compact-decode-query-local-r1/result.json": {
+          "sha256": "05d28134d708148ba3083a218d17140b172adeccfb95319d5d2393a3c3951cde",
+          "record": {
+            "command": [
+              "python3",
+              "-m",
+              "unittest",
+              "discover",
+              "-s",
+              "tests",
+              "-p",
+              "test_attention_*.py"
+            ],
+            "returncode": 0,
+            "wall_seconds": 6.662113416939974,
+            "stdout": "prepacked_integer_coordinates=65077760 causal_or_online_padding=236128 pass\n{\"kind\":\"attention_slab_schedule_host\",\"cases\":2104,\"injected_failures\":1572,\"invalid_configs\":9,\"exact_query_coverage\":true,\"all_pending_slots_drained\":true,\"completion_failure_reported\":true}\n",
+            "stderr": ".........\n----------------------------------------------------------------------\nRan 9 tests in 6.599s\n\nOK\n",
+            "source_sha256": {
+              "native/providers/ck_fmha/blackwell_attention.h": "faeaaf5c9793bbb683663b059d3821982e898f82351db0d20670ee9df7b9db65",
+              "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp": "92ebe9ad1252e4792a36586a514334b434c5e6a548e4c4ca779edf247f23c685",
+              "native/providers/ck_fmha/compact_decode_query_policy.h": "549267f98051427eefa04fd86b56d049e169ddd0909f369cee2bdf1c48ddc188",
+              "native/providers/ck_fmha/attention_workspace_capacity.h": "ad7e42e6dbf626a76f4b7e93a591d8004284d89aafd9c0fd30e32d4fa077e247",
+              "tests/test_attention_capture_phases.py": "cc9f3dbd962315cfd907cc631f969b90c2ec4155d0ba51d1c5757b00f6c2e590",
+              "tests/test_attention_integer_prepacking.py": "af6ecd8978a38cf56400bd4472627521cbe78af977ef644722e8f1b9c3511fdd",
+              "tests/test_attention_launch_policy.py": "8fb2cceeb40fe5c43da378dce9f8c80d3fa63789210f7e57538322354cadf0bd",
+              "tests/test_attention_output_tiles.py": "0ec77d56bc8b45e16ebd43243c74d684422b441ba0bc722fb27e9798aff475d3",
+              "tests/test_attention_slab_schedule.py": "e5e55ab727d1ee2091937aaee29db0390120d3e65ea6f5fdb931529ec62f249d",
+              "tests/test_attention_suffix.py": "8fadbc1acd9217a8192dbee566f89ad3f8d8022e7eb46a8882c138805de18eef",
+              "tests/test_attention_workspace.py": "3745b99c7ac9ccafa23173b6c9eba552265f72c55ff40de8db766f4729da996f",
+              "tests/test_attention_workspace_capacity.py": "2173f7220f1b832f15d87169e1a28eb6bd06fb1d217b376bec84bdee0a7a7af0"
+            },
+            "scope": "Actual host launcher and suffix staging tests; source ABI and argument forwarding. No native/model acceptance."
+          }
+        },
+        "compact-decode-query-host-r1/result.json": {
+          "sha256": "1504397a71a058fadbe528399dfe36e7ec1c5b7304e6fddc6ae0407aa03142ba",
+          "record": {
+            "command": [
+              "python3",
+              "-m",
+              "unittest",
+              "discover",
+              "-s",
+              "tests",
+              "-p",
+              "test_compact_decode_query.py"
+            ],
+            "returncode": 0,
+            "wall_seconds": 1.153368334285915,
+            "stdout": "{\"kind\":\"compact_decode_query_host\",\"cases\":27,\"original_dots\":3456,\"checked_lane_group_reads\":1769472,\"actual_score_body\":true,\"collective_replaced_by_scalar_reference\":true,\"native_acceptance\":false}\n",
+            "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 1.120s\n\nOK\n",
+            "source_sha256": {
+              "tests/test_compact_decode_query.py": "af18274c759c7462dc038e78328849c52c08a2dea84d9eb1b5be4638e874699a",
+              "tests/test_attention_workspace.py": "3745b99c7ac9ccafa23173b6c9eba552265f72c55ff40de8db766f4729da996f",
+              "native/providers/ck_fmha/blackwell_attention.h": "faeaaf5c9793bbb683663b059d3821982e898f82351db0d20670ee9df7b9db65",
+              "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a"
+            },
+            "scope": "Actual score body with GPU collective replaced by independent scalar reference groups; addressing and host numerical checks only, not native or model acceptance."
+          }
+        },
+        "compact-decode-query-fixture-syntax-r2/result.json": {
+          "sha256": "41a06adbff47052f95f5232b823992dc00d1634f704a3ee23907f4592ec4c988",
+          "record": {
+            "command": [
+              "c++",
+              "-std=c++17",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsyntax-only",
+              "-I",
+              "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-compact-fixture-syntax-wwrpkffg",
+              "-I",
+              "<private-home>/projects/AIMA-public-r1191-candidate",
+              "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-compact-fixture-syntax-wwrpkffg/fixture.cpp"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": "",
+            "wall_seconds": 0.28099408373236656,
+            "helper_sha256": "7f1383788b715c3c93295206ad101f8f15b22fee7c24e7fe0090c0a6f9805fb0",
+            "source_sha256": {
+              "tests/native/compact_decode_query_selftest.cpp": "04725008ad049aabfc840910f1b18680cbea8b5c77b36320d3cdb36048541cda",
+              "native/providers/ck_fmha/blackwell_attention.h": "faeaaf5c9793bbb683663b059d3821982e898f82351db0d20670ee9df7b9db65"
+            },
+            "previous_failure": {
+              "file": "compact-decode-query-fixture-syntax-r1/result.json",
+              "sha256": "a52b8456cbf9304d5852590d3f45fa54b160b72a13a6ffe89ae573283fe2675c",
+              "reason": "Mock used an undefined inline declaration. Remove inline from the declaration only; actual source unchanged."
+            },
+            "mock_header_sha256": "aadaea013f2c7e88711f844fc294ff47fafe68f01f238e0a8fa9b39d0d484931",
+            "translated_fixture_sha256": "1790df4084401d44646945074b8302f996b063af93e6bdf23ac28498cf4c4ff1",
+            "scope": "C++ fixture and actual launcher signature with mocked HIP declarations only. No HIP/device compilation or numerical acceptance."
+          }
+        },
+        "compact-decode-query-abi-r1/result.json": {
+          "sha256": "83d925cf913fd8c5fcbcf33b26ed7e72fe86ff922fad91424326d4fa47fc6688",
+          "record": {
+            "command": [
+              "make",
+              "c-smoke"
+            ],
+            "returncode": 0,
+            "wall_seconds": 0.015156416222453117,
+            "stdout": "./build/qrt-c-smoke\nrepo=AIMA-AMD395-Qwen36-35B-Windows-Engine\nmodel=Qwen3.6-35B-A3B-BF16\nprecision=BF16\nruntime_language=C\ntooling_language=Rust\ntarget_os=Windows\ntarget_device=AMD395\ntest_host=baiying\ndependency_policy=native-core-plus-rocm-providers\nstatus=native_windows_product_matrix_accepted\n",
+            "stderr": "",
+            "scope": "Local C runtime/ABI smoke only. Legacy smoke status does not qualify a real-model or product run."
+          }
+        }
+      },
+      "arithmetic_changed": false,
+      "original_single_query_path": true,
+      "query_staging_bytes": 0,
+      "compact_kv_quantum": 8192,
+      "maximum_kv_capacity": 264736,
+      "native_dispatched": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "release_acceptance": false,
+      "generator": "prepare_compact_decode_query_native_r1.py",
+      "generator_sha256": "a62b5bfeb9c2a5f3eb9a64794c0ae88e8bc7d9cb7f307e51c814736207bb853f",
+      "ck370_control_manifest": {
+        "file": "compact-suffix-query-native-source-r2.json",
+        "sha256": "e130bc6d53c3abab5e9809aa16dca7bf97d6c5ea0797c5cd4c7b561bc8da76a2"
+      },
+      "bundle_sha256": "05c6b9a9c5fc85c83ea2f08e82aa8ca822beac9eb08e5fe01124c1d6fea7cbe0",
+      "script_sha256": "b8d80b0f6352af50001aafbfefa532a528112c37ace89ec44fed233001285073",
+      "dispatcher_sha256": "43f2ed40032a608b55936f81b47d37d7a018fad1c27f79f6cdf3258594bcacc8",
+      "previous_preparation": {
+        "file": "compact-decode-query-native-source-r1.json",
+        "sha256": "862a9c08c0605da558a762652fbe955af4aa5d2a4a1089a2a9e0d1e73d1139b7",
+        "native_dispatched": false,
+        "change": "Generated-case spec reports zero original GB10 context cells and its actual query positions; capture retains four real queries. No executable source or test comparisons change."
+      },
+      "compilation_by_action": {
+        "build": {
+          "compilation_units": [
+            "tests/native/compact_decode_query_selftest.cpp"
+          ],
+          "local_compilation_inputs": 26,
+          "files": [
+            "native/providers/ck_fmha/blackwell_attention.h",
+            "native/providers/ck_fmha/float_pv_replay.h",
+            "native/providers/gdn/sm121_attention_rcp.h",
+            "native/providers/gdn/sm121_exp2_interpolated.h",
+            "native/providers/gdn/sm121_exp2_table.h",
+            "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h",
+            "native/providers/moe_accumulator/sm121_canonical_normalize.h",
+            "native/providers/moe_accumulator/sm121_dot_certificate.h",
+            "native/providers/moe_accumulator/sm121_float_alignment.h",
+            "native/providers/moe_accumulator/sm121_float_subgroup.h",
+            "native/providers/moe_accumulator/sm121_group16_modulo.h",
+            "native/providers/moe_accumulator/sm121_integer_core.h",
+            "native/providers/moe_accumulator/sm121_integer_parts.h",
+            "native/providers/moe_accumulator/sm121_lane_reduce.h",
+            "native/providers/moe_accumulator/sm121_mantissa_parts.h",
+            "native/providers/moe_accumulator/sm121_native_product.h",
+            "native/providers/moe_accumulator/sm121_paired_products.h",
+            "native/providers/moe_accumulator/sm121_prepared_bf16.h",
+            "native/providers/moe_accumulator/sm121_pv_error_bound.h",
+            "native/providers/moe_accumulator/sm121_pv_final_bound.h",
+            "native/providers/moe_accumulator/sm121_strided_pair.h",
+            "native/providers/moe_accumulator/sm121_subgroup.h",
+            "native/providers/moe_accumulator/sm121_wave16.h",
+            "native/providers/sm121_attention_capacity.h",
+            "native/src/qrt_context_limits.h",
+            "tests/native/compact_decode_query_selftest.cpp"
+          ]
+        },
+        "build-ck": {
+          "compilation_units": [
+            "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp",
+            "native/providers/ck_fmha/fmha_fwd_api.cpp",
+            "native/providers/ck_fmha/fmha_fwd_gfx1151_d256_bf16_f32out.cpp"
+          ],
+          "local_compilation_inputs": 66,
+          "files": [
+            "native/providers/ck_fmha/attention_deadline.h",
+            "native/providers/ck_fmha/attention_workspace_capacity.h",
+            "native/providers/ck_fmha/blackwell_attention.h",
+            "native/providers/ck_fmha/compact_decode_query_policy.h",
+            "native/providers/ck_fmha/decoded_window_qk.h",
+            "native/providers/ck_fmha/deferred_qk_fallback.h",
+            "native/providers/ck_fmha/discardable_workspace.h",
+            "native/providers/ck_fmha/exact_attention_policy.h",
+            "native/providers/ck_fmha/exponent_mask_qk.h",
+            "native/providers/ck_fmha/float_pv_replay.h",
+            "native/providers/ck_fmha/fmha_fwd_api.cpp",
+            "native/providers/ck_fmha/fmha_fwd_gfx1151_d256_bf16_f32out.cpp",
+            "native/providers/ck_fmha/fused_probability_pv.h",
+            "native/providers/ck_fmha/fused_probability_pv_policy.h",
+            "native/providers/ck_fmha/long_attention_layout.h",
+            "native/providers/ck_fmha/long_attention_pipeline.h",
+            "native/providers/ck_fmha/long_final_probability_pv.h",
+            "native/providers/ck_fmha/long_fused_probability_pv.h",
+            "native/providers/ck_fmha/long_narrow_qk.h",
+            "native/providers/ck_fmha/microtile_exact_qk.h",
+            "native/providers/ck_fmha/narrow_domain_qk.h",
+            "native/providers/ck_fmha/narrow_domain_qk_policy.h",
+            "native/providers/ck_fmha/narrow_domain_qk_workspace.h",
+            "native/providers/ck_fmha/native_delta_probability.h",
+            "native/providers/ck_fmha/native_exp2_workspace.h",
+            "native/providers/ck_fmha/prepared_decoded_qk.h",
+            "native/providers/ck_fmha/prepared_decoded_qk_range.h",
+            "native/providers/ck_fmha/prepared_decoded_qk_range_workspace.h",
+            "native/providers/ck_fmha/prepared_decoded_qk_workspace.h",
+            "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp",
+            "native/providers/ck_fmha/register_pv_policy.h",
+            "native/providers/ck_fmha/rz_tree_qk.h",
+            "native/providers/ck_fmha/selective_qk.h",
+            "native/providers/ck_fmha/selective_qk_tail_policy.h",
+            "native/providers/ck_fmha/streamed_exact_attention.h",
+            "native/providers/gdn/sm121_attention_rcp.h",
+            "native/providers/gdn/sm121_exp2_interpolated.h",
+            "native/providers/gdn/sm121_exp2_native_delta.h",
+            "native/providers/gdn/sm121_exp2_table.h",
+            "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h",
+            "native/providers/moe_accumulator/sm121_canonical_normalize.h",
+            "native/providers/moe_accumulator/sm121_decoded_bf16.h",
+            "native/providers/moe_accumulator/sm121_dot_certificate.h",
+            "native/providers/moe_accumulator/sm121_exponent_mask.h",
+            "native/providers/moe_accumulator/sm121_f32_carry.h",
+            "native/providers/moe_accumulator/sm121_float_alignment.h",
+            "native/providers/moe_accumulator/sm121_float_subgroup.h",
+            "native/providers/moe_accumulator/sm121_group16_modulo.h",
+            "native/providers/moe_accumulator/sm121_integer_core.h",
+            "native/providers/moe_accumulator/sm121_integer_parts.h",
+            "native/providers/moe_accumulator/sm121_lane_reduce.h",
+            "native/providers/moe_accumulator/sm121_mantissa_parts.h",
+            "native/providers/moe_accumulator/sm121_narrow_f32_carry.h",
+            "native/providers/moe_accumulator/sm121_native_product.h",
+            "native/providers/moe_accumulator/sm121_native_rz_carry.h",
+            "native/providers/moe_accumulator/sm121_paired_products.h",
+            "native/providers/moe_accumulator/sm121_prepared_bf16.h",
+            "native/providers/moe_accumulator/sm121_pv_error_bound.h",
+            "native/providers/moe_accumulator/sm121_pv_final_bound.h",
+            "native/providers/moe_accumulator/sm121_pv_long_final_bound.h",
+            "native/providers/moe_accumulator/sm121_rz_tree_spec.h",
+            "native/providers/moe_accumulator/sm121_strided_pair.h",
+            "native/providers/moe_accumulator/sm121_subgroup.h",
+            "native/providers/moe_accumulator/sm121_wave16.h",
+            "native/providers/sm121_attention_capacity.h",
+            "native/src/qrt_context_limits.h"
+          ]
+        }
+      },
+      "preparation_revision": 2,
+      "revision_generator": "recorded inline preparation; actual revised command and dispatcher hashes attached"
+    }
+  },
+  "command_text": "param([ValidateSet('build','safety','capture','build-ck')][string]$Action='build')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-compact-decode-query-20260919-r1';$seed='D:\\projects\\AIMA-public-compact-suffix-query-20260919-r2';$sha='3d8f94c552ddb31baf768fda5a054e07411a429e';$bundle='D:\\projects\\compact-decode-query-3d8f94c.bundle'\nif((Get-FileHash $bundle -Algorithm SHA256).Hash.ToLowerInvariant() -ne '05c6b9a9c5fc85c83ea2f08e82aa8ca822beac9eb08e5fe01124c1d6fea7cbe0'){throw 'Bundle changed'}\n$m=[IO.File]::ReadAllText('D:\\projects\\compact-decode-query-native-source-r2.json')|ConvertFrom-Json\n$prior=[IO.File]::ReadAllText((Join-Path $m.previous_model_remote 'run-record.json'))|ConvertFrom-Json\nif(-not $prior.host_checks_pass -or @($prior.after_processes).Count -ne 0 -or\n -not $prior.host.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Previous model cleanup failed'}\nforeach($check in $prior.host_checks.PSObject.Properties){if(-not $check.Value){throw 'Previous host check failed'}}\nif(-not (Test-Path $repo)){& git -C $seed fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'};& git -C $seed worktree add --detach $repo $sha;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$build=Join-Path $repo 'build\\compact-decode-query';$null=New-Item -ItemType Directory -Path $build -Force\n$source=Join-Path $repo 'tests\\native\\compact_decode_query_selftest.cpp';$exe=Join-Path $build 'compact-decode-query.exe';$provenance=Join-Path $build 'build-provenance.json'\n$sourceInputs=@()\nif($m.source_commit -ne $sha){throw 'Manifest commit mismatch'}\nforeach($entry in $m.source_sha256.PSObject.Properties){\n $path=Join-Path $repo $entry.Name\n if((Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $entry.Value){throw ('Source changed: '+$entry.Name)}\n $sourceInputs+=@{file=$path;sha256=$entry.Value}\n}\n$spec=[ordered]@{executable='';arguments=@();working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=$sourceInputs;model='D:\\models\\Qwen3.6-35B-A3B; original GB10 16384-prefix plus1024 suffix layer3 Q/K/V';model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false;purpose='Compare the original exact single-query path with compact original Q. Require complete score bits, raw PV accumulators and denominators, all outputs, unchanged inputs/guards and original GB10 captured context. KV capacity changes preserve true extents. No model output, measured memory benefit or release acceptance is claimed.'}\n$safety='D:\\projects\\AIMA-public-native-exp2-delta-20260917\\build\\native-exp2-delta-test-r1\\run-record.json';if((Get-FileHash $safety -Algorithm SHA256).Hash.ToLowerInvariant() -ne '46a1fbaca781b00f04c3d4e3041834e8ba438e563c4c6dc3fabafc1b22126bd2'){throw 'Full-domain prerequisite changed'}\n$qkSafety='D:\\projects\\AIMA-public-microtile-exact-qk-20260917\\build\\microtile-exact-qk-test-r1\\run-record.json';if((Get-FileHash $qkSafety -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'd7da7e549cdf861f246d78dbfbdcb87faf152fd1920f2d19a33b9e6f069db0c6'){throw 'QK safety prerequisite changed'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\nif($Action -eq 'build'){\n $spec.executable='C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe';$spec.arguments=@('-std=c++17','-O3','-DQRT_SM121_DPP_REDUCTION=1','-DQRT_SM121_COMPACT_NORMALIZE=1','-DQRT_CK_SM121_INTERPOLATED_EXP2=1','--offload-arch=gfx1151',$source,'-o',$exe);$timeout=240\n}elseif($Action -eq 'build-ck'){\n $prerequisites=@();foreach($priorAction in @('safety','capture')){\n  $path=Join-Path $repo ('build\\compact-decode-query-'+$priorAction+'-r2\\run-record.json')\n  $prior=[IO.File]::ReadAllText($path)|ConvertFrom-Json\n  if($prior.reason -ne 'completed' -or $prior.exit_code -ne 0 -or -not $prior.host_checks_pass){throw 'Provider component prerequisite failed'}\n  $prerequisites+=@{file=$path;sha256=(Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant()}\n }\n $spec.prerequisites=$prerequisites\n $exe=Join-Path $build 'qrt_ck_fmha_sm121.dll';$provenance=Join-Path $build 'build-ck-provenance.json'\n if(Test-Path $exe){throw 'Provider artifact exists'}\n $ck='D:\\projects\\composable-kernel-fdf4bb7'\n $headers=@(Get-ChildItem $ck -Recurse -File|Where-Object {$_.Extension -in @('.h','.hpp','.cpp')}|Sort-Object FullName|ForEach-Object {@{file=$_.FullName.Substring($ck.Length+1);bytes=$_.Length;sha256=(Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}})\n $headerPath=Join-Path $build 'ck-source-inputs.json';[IO.File]::WriteAllText($headerPath,($headers|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))\n $spec.ck_source_manifest_sha256=(Get-FileHash $headerPath -Algorithm SHA256).Hash.ToLowerInvariant();$spec.ck_source_files=$headers.Count\n $spec.executable='C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'\n $spec.arguments=@('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $repo 'scripts\\baiying_build_ck_fmha_q8192.ps1'),'-CkRoot',$ck,'-Sm121InterpolatedExp2','-DppReduction','1','-CompactNormalize','1','-OutPath',$exe,'-HipccPath','C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe');$timeout=240\n}else{\n $meta=[IO.File]::ReadAllText($provenance)|ConvertFrom-Json\n if($meta.repo_commit -ne $sha -or (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $meta.executable.sha256){throw 'Executable provenance mismatch'}\n foreach($file in $meta.source_inputs){if((Get-FileHash $file.file -Algorithm SHA256).Hash.ToLowerInvariant() -ne $file.sha256){throw 'Build source changed'}}\n $spec.build_provenance_sha256=(Get-FileHash $provenance -Algorithm SHA256).Hash.ToLowerInvariant()\n$table='D:\\projects\\sm121-exp2-interpolated-b5752a88.bin';if((Get-FileHash $table -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'b5752a88488d8e6382cc99a897ef822e97758e0a782930c174954a5299126eec'){throw 'Exp2 table changed'}\n $qroot='D:\\projects\\suffix-attention-replay-inputs-r1'\n $q=Join-Path $qroot 'query-bf16.bin'\n $k=Join-Path $qroot 'key-bf16.bin'\n $v=Join-Path $qroot 'value-bf16.bin'\n $reference=Join-Path $qroot 'expected-output-bf16.bin'\n $inputManifest=Join-Path $qroot 'manifest.json'\n if((Get-FileHash $inputManifest -Algorithm SHA256).Hash.ToLowerInvariant() -ne '819e15c5d36e6bf1deaf862839d83365b116e39a37526f90094e9f64bce652f1'){throw 'Original GB10 manifest changed'}\n $spec.reference_manifest_sha256='819e15c5d36e6bf1deaf862839d83365b116e39a37526f90094e9f64bce652f1';$spec.reference_manifest=[IO.File]::ReadAllText($inputManifest)|ConvertFrom-Json\n $rcp='D:\\projects\\sm121-attention-rcp-d2e55754.bin'\n $inputs=@(@{file=$q;sha256='d4445d9a03f92b1586eec9ccd12a794e742552613ed09a3b2ca28b0847ec1612'},\n @{file=$k;sha256='dbfa44ac0e63e961397cba100589a373fda702c18121dd0ea42fbbef442310bd'},\n @{file=$v;sha256='79eed4f839c165b451e4f33a54eafd2031c2876cfd19120cce9a18e36fc464a4'},\n @{file=$reference;sha256='8e49075c5d36e29c17498f70e5bfac083f66b88d041878797c4a5f44bf8b7517'},\n @{file=$table;sha256='b5752a88488d8e6382cc99a897ef822e97758e0a782930c174954a5299126eec'},\n @{file=$rcp;sha256='d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39'})\n foreach($input in $inputs){if((Get-FileHash $input.file -Algorithm SHA256).Hash.ToLowerInvariant() -ne $input.sha256){throw 'Capture or table fingerprint changed'}}\n $spec.input_files=$inputs;$spec.reference_is_compute_input=$false;$spec.reference_host='gb10-4t'\n $spec.reference_context_tokens=1024;$spec.query_positions=@(16384,16415,16895,17407)\n $spec.tokens=1;$spec.repeated_rows=0;$spec.query_batch=1;$spec.same_executable_comparison=$true\n $spec.unique_original_context_cells=16384;$spec.original_single_query_arithmetic=$true\n $spec.executable=$exe;$spec.arguments=@('capture',$q,$k,$v,$reference,$table,$rcp);$timeout=[int]$m.native_timeouts_seconds.$Action\n if($Action -eq 'safety'){\n  $tokens=0;$spec.tokens=0;$spec.repeated_rows=0;$spec.unique_original_context_cells=0;$spec.query_positions=@(1,17,31,8191,8192,32768,131072,262144,264735);$spec.model='none; generated attention operands';$spec.input_files=@($inputs[4],$inputs[5])\n  $spec.arguments=@('safety',$table,$rcp)\n }else{\n  $prior=[IO.File]::ReadAllText((Join-Path $repo 'build\\compact-decode-query-safety-r2\\run-record.json'))|ConvertFrom-Json\n  if($prior.reason -ne 'completed' -or $prior.exit_code -ne 0 -or -not $prior.host_checks_pass){throw 'Safety prerequisite failed'}\n  $spec.safety_run_sha256=(Get-FileHash (Join-Path $repo 'build\\compact-decode-query-safety-r2\\run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant()\n }\n\n}\n$specPath=Join-Path $build ($Action+'-spec-r2.json');$out=Join-Path $repo ('build\\compact-decode-query-'+$Action+'-r2')\nif((Test-Path $specPath) -or (Test-Path $out)){throw 'Evidence exists'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'Native subgroup diagnostic failed'}\nif($Action.StartsWith('build')){\n $meta=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;dirty_tree=$false;source_inputs=$sourceInputs;command_file=$PSCommandPath;command_file_sha256=$spec.command_file_sha256;compiler=$spec.executable;arguments=$spec.arguments;run_record_sha256=(Get-FileHash (Join-Path $out 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant();executable=@{file=$exe;bytes=(Get-Item $exe).Length;sha256=(Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()}}\n [IO.File]::WriteAllText($provenance,($meta|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n }else{\n $reports=@([IO.File]::ReadAllLines((Join-Path $out 'product.stdout.jsonl'))|Where-Object {$_.StartsWith('{')}|ForEach-Object {$_|ConvertFrom-Json})\n $expected=if($Action -eq 'safety'){27}else{4}\n if($reports.Count -ne $expected){throw 'Incomplete compact decode cases'}\n foreach($row in $reports){\n  if($row.kind -ne 'compact_decode_query' -or $row.variants -ne 2 -or $row.attempts -ne 4 -or\n   $row.query_count -ne 1 -or $row.key_tokens -ne $row.query_start+1 -or\n   $row.full_query_bytes -ne ($row.key_tokens*8192L) -or $row.compact_query_bytes -ne 8192 -or\n   $row.score_slots -ne ($row.key_tokens*16L) -or $row.cpu_dots -ne 128){throw 'Compact decode extent evidence failed'}\n  foreach($key in @('complete_scores','raw_pv_accumulator_denominator','original_single_query_arithmetic',\n    'guards_inputs_tails','nonzero_output_offset','refreshed_same_addresses')){\n   if(-not $row.$key){throw ('Compact decode comparison failed: '+$key)}\n  }\n  if($row.model_loaded -or $row.inference_acceptance -or $row.performance_acceptance){throw 'Component scope changed'}\n  if($row.complete_host_ms.Count -ne 4){throw 'Missing complete call observations'}\n  foreach($elapsed in $row.complete_host_ms){if([double]::IsNaN($elapsed) -or [double]::IsInfinity($elapsed) -or $elapsed -le 0){throw 'Invalid completed host observation'}}\n }\n if($Action -eq 'safety'){\n  foreach($start in @(1,17,31,8191,8192,32768,131072,262144,264735)){foreach($family in @(0,1,2)){\n   if(@($reports|Where-Object {$_.query_start -eq $start -and $_.family -eq $family -and $_.gb10_context_cells -eq 0}).Count -ne 1){throw 'Missing generated shape or family'}\n  }}\n }else{\n  foreach($start in @(16384,16415,16895,17407)){\n   if(@($reports|Where-Object {$_.query_start -eq $start -and $_.family -eq 3 -and $_.gb10_context_cells -eq 4096}).Count -ne 1){throw 'Original GB10 query coverage changed'}\n  }\n }\n foreach($input in $spec.input_files){if((Get-FileHash $input.file -Algorithm SHA256).Hash.ToLowerInvariant() -ne $input.sha256){throw 'Input changed during run'}}\n}\n",
+  "dispatcher_text": "from pathlib import Path\nimport base64,hashlib,json,socket,subprocess,sys,time\nB=Path(__file__).resolve().parent\nassert socket.gethostname().split('.')[0].lower()!='baiying'\nread=lambda p:json.loads(p.read_text(encoding='utf-8-sig'))\nsource=read(B/'compact-decode-query-native-source-r2.json')\naction=sys.argv[1];assert action in ('build','safety','capture','build-ck')\nprevious=read(B/source['previous_model_run']/'run-record.json')\nassert previous['host_checks_pass'] and all(previous['host_checks'].values()) and not previous['after_processes']\n\nif action!='build':\n build=read(B/'compact-decode-query-build-r2/run-record.json')\n assert build['reason']=='completed' and build['exit_code']==0 and build['host_checks_pass']\nif action not in ('build','safety'):\n safety=read(B/'compact-decode-query-safety-r2/run-record.json')\n assert safety['reason']=='completed' and safety['exit_code']==0 and safety['host_checks_pass']\nif action=='build-ck':\n prior=read(B/'compact-decode-query-capture-r2/run-record.json');assert prior['reason']=='completed' and prior['exit_code']==0 and prior['host_checks_pass']\ndirectory=B/('compact-decode-query-'+action+'-r2');assert not directory.exists();directory.mkdir()\nopts=['-o','BatchMode=yes','-o','ConnectTimeout=10']\nfor key in ('bundle','script','dispatcher'):\n assert hashlib.sha256((B/source[key]).read_bytes()).hexdigest()==source[key+'_sha256']\nif action=='build':\n subprocess.run(['scp',*opts,str(B/'compact-decode-query-native-source-r2.json'),str(B/source['bundle']),str(B/source['script']),'baiying:D:/projects/'],check=True,timeout=60)\n ps=\"$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';$t=$null;$e=$null;$null=[Management.Automation.Language.Parser]::ParseFile('D:/projects/\"+source['script']+\"',[ref]$t,[ref]$e);if($e.Count){throw ($e|Out-String)}\"\n parsed=subprocess.run(['ssh',*opts,'baiying','powershell.exe -NoProfile -EncodedCommand '+base64.b64encode(ps.encode('utf-16le')).decode()],capture_output=True,text=True,errors='replace',timeout=30)\n with (directory/'script-parse.json').open('x') as f:json.dump(dict(returncode=parsed.returncode,stdout=parsed.stdout,stderr=parsed.stderr),f,indent=2);f.write('\\n')\n parsed.check_returncode()\ncommand=['ssh',*opts,'baiying','powershell.exe -NoProfile -ExecutionPolicy Bypass -File D:/projects/'+source['script']+' -Action '+action]\nstart=time.monotonic()\ntry:\n result=subprocess.run(command,capture_output=True,text=True,errors='replace',timeout=source['transport_timeout_seconds'][action])\n dispatch=dict(command=command,returncode=result.returncode,stdout=result.stdout,stderr=result.stderr,wall_seconds=time.monotonic()-start)\nexcept subprocess.TimeoutExpired as error:\n dispatch=dict(command=command,returncode=None,timeout=True,stdout=str(error.stdout),stderr=str(error.stderr),wall_seconds=time.monotonic()-start)\n with (directory/'dispatch.json').open('x') as f:json.dump(dispatch,f,indent=2);f.write('\\n')\n raise\nwith (directory/'dispatch.json').open('x') as f:json.dump(dispatch,f,indent=2);f.write('\\n')\nremote=source['repo']+'/build/compact-decode-query-'+action+'-r2'\nfor name in ('run-record.json','product.stdout.jsonl','product.stderr.log','preflight.json','launch.json'):\n subprocess.run(['scp',*opts,'baiying:'+remote+'/'+name,str(directory/name)],check=True,timeout=30)\nrun=read(directory/'run-record.json');print({k:run[k] for k in ('reason','exit_code','wall_ms','host_checks_pass')},flush=True)\nif result.returncode or run['exit_code']:print(result.stderr[-2000:]+(directory/'product.stderr.log').read_text(errors='replace')[-6500:],flush=True)\nresult.check_returncode();assert run['reason']=='completed' and run['exit_code']==0 and run['host_checks_pass']\nif action in ('build','build-ck'):\n metadata='build-ck-provenance.json' if action=='build-ck' else 'build-provenance.json'\n for file in ([metadata,'qrt_ck_fmha_sm121.dll','ck-source-inputs.json'] if action=='build-ck' else [metadata]):\n  subprocess.run(['scp',*opts,'baiying:'+source['repo']+'/build/compact-decode-query/'+file,str(directory/('build-provenance.json' if file==metadata else file))],check=True,timeout=45)\nelse:\n reports=[json.loads(line) for line in (directory/'product.stdout.jsonl').read_text().splitlines() if line.startswith('{')]\n with (directory/'reports.json').open('x') as f:json.dump(reports,f,indent=2);f.write('\\n')\n assert len(reports)==(27 if action=='safety' else 4)\n print(json.dumps(dict(cases=len(reports),last=reports[-1]),indent=2),flush=True)\n",
+  "native_command_grammar": {
+    "file": "compact-decode-query-command-syntax-r1.json",
+    "sha256": "ef2c45b43c9820ee2d96eed8fe09ed34c8d252cc9c91fc9f629a837988ba2f9a",
+    "record": {
+      "host": "Jiawei-MacminideMac-mini.local",
+      "files": [
+        {
+          "file": "run-native-compact-decode-query-r2.ps1",
+          "sha256": "b8d80b0f6352af50001aafbfefa532a528112c37ace89ec44fed233001285073"
+        }
+      ],
+      "commands": [
+        {
+          "command": [
+            "ssh",
+            "-o",
+            "BatchMode=yes",
+            "-o",
+            "ConnectTimeout=10",
+            "baiying",
+            "powershell.exe -NoProfile -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAJABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAaQBmACgALQBuAG8AdAAgAFsARQBuAHYAaQByAG8AbgBtAGUAbgB0AF0AOgA6AE0AYQBjAGgAaQBuAGUATgBhAG0AZQAuAEUAcQB1AGEAbABzACgAJwBiAGEAaQB5AGkAbgBnACcALABbAFMAdAByAGkAbgBnAEMAbwBtAHAAYQByAGkAcwBvAG4AXQA6ADoATwByAGQAaQBuAGEAbABJAGcAbgBvAHIAZQBDAGEAcwBlACkAKQB7AHQAaAByAG8AdwAgACcASABvAHMAdAAgAG0AaQBzAG0AYQB0AGMAaAAnAH0AOwBpAGYAKABUAGUAcwB0AC0AUABhAHQAaAAgACcARAA6AC8AcAByAG8AagBlAGMAdABzAC8AYwBvAG0AcABhAGMAdAAtAGQAZQBjAG8AZABlAC0AcQB1AGUAcgB5AC0AYwBvAG0AbQBhAG4AZAAtAHMAeQBuAHQAYQB4AC0AcgAxACcAKQB7AHQAaAByAG8AdwAgACcAUwB0AGEAZwBpAG4AZwAgAGUAeABpAHMAdABzACcAfQA7ACQAbgB1AGwAbAA9AE4AZQB3AC0ASQB0AGUAbQAgAC0ASQB0AGUAbQBUAHkAcABlACAARABpAHIAZQBjAHQAbwByAHkAIAAtAFAAYQB0AGgAIAAnAEQAOgAvAHAAcgBvAGoAZQBjAHQAcwAvAGMAbwBtAHAAYQBjAHQALQBkAGUAYwBvAGQAZQAtAHEAdQBlAHIAeQAtAGMAbwBtAG0AYQBuAGQALQBzAHkAbgB0AGEAeAAtAHIAMQAnAA=="
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.8223230419680476
+        },
+        {
+          "command": [
+            "scp",
+            "-o",
+            "BatchMode=yes",
+            "-o",
+            "ConnectTimeout=10",
+            "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/run-native-compact-decode-query-r2.ps1",
+            "baiying:D:/projects/compact-decode-query-command-syntax-r1/"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.4866150412708521
+        },
+        {
+          "command": [
+            "ssh",
+            "-o",
+            "BatchMode=yes",
+            "-o",
+            "ConnectTimeout=10",
+            "baiying",
+            "powershell.exe -NoProfile -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAJABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnAAoAWwBDAG8AbgBzAG8AbABlAF0AOgA6AE8AdQB0AHAAdQB0AEUAbgBjAG8AZABpAG4AZwA9AFsAVABlAHgAdAAuAFUAVABGADgARQBuAGMAbwBkAGkAbgBnAF0AOgA6AG4AZQB3ACgAJABmAGEAbABzAGUAKQAKACQAZgBpAGwAZQBzAD0AWwBUAGUAeAB0AC4ARQBuAGMAbwBkAGkAbgBnAF0AOgA6AFUAVABGADgALgBHAGUAdABTAHQAcgBpAG4AZwAoAFsAQwBvAG4AdgBlAHIAdABdADoAOgBGAHIAbwBtAEIAYQBzAGUANgA0AFMAdAByAGkAbgBnACgAJwBXADMAcwBpAFoAbQBsAHMAWgBTAEkANgBJAEMASgB5AGQAVwA0AHQAYgBtAEYAMABhAFgAWgBsAEwAVwBOAHYAYgBYAEIAaABZADMAUQB0AFoARwBWAGoAYgAyAFIAbABMAFgARgAxAFoAWABKADUATABYAEkAeQBMAG4AQgB6AE0AUwBJAHMASQBDAEoAegBhAEcARQB5AE4AVABZAGkATwBpAEEAaQBZAGoAaABrAE8ARABCAGkATQBHAFkAMgBNAHoAVQB5AFkAVwBZADEATQBEAEEAdwBNAFcARgBoAFoAbQBKAG0AWgBXAFoAaABOAFQATQB5AFkAVABVAHkATwBEAEUAeABNAG0ATQB6AE4AMgBGAGoAWgBUAGcANQBaAFcATQAwAE4ARwBaAGwAWgBEAEkAegBNAHoAQQB3AE0AVABJADQATgBUAEEAMwBNAHkASgA5AFgAUQA9AD0AJwApACkAfABDAG8AbgB2AGUAcgB0AEYAcgBvAG0ALQBKAHMAbwBuAAoAJAByAG8AdwBzAD0AQAAoACkAOwBmAG8AcgBlAGEAYwBoACgAJABlAG4AdAByAHkAIABpAG4AIAAkAGYAaQBsAGUAcwApAHsACgAgACQAcABhAHQAaAA9AEoAbwBpAG4ALQBQAGEAdABoACAAJwBEADoALwBwAHIAbwBqAGUAYwB0AHMALwBjAG8AbQBwAGEAYwB0AC0AZABlAGMAbwBkAGUALQBxAHUAZQByAHkALQBjAG8AbQBtAGEAbgBkAC0AcwB5AG4AdABhAHgALQByADEAJwAgACQAZQBuAHQAcgB5AC4AZgBpAGwAZQAKACAAJABoAGEAcwBoAD0AKABHAGUAdAAtAEYAaQBsAGUASABhAHMAaAAgACQAcABhAHQAaAAgAC0AQQBsAGcAbwByAGkAdABoAG0AIABTAEgAQQAyADUANgApAC4ASABhAHMAaAAuAFQAbwBMAG8AdwBlAHIASQBuAHYAYQByAGkAYQBuAHQAKAApAAoAIABpAGYAKAAkAGgAYQBzAGgAIAAtAG4AZQAgACQAZQBuAHQAcgB5AC4AcwBoAGEAMgA1ADYAKQB7AHQAaAByAG8AdwAgACcAUwBjAHIAaQBwAHQAIABiAHkAdABlAHMAIABjAGgAYQBuAGcAZQBkACcAfQAKACAAJAB0AG8AawBlAG4AcwA9ACQAbgB1AGwAbAA7ACQAZQByAHIAbwByAHMAPQAkAG4AdQBsAGwACgAgACQAbgB1AGwAbAA9AFsATQBhAG4AYQBnAGUAbQBlAG4AdAAuAEEAdQB0AG8AbQBhAHQAaQBvAG4ALgBMAGEAbgBnAHUAYQBnAGUALgBQAGEAcgBzAGUAcgBdADoAOgBQAGEAcgBzAGUARgBpAGwAZQAoACQAcABhAHQAaAAsAFsAcgBlAGYAXQAkAHQAbwBrAGUAbgBzACwAWwByAGUAZgBdACQAZQByAHIAbwByAHMAKQAKACAAJAByAG8AdwBzACsAPQBAAHsAZgBpAGwAZQA9ACQAZQBuAHQAcgB5AC4AZgBpAGwAZQA7AHMAaABhADIANQA2AD0AJABoAGEAcwBoADsAZQByAHIAbwByAHMAPQBAACgAJABlAHIAcgBvAHIAcwB8AEYAbwByAEUAYQBjAGgALQBPAGIAagBlAGMAdAAgAHsAJABfAC4ATQBlAHMAcwBhAGcAZQB9ACkAOwBwAGEAcwBzAD0AKAAkAGUAcgByAG8AcgBzAC4AQwBvAHUAbgB0ACAALQBlAHEAIAAwACkAfQAKAH0ACgBbAG8AcgBkAGUAcgBlAGQAXQBAAHsAaABvAHMAdAA9AFsARQBuAHYAaQByAG8AbgBtAGUAbgB0AF0AOgA6AE0AYQBjAGgAaQBuAGUATgBhAG0AZQA7AHUAdABjAD0AWwBEAGEAdABlAFQAaQBtAGUAXQA6ADoAVQB0AGMATgBvAHcALgBUAG8AUwB0AHIAaQBuAGcAKAAnAG8AJwApADsAcwBjAHIAaQBwAHQAcwA9ACQAcgBvAHcAcwA7AAoAIABzAGMAcgBpAHAAdABfAGUAeABlAGMAdQB0AGkAbwBuAD0AJABmAGEAbABzAGUAOwBtAG8AZABlAGwAXwBsAG8AYQBkAGUAZAA9ACQAZgBhAGwAcwBlADsAaQBuAGYAZQByAGUAbgBjAGUAXwBhAGMAYwBlAHAAdABhAG4AYwBlAD0AJABmAGEAbABzAGUAfQB8AEMAbwBuAHYAZQByAHQAVABvAC0ASgBzAG8AbgAgAC0ARABlAHAAdABoACAANgAKAGkAZgAoAEAAKAAkAHIAbwB3AHMAfABXAGgAZQByAGUALQBPAGIAagBlAGMAdAAgAHsALQBuAG8AdAAgACQAXwAuAHAAYQBzAHMAfQApAC4AQwBvAHUAbgB0ACkAewBlAHgAaQB0ACAAMQB9AAoA"
+          ],
+          "returncode": 0,
+          "stdout": "{\n    \"host\":  \"BAIYING\",\n    \"utc\":  \"2026-09-19T14:22:39.3188114Z\",\n    \"scripts\":  [\n                    {\n                        \"sha256\":  \"b8d80b0f6352af50001aafbfefa532a528112c37ace89ec44fed233001285073\",\n                        \"errors\":  [\n\n                                   ],\n                        \"file\":  \"run-native-compact-decode-query-r2.ps1\",\n                        \"pass\":  true\n                    }\n                ],\n    \"script_execution\":  false,\n    \"model_loaded\":  false,\n    \"inference_acceptance\":  false\n}\n",
+          "stderr": "",
+          "wall_seconds": 1.2449277080595493
+        }
+      ],
+      "native_grammar": {
+        "host": "BAIYING",
+        "utc": "2026-09-19T14:22:39.3188114Z",
+        "scripts": [
+          {
+            "sha256": "b8d80b0f6352af50001aafbfefa532a528112c37ace89ec44fed233001285073",
+            "errors": [],
+            "file": "run-native-compact-decode-query-r2.ps1",
+            "pass": true
+          }
+        ],
+        "script_execution": false,
+        "model_loaded": false,
+        "inference_acceptance": false
+      }
+    }
+  },
+  "initial_host_syntax_failure": {
+    "file": "compact-decode-query-fixture-syntax-r1/result.json",
+    "sha256": "a52b8456cbf9304d5852590d3f45fa54b160b72a13a6ffe89ae573283fe2675c",
+    "record": {
+      "command": [
+        "c++",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsyntax-only",
+        "-I",
+        "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-compact-fixture-syntax-xa7lh66u",
+        "-I",
+        "<private-home>/projects/AIMA-public-r1191-candidate",
+        "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-compact-fixture-syntax-xa7lh66u/fixture.cpp"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-compact-fixture-syntax-xa7lh66u/fixture.cpp:21:12: error: inline function 'qrt_blackwell_attention::launch_queries' is not defined [-Werror,-Wundefined-inline]\n   21 | inline int launch_queries(const uint16_t* q, const uint16_t* k,\n      |            ^\n/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-compact-fixture-syntax-xa7lh66u/fixture.cpp:183:37: note: used here\n  183 |         check(hipError_t(attention::launch_queries(relative ? compact.as<uint16_t>() : full.as<uint16_t>(),\n      |                                     ^\n1 error generated.\n",
+      "wall_seconds": 0.29377412516623735,
+      "source_sha256": {
+        "tests/native/compact_decode_query_selftest.cpp": "04725008ad049aabfc840910f1b18680cbea8b5c77b36320d3cdb36048541cda",
+        "native/providers/ck_fmha/blackwell_attention.h": "faeaaf5c9793bbb683663b059d3821982e898f82351db0d20670ee9df7b9db65"
+      },
+      "scope": "C++ fixture and actual launch_queries signature syntax with mocked HIP declarations only; no HIP or device compilation, arithmetic, model, or acceptance."
+    }
+  },
+  "local_host_original_arithmetic_report": {
+    "kind": "compact_decode_query_host",
+    "cases": 27,
+    "original_dots": 3456,
+    "checked_lane_group_reads": 1769472,
+    "actual_score_body": true,
+    "collective_replaced_by_scalar_reference": true,
+    "native_acceptance": false
+  },
+  "allocation_plan": {
+    "original_qkv_at262145_bytes": 2684364800,
+    "compact_kv_at262145_capacity_tokens": 264736,
+    "compact_kv_at262145_bytes": 542179328,
+    "borrowed_current_q_bytes": 8192,
+    "maximum_extra_unused_kv_bytes": 16775168,
+    "reuse_prefill_compact_owner": true,
+    "copy_and_arithmetic_use_actual_extent": true,
+    "physical_memory_measured": false,
+    "latency_benefit_measured": false
+  },
+  "current_model_prerequisites": {
+    "q8192": {
+      "file": "benchmarks/correctness/resident-ordered-compact-query-native-q8192-20260919.json",
+      "bytes": 280683,
+      "sha256": "4afb7da1be9de7fbd03b1f769268e9b95df0fe3d51e8fe902a33de30fc471dd7"
+    },
+    "cold32k": {
+      "file": "benchmarks/correctness/resident-ordered-compact-query-cold32k-out512-20260919.json",
+      "bytes": 531512,
+      "sha256": "00cab0b83d6dcc7c38d371dec42ba2c87c53827a78521553cc463ac66190dc7b"
+    },
+    "original256k_source": {
+      "file": "resident-ordered-compact-query-prefix256k-source-r1.json",
+      "sha256": "5d9ad636b80efaa7949f26bba5eb1855fa7e56a06008e7e3202d316227da0756"
+    },
+    "original256k_active": true,
+    "new_native_requires_completed_cleanup": true
+  },
+  "planned_native_checks": {
+    "generated_cases": 27,
+    "original_captured_queries": [
+      16384,
+      16415,
+      16895,
+      17407
+    ],
+    "unique_original_context_cells": 16384,
+    "attempts_per_case": 4,
+    "independent_cpu_dots_per_case": 128,
+    "all_score_words": true,
+    "raw_pv_accumulator_and_denominator": true,
+    "all_outputs": true,
+    "immutable_inputs_and_unused_history": true,
+    "nonzero_output_offset": true,
+    "allocation_guards": true,
+    "reference_not_compute_input": true
+  },
+  "acceptance": {
+    "local_addressing_and_original_scalar_reference": true,
+    "host_ownership_and_failure_tests": true,
+    "c_abi_smoke": true,
+    "native_script_grammar": true,
+    "hip_compilation": false,
+    "native_components": false,
+    "original_model_continuation": false,
+    "memory_capacity_improvement": false,
+    "performance": false,
+    "package": false,
+    "release": false,
+    "published": false
+  },
+  "scope": "Prepared component and provider builds only. Actual score-body host checks replace GPU collectives with scalar reference groups; mocked HIP syntax is not device compilation. The C smoke legacy product status is not inference evidence. The active model still uses CK370. Original model tokens/logits, full long owner and suffix boundaries, source/host cleanup, memory and retained performance remain separate.",
+  "recorder": {
+    "file": "record_compact_decode_query_preparation_r1.py",
+    "sha256": "df1611dbb7c038967612976d81c1b5b943bb36a0a7aaf8189f39b1db6513b97c"
+  }
+}

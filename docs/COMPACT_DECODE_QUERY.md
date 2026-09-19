@@ -51,3 +51,15 @@ candidate. Original q8192/out512, original long owner and suffix continuations,
 memory comparison and final host cleanup are required before using a new
 provider in the runtime. No model, retained-performance, package or release
 acceptance follows from the host checks or prepared fixture.
+
+The [preparation evidence](../benchmarks/correctness/compact-decode-query-preparation-20260919.json)
+pins source `3d8f94c552ddb31baf768fda5a054e07411a429e`, 69 checked local files,
+26 fixture compilation inputs and 66 CK compilation inputs. The union has
+67 compilation inputs; the other two files are build and guard scripts.
+`run-native-compact-decode-query-r2.ps1` passes the actual PowerShell parser
+on baiying at 2026-09-19T14:22:39Z. Native bounds are 240 seconds for each
+build, 900 for generated cases and 300 for captured queries. Dispatch requires
+the active ordered-storage full256k run's completed host/process cleanup.
+The first preparation remains preserved; revision2 corrects generated-case
+metadata to report zero GB10 context cells and its actual query positions.
+It does not change executable sources or numerical comparisons.
