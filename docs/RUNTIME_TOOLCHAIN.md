@@ -25,7 +25,23 @@ AMD documents a newer [Windows gfx1151 tarball](https://rocm.docs.amd.com/en/doc
 Its [compatibility matrix](https://rocm.docs.amd.com/en/docs-10.0.0/compatibility/compatibility-matrix.html)
 lists Windows11 25H2 and specific Adrenalin/CDE driver versions. This does not
 establish compatibility with the observed PRO driver or a benefit for the
-engine. No new SDK was downloaded, installed or tested in this review.
+engine. That process inspection did not install or test a new SDK.
+
+The [subsequent static archive review](../benchmarks/correctness/rocm10-windows-archive-static-review-20260920.json)
+records the completed 1,684,865,477-byte Windows gfx1151 download, SHA256
+`1293927b06b3b8d4bd7e0265823fb998bc9e0d83c68f33dcfa5d32663b30ce38`.
+Its 9,995 entries contain 8,715,298,580 logical regular-file bytes. Actual
+Clang and amdclang PE resources, `Version.inc`, CMake metadata and compiler
+resource directories identify **23.0.0git**; HIP metadata identifies
+**7.15.26333**. This Windows artifact must not be described as LLVM24 solely
+from the general ROCm10 release notes. Direct imports include the Windows and
+Visual C++ runtimes. These static imports are not a complete packaging test.
+
+The archive remains on the controller. No SDK was extracted to disk, installed
+or executed on Windows. An isolated compiler invocation, ABI/driver checks and
+correctness-attached model measurements remain necessary before selecting this
+toolchain. The first PE reader missed raw archive path spellings; the corrected
+reader uses the inventory's normalized names and retains the failed attempt.
 
 [Structured observation](../benchmarks/correctness/resident-runtime-toolchain-review-20260920.json)
 retains the raw DLL descriptions, registry fields, image sizes, observer/source

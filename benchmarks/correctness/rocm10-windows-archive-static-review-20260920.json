@@ -1,0 +1,718 @@
+{
+  "kind": "rocm10_windows_gfx1151_archive_static_review",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "artifact": {
+    "file": "therock-dist-windows-gfx1151-10.0.0.tar.gz",
+    "bytes": 1684865477,
+    "sha256": "1293927b06b3b8d4bd7e0265823fb998bc9e0d83c68f33dcfa5d32663b30ce38",
+    "url": "https://stable.repo.amd.com/rocm/core/tarball/therock-dist-windows-gfx1151-10.0.0.tar.gz",
+    "etag": "\"52533c13617471717c2a8fc1b38fc410-13\"",
+    "completed_utc": "2026-09-19T20:15:10.587670+00:00"
+  },
+  "download_summary": {
+    "method": "Eight disjoint regions, 16MiB HTTP subranges, exact Content-Range/ETag validation, at most32 attempts per region",
+    "timeout_seconds": 5400,
+    "elapsed_seconds": 3350.02577866707,
+    "complete": true,
+    "expected_bytes": 1684865477,
+    "received_bytes": 1684865477
+  },
+  "inventory": {
+    "member_count": 9995,
+    "regular_file_bytes": 8715298580,
+    "all_names_and_link_targets_validated": true,
+    "case_insensitive_unique_names": true,
+    "compiler_entries": [
+      {
+        "path": "lib/llvm/bin/amdclang++.exe",
+        "bytes": 116736,
+        "type": "0"
+      },
+      {
+        "path": "lib/llvm/bin/amdclang.exe",
+        "bytes": 116736,
+        "type": "0"
+      },
+      {
+        "path": "lib/llvm/bin/clang++.exe",
+        "bytes": 110282240,
+        "type": "0"
+      },
+      {
+        "path": "lib/llvm/bin/clang.exe",
+        "bytes": 110282240,
+        "type": "0"
+      }
+    ],
+    "selected_file_identities": [
+      {
+        "path": "bin/.hipVersion",
+        "bytes": 242,
+        "sha256": "36a14f9b7c32405d613ce5d4a02b0700cbaf94b682a085978c4073bd84514d5b"
+      },
+      {
+        "path": "bin/hipcc.exe",
+        "bytes": 232960,
+        "sha256": "dfa258d8ca44736159801633f70ad48f03e3c367d7e67fe6ceb638bb9d4150d0"
+      },
+      {
+        "path": "include/hip/hip_version.h",
+        "bytes": 426,
+        "sha256": "18fd2744e01305741f09bc5cc7d9027ef16d0d950bd581306a3771a1271b7e62"
+      },
+      {
+        "path": "lib/llvm/bin/amdclang++.exe",
+        "bytes": 116736,
+        "sha256": "d28b782583dfa5f674a4810a7d922cf2dfcfca4ac104d9adc905f2b52ae1ebdf"
+      },
+      {
+        "path": "lib/llvm/bin/amdclang.exe",
+        "bytes": 116736,
+        "sha256": "d28b782583dfa5f674a4810a7d922cf2dfcfca4ac104d9adc905f2b52ae1ebdf"
+      },
+      {
+        "path": "lib/llvm/bin/clang++.exe",
+        "bytes": 110282240,
+        "sha256": "812397316720f03d66425d660f4e861c620125ce3d9c5447035062a442c5ab29"
+      },
+      {
+        "path": "lib/llvm/bin/clang.exe",
+        "bytes": 110282240,
+        "sha256": "812397316720f03d66425d660f4e861c620125ce3d9c5447035062a442c5ab29"
+      },
+      {
+        "path": "lib/llvm/bin/lld-link.exe",
+        "bytes": 78923776,
+        "sha256": "7f231732b0ec93611e983d9de857c9cd75c0b6103c87067d6534bd9ebe728b05"
+      },
+      {
+        "path": "lib/llvm/bin/lld.exe",
+        "bytes": 78923776,
+        "sha256": "7f231732b0ec93611e983d9de857c9cd75c0b6103c87067d6534bd9ebe728b05"
+      },
+      {
+        "path": "lib/llvm/bin/llvm-link.exe",
+        "bytes": 5053952,
+        "sha256": "ad7b2ef369ba9ea82c68a5fc0bcc5ff9f835016e6d7351c4a35c4748bd4a182f"
+      },
+      {
+        "path": "lib/llvm/bin/llvm-readobj.exe",
+        "bytes": 7945728,
+        "sha256": "afe634cb2f36b995a6719ba338d977a37832195b230b2136f9e3ba6d95fbccd7"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/asanrtl.bc",
+        "bytes": 35144,
+        "sha256": "2e1ad7eb87406230015f48776e580af5babfbcac42553b4cdb95e48b84102a43"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/hip.bc",
+        "bytes": 2576,
+        "sha256": "9d1debb5d2f43c908927c7106c32c1f12f85b78c375587608bcb70f29441179d"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/ockl.bc",
+        "bytes": 250744,
+        "sha256": "5750b57ddfa8a2fdac67bcf9f5a4a3b8f1f09195e081ef9943b7765cd25ca79a"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_abi_version_400.bc",
+        "bytes": 2656,
+        "sha256": "0757e198e25ab373681bafa1c5f62deba32a1b5c887c9808be41dc7b7629f34d"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_abi_version_500.bc",
+        "bytes": 2656,
+        "sha256": "e0550802d00baac6dff0fc7ded95ac64505c07f4046d82a216ab7fc2b640dfe8"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_abi_version_600.bc",
+        "bytes": 2656,
+        "sha256": "9676872c1e189bbfa7c562ef32132c1da060b62eef04c5eaef3d12ddd953fa1c"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_finite_only_off.bc",
+        "bytes": 2660,
+        "sha256": "ab02d9f1756db77c86ecdf42b951b8f7e6c058397ac91f7e1a06a90ebd9cc4ee"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_finite_only_on.bc",
+        "bytes": 2660,
+        "sha256": "b75ae2527603398a222a8dd3c19bb7c7dcf26103b73957a31177c128b8fb512d"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_10-1-generic.bc",
+        "bytes": 2656,
+        "sha256": "3dcd98d9b51dbe0526be42f270521b1d5636c0a21ce463a577d82998ecc30c3b"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_10-3-generic.bc",
+        "bytes": 2656,
+        "sha256": "28740c0171bf84d52aeb9fb5daa44550856da3fbb451ec96be7cb152b223f434"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1010.bc",
+        "bytes": 2656,
+        "sha256": "3dcd98d9b51dbe0526be42f270521b1d5636c0a21ce463a577d82998ecc30c3b"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1011.bc",
+        "bytes": 2656,
+        "sha256": "8ea298813361b5cc2579d039a8339ec9585ccece5e5a65158d12240b0418e9bf"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1012.bc",
+        "bytes": 2656,
+        "sha256": "e3066e8cc6fc27e5eb2d504c2cf6b2feefef0a90af03c4a679f0c4302b28c6e9"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1013.bc",
+        "bytes": 2656,
+        "sha256": "78d18dfffad78cfee2cc4b0bcaec802e641912d7f9574a6b5e7c992d2ef0ff1c"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1030.bc",
+        "bytes": 2656,
+        "sha256": "28740c0171bf84d52aeb9fb5daa44550856da3fbb451ec96be7cb152b223f434"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1031.bc",
+        "bytes": 2656,
+        "sha256": "464d581d67c7c53b04e1031eb715fb14c3b90266fb45d1075d7c2d17d4e39bd2"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1032.bc",
+        "bytes": 2656,
+        "sha256": "3644d0f02f31307f6c1859acd8c7d56ae4c3060114c51fc5dbffdeddbc0ee592"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1033.bc",
+        "bytes": 2656,
+        "sha256": "cd7caed6f83061d62e2ba8922706c2af9c0323ac67747c714f9be02bd35c6fa4"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1034.bc",
+        "bytes": 2656,
+        "sha256": "c1032b4ec47ee42853917a1837786e1bc85e7d100bcce7ef68fa5677981ac2dd"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1035.bc",
+        "bytes": 2656,
+        "sha256": "e0d0e097acb68b72977b8e83cada67a24bb3906d0853d388b677475c6fb56e22"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1036.bc",
+        "bytes": 2656,
+        "sha256": "4918c9e911c0905ffc06a2bd64d802c159842f7c0f9a3eecbffe8357a9936602"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_11-generic.bc",
+        "bytes": 2656,
+        "sha256": "bb8bfc403989f8a92919e82ed5e6ce6401fc1e5a17da1d23df2c170b104bb496"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1100.bc",
+        "bytes": 2656,
+        "sha256": "24ce66e8d0327ac0cff88acaa1952a67011da2d752f96d262b450c1d072b1085"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1101.bc",
+        "bytes": 2656,
+        "sha256": "94aeabdfea823b7c0e111a9d039f4a6d6e86cbb461c93908b0c2156359f48d10"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1102.bc",
+        "bytes": 2656,
+        "sha256": "7c1ad0d8464999cf68361d6df8a83e8831fcbc3491dc1792bf68c897f90f77c7"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1103.bc",
+        "bytes": 2656,
+        "sha256": "bb8bfc403989f8a92919e82ed5e6ce6401fc1e5a17da1d23df2c170b104bb496"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1150.bc",
+        "bytes": 2656,
+        "sha256": "3a48c8f70408da08539b87383dc77a04867c71c7d34e7849f04c84e73f439f14"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1151.bc",
+        "bytes": 2656,
+        "sha256": "787f011b2d9061882e96bc60333b5b90da21e8df6c0197931f2348c7ac584b36"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1152.bc",
+        "bytes": 2656,
+        "sha256": "a8c183e656daf77f3cb2a28c25a14b2e5edb0c3a70c54e6326641d1d6eab143b"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1153.bc",
+        "bytes": 2656,
+        "sha256": "ff5cb52c50d01ed806ad93fd8edcb5a71ffe50c3d32f132c1c92de05d094819f"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1170.bc",
+        "bytes": 2656,
+        "sha256": "50ccaefc2e4bed319c4f5eaa9070a19c929cb81b0ef5eb3daabdfb68706b6411"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1171.bc",
+        "bytes": 2656,
+        "sha256": "01a8cd2cf3d95e953e7d4484b3193d3f4f6203d795ab7863ddc94567c7106ea0"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1172.bc",
+        "bytes": 2656,
+        "sha256": "cbf3acb68640879ef58bef03e87ca67a3585b711ba1abb40eb575f5aa87d1621"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_12-generic.bc",
+        "bytes": 2656,
+        "sha256": "4b120d819b929b925cfbc3b2fda22bd79e0e86a56c7b05a4d9dc8ce0e05ecffe"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1200.bc",
+        "bytes": 2656,
+        "sha256": "4b120d819b929b925cfbc3b2fda22bd79e0e86a56c7b05a4d9dc8ce0e05ecffe"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1201.bc",
+        "bytes": 2656,
+        "sha256": "edaa61763b60504a007290b591b65e16e1c970400237de0b834b27d17e8e4c82"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1250.bc",
+        "bytes": 2656,
+        "sha256": "4a26694ad29b5a6aea474ae96b3d33b517b47611c22e667a48f1846e0c80e0a4"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_1251.bc",
+        "bytes": 2656,
+        "sha256": "d5112b396af1e91d25e17b3c3e50b9880b0091ba10b411be5d479c3a676f2592"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_600.bc",
+        "bytes": 2656,
+        "sha256": "61090d106d5e4cd972c0be8279ea2775a5e8a5440e5aa58c3e52cc93db4fb3be"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_601.bc",
+        "bytes": 2656,
+        "sha256": "1d06c8436f2f44623fb29ee74f3e49ebb1cac4c1d1d049985422f0e72ab3b5d6"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_602.bc",
+        "bytes": 2656,
+        "sha256": "91324214e7e390239bbe43fa95c14ecea0a3bc3f7e759a1b2b62402a6fb7fd6d"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_700.bc",
+        "bytes": 2656,
+        "sha256": "70d44731565d591b77770e13a920a0a2450ead01fc244f078b10a8441cf6ceb3"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_701.bc",
+        "bytes": 2656,
+        "sha256": "4a00a0ea145d813907b07e865ba44b621749f76cd57b23260ec97506a91e447b"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_702.bc",
+        "bytes": 2656,
+        "sha256": "dc1b22b499434fb04825bfa673a59d871f66656c63a43b27af6879fb057c9491"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_703.bc",
+        "bytes": 2656,
+        "sha256": "a730461d82da31abc3fae718920f5bcfd6005bab6e00843116c1bf699d2196a8"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_704.bc",
+        "bytes": 2656,
+        "sha256": "1697afb4427ccf25510b48b6009ca86901c97dd88e421c68fa82d141f52a2deb"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_705.bc",
+        "bytes": 2656,
+        "sha256": "8cfa319e41a97698639b00e39ac1f97ae800273bd94a66867dc4f5a6dfbc4dc9"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_801.bc",
+        "bytes": 2656,
+        "sha256": "7a7abaf6786b092fd90edd1f4b7fc41f164f71873a4e43d4b75773446505d07a"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_802.bc",
+        "bytes": 2656,
+        "sha256": "4eb576235012cf22c9893167b5a2cfd9779a8ed217702c1913a8c16bbe40f034"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_803.bc",
+        "bytes": 2656,
+        "sha256": "c86419d76fee4338e60c6d40dc40980c8d051ba097016f683b4edf9a02fdc4ea"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_805.bc",
+        "bytes": 2656,
+        "sha256": "f03b92a32e5e9ba1973d7bd48d424880d971eae19dcda2a24f3bef2efbec65d5"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_810.bc",
+        "bytes": 2656,
+        "sha256": "629b6eb4e6ba952eae7383d3937f9472f15b350c4981f9305daed34d60dce4d6"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_9-4-generic.bc",
+        "bytes": 2656,
+        "sha256": "d00391891e07958c5c2f22886cc17cc188ec0613571324584539cde7a2d61dc2"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_9-generic.bc",
+        "bytes": 2656,
+        "sha256": "1131a6003fdca9ee87b72155a88583e269b813933d3357a35436873b022463c6"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_900.bc",
+        "bytes": 2656,
+        "sha256": "1131a6003fdca9ee87b72155a88583e269b813933d3357a35436873b022463c6"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_902.bc",
+        "bytes": 2656,
+        "sha256": "e741d2a9c0aed7a5022be24504875b85f20cfd62f1048b5caca04e2012bb45a6"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_904.bc",
+        "bytes": 2656,
+        "sha256": "b7b4bb73ddb05a4e44eaa18464ff54f24f3fa192e8401b2cf745125e72363066"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_906.bc",
+        "bytes": 2656,
+        "sha256": "9ce753512bafd8934a3d35364c30b4780a4d84bc8aed103519d5353009a1b04e"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_908.bc",
+        "bytes": 2656,
+        "sha256": "abe96d5c60f87edef42e5f3975df98362eef84360703d2a780faabfd9e24d018"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_909.bc",
+        "bytes": 2656,
+        "sha256": "00498cfe6e24a29bdc10d8f6512b8cffddabcc8fd95507af5554947d09d6cc8f"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_90a.bc",
+        "bytes": 2656,
+        "sha256": "43c699145991f4536e866268aa95bb38e86acf68473084fc8681a932acc71b2b"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_90c.bc",
+        "bytes": 2656,
+        "sha256": "c780d326aad99fff99455300b7aff76f435b30c2d4af7f4f8d3faa03b98f512d"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_942.bc",
+        "bytes": 2656,
+        "sha256": "d00391891e07958c5c2f22886cc17cc188ec0613571324584539cde7a2d61dc2"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_isa_version_950.bc",
+        "bytes": 2656,
+        "sha256": "4f3b98416222d45a788aed13e9a75907c8ec014b556163bbeadea8dd8dff3527"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_unsafe_math_off.bc",
+        "bytes": 2660,
+        "sha256": "1805995a58fdca167f5710cc966f256af2184c41f5926eacdebb8c2427afeeb8"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_unsafe_math_on.bc",
+        "bytes": 2660,
+        "sha256": "63ff9e5cd73a48967bda0e33cdd45c64b45083a750f20bab9424a6c778a057d7"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_wavefrontsize64_off.bc",
+        "bytes": 2728,
+        "sha256": "8b86a0e3e15d68df8798bb9c6b081bbcdf1e7a4aad41c9b8bc035dac7000a91e"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/oclc_wavefrontsize64_on.bc",
+        "bytes": 2728,
+        "sha256": "9c4892fc01eb566e2dbc82d197c074dc8304ba3d589919d9062294dba0e874fc"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/ocml.bc",
+        "bytes": 202772,
+        "sha256": "c724218b76bd8d583e893172fc6cdca37539c1250a797492b8504dca9905cc84"
+      },
+      {
+        "path": "lib/llvm/amdgcn/bitcode/opencl.bc",
+        "bytes": 2653432,
+        "sha256": "5d03f6d4b2ef112f97782d5dc2c6479375ed658596f5402c596ef5135cfbf9f4"
+      }
+    ],
+    "hip_version_metadata": {
+      "bin/.hipVersion": "# Auto-generated by cmake\r\nHIP_PACKAGING_VERSION_PATCH=26333-6b0e43f341\r\nCPACK_DEBIAN_PACKAGE_RELEASE=local\r\nCPACK_RPM_PACKAGE_RELEASE=local\r\nHIP_VERSION_MAJOR=7\r\nHIP_VERSION_MINOR=15\r\nHIP_VERSION_PATCH=26333\r\nHIP_VERSION_GITHASH=6b0e43f341\r\n",
+      "include/hip/hip_version.h": "// Auto-generated by cmake\r\n\r\n#ifndef HIP_VERSION_H\r\n#define HIP_VERSION_H\r\n\r\n#define HIP_VERSION_MAJOR 7\r\n#define HIP_VERSION_MINOR 15\r\n#define HIP_VERSION_PATCH 26333\r\n#define HIP_VERSION_GITHASH \"6b0e43f341\"\r\n#define HIP_VERSION_BUILD_ID 0\r\n#define HIP_VERSION_BUILD_NAME \"\"\r\n#define HIP_VERSION    (HIP_VERSION_MAJOR * 10000000 + HIP_VERSION_MINOR * 100000 + HIP_VERSION_PATCH)\r\n\r\n#define __HIP_HAS_GET_PCH 0\r\n\r\n#endif\r\n\r\n"
+    },
+    "clang_resource_versions": [
+      "23"
+    ]
+  },
+  "compiler_pe": {
+    "kind": "verified_rocm10_archive_compiler_pe_metadata",
+    "host": "Jiawei-MacminideMac-mini.local",
+    "utc": "2026-09-19T21:03:08.985723+00:00",
+    "archive_file": "therock-dist-windows-gfx1151-10.0.0.tar.gz",
+    "archive_sha256": "1293927b06b3b8d4bd7e0265823fb998bc9e0d83c68f33dcfa5d32663b30ce38",
+    "inventory_sha256": "7ab696c82f3959330756f28f400942248b8556e385d59019080c838155fc38ee",
+    "records": [
+      {
+        "path": "bin/hipcc.exe",
+        "bytes": 232960,
+        "sha256": "dfa258d8ca44736159801633f70ad48f03e3c367d7e67fe6ceb638bb9d4150d0",
+        "pe": {
+          "machine_hex": "0x8664",
+          "architecture": "AMD64",
+          "pe32_plus": true,
+          "imports": [
+            "KERNEL32.dll",
+            "MSVCP140.dll",
+            "VCRUNTIME140.dll",
+            "VCRUNTIME140_1.dll",
+            "api-ms-win-crt-runtime-l1-1-0.dll",
+            "api-ms-win-crt-heap-l1-1-0.dll",
+            "api-ms-win-crt-convert-l1-1-0.dll",
+            "api-ms-win-crt-environment-l1-1-0.dll",
+            "api-ms-win-crt-stdio-l1-1-0.dll",
+            "api-ms-win-crt-filesystem-l1-1-0.dll",
+            "api-ms-win-crt-math-l1-1-0.dll",
+            "api-ms-win-crt-string-l1-1-0.dll",
+            "api-ms-win-crt-locale-l1-1-0.dll"
+          ],
+          "version_resources": []
+        }
+      },
+      {
+        "path": "lib/llvm/bin/amdclang.exe",
+        "bytes": 116736,
+        "sha256": "d28b782583dfa5f674a4810a7d922cf2dfcfca4ac104d9adc905f2b52ae1ebdf",
+        "pe": {
+          "machine_hex": "0x8664",
+          "architecture": "AMD64",
+          "pe32_plus": true,
+          "imports": [
+            "ntdll.dll",
+            "KERNEL32.dll",
+            "MSVCP140.dll",
+            "VCRUNTIME140.dll",
+            "api-ms-win-crt-runtime-l1-1-0.dll",
+            "api-ms-win-crt-heap-l1-1-0.dll",
+            "api-ms-win-crt-string-l1-1-0.dll",
+            "api-ms-win-crt-stdio-l1-1-0.dll",
+            "api-ms-win-crt-math-l1-1-0.dll",
+            "api-ms-win-crt-locale-l1-1-0.dll"
+          ],
+          "version_resources": [
+            {
+              "fixed": {
+                "file_version": "23.0.0.0",
+                "product_version": "0.0.0.0",
+                "file_os": 0,
+                "file_type": 0
+              },
+              "strings": {
+                "FileVersion": "23.0.0git",
+                "InternalName": "amdllvm",
+                "ProductName": "clang",
+                "ProductVersion": "23.0.0git"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "path": "lib/llvm/bin/clang.exe",
+        "bytes": 110282240,
+        "sha256": "812397316720f03d66425d660f4e861c620125ce3d9c5447035062a442c5ab29",
+        "pe": {
+          "machine_hex": "0x8664",
+          "architecture": "AMD64",
+          "pe32_plus": true,
+          "imports": [
+            "VERSION.dll",
+            "ADVAPI32.dll",
+            "ntdll.dll",
+            "KERNEL32.dll",
+            "OLEAUT32.dll",
+            "MSVCP140.dll",
+            "VCRUNTIME140.dll",
+            "VCRUNTIME140_1.dll",
+            "api-ms-win-crt-runtime-l1-1-0.dll",
+            "api-ms-win-crt-heap-l1-1-0.dll",
+            "api-ms-win-crt-environment-l1-1-0.dll",
+            "api-ms-win-crt-string-l1-1-0.dll",
+            "api-ms-win-crt-stdio-l1-1-0.dll",
+            "api-ms-win-crt-math-l1-1-0.dll",
+            "api-ms-win-crt-convert-l1-1-0.dll",
+            "api-ms-win-crt-utility-l1-1-0.dll",
+            "api-ms-win-crt-time-l1-1-0.dll",
+            "api-ms-win-crt-filesystem-l1-1-0.dll",
+            "api-ms-win-crt-locale-l1-1-0.dll"
+          ],
+          "version_resources": [
+            {
+              "fixed": {
+                "file_version": "23.0.0.0",
+                "product_version": "0.0.0.0",
+                "file_os": 0,
+                "file_type": 0
+              },
+              "strings": {
+                "FileVersion": "23.0.0git",
+                "InternalName": "clang",
+                "ProductName": "clang",
+                "ProductVersion": "23.0.0git"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "elapsed_seconds": 2.555697957985103,
+    "files_read_into_memory": true,
+    "files_extracted_to_disk": false,
+    "native_executed": false,
+    "installed": false,
+    "windows_environment_changed": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "previous_observer_failure_sha256": "2c6c5fb38a8bdf26ed2f36e3fa07183dc1a848545e94d5cdec0afe806bfa7b14",
+    "observer": {
+      "file": "inspect_rocm10_compiler_pe_r2.py",
+      "sha256": "9ac18b420be0cfa44fc8f3d0a2a526be88ac72e6dd5be6a816c886dd8b27d0ff"
+    }
+  },
+  "compiler_version_files": {
+    "kind": "rocm10_windows_archive_static_compiler_build_versions",
+    "host": "Jiawei-MacminideMac-mini.local",
+    "utc": "2026-09-19T21:05:28.203677+00:00",
+    "archive_sha256": "1293927b06b3b8d4bd7e0265823fb998bc9e0d83c68f33dcfa5d32663b30ce38",
+    "inventory_sha256": "7ab696c82f3959330756f28f400942248b8556e385d59019080c838155fc38ee",
+    "files": [
+      {
+        "path": "lib/llvm/include/clang/Basic/Version.inc",
+        "bytes": 256,
+        "sha256": "5275e682e697f1c93c1d9fe5e23bfc979e6b0471994b8cc769b9eee1a56a6e06",
+        "text": "#define CLANG_VERSION 23.0.0git\r\n#define CLANG_VERSION_STRING \"23.0.0git\"\r\n#define CLANG_VERSION_MAJOR 23\r\n#define CLANG_VERSION_MAJOR_STRING \"23\"\r\n#define CLANG_VERSION_MINOR 0\r\n#define CLANG_VERSION_PATCHLEVEL 0\r\n#define MAX_CLANG_ABI_COMPAT_VERSION 23\r\n"
+      },
+      {
+        "path": "lib/llvm/lib/cmake/clang/ClangConfigVersion.cmake",
+        "bytes": 463,
+        "sha256": "38e2e56380b1c0547cd100a9fa619ea8ab68947070c23f2dc13eb90989d242da",
+        "text": "set(PACKAGE_VERSION \"23.0.0git\")\r\n\r\n# LLVM is API-compatible only with matching major.minor versions\r\n# and patch versions not less than that requested.\r\nif(\"23.0\" VERSION_EQUAL\r\n    \"${PACKAGE_FIND_VERSION_MAJOR}.${PACKAGE_FIND_VERSION_MINOR}\"\r\n   AND NOT \"0\" VERSION_LESS \"${PACKAGE_FIND_VERSION_PATCH}\")\r\n  set(PACKAGE_VERSION_COMPATIBLE 1)\r\n  if(\"0\" VERSION_EQUAL\r\n      \"${PACKAGE_FIND_VERSION_PATCH}\")\r\n    set(PACKAGE_VERSION_EXACT 1)\r\n  endif()\r\nendif()\r\n"
+      },
+      {
+        "path": "lib/llvm/lib/cmake/llvm/LLVMConfigVersion.cmake",
+        "bytes": 463,
+        "sha256": "38e2e56380b1c0547cd100a9fa619ea8ab68947070c23f2dc13eb90989d242da",
+        "text": "set(PACKAGE_VERSION \"23.0.0git\")\r\n\r\n# LLVM is API-compatible only with matching major.minor versions\r\n# and patch versions not less than that requested.\r\nif(\"23.0\" VERSION_EQUAL\r\n    \"${PACKAGE_FIND_VERSION_MAJOR}.${PACKAGE_FIND_VERSION_MINOR}\"\r\n   AND NOT \"0\" VERSION_LESS \"${PACKAGE_FIND_VERSION_PATCH}\")\r\n  set(PACKAGE_VERSION_COMPATIBLE 1)\r\n  if(\"0\" VERSION_EQUAL\r\n      \"${PACKAGE_FIND_VERSION_PATCH}\")\r\n    set(PACKAGE_VERSION_EXACT 1)\r\n  endif()\r\nendif()\r\n"
+      },
+      {
+        "path": "lib/cmake/clang/ClangConfigVersion.cmake",
+        "bytes": 196,
+        "sha256": "c371666c1354121823b881589d0ccfdf72737da81f0b14752f943f4999176ed2",
+        "text": "# Copyright Advanced Micro Devices, Inc.\r\n# SPDX-License-Identifier: MIT\r\n\r\n# Redirect to llvm/lib/cmake\r\ninclude(\"${CMAKE_CURRENT_LIST_DIR}/../../llvm/lib/cmake/clang/ClangConfigVersion.cmake\")\r\n"
+      },
+      {
+        "path": "lib/cmake/llvm/LLVMConfigVersion.cmake",
+        "bytes": 194,
+        "sha256": "9e963ccb768611c884ce9ee190dae4088ff97a9dca36a25a9caf4ee2bb4aa5b2",
+        "text": "# Copyright Advanced Micro Devices, Inc.\r\n# SPDX-License-Identifier: MIT\r\n\r\n# Redirect to llvm/lib/cmake\r\ninclude(\"${CMAKE_CURRENT_LIST_DIR}/../../llvm/lib/cmake/llvm/LLVMConfigVersion.cmake\")\r\n"
+      }
+    ],
+    "elapsed_seconds": 4.485650333575904,
+    "native_executed": false,
+    "extracted_to_disk": false,
+    "observer": {
+      "file": "read_rocm10_compiler_version_files_r1.py",
+      "sha256": "3c398fdc56b1dc06737b68d2434138bf1ba73945bbd57d20a819c2e75fbcf90e"
+    }
+  },
+  "first_pe_reader_failure": {
+    "observer": "inspect_rocm10_compiler_pe_r1.py",
+    "observer_sha256": "5f53b179179385478d093a48567011dbcdfc738c1836769184ffeb1061706eb7",
+    "returncode": 1,
+    "failed_assertion": "all selected archive member names found",
+    "reason": "The reader used raw archive names instead of the inventory's normalized POSIX names.",
+    "native_executed": false,
+    "files_extracted_to_disk": false,
+    "record_created": false
+  },
+  "records": {
+    "rocm10-windows-gfx1151-artifact-download-r3.json": {
+      "bytes": 14378,
+      "sha256": "5238912c98eca30552630d828b5907640bb5d33490947dbd276aacc51b9e87fc"
+    },
+    "rocm10-windows-gfx1151-artifact-inventory-r1.json": {
+      "bytes": 1251321,
+      "sha256": "7ab696c82f3959330756f28f400942248b8556e385d59019080c838155fc38ee"
+    },
+    "rocm10-windows-gfx1151-compiler-pe-r1-failure.json": {
+      "bytes": 417,
+      "sha256": "2c6c5fb38a8bdf26ed2f36e3fa07183dc1a848545e94d5cdec0afe806bfa7b14"
+    },
+    "rocm10-windows-gfx1151-compiler-pe-r2.json": {
+      "bytes": 4416,
+      "sha256": "03df9ded75fbb81d93746dc40de05e6c6fb6e4329b99fb41f0b62cb5f8e62ce7"
+    },
+    "rocm10-windows-gfx1151-compiler-version-files-r1.json": {
+      "bytes": 3278,
+      "sha256": "d4c981962217f3bad47eb9d360df424bc4a233cfad2c3219ba2d40488c744bfb"
+    },
+    "rocm10-windows-gfx1151-artifact-fragment-cleanup-r1.json": {
+      "bytes": 543,
+      "sha256": "7464fc1ecc36974c687ef531906ea1cb26f88ca385e49180f9360dea2ac38da6"
+    }
+  },
+  "observers": {
+    "download_rocm10_gfx1151_r3.py": {
+      "sha256": "6ffd3f8a4c4900bc701d52ea6320080f6d9a064f4cfc29b17644a2e3f7622018"
+    },
+    "inventory_rocm10_gfx1151_r1.py": {
+      "sha256": "15481006528182af6e472668deedf511d561ebfe0f7dfddc3cb228b5548139f2"
+    },
+    "inspect_rocm10_compiler_pe_r1.py": {
+      "sha256": "5f53b179179385478d093a48567011dbcdfc738c1836769184ffeb1061706eb7"
+    },
+    "inspect_rocm10_compiler_pe_r2.py": {
+      "sha256": "9ac18b420be0cfa44fc8f3d0a2a526be88ac72e6dd5be6a816c886dd8b27d0ff"
+    },
+    "read_rocm10_compiler_version_files_r1.py": {
+      "sha256": "3c398fdc56b1dc06737b68d2434138bf1ba73945bbd57d20a819c2e75fbcf90e"
+    },
+    "cleanup_rocm10_download_partials_r1.py": {
+      "sha256": "fa0b84e1cfc8015d8b7b454e659dd0f82d0749979d8d67838a2d076248c7b4b1"
+    }
+  },
+  "installed_runtime_review": {
+    "file": "benchmarks/correctness/resident-runtime-toolchain-review-20260920.json",
+    "bytes": 10957,
+    "sha256": "59b29be90985022a2d1eee3deda82aba33f27caf362de0bbe7d0d3d99f8ca3ee"
+  },
+  "diagnosis": "The downloaded Windows10.0.0 archive identifies its Clang/LLVM as23.0.0git in executable PE resources, Version.inc, CMake metadata and resource-directory names. HIP metadata identifies7.15.26333. Do not label this artifact LLVM24 from a general release note. Native compiler output, ABI compatibility, driver compatibility and model results remain unmeasured.",
+  "scope": "Static archive inspection and byte-verified transfer only. The package is a potential build input, not an installed engine or new runtime dependency.",
+  "extracted_to_disk": false,
+  "installed": false,
+  "new_windows_sdk_executed": false,
+  "windows_environment_changed": false,
+  "compiler_command_version_observed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "package_acceptance": false,
+  "release_acceptance": false,
+  "recorder": {
+    "file": "record_rocm10_static_archive_review_r1.py",
+    "sha256": "bfc226a2b6003703e23183579bf079d51134aabd27753d986f981948005509e5"
+  }
+}
