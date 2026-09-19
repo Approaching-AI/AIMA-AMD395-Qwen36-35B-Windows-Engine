@@ -1,5 +1,17 @@
 # Completed FLA stages and latency
 
+The original long-context RoPE discrepancy now disappears in the actual
+repaired native run. At2026-09-19T02:44:20.5467488Z, whole32a/FLA1d has completed
+twelve owner chunks. All708 selected comparisons at twelve original positions
+match their BF16 consumer values. Position91018 matches all40 layer carriers
+and ten layer15 attention stages; the decisive Q/RoPE cell is now the original
+-1.9453125. Raw FP32 intermediates before BF16 consumption may still differ.
+The full128k owner/suffix run is active: complete outputs, both512 suffix
+continuations, owner32 and postflight cleanup remain pending. The
+[native boundary observation](../benchmarks/correctness/rope-single-round-native-long-boundary-20260919.json)
+attaches actual command/launch, DLL identities and original GB10 references.
+It does not establish full-model, performance, package or release acceptance.
+
 The retained non-pipelined runtime checks successful HIP submission, end-event synchronization and
 elapsed-time API status before using a completed interval. A finite,
 nonnegative GPU or enclosing monotonic host interval permits continuation.
