@@ -143,7 +143,7 @@ unsigned decoded_preparations=0, decoded_queries=0, fail_decoded_prepare=0;
 unsigned mask_preparations=0, mask_queries=0;
 bool masked_arena=false;
 unsigned range_preparations=0, range_queries=0, fail_range_prepare=0;
-unsigned range_start=0, range_count=0;
+unsigned range_start=0, range_count=0, range_origin=0;
 unsigned long_queries=0,long_domain_preparations=0,long_final_queries=0;
 unsigned selective_qk_queries = 0;
 unsigned value_transposes = 0;
@@ -239,10 +239,10 @@ int prepare_domain(const uint16_t*,const uint16_t*,const Workspace&,hipStream_t)
 int launch_workspace(const void*,const uint16_t*,const uint16_t*,float*,hipStream_t,unsigned,unsigned,unsigned,unsigned){return hipSuccess;}
 }
 namespace qrt_long_narrow_qk {
-struct Workspace {qrt_prepared_decoded_qk_range::Workspace decoded;unsigned *query_domain,*key_domain,*tile_counts;};
+struct Workspace {qrt_prepared_decoded_qk_range::Workspace decoded;unsigned *query_domain,*key_domain,*tile_counts;unsigned query_origin=0u;};
 int prepare_domain(const uint16_t*,const uint16_t*,const Workspace& w,hipStream_t){
     ++long_domain_preparations;
-    if(w.query_domain!=g_sm121_long_pipeline.domain ||
+    if(w.query_origin!=range_origin || w.query_domain!=g_sm121_long_pipeline.domain ||
        uintptr_t(w.key_domain)!=uintptr_t(w.query_domain)+8192u*16u*4u ||
        uintptr_t(w.tile_counts)!=uintptr_t(w.key_domain)+size_t(g_sm121_long_pipeline.domain_capacity)*2u*4u)
         std::abort();
@@ -250,12 +250,13 @@ int prepare_domain(const uint16_t*,const uint16_t*,const Workspace& w,hipStream_
 }
 }
 namespace qrt_prepared_decoded_qk_range {
-int prepare_workspace(const uint16_t*,const uint16_t*,uint16_t* transposed,const Workspace& workspace,hipStream_t) {
+int prepare_workspace_from_query_origin(const uint16_t*,const uint16_t*,uint16_t* transposed,const Workspace& workspace,hipStream_t,unsigned origin) {
     ++range_preparations;range_start=workspace.query_start;range_count=workspace.query_count;
+    range_origin=origin;
     if(!valid(workspace) || workspace.words!=g_sm121_long_decoded_qk.words ||
        workspace.key_capacity!=g_sm121_long_decoded_qk.capacity_tokens ||
        workspace.word_count!=workspace_words(workspace.key_capacity) ||
-       workspace.key_tokens!=range_start+range_count || workspace.key_tokens<=8192u ||
+       workspace.key_tokens!=range_start+range_count || workspace.key_tokens<=8192u || origin>range_start ||
        transposed!=(workspace.key_tokens>kSm121InitialTokens?g_sm121_extended.transposed_keys:g_sm121_transposed_keys))
         std::abort();
     if(fail_range_prepare) return hipErrorUnknown;
@@ -485,7 +486,7 @@ void reset() {
     fused_probability_pv_queries=0;
     float_alignment_queries = 0;decoded_preparations=decoded_queries=fail_decoded_prepare=0;
     mask_preparations=mask_queries=0;masked_arena=false;
-    range_preparations=range_queries=fail_range_prepare=range_start=range_count=0;
+    range_preparations=range_queries=fail_range_prepare=range_start=range_count=range_origin=0;
     long_queries=long_domain_preparations=long_final_queries=0;
     fail_transpose = false;
     preparations = 0; fail_preparation = false;
@@ -1411,6 +1412,16 @@ int main() {
     for(const char* flag:{"QRT_CK_SM121_LONG_ATTENTION_PIPELINE","QRT_CK_SM121_LONG_PREPARED_DECODED_QK",
         "QRT_CK_SM121_LONG_TRANSPOSE_VALUE","QRT_CK_SM121_LONG_DIRECT_PV_OPERANDS"})setenv(flag,"1",1);
     setenv("QRT_CK_SM121_PREFILL_QUERY_BATCH","128",1);
+    for(unsigned start:{8192u,65536u,131072u,262144u}){
+        reset();track_submissions=true;
+        if(launch_sm121_attention(&operand,&operand,&operand,&output,nullptr,start,129u,0u,start)!=hipSuccess ||
+           range_origin!=start || long_queries!=2u || pending_submissions)return 287;
+        reset();
+        if(launch_sm121_attention(&operand,&operand,&operand,&output,nullptr,start,129u,0u,start+1u)!=hipErrorInvalidValue ||
+           allocations || queries)return 288;
+        if(launch_sm121_attention(&operand,&operand,&operand,&output,nullptr,start,1u,0u,start)!=hipErrorInvalidValue ||
+           allocations || queries)return 289;
+    }
     for(unsigned start:{8192u,16384u,32768u,65536u,131072u,262144u,kSm121MaxTokens-129u}) {
         reset();track_submissions=true;
         if(launch(start,129)!=hipSuccess || long_queries!=2u || long_domain_preparations!=1u ||

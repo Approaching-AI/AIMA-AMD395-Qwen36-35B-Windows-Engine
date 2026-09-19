@@ -75,13 +75,14 @@ __global__ void scores(const uint32_t* packed_query, const uint32_t* packed_key,
 }
 
 __device__ __forceinline__ void replay_cell(const uint16_t* query, const uint16_t* key,
-    float* output, size_t cell, unsigned start, unsigned stride, unsigned key_stride) {
+    float* output, size_t cell, unsigned start, unsigned stride, unsigned key_stride,
+    unsigned query_origin = 0u) {
     if (qrt_sm121_f32_carry::bits(output[cell]) != deferred_bits) return;
     const unsigned row = unsigned(cell / stride), column = unsigned(cell % stride);
     const unsigned head = row % qrt_blackwell_attention::kQueryHeads;
     const unsigned kv = head / (qrt_blackwell_attention::kQueryHeads / qrt_blackwell_attention::kKvHeads);
     output[cell] = qrt_decoded_window_qk::raw_dot(
-        query + (size_t(start + row / qrt_blackwell_attention::kQueryHeads) * qrt_blackwell_attention::kQueryHeads + head) * qrt_blackwell_attention::kHeadDim,
+        query + (size_t(start + row / qrt_blackwell_attention::kQueryHeads - query_origin) * qrt_blackwell_attention::kQueryHeads + head) * qrt_blackwell_attention::kHeadDim,
         key + size_t(kv) * qrt_blackwell_attention::kHeadDim * key_stride + column, key_stride);
 }
 __global__ void replay_scan(const uint16_t* query, const uint16_t* key, float* output,
@@ -89,6 +90,13 @@ __global__ void replay_scan(const uint16_t* query, const uint16_t* key, float* o
     const size_t cell = size_t(blockIdx.x) * blockDim.x + threadIdx.x;
     if (cell < size_t(queries) * qrt_blackwell_attention::kQueryHeads * stride)
         replay_cell(query, key, output, cell, start, stride, key_stride);
+}
+__global__ void replay_scan_from_query_origin(const uint16_t* query, const uint16_t* key,
+    float* output, unsigned start, unsigned queries, unsigned stride, unsigned key_stride,
+    unsigned query_origin) {
+    const size_t cell = size_t(blockIdx.x) * blockDim.x + threadIdx.x;
+    if (cell < size_t(queries) * qrt_blackwell_attention::kQueryHeads * stride)
+        replay_cell(query,key,output,cell,start,stride,key_stride,query_origin);
 }
 __global__ void replay_tiles(const uint16_t* query, const uint16_t* key, float* output,
     const unsigned* flags, unsigned start, unsigned queries, unsigned stride, unsigned key_stride) {

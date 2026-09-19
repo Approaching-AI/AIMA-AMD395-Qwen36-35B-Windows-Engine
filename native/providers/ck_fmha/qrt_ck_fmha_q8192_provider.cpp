@@ -263,6 +263,9 @@ struct Sm121SuffixWorkspace {
     unsigned int capacity_tokens = 0u;
 };
 Sm121SuffixWorkspace g_sm121_suffix;
+// The long pipeline consumes compact Q directly; this independent owner
+// stages only complete K/V. Ordinary callers keep their original Q/K/V slab.
+Sm121SuffixWorkspace g_sm121_compact_suffix;
 std::mutex g_sm121_suffix_mutex;
 
 bool sm121_attention_enabled(unsigned int tokens) {
@@ -350,10 +353,12 @@ int prepare_sm121_extended_attention_locked() {
 
 int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const uint16_t* v, float* output, hipStream_t stream,
-    unsigned int query_start, unsigned int query_count, unsigned int output_start) {
+    unsigned int query_start, unsigned int query_count, unsigned int output_start,
+    unsigned int query_origin = 0u) {
     if (!q || !k || !v || !output || query_count == 0u || query_start >= kSm121MaxTokens ||
         query_count > kSm121MaxTokens - query_start || output_start >= kSm121MaxTokens ||
-        query_count > kSm121MaxTokens - output_start) return int(hipErrorInvalidValue);
+        query_count > kSm121MaxTokens - output_start || query_origin > query_start)
+        return int(hipErrorInvalidValue);
     // Expose the already isolated native MMA candidates to real-model gates.
     // 1 changes PV only; 2 changes QK and PV; 3 adds selective exact PV replay.
     // 4 changes QK only and retains the exact complete PV accumulator.
@@ -513,6 +518,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             direct_pv_operands,compact_pv_mode,all_pv_replay,matrix_mode!=0u,
             uses_selective_qk,long_pipeline) || (long_pipeline && !interpolated_exp2))
         return int(hipErrorInvalidValue);
+    if (query_origin && !long_pipeline) return int(hipErrorInvalidValue);
     bool long_final_pv_bound = false;
     if (!qrt_long_attention_layout::select_final_bound(std::getenv("QRT_CK_SM121_LONG_FINAL_PV_BOUND"),
             long_pipeline,long_final_pv_bound)) return int(hipErrorInvalidValue);
@@ -741,8 +747,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         long_decoded_workspace = {g_sm121_long_decoded_qk.words,
             qrt_prepared_decoded_qk_range::workspace_words(capacity), capacity,
             query_start, query_count, key_stride};
-        status = qrt_prepared_decoded_qk_range::prepare_workspace(q, k, transposed_keys,
-            long_decoded_workspace, stream);
+        status = qrt_prepared_decoded_qk_range::prepare_workspace_from_query_origin(q, k, transposed_keys,
+            long_decoded_workspace, stream, query_origin);
         if (status != int(hipSuccess)) { (void)hipStreamSynchronize(stream); return status; }
         if (long_pipeline) {
             constexpr size_t query_words = size_t(8192u)*16u;
@@ -757,7 +763,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             }
             auto* domain = g_sm121_long_pipeline.domain;
             long_narrow_workspace = {long_decoded_workspace,domain,domain+query_words,
-                domain+query_words+size_t(g_sm121_long_pipeline.domain_capacity)*2u};
+                domain+query_words+size_t(g_sm121_long_pipeline.domain_capacity)*2u,query_origin};
             status = qrt_long_narrow_qk::prepare_domain(q,k,long_narrow_workspace,stream);
             if (status != int(hipSuccess)) { (void)hipStreamSynchronize(stream); return status; }
         }
@@ -980,35 +986,43 @@ int launch_sm121_suffix_attention(
             return int(hipErrorInvalidValue);
     }
     if (!sm121_attention_enabled(total)) return int(hipErrorNotSupported);
-    // The exact kernels index Q by absolute position. Stage the compact suffix
-    // at that position and assemble the complete KV history without recomputing
-    // prefix projections. Prefix Q cells are never read by this query span.
+    // Ordinary kernels index Q by absolute position. The long range pipeline
+    // can consume the compact caller Q with an explicit absolute origin. Both
+    // assemble complete KV without recomputing any prefix projection.
     // Every call refreshes all consumed cells, even when the addresses repeat.
     std::lock_guard<std::mutex> lock(g_sm121_suffix_mutex);
-    if (g_sm121_suffix.capacity_tokens < total) {
-        const auto status = qrt_discardable_workspace::grow(g_sm121_suffix.cells,
-            g_sm121_suffix.capacity_tokens,total,
-            size_t(total) * (kQueryFeatures + 2u * kKvFeatures) * sizeof(uint16_t));
+    const char* long_option=std::getenv("QRT_CK_SM121_LONG_ATTENTION_PIPELINE");
+    const bool compact_query=suffix_tokens>1u && suffix_tokens<=8192u && total>8192u &&
+        long_option && std::strcmp(long_option,"1")==0;
+    auto& owner=compact_query?g_sm121_compact_suffix:g_sm121_suffix;
+    if (owner.capacity_tokens < total) {
+        const auto status = qrt_discardable_workspace::grow(owner.cells,
+            owner.capacity_tokens,total,
+            size_t(total) * ((compact_query?0u:kQueryFeatures) + 2u * kKvFeatures) * sizeof(uint16_t));
         if (status != hipSuccess) return int(status);
     }
-    auto* staged_q = g_sm121_suffix.cells;
-    auto* staged_k = staged_q + size_t(g_sm121_suffix.capacity_tokens) * kQueryFeatures;
-    auto* staged_v = staged_k + size_t(g_sm121_suffix.capacity_tokens) * kKvFeatures;
-    void* destinations[] = {staged_q + size_t(prefix_tokens) * kQueryFeatures,
+    auto* staged_q = owner.cells;
+    auto* staged_k = owner.cells + (compact_query?0u:size_t(owner.capacity_tokens) * kQueryFeatures);
+    auto* staged_v = staged_k + size_t(owner.capacity_tokens) * kKvFeatures;
+    void* destinations[] = {compact_query?nullptr:staged_q + size_t(prefix_tokens) * kQueryFeatures,
         staged_k, staged_v, staged_k + size_t(prefix_tokens) * kKvFeatures,
         staged_v + size_t(prefix_tokens) * kKvFeatures};
-    for (unsigned int i = 0u; i < 5u; ++i) {
+    for (unsigned int i = compact_query?1u:0u; i < 5u; ++i) {
         const auto status = hipMemcpyAsync(destinations[i], inputs[i], sizes[i], hipMemcpyDeviceToDevice, stream);
         if (status != hipSuccess) {
             (void)hipStreamSynchronize(stream);
             return int(status);
         }
     }
-    const int status = launch_sm121_attention(staged_q, staged_k, staged_v, output,
-        stream, prefix_tokens, suffix_tokens, 0u);
+    const int status = launch_sm121_attention(compact_query?q:staged_q, staged_k, staged_v, output,
+        stream, prefix_tokens, suffix_tokens, 0u,compact_query?prefix_tokens:0u);
     // Drain submitted copies too when a later launcher validation fails. The
     // caller can immediately discard its transaction after any failed call.
     if (status != int(hipSuccess)) (void)hipStreamSynchronize(stream);
+    if (compact_query && status == int(hipSuccess))
+        std::fprintf(stderr,"SM121_COMPACT_SUFFIX_QUERY prefix_tokens=%u suffix_tokens=%u staging_capacity=%u staging_bytes=%zu query_staging_bytes=0 copies=4 original_q_view=1 stream_drained=1\n",
+            prefix_tokens,suffix_tokens,owner.capacity_tokens,
+            size_t(owner.capacity_tokens)*2u*kKvFeatures*sizeof(uint16_t));
     return status;
 }
 
@@ -1811,6 +1825,8 @@ QRT_CK_EXPORT int qrt_ck_fmha_q8192_release() {
 #if defined(QRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL)
     std::lock_guard<std::mutex> suffix_lock(g_sm121_suffix_mutex);
     (void)hipFree(g_sm121_suffix.cells);
+    (void)hipFree(g_sm121_compact_suffix.cells);
+    g_sm121_compact_suffix = Sm121SuffixWorkspace{};
     g_sm121_suffix = Sm121SuffixWorkspace{};
     {
         std::lock_guard<std::mutex> tables_lock(g_sm121_mutex);

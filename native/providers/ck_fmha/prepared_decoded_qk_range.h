@@ -13,14 +13,16 @@ __global__ void scores(const uint16_t* query, const uint16_t* transposed_key,
         packed_key, query_flags, key_flags, output, start, count, stride, key_stride, query_origin);
 }
 
-inline int prepare_workspace(const uint16_t* query, const uint16_t* key,
-    uint16_t* transposed, const Workspace& workspace, hipStream_t stream) {
-    if (!query || !key || !transposed || !valid(workspace)) return int(hipErrorInvalidValue);
+inline int prepare_workspace_from_query_origin(const uint16_t* query, const uint16_t* key,
+    uint16_t* transposed, const Workspace& workspace, hipStream_t stream,
+    unsigned query_origin) {
+    if (!query || !key || !transposed || !valid(workspace) ||
+        query_origin > workspace.query_start) return int(hipErrorInvalidValue);
     auto* q = workspace.words;
     auto* k = q + query_words;
     auto* qflags = k + key_words(workspace.key_capacity);
     auto* kflags = qflags + query_flag_words;
-    const size_t query_offset = size_t(workspace.query_start) * qrt_blackwell_attention::kQueryHeads * qrt_blackwell_attention::kHeadDim;
+    const size_t query_offset = size_t(workspace.query_start - query_origin) * qrt_blackwell_attention::kQueryHeads * qrt_blackwell_attention::kHeadDim;
     hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_prepared_decoded_qk::prepare<false>),
         dim3(workspace.query_count * qrt_blackwell_attention::kQueryHeads),
         dim3(qrt_blackwell_attention::kHeadDim), 0u, stream,
@@ -32,6 +34,11 @@ inline int prepare_workspace(const uint16_t* query, const uint16_t* key,
         dim3(qrt_blackwell_attention::kHeadDim), 0u, stream,
         key, k, kflags, transposed, workspace.key_tokens);
     return int(hipGetLastError());
+}
+
+inline int prepare_workspace(const uint16_t* query, const uint16_t* key,
+    uint16_t* transposed, const Workspace& workspace, hipStream_t stream) {
+    return prepare_workspace_from_query_origin(query,key,transposed,workspace,stream,0u);
 }
 
 inline int launch_workspace(const void* state, const uint16_t* query,

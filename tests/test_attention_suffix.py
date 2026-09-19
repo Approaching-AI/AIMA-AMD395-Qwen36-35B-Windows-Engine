@@ -21,7 +21,9 @@ class AttentionSuffixTests(unittest.TestCase):
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <initializer_list>
 #include <mutex>
 #include <set>
@@ -33,17 +35,18 @@ constexpr unsigned kQueryFeatures=4096,kKvFeatures=512,kSm121MaxTokens=qrt_sm121
 constexpr unsigned kPrefillChunkTokens=8192;
 constexpr int hipMemcpyDeviceToDevice=1;
 ''' + workspace + r'''
-Sm121SuffixWorkspace g_sm121_suffix;
+Sm121SuffixWorkspace g_sm121_suffix,g_sm121_compact_suffix;
 std::mutex g_sm121_suffix_mutex;
 unsigned copies=0,launches=0,syncs=0,allocations=0,fail_copy=0,expected_prefix=0,expected_suffix=0;
-bool fail_allocate=false,fail_launch=false,enabled=true;
+bool fail_allocate=false,fail_launch=false,enabled=true,expected_compact=false;
+size_t last_allocation_bytes=0;
 const void* expected_inputs[5]{};
 float* expected_output=nullptr;
 hipStream_t expected_stream=reinterpret_cast<void*>(uintptr_t(16));
 std::set<void*> live;
 bool sm121_attention_enabled(unsigned n){assert(n<=kSm121MaxTokens);return enabled;}
 hipError_t hipMalloc(void** p,size_t bytes){
- ++allocations;
+ ++allocations;last_allocation_bytes=bytes;
  if(fail_allocate){*p=nullptr;return hipErrorUnknown;}
  *p=std::malloc(bytes);assert(*p);assert(live.insert(*p).second);return hipSuccess;
 }
@@ -51,24 +54,30 @@ hipError_t hipFree(void* p){if(p){assert(live.erase(p)==1);std::free(p);}return 
 hipError_t hipStreamSynchronize(hipStream_t stream){assert(stream==expected_stream);++syncs;return hipSuccess;}
 hipError_t hipMemcpyAsync(void* out,const void* in,size_t bytes,int kind,hipStream_t stream){
  assert(kind==hipMemcpyDeviceToDevice&&stream==expected_stream&&copies<5);
- auto* q=g_sm121_suffix.cells;
- auto* k=q+size_t(g_sm121_suffix.capacity_tokens)*4096;
- auto* v=k+size_t(g_sm121_suffix.capacity_tokens)*512;
- void* destinations[]={q+size_t(expected_prefix)*4096,k,v,k+size_t(expected_prefix)*512,v+size_t(expected_prefix)*512};
+ auto& owner=expected_compact?g_sm121_compact_suffix:g_sm121_suffix;
+ auto* q=owner.cells;
+ auto* k=q+(expected_compact?0u:size_t(owner.capacity_tokens)*4096u);
+ auto* v=k+size_t(owner.capacity_tokens)*512;
+ void* destinations[]={expected_compact?nullptr:q+size_t(expected_prefix)*4096,k,v,k+size_t(expected_prefix)*512,v+size_t(expected_prefix)*512};
  const size_t sizes[]={size_t(expected_suffix)*8192,size_t(expected_prefix)*1024,size_t(expected_prefix)*1024,
                        size_t(expected_suffix)*1024,size_t(expected_suffix)*1024};
- assert(out==destinations[copies]&&in==expected_inputs[copies]&&bytes==sizes[copies]);
+ const unsigned index=copies+(expected_compact?1u:0u);
+ assert(index<5u&&out==destinations[index]&&in==expected_inputs[index]&&bytes==sizes[index]);
  return ++copies==fail_copy?hipErrorUnknown:hipSuccess;
 }
 int launch_sm121_attention(const uint16_t* q,const uint16_t* k,const uint16_t* v,float* out,
- hipStream_t stream,unsigned start,unsigned count,unsigned output_start){
- ++launches;assert(copies==5&&start==expected_prefix&&count==expected_suffix&&output_start==0);
- assert(q==g_sm121_suffix.cells&&k==q+size_t(g_sm121_suffix.capacity_tokens)*4096);
- assert(v==k+size_t(g_sm121_suffix.capacity_tokens)*512&&out==expected_output&&stream==expected_stream);
+ hipStream_t stream,unsigned start,unsigned count,unsigned output_start,unsigned query_origin){
+ auto& owner=expected_compact?g_sm121_compact_suffix:g_sm121_suffix;
+ ++launches;assert(copies==(expected_compact?4u:5u)&&start==expected_prefix&&count==expected_suffix&&output_start==0);
+ assert(q==(expected_compact?expected_inputs[0]:owner.cells));
+ assert(k==owner.cells+(expected_compact?0u:size_t(owner.capacity_tokens)*4096u));
+ assert(query_origin==(expected_compact?expected_prefix:0u));
+ assert(v==k+size_t(owner.capacity_tokens)*512&&out==expected_output&&stream==expected_stream);
  return fail_launch?hipErrorUnknown:hipSuccess;
 }
 ''' + implementation + r'''
 int main(){
+ unsetenv("QRT_CK_SM121_LONG_ATTENTION_PIPELINE");
  // Only mock transport inspects these allocations; no data pages need touching.
  for(unsigned i=0;i<5;++i){expected_inputs[i]=std::malloc(i?size_t(kSm121MaxTokens)*1024u:8192u*8192u);assert(expected_inputs[i]);}
  expected_output=static_cast<float*>(std::malloc(8192u*4096u*4u));assert(expected_output);
@@ -115,7 +124,31 @@ int main(){
  assert(call(32700,69)==hipSuccess&&copies==5);
  assert(call(kSm121MaxTokens-1024,1024)==hipSuccess&&g_sm121_suffix.capacity_tokens==kSm121MaxTokens&&live.size()==1);
  assert(call(16384,1024)==hipSuccess&&copies==5);
- hipFree(g_sm121_suffix.cells);assert(live.empty());
+ retained=g_sm121_suffix.cells;
+ setenv("QRT_CK_SM121_LONG_ATTENTION_PIPELINE","1",1);expected_compact=true;
+ fail_allocate=true;
+ assert(call(8192,8192)==hipErrorUnknown&&!g_sm121_compact_suffix.cells&&g_sm121_suffix.cells==retained&&live.size()==1);
+ fail_allocate=false;
+ for(auto shape:{std::pair<unsigned,unsigned>{8192,8192},{16384,129},{32768,1024},
+                 {131072,8192},{262144,1024},{kSm121MaxTokens-2u,2u}}){
+  assert(call(shape.first,shape.second)==hipSuccess&&copies==4&&launches==1&&live.size()==2);
+  assert(last_allocation_bytes==size_t(g_sm121_compact_suffix.capacity_tokens)*2048u);
+  assert(g_sm121_suffix.cells==retained);
+ }
+ auto* compact=g_sm121_compact_suffix.cells;before=allocations;
+ std::swap(expected_inputs[1],expected_inputs[2]);
+ assert(call(262144,1024)==hipSuccess&&copies==4&&allocations==before&&g_sm121_compact_suffix.cells==compact);
+ std::swap(expected_inputs[1],expected_inputs[2]);
+ for(unsigned i=1;i<=4;++i){
+  fail_copy=i;assert(call(262144,1024)==hipErrorUnknown&&copies==i&&!launches&&syncs==1);
+ }
+ fail_copy=0;fail_launch=true;
+ assert(call(262144,1024)==hipErrorUnknown&&copies==4&&launches==1&&syncs==1);
+ fail_launch=false;expected_compact=false;
+ assert(call(262144,1)==hipSuccess&&copies==5&&allocations==before);
+ unsetenv("QRT_CK_SM121_LONG_ATTENTION_PIPELINE");
+ assert(call(262144,1024)==hipSuccess&&copies==5&&g_sm121_suffix.cells==retained&&g_sm121_compact_suffix.cells==compact);
+ hipFree(g_sm121_suffix.cells);hipFree(g_sm121_compact_suffix.cells);assert(live.empty());
  for(auto p:expected_inputs)std::free(const_cast<void*>(p));std::free(expected_output);
 }
 '''
@@ -124,4 +157,9 @@ int main(){
             subprocess.run(['c++','-std=c++17','-O2','-Wall','-Wextra','-Werror',
                 '-fsanitize=undefined','-fno-sanitize-recover=all','-x','c++','-','-o',exe],
                 input=source,text=True,check=True,timeout=30)
-            subprocess.run([exe],check=True,timeout=15,capture_output=True)
+            result = subprocess.run([exe],check=True,timeout=15,capture_output=True,text=True)
+            markers = [line for line in result.stderr.splitlines()
+                       if line.startswith('SM121_COMPACT_SUFFIX_QUERY ')]
+            self.assertEqual(len(markers), 7)
+            self.assertTrue(all('query_staging_bytes=0 copies=4 original_q_view=1 stream_drained=1'
+                                in line for line in markers))

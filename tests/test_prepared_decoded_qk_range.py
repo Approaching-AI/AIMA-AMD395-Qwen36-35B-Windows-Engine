@@ -13,7 +13,8 @@ class PreparedDecodedQkRangeTests(unittest.TestCase):
     def test_query_origin_views_and_failed_submissions(self):
         header = (ROOT / 'native/providers/ck_fmha/prepared_decoded_qk_range.h').read_text()
         actual = '\n'.join(function(header, name) for name in
-                           ('inline int prepare_workspace(', 'inline int launch_workspace('))
+                           ('inline int prepare_workspace_from_query_origin(',
+                            'inline int prepare_workspace(', 'inline int launch_workspace('))
         source = r'''
 #include <cstdlib>
 #include <memory>
@@ -102,6 +103,25 @@ int main() {
        score_views[3]!=flags[1] || score_views[4]!=reinterpret_cast<uintptr_t>(&output))return 7;
     launches=0;if(score(145,1,146,146)!=hipSuccess || launches!=1u || score_shape[4]!=17u)return 8;
     launches=0;fail=1;if(score(17,128,145,146)!=hipErrorUnknown || launches!=1u)return 9;
+    // The same absolute range can start at the first cell of a compact Q
+    // allocation. Intermediate origins and both failed submissions retain
+    // the original logical metadata and complete K preparation.
+    std::unique_ptr<uint16_t[]> compact(new uint16_t[129u*16u*256u]);
+    for(unsigned origin:{0u,5u,17u}){
+        launches=fail=0;
+        const auto* q=origin==17u?compact.get():query.get();
+        if(prepare_workspace_from_query_origin(q,&key,&transposed,w,nullptr,origin)!=hipSuccess ||
+           launches!=2u || inputs[0]!=reinterpret_cast<uintptr_t>(q+(17u-origin)*4096u) ||
+           prepared_tokens[0]!=129u || prepared_tokens[1]!=146u)return 10;
+    }
+    for(unsigned failure:{1u,2u}){
+        launches=0;fail=failure;
+        if(prepare_workspace_from_query_origin(compact.get(),&key,&transposed,w,nullptr,17u)!=hipErrorUnknown ||
+           launches!=failure)return 11;
+    }
+    launches=fail=0;
+    for(unsigned origin:{18u,UINT32_MAX})
+        if(prepare_workspace_from_query_origin(compact.get(),&key,&transposed,w,nullptr,origin)!=hipErrorInvalidValue || launches)return 12;
     return 0;
 }
 '''

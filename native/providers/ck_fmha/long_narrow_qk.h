@@ -122,10 +122,14 @@ struct Workspace {
     unsigned* query_domain=nullptr;
     unsigned* key_domain=nullptr;
     unsigned* tile_counts=nullptr;
+    // Absolute token represented by query[0]. Prepared rows retain their
+    // existing query_start origin; only original BF16 reads use this view.
+    unsigned query_origin=0u;
 };
 inline bool valid(const Workspace& w) {
     return qrt_prepared_decoded_qk_range::valid(w.decoded) &&
-        w.query_domain && w.key_domain && w.tile_counts;
+        w.query_domain && w.key_domain && w.tile_counts &&
+        w.query_origin <= w.decoded.query_start;
 }
 inline int prepare_domain(const uint16_t* query,const uint16_t* key,
     const Workspace& w,hipStream_t stream) {
@@ -135,7 +139,7 @@ inline int prepare_domain(const uint16_t* query,const uint16_t* key,
     const auto& d=w.decoded;
     hipLaunchKernelGGL(qrt_narrow_domain_qk::classify_rows,
         dim3(d.query_count*16u),dim3(256u),0u,stream,
-        query+size_t(d.query_start)*4096u,w.query_domain,d.query_count*16u);
+        query+size_t(d.query_start-w.query_origin)*4096u,w.query_domain,d.query_count*16u);
     status=hipGetLastError();if(status!=hipSuccess)return int(status);
     hipLaunchKernelGGL(qrt_narrow_domain_qk::classify_rows,
         dim3(d.key_tokens*2u),dim3(256u),0u,stream,key,w.key_domain,d.key_tokens*2u);
@@ -162,9 +166,9 @@ inline int launch_workspace(const void* state,const uint16_t* query,
         q,k,qflags,kflags,w.query_domain,w.key_domain,output,w.tile_counts,
         start,count,stride,key_stride,d.query_start);
     status=hipGetLastError();if(status!=hipSuccess)return int(status);
-    hipLaunchKernelGGL(qrt_deferred_qk_fallback::replay_scan,
+    hipLaunchKernelGGL(qrt_deferred_qk_fallback::replay_scan_from_query_origin,
         dim3((size_t(count)*16u*stride+255u)/256u),dim3(256u),0u,stream,
-        query,transposed_key,output,start,count,stride,key_stride);
+        query,transposed_key,output,start,count,stride,key_stride,w.query_origin);
     return int(hipGetLastError());
 }
 } // namespace qrt_long_narrow_qk

@@ -15,20 +15,22 @@ struct RangePrepared {
     double common_ms=0.0,domain_ms=0.0;
     RangePrepared(const uint16_t* q,const uint16_t* k,uint16_t* kt,
         const std::vector<uint16_t>& hq,const std::vector<uint16_t>& hk,
-        unsigned n,unsigned origin,unsigned queries):
+        unsigned n,unsigned origin,unsigned queries,unsigned query_origin=0u):
         memory(range::workspace_words(n)*4u),query_domain(size_t(queries)*16u*4u),
         key_domain(size_t(n)*2u*4u),statistics(8u),
         expected(range::workspace_words(n),0xa5a5a5a5u),
         expected_query(size_t(queries)*16u,1u),expected_key(size_t(n)*2u,1u),
         workspace{{memory.as<uint32_t>(),range::workspace_words(n),n,origin,queries,n},
-            query_domain.as<unsigned>(),key_domain.as<unsigned>(),statistics.as<unsigned>()} {
+            query_domain.as<unsigned>(),key_domain.as<unsigned>(),statistics.as<unsigned>(),query_origin} {
+        if(query_origin>origin || hq.size()!=size_t(n-query_origin)*4096u)
+            throw std::runtime_error("range query origin or source extent");
         finish();auto begin=std::chrono::steady_clock::now();
-        check(hipError_t(range::prepare_workspace(q,k,kt,workspace.decoded,nullptr)));finish();common_ms=elapsed(begin);
+        check(hipError_t(range::prepare_workspace_from_query_origin(q,k,kt,workspace.decoded,nullptr,query_origin)));finish();common_ms=elapsed(begin);
         begin=std::chrono::steady_clock::now();
         check(hipError_t(qrt_long_narrow_qk::prepare_domain(q,k,workspace,nullptr)));finish();domain_ms=elapsed(begin);
         for(unsigned key=0;key<2u;++key) {
             const unsigned heads=key?2u:16u,rows=(key?n:queries)*heads;
-            const auto* source=key?hk.data():hq.data()+size_t(origin)*4096u;
+            const auto* source=key?hk.data():hq.data()+size_t(origin-query_origin)*4096u;
             auto& domain=key?expected_key:expected_query;
             const size_t offset=key?range::query_words:0u;
             const size_t flags=range::query_words+range::key_words(n)+(key?range::query_flag_words:0u);
