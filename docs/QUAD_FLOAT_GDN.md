@@ -38,13 +38,37 @@ extension are prepared. The extension repeats captured rows and is a component
 diagnostic; only a subsequent original-token q8192 model run can establish
 product correctness or performance.
 
-The provider dispatch and packaged profile are unchanged. Native compilation,
-GPU numerical checks, register/resource measurements and product comparison
-remain pending. No performance improvement or release acceptance is claimed.
+The candidate now compiles on baiying in8786.385 ms. All336 native generated
+configurations pass in7096.39 ms. Original q7169 capture, q8192 capture
+extension and both generated throughput families also pass, including every
+warmup and measured attempt, intermediate, alias, guard and original boundary.
+The q7169 capture checks29364224 original output/W/U/residual cells each,
+113 complete checkpoints and524288 final FP32 state cells. The q8192 extension
+still repeats1024 rows after7168 original rows and is a component diagnostic.
+
+Completed component medians for the captured production U=V ownership are:
+
+| Query count | Retained scalar ms | Quad W/U + output ms | Quad state added ms |
+| --- | ---: | ---: | ---: |
+|7169|72.998|104.9623|131.1464|
+|8192 extension|84.1881|121.1518|152.1352|
+
+This schedule is not selected for runtime integration. It is substantially
+slower in the complete captured component, so it supplies no promising model
+performance route. Compiler VGPR counts rise from78 to82 for W/U,77 to98 for
+output and113 to122 for state. LDS sizes are unchanged; all seven selected
+control/candidate kernels have zero private allocation and spills. These
+static counts do not establish measured occupancy or the cause of slowdown.
+
+The [native component evidence](../benchmarks/correctness/quad-float-gdn-native-components-20260919.json)
+attaches all five completed runs, original GB10 files, resource extraction,
+362 verified build fingerprints and the independently walked23-file local
+include closure. The provider dispatch and packaged profile remain unchanged.
+No real-model, retained-performance or release acceptance is claimed.
 
 Source `50cc22d`, the local arithmetic and host checks, and the prepared native
 commands are recorded in
 [`pending-native-candidates-20260919.json`](../benchmarks/correctness/pending-native-candidates-20260919.json).
-The command file passes the actual Windows PowerShell parser. Native dispatch
-requires the active original 256k owner's completed host cleanup record;
-parsing has not executed the fixture or loaded the model.
+The command file passes the actual Windows PowerShell parser. The native runs
+above follow completed model cleanup and finish before the new full256k
+memory-candidate run. The grammar check itself executed no fixture or model.

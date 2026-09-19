@@ -41,15 +41,29 @@ verified. Host and cleanup checks pass. The13510144-byte whole-provider DLL
 has SHA256 `91652d9566246289c51df12b822e681672ff2a7cc5616a49325a8e44c70964dc`.
 The [native build record](../benchmarks/correctness/prefill-scratch-reuse-native-build-20260919.json)
 also attaches the local ownership and C cold/stream regressions. Original-token
-model checks and measured allocation reuse, system memory and latency remain
-pending. The build itself supplies no inference or release acceptance.
+model and allocation observations follow below. The build itself supplies no
+inference or release acceptance.
 
 The original q8192/out512 model regression then passes with CK3701495, FLA1d
 and MoE923: all512 IDs and callbacks match, first logit10.375 has zero error,
 and source/cleanup checks pass. Load is21217.0047 ms, TTFT23389.703 ms and
 TPOT101.084037 ms. This [q8192 result](../benchmarks/correctness/scratch-compact-query-native-q8192-20260919.json)
 does not enter the cold-chunk reuse scope and is a single functional sample.
-The separate original cold32k/out512 activation check is running.
+The separate original cold32k/out512 activation check also passes all512 IDs,
+callbacks, four chunks and first logit24.75/error0. All30 compact-Q activations
+and the cross-chunk reuse marker pass, with no outstanding temporary handoffs.
+Load is21292.5142 ms, TTFT257495.8903 ms and TPOT209.394177 ms. See the
+[original cold32k result](../benchmarks/correctness/scratch-compact-query-cold32k-out512-20260919.json).
+
+After the seed, the three suffixes make3234 pool requests but only32 new
+allocations, versus three separate32-allocation scopes in the compact-Q-only
+control. All3234 handoffs are returned; cached storage stays2756558868 bytes.
+This demonstrates native application allocation reuse. Minimum sampled system
+available physical memory is21861294080 bytes, compared with21889257472 for
+compact Q alone and21916213248 for the b35/ea6 control. The
+[three-run memory record](../benchmarks/correctness/compact-query-cold32k-memory-reuse-20260919.json)
+does not show a physical-memory benefit or establish full256k capacity. No
+retained performance or release qualification follows from these single runs.
 
 [Preparation evidence](../benchmarks/correctness/prefill-scratch-reuse-preparation-20260919.json)
 pins source `3348836`, the passing local checks and the bounded Windows build.
