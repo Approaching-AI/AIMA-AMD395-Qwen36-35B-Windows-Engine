@@ -1,0 +1,3853 @@
+{
+  "schema_version": 1,
+  "name": "Certified GDN dot omission preparation",
+  "source_commit": "29d389b584ca76fdefc359a946b198d7eb478c1f",
+  "model_or_reference": "Original GB10 Qwen3.6-35B-A3B layer0/layer1 q7169 captures; no model loaded",
+  "local_validation": {
+    "host": "Jiawei-MacminideMac-mini.local",
+    "source_sha256": {
+      "native/providers/gdn/absolute_dot_bound.h": "1a13b810c8d667f154859433ac78c13f442b77152940a9bc1a3e81668ed8a90e",
+      "native/providers/gdn/absolute_bound_matrices.h": "e2927c981b085bd8fc5c23a3d9e4628607840b75e6bfb6bf245057f4d33512ac",
+      "native/providers/gdn/consumer_interval.h": "f21ecbf1836b9a1c5b72e2408d303c89fe46d229d888271f70ec5a47170cacfa",
+      "native/providers/gdn/blackwell_lifetime_matrices.h": "fd252e85a357d15d7319be06e6172eee69b0ab10369ae2702219e1a07ee7acce",
+      "native/providers/gdn/blackwell_scalar_matrices.h": "b5afca4c6505188b010dea011493b839499aa3dc1972109b2e29d9111d521aaf",
+      "native/providers/moe_accumulator/sm121_projection_interval.h": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+      "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+      "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+      "tests/native/absolute_bound_gdn_selftest.cpp": "1be34dc6181ad149f538a4fbf9341cc7bffdc17e4f7ebac1ef4f1ac9e1728a39",
+      "tests/native/absolute_bound_gdn_host.cpp": "7fd02c1b70d95113ac6cebef2cf5cb81e5c2e8100faa0338a6cb68fb7441a55b",
+      "tests/native/gdn_absolute_dot_bound_host.cpp": "6973a3486efe1da63fd436663781254b8365c7cdd685cfb8fe6dc87c87b2655b",
+      "tests/test_gdn_absolute_dot_bound.py": "79cb2e52e665ef5f2cfc37f1112d700e0abce273b9afd3e1221f83f80b60be2a",
+      "tests/test_fla_absolute_bound.py": "25af801b01eb142690246f6337feec2e8ea46b0fb2022d130a95f31ab35b1c0a",
+      "tests/test_gdn_consumer_interval.py": "7725148bec1b604b149346ad04d537553203c4c9687b98f455c1f7fbd9e802f7",
+      "docs/ABSOLUTE_BOUND_GDN.md": "f328932fe0396f11b3662445bb584e58c9a95c7a17457cfa894f4235cf684de8"
+    },
+    "checks": [
+      {
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-p",
+          "test_gdn_absolute_dot_bound.py",
+          "-v"
+        ],
+        "returncode": 0,
+        "seconds": 0.7529731672257185,
+        "stdout_sha256": "1c6a2c2a6365eb0e992e1d0bc5232a2d9d8516ee10e8bdd9fac8ad5c091f5f27",
+        "stderr_sha256": "32f0e1df73c4226e05f8c029004b779c9a0d2019879f8103ffc5b291300f5cdd"
+      },
+      {
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-p",
+          "test_fla_absolute_bound.py",
+          "-v"
+        ],
+        "returncode": 0,
+        "seconds": 1.6380761675536633,
+        "stdout_sha256": "b777485d9806dc01c99ed59be58ecf774304df5979977617152764986f60775c",
+        "stderr_sha256": "58099c463789010975e204579c01f379dd85ee2877fa7fe399d39d07d537e4d7"
+      },
+      {
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-p",
+          "test_gdn_consumer_interval.py",
+          "-v"
+        ],
+        "returncode": 0,
+        "seconds": 0.5022806664928794,
+        "stdout_sha256": "98928fb1fc0510b4b19006bd84182bf3a42736f3528f9e752db017fbdfb5298e",
+        "stderr_sha256": "398d50e23bacc88b97ef10792c421ad11166533763d96cabc731da184e853820"
+      },
+      {
+        "command": [
+          "make",
+          "c-smoke"
+        ],
+        "returncode": 0,
+        "seconds": 0.017230750061571598,
+        "stdout_sha256": "e753f9141ab0fe986c48a173957b30ed8564e0ad8b8d475962c80b0cd630960c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "returncode": 0,
+        "seconds": 0.011220707558095455,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": [
+          "python3",
+          "tools/public_hygiene.py"
+        ],
+        "returncode": 0,
+        "seconds": 12.862477917224169,
+        "stdout_sha256": "ae116979fe56d24a6cdcbb5bdbf28313bd51c3034eba393cd422c0275969c780",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "independent_accumulator_dots": 32768,
+    "actual_kernel_host_cases": 8,
+    "actual_kernel_bodies": true,
+    "host_cta_threads": 128,
+    "native_cta_threads": 256,
+    "both_residual_consumers_checked": true,
+    "original_fp32_state": true,
+    "compacted_replay_and_barriers_checked": true,
+    "runtime_dispatch_changed": false,
+    "native_build_run": false,
+    "model_loaded": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_acceptance": false,
+    "runner_sha256": "73af8c12c5c347c1bd4b6023343039f73a7c07b4b5c5c5b5b2e204717ebd2803"
+  },
+  "local_validation_sha256": "0c0718fc67578fbc0b6a131a7e3c0e70664cf69e50766757cee4a8ef9ef46867",
+  "capture_admission_audit": {
+    "host": "Jiawei-MacminideMac-mini.local",
+    "source_commit": "77a35161251eda37486930c8505561181124a037",
+    "source_sha256": {
+      "native/providers/gdn/absolute_dot_bound.h": "1a13b810c8d667f154859433ac78c13f442b77152940a9bc1a3e81668ed8a90e",
+      "native/providers/gdn/consumer_interval.h": "f21ecbf1836b9a1c5b72e2408d303c89fe46d229d888271f70ec5a47170cacfa",
+      "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+      "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+      "native/providers/moe_accumulator/sm121_projection_interval.h": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+      "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7"
+    },
+    "unit_sha256": "7d52d5e8ab4c90e7c9a948f33f537b42949c410ddaec6e3eed3abe068bb4c2ce",
+    "runner_sha256": "549f49c46102d39b3c0bd9fe627214b48ce61e8b0c356de9a8458c910dcdb5c6",
+    "checks": [
+      {
+        "command": [
+          "c++",
+          "-std=c++17",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-ffp-contract=off",
+          "-fsanitize=address,undefined",
+          "-fno-sanitize-recover=all",
+          "-I",
+          "PUBLIC_CHECKOUT",
+          "PRIVATE_CHECKOUT/build/recovery-20260910/audit_gdn_absolute_dot_bound_r1.cpp",
+          "-o",
+          "PRIVATE_CHECKOUT/build/recovery-20260910/gdn-absolute-dot-bound-r2/audit"
+        ],
+        "returncode": 0,
+        "seconds": 0.5622347090393305,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": [
+          "PRIVATE_CHECKOUT/build/recovery-20260910/gdn-absolute-dot-bound-r2/audit",
+          "PRIVATE_CHECKOUT/build/release-b802-local/q7169-gdn-stage-compare/gb10",
+          "PRIVATE_CHECKOUT/build/recovery-20260910/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin"
+        ],
+        "returncode": 0,
+        "seconds": 1.5885715000331402,
+        "stdout_sha256": "5f07cc3512de08348c9f449b07a32051a63f4060c347ebbb82173d3e5c56cd6e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": [
+          "PRIVATE_CHECKOUT/build/recovery-20260910/gdn-absolute-dot-bound-r2/audit",
+          "PRIVATE_CHECKOUT/build/release-b802-local/q7169-gdn-stage-compare/gb10-layer1",
+          "PRIVATE_CHECKOUT/build/recovery-20260910/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin"
+        ],
+        "returncode": 0,
+        "seconds": 1.1640682090073824,
+        "stdout_sha256": "2c5d31a6290b194284de14040beb3ebef1d617d35960604207ddb2bd4e10ec70",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "captures": [
+      {
+        "directory": "gb10",
+        "files": {
+          "w": {
+            "file": "full-w-bf16.bin",
+            "bytes": 58728448,
+            "sha256": "5cc5baa0e2f85758c28c06f03d8b87d5cff82b361b3382d7b531e2927e545545",
+            "shape": [
+              1,
+              7169,
+              32,
+              128
+            ],
+            "descriptor_sha256": "f677dff1dda3b88f3727969d84ca9f526b45dc86d8902b03adb12dce93414498"
+          },
+          "u": {
+            "file": "full-u-bf16.bin",
+            "bytes": 58728448,
+            "sha256": "1b4d91596e6554314647111d1dfa156517be6afae313cd69cf51234dfd955cfb",
+            "shape": [
+              1,
+              7169,
+              32,
+              128
+            ],
+            "descriptor_sha256": "47f7b0efb67db3e0c51eced6322f67b7bc6a73af4fb45100bc1d0af05757358f"
+          },
+          "v-new": {
+            "file": "full-v-new-bf16.bin",
+            "bytes": 58728448,
+            "sha256": "b6fd8d6801622a4b7dc00490a6abee2e584df5e21b907f66eb6fa986a3d2229f",
+            "shape": [
+              1,
+              7169,
+              32,
+              128
+            ],
+            "descriptor_sha256": "409ce7f5ca9b8993c35cde69402c8376d05591c18aa79fe550d292d2b94bf775"
+          },
+          "output": {
+            "file": "full-output-bf16.bin",
+            "bytes": 58728448,
+            "sha256": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde",
+            "shape": [
+              1,
+              7169,
+              32,
+              128
+            ],
+            "descriptor_sha256": "98f47fffc574b0b004a248957971cc9a08dd70c517947c94056a8dd146e56932"
+          },
+          "q-normalized": {
+            "file": "full-q-normalized-bf16.bin",
+            "bytes": 29364224,
+            "sha256": "a6c81d03c850de6745ecc0e6810474689f8202cbd4c6cb616d6368b1f051c573",
+            "shape": [
+              1,
+              7169,
+              16,
+              128
+            ],
+            "descriptor_sha256": "f2a8a3a522b02bfbf68e41116cf96886cc0b9c6c4615c3f66bb1854f2e4ea690"
+          },
+          "k-normalized": {
+            "file": "full-k-normalized-bf16.bin",
+            "bytes": 29364224,
+            "sha256": "7778fce8bbd9ce6d046eec1e2639a0d89e53bb9e3b443b9ab1fe7e8d5656ea24",
+            "shape": [
+              1,
+              7169,
+              16,
+              128
+            ],
+            "descriptor_sha256": "dcf82be0ea6222e6690f87560fce0edc025671d5df20f9d7406d559185273f27"
+          },
+          "chunk-state": {
+            "file": "full-chunk-state-bf16.bin",
+            "bytes": 118489088,
+            "sha256": "140741e123824032adb256af41c542fe74f8782ca1980b2b8eaba61ca61f6735",
+            "shape": [
+              1,
+              113,
+              32,
+              128,
+              128
+            ],
+            "descriptor_sha256": "b194d3b1ecfe378f2d955d6009aaafe5c7c768a22a3053a75fbcae45517ab0df"
+          },
+          "g-cumsum": {
+            "file": "full-g-cumsum-f32.bin",
+            "bytes": 917632,
+            "sha256": "b618db8ede809426f3c95741cce49b03d8c4cbec7888f4af0a397d959dc557b0",
+            "shape": [
+              1,
+              7169,
+              32
+            ],
+            "descriptor_sha256": "4bd5de3f39799ac27d4cae67508b5cd05718a0cb67ebb714c6217702c40de6a6"
+          }
+        },
+        "chunks": [
+          {
+            "type": "chunk",
+            "chunk": 0,
+            "cells": 262144,
+            "both_residuals_admitted": 262144
+          },
+          {
+            "type": "chunk",
+            "chunk": 1,
+            "cells": 262144,
+            "both_residuals_admitted": 75474
+          },
+          {
+            "type": "chunk",
+            "chunk": 2,
+            "cells": 262144,
+            "both_residuals_admitted": 74426
+          },
+          {
+            "type": "chunk",
+            "chunk": 3,
+            "cells": 262144,
+            "both_residuals_admitted": 73674
+          },
+          {
+            "type": "chunk",
+            "chunk": 4,
+            "cells": 262144,
+            "both_residuals_admitted": 74782
+          },
+          {
+            "type": "chunk",
+            "chunk": 5,
+            "cells": 262144,
+            "both_residuals_admitted": 73196
+          },
+          {
+            "type": "chunk",
+            "chunk": 6,
+            "cells": 262144,
+            "both_residuals_admitted": 75064
+          },
+          {
+            "type": "chunk",
+            "chunk": 7,
+            "cells": 262144,
+            "both_residuals_admitted": 76261
+          },
+          {
+            "type": "chunk",
+            "chunk": 8,
+            "cells": 262144,
+            "both_residuals_admitted": 75415
+          },
+          {
+            "type": "chunk",
+            "chunk": 9,
+            "cells": 262144,
+            "both_residuals_admitted": 74812
+          },
+          {
+            "type": "chunk",
+            "chunk": 10,
+            "cells": 262144,
+            "both_residuals_admitted": 74844
+          },
+          {
+            "type": "chunk",
+            "chunk": 11,
+            "cells": 262144,
+            "both_residuals_admitted": 75468
+          },
+          {
+            "type": "chunk",
+            "chunk": 12,
+            "cells": 262144,
+            "both_residuals_admitted": 75221
+          },
+          {
+            "type": "chunk",
+            "chunk": 13,
+            "cells": 262144,
+            "both_residuals_admitted": 75637
+          },
+          {
+            "type": "chunk",
+            "chunk": 14,
+            "cells": 262144,
+            "both_residuals_admitted": 75453
+          },
+          {
+            "type": "chunk",
+            "chunk": 15,
+            "cells": 262144,
+            "both_residuals_admitted": 76427
+          },
+          {
+            "type": "chunk",
+            "chunk": 16,
+            "cells": 262144,
+            "both_residuals_admitted": 75286
+          },
+          {
+            "type": "chunk",
+            "chunk": 17,
+            "cells": 262144,
+            "both_residuals_admitted": 75333
+          },
+          {
+            "type": "chunk",
+            "chunk": 18,
+            "cells": 262144,
+            "both_residuals_admitted": 75333
+          },
+          {
+            "type": "chunk",
+            "chunk": 19,
+            "cells": 262144,
+            "both_residuals_admitted": 74706
+          },
+          {
+            "type": "chunk",
+            "chunk": 20,
+            "cells": 262144,
+            "both_residuals_admitted": 75133
+          },
+          {
+            "type": "chunk",
+            "chunk": 21,
+            "cells": 262144,
+            "both_residuals_admitted": 76434
+          },
+          {
+            "type": "chunk",
+            "chunk": 22,
+            "cells": 262144,
+            "both_residuals_admitted": 73923
+          },
+          {
+            "type": "chunk",
+            "chunk": 23,
+            "cells": 262144,
+            "both_residuals_admitted": 74885
+          },
+          {
+            "type": "chunk",
+            "chunk": 24,
+            "cells": 262144,
+            "both_residuals_admitted": 74101
+          },
+          {
+            "type": "chunk",
+            "chunk": 25,
+            "cells": 262144,
+            "both_residuals_admitted": 74689
+          },
+          {
+            "type": "chunk",
+            "chunk": 26,
+            "cells": 262144,
+            "both_residuals_admitted": 74341
+          },
+          {
+            "type": "chunk",
+            "chunk": 27,
+            "cells": 262144,
+            "both_residuals_admitted": 76042
+          },
+          {
+            "type": "chunk",
+            "chunk": 28,
+            "cells": 262144,
+            "both_residuals_admitted": 75847
+          },
+          {
+            "type": "chunk",
+            "chunk": 29,
+            "cells": 262144,
+            "both_residuals_admitted": 73492
+          },
+          {
+            "type": "chunk",
+            "chunk": 30,
+            "cells": 262144,
+            "both_residuals_admitted": 74734
+          },
+          {
+            "type": "chunk",
+            "chunk": 31,
+            "cells": 262144,
+            "both_residuals_admitted": 74934
+          },
+          {
+            "type": "chunk",
+            "chunk": 32,
+            "cells": 262144,
+            "both_residuals_admitted": 75944
+          },
+          {
+            "type": "chunk",
+            "chunk": 33,
+            "cells": 262144,
+            "both_residuals_admitted": 74801
+          },
+          {
+            "type": "chunk",
+            "chunk": 34,
+            "cells": 262144,
+            "both_residuals_admitted": 75232
+          },
+          {
+            "type": "chunk",
+            "chunk": 35,
+            "cells": 262144,
+            "both_residuals_admitted": 74582
+          },
+          {
+            "type": "chunk",
+            "chunk": 36,
+            "cells": 262144,
+            "both_residuals_admitted": 73675
+          },
+          {
+            "type": "chunk",
+            "chunk": 37,
+            "cells": 262144,
+            "both_residuals_admitted": 74324
+          },
+          {
+            "type": "chunk",
+            "chunk": 38,
+            "cells": 262144,
+            "both_residuals_admitted": 75498
+          },
+          {
+            "type": "chunk",
+            "chunk": 39,
+            "cells": 262144,
+            "both_residuals_admitted": 75615
+          },
+          {
+            "type": "chunk",
+            "chunk": 40,
+            "cells": 262144,
+            "both_residuals_admitted": 74840
+          },
+          {
+            "type": "chunk",
+            "chunk": 41,
+            "cells": 262144,
+            "both_residuals_admitted": 76603
+          },
+          {
+            "type": "chunk",
+            "chunk": 42,
+            "cells": 262144,
+            "both_residuals_admitted": 74847
+          },
+          {
+            "type": "chunk",
+            "chunk": 43,
+            "cells": 262144,
+            "both_residuals_admitted": 76207
+          },
+          {
+            "type": "chunk",
+            "chunk": 44,
+            "cells": 262144,
+            "both_residuals_admitted": 74614
+          },
+          {
+            "type": "chunk",
+            "chunk": 45,
+            "cells": 262144,
+            "both_residuals_admitted": 72542
+          },
+          {
+            "type": "chunk",
+            "chunk": 46,
+            "cells": 262144,
+            "both_residuals_admitted": 74579
+          },
+          {
+            "type": "chunk",
+            "chunk": 47,
+            "cells": 262144,
+            "both_residuals_admitted": 74186
+          },
+          {
+            "type": "chunk",
+            "chunk": 48,
+            "cells": 262144,
+            "both_residuals_admitted": 75348
+          },
+          {
+            "type": "chunk",
+            "chunk": 49,
+            "cells": 262144,
+            "both_residuals_admitted": 74637
+          },
+          {
+            "type": "chunk",
+            "chunk": 50,
+            "cells": 262144,
+            "both_residuals_admitted": 75966
+          },
+          {
+            "type": "chunk",
+            "chunk": 51,
+            "cells": 262144,
+            "both_residuals_admitted": 75844
+          },
+          {
+            "type": "chunk",
+            "chunk": 52,
+            "cells": 262144,
+            "both_residuals_admitted": 75552
+          },
+          {
+            "type": "chunk",
+            "chunk": 53,
+            "cells": 262144,
+            "both_residuals_admitted": 73681
+          },
+          {
+            "type": "chunk",
+            "chunk": 54,
+            "cells": 262144,
+            "both_residuals_admitted": 75987
+          },
+          {
+            "type": "chunk",
+            "chunk": 55,
+            "cells": 262144,
+            "both_residuals_admitted": 74322
+          },
+          {
+            "type": "chunk",
+            "chunk": 56,
+            "cells": 262144,
+            "both_residuals_admitted": 75215
+          },
+          {
+            "type": "chunk",
+            "chunk": 57,
+            "cells": 262144,
+            "both_residuals_admitted": 73687
+          },
+          {
+            "type": "chunk",
+            "chunk": 58,
+            "cells": 262144,
+            "both_residuals_admitted": 75607
+          },
+          {
+            "type": "chunk",
+            "chunk": 59,
+            "cells": 262144,
+            "both_residuals_admitted": 74776
+          },
+          {
+            "type": "chunk",
+            "chunk": 60,
+            "cells": 262144,
+            "both_residuals_admitted": 76127
+          },
+          {
+            "type": "chunk",
+            "chunk": 61,
+            "cells": 262144,
+            "both_residuals_admitted": 75522
+          },
+          {
+            "type": "chunk",
+            "chunk": 62,
+            "cells": 262144,
+            "both_residuals_admitted": 73014
+          },
+          {
+            "type": "chunk",
+            "chunk": 63,
+            "cells": 262144,
+            "both_residuals_admitted": 75173
+          },
+          {
+            "type": "chunk",
+            "chunk": 64,
+            "cells": 262144,
+            "both_residuals_admitted": 75866
+          },
+          {
+            "type": "chunk",
+            "chunk": 65,
+            "cells": 262144,
+            "both_residuals_admitted": 75597
+          },
+          {
+            "type": "chunk",
+            "chunk": 66,
+            "cells": 262144,
+            "both_residuals_admitted": 75414
+          },
+          {
+            "type": "chunk",
+            "chunk": 67,
+            "cells": 262144,
+            "both_residuals_admitted": 74988
+          },
+          {
+            "type": "chunk",
+            "chunk": 68,
+            "cells": 262144,
+            "both_residuals_admitted": 75124
+          },
+          {
+            "type": "chunk",
+            "chunk": 69,
+            "cells": 262144,
+            "both_residuals_admitted": 74216
+          },
+          {
+            "type": "chunk",
+            "chunk": 70,
+            "cells": 262144,
+            "both_residuals_admitted": 75551
+          },
+          {
+            "type": "chunk",
+            "chunk": 71,
+            "cells": 262144,
+            "both_residuals_admitted": 75579
+          },
+          {
+            "type": "chunk",
+            "chunk": 72,
+            "cells": 262144,
+            "both_residuals_admitted": 75422
+          },
+          {
+            "type": "chunk",
+            "chunk": 73,
+            "cells": 262144,
+            "both_residuals_admitted": 75007
+          },
+          {
+            "type": "chunk",
+            "chunk": 74,
+            "cells": 262144,
+            "both_residuals_admitted": 75839
+          },
+          {
+            "type": "chunk",
+            "chunk": 75,
+            "cells": 262144,
+            "both_residuals_admitted": 75769
+          },
+          {
+            "type": "chunk",
+            "chunk": 76,
+            "cells": 262144,
+            "both_residuals_admitted": 75506
+          },
+          {
+            "type": "chunk",
+            "chunk": 77,
+            "cells": 262144,
+            "both_residuals_admitted": 75381
+          },
+          {
+            "type": "chunk",
+            "chunk": 78,
+            "cells": 262144,
+            "both_residuals_admitted": 75255
+          },
+          {
+            "type": "chunk",
+            "chunk": 79,
+            "cells": 262144,
+            "both_residuals_admitted": 74902
+          },
+          {
+            "type": "chunk",
+            "chunk": 80,
+            "cells": 262144,
+            "both_residuals_admitted": 75496
+          },
+          {
+            "type": "chunk",
+            "chunk": 81,
+            "cells": 262144,
+            "both_residuals_admitted": 75820
+          },
+          {
+            "type": "chunk",
+            "chunk": 82,
+            "cells": 262144,
+            "both_residuals_admitted": 75550
+          },
+          {
+            "type": "chunk",
+            "chunk": 83,
+            "cells": 262144,
+            "both_residuals_admitted": 75128
+          },
+          {
+            "type": "chunk",
+            "chunk": 84,
+            "cells": 262144,
+            "both_residuals_admitted": 75275
+          },
+          {
+            "type": "chunk",
+            "chunk": 85,
+            "cells": 262144,
+            "both_residuals_admitted": 76267
+          },
+          {
+            "type": "chunk",
+            "chunk": 86,
+            "cells": 262144,
+            "both_residuals_admitted": 75248
+          },
+          {
+            "type": "chunk",
+            "chunk": 87,
+            "cells": 262144,
+            "both_residuals_admitted": 73722
+          },
+          {
+            "type": "chunk",
+            "chunk": 88,
+            "cells": 262144,
+            "both_residuals_admitted": 75863
+          },
+          {
+            "type": "chunk",
+            "chunk": 89,
+            "cells": 262144,
+            "both_residuals_admitted": 74035
+          },
+          {
+            "type": "chunk",
+            "chunk": 90,
+            "cells": 262144,
+            "both_residuals_admitted": 75533
+          },
+          {
+            "type": "chunk",
+            "chunk": 91,
+            "cells": 262144,
+            "both_residuals_admitted": 74177
+          },
+          {
+            "type": "chunk",
+            "chunk": 92,
+            "cells": 262144,
+            "both_residuals_admitted": 75809
+          },
+          {
+            "type": "chunk",
+            "chunk": 93,
+            "cells": 262144,
+            "both_residuals_admitted": 75202
+          },
+          {
+            "type": "chunk",
+            "chunk": 94,
+            "cells": 262144,
+            "both_residuals_admitted": 76062
+          },
+          {
+            "type": "chunk",
+            "chunk": 95,
+            "cells": 262144,
+            "both_residuals_admitted": 75119
+          },
+          {
+            "type": "chunk",
+            "chunk": 96,
+            "cells": 262144,
+            "both_residuals_admitted": 75078
+          },
+          {
+            "type": "chunk",
+            "chunk": 97,
+            "cells": 262144,
+            "both_residuals_admitted": 75341
+          },
+          {
+            "type": "chunk",
+            "chunk": 98,
+            "cells": 262144,
+            "both_residuals_admitted": 74367
+          },
+          {
+            "type": "chunk",
+            "chunk": 99,
+            "cells": 262144,
+            "both_residuals_admitted": 74297
+          },
+          {
+            "type": "chunk",
+            "chunk": 100,
+            "cells": 262144,
+            "both_residuals_admitted": 75214
+          },
+          {
+            "type": "chunk",
+            "chunk": 101,
+            "cells": 262144,
+            "both_residuals_admitted": 75557
+          },
+          {
+            "type": "chunk",
+            "chunk": 102,
+            "cells": 262144,
+            "both_residuals_admitted": 73933
+          },
+          {
+            "type": "chunk",
+            "chunk": 103,
+            "cells": 262144,
+            "both_residuals_admitted": 74645
+          },
+          {
+            "type": "chunk",
+            "chunk": 104,
+            "cells": 262144,
+            "both_residuals_admitted": 75376
+          },
+          {
+            "type": "chunk",
+            "chunk": 105,
+            "cells": 262144,
+            "both_residuals_admitted": 75502
+          },
+          {
+            "type": "chunk",
+            "chunk": 106,
+            "cells": 262144,
+            "both_residuals_admitted": 74739
+          },
+          {
+            "type": "chunk",
+            "chunk": 107,
+            "cells": 262144,
+            "both_residuals_admitted": 73738
+          },
+          {
+            "type": "chunk",
+            "chunk": 108,
+            "cells": 262144,
+            "both_residuals_admitted": 73211
+          },
+          {
+            "type": "chunk",
+            "chunk": 109,
+            "cells": 262144,
+            "both_residuals_admitted": 75067
+          },
+          {
+            "type": "chunk",
+            "chunk": 110,
+            "cells": 262144,
+            "both_residuals_admitted": 74333
+          },
+          {
+            "type": "chunk",
+            "chunk": 111,
+            "cells": 262144,
+            "both_residuals_admitted": 74624
+          },
+          {
+            "type": "chunk",
+            "chunk": 112,
+            "cells": 4096,
+            "both_residuals_admitted": 640
+          }
+        ],
+        "summary": {
+          "type": "summary",
+          "cells": 29364224,
+          "unscaled_residual_admitted": 8691024,
+          "both_residuals_admitted": 8591442,
+          "zero_state_admitted": 262144,
+          "nonzero_state_admitted": 8329298,
+          "invalid_rows": 0,
+          "original_dots": 131072,
+          "invalid_sampled_dots": 0,
+          "sampled_state_consumers": 65536,
+          "sampled_state_admitted": 19088,
+          "sampled_output_consumers": 4096,
+          "sampled_output_admitted": 1143,
+          "bound_violations": 0,
+          "original_bf16_mismatches": 0
+        }
+      },
+      {
+        "directory": "gb10-layer1",
+        "files": {
+          "w": {
+            "file": "full-w-bf16.bin",
+            "bytes": 58728448,
+            "sha256": "e2a388c54f5f7555eefcf3ebb727e1e1bd40fb974e1a00ec2bcb0845320777a2",
+            "shape": [
+              1,
+              7169,
+              32,
+              128
+            ],
+            "descriptor_sha256": "d3d8695ec2c6cb54408750705c4eec514a02ee465a9b43d52e25c3693f8e1fb9"
+          },
+          "u": {
+            "file": "full-u-bf16.bin",
+            "bytes": 58728448,
+            "sha256": "5edae3e35883e85d3aaf01adea44a42003538fc6acdf481eb49a6bce286d3dd7",
+            "shape": [
+              1,
+              7169,
+              32,
+              128
+            ],
+            "descriptor_sha256": "5aae5a0d97ba8a814d991e268ab3f5fd7010372dbfb9d3859de7681630a829ad"
+          },
+          "v-new": {
+            "file": "full-v-new-bf16.bin",
+            "bytes": 58728448,
+            "sha256": "bf96fee386ca4c3d4297833ae7c02eb4c98d75c7e8133c7799b7f121d80906be",
+            "shape": [
+              1,
+              7169,
+              32,
+              128
+            ],
+            "descriptor_sha256": "cb16d8dba7d2afa3fd260017fb2e38c8562472e19900083ee23c80e2ee248ec9"
+          },
+          "output": {
+            "file": "full-output-bf16.bin",
+            "bytes": 58728448,
+            "sha256": "8863836559f572c6b7d63dc593d1f134359f88ec9289dfb76e5d8a20e7491bd0",
+            "shape": [
+              1,
+              7169,
+              32,
+              128
+            ],
+            "descriptor_sha256": "f8c0819a8f240d59b61ee8b269d285a5d41fdfb43843a3ab41e3c0bc103f8da0"
+          },
+          "q-normalized": {
+            "file": "full-q-normalized-bf16.bin",
+            "bytes": 29364224,
+            "sha256": "f079b7c06588dd7490318f350f54a8b75ca6c4bffaca517b68f1e6d71adfd0b1",
+            "shape": [
+              1,
+              7169,
+              16,
+              128
+            ],
+            "descriptor_sha256": "f31e243c7d51f2ea31a0dfeaf506548aad93e4d816e04c5dc658b71115211705"
+          },
+          "k-normalized": {
+            "file": "full-k-normalized-bf16.bin",
+            "bytes": 29364224,
+            "sha256": "4266732cccb1a2d7054fb9e5426513e3bb58ff4e4f62abe88bb5f773f6fbc78c",
+            "shape": [
+              1,
+              7169,
+              16,
+              128
+            ],
+            "descriptor_sha256": "daf5ed9dfb4b4553a632916edb51b7a2387a97b2ad1de99fd311a7aee5fb7df9"
+          },
+          "chunk-state": {
+            "file": "full-chunk-state-bf16.bin",
+            "bytes": 118489088,
+            "sha256": "b1a0a8c4e491347902dfe1fe9becd6aa33c2ec6bb447f39de262a957af1eeb4b",
+            "shape": [
+              1,
+              113,
+              32,
+              128,
+              128
+            ],
+            "descriptor_sha256": "7016801d67a8a85c620207c25d41935356f298c0c0bf18d756f613d54ca84bfc"
+          },
+          "g-cumsum": {
+            "file": "full-g-cumsum-f32.bin",
+            "bytes": 917632,
+            "sha256": "e4433815f2d56edf684ab67878761581d4a57d01636c1c8b09a6930ad271d6fe",
+            "shape": [
+              1,
+              7169,
+              32
+            ],
+            "descriptor_sha256": "c468f263f54026b2db9ffbb71cde48fe98b98c5578079c621e6c8487d2c76c85"
+          }
+        },
+        "chunks": [
+          {
+            "type": "chunk",
+            "chunk": 0,
+            "cells": 262144,
+            "both_residuals_admitted": 262144
+          },
+          {
+            "type": "chunk",
+            "chunk": 1,
+            "cells": 262144,
+            "both_residuals_admitted": 134410
+          },
+          {
+            "type": "chunk",
+            "chunk": 2,
+            "cells": 262144,
+            "both_residuals_admitted": 128912
+          },
+          {
+            "type": "chunk",
+            "chunk": 3,
+            "cells": 262144,
+            "both_residuals_admitted": 129826
+          },
+          {
+            "type": "chunk",
+            "chunk": 4,
+            "cells": 262144,
+            "both_residuals_admitted": 127522
+          },
+          {
+            "type": "chunk",
+            "chunk": 5,
+            "cells": 262144,
+            "both_residuals_admitted": 127298
+          },
+          {
+            "type": "chunk",
+            "chunk": 6,
+            "cells": 262144,
+            "both_residuals_admitted": 131086
+          },
+          {
+            "type": "chunk",
+            "chunk": 7,
+            "cells": 262144,
+            "both_residuals_admitted": 133471
+          },
+          {
+            "type": "chunk",
+            "chunk": 8,
+            "cells": 262144,
+            "both_residuals_admitted": 129085
+          },
+          {
+            "type": "chunk",
+            "chunk": 9,
+            "cells": 262144,
+            "both_residuals_admitted": 132066
+          },
+          {
+            "type": "chunk",
+            "chunk": 10,
+            "cells": 262144,
+            "both_residuals_admitted": 130743
+          },
+          {
+            "type": "chunk",
+            "chunk": 11,
+            "cells": 262144,
+            "both_residuals_admitted": 131354
+          },
+          {
+            "type": "chunk",
+            "chunk": 12,
+            "cells": 262144,
+            "both_residuals_admitted": 132948
+          },
+          {
+            "type": "chunk",
+            "chunk": 13,
+            "cells": 262144,
+            "both_residuals_admitted": 128864
+          },
+          {
+            "type": "chunk",
+            "chunk": 14,
+            "cells": 262144,
+            "both_residuals_admitted": 131190
+          },
+          {
+            "type": "chunk",
+            "chunk": 15,
+            "cells": 262144,
+            "both_residuals_admitted": 131159
+          },
+          {
+            "type": "chunk",
+            "chunk": 16,
+            "cells": 262144,
+            "both_residuals_admitted": 131931
+          },
+          {
+            "type": "chunk",
+            "chunk": 17,
+            "cells": 262144,
+            "both_residuals_admitted": 127163
+          },
+          {
+            "type": "chunk",
+            "chunk": 18,
+            "cells": 262144,
+            "both_residuals_admitted": 129114
+          },
+          {
+            "type": "chunk",
+            "chunk": 19,
+            "cells": 262144,
+            "both_residuals_admitted": 131517
+          },
+          {
+            "type": "chunk",
+            "chunk": 20,
+            "cells": 262144,
+            "both_residuals_admitted": 132766
+          },
+          {
+            "type": "chunk",
+            "chunk": 21,
+            "cells": 262144,
+            "both_residuals_admitted": 134662
+          },
+          {
+            "type": "chunk",
+            "chunk": 22,
+            "cells": 262144,
+            "both_residuals_admitted": 130969
+          },
+          {
+            "type": "chunk",
+            "chunk": 23,
+            "cells": 262144,
+            "both_residuals_admitted": 128911
+          },
+          {
+            "type": "chunk",
+            "chunk": 24,
+            "cells": 262144,
+            "both_residuals_admitted": 127615
+          },
+          {
+            "type": "chunk",
+            "chunk": 25,
+            "cells": 262144,
+            "both_residuals_admitted": 130474
+          },
+          {
+            "type": "chunk",
+            "chunk": 26,
+            "cells": 262144,
+            "both_residuals_admitted": 128849
+          },
+          {
+            "type": "chunk",
+            "chunk": 27,
+            "cells": 262144,
+            "both_residuals_admitted": 130448
+          },
+          {
+            "type": "chunk",
+            "chunk": 28,
+            "cells": 262144,
+            "both_residuals_admitted": 131530
+          },
+          {
+            "type": "chunk",
+            "chunk": 29,
+            "cells": 262144,
+            "both_residuals_admitted": 128254
+          },
+          {
+            "type": "chunk",
+            "chunk": 30,
+            "cells": 262144,
+            "both_residuals_admitted": 128990
+          },
+          {
+            "type": "chunk",
+            "chunk": 31,
+            "cells": 262144,
+            "both_residuals_admitted": 128327
+          },
+          {
+            "type": "chunk",
+            "chunk": 32,
+            "cells": 262144,
+            "both_residuals_admitted": 135568
+          },
+          {
+            "type": "chunk",
+            "chunk": 33,
+            "cells": 262144,
+            "both_residuals_admitted": 129768
+          },
+          {
+            "type": "chunk",
+            "chunk": 34,
+            "cells": 262144,
+            "both_residuals_admitted": 131239
+          },
+          {
+            "type": "chunk",
+            "chunk": 35,
+            "cells": 262144,
+            "both_residuals_admitted": 128127
+          },
+          {
+            "type": "chunk",
+            "chunk": 36,
+            "cells": 262144,
+            "both_residuals_admitted": 128745
+          },
+          {
+            "type": "chunk",
+            "chunk": 37,
+            "cells": 262144,
+            "both_residuals_admitted": 130200
+          },
+          {
+            "type": "chunk",
+            "chunk": 38,
+            "cells": 262144,
+            "both_residuals_admitted": 129430
+          },
+          {
+            "type": "chunk",
+            "chunk": 39,
+            "cells": 262144,
+            "both_residuals_admitted": 131073
+          },
+          {
+            "type": "chunk",
+            "chunk": 40,
+            "cells": 262144,
+            "both_residuals_admitted": 129616
+          },
+          {
+            "type": "chunk",
+            "chunk": 41,
+            "cells": 262144,
+            "both_residuals_admitted": 134806
+          },
+          {
+            "type": "chunk",
+            "chunk": 42,
+            "cells": 262144,
+            "both_residuals_admitted": 130634
+          },
+          {
+            "type": "chunk",
+            "chunk": 43,
+            "cells": 262144,
+            "both_residuals_admitted": 133490
+          },
+          {
+            "type": "chunk",
+            "chunk": 44,
+            "cells": 262144,
+            "both_residuals_admitted": 128591
+          },
+          {
+            "type": "chunk",
+            "chunk": 45,
+            "cells": 262144,
+            "both_residuals_admitted": 129481
+          },
+          {
+            "type": "chunk",
+            "chunk": 46,
+            "cells": 262144,
+            "both_residuals_admitted": 129872
+          },
+          {
+            "type": "chunk",
+            "chunk": 47,
+            "cells": 262144,
+            "both_residuals_admitted": 127486
+          },
+          {
+            "type": "chunk",
+            "chunk": 48,
+            "cells": 262144,
+            "both_residuals_admitted": 131145
+          },
+          {
+            "type": "chunk",
+            "chunk": 49,
+            "cells": 262144,
+            "both_residuals_admitted": 129256
+          },
+          {
+            "type": "chunk",
+            "chunk": 50,
+            "cells": 262144,
+            "both_residuals_admitted": 132477
+          },
+          {
+            "type": "chunk",
+            "chunk": 51,
+            "cells": 262144,
+            "both_residuals_admitted": 135678
+          },
+          {
+            "type": "chunk",
+            "chunk": 52,
+            "cells": 262144,
+            "both_residuals_admitted": 130927
+          },
+          {
+            "type": "chunk",
+            "chunk": 53,
+            "cells": 262144,
+            "both_residuals_admitted": 128972
+          },
+          {
+            "type": "chunk",
+            "chunk": 54,
+            "cells": 262144,
+            "both_residuals_admitted": 131719
+          },
+          {
+            "type": "chunk",
+            "chunk": 55,
+            "cells": 262144,
+            "both_residuals_admitted": 126542
+          },
+          {
+            "type": "chunk",
+            "chunk": 56,
+            "cells": 262144,
+            "both_residuals_admitted": 132279
+          },
+          {
+            "type": "chunk",
+            "chunk": 57,
+            "cells": 262144,
+            "both_residuals_admitted": 123971
+          },
+          {
+            "type": "chunk",
+            "chunk": 58,
+            "cells": 262144,
+            "both_residuals_admitted": 129874
+          },
+          {
+            "type": "chunk",
+            "chunk": 59,
+            "cells": 262144,
+            "both_residuals_admitted": 132824
+          },
+          {
+            "type": "chunk",
+            "chunk": 60,
+            "cells": 262144,
+            "both_residuals_admitted": 135495
+          },
+          {
+            "type": "chunk",
+            "chunk": 61,
+            "cells": 262144,
+            "both_residuals_admitted": 128433
+          },
+          {
+            "type": "chunk",
+            "chunk": 62,
+            "cells": 262144,
+            "both_residuals_admitted": 125802
+          },
+          {
+            "type": "chunk",
+            "chunk": 63,
+            "cells": 262144,
+            "both_residuals_admitted": 130199
+          },
+          {
+            "type": "chunk",
+            "chunk": 64,
+            "cells": 262144,
+            "both_residuals_admitted": 131947
+          },
+          {
+            "type": "chunk",
+            "chunk": 65,
+            "cells": 262144,
+            "both_residuals_admitted": 126572
+          },
+          {
+            "type": "chunk",
+            "chunk": 66,
+            "cells": 262144,
+            "both_residuals_admitted": 129256
+          },
+          {
+            "type": "chunk",
+            "chunk": 67,
+            "cells": 262144,
+            "both_residuals_admitted": 136058
+          },
+          {
+            "type": "chunk",
+            "chunk": 68,
+            "cells": 262144,
+            "both_residuals_admitted": 132373
+          },
+          {
+            "type": "chunk",
+            "chunk": 69,
+            "cells": 262144,
+            "both_residuals_admitted": 129021
+          },
+          {
+            "type": "chunk",
+            "chunk": 70,
+            "cells": 262144,
+            "both_residuals_admitted": 133690
+          },
+          {
+            "type": "chunk",
+            "chunk": 71,
+            "cells": 262144,
+            "both_residuals_admitted": 132406
+          },
+          {
+            "type": "chunk",
+            "chunk": 72,
+            "cells": 262144,
+            "both_residuals_admitted": 129461
+          },
+          {
+            "type": "chunk",
+            "chunk": 73,
+            "cells": 262144,
+            "both_residuals_admitted": 130292
+          },
+          {
+            "type": "chunk",
+            "chunk": 74,
+            "cells": 262144,
+            "both_residuals_admitted": 127398
+          },
+          {
+            "type": "chunk",
+            "chunk": 75,
+            "cells": 262144,
+            "both_residuals_admitted": 132647
+          },
+          {
+            "type": "chunk",
+            "chunk": 76,
+            "cells": 262144,
+            "both_residuals_admitted": 127756
+          },
+          {
+            "type": "chunk",
+            "chunk": 77,
+            "cells": 262144,
+            "both_residuals_admitted": 132377
+          },
+          {
+            "type": "chunk",
+            "chunk": 78,
+            "cells": 262144,
+            "both_residuals_admitted": 130865
+          },
+          {
+            "type": "chunk",
+            "chunk": 79,
+            "cells": 262144,
+            "both_residuals_admitted": 130298
+          },
+          {
+            "type": "chunk",
+            "chunk": 80,
+            "cells": 262144,
+            "both_residuals_admitted": 131303
+          },
+          {
+            "type": "chunk",
+            "chunk": 81,
+            "cells": 262144,
+            "both_residuals_admitted": 131886
+          },
+          {
+            "type": "chunk",
+            "chunk": 82,
+            "cells": 262144,
+            "both_residuals_admitted": 129676
+          },
+          {
+            "type": "chunk",
+            "chunk": 83,
+            "cells": 262144,
+            "both_residuals_admitted": 131183
+          },
+          {
+            "type": "chunk",
+            "chunk": 84,
+            "cells": 262144,
+            "both_residuals_admitted": 133109
+          },
+          {
+            "type": "chunk",
+            "chunk": 85,
+            "cells": 262144,
+            "both_residuals_admitted": 134130
+          },
+          {
+            "type": "chunk",
+            "chunk": 86,
+            "cells": 262144,
+            "both_residuals_admitted": 131099
+          },
+          {
+            "type": "chunk",
+            "chunk": 87,
+            "cells": 262144,
+            "both_residuals_admitted": 133062
+          },
+          {
+            "type": "chunk",
+            "chunk": 88,
+            "cells": 262144,
+            "both_residuals_admitted": 137459
+          },
+          {
+            "type": "chunk",
+            "chunk": 89,
+            "cells": 262144,
+            "both_residuals_admitted": 127892
+          },
+          {
+            "type": "chunk",
+            "chunk": 90,
+            "cells": 262144,
+            "both_residuals_admitted": 133053
+          },
+          {
+            "type": "chunk",
+            "chunk": 91,
+            "cells": 262144,
+            "both_residuals_admitted": 133338
+          },
+          {
+            "type": "chunk",
+            "chunk": 92,
+            "cells": 262144,
+            "both_residuals_admitted": 137366
+          },
+          {
+            "type": "chunk",
+            "chunk": 93,
+            "cells": 262144,
+            "both_residuals_admitted": 132406
+          },
+          {
+            "type": "chunk",
+            "chunk": 94,
+            "cells": 262144,
+            "both_residuals_admitted": 133897
+          },
+          {
+            "type": "chunk",
+            "chunk": 95,
+            "cells": 262144,
+            "both_residuals_admitted": 132976
+          },
+          {
+            "type": "chunk",
+            "chunk": 96,
+            "cells": 262144,
+            "both_residuals_admitted": 132938
+          },
+          {
+            "type": "chunk",
+            "chunk": 97,
+            "cells": 262144,
+            "both_residuals_admitted": 129106
+          },
+          {
+            "type": "chunk",
+            "chunk": 98,
+            "cells": 262144,
+            "both_residuals_admitted": 130103
+          },
+          {
+            "type": "chunk",
+            "chunk": 99,
+            "cells": 262144,
+            "both_residuals_admitted": 126365
+          },
+          {
+            "type": "chunk",
+            "chunk": 100,
+            "cells": 262144,
+            "both_residuals_admitted": 133657
+          },
+          {
+            "type": "chunk",
+            "chunk": 101,
+            "cells": 262144,
+            "both_residuals_admitted": 128122
+          },
+          {
+            "type": "chunk",
+            "chunk": 102,
+            "cells": 262144,
+            "both_residuals_admitted": 126528
+          },
+          {
+            "type": "chunk",
+            "chunk": 103,
+            "cells": 262144,
+            "both_residuals_admitted": 128845
+          },
+          {
+            "type": "chunk",
+            "chunk": 104,
+            "cells": 262144,
+            "both_residuals_admitted": 127498
+          },
+          {
+            "type": "chunk",
+            "chunk": 105,
+            "cells": 262144,
+            "both_residuals_admitted": 130206
+          },
+          {
+            "type": "chunk",
+            "chunk": 106,
+            "cells": 262144,
+            "both_residuals_admitted": 130046
+          },
+          {
+            "type": "chunk",
+            "chunk": 107,
+            "cells": 262144,
+            "both_residuals_admitted": 130720
+          },
+          {
+            "type": "chunk",
+            "chunk": 108,
+            "cells": 262144,
+            "both_residuals_admitted": 126240
+          },
+          {
+            "type": "chunk",
+            "chunk": 109,
+            "cells": 262144,
+            "both_residuals_admitted": 129917
+          },
+          {
+            "type": "chunk",
+            "chunk": 110,
+            "cells": 262144,
+            "both_residuals_admitted": 128588
+          },
+          {
+            "type": "chunk",
+            "chunk": 111,
+            "cells": 262144,
+            "both_residuals_admitted": 128416
+          },
+          {
+            "type": "chunk",
+            "chunk": 112,
+            "cells": 4096,
+            "both_residuals_admitted": 16
+          }
+        ],
+        "summary": {
+          "type": "summary",
+          "cells": 29364224,
+          "unscaled_residual_admitted": 15106529,
+          "both_residuals_admitted": 14760880,
+          "zero_state_admitted": 262144,
+          "nonzero_state_admitted": 14498736,
+          "invalid_rows": 0,
+          "original_dots": 131072,
+          "invalid_sampled_dots": 0,
+          "sampled_state_consumers": 65536,
+          "sampled_state_admitted": 32778,
+          "sampled_output_consumers": 4096,
+          "sampled_output_admitted": 1822,
+          "bound_violations": 0,
+          "original_bf16_mismatches": 0
+        }
+      }
+    ],
+    "table_sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+    "original_captured_activations_only": true,
+    "native_gpu_run": false,
+    "model_loaded": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "scope": "Full original layer0/layer1 WH admission for both residual consumers, complete admitted unscaled residuals compared with GB10 capture, independent original dot samples and output reconstruction. Same source norm helper intended for GPU; no throughput conclusion."
+  },
+  "capture_admission_audit_sha256": "32d6ba00d5b3f504c8c9f305776b612d97ea63d4ae43d77a8018bba28f770355",
+  "audit_source_binding": {
+    "audit_head_was_parent_before_candidate_commit": true,
+    "parent_commit": "77a35161251eda37486930c8505561181124a037",
+    "all_audited_source_hashes_match_candidate_commit": true
+  },
+  "audit_unit": {
+    "file": "audit_gdn_absolute_dot_bound_r1.cpp",
+    "sha256": "7d52d5e8ab4c90e7c9a948f33f537b42949c410ddaec6e3eed3abe068bb4c2ce",
+    "cpp": "#include \"native/providers/gdn/absolute_dot_bound.h\"\n#include \"native/providers/gdn/sm121_exp2_table.h\"\n#include \"native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h\"\n#include <algorithm>\n#include <cassert>\n#include <cstdio>\n#include <fstream>\n#include <string>\n#include <vector>\nnamespace norm=qrt_fla_absolute_dot;\nnamespace bits=qrt_sm121_pv_bound;\nnamespace consumer=qrt_fla_consumer_interval;\nnamespace original=qrt_q1_moe_hawkeye;\nstatic uint32_t seed=0x3957169u;\nstatic uint32_t next(){seed^=seed<<13u;seed^=seed>>17u;return seed^=seed<<5u;}\ntemplate<class T>static std::vector<T> read(const std::string& file,size_t count){\n    std::ifstream input(file,std::ios::binary|std::ios::ate);\n    assert(input && input.tellg()==std::streamoff(count*sizeof(T)));\n    std::vector<T> out(count);input.seekg(0);\n    input.read(reinterpret_cast<char*>(out.data()),count*sizeof(T));assert(input.good());return out;\n}\nstatic float from(uint16_t x){return bits::value(uint32_t(x)<<16u);}\nstatic norm::Norm summarize(const uint16_t* row){norm::Row r;for(unsigned i=0;i<128;++i)norm::include(r,row[i]);return norm::finish(r);}\nstatic float dot(const uint16_t* a,const uint16_t* b,unsigned count){\n    original::Value carry{0u,-133,false};\n    for(unsigned base=0;base<count;base+=16u){\n        original::Value terms[17];terms[0]=carry;\n        for(unsigned i=0;i<16;++i)terms[i+1]=original::multiply_bf16(a[base+i],b[base+i],-133);\n        carry=original::group_sum<26,-133>(terms,17u);\n    }\n    return original::value_to_float(original::group_sum<26,-133>(&carry,1u));\n}\nint main(int argc,char** argv){\n    assert(argc==3);const std::string root=argv[1];\n    const auto table=read<unsigned char>(argv[2],qrt_sm121_exp2::table_bytes);\n    assert(qrt_sm121_exp2::valid_layout(table.data(),table.size()));\n    const auto w=read<uint16_t>(root+\"/full-w-bf16.bin\",size_t(7169)*4096);\n    const auto u=read<uint16_t>(root+\"/full-u-bf16.bin\",w.size());\n    const auto vn=read<uint16_t>(root+\"/full-v-new-bf16.bin\",w.size());\n    const auto out=read<uint16_t>(root+\"/full-output-bf16.bin\",w.size());\n    const auto q=read<uint16_t>(root+\"/full-q-normalized-bf16.bin\",size_t(7169)*2048);\n    const auto k=read<uint16_t>(root+\"/full-k-normalized-bf16.bin\",q.size());\n    const auto h=read<uint16_t>(root+\"/full-chunk-state-bf16.bin\",size_t(113)*524288);\n    const auto g=read<float>(root+\"/full-g-cumsum-f32.bin\",size_t(7169)*32);\n    auto exp=[&](float x){return qrt_sm121_exp2::evaluate(table.data(),consumer::multiply(x,1.4426950408889634074f));};\n    std::vector<norm::Norm> wn(w.size()/128),qn(q.size()/128),hn(h.size()/128);\n    size_t invalid_rows=0;\n    for(size_t i=0;i<wn.size();++i){wn[i]=summarize(w.data()+i*128);invalid_rows+=!wn[i].count;}\n    for(size_t i=0;i<qn.size();++i){qn[i]=summarize(q.data()+i*128);invalid_rows+=!qn[i].count;}\n    for(size_t i=0;i<hn.size();++i){hn[i]=summarize(h.data()+i*128);invalid_rows+=!hn[i].count;}\n    size_t admitted=0,unscaled=0,zero=0,nonzero=0;\n    for(unsigned chunk=0;chunk<113;++chunk){\n        const unsigned start=chunk*64,end=std::min(start+64,7169u);size_t accepted=0;\n        for(unsigned token=start;token<end;++token)for(unsigned head=0;head<32;++head){\n            const float decay=exp(consumer::subtract(g[size_t(end-1)*32+head],g[size_t(token)*32+head]));\n            for(unsigned col=0;col<128;++col){\n                const size_t index=(size_t(token)*32+head)*128+col;\n                const auto checkpoint=hn[(size_t(chunk)*32+head)*128+col];\n                const auto envelope=norm::enclose(wn[size_t(token)*32+head],checkpoint);\n                const float value=from(u[index]);uint16_t a=0xa5a5,b=a;\n                if(qrt_sm121_projection_interval::valid(envelope)){\n                    uint16_t unused=0;\n                    unscaled+=consumer::rounded({consumer::subtract(value,envelope.upper),consumer::subtract(value,envelope.lower)},&unused);\n                }\n                if(consumer::residual(envelope,value,decay,&a,&b)){\n                    assert(a==vn[index]);++accepted;++admitted;\n                    if(checkpoint.maximum==0.0f)++zero;else ++nonzero;\n                }else assert(a==0xa5a5 && b==0xa5a5);\n            }\n        }\n        std::printf(\"{\\\"type\\\":\\\"chunk\\\",\\\"chunk\\\":%u,\\\"cells\\\":%u,\\\"both_residuals_admitted\\\":%zu}\\n\",chunk,(end-start)*4096,accepted);\n    }\n    size_t sample_state=0,sample_output=0,reference_dots=0,invalid_dots=0;\n    for(unsigned attempt=0;attempt<65536;++attempt){\n        const unsigned token=next()%7169,head=next()%32,col=next()%128;\n        const unsigned start=token/64*64,end=std::min(start+64,7169u);\n        const size_t index=(size_t(token)*32+head)*128+col;\n        const size_t hi=(size_t(token/64)*32+head)*128+col;\n        const auto* checkpoint=h.data()+hi*128;\n        const float decay=exp(consumer::subtract(g[size_t(end-1)*32+head],g[size_t(token)*32+head]));\n        for(unsigned op=0;op<2;++op){\n            const size_t li=op?size_t(token)*16+head/2:size_t(token)*32+head;\n            const uint16_t* left=(op?q.data():w.data())+li*128;\n            const float actual=dot(left,checkpoint,128);++reference_dots;\n            const auto envelope=norm::enclose(op?qn[li]:wn[li],hn[hi]);\n            if(!qrt_sm121_projection_interval::valid(envelope)){++invalid_dots;continue;}\n            assert(actual>=envelope.lower && actual<=envelope.upper);\n            if(!op){\n                const float difference=consumer::subtract(from(u[index]),actual);\n                assert(bits::bf16(difference)==vn[index]);\n                uint16_t a=0xa5a5,b=a;\n                if(consumer::residual(envelope,from(u[index]),decay,&a,&b)){\n                    assert(a==bits::bf16(difference) && b==bits::bf16(consumer::multiply(difference,decay)));++sample_state;\n                }\n            }else if(attempt<4096){\n                uint16_t scores[64]{},values[64]{};\n                for(unsigned source=0;source<=token%64;++source){\n                    const float score=dot(left,k.data()+(size_t(start+source)*16+head/2)*128,128);\n                    const float gate=exp(consumer::subtract(g[size_t(token)*32+head],g[size_t(start+source)*32+head]));\n                    scores[source]=bits::bf16(consumer::multiply(score,gate));\n                    values[source]=vn[(size_t(start+source)*32+head)*128+col];\n                }\n                const float local=dot(scores,values,64),gate=exp(g[size_t(token)*32+head]);\n                const float prior=consumer::multiply(consumer::multiply(actual,gate),0.08838834764831845f);\n                const auto expected=bits::bf16(std::fma(local,0.08838834764831845f,prior));\n                assert(expected==out[index]);uint16_t result=0xa5a5;\n                if(consumer::output(envelope,{local,local},gate,&result)){assert(result==expected);++sample_output;}\n                else assert(result==0xa5a5);\n            }\n        }\n    }\n    std::printf(\"{\\\"type\\\":\\\"summary\\\",\\\"cells\\\":%zu,\\\"unscaled_residual_admitted\\\":%zu,\\\"both_residuals_admitted\\\":%zu,\\\"zero_state_admitted\\\":%zu,\\\"nonzero_state_admitted\\\":%zu,\\\"invalid_rows\\\":%zu,\\\"original_dots\\\":%zu,\\\"invalid_sampled_dots\\\":%zu,\\\"sampled_state_consumers\\\":65536,\\\"sampled_state_admitted\\\":%zu,\\\"sampled_output_consumers\\\":4096,\\\"sampled_output_admitted\\\":%zu,\\\"bound_violations\\\":0,\\\"original_bf16_mismatches\\\":0}\\n\",w.size(),unscaled,admitted,zero,nonzero,invalid_rows,reference_dots,invalid_dots,sample_state,sample_output);\n}\n"
+  },
+  "earlier_narrow_domain_audit": {
+    "canonical_sha256": "e3a1b1ef6335abcff7c13315246d607c8497ac45732fe2a9fc36e3d4f4fb6bcb",
+    "scope": "Full original layer0/layer1 WH admission for both residual consumers, complete admitted unscaled residuals compared with GB10 capture, independent original dot samples and output reconstruction. Same source norm helper intended for GPU; no throughput conclusion.",
+    "source_sha256": {
+      "native/providers/gdn/absolute_dot_bound.h": "61e3f51183ed62c8f6a753083211582d1442f6d309473994182199522d5171d0",
+      "native/providers/gdn/consumer_interval.h": "f21ecbf1836b9a1c5b72e2408d303c89fe46d229d888271f70ec5a47170cacfa",
+      "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+      "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+      "native/providers/moe_accumulator/sm121_projection_interval.h": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+      "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7"
+    },
+    "summaries": [
+      {
+        "type": "summary",
+        "cells": 29364224,
+        "unscaled_residual_admitted": 6675558,
+        "both_residuals_admitted": 6575976,
+        "zero_state_admitted": 244224,
+        "nonzero_state_admitted": 6331752,
+        "invalid_rows": 16011,
+        "original_dots": 131072,
+        "invalid_sampled_dots": 4631,
+        "sampled_state_consumers": 65536,
+        "sampled_state_admitted": 14535,
+        "sampled_output_consumers": 4096,
+        "sampled_output_admitted": 1136,
+        "bound_violations": 0,
+        "original_bf16_mismatches": 0
+      },
+      {
+        "type": "summary",
+        "cells": 29364224,
+        "unscaled_residual_admitted": 7872584,
+        "both_residuals_admitted": 7538945,
+        "zero_state_admitted": 200192,
+        "nonzero_state_admitted": 7338753,
+        "invalid_rows": 91576,
+        "original_dots": 131072,
+        "invalid_sampled_dots": 20299,
+        "sampled_state_consumers": 65536,
+        "sampled_state_admitted": 16782,
+        "sampled_output_consumers": 4096,
+        "sampled_output_admitted": 1579,
+        "bound_violations": 0,
+        "original_bf16_mismatches": 0
+      }
+    ],
+    "decision": "The first absolute bound excluded many small captured operands. The final certificate uses upward normal proxies for subnormals and a minimum-normal product floor. Original output and dot checks are repeated on the broader domain."
+  },
+  "compact_matrix_admission_prior": {
+    "canonical_sha256": "2fbcd6f9476eb14aa013c9b92ffad8ceb221bedf1b7ebbd4eb158037eb026b6c",
+    "scope": "Deterministic sampled WH and QH dots from original layer0/layer1 checkpoints; exact group admission and original raw carry comparison only. No new kernel or timing conclusion.",
+    "observations": [
+      {
+        "directory": "gb10",
+        "observations": [
+          {
+            "operation": "residual_wh",
+            "sampled_dots": 65536,
+            "narrow_dots": 55351,
+            "zero_checkpoints": 543,
+            "groups": 442808,
+            "lossless_integer_groups": 307201,
+            "certified_groups": 284199,
+            "original_groups": 158609,
+            "complete_certified_dots": 3296,
+            "certified_groups_per_dot": [
+              319,
+              855,
+              2392,
+              5223,
+              9347,
+              12838,
+              12622,
+              8459,
+              3296
+            ],
+            "raw_carry_mismatches": 0,
+            "model_loaded": false,
+            "inference_acceptance": false
+          },
+          {
+            "operation": "output_qh",
+            "sampled_dots": 65536,
+            "narrow_dots": 61715,
+            "zero_checkpoints": 615,
+            "groups": 493720,
+            "lossless_integer_groups": 231061,
+            "certified_groups": 188212,
+            "original_groups": 305508,
+            "complete_certified_dots": 282,
+            "certified_groups_per_dot": [
+              3661,
+              8647,
+              12462,
+              13114,
+              11182,
+              7258,
+              3738,
+              1371,
+              282
+            ],
+            "raw_carry_mismatches": 0,
+            "model_loaded": false,
+            "inference_acceptance": false
+          }
+        ]
+      },
+      {
+        "directory": "gb10-layer1",
+        "observations": [
+          {
+            "operation": "residual_wh",
+            "sampled_dots": 65536,
+            "narrow_dots": 43252,
+            "zero_checkpoints": 543,
+            "groups": 346016,
+            "lossless_integer_groups": 202399,
+            "certified_groups": 168683,
+            "original_groups": 177333,
+            "complete_certified_dots": 968,
+            "certified_groups_per_dot": [
+              2317,
+              3130,
+              5370,
+              7319,
+              7904,
+              7264,
+              5684,
+              3296,
+              968
+            ],
+            "raw_carry_mismatches": 0,
+            "model_loaded": false,
+            "inference_acceptance": false
+          },
+          {
+            "operation": "output_qh",
+            "sampled_dots": 65536,
+            "narrow_dots": 61380,
+            "zero_checkpoints": 615,
+            "groups": 491040,
+            "lossless_integer_groups": 233368,
+            "certified_groups": 194078,
+            "original_groups": 296962,
+            "complete_certified_dots": 274,
+            "certified_groups_per_dot": [
+              2871,
+              8494,
+              11964,
+              12751,
+              11223,
+              7947,
+              4408,
+              1448,
+              274
+            ],
+            "raw_carry_mismatches": 0,
+            "model_loaded": false,
+            "inference_acceptance": false
+          }
+        ]
+      }
+    ],
+    "decision": "Few entire captured K128 dots are certified by the existing compact integer matrix primitive. This observation does not establish hardware speed or prohibit another design; the current candidate instead omits dots at proven consumers."
+  },
+  "prepared_native_build": {
+    "source_commit": "29d389b584ca76fdefc359a946b198d7eb478c1f",
+    "prerequisite_commit": "334883600c9ea1a9fc11fb4cf943c103b93403be",
+    "repo": "D:/projects/AIMA-public-absolute-bound-gdn-20260919-r1",
+    "seed": "D:/projects/AIMA-public-prefill-scratch-reuse-20260919-r1",
+    "bundle": "absolute-bound-gdn-29d389b.bundle",
+    "bundle_sha256": "90c9e43ab316c24eac1c07b5e6b8b19682b9c038e5927e903b60acfb24f8f5ec",
+    "script": "run-native-absolute-bound-gdn-r1.ps1",
+    "script_sha256": "8b884c9cdae1490ca2a4f57f67e884231dcacdea7d3c54e43c63223cee8f0ea6",
+    "dispatcher": "dispatch_absolute_bound_gdn_r1.py",
+    "dispatcher_sha256": "5b1228eaced375ee237d5593a7951aaafd73d66787c1394c6644511d965f10d1",
+    "source_sha256": {
+      "native/providers/gdn/absolute_bound_matrices.h": "e2927c981b085bd8fc5c23a3d9e4628607840b75e6bfb6bf245057f4d33512ac",
+      "native/providers/gdn/absolute_dot_bound.h": "1a13b810c8d667f154859433ac78c13f442b77152940a9bc1a3e81668ed8a90e",
+      "native/providers/gdn/blackwell_accumulator.h": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+      "native/providers/gdn/blackwell_lifetime_matrices.h": "fd252e85a357d15d7319be06e6172eee69b0ab10369ae2702219e1a07ee7acce",
+      "native/providers/gdn/blackwell_scalar_matrices.h": "b5afca4c6505188b010dea011493b839499aa3dc1972109b2e29d9111d521aaf",
+      "native/providers/gdn/blackwell_scalar_state.h": "5343f29f341763574afa65f1352112a3d2cf6b688592f3bef34ff3464e4a7ae8",
+      "native/providers/gdn/consumer_interval.h": "f21ecbf1836b9a1c5b72e2408d303c89fe46d229d888271f70ec5a47170cacfa",
+      "native/providers/gdn/paired_score_matrices.h": "8f4ad8dde236962d94d2de7a82415a3dd28046c2f9e3542e2d452c918817224b",
+      "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+      "native/providers/gdn/tiled_scalar_matrices.h": "0065e9e0ce4209bf08774408cc786a1728dc874465c89fed036eb3bfeb8c8dcd",
+      "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+      "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+      "native/providers/moe_accumulator/sm121_dot_certificate.h": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+      "native/providers/moe_accumulator/sm121_f32_carry.h": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+      "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+      "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+      "native/providers/moe_accumulator/sm121_lane_reduce.h": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+      "native/providers/moe_accumulator/sm121_packed_dot_tile.h": "1a40f8a3e3cc176ee3f4d080f8a107d8b5ebf01b7f52bfcd413374e47770942d",
+      "native/providers/moe_accumulator/sm121_paired_products.h": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+      "native/providers/moe_accumulator/sm121_projection_interval.h": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+      "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+      "native/providers/moe_accumulator/sm121_subgroup.h": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+      "native/providers/moe_accumulator/sm121_wave16.h": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+      "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+      "tests/native/absolute_bound_gdn_selftest.cpp": "1be34dc6181ad149f538a4fbf9341cc7bffdc17e4f7ebac1ef4f1ac9e1728a39",
+      "tests/native/tiled_scalar_gdn_selftest.cpp": "8ee65eebaabecdfdbee6d7de626d811106ce7886507c5f3daa14d793d6c9b5f5"
+    },
+    "local_compilation_input_count": 25,
+    "local_validation": {
+      "file": "absolute-bound-gdn-local-r1/result.json",
+      "sha256": "0c0718fc67578fbc0b6a131a7e3c0e70664cf69e50766757cee4a8ef9ef46867",
+      "record": {
+        "host": "Jiawei-MacminideMac-mini.local",
+        "source_sha256": {
+          "native/providers/gdn/absolute_dot_bound.h": "1a13b810c8d667f154859433ac78c13f442b77152940a9bc1a3e81668ed8a90e",
+          "native/providers/gdn/absolute_bound_matrices.h": "e2927c981b085bd8fc5c23a3d9e4628607840b75e6bfb6bf245057f4d33512ac",
+          "native/providers/gdn/consumer_interval.h": "f21ecbf1836b9a1c5b72e2408d303c89fe46d229d888271f70ec5a47170cacfa",
+          "native/providers/gdn/blackwell_lifetime_matrices.h": "fd252e85a357d15d7319be06e6172eee69b0ab10369ae2702219e1a07ee7acce",
+          "native/providers/gdn/blackwell_scalar_matrices.h": "b5afca4c6505188b010dea011493b839499aa3dc1972109b2e29d9111d521aaf",
+          "native/providers/moe_accumulator/sm121_projection_interval.h": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+          "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+          "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+          "tests/native/absolute_bound_gdn_selftest.cpp": "1be34dc6181ad149f538a4fbf9341cc7bffdc17e4f7ebac1ef4f1ac9e1728a39",
+          "tests/native/absolute_bound_gdn_host.cpp": "7fd02c1b70d95113ac6cebef2cf5cb81e5c2e8100faa0338a6cb68fb7441a55b",
+          "tests/native/gdn_absolute_dot_bound_host.cpp": "6973a3486efe1da63fd436663781254b8365c7cdd685cfb8fe6dc87c87b2655b",
+          "tests/test_gdn_absolute_dot_bound.py": "79cb2e52e665ef5f2cfc37f1112d700e0abce273b9afd3e1221f83f80b60be2a",
+          "tests/test_fla_absolute_bound.py": "25af801b01eb142690246f6337feec2e8ea46b0fb2022d130a95f31ab35b1c0a",
+          "tests/test_gdn_consumer_interval.py": "7725148bec1b604b149346ad04d537553203c4c9687b98f455c1f7fbd9e802f7",
+          "docs/ABSOLUTE_BOUND_GDN.md": "f328932fe0396f11b3662445bb584e58c9a95c7a17457cfa894f4235cf684de8"
+        },
+        "checks": [
+          {
+            "command": [
+              "python3",
+              "-m",
+              "unittest",
+              "discover",
+              "-s",
+              "tests",
+              "-p",
+              "test_gdn_absolute_dot_bound.py",
+              "-v"
+            ],
+            "returncode": 0,
+            "seconds": 0.7529731672257185,
+            "stdout_sha256": "1c6a2c2a6365eb0e992e1d0bc5232a2d9d8516ee10e8bdd9fac8ad5c091f5f27",
+            "stderr_sha256": "32f0e1df73c4226e05f8c029004b779c9a0d2019879f8103ffc5b291300f5cdd"
+          },
+          {
+            "command": [
+              "python3",
+              "-m",
+              "unittest",
+              "discover",
+              "-s",
+              "tests",
+              "-p",
+              "test_fla_absolute_bound.py",
+              "-v"
+            ],
+            "returncode": 0,
+            "seconds": 1.6380761675536633,
+            "stdout_sha256": "b777485d9806dc01c99ed59be58ecf774304df5979977617152764986f60775c",
+            "stderr_sha256": "58099c463789010975e204579c01f379dd85ee2877fa7fe399d39d07d537e4d7"
+          },
+          {
+            "command": [
+              "python3",
+              "-m",
+              "unittest",
+              "discover",
+              "-s",
+              "tests",
+              "-p",
+              "test_gdn_consumer_interval.py",
+              "-v"
+            ],
+            "returncode": 0,
+            "seconds": 0.5022806664928794,
+            "stdout_sha256": "98928fb1fc0510b4b19006bd84182bf3a42736f3528f9e752db017fbdfb5298e",
+            "stderr_sha256": "398d50e23bacc88b97ef10792c421ad11166533763d96cabc731da184e853820"
+          },
+          {
+            "command": [
+              "make",
+              "c-smoke"
+            ],
+            "returncode": 0,
+            "seconds": 0.017230750061571598,
+            "stdout_sha256": "e753f9141ab0fe986c48a173957b30ed8564e0ad8b8d475962c80b0cd630960c",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "command": [
+              "git",
+              "diff",
+              "--check"
+            ],
+            "returncode": 0,
+            "seconds": 0.011220707558095455,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "command": [
+              "python3",
+              "tools/public_hygiene.py"
+            ],
+            "returncode": 0,
+            "seconds": 12.862477917224169,
+            "stdout_sha256": "ae116979fe56d24a6cdcbb5bdbf28313bd51c3034eba393cd422c0275969c780",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ],
+        "independent_accumulator_dots": 32768,
+        "actual_kernel_host_cases": 8,
+        "actual_kernel_bodies": true,
+        "host_cta_threads": 128,
+        "native_cta_threads": 256,
+        "both_residual_consumers_checked": true,
+        "original_fp32_state": true,
+        "compacted_replay_and_barriers_checked": true,
+        "runtime_dispatch_changed": false,
+        "native_build_run": false,
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "release_acceptance": false,
+        "runner_sha256": "73af8c12c5c347c1bd4b6023343039f73a7c07b4b5c5c5b5b2e204717ebd2803"
+      }
+    },
+    "original_capture_audit": {
+      "file": "gdn-absolute-dot-bound-r2/result.json",
+      "sha256": "32d6ba00d5b3f504c8c9f305776b612d97ea63d4ae43d77a8018bba28f770355",
+      "record": {
+        "host": "Jiawei-MacminideMac-mini.local",
+        "source_commit": "77a35161251eda37486930c8505561181124a037",
+        "source_sha256": {
+          "native/providers/gdn/absolute_dot_bound.h": "1a13b810c8d667f154859433ac78c13f442b77152940a9bc1a3e81668ed8a90e",
+          "native/providers/gdn/consumer_interval.h": "f21ecbf1836b9a1c5b72e2408d303c89fe46d229d888271f70ec5a47170cacfa",
+          "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+          "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+          "native/providers/moe_accumulator/sm121_projection_interval.h": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+          "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7"
+        },
+        "unit_sha256": "7d52d5e8ab4c90e7c9a948f33f537b42949c410ddaec6e3eed3abe068bb4c2ce",
+        "runner_sha256": "549f49c46102d39b3c0bd9fe627214b48ce61e8b0c356de9a8458c910dcdb5c6",
+        "checks": [
+          {
+            "command": [
+              "c++",
+              "-std=c++17",
+              "-O2",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-ffp-contract=off",
+              "-fsanitize=address,undefined",
+              "-fno-sanitize-recover=all",
+              "-I",
+              "PUBLIC_CHECKOUT",
+              "PRIVATE_CHECKOUT/build/recovery-20260910/audit_gdn_absolute_dot_bound_r1.cpp",
+              "-o",
+              "PRIVATE_CHECKOUT/build/recovery-20260910/gdn-absolute-dot-bound-r2/audit"
+            ],
+            "returncode": 0,
+            "seconds": 0.5622347090393305,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "command": [
+              "PRIVATE_CHECKOUT/build/recovery-20260910/gdn-absolute-dot-bound-r2/audit",
+              "PRIVATE_CHECKOUT/build/release-b802-local/q7169-gdn-stage-compare/gb10",
+              "PRIVATE_CHECKOUT/build/recovery-20260910/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin"
+            ],
+            "returncode": 0,
+            "seconds": 1.5885715000331402,
+            "stdout_sha256": "5f07cc3512de08348c9f449b07a32051a63f4060c347ebbb82173d3e5c56cd6e",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "command": [
+              "PRIVATE_CHECKOUT/build/recovery-20260910/gdn-absolute-dot-bound-r2/audit",
+              "PRIVATE_CHECKOUT/build/release-b802-local/q7169-gdn-stage-compare/gb10-layer1",
+              "PRIVATE_CHECKOUT/build/recovery-20260910/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin"
+            ],
+            "returncode": 0,
+            "seconds": 1.1640682090073824,
+            "stdout_sha256": "2c5d31a6290b194284de14040beb3ebef1d617d35960604207ddb2bd4e10ec70",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ],
+        "captures": [
+          {
+            "directory": "gb10",
+            "files": {
+              "w": {
+                "file": "full-w-bf16.bin",
+                "bytes": 58728448,
+                "sha256": "5cc5baa0e2f85758c28c06f03d8b87d5cff82b361b3382d7b531e2927e545545",
+                "shape": [
+                  1,
+                  7169,
+                  32,
+                  128
+                ],
+                "descriptor_sha256": "f677dff1dda3b88f3727969d84ca9f526b45dc86d8902b03adb12dce93414498"
+              },
+              "u": {
+                "file": "full-u-bf16.bin",
+                "bytes": 58728448,
+                "sha256": "1b4d91596e6554314647111d1dfa156517be6afae313cd69cf51234dfd955cfb",
+                "shape": [
+                  1,
+                  7169,
+                  32,
+                  128
+                ],
+                "descriptor_sha256": "47f7b0efb67db3e0c51eced6322f67b7bc6a73af4fb45100bc1d0af05757358f"
+              },
+              "v-new": {
+                "file": "full-v-new-bf16.bin",
+                "bytes": 58728448,
+                "sha256": "b6fd8d6801622a4b7dc00490a6abee2e584df5e21b907f66eb6fa986a3d2229f",
+                "shape": [
+                  1,
+                  7169,
+                  32,
+                  128
+                ],
+                "descriptor_sha256": "409ce7f5ca9b8993c35cde69402c8376d05591c18aa79fe550d292d2b94bf775"
+              },
+              "output": {
+                "file": "full-output-bf16.bin",
+                "bytes": 58728448,
+                "sha256": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde",
+                "shape": [
+                  1,
+                  7169,
+                  32,
+                  128
+                ],
+                "descriptor_sha256": "98f47fffc574b0b004a248957971cc9a08dd70c517947c94056a8dd146e56932"
+              },
+              "q-normalized": {
+                "file": "full-q-normalized-bf16.bin",
+                "bytes": 29364224,
+                "sha256": "a6c81d03c850de6745ecc0e6810474689f8202cbd4c6cb616d6368b1f051c573",
+                "shape": [
+                  1,
+                  7169,
+                  16,
+                  128
+                ],
+                "descriptor_sha256": "f2a8a3a522b02bfbf68e41116cf96886cc0b9c6c4615c3f66bb1854f2e4ea690"
+              },
+              "k-normalized": {
+                "file": "full-k-normalized-bf16.bin",
+                "bytes": 29364224,
+                "sha256": "7778fce8bbd9ce6d046eec1e2639a0d89e53bb9e3b443b9ab1fe7e8d5656ea24",
+                "shape": [
+                  1,
+                  7169,
+                  16,
+                  128
+                ],
+                "descriptor_sha256": "dcf82be0ea6222e6690f87560fce0edc025671d5df20f9d7406d559185273f27"
+              },
+              "chunk-state": {
+                "file": "full-chunk-state-bf16.bin",
+                "bytes": 118489088,
+                "sha256": "140741e123824032adb256af41c542fe74f8782ca1980b2b8eaba61ca61f6735",
+                "shape": [
+                  1,
+                  113,
+                  32,
+                  128,
+                  128
+                ],
+                "descriptor_sha256": "b194d3b1ecfe378f2d955d6009aaafe5c7c768a22a3053a75fbcae45517ab0df"
+              },
+              "g-cumsum": {
+                "file": "full-g-cumsum-f32.bin",
+                "bytes": 917632,
+                "sha256": "b618db8ede809426f3c95741cce49b03d8c4cbec7888f4af0a397d959dc557b0",
+                "shape": [
+                  1,
+                  7169,
+                  32
+                ],
+                "descriptor_sha256": "4bd5de3f39799ac27d4cae67508b5cd05718a0cb67ebb714c6217702c40de6a6"
+              }
+            },
+            "chunks": [
+              {
+                "type": "chunk",
+                "chunk": 0,
+                "cells": 262144,
+                "both_residuals_admitted": 262144
+              },
+              {
+                "type": "chunk",
+                "chunk": 1,
+                "cells": 262144,
+                "both_residuals_admitted": 75474
+              },
+              {
+                "type": "chunk",
+                "chunk": 2,
+                "cells": 262144,
+                "both_residuals_admitted": 74426
+              },
+              {
+                "type": "chunk",
+                "chunk": 3,
+                "cells": 262144,
+                "both_residuals_admitted": 73674
+              },
+              {
+                "type": "chunk",
+                "chunk": 4,
+                "cells": 262144,
+                "both_residuals_admitted": 74782
+              },
+              {
+                "type": "chunk",
+                "chunk": 5,
+                "cells": 262144,
+                "both_residuals_admitted": 73196
+              },
+              {
+                "type": "chunk",
+                "chunk": 6,
+                "cells": 262144,
+                "both_residuals_admitted": 75064
+              },
+              {
+                "type": "chunk",
+                "chunk": 7,
+                "cells": 262144,
+                "both_residuals_admitted": 76261
+              },
+              {
+                "type": "chunk",
+                "chunk": 8,
+                "cells": 262144,
+                "both_residuals_admitted": 75415
+              },
+              {
+                "type": "chunk",
+                "chunk": 9,
+                "cells": 262144,
+                "both_residuals_admitted": 74812
+              },
+              {
+                "type": "chunk",
+                "chunk": 10,
+                "cells": 262144,
+                "both_residuals_admitted": 74844
+              },
+              {
+                "type": "chunk",
+                "chunk": 11,
+                "cells": 262144,
+                "both_residuals_admitted": 75468
+              },
+              {
+                "type": "chunk",
+                "chunk": 12,
+                "cells": 262144,
+                "both_residuals_admitted": 75221
+              },
+              {
+                "type": "chunk",
+                "chunk": 13,
+                "cells": 262144,
+                "both_residuals_admitted": 75637
+              },
+              {
+                "type": "chunk",
+                "chunk": 14,
+                "cells": 262144,
+                "both_residuals_admitted": 75453
+              },
+              {
+                "type": "chunk",
+                "chunk": 15,
+                "cells": 262144,
+                "both_residuals_admitted": 76427
+              },
+              {
+                "type": "chunk",
+                "chunk": 16,
+                "cells": 262144,
+                "both_residuals_admitted": 75286
+              },
+              {
+                "type": "chunk",
+                "chunk": 17,
+                "cells": 262144,
+                "both_residuals_admitted": 75333
+              },
+              {
+                "type": "chunk",
+                "chunk": 18,
+                "cells": 262144,
+                "both_residuals_admitted": 75333
+              },
+              {
+                "type": "chunk",
+                "chunk": 19,
+                "cells": 262144,
+                "both_residuals_admitted": 74706
+              },
+              {
+                "type": "chunk",
+                "chunk": 20,
+                "cells": 262144,
+                "both_residuals_admitted": 75133
+              },
+              {
+                "type": "chunk",
+                "chunk": 21,
+                "cells": 262144,
+                "both_residuals_admitted": 76434
+              },
+              {
+                "type": "chunk",
+                "chunk": 22,
+                "cells": 262144,
+                "both_residuals_admitted": 73923
+              },
+              {
+                "type": "chunk",
+                "chunk": 23,
+                "cells": 262144,
+                "both_residuals_admitted": 74885
+              },
+              {
+                "type": "chunk",
+                "chunk": 24,
+                "cells": 262144,
+                "both_residuals_admitted": 74101
+              },
+              {
+                "type": "chunk",
+                "chunk": 25,
+                "cells": 262144,
+                "both_residuals_admitted": 74689
+              },
+              {
+                "type": "chunk",
+                "chunk": 26,
+                "cells": 262144,
+                "both_residuals_admitted": 74341
+              },
+              {
+                "type": "chunk",
+                "chunk": 27,
+                "cells": 262144,
+                "both_residuals_admitted": 76042
+              },
+              {
+                "type": "chunk",
+                "chunk": 28,
+                "cells": 262144,
+                "both_residuals_admitted": 75847
+              },
+              {
+                "type": "chunk",
+                "chunk": 29,
+                "cells": 262144,
+                "both_residuals_admitted": 73492
+              },
+              {
+                "type": "chunk",
+                "chunk": 30,
+                "cells": 262144,
+                "both_residuals_admitted": 74734
+              },
+              {
+                "type": "chunk",
+                "chunk": 31,
+                "cells": 262144,
+                "both_residuals_admitted": 74934
+              },
+              {
+                "type": "chunk",
+                "chunk": 32,
+                "cells": 262144,
+                "both_residuals_admitted": 75944
+              },
+              {
+                "type": "chunk",
+                "chunk": 33,
+                "cells": 262144,
+                "both_residuals_admitted": 74801
+              },
+              {
+                "type": "chunk",
+                "chunk": 34,
+                "cells": 262144,
+                "both_residuals_admitted": 75232
+              },
+              {
+                "type": "chunk",
+                "chunk": 35,
+                "cells": 262144,
+                "both_residuals_admitted": 74582
+              },
+              {
+                "type": "chunk",
+                "chunk": 36,
+                "cells": 262144,
+                "both_residuals_admitted": 73675
+              },
+              {
+                "type": "chunk",
+                "chunk": 37,
+                "cells": 262144,
+                "both_residuals_admitted": 74324
+              },
+              {
+                "type": "chunk",
+                "chunk": 38,
+                "cells": 262144,
+                "both_residuals_admitted": 75498
+              },
+              {
+                "type": "chunk",
+                "chunk": 39,
+                "cells": 262144,
+                "both_residuals_admitted": 75615
+              },
+              {
+                "type": "chunk",
+                "chunk": 40,
+                "cells": 262144,
+                "both_residuals_admitted": 74840
+              },
+              {
+                "type": "chunk",
+                "chunk": 41,
+                "cells": 262144,
+                "both_residuals_admitted": 76603
+              },
+              {
+                "type": "chunk",
+                "chunk": 42,
+                "cells": 262144,
+                "both_residuals_admitted": 74847
+              },
+              {
+                "type": "chunk",
+                "chunk": 43,
+                "cells": 262144,
+                "both_residuals_admitted": 76207
+              },
+              {
+                "type": "chunk",
+                "chunk": 44,
+                "cells": 262144,
+                "both_residuals_admitted": 74614
+              },
+              {
+                "type": "chunk",
+                "chunk": 45,
+                "cells": 262144,
+                "both_residuals_admitted": 72542
+              },
+              {
+                "type": "chunk",
+                "chunk": 46,
+                "cells": 262144,
+                "both_residuals_admitted": 74579
+              },
+              {
+                "type": "chunk",
+                "chunk": 47,
+                "cells": 262144,
+                "both_residuals_admitted": 74186
+              },
+              {
+                "type": "chunk",
+                "chunk": 48,
+                "cells": 262144,
+                "both_residuals_admitted": 75348
+              },
+              {
+                "type": "chunk",
+                "chunk": 49,
+                "cells": 262144,
+                "both_residuals_admitted": 74637
+              },
+              {
+                "type": "chunk",
+                "chunk": 50,
+                "cells": 262144,
+                "both_residuals_admitted": 75966
+              },
+              {
+                "type": "chunk",
+                "chunk": 51,
+                "cells": 262144,
+                "both_residuals_admitted": 75844
+              },
+              {
+                "type": "chunk",
+                "chunk": 52,
+                "cells": 262144,
+                "both_residuals_admitted": 75552
+              },
+              {
+                "type": "chunk",
+                "chunk": 53,
+                "cells": 262144,
+                "both_residuals_admitted": 73681
+              },
+              {
+                "type": "chunk",
+                "chunk": 54,
+                "cells": 262144,
+                "both_residuals_admitted": 75987
+              },
+              {
+                "type": "chunk",
+                "chunk": 55,
+                "cells": 262144,
+                "both_residuals_admitted": 74322
+              },
+              {
+                "type": "chunk",
+                "chunk": 56,
+                "cells": 262144,
+                "both_residuals_admitted": 75215
+              },
+              {
+                "type": "chunk",
+                "chunk": 57,
+                "cells": 262144,
+                "both_residuals_admitted": 73687
+              },
+              {
+                "type": "chunk",
+                "chunk": 58,
+                "cells": 262144,
+                "both_residuals_admitted": 75607
+              },
+              {
+                "type": "chunk",
+                "chunk": 59,
+                "cells": 262144,
+                "both_residuals_admitted": 74776
+              },
+              {
+                "type": "chunk",
+                "chunk": 60,
+                "cells": 262144,
+                "both_residuals_admitted": 76127
+              },
+              {
+                "type": "chunk",
+                "chunk": 61,
+                "cells": 262144,
+                "both_residuals_admitted": 75522
+              },
+              {
+                "type": "chunk",
+                "chunk": 62,
+                "cells": 262144,
+                "both_residuals_admitted": 73014
+              },
+              {
+                "type": "chunk",
+                "chunk": 63,
+                "cells": 262144,
+                "both_residuals_admitted": 75173
+              },
+              {
+                "type": "chunk",
+                "chunk": 64,
+                "cells": 262144,
+                "both_residuals_admitted": 75866
+              },
+              {
+                "type": "chunk",
+                "chunk": 65,
+                "cells": 262144,
+                "both_residuals_admitted": 75597
+              },
+              {
+                "type": "chunk",
+                "chunk": 66,
+                "cells": 262144,
+                "both_residuals_admitted": 75414
+              },
+              {
+                "type": "chunk",
+                "chunk": 67,
+                "cells": 262144,
+                "both_residuals_admitted": 74988
+              },
+              {
+                "type": "chunk",
+                "chunk": 68,
+                "cells": 262144,
+                "both_residuals_admitted": 75124
+              },
+              {
+                "type": "chunk",
+                "chunk": 69,
+                "cells": 262144,
+                "both_residuals_admitted": 74216
+              },
+              {
+                "type": "chunk",
+                "chunk": 70,
+                "cells": 262144,
+                "both_residuals_admitted": 75551
+              },
+              {
+                "type": "chunk",
+                "chunk": 71,
+                "cells": 262144,
+                "both_residuals_admitted": 75579
+              },
+              {
+                "type": "chunk",
+                "chunk": 72,
+                "cells": 262144,
+                "both_residuals_admitted": 75422
+              },
+              {
+                "type": "chunk",
+                "chunk": 73,
+                "cells": 262144,
+                "both_residuals_admitted": 75007
+              },
+              {
+                "type": "chunk",
+                "chunk": 74,
+                "cells": 262144,
+                "both_residuals_admitted": 75839
+              },
+              {
+                "type": "chunk",
+                "chunk": 75,
+                "cells": 262144,
+                "both_residuals_admitted": 75769
+              },
+              {
+                "type": "chunk",
+                "chunk": 76,
+                "cells": 262144,
+                "both_residuals_admitted": 75506
+              },
+              {
+                "type": "chunk",
+                "chunk": 77,
+                "cells": 262144,
+                "both_residuals_admitted": 75381
+              },
+              {
+                "type": "chunk",
+                "chunk": 78,
+                "cells": 262144,
+                "both_residuals_admitted": 75255
+              },
+              {
+                "type": "chunk",
+                "chunk": 79,
+                "cells": 262144,
+                "both_residuals_admitted": 74902
+              },
+              {
+                "type": "chunk",
+                "chunk": 80,
+                "cells": 262144,
+                "both_residuals_admitted": 75496
+              },
+              {
+                "type": "chunk",
+                "chunk": 81,
+                "cells": 262144,
+                "both_residuals_admitted": 75820
+              },
+              {
+                "type": "chunk",
+                "chunk": 82,
+                "cells": 262144,
+                "both_residuals_admitted": 75550
+              },
+              {
+                "type": "chunk",
+                "chunk": 83,
+                "cells": 262144,
+                "both_residuals_admitted": 75128
+              },
+              {
+                "type": "chunk",
+                "chunk": 84,
+                "cells": 262144,
+                "both_residuals_admitted": 75275
+              },
+              {
+                "type": "chunk",
+                "chunk": 85,
+                "cells": 262144,
+                "both_residuals_admitted": 76267
+              },
+              {
+                "type": "chunk",
+                "chunk": 86,
+                "cells": 262144,
+                "both_residuals_admitted": 75248
+              },
+              {
+                "type": "chunk",
+                "chunk": 87,
+                "cells": 262144,
+                "both_residuals_admitted": 73722
+              },
+              {
+                "type": "chunk",
+                "chunk": 88,
+                "cells": 262144,
+                "both_residuals_admitted": 75863
+              },
+              {
+                "type": "chunk",
+                "chunk": 89,
+                "cells": 262144,
+                "both_residuals_admitted": 74035
+              },
+              {
+                "type": "chunk",
+                "chunk": 90,
+                "cells": 262144,
+                "both_residuals_admitted": 75533
+              },
+              {
+                "type": "chunk",
+                "chunk": 91,
+                "cells": 262144,
+                "both_residuals_admitted": 74177
+              },
+              {
+                "type": "chunk",
+                "chunk": 92,
+                "cells": 262144,
+                "both_residuals_admitted": 75809
+              },
+              {
+                "type": "chunk",
+                "chunk": 93,
+                "cells": 262144,
+                "both_residuals_admitted": 75202
+              },
+              {
+                "type": "chunk",
+                "chunk": 94,
+                "cells": 262144,
+                "both_residuals_admitted": 76062
+              },
+              {
+                "type": "chunk",
+                "chunk": 95,
+                "cells": 262144,
+                "both_residuals_admitted": 75119
+              },
+              {
+                "type": "chunk",
+                "chunk": 96,
+                "cells": 262144,
+                "both_residuals_admitted": 75078
+              },
+              {
+                "type": "chunk",
+                "chunk": 97,
+                "cells": 262144,
+                "both_residuals_admitted": 75341
+              },
+              {
+                "type": "chunk",
+                "chunk": 98,
+                "cells": 262144,
+                "both_residuals_admitted": 74367
+              },
+              {
+                "type": "chunk",
+                "chunk": 99,
+                "cells": 262144,
+                "both_residuals_admitted": 74297
+              },
+              {
+                "type": "chunk",
+                "chunk": 100,
+                "cells": 262144,
+                "both_residuals_admitted": 75214
+              },
+              {
+                "type": "chunk",
+                "chunk": 101,
+                "cells": 262144,
+                "both_residuals_admitted": 75557
+              },
+              {
+                "type": "chunk",
+                "chunk": 102,
+                "cells": 262144,
+                "both_residuals_admitted": 73933
+              },
+              {
+                "type": "chunk",
+                "chunk": 103,
+                "cells": 262144,
+                "both_residuals_admitted": 74645
+              },
+              {
+                "type": "chunk",
+                "chunk": 104,
+                "cells": 262144,
+                "both_residuals_admitted": 75376
+              },
+              {
+                "type": "chunk",
+                "chunk": 105,
+                "cells": 262144,
+                "both_residuals_admitted": 75502
+              },
+              {
+                "type": "chunk",
+                "chunk": 106,
+                "cells": 262144,
+                "both_residuals_admitted": 74739
+              },
+              {
+                "type": "chunk",
+                "chunk": 107,
+                "cells": 262144,
+                "both_residuals_admitted": 73738
+              },
+              {
+                "type": "chunk",
+                "chunk": 108,
+                "cells": 262144,
+                "both_residuals_admitted": 73211
+              },
+              {
+                "type": "chunk",
+                "chunk": 109,
+                "cells": 262144,
+                "both_residuals_admitted": 75067
+              },
+              {
+                "type": "chunk",
+                "chunk": 110,
+                "cells": 262144,
+                "both_residuals_admitted": 74333
+              },
+              {
+                "type": "chunk",
+                "chunk": 111,
+                "cells": 262144,
+                "both_residuals_admitted": 74624
+              },
+              {
+                "type": "chunk",
+                "chunk": 112,
+                "cells": 4096,
+                "both_residuals_admitted": 640
+              }
+            ],
+            "summary": {
+              "type": "summary",
+              "cells": 29364224,
+              "unscaled_residual_admitted": 8691024,
+              "both_residuals_admitted": 8591442,
+              "zero_state_admitted": 262144,
+              "nonzero_state_admitted": 8329298,
+              "invalid_rows": 0,
+              "original_dots": 131072,
+              "invalid_sampled_dots": 0,
+              "sampled_state_consumers": 65536,
+              "sampled_state_admitted": 19088,
+              "sampled_output_consumers": 4096,
+              "sampled_output_admitted": 1143,
+              "bound_violations": 0,
+              "original_bf16_mismatches": 0
+            }
+          },
+          {
+            "directory": "gb10-layer1",
+            "files": {
+              "w": {
+                "file": "full-w-bf16.bin",
+                "bytes": 58728448,
+                "sha256": "e2a388c54f5f7555eefcf3ebb727e1e1bd40fb974e1a00ec2bcb0845320777a2",
+                "shape": [
+                  1,
+                  7169,
+                  32,
+                  128
+                ],
+                "descriptor_sha256": "d3d8695ec2c6cb54408750705c4eec514a02ee465a9b43d52e25c3693f8e1fb9"
+              },
+              "u": {
+                "file": "full-u-bf16.bin",
+                "bytes": 58728448,
+                "sha256": "5edae3e35883e85d3aaf01adea44a42003538fc6acdf481eb49a6bce286d3dd7",
+                "shape": [
+                  1,
+                  7169,
+                  32,
+                  128
+                ],
+                "descriptor_sha256": "5aae5a0d97ba8a814d991e268ab3f5fd7010372dbfb9d3859de7681630a829ad"
+              },
+              "v-new": {
+                "file": "full-v-new-bf16.bin",
+                "bytes": 58728448,
+                "sha256": "bf96fee386ca4c3d4297833ae7c02eb4c98d75c7e8133c7799b7f121d80906be",
+                "shape": [
+                  1,
+                  7169,
+                  32,
+                  128
+                ],
+                "descriptor_sha256": "cb16d8dba7d2afa3fd260017fb2e38c8562472e19900083ee23c80e2ee248ec9"
+              },
+              "output": {
+                "file": "full-output-bf16.bin",
+                "bytes": 58728448,
+                "sha256": "8863836559f572c6b7d63dc593d1f134359f88ec9289dfb76e5d8a20e7491bd0",
+                "shape": [
+                  1,
+                  7169,
+                  32,
+                  128
+                ],
+                "descriptor_sha256": "f8c0819a8f240d59b61ee8b269d285a5d41fdfb43843a3ab41e3c0bc103f8da0"
+              },
+              "q-normalized": {
+                "file": "full-q-normalized-bf16.bin",
+                "bytes": 29364224,
+                "sha256": "f079b7c06588dd7490318f350f54a8b75ca6c4bffaca517b68f1e6d71adfd0b1",
+                "shape": [
+                  1,
+                  7169,
+                  16,
+                  128
+                ],
+                "descriptor_sha256": "f31e243c7d51f2ea31a0dfeaf506548aad93e4d816e04c5dc658b71115211705"
+              },
+              "k-normalized": {
+                "file": "full-k-normalized-bf16.bin",
+                "bytes": 29364224,
+                "sha256": "4266732cccb1a2d7054fb9e5426513e3bb58ff4e4f62abe88bb5f773f6fbc78c",
+                "shape": [
+                  1,
+                  7169,
+                  16,
+                  128
+                ],
+                "descriptor_sha256": "daf5ed9dfb4b4553a632916edb51b7a2387a97b2ad1de99fd311a7aee5fb7df9"
+              },
+              "chunk-state": {
+                "file": "full-chunk-state-bf16.bin",
+                "bytes": 118489088,
+                "sha256": "b1a0a8c4e491347902dfe1fe9becd6aa33c2ec6bb447f39de262a957af1eeb4b",
+                "shape": [
+                  1,
+                  113,
+                  32,
+                  128,
+                  128
+                ],
+                "descriptor_sha256": "7016801d67a8a85c620207c25d41935356f298c0c0bf18d756f613d54ca84bfc"
+              },
+              "g-cumsum": {
+                "file": "full-g-cumsum-f32.bin",
+                "bytes": 917632,
+                "sha256": "e4433815f2d56edf684ab67878761581d4a57d01636c1c8b09a6930ad271d6fe",
+                "shape": [
+                  1,
+                  7169,
+                  32
+                ],
+                "descriptor_sha256": "c468f263f54026b2db9ffbb71cde48fe98b98c5578079c621e6c8487d2c76c85"
+              }
+            },
+            "chunks": [
+              {
+                "type": "chunk",
+                "chunk": 0,
+                "cells": 262144,
+                "both_residuals_admitted": 262144
+              },
+              {
+                "type": "chunk",
+                "chunk": 1,
+                "cells": 262144,
+                "both_residuals_admitted": 134410
+              },
+              {
+                "type": "chunk",
+                "chunk": 2,
+                "cells": 262144,
+                "both_residuals_admitted": 128912
+              },
+              {
+                "type": "chunk",
+                "chunk": 3,
+                "cells": 262144,
+                "both_residuals_admitted": 129826
+              },
+              {
+                "type": "chunk",
+                "chunk": 4,
+                "cells": 262144,
+                "both_residuals_admitted": 127522
+              },
+              {
+                "type": "chunk",
+                "chunk": 5,
+                "cells": 262144,
+                "both_residuals_admitted": 127298
+              },
+              {
+                "type": "chunk",
+                "chunk": 6,
+                "cells": 262144,
+                "both_residuals_admitted": 131086
+              },
+              {
+                "type": "chunk",
+                "chunk": 7,
+                "cells": 262144,
+                "both_residuals_admitted": 133471
+              },
+              {
+                "type": "chunk",
+                "chunk": 8,
+                "cells": 262144,
+                "both_residuals_admitted": 129085
+              },
+              {
+                "type": "chunk",
+                "chunk": 9,
+                "cells": 262144,
+                "both_residuals_admitted": 132066
+              },
+              {
+                "type": "chunk",
+                "chunk": 10,
+                "cells": 262144,
+                "both_residuals_admitted": 130743
+              },
+              {
+                "type": "chunk",
+                "chunk": 11,
+                "cells": 262144,
+                "both_residuals_admitted": 131354
+              },
+              {
+                "type": "chunk",
+                "chunk": 12,
+                "cells": 262144,
+                "both_residuals_admitted": 132948
+              },
+              {
+                "type": "chunk",
+                "chunk": 13,
+                "cells": 262144,
+                "both_residuals_admitted": 128864
+              },
+              {
+                "type": "chunk",
+                "chunk": 14,
+                "cells": 262144,
+                "both_residuals_admitted": 131190
+              },
+              {
+                "type": "chunk",
+                "chunk": 15,
+                "cells": 262144,
+                "both_residuals_admitted": 131159
+              },
+              {
+                "type": "chunk",
+                "chunk": 16,
+                "cells": 262144,
+                "both_residuals_admitted": 131931
+              },
+              {
+                "type": "chunk",
+                "chunk": 17,
+                "cells": 262144,
+                "both_residuals_admitted": 127163
+              },
+              {
+                "type": "chunk",
+                "chunk": 18,
+                "cells": 262144,
+                "both_residuals_admitted": 129114
+              },
+              {
+                "type": "chunk",
+                "chunk": 19,
+                "cells": 262144,
+                "both_residuals_admitted": 131517
+              },
+              {
+                "type": "chunk",
+                "chunk": 20,
+                "cells": 262144,
+                "both_residuals_admitted": 132766
+              },
+              {
+                "type": "chunk",
+                "chunk": 21,
+                "cells": 262144,
+                "both_residuals_admitted": 134662
+              },
+              {
+                "type": "chunk",
+                "chunk": 22,
+                "cells": 262144,
+                "both_residuals_admitted": 130969
+              },
+              {
+                "type": "chunk",
+                "chunk": 23,
+                "cells": 262144,
+                "both_residuals_admitted": 128911
+              },
+              {
+                "type": "chunk",
+                "chunk": 24,
+                "cells": 262144,
+                "both_residuals_admitted": 127615
+              },
+              {
+                "type": "chunk",
+                "chunk": 25,
+                "cells": 262144,
+                "both_residuals_admitted": 130474
+              },
+              {
+                "type": "chunk",
+                "chunk": 26,
+                "cells": 262144,
+                "both_residuals_admitted": 128849
+              },
+              {
+                "type": "chunk",
+                "chunk": 27,
+                "cells": 262144,
+                "both_residuals_admitted": 130448
+              },
+              {
+                "type": "chunk",
+                "chunk": 28,
+                "cells": 262144,
+                "both_residuals_admitted": 131530
+              },
+              {
+                "type": "chunk",
+                "chunk": 29,
+                "cells": 262144,
+                "both_residuals_admitted": 128254
+              },
+              {
+                "type": "chunk",
+                "chunk": 30,
+                "cells": 262144,
+                "both_residuals_admitted": 128990
+              },
+              {
+                "type": "chunk",
+                "chunk": 31,
+                "cells": 262144,
+                "both_residuals_admitted": 128327
+              },
+              {
+                "type": "chunk",
+                "chunk": 32,
+                "cells": 262144,
+                "both_residuals_admitted": 135568
+              },
+              {
+                "type": "chunk",
+                "chunk": 33,
+                "cells": 262144,
+                "both_residuals_admitted": 129768
+              },
+              {
+                "type": "chunk",
+                "chunk": 34,
+                "cells": 262144,
+                "both_residuals_admitted": 131239
+              },
+              {
+                "type": "chunk",
+                "chunk": 35,
+                "cells": 262144,
+                "both_residuals_admitted": 128127
+              },
+              {
+                "type": "chunk",
+                "chunk": 36,
+                "cells": 262144,
+                "both_residuals_admitted": 128745
+              },
+              {
+                "type": "chunk",
+                "chunk": 37,
+                "cells": 262144,
+                "both_residuals_admitted": 130200
+              },
+              {
+                "type": "chunk",
+                "chunk": 38,
+                "cells": 262144,
+                "both_residuals_admitted": 129430
+              },
+              {
+                "type": "chunk",
+                "chunk": 39,
+                "cells": 262144,
+                "both_residuals_admitted": 131073
+              },
+              {
+                "type": "chunk",
+                "chunk": 40,
+                "cells": 262144,
+                "both_residuals_admitted": 129616
+              },
+              {
+                "type": "chunk",
+                "chunk": 41,
+                "cells": 262144,
+                "both_residuals_admitted": 134806
+              },
+              {
+                "type": "chunk",
+                "chunk": 42,
+                "cells": 262144,
+                "both_residuals_admitted": 130634
+              },
+              {
+                "type": "chunk",
+                "chunk": 43,
+                "cells": 262144,
+                "both_residuals_admitted": 133490
+              },
+              {
+                "type": "chunk",
+                "chunk": 44,
+                "cells": 262144,
+                "both_residuals_admitted": 128591
+              },
+              {
+                "type": "chunk",
+                "chunk": 45,
+                "cells": 262144,
+                "both_residuals_admitted": 129481
+              },
+              {
+                "type": "chunk",
+                "chunk": 46,
+                "cells": 262144,
+                "both_residuals_admitted": 129872
+              },
+              {
+                "type": "chunk",
+                "chunk": 47,
+                "cells": 262144,
+                "both_residuals_admitted": 127486
+              },
+              {
+                "type": "chunk",
+                "chunk": 48,
+                "cells": 262144,
+                "both_residuals_admitted": 131145
+              },
+              {
+                "type": "chunk",
+                "chunk": 49,
+                "cells": 262144,
+                "both_residuals_admitted": 129256
+              },
+              {
+                "type": "chunk",
+                "chunk": 50,
+                "cells": 262144,
+                "both_residuals_admitted": 132477
+              },
+              {
+                "type": "chunk",
+                "chunk": 51,
+                "cells": 262144,
+                "both_residuals_admitted": 135678
+              },
+              {
+                "type": "chunk",
+                "chunk": 52,
+                "cells": 262144,
+                "both_residuals_admitted": 130927
+              },
+              {
+                "type": "chunk",
+                "chunk": 53,
+                "cells": 262144,
+                "both_residuals_admitted": 128972
+              },
+              {
+                "type": "chunk",
+                "chunk": 54,
+                "cells": 262144,
+                "both_residuals_admitted": 131719
+              },
+              {
+                "type": "chunk",
+                "chunk": 55,
+                "cells": 262144,
+                "both_residuals_admitted": 126542
+              },
+              {
+                "type": "chunk",
+                "chunk": 56,
+                "cells": 262144,
+                "both_residuals_admitted": 132279
+              },
+              {
+                "type": "chunk",
+                "chunk": 57,
+                "cells": 262144,
+                "both_residuals_admitted": 123971
+              },
+              {
+                "type": "chunk",
+                "chunk": 58,
+                "cells": 262144,
+                "both_residuals_admitted": 129874
+              },
+              {
+                "type": "chunk",
+                "chunk": 59,
+                "cells": 262144,
+                "both_residuals_admitted": 132824
+              },
+              {
+                "type": "chunk",
+                "chunk": 60,
+                "cells": 262144,
+                "both_residuals_admitted": 135495
+              },
+              {
+                "type": "chunk",
+                "chunk": 61,
+                "cells": 262144,
+                "both_residuals_admitted": 128433
+              },
+              {
+                "type": "chunk",
+                "chunk": 62,
+                "cells": 262144,
+                "both_residuals_admitted": 125802
+              },
+              {
+                "type": "chunk",
+                "chunk": 63,
+                "cells": 262144,
+                "both_residuals_admitted": 130199
+              },
+              {
+                "type": "chunk",
+                "chunk": 64,
+                "cells": 262144,
+                "both_residuals_admitted": 131947
+              },
+              {
+                "type": "chunk",
+                "chunk": 65,
+                "cells": 262144,
+                "both_residuals_admitted": 126572
+              },
+              {
+                "type": "chunk",
+                "chunk": 66,
+                "cells": 262144,
+                "both_residuals_admitted": 129256
+              },
+              {
+                "type": "chunk",
+                "chunk": 67,
+                "cells": 262144,
+                "both_residuals_admitted": 136058
+              },
+              {
+                "type": "chunk",
+                "chunk": 68,
+                "cells": 262144,
+                "both_residuals_admitted": 132373
+              },
+              {
+                "type": "chunk",
+                "chunk": 69,
+                "cells": 262144,
+                "both_residuals_admitted": 129021
+              },
+              {
+                "type": "chunk",
+                "chunk": 70,
+                "cells": 262144,
+                "both_residuals_admitted": 133690
+              },
+              {
+                "type": "chunk",
+                "chunk": 71,
+                "cells": 262144,
+                "both_residuals_admitted": 132406
+              },
+              {
+                "type": "chunk",
+                "chunk": 72,
+                "cells": 262144,
+                "both_residuals_admitted": 129461
+              },
+              {
+                "type": "chunk",
+                "chunk": 73,
+                "cells": 262144,
+                "both_residuals_admitted": 130292
+              },
+              {
+                "type": "chunk",
+                "chunk": 74,
+                "cells": 262144,
+                "both_residuals_admitted": 127398
+              },
+              {
+                "type": "chunk",
+                "chunk": 75,
+                "cells": 262144,
+                "both_residuals_admitted": 132647
+              },
+              {
+                "type": "chunk",
+                "chunk": 76,
+                "cells": 262144,
+                "both_residuals_admitted": 127756
+              },
+              {
+                "type": "chunk",
+                "chunk": 77,
+                "cells": 262144,
+                "both_residuals_admitted": 132377
+              },
+              {
+                "type": "chunk",
+                "chunk": 78,
+                "cells": 262144,
+                "both_residuals_admitted": 130865
+              },
+              {
+                "type": "chunk",
+                "chunk": 79,
+                "cells": 262144,
+                "both_residuals_admitted": 130298
+              },
+              {
+                "type": "chunk",
+                "chunk": 80,
+                "cells": 262144,
+                "both_residuals_admitted": 131303
+              },
+              {
+                "type": "chunk",
+                "chunk": 81,
+                "cells": 262144,
+                "both_residuals_admitted": 131886
+              },
+              {
+                "type": "chunk",
+                "chunk": 82,
+                "cells": 262144,
+                "both_residuals_admitted": 129676
+              },
+              {
+                "type": "chunk",
+                "chunk": 83,
+                "cells": 262144,
+                "both_residuals_admitted": 131183
+              },
+              {
+                "type": "chunk",
+                "chunk": 84,
+                "cells": 262144,
+                "both_residuals_admitted": 133109
+              },
+              {
+                "type": "chunk",
+                "chunk": 85,
+                "cells": 262144,
+                "both_residuals_admitted": 134130
+              },
+              {
+                "type": "chunk",
+                "chunk": 86,
+                "cells": 262144,
+                "both_residuals_admitted": 131099
+              },
+              {
+                "type": "chunk",
+                "chunk": 87,
+                "cells": 262144,
+                "both_residuals_admitted": 133062
+              },
+              {
+                "type": "chunk",
+                "chunk": 88,
+                "cells": 262144,
+                "both_residuals_admitted": 137459
+              },
+              {
+                "type": "chunk",
+                "chunk": 89,
+                "cells": 262144,
+                "both_residuals_admitted": 127892
+              },
+              {
+                "type": "chunk",
+                "chunk": 90,
+                "cells": 262144,
+                "both_residuals_admitted": 133053
+              },
+              {
+                "type": "chunk",
+                "chunk": 91,
+                "cells": 262144,
+                "both_residuals_admitted": 133338
+              },
+              {
+                "type": "chunk",
+                "chunk": 92,
+                "cells": 262144,
+                "both_residuals_admitted": 137366
+              },
+              {
+                "type": "chunk",
+                "chunk": 93,
+                "cells": 262144,
+                "both_residuals_admitted": 132406
+              },
+              {
+                "type": "chunk",
+                "chunk": 94,
+                "cells": 262144,
+                "both_residuals_admitted": 133897
+              },
+              {
+                "type": "chunk",
+                "chunk": 95,
+                "cells": 262144,
+                "both_residuals_admitted": 132976
+              },
+              {
+                "type": "chunk",
+                "chunk": 96,
+                "cells": 262144,
+                "both_residuals_admitted": 132938
+              },
+              {
+                "type": "chunk",
+                "chunk": 97,
+                "cells": 262144,
+                "both_residuals_admitted": 129106
+              },
+              {
+                "type": "chunk",
+                "chunk": 98,
+                "cells": 262144,
+                "both_residuals_admitted": 130103
+              },
+              {
+                "type": "chunk",
+                "chunk": 99,
+                "cells": 262144,
+                "both_residuals_admitted": 126365
+              },
+              {
+                "type": "chunk",
+                "chunk": 100,
+                "cells": 262144,
+                "both_residuals_admitted": 133657
+              },
+              {
+                "type": "chunk",
+                "chunk": 101,
+                "cells": 262144,
+                "both_residuals_admitted": 128122
+              },
+              {
+                "type": "chunk",
+                "chunk": 102,
+                "cells": 262144,
+                "both_residuals_admitted": 126528
+              },
+              {
+                "type": "chunk",
+                "chunk": 103,
+                "cells": 262144,
+                "both_residuals_admitted": 128845
+              },
+              {
+                "type": "chunk",
+                "chunk": 104,
+                "cells": 262144,
+                "both_residuals_admitted": 127498
+              },
+              {
+                "type": "chunk",
+                "chunk": 105,
+                "cells": 262144,
+                "both_residuals_admitted": 130206
+              },
+              {
+                "type": "chunk",
+                "chunk": 106,
+                "cells": 262144,
+                "both_residuals_admitted": 130046
+              },
+              {
+                "type": "chunk",
+                "chunk": 107,
+                "cells": 262144,
+                "both_residuals_admitted": 130720
+              },
+              {
+                "type": "chunk",
+                "chunk": 108,
+                "cells": 262144,
+                "both_residuals_admitted": 126240
+              },
+              {
+                "type": "chunk",
+                "chunk": 109,
+                "cells": 262144,
+                "both_residuals_admitted": 129917
+              },
+              {
+                "type": "chunk",
+                "chunk": 110,
+                "cells": 262144,
+                "both_residuals_admitted": 128588
+              },
+              {
+                "type": "chunk",
+                "chunk": 111,
+                "cells": 262144,
+                "both_residuals_admitted": 128416
+              },
+              {
+                "type": "chunk",
+                "chunk": 112,
+                "cells": 4096,
+                "both_residuals_admitted": 16
+              }
+            ],
+            "summary": {
+              "type": "summary",
+              "cells": 29364224,
+              "unscaled_residual_admitted": 15106529,
+              "both_residuals_admitted": 14760880,
+              "zero_state_admitted": 262144,
+              "nonzero_state_admitted": 14498736,
+              "invalid_rows": 0,
+              "original_dots": 131072,
+              "invalid_sampled_dots": 0,
+              "sampled_state_consumers": 65536,
+              "sampled_state_admitted": 32778,
+              "sampled_output_consumers": 4096,
+              "sampled_output_admitted": 1822,
+              "bound_violations": 0,
+              "original_bf16_mismatches": 0
+            }
+          }
+        ],
+        "table_sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+        "original_captured_activations_only": true,
+        "native_gpu_run": false,
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "scope": "Full original layer0/layer1 WH admission for both residual consumers, complete admitted unscaled residuals compared with GB10 capture, independent original dot samples and output reconstruction. Same source norm helper intended for GPU; no throughput conclusion."
+      }
+    },
+    "previous_model_run": "scratch-compact-query-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+    "previous_model_remote_record": "D:\\projects\\AIMA-public-compact-suffix-query-20260919-r2\\build\\scratch-compact-query-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1\\run-record.json",
+    "prerequisite_policy": "Require completed local and remote process/host cleanup, regardless of model outcome. No native build or GPU action while the current original256k owner is active.",
+    "native_actions": [
+      "build",
+      "test",
+      "q7169",
+      "q8192"
+    ],
+    "native_process_timeouts_seconds": {
+      "build": 180,
+      "test": 300,
+      "q7169": 300,
+      "q8192": 300
+    },
+    "transport_timeout_seconds": 420,
+    "native_variants": [
+      "retained_complete_chain",
+      "bounded_state",
+      "bounded_state_and_output"
+    ],
+    "runtime_dispatch_changed": false,
+    "additional_global_workspace_bytes": 0,
+    "shared_replay_capacity_cells": 512,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "native_dispatched": false,
+    "source_generator": "prepare_absolute_bound_gdn_native_r1.py",
+    "source_generator_sha256": "f5230062690bf350fc8ae2b7a46de58e6427bc34b68664d6b16b0b5d768555d7"
+  },
+  "prepared_native_manifest_sha256": "0388d72e0da03a06c413a8a93329382a175f47244b9f29e65f84e0f39bbb28bd",
+  "native_powershell_grammar": {
+    "host": "BAIYING",
+    "utc": "2026-09-19T12:24:00.9745103Z",
+    "file": "D:/projects/run-native-absolute-bound-gdn-r1.ps1",
+    "sha256": "8b884c9cdae1490ca2a4f57f67e884231dcacdea7d3c54e43c63223cee8f0ea6",
+    "parse_errors": [],
+    "native_dispatched": false,
+    "model_loaded": false
+  },
+  "native_grammar_record_sha256": "afe44e01a248c63719566d61c6a6c14aab6a9fd4ce88312be8f2ecf996855018",
+  "native_build_executed": false,
+  "original_token_model_run_executed": false,
+  "runtime_dispatch_changed": false,
+  "physical_memory_benefit_established": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_acceptance": false,
+  "scope": "The actual norm certificate and compacted exact-replay state/output bodies pass host numerical and ownership checks. Captured admission counts cover both residual consumers and sampled output consumers; independent original dots and complete sampled outputs match the captured GB10 boundary. The isolated 26-input native fixture is prepared and its PowerShell grammar passes. Native safety, complete component timing and real-model correctness/performance are still unrun. No runtime dispatcher, package, guard or acceptance threshold changes.",
+  "recorder": {
+    "file": "record_absolute_bound_gdn_preparation_r1.py",
+    "sha256": "a60549b8422ac1d4c2e0bb54fa1ad8dde2113b29f150677cdf9bd9ced2c86eb2"
+  }
+}
