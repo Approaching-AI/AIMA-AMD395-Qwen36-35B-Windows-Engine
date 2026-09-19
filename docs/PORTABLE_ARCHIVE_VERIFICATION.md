@@ -20,6 +20,12 @@ runtime-manifest hash. That historical package contains the server CLI;
 the default `current` profile also requires the separate product CLI used
 by current candidates. Historical inventory inspection supplies no new
 model correctness, rollback execution or current release acceptance.
+The [published archive provenance check](../benchmarks/correctness/published-v101-archive-provenance-20260919.json)
+matches the GitHub asset hashes, annotated tag, all 148 ZIP files, 147 release
+inventory entries and 134 runtime artifacts. It also matches the artifact
+hashes in the original acceptance JSON. Twelve tests pass, including rejection
+of a missing product CLI under the default profile. The August 16 source
+benchmarks remain separate from the August 15 published archive.
 
 The verifier checks the complete release file set, each file's CRC, SHA256
 and byte count, and every runtime artifact's matching release entry. It

@@ -1,0 +1,899 @@
+{
+  "schema_version": 1,
+  "kind": "published_v101_archive_identity_and_inventory",
+  "checked_at": "2026-09-19T04:51:48.485871+00:00",
+  "verification_host": "Jiawei-MacminideMac-mini.local",
+  "verifier_source_commit": "2dc271ba9615e0dc0225e9f7d08c2b882b5ba327",
+  "verifier_source_sha256": {
+    "scripts/verify_release_archive.py": "9bba949b9f3a045d447e059364cba3ed9bff1013d5f8f0adb4ecd11b14deb5bb",
+    "tests/test_verify_release_archive.py": "fd12f2101223810e43be09fd0d47df51ac2e5fa75d7ea52ea83c09efb2008692",
+    "docs/PORTABLE_ARCHIVE_VERIFICATION.md": "6d344e9a6de4e0988b712883de1167ae8cf2bd98d52444914dad24de4ef2178a",
+    "README.md": "b80231fea999458614a9298b38e7626b28a5fb9987bb075e1a8f1edd71b9939d",
+    "README.zh-CN.md": "4ffae7c4b62fa1bfba67e282cfa664d0b290dff381f0dcea8bba31261d87515b",
+    "docs/PERFORMANCE.md": "2d1ad9dda1fb8d04f6afe803744836f590a5512c8697628ddf86da369e934068",
+    "docs/OPEN_SOURCE_READINESS.md": "1d5da19a43c0f0f8461796f15fda7a19858d14fdda1ec340c0cc6e8bea257b20"
+  },
+  "release": {
+    "id": 370983425,
+    "tag": "v1.0.1",
+    "url": "https://github.com/Approaching-AI/AIMA-AMD395-Qwen36-35B-Windows-Engine/releases/tag/v1.0.1",
+    "published_at": "2026-08-15T07:03:03Z",
+    "annotated_tag_sha": "d13cd338a4bb4ed3d7c38e31f02369fbd0875bba",
+    "source_commit": "2bf04571dbd17122bd24fe7b8b7d207153458f7e",
+    "assets": [
+      {
+        "id": 515433515,
+        "name": "AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip",
+        "size": 6892230,
+        "digest": "sha256:47ed5d9e0401fc30e2942812b85882b55bfa94eb0bab11f4b518d9042450f4f2",
+        "browser_download_url": "https://github.com/Approaching-AI/AIMA-AMD395-Qwen36-35B-Windows-Engine/releases/download/v1.0.1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip"
+      },
+      {
+        "id": 515433522,
+        "name": "AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip.sha256",
+        "size": 115,
+        "digest": "sha256:ec2f634fe7834a01f00bdf0e283c067a7db36f82c0e1df7c97a3a524d3aa35e9",
+        "browser_download_url": "https://github.com/Approaching-AI/AIMA-AMD395-Qwen36-35B-Windows-Engine/releases/download/v1.0.1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip.sha256"
+      },
+      {
+        "id": 515433520,
+        "name": "AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1-acceptance.json",
+        "size": 37599,
+        "digest": "sha256:49202be368ac495cdc5d340d42432d140799d8cfe0a0ff450a131c614bac5ad5",
+        "browser_download_url": "https://github.com/Approaching-AI/AIMA-AMD395-Qwen36-35B-Windows-Engine/releases/download/v1.0.1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1-acceptance.json"
+      }
+    ]
+  },
+  "input_manifest": {
+    "file": "published-rollback-v101-inputs-r4/verified-inputs.json",
+    "sha256": "3c7666a95d4b05e9153816d7d307f7bd6756340f24532d54cfd3b5a52f154d05",
+    "record": {
+      "checked_at": "2026-09-19T04:39:46.407496+00:00",
+      "release_id": 370983425,
+      "release_url": "https://github.com/Approaching-AI/AIMA-AMD395-Qwen36-35B-Windows-Engine/releases/tag/v1.0.1",
+      "original_release_api_sha256": "b9719951b496c2541e28320a190d1f16bd844586dc02440472681e3a727d51f7",
+      "files": {
+        "AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip": {
+          "file": "published-rollback-v101-inputs-r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip",
+          "bytes": 6892230,
+          "sha256": "47ed5d9e0401fc30e2942812b85882b55bfa94eb0bab11f4b518d9042450f4f2",
+          "asset_id": 515433515,
+          "transfer_file": "published-rollback-v101-inputs-r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip.transfer.json",
+          "transfer_sha256": "decc909e543ff45c477b93935f6c0ed2e9e10c9ff9d464863167e5b1af70529b"
+        },
+        "AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip.sha256": {
+          "file": "published-rollback-v101-inputs-r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip.sha256",
+          "bytes": 115,
+          "sha256": "ec2f634fe7834a01f00bdf0e283c067a7db36f82c0e1df7c97a3a524d3aa35e9",
+          "asset_id": 515433522,
+          "transfer_file": "published-rollback-v101-inputs-r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip.sha256.transfer.json",
+          "transfer_sha256": "410ccde81c4cd58f83c8a268db3805ea7d5a6ef6b4cd25d2cfe956a24cb13af2"
+        },
+        "AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1-acceptance.json": {
+          "file": "published-rollback-v101-inputs-r4/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1-acceptance.json",
+          "bytes": 37599,
+          "sha256": "49202be368ac495cdc5d340d42432d140799d8cfe0a0ff450a131c614bac5ad5",
+          "asset_id": 515433520,
+          "transfer_file": "published-rollback-v101-inputs-r4/acceptance-transfer.json",
+          "transfer_sha256": "9c74ca9da70cf4576ff242ccc628d0f2f272cde1d295288babb6b760d827edbd"
+        }
+      },
+      "github_asset_digest_and_size_pass": true,
+      "native_runtime_executed": false,
+      "current_gb10_correctness_qualified": false,
+      "rollback_execution_qualified": false,
+      "current_release_qualified": false
+    }
+  },
+  "github_reference_records": [
+    {
+      "file": "windows-release-rollback-reference-20260919-r1.json",
+      "sha256": "b9719951b496c2541e28320a190d1f16bd844586dc02440472681e3a727d51f7"
+    },
+    {
+      "file": "published-rollback-v101-tag-reference-r1.json",
+      "sha256": "5507ef95b71b8f192ae4876c278a67eaa7d82a33f12a4918ba22e3fdd92a3278"
+    },
+    {
+      "file": "published-rollback-v101-tag-object-r1.json",
+      "sha256": "5869275a3eea3893123a58bb66c7c22df55c55ee3e57331d44c8d7b12def122a"
+    }
+  ],
+  "result": {
+    "schema_version": 1,
+    "kind": "portable_archive_inventory",
+    "inventory_profile": "published-v1.0.1",
+    "archive": "AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip",
+    "archive_bytes": 6892230,
+    "archive_sha256": "47ed5d9e0401fc30e2942812b85882b55bfa94eb0bab11f4b518d9042450f4f2",
+    "version": "1.0.1",
+    "source_commit": "2bf04571dbd17122bd24fe7b8b7d207153458f7e",
+    "target": "windows-x86_64-gfx1151",
+    "release_files": 147,
+    "archive_files": 148,
+    "runtime_artifacts": 134,
+    "uncompressed_bytes": 20854958,
+    "release_manifest_sha256": "9afd652617f6f8ec8ab3611940506cd7a9e844c86a5f56770ce1abeff1425c8c",
+    "runtime_manifest_sha256": "8c8b7feb76c9621e4071e5d6b21d8a45533518ee80e43ad8b279b5855ff8dcce",
+    "source_component_builds": {},
+    "declared_component_artifacts_checked": 0,
+    "archive_sha256_pass": true,
+    "crc_and_release_inventory_pass": true,
+    "runtime_inventory_pass": true,
+    "windows_paths_pass": true,
+    "pinned_runtime_manifest_checked": true,
+    "runtime_executed": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false
+  },
+  "committed_runs": {
+    "file": "published-v101-inventory-committed-run-r1.json",
+    "sha256": "97df8a29b7048e38c68c6e9ae9ef699b5e7480334971734beeda58e529fa90d7",
+    "runs": {
+      "published-v1.0.1": {
+        "host": "Jiawei-MacminideMac-mini.local",
+        "command": [
+          "python3",
+          "<private-home>/projects/AIMA-public-r1191-candidate/scripts/verify_release_archive.py",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/published-rollback-v101-inputs-r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip",
+          "--checksum-file",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/published-rollback-v101-inputs-r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip.sha256",
+          "--runtime-manifest-sha256",
+          "8c8b7feb76c9621e4071e5d6b21d8a45533518ee80e43ad8b279b5855ff8dcce",
+          "--profile",
+          "published-v1.0.1"
+        ],
+        "source_commit": "2dc271ba9615e0dc0225e9f7d08c2b882b5ba327",
+        "started_at": "2026-09-19T04:51:48.359345+00:00",
+        "returncode": 0,
+        "stdout": "{\n  \"schema_version\": 1,\n  \"kind\": \"portable_archive_inventory\",\n  \"inventory_profile\": \"published-v1.0.1\",\n  \"archive\": \"AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip\",\n  \"archive_bytes\": 6892230,\n  \"archive_sha256\": \"47ed5d9e0401fc30e2942812b85882b55bfa94eb0bab11f4b518d9042450f4f2\",\n  \"version\": \"1.0.1\",\n  \"source_commit\": \"2bf04571dbd17122bd24fe7b8b7d207153458f7e\",\n  \"target\": \"windows-x86_64-gfx1151\",\n  \"release_files\": 147,\n  \"archive_files\": 148,\n  \"runtime_artifacts\": 134,\n  \"uncompressed_bytes\": 20854958,\n  \"release_manifest_sha256\": \"9afd652617f6f8ec8ab3611940506cd7a9e844c86a5f56770ce1abeff1425c8c\",\n  \"runtime_manifest_sha256\": \"8c8b7feb76c9621e4071e5d6b21d8a45533518ee80e43ad8b279b5855ff8dcce\",\n  \"source_component_builds\": {},\n  \"declared_component_artifacts_checked\": 0,\n  \"archive_sha256_pass\": true,\n  \"crc_and_release_inventory_pass\": true,\n  \"runtime_inventory_pass\": true,\n  \"windows_paths_pass\": true,\n  \"pinned_runtime_manifest_checked\": true,\n  \"runtime_executed\": false,\n  \"inference_acceptance\": false,\n  \"performance_acceptance\": false,\n  \"release_qualified\": false\n}\n",
+        "stderr": "",
+        "wall_seconds": 0.05383037496358156
+      },
+      "current": {
+        "host": "Jiawei-MacminideMac-mini.local",
+        "command": [
+          "python3",
+          "<private-home>/projects/AIMA-public-r1191-candidate/scripts/verify_release_archive.py",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/published-rollback-v101-inputs-r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip",
+          "--checksum-file",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/published-rollback-v101-inputs-r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip.sha256",
+          "--runtime-manifest-sha256",
+          "8c8b7feb76c9621e4071e5d6b21d8a45533518ee80e43ad8b279b5855ff8dcce",
+          "--profile",
+          "current"
+        ],
+        "source_commit": "2dc271ba9615e0dc0225e9f7d08c2b882b5ba327",
+        "started_at": "2026-09-19T04:51:48.413320+00:00",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "archive verification failed: required runtime artifact is absent\n",
+        "wall_seconds": 0.051306791603565216
+      }
+    }
+  },
+  "historical_published_acceptance": {
+    "file": "AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1-acceptance.json",
+    "bytes": 37599,
+    "sha256": "49202be368ac495cdc5d340d42432d140799d8cfe0a0ff450a131c614bac5ad5",
+    "original_record": {
+      "schema_version": 1,
+      "record_type": "aima_windows_runtime_release_acceptance",
+      "release": "v1.0.1",
+      "passed": true,
+      "completed_at_utc": "2026-08-15T07:01:13.7848141Z",
+      "source": {
+        "repository": "Approaching-AI/AIMA-AMD395-Qwen36-35B-Windows-Engine",
+        "commit": "2bf04571dbd17122bd24fe7b8b7d207153458f7e",
+        "dirty_tree": false
+      },
+      "platform": {
+        "host": "baiying",
+        "os": "Windows 11 x64",
+        "processor": "AMD Ryzen AI Max+ 395",
+        "offload_arch": "gfx1151",
+        "rocm_sdk": "7.1"
+      },
+      "model": {
+        "id": "qwen3.6-35b-a3b",
+        "reference": "Qwen3.6-35B-A3B-BF16",
+        "qualified_path": "D:\\models\\Qwen3.6-35B-A3B"
+      },
+      "package": {
+        "archive": "AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip",
+        "bytes": 6892230,
+        "sha256": "47ed5d9e0401fc30e2942812b85882b55bfa94eb0bab11f4b518d9042450f4f2",
+        "checksum_file": "AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip.sha256",
+        "extracted_manifest_files_verified": 147,
+        "runtime_manifest_sha256": "8c8b7feb76c9621e4071e5d6b21d8a45533518ee80e43ad8b279b5855ff8dcce",
+        "runtime_profile_sha256": "eba0ecba13f533ccfe670ff89bcece3b49b763d1fb669d914ea0ffc9e0a5aac4",
+        "runtime_artifacts": [
+          {
+            "path": "aiter-gdn/qrt_aiter_fused_gdn_q8192_provider.dll",
+            "bytes": 152064,
+            "sha256": "e2bb1fadf226fcab111b5892ab3bd3985f90f2962125f0dbf30049794b3e8c61"
+          },
+          {
+            "path": "ck-fmha/qrt_ck_fmha_continuous_long.dll",
+            "bytes": 386048,
+            "sha256": "9ec9e62c23617b43b24076504fbbae1b7845a7ffa5044674d5fb79042bfe7963"
+          },
+          {
+            "path": "engine/qrt.exe",
+            "bytes": 7726592,
+            "sha256": "d77f2275e2df57c7f69d3a67be412176502b62ad45d059b68694adcb1b82b652"
+          },
+          {
+            "path": "q1024-moe/qrt_triton_moe_q1024_exact_provider_slots64.dll",
+            "bytes": 268800,
+            "sha256": "af1e4cc98203f9d75cf8f1d7199eaef5222ac8f91fd3da6bdeb19ae69de33820"
+          },
+          {
+            "path": "q8192-moe/qrt_triton_moe_q8192_provider.dll",
+            "bytes": 254976,
+            "sha256": "5600b9710c0396dfe46b773c841b209f96a5c2428faeb351addb222175ead51b"
+          },
+          {
+            "path": "whole-provider/qrt_qwen36_whole_provider.dll",
+            "bytes": 10821120,
+            "sha256": "4e278304960251b2583866578348b91cf84997275c565f542decc33c3d85e858"
+          }
+        ]
+      },
+      "startup": {
+        "command_contract": "README.md v1.0.1 quick start using only packaged dependency paths",
+        "qrt_version": "qrt 1.0.1",
+        "total_load_ms": 19658.8225,
+        "load_max_ms": 30000,
+        "passed": true
+      },
+      "q8192_neighbor_gate": {
+        "command_file": "scripts/verify_q8192_neighbor_continuity.py",
+        "command_file_sha256": "5f03415f3ed2e3aae392c91eecbb738fc315921d3aa48e41e47e3dcc40218695",
+        "oracle": "benchmarks/correctness/gb10-q8192-neighbor-continuation-reference-v1.0.1.json",
+        "oracle_sha256": "38e23988f137073151a039fc8239cfe4fe943d0b1433741d26b26f222da4e166",
+        "raw_report": {
+          "bytes": 22804,
+          "sha256": "a2bdb9033bc2888e5dd88619db15c1332c8c26a7e71a06d3be0f2322c3280d9f"
+        },
+        "case_count": 18,
+        "gb10_matching_cases": 18,
+        "correctness_passed": true,
+        "continuity_passed": true,
+        "q8192_ttft_ms": {
+          "samples": [
+            3840.4419,
+            3845.953,
+            3870.601,
+            3875.3546,
+            3875.8479,
+            3877.0237
+          ],
+          "minimum": 3840.4419,
+          "median": 3872.9778,
+          "maximum": 3877.0237,
+          "retained_maximum": 4187.416,
+          "passed": true
+        },
+        "worst_neighbor_to_q8192_ratio": 1.4264796787688252,
+        "neighbor_ratio_maximum": 2,
+        "worst_positive_residual_ms": 1640.2207999999996,
+        "positive_residual_maximum_ms": 5000,
+        "cohorts": [
+          {
+            "max_tokens": 1,
+            "median_ttft_ms": 4144.2805,
+            "prompt_tokens": 8191,
+            "samples_ms": [
+              4144.2805,
+              4147.898,
+              4139.7804
+            ]
+          },
+          {
+            "max_tokens": 1,
+            "median_ttft_ms": 3845.953,
+            "prompt_tokens": 8192,
+            "samples_ms": [
+              3840.4419,
+              3845.953,
+              3877.0237
+            ]
+          },
+          {
+            "max_tokens": 1,
+            "median_ttft_ms": 5486.1738,
+            "prompt_tokens": 8193,
+            "samples_ms": [
+              5529.5378,
+              5477.0678,
+              5486.1738
+            ]
+          },
+          {
+            "max_tokens": 2,
+            "median_ttft_ms": 4253.3605,
+            "prompt_tokens": 8191,
+            "samples_ms": [
+              4313.611,
+              4205.329401,
+              4253.3605
+            ]
+          },
+          {
+            "max_tokens": 2,
+            "median_ttft_ms": 3875.3546,
+            "prompt_tokens": 8192,
+            "samples_ms": [
+              3875.3546,
+              3870.601,
+              3875.8479
+            ]
+          },
+          {
+            "max_tokens": 2,
+            "median_ttft_ms": 5465.6024,
+            "prompt_tokens": 8193,
+            "samples_ms": [
+              5465.6024,
+              5454.555,
+              5475.3929
+            ]
+          }
+        ],
+        "continuity_gates": [
+          {
+            "center_prompt_tokens": 8192,
+            "max_tokens": 1,
+            "neighbor_prompt_tokens": 8191,
+            "neighbor_to_center_ratio": 1.0775692006636586,
+            "passed": true,
+            "positive_residual_le_5000ms": true,
+            "positive_residual_ms": 298.3274999999999,
+            "ratio_le_2x": true
+          },
+          {
+            "center_prompt_tokens": 8192,
+            "max_tokens": 1,
+            "neighbor_prompt_tokens": 8193,
+            "neighbor_to_center_ratio": 1.4264796787688252,
+            "passed": true,
+            "positive_residual_le_5000ms": true,
+            "positive_residual_ms": 1640.2207999999996,
+            "ratio_le_2x": true
+          },
+          {
+            "center_prompt_tokens": 8192,
+            "max_tokens": 2,
+            "neighbor_prompt_tokens": 8191,
+            "neighbor_to_center_ratio": 1.0975409837334626,
+            "passed": true,
+            "positive_residual_le_5000ms": true,
+            "positive_residual_ms": 378.00589999999966,
+            "ratio_le_2x": true
+          },
+          {
+            "center_prompt_tokens": 8192,
+            "max_tokens": 2,
+            "neighbor_prompt_tokens": 8193,
+            "neighbor_to_center_ratio": 1.4103489781296399,
+            "passed": true,
+            "positive_residual_le_5000ms": true,
+            "positive_residual_ms": 1590.2477999999996,
+            "ratio_le_2x": true
+          }
+        ],
+        "cases": [
+          {
+            "ordinal": 0,
+            "prompt_tokens": 8191,
+            "max_tokens": 1,
+            "repetition": 0,
+            "prompt_token_ids_sha256": "f4d2277a9c83d70580b40e0ba9fdfbfc39fd7622bb3b600e7d8e1677e83a3f93",
+            "token_ids": [
+              82
+            ],
+            "ttft_ms": 4144.2805,
+            "gb10_match": true
+          },
+          {
+            "ordinal": 1,
+            "prompt_tokens": 8192,
+            "max_tokens": 1,
+            "repetition": 0,
+            "prompt_token_ids_sha256": "a7e0f8ccc6e707c5e83a5a59e422f2a72b3f278ced4d46ef3f918d177e99cbd0",
+            "token_ids": [
+              220
+            ],
+            "ttft_ms": 3877.0237,
+            "gb10_match": true
+          },
+          {
+            "ordinal": 2,
+            "prompt_tokens": 8193,
+            "max_tokens": 1,
+            "repetition": 0,
+            "prompt_token_ids_sha256": "0b8b7a72933b50ad7cc9116631c45d5025bb84107b0e512bbb96a3c72c0c1950",
+            "token_ids": [
+              82
+            ],
+            "ttft_ms": 5477.0678,
+            "gb10_match": true
+          },
+          {
+            "ordinal": 3,
+            "prompt_tokens": 8191,
+            "max_tokens": 1,
+            "repetition": 1,
+            "prompt_token_ids_sha256": "e69a01dbaa05b73cf7b6d62597bbdeaac4c4d7337eddc69fa5f8ba2f29fdb623",
+            "token_ids": [
+              82
+            ],
+            "ttft_ms": 4147.898,
+            "gb10_match": true
+          },
+          {
+            "ordinal": 4,
+            "prompt_tokens": 8192,
+            "max_tokens": 1,
+            "repetition": 1,
+            "prompt_token_ids_sha256": "9ec89ec85c926369670827c38b089f722f622d9d8d189ded8fc9e3d7d15074f4",
+            "token_ids": [
+              220
+            ],
+            "ttft_ms": 3845.953,
+            "gb10_match": true
+          },
+          {
+            "ordinal": 5,
+            "prompt_tokens": 8193,
+            "max_tokens": 1,
+            "repetition": 1,
+            "prompt_token_ids_sha256": "8d07c17b1c83489d9a751da43a7f26ad2e81a9577cfb2a4ecc2cda3dc202e825",
+            "token_ids": [
+              94
+            ],
+            "ttft_ms": 5486.1738,
+            "gb10_match": true
+          },
+          {
+            "ordinal": 6,
+            "prompt_tokens": 8191,
+            "max_tokens": 1,
+            "repetition": 2,
+            "prompt_token_ids_sha256": "ae9c25383a37f3d4b7ec283f2c99ea0669ef9941cba3487e1a103e53e7c293f8",
+            "token_ids": [
+              82
+            ],
+            "ttft_ms": 4139.7804,
+            "gb10_match": true
+          },
+          {
+            "ordinal": 7,
+            "prompt_tokens": 8192,
+            "max_tokens": 1,
+            "repetition": 2,
+            "prompt_token_ids_sha256": "92401782fa40182d37eb313cb4e57d7d91177e836cfbe0630221647c781e4f1c",
+            "token_ids": [
+              220
+            ],
+            "ttft_ms": 3840.4419,
+            "gb10_match": true
+          },
+          {
+            "ordinal": 8,
+            "prompt_tokens": 8193,
+            "max_tokens": 1,
+            "repetition": 2,
+            "prompt_token_ids_sha256": "cd99eb10b9a01bbc48b48223629e82ba3018478c83f5958d41171cac1f84be88",
+            "token_ids": [
+              82
+            ],
+            "ttft_ms": 5529.5378,
+            "gb10_match": true
+          },
+          {
+            "ordinal": 9,
+            "prompt_tokens": 8191,
+            "max_tokens": 2,
+            "repetition": 0,
+            "prompt_token_ids_sha256": "637a1d259bd88c571fd540d1ab0568a42fac99d16ee01b886c0019bbfb1871fd",
+            "token_ids": [
+              237,
+              82
+            ],
+            "ttft_ms": 4313.611,
+            "gb10_match": true
+          },
+          {
+            "ordinal": 10,
+            "prompt_tokens": 8192,
+            "max_tokens": 2,
+            "repetition": 0,
+            "prompt_token_ids_sha256": "822326a07184ea6cd06a35e103911ebf03942fa23aeac8ae91c067e8bbe06ec1",
+            "token_ids": [
+              82,
+              220
+            ],
+            "ttft_ms": 3870.601,
+            "gb10_match": true
+          },
+          {
+            "ordinal": 11,
+            "prompt_tokens": 8193,
+            "max_tokens": 2,
+            "repetition": 0,
+            "prompt_token_ids_sha256": "939282c8c83489cc26ff5d6200c3b6ecf0e73d8fb26367e0cc770e145566d071",
+            "token_ids": [
+              82,
+              220
+            ],
+            "ttft_ms": 5465.6024,
+            "gb10_match": true
+          },
+          {
+            "ordinal": 12,
+            "prompt_tokens": 8191,
+            "max_tokens": 2,
+            "repetition": 1,
+            "prompt_token_ids_sha256": "f47a8a3c029a08da4e2b507d3ae6858f88b7853ae846da9262ca458a154b3d6b",
+            "token_ids": [
+              220,
+              144
+            ],
+            "ttft_ms": 4205.329401,
+            "gb10_match": true
+          },
+          {
+            "ordinal": 13,
+            "prompt_tokens": 8192,
+            "max_tokens": 2,
+            "repetition": 1,
+            "prompt_token_ids_sha256": "a9cd13ee7520eb58875b9896cda3cd4638d0638281152f95a46163809ecb2186",
+            "token_ids": [
+              220,
+              200
+            ],
+            "ttft_ms": 3875.8479,
+            "gb10_match": true
+          },
+          {
+            "ordinal": 14,
+            "prompt_tokens": 8193,
+            "max_tokens": 2,
+            "repetition": 1,
+            "prompt_token_ids_sha256": "ea8a58c2b79da6d0e4d6fe6e0b6c844bd2572e105a597f3856502cf6c2d4ab82",
+            "token_ids": [
+              220,
+              220
+            ],
+            "ttft_ms": 5454.555,
+            "gb10_match": true
+          },
+          {
+            "ordinal": 15,
+            "prompt_tokens": 8191,
+            "max_tokens": 2,
+            "repetition": 2,
+            "prompt_token_ids_sha256": "99d486e35499ba3d34f1cf556714dfc6eb7ff10ebfea15be76925eacdffea35e",
+            "token_ids": [
+              82,
+              220
+            ],
+            "ttft_ms": 4253.3605,
+            "gb10_match": true
+          },
+          {
+            "ordinal": 16,
+            "prompt_tokens": 8192,
+            "max_tokens": 2,
+            "repetition": 2,
+            "prompt_token_ids_sha256": "608b367a57bfc51ee462653f642e39e39918ad832e25fab9932ca35c88dc885a",
+            "token_ids": [
+              220,
+              220
+            ],
+            "ttft_ms": 3875.3546,
+            "gb10_match": true
+          },
+          {
+            "ordinal": 17,
+            "prompt_tokens": 8193,
+            "max_tokens": 2,
+            "repetition": 2,
+            "prompt_token_ids_sha256": "884c096b370b2b893e06863b6cdc612913b1af759f3735edaba37d3ad3488710",
+            "token_ids": [
+              220,
+              196
+            ],
+            "ttft_ms": 5475.3929,
+            "gb10_match": true
+          }
+        ]
+      },
+      "api_surface": {
+        "command_file": "scripts/verify_qrt_openai_server.py",
+        "raw_report": {
+          "bytes": 16824,
+          "sha256": "b59c5a8efb6e3090d6550e151537b174ec2a1b0728ea5467e5e2ca905407591a"
+        },
+        "passed": true,
+        "check_count": 19,
+        "checks": [
+          {
+            "name": "health",
+            "passed": true
+          },
+          {
+            "name": "ready",
+            "passed": true
+          },
+          {
+            "name": "models",
+            "passed": true
+          },
+          {
+            "name": "model_retrieve",
+            "passed": true
+          },
+          {
+            "name": "tokenizer_round_trip",
+            "passed": true
+          },
+          {
+            "name": "chat_template_tokenize",
+            "passed": true
+          },
+          {
+            "name": "service_state_identity",
+            "passed": true
+          },
+          {
+            "name": "cli_status",
+            "passed": true
+          },
+          {
+            "name": "build_provenance",
+            "passed": true
+          },
+          {
+            "name": "text_completion",
+            "passed": true
+          },
+          {
+            "name": "completion_sse",
+            "passed": true
+          },
+          {
+            "name": "chat_completion",
+            "passed": true
+          },
+          {
+            "name": "chat_sse",
+            "passed": true
+          },
+          {
+            "name": "structured_tool_call",
+            "passed": true
+          },
+          {
+            "name": "tool_result_continuation",
+            "passed": true
+          },
+          {
+            "name": "structured_tool_call_sse",
+            "passed": true
+          },
+          {
+            "name": "bounded_fifo_request_queue",
+            "passed": true
+          },
+          {
+            "name": "context_limit_rejection",
+            "passed": true
+          },
+          {
+            "name": "http_prefix_reuse",
+            "passed": true
+          }
+        ],
+        "continuous_neighbor_matrix_covered_by": "q8192_neighbor_gate",
+        "queue": {
+          "request_count": 3,
+          "waiting_observed": 2,
+          "rejected_total": 0,
+          "timed_out_total": 0
+        },
+        "prefix_reuse": {
+          "repeat_output_match": true,
+          "unrelated_prefix_guard": true,
+          "marker_count": 5
+        },
+        "context_limit": {
+          "rejected_prompt_tokens": 262144,
+          "error_code": "context_length_exceeded"
+        }
+      },
+      "lifecycle": {
+        "ready_runtime_sha256": "a452e0e4e9e9e5000fee097866811ef0293c25dd7ba0b2850e04971720b92b07",
+        "shutdown_runtime_sha256": "438c68804a1d8aa7a87454f01555d1554b640aab07953a71fa94748324604138",
+        "same_service_instance": true,
+        "process_absent": true,
+        "listener_absent": true
+      }
+    }
+  },
+  "later_source_records": {
+    "q8192-neighbor-product-gate-amd395-v1.0.1.json": {
+      "file": "benchmarks/performance/q8192-neighbor-product-gate-amd395-v1.0.1.json",
+      "bytes": 12981,
+      "sha256": "f72f2f8e60eee45bddc05a22d69996529674933b5267c97f850652ad62c86190",
+      "source": {
+        "commit": "09bd96fd2d85a0715f1501d16fb6391ce199d0f1",
+        "base_runtime_commit": "2bf04571dbd17122bd24fe7b8b7d207153458f7e",
+        "whole_provider_source_sha256": "3c439f5d5ccc38309a713c1235c9a15147a1b94ad9f62770fa141cd1c45cf5dc",
+        "smooth_tail_provider_source_sha256": "cb49a0ec6d05a9cd1267a17cc7d25d9db42152d051f945d009ad6b1609d4eed9",
+        "smooth_tail_generator_sha256": "93366942a9df5c03ea5b5870bb13d6ec5c0ad724e21cd7939c3cdc0fbf918c8e",
+        "runtime_profile_source_sha256": "d81fe19e6fd13345330e2f2481496a463cae2d17f46c5ff91b3f4ae9070055ea"
+      },
+      "completed_at_utc": "2026-08-16T02:16:40.831222+00:00",
+      "summary": {
+        "case_count": 18,
+        "gb10_matching_cases": 18,
+        "correctness_passed": true,
+        "continuity_passed": true,
+        "q8192_all_six_min_ttft_ms": 3858.7631,
+        "q8192_all_six_median_ttft_ms": 3882.1868,
+        "q8192_all_six_max_ttft_ms": 3903.5651,
+        "q8192_all_six_median_prefill_tokens_per_second": 2110.1509077306637,
+        "worst_neighbor_to_q8192_ratio": 1.0366193540184783,
+        "worst_neighbor_positive_residual_ms": 142.2883999999999
+      }
+    },
+    "prefill-length-smoothness-amd395-v1.0.1.json": {
+      "file": "benchmarks/performance/prefill-length-smoothness-amd395-v1.0.1.json",
+      "bytes": 12717,
+      "sha256": "35de91b7fc85ee0a0fe6d84632f4f05ee31eb35f94d99d839f0cf18eca25d8b8",
+      "source": {
+        "commit": "09bd96fd2d85a0715f1501d16fb6391ce199d0f1",
+        "base_runtime_commit": "2bf04571dbd17122bd24fe7b8b7d207153458f7e",
+        "whole_provider_source_sha256": "3c439f5d5ccc38309a713c1235c9a15147a1b94ad9f62770fa141cd1c45cf5dc",
+        "smooth_tail_provider_source_sha256": "cb49a0ec6d05a9cd1267a17cc7d25d9db42152d051f945d009ad6b1609d4eed9",
+        "smooth_tail_generator_sha256": "93366942a9df5c03ea5b5870bb13d6ec5c0ad724e21cd7939c3cdc0fbf918c8e",
+        "runtime_profile_source_sha256": "d81fe19e6fd13345330e2f2481496a463cae2d17f46c5ff91b3f4ae9070055ea"
+      },
+      "completed_at_utc": "2026-08-16T02:14:28.494851+00:00",
+      "summary": {
+        "case_count": 72,
+        "gb10_matching_cases": 72,
+        "correctness_passed": true,
+        "continuity_passed": true,
+        "worst_local_ttft_max_to_min_ratio": 1.0507716350463814,
+        "worst_local_positive_residual_ms": 408.59209999999985,
+        "global_median_throughput_max_to_min_ratio": 1.1650352082597413,
+        "minimum_median_prefill_tokens_per_second": 1807.611514401477,
+        "maximum_median_prefill_tokens_per_second": 2105.9310571334313
+      }
+    }
+  },
+  "local_validation": {
+    "file": "published-v101-inventory-local-validation-r1.json",
+    "sha256": "d7e725c7ae9f1ccded3dcb4177a6f6a778cd019acca5c89ab963456fac0b9596",
+    "record": {
+      "host": "Jiawei-MacminideMac-mini.local",
+      "checked_at": "2026-09-19T04:47:51.167423+00:00",
+      "source_commit": "2cd6697b3212adfbde191bbd7d86a5dc37308947",
+      "source_dirty": true,
+      "source_sha256": {
+        "scripts/verify_release_archive.py": "9bba949b9f3a045d447e059364cba3ed9bff1013d5f8f0adb4ecd11b14deb5bb",
+        "tests/test_verify_release_archive.py": "fd12f2101223810e43be09fd0d47df51ac2e5fa75d7ea52ea83c09efb2008692",
+        "docs/PORTABLE_ARCHIVE_VERIFICATION.md": "6d344e9a6de4e0988b712883de1167ae8cf2bd98d52444914dad24de4ef2178a"
+      },
+      "records": {
+        "tests": {
+          "command": [
+            "python3",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-p",
+            "test_verify_release_archive.py",
+            "-v"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "test_changed_missing_and_unlisted_files (test_verify_release_archive.ReleaseArchiveTests) ... ok\ntest_complete_archive_and_cli_sidecar (test_verify_release_archive.ReleaseArchiveTests) ... ok\ntest_current_profile_requires_the_separate_product_cli (test_verify_release_archive.ReleaseArchiveTests) ... ok\ntest_declared_component_must_identify_the_packaged_artifact (test_verify_release_archive.ReleaseArchiveTests) ... ok\ntest_duplicate_json_keys_and_inventory_value_types (test_verify_release_archive.ReleaseArchiveTests) ... ok\ntest_duplicate_paths_and_file_directory_collisions (test_verify_release_archive.ReleaseArchiveTests) ... ok\ntest_historical_profile_requires_the_fixed_published_archive (test_verify_release_archive.ReleaseArchiveTests) ... ok\ntest_nonportable_entries_and_symbolic_links (test_verify_release_archive.ReleaseArchiveTests) ... ok\ntest_pinned_archive_and_runtime_manifest (test_verify_release_archive.ReleaseArchiveTests) ... ok\ntest_runtime_inventory_cannot_disagree_with_release_inventory (test_verify_release_archive.ReleaseArchiveTests) ... ok\ntest_size_bound_and_successful_explicit_directory_entries (test_verify_release_archive.ReleaseArchiveTests) ... ok\ntest_source_target_and_dirty_tree (test_verify_release_archive.ReleaseArchiveTests) ... ok\n\n----------------------------------------------------------------------\nRan 12 tests in 0.051s\n\nOK\n",
+          "wall_seconds": 0.097411583
+        },
+        "published_inventory": {
+          "command": [
+            "python3",
+            "scripts/verify_release_archive.py",
+            "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/published-rollback-v101-inputs-r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip",
+            "--checksum-file",
+            "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/published-rollback-v101-inputs-r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip.sha256",
+            "--runtime-manifest-sha256",
+            "8c8b7feb76c9621e4071e5d6b21d8a45533518ee80e43ad8b279b5855ff8dcce",
+            "--profile",
+            "published-v1.0.1"
+          ],
+          "returncode": 0,
+          "stdout": "{\n  \"schema_version\": 1,\n  \"kind\": \"portable_archive_inventory\",\n  \"inventory_profile\": \"published-v1.0.1\",\n  \"archive\": \"AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1.zip\",\n  \"archive_bytes\": 6892230,\n  \"archive_sha256\": \"47ed5d9e0401fc30e2942812b85882b55bfa94eb0bab11f4b518d9042450f4f2\",\n  \"version\": \"1.0.1\",\n  \"source_commit\": \"2bf04571dbd17122bd24fe7b8b7d207153458f7e\",\n  \"target\": \"windows-x86_64-gfx1151\",\n  \"release_files\": 147,\n  \"archive_files\": 148,\n  \"runtime_artifacts\": 134,\n  \"uncompressed_bytes\": 20854958,\n  \"release_manifest_sha256\": \"9afd652617f6f8ec8ab3611940506cd7a9e844c86a5f56770ce1abeff1425c8c\",\n  \"runtime_manifest_sha256\": \"8c8b7feb76c9621e4071e5d6b21d8a45533518ee80e43ad8b279b5855ff8dcce\",\n  \"source_component_builds\": {},\n  \"declared_component_artifacts_checked\": 0,\n  \"archive_sha256_pass\": true,\n  \"crc_and_release_inventory_pass\": true,\n  \"runtime_inventory_pass\": true,\n  \"windows_paths_pass\": true,\n  \"pinned_runtime_manifest_checked\": true,\n  \"runtime_executed\": false,\n  \"inference_acceptance\": false,\n  \"performance_acceptance\": false,\n  \"release_qualified\": false\n}\n",
+          "stderr": "",
+          "wall_seconds": 0.06452729099999999
+        },
+        "whitespace": {
+          "command": [
+            "git",
+            "diff",
+            "--check"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.011299540999999996
+        }
+      }
+    }
+  },
+  "document_validation": {
+    "file": "published-v101-inventory-document-validation-r1.json",
+    "sha256": "6eeaa288b9feaecba032f783e4cb644fbdf13d4a8f3da123f760d34932db05c3",
+    "record": {
+      "host": "Jiawei-MacminideMac-mini.local",
+      "checked_at": "2026-09-19T04:50:04.370077+00:00",
+      "source_sha256": {
+        "scripts/verify_release_archive.py": "9bba949b9f3a045d447e059364cba3ed9bff1013d5f8f0adb4ecd11b14deb5bb",
+        "tests/test_verify_release_archive.py": "fd12f2101223810e43be09fd0d47df51ac2e5fa75d7ea52ea83c09efb2008692",
+        "docs/PORTABLE_ARCHIVE_VERIFICATION.md": "6d344e9a6de4e0988b712883de1167ae8cf2bd98d52444914dad24de4ef2178a",
+        "README.md": "b80231fea999458614a9298b38e7626b28a5fb9987bb075e1a8f1edd71b9939d",
+        "README.zh-CN.md": "4ffae7c4b62fa1bfba67e282cfa664d0b290dff381f0dcea8bba31261d87515b",
+        "docs/PERFORMANCE.md": "2d1ad9dda1fb8d04f6afe803744836f590a5512c8697628ddf86da369e934068",
+        "docs/OPEN_SOURCE_READINESS.md": "1d5da19a43c0f0f8461796f15fda7a19858d14fdda1ec340c0cc6e8bea257b20"
+      },
+      "checks": {
+        "hygiene": {
+          "command": [
+            "python3",
+            "tools/public_hygiene.py",
+            "."
+          ],
+          "returncode": 0,
+          "stdout": "public_hygiene=pass finding_count=0\n",
+          "stderr": "",
+          "wall_seconds": 10.544389959
+        },
+        "whitespace": {
+          "command": [
+            "git",
+            "diff",
+            "--check"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.011983582999999243
+        }
+      }
+    }
+  },
+  "acceptance": {
+    "github_asset_hashes_and_sizes": true,
+    "release_tag_source_identity": true,
+    "complete_release_inventory": true,
+    "runtime_inventory": true,
+    "published_acceptance_artifacts_match": true,
+    "current_profile_still_requires_product_cli": true,
+    "historical_source_records_unchanged": true,
+    "native_runtime_execution": false,
+    "rollback_execution": false,
+    "current_gb10_correctness": false,
+    "current_performance": false,
+    "current_release": false,
+    "newly_published": false
+  },
+  "scope": "Read-only macOS verification of the exact published August 15 v1.0.1 archive, its checksum and acceptance JSON. The annotated tag, archive inventories and historical acceptance agree on source2bf04571. All148 ZIP files,147 inventoried release files and134 runtime artifacts match. The explicit historical profile is pinned to these archive/source/manifest hashes; the default current profile still rejects the missing separate product CLI. Twelve targeted tests and public hygiene pass. Published archive neighbor ratio1.426479679 and residual1640.2208ms are distinct from August16 source09bd96fd results1.036619354 and142.2884ms. Frozen source-run records remain unchanged. This check runs no Windows runtime or model, establishes no new rollback or current correctness/performance acceptance, and changes no current targets."
+}
