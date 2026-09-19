@@ -33,3 +33,11 @@ in local evidence; their corrections do not change runtime code.
 Windows compilation, original-token q8192 and long-context regressions, and a
 memory comparison on the real model remain pending. No measured memory or
 latency improvement is claimed, and this candidate does not qualify a release.
+
+Source `c5809d7` has 64 local compilation inputs. Relative to qualified CK
+`ea6faff`, only the provider implementation changes and the temporary-owner
+header is added. All numerical dependencies match. The prepared build checks
+those inputs plus its two scripts, with a 240-second native deadline. Its
+command file passes the actual Windows PowerShell parser. Local results,
+including failed test revisions, and the unexecuted native preparation are in
+[`pending-native-candidates-20260919.json`](../benchmarks/correctness/pending-native-candidates-20260919.json).

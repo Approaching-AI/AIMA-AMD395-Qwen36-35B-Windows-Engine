@@ -41,3 +41,10 @@ product correctness or performance.
 The provider dispatch and packaged profile are unchanged. Native compilation,
 GPU numerical checks, register/resource measurements and product comparison
 remain pending. No performance improvement or release acceptance is claimed.
+
+Source `50cc22d`, the local arithmetic and host checks, and the prepared native
+commands are recorded in
+[`pending-native-candidates-20260919.json`](../benchmarks/correctness/pending-native-candidates-20260919.json).
+The command file passes the actual Windows PowerShell parser. Native dispatch
+requires the active original 256k owner's completed host cleanup record;
+parsing has not executed the fixture or loaded the model.

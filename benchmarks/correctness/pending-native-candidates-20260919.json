@@ -1,0 +1,449 @@
+{
+  "schema": "pending_native_candidates_v1",
+  "utc": "2026-09-19T07:07:52.425760+00:00",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "model_loaded": false,
+  "gb10_output_boundary_attached": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "candidates": [
+    {
+      "kind": "quad_float_gdn",
+      "preparation": {
+        "source_commit": "50cc22ddac79e3fd5b217737aff3549a06e9dea1",
+        "repo": "D:/projects/AIMA-public-quad-float-gdn-20260919-r1",
+        "seed": "D:/projects/AIMA-public-prefill-kv-reservation-20260919-r1",
+        "script": "run-native-quad-float-gdn-r1.ps1",
+        "script_sha256": "d4f69533ed87efef83210621cede884243658950617da6b399acfaee1f8637d7",
+        "dispatcher": "dispatch_quad_float_gdn_r1.py",
+        "dispatcher_sha256": "3ec40e466a657d6b5ec1e20fb27c72f61cf0fc18ea1dee801dd9abe4d4ccff59",
+        "bundle": "quad-float-gdn-50cc22d.bundle",
+        "bundle_sha256": "5fb6de2833c340f5e312ec3b766af6d68cebf93b46f265e5e3dd14d44bcc6165",
+        "manifest": {
+          "file": "quad-float-gdn-native-source-r1.json",
+          "original_local_sha256": "6d74f0c8270978dad6db49d8cd400c625e3562068587d532eedf538f96693523"
+        },
+        "source_sha256": {
+          "native/providers/gdn/quad_float_matrices.h": "592135f8e2399e3fbcd929c34c85baf21d5752643164f7f3c90358c49237f6a6",
+          "tests/native/quad_float_gdn_host.cpp": "f79789a2b0bb87022a75e6ae40d5dff29ac4a32a1dd2c1a439d5e7277904c90e",
+          "tests/test_fla_quad_float.py": "f901dff9f5504189aba93b0080c5e4008ad1bb07ea6f827546b777d276d11d51",
+          "tests/native/quad_float_gdn_selftest.cpp": "4028095f138d76121204b90628a9590357adf0f187291c308f16d9fbaaad2be0"
+        },
+        "native_dispatched": false,
+        "model_acceptance": false,
+        "performance_acceptance": false,
+        "release_qualified": false
+      },
+      "local_evidence": [
+        {
+          "file": "quad-float-gdn-host-validation-r1.json",
+          "original_local_bytes": 2366,
+          "original_local_sha256": "af7b9e5b3b11d48e96685b39cb20bd01111f141d33f9ee88efe79ed27edd06a4",
+          "record": {
+            "command": [
+              "python3",
+              "-m",
+              "unittest",
+              "discover",
+              "-s",
+              "tests",
+              "-p",
+              "test_fla_quad_float.py",
+              "-v"
+            ],
+            "returncode": 1,
+            "stdout": "",
+            "stderr": "test_actual_kernels_original_values_tail_alias_and_state (test_fla_quad_float.QuadFloatGdnTests.test_actual_kernels_original_values_tail_alias_and_state) ... FAIL\n\n======================================================================\nFAIL: test_actual_kernels_original_values_tail_alias_and_state (test_fla_quad_float.QuadFloatGdnTests.test_actual_kernels_original_values_tail_alias_and_state)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<local-home>/projects/AIMA-public-r1191-candidate/tests/test_fla_quad_float.py\", line 30, in test_actual_kernels_original_values_tail_alias_and_state\n    self.assertEqual(build.returncode, 0, build.stderr)\nAssertionError: 1 != 0 : <local-home>/projects/AIMA-public-r1191-candidate/tests/native/quad_float_gdn_host.cpp:85:7: error: declaration conflicts with target of using declaration already in scope\n   85 | float exp(float x){return qrt_fla_blackwell_scalar::exponential(x,nullptr);}\n      |       ^\n/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__math/exponential_functions.h:29:36: note: target of using declaration\n   29 | inline _LIBCPP_HIDE_FROM_ABI float exp(float __x) _NOEXCEPT { return __builtin_expf(__x); }\n      |                                    ^\n/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/math.h:452:20: note: using declaration\n  452 | using std::__math::exp;\n      |                    ^\n1 error generated.\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.534s\n\nFAILED (failures=1)\n",
+            "wall_seconds": 0.5671447096392512,
+            "source_sha256": {
+              "native/providers/gdn/quad_float_matrices.h": "592135f8e2399e3fbcd929c34c85baf21d5752643164f7f3c90358c49237f6a6",
+              "tests/native/quad_float_gdn_host.cpp": "935600c00f67979415b6e30c8ecb1f21d4369e062ba077d1ebe2ea9ced0daed2",
+              "tests/test_fla_quad_float.py": "f901dff9f5504189aba93b0080c5e4008ad1bb07ea6f827546b777d276d11d51",
+              "tests/native/quad_float_gdn_selftest.cpp": "4028095f138d76121204b90628a9590357adf0f187291c308f16d9fbaaad2be0"
+            }
+          }
+        },
+        {
+          "file": "quad-float-gdn-host-validation-r2.json",
+          "original_local_bytes": 980,
+          "original_local_sha256": "9c5e5feb694e72bbd8f040f2cc033963557df853079a95d0cf845af994118ef2",
+          "record": {
+            "command": [
+              "python3",
+              "-m",
+              "unittest",
+              "discover",
+              "-s",
+              "tests",
+              "-p",
+              "test_fla_quad_float.py",
+              "-v"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": "test_actual_kernels_original_values_tail_alias_and_state (test_fla_quad_float.QuadFloatGdnTests.test_actual_kernels_original_values_tail_alias_and_state) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.748s\n\nOK\n",
+            "wall_seconds": 2.7751668747514486,
+            "source_sha256": {
+              "native/providers/gdn/quad_float_matrices.h": "592135f8e2399e3fbcd929c34c85baf21d5752643164f7f3c90358c49237f6a6",
+              "tests/native/quad_float_gdn_host.cpp": "f79789a2b0bb87022a75e6ae40d5dff29ac4a32a1dd2c1a439d5e7277904c90e",
+              "tests/test_fla_quad_float.py": "f901dff9f5504189aba93b0080c5e4008ad1bb07ea6f827546b777d276d11d51",
+              "tests/native/quad_float_gdn_selftest.cpp": "4028095f138d76121204b90628a9590357adf0f187291c308f16d9fbaaad2be0"
+            }
+          }
+        },
+        {
+          "file": "quad-float-gdn-core-and-hygiene-validation-r1.json",
+          "original_local_bytes": 1224,
+          "original_local_sha256": "9606ba9eb0ced1ed307527326b3ce59bfa42b20b03adf35405ce5e3d6539b732",
+          "record": [
+            {
+              "command": [
+                "python3",
+                "-m",
+                "unittest",
+                "discover",
+                "-s",
+                "tests",
+                "-p",
+                "test_sm121_strong_float_replay.py",
+                "-v"
+              ],
+              "returncode": 0,
+              "stdout": "{\"kind\":\"strong_replay_host\",\"certified_rows\":26224,\"fallback_rows\":6544,\"certified_ordered_groups\":2635512,\"raw_value_mismatches\":0,\"all_bf16_encodings_checked\":65536,\"cancellation_counterexamples\":2,\"inference_acceptance\":false}\n",
+              "stderr": "test_actual_arithmetic_against_independent_canonical_groups (test_sm121_strong_float_replay.StrongFloatReplayTests.test_actual_arithmetic_against_independent_canonical_groups) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 1.335s\n\nOK\n",
+              "wall_seconds": 1.363518082536757
+            },
+            {
+              "command": [
+                "python3",
+                "tools/public_hygiene.py",
+                "."
+              ],
+              "returncode": 0,
+              "stdout": "public_hygiene=pass finding_count=0\n",
+              "stderr": "",
+              "wall_seconds": 12.11889620963484
+            },
+            {
+              "command": [
+                "git",
+                "diff",
+                "--check"
+              ],
+              "returncode": 0,
+              "stdout": "",
+              "stderr": "",
+              "wall_seconds": 0.011793583631515503
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "discardable_attention",
+      "preparation": {
+        "source_commit": "c5809d72946fe568859cf52089acdef80ed25d93",
+        "repo": "D:/projects/AIMA-public-discardable-attention-20260919-r1",
+        "seed": "D:/projects/AIMA-public-prefill-kv-reservation-20260919-r1",
+        "script": "run-native-discardable-attention-r1.ps1",
+        "script_sha256": "fb1bf73b6b32ee1c553a9200fa49ec0dafd5173b5c905cf1e5c08fa34041a04d",
+        "dispatcher": "dispatch_discardable_attention_native_r1.py",
+        "dispatcher_sha256": "232212c311e6783fe909ce4b7d9f1624f0402312926e52413fcd935b516d4995",
+        "bundle": "discardable-attention-c5809d7.bundle",
+        "bundle_sha256": "8aa411da03c87d3ae452b6b202e7bb0212dd9753050480bb1fc97f3e127b791d",
+        "manifest": {
+          "file": "discardable-attention-native-source-r1.json",
+          "original_local_sha256": "e3f1a22c1305ba6e07ae56869342c9d1c56ca7f5d6eee4fa83ccaed371a2c431"
+        },
+        "source_sha256": {
+          "native/providers/ck_fmha/attention_deadline.h": "d1f09cb678af6da392bf152da4f88a681afcb1b20363bc8b4ae8555e9ef82da0",
+          "native/providers/ck_fmha/blackwell_attention.h": "837b92c220d62c6e2889452dfe0d318867e3e44f9dfe10580e58ebe943647fbc",
+          "native/providers/ck_fmha/decoded_window_qk.h": "ec66d4193c2445f8bd404868237a28f04e8064e658238c672891bb081e28f54d",
+          "native/providers/ck_fmha/deferred_qk_fallback.h": "c34e5e291a9cca9e48009b16128cfac57ac09942fe59b1500520a0bc62b66d81",
+          "native/providers/ck_fmha/discardable_workspace.h": "3cc4f565656ff776d76c000ca556d9d848412e347ffdabafe95d3d88bd752c84",
+          "native/providers/ck_fmha/exact_attention_policy.h": "869c165c0352f6e3e98089be58ec6fb5e65274abb4d32eb636d6a4d99072fec8",
+          "native/providers/ck_fmha/exponent_mask_qk.h": "6f6c9e154c6d2d8f713641c8eedc675f5a76213086435d83d69cff3156f73e3b",
+          "native/providers/ck_fmha/float_pv_replay.h": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+          "native/providers/ck_fmha/fmha_fwd_api.cpp": "60a145abeda7d8b403f81dc5e0408d2e3028b8cdb100b3f8b9d7c2b622c16548",
+          "native/providers/ck_fmha/fmha_fwd_gfx1151_d256_bf16_f32out.cpp": "34abfc8e9187f6ca07deba430fa975adab0f67d054b0e829d230450b62252799",
+          "native/providers/ck_fmha/fused_probability_pv.h": "5957829d67fd3e055d9507b678e2e275a43286a64acdaf58895ddf6b311e9345",
+          "native/providers/ck_fmha/fused_probability_pv_policy.h": "c3c23a6133952b1851ad03662adb4ac754e3031673548efdddae4618002ae9a1",
+          "native/providers/ck_fmha/long_attention_layout.h": "b94f16310020a757076e6f9bd7d97bea81f91d90567e006a419d5de4acfd1f19",
+          "native/providers/ck_fmha/long_attention_pipeline.h": "86731af5f5e055278083985608dd9dee449e3afa0127c64ff515c91943d8cde9",
+          "native/providers/ck_fmha/long_final_probability_pv.h": "4538d7fde8704454a485ef8ac8e432946d0f43f8b197ff22fbf20d35bf66506a",
+          "native/providers/ck_fmha/long_fused_probability_pv.h": "c8adf466adc6b426ba4bef4260e5e70c76d837aa25460e324fdb4f3d4aa01896",
+          "native/providers/ck_fmha/long_narrow_qk.h": "0dc328dfbb3a17f48003b14c88793178dd41b7fdecc873291d963d6ac58e9666",
+          "native/providers/ck_fmha/microtile_exact_qk.h": "3de72cfeec586a4609e2a759279307246d4b18444f52536917bd0829c66aeb04",
+          "native/providers/ck_fmha/narrow_domain_qk.h": "9dbc7ee3a9a292b610d1bc0823374e61b7a2feee01a35da123c0ed3454c02463",
+          "native/providers/ck_fmha/narrow_domain_qk_policy.h": "6ae512946e544500ea347b91786535099f3cac51a44e0068ade7ac365def480e",
+          "native/providers/ck_fmha/narrow_domain_qk_workspace.h": "ced9a51778b6463750f491ef06ebb701fb06131458d39de462e695324a43ad1d",
+          "native/providers/ck_fmha/native_delta_probability.h": "4a1bb411ef7641f02db818eef1e85adf4b62fcf74b294a1758cedb6cd2ec32ea",
+          "native/providers/ck_fmha/native_exp2_workspace.h": "a33f65e490070b23224978eaa3a5ea4ae9a6861631caa3fec59c681557cb828b",
+          "native/providers/ck_fmha/prepared_decoded_qk.h": "5b2c12fcc59eba1f8e7445101c3ffc7624f81bf01e9f3fa8d4ce5d90f48782d2",
+          "native/providers/ck_fmha/prepared_decoded_qk_range.h": "ff83e7abcfb279a115c0b016fe16a1e3b59d926f7c5de82d3a03cdc13e859f2b",
+          "native/providers/ck_fmha/prepared_decoded_qk_range_workspace.h": "4a65c898d237e604a5e23383c311ba7d4e9b584d0ad6611f2864eaff45967028",
+          "native/providers/ck_fmha/prepared_decoded_qk_workspace.h": "f7aeef4016b182ad11c30aab4b3b8d178847b035b993473ed4acca7e99771774",
+          "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp": "db2fd18cfe24dd2490ab51c521aaf75046f7cba4f0ab1d83ad67513c21344784",
+          "native/providers/ck_fmha/register_pv_policy.h": "009b7df1060fd2ed55a47b537d75da17507d0a7048cf2dc8e5fec7e467e1d9c4",
+          "native/providers/ck_fmha/rz_tree_qk.h": "82b01c2f6080b7570f5a0ed851fc64b13173fbbcd45aa622691a15b7dafe4bb5",
+          "native/providers/ck_fmha/selective_qk.h": "4470f9b35d46fb29468aa7e2cdf5e4ef286de86c7252796967219764f7b47324",
+          "native/providers/ck_fmha/selective_qk_tail_policy.h": "9ecd1679270881edacc8d435e1107771b8af8738bdfc42617d341d0b5a6f6aa4",
+          "native/providers/ck_fmha/streamed_exact_attention.h": "c4c0083338cda1516833b52f76f85bad60ad1edc25b3738a87c44725b2160d17",
+          "native/providers/gdn/sm121_attention_rcp.h": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+          "native/providers/gdn/sm121_exp2_interpolated.h": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+          "native/providers/gdn/sm121_exp2_native_delta.h": "18514c6dc67c0f55be29a33e524abe56d3a11735b3c1279e20a488c059725c33",
+          "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+          "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+          "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+          "native/providers/moe_accumulator/sm121_decoded_bf16.h": "861b7984ca4cb87c4f3d71c1e17b8e310aedaf32fe06257bca433ee03097b605",
+          "native/providers/moe_accumulator/sm121_dot_certificate.h": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+          "native/providers/moe_accumulator/sm121_exponent_mask.h": "879c21210883a74a27ccc00ffc5401f6d771f9a9436d6b5f7651699714c55f28",
+          "native/providers/moe_accumulator/sm121_f32_carry.h": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+          "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+          "native/providers/moe_accumulator/sm121_float_subgroup.h": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+          "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+          "native/providers/moe_accumulator/sm121_integer_core.h": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+          "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+          "native/providers/moe_accumulator/sm121_lane_reduce.h": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+          "native/providers/moe_accumulator/sm121_mantissa_parts.h": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+          "native/providers/moe_accumulator/sm121_narrow_f32_carry.h": "85ab733dd564a8dbc5948f5700fcb6c66fbbc5239d0f55e405dbe7e4e210eca9",
+          "native/providers/moe_accumulator/sm121_native_product.h": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+          "native/providers/moe_accumulator/sm121_native_rz_carry.h": "d1f07bd751c578d20c1c1734da7b7223787607c74be8ec2db92585d89d1b5901",
+          "native/providers/moe_accumulator/sm121_paired_products.h": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+          "native/providers/moe_accumulator/sm121_prepared_bf16.h": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+          "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+          "native/providers/moe_accumulator/sm121_pv_final_bound.h": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+          "native/providers/moe_accumulator/sm121_pv_long_final_bound.h": "e0391a1a4476e2a436a179620fd180b4400c108e06a840f23aa504a5e79270b6",
+          "native/providers/moe_accumulator/sm121_rz_tree_spec.h": "971268433b7a7bd9e5b0ca3116af333376fef4cc333f7e0d01f9d52348a54f4f",
+          "native/providers/moe_accumulator/sm121_strided_pair.h": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+          "native/providers/moe_accumulator/sm121_subgroup.h": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+          "native/providers/moe_accumulator/sm121_wave16.h": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+          "native/providers/sm121_attention_capacity.h": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+          "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+          "scripts/baiying_build_ck_fmha_q8192.ps1": "1e03bfbca780f4e6006b301eb0b991a35cfe2f4b5e1991973b3b6561cff88088",
+          "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7"
+        },
+        "native_dispatched": false,
+        "model_acceptance": false,
+        "performance_acceptance": false,
+        "release_qualified": false
+      },
+      "local_evidence": [
+        {
+          "file": "discardable-attention-workspace-local-r1.json",
+          "original_local_bytes": 3583,
+          "original_local_sha256": "4947a82bb3bc6f73aa927a37e504c8660df52736cfb8cc12ce1555210836f505",
+          "record": [
+            {
+              "command": [
+                "python3",
+                "-m",
+                "unittest",
+                "discover",
+                "-s",
+                "tests",
+                "-p",
+                "test_discardable_workspace.py",
+                "-v"
+              ],
+              "returncode": 0,
+              "stdout": "",
+              "stderr": "test_peak_budget_failure_ownership_and_retry (test_discardable_workspace.DiscardableWorkspaceTests.test_peak_budget_failure_ownership_and_retry) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.958s\n\nOK\n",
+              "wall_seconds": 0.9866877496242523
+            },
+            {
+              "command": [
+                "python3",
+                "-m",
+                "unittest",
+                "discover",
+                "-s",
+                "tests",
+                "-p",
+                "test_attention_workspace.py",
+                "-v"
+              ],
+              "returncode": 1,
+              "stdout": "",
+              "stderr": "test_atomic_prepare_release_and_failed_submission_drain (test_attention_workspace.AttentionWorkspaceTests.test_atomic_prepare_release_and_failed_submission_drain) ... <stdin>:1750:17: error: unused variable 'retained_value' [-Werror,-Wunused-variable]\n 1750 |     const auto* retained_value=g_sm121_long_values.cells;\n      |                 ^~~~~~~~~~~~~~\n<stdin>:2185:17: error: unused variable 'retained_qk' [-Werror,-Wunused-variable]\n 2185 |     const auto* retained_qk=g_sm121_long_decoded_qk.words;\n      |                 ^~~~~~~~~~~\n2 errors generated.\nERROR\n\n======================================================================\nERROR: test_atomic_prepare_release_and_failed_submission_drain (test_attention_workspace.AttentionWorkspaceTests.test_atomic_prepare_release_and_failed_submission_drain)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<local-home>/projects/AIMA-public-r1191-candidate/tests/test_attention_workspace.py\", line 1465, in test_atomic_prepare_release_and_failed_submission_drain\n    subprocess.run(\n  File \"<local-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/subprocess.py\", line 571, in run\n    raise CalledProcessError(retcode, process.args,\nsubprocess.CalledProcessError: Command '['c++', '-std=c++17', '-Wall', '-Wextra', '-Werror', '-x', 'c++', '-', '-o', '/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-attention-workspace-5jxf7aug/workspace']' returned non-zero exit status 1.\n\n----------------------------------------------------------------------\nRan 1 test in 0.274s\n\nFAILED (errors=1)\n",
+              "wall_seconds": 0.30467833299189806
+            },
+            {
+              "command": [
+                "python3",
+                "-m",
+                "unittest",
+                "discover",
+                "-s",
+                "tests",
+                "-p",
+                "test_attention_suffix.py",
+                "-v"
+              ],
+              "returncode": 0,
+              "stdout": "",
+              "stderr": "test_actual_staging_offsets_refresh_and_failure_drain (test_attention_suffix.AttentionSuffixTests.test_actual_staging_offsets_refresh_and_failure_drain) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.752s\n\nOK\n",
+              "wall_seconds": 0.7823216672986746
+            },
+            {
+              "command": [
+                "python3",
+                "-m",
+                "unittest",
+                "discover",
+                "-s",
+                "tests",
+                "-p",
+                "test_long_attention_layout.py",
+                "-v"
+              ],
+              "returncode": 0,
+              "stdout": "",
+              "stderr": "test_extents_and_inactive_short_decode_scope (test_long_attention_layout.LongAttentionLayoutTests.test_extents_and_inactive_short_decode_scope) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.525s\n\nOK\n",
+              "wall_seconds": 0.5536562912166119
+            }
+          ]
+        },
+        {
+          "file": "discardable-attention-workspace-ownership-r2.json",
+          "original_local_bytes": 519,
+          "original_local_sha256": "c8b801cfc7ee8d8ada3a03f01405cf71a899478eec5603fcca8a48d6556d7b40",
+          "record": {
+            "command": [
+              "python3",
+              "-m",
+              "unittest",
+              "discover",
+              "-s",
+              "tests",
+              "-p",
+              "test_attention_workspace.py",
+              "-v"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": "test_atomic_prepare_release_and_failed_submission_drain (test_attention_workspace.AttentionWorkspaceTests.test_atomic_prepare_release_and_failed_submission_drain) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.817s\n\nOK\n",
+            "wall_seconds": 0.8464633747935295
+          }
+        },
+        {
+          "file": "discardable-attention-workspace-transition-r3.json",
+          "original_local_bytes": 1866,
+          "original_local_sha256": "172f0efefa10e300cb55c94c52b8f0b3ca53777e7b983705345819b591ac258b",
+          "record": {
+            "utc": "2026-09-19T06:59:23.677154+00:00",
+            "host": "Jiawei-MacminideMac-mini.local",
+            "command": [
+              "python3",
+              "tests/test_attention_workspace.py"
+            ],
+            "returncode": 1,
+            "elapsed_seconds": 0.9307032497599721,
+            "stdout": "",
+            "stderr": "E\n======================================================================\nERROR: test_atomic_prepare_release_and_failed_submission_drain (__main__.AttentionWorkspaceTests.test_atomic_prepare_release_and_failed_submission_drain)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<local-home>/projects/AIMA-public-r1191-candidate/tests/test_attention_workspace.py\", line 1488, in test_atomic_prepare_release_and_failed_submission_drain\n    result = subprocess.run([executable], check=True, timeout=5, capture_output=True, text=True)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<local-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/subprocess.py\", line 571, in run\n    raise CalledProcessError(retcode, process.args,\nsubprocess.CalledProcessError: Command '['/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-attention-workspace-b3bzoywd/workspace']' died with <Signals.SIGABRT: 6>.\n\n----------------------------------------------------------------------\nRan 1 test in 0.901s\n\nFAILED (errors=1)\n",
+            "source_inputs": {
+              "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp": "db2fd18cfe24dd2490ab51c521aaf75046f7cba4f0ab1d83ad67513c21344784",
+              "native/providers/ck_fmha/discardable_workspace.h": "3cc4f565656ff776d76c000ca556d9d848412e347ffdabafe95d3d88bd752c84",
+              "tests/test_attention_workspace.py": "54e77f01492dc005383567d4986c9ea2f49b8dcec3c4d3b930f6e2dcb1c34bea"
+            },
+            "native_inference": false
+          }
+        },
+        {
+          "file": "discardable-attention-workspace-transition-r4.json",
+          "original_local_bytes": 780,
+          "original_local_sha256": "f9fc6ebd0deee9f635afb4888444819dab3948f86f35371ed76ba58936259cb4",
+          "record": {
+            "utc": "2026-09-19T07:00:15.508266+00:00",
+            "host": "Jiawei-MacminideMac-mini.local",
+            "command": [
+              "python3",
+              "tests/test_attention_workspace.py"
+            ],
+            "returncode": 0,
+            "elapsed_seconds": 0.8696548752486706,
+            "stdout": "",
+            "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.842s\n\nOK\n",
+            "source_inputs": {
+              "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp": "db2fd18cfe24dd2490ab51c521aaf75046f7cba4f0ab1d83ad67513c21344784",
+              "native/providers/ck_fmha/discardable_workspace.h": "3cc4f565656ff776d76c000ca556d9d848412e347ffdabafe95d3d88bd752c84",
+              "tests/test_attention_workspace.py": "0ec5fddb65974959afb104789ab0268666d7fae0889d211f7d444a316d2025e7"
+            },
+            "native_inference": false
+          }
+        },
+        {
+          "file": "discardable-attention-hygiene-r1.json",
+          "original_local_bytes": 1481,
+          "original_local_sha256": "6e91b4828a9a21a5763afeb8e3decb7909329eb5f1c696356f02d349e7338e53",
+          "record": {
+            "utc": "2026-09-19T07:01:39.024331+00:00",
+            "checks": [
+              {
+                "command": [
+                  "python3",
+                  "tools/public_hygiene.py",
+                  "."
+                ],
+                "returncode": 0,
+                "stdout": "public_hygiene=pass finding_count=0\n",
+                "stderr": ""
+              },
+              {
+                "command": [
+                  "git",
+                  "diff",
+                  "--check"
+                ],
+                "returncode": 0,
+                "stdout": "",
+                "stderr": ""
+              }
+            ],
+            "source_inputs": {
+              "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp": "db2fd18cfe24dd2490ab51c521aaf75046f7cba4f0ab1d83ad67513c21344784",
+              "native/providers/ck_fmha/discardable_workspace.h": "3cc4f565656ff776d76c000ca556d9d848412e347ffdabafe95d3d88bd752c84",
+              "tests/test_discardable_workspace.py": "2a2ffd3cebcc81df5bd504ab4a86023adf305952ab1824be6ddcc0d1ea64da07",
+              "tests/test_attention_workspace.py": "0ec5fddb65974959afb104789ab0268666d7fae0889d211f7d444a316d2025e7",
+              "tests/test_attention_suffix.py": "35c1a56b772fcbb3f8612ad168308f59fa6241595c79a4438a84a43e6e26044c",
+              "tests/test_long_attention_layout.py": "a24a5e51425817b30c611e707d5e646621143c041912f458c0520fe6142c0d08",
+              "docs/DISCARDABLE_ATTENTION_WORKSPACE.md": "9859f3207362c33c69a78e9e95825c9b0a0992637d2c3eb293536a995446c6fd"
+            },
+            "prior_validation": [
+              "discardable-attention-workspace-local-r1.json",
+              "discardable-attention-workspace-ownership-r2.json",
+              "discardable-attention-workspace-transition-r4.json"
+            ],
+            "native_inference": false
+          }
+        }
+      ]
+    }
+  ],
+  "native_script_grammar": {
+    "host": "BAIYING",
+    "utc": "2026-09-19T07:05:59.1070601Z",
+    "scripts": [
+      {
+        "sha256": "d4f69533ed87efef83210621cede884243658950617da6b399acfaee1f8637d7",
+        "errors": [],
+        "file": "run-native-quad-float-gdn-r1.ps1",
+        "pass": true
+      },
+      {
+        "sha256": "fb1bf73b6b32ee1c553a9200fa49ec0dafd5173b5c905cf1e5c08fa34041a04d",
+        "errors": [],
+        "file": "run-native-discardable-attention-r1.ps1",
+        "pass": true
+      }
+    ],
+    "script_execution": false,
+    "model_loaded": false,
+    "inference_acceptance": false
+  },
+  "native_script_grammar_original_local_sha256": "85f913c453e463eeda3c0928c38b689bd90735e87c2e2a172268ea2fe0c99dac",
+  "active_model_run": "prefill-kv-reservation-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+  "limitation": "Host tests and PowerShell parsing only. Both candidates require completed Windows execution and original-token model qualification. The active full256k test uses earlier pinned binaries.",
+  "privacy": "Local home prefixes in textual logs are replaced by <local-home>; original raw local hashes are retained."
+}
