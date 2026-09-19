@@ -23,6 +23,7 @@
 #include "qrt_prefix_logit.h"
 #include "qrt_prefix_checkpoint.h"
 #include "prefix_checkpoint_policy.h"
+#include "resident_text_shard_layout.h"
 #include "gdn/fla_checkpoint.h"
 #include "gdn/gb10_gate_lookup.h"
 #include "gdn/sm121_bf16_fma.h"
@@ -78809,6 +78810,8 @@ struct ResidentModelShardStoreMetrics {
     uint64_t host_mapped_shard_count = UINT64_C(0);
     uint64_t registered_host_shard_count = UINT64_C(0);
     uint64_t tensor_count = UINT64_C(0);
+    uint64_t omitted_tensor_count = UINT64_C(0);
+    uint64_t omitted_tensor_bytes = UINT64_C(0);
     uint64_t chunk_count = UINT64_C(0);
     uint64_t overlapped_read_count = UINT64_C(0);
     uint64_t immediate_read_count = UINT64_C(0);
@@ -78835,6 +78838,7 @@ struct ResidentModelShardStoreShard {
     bool managed = false;
     bool host_mapped = false;
     bool registered_host = false;
+    qrt_resident_text_shard::Layout layout;
 };
 
 struct ResidentModelShardStoreTensor {
@@ -78881,6 +78885,7 @@ struct ResidentModelShardStore {
     ResidentModelShardStoreMetrics metrics;
     bool ring_ready = false;
     bool single_device_arena = false;
+    bool text_only = false;
     bool valid = false;
 };
 
@@ -79824,6 +79829,9 @@ void print_resident_model_shard_store_marker(
               << " file_bytes=" << metrics.file_bytes
               << " device_bytes=" << metrics.device_bytes
               << " ordinary_device_bytes=" << metrics.ordinary_device_bytes
+              << " text_only=" << (store.text_only ? 1 : 0)
+              << " omitted_tensor_count=" << metrics.omitted_tensor_count
+              << " omitted_tensor_bytes=" << metrics.omitted_tensor_bytes
               << " managed_bytes=" << metrics.managed_bytes
               << " managed_tail_shards_requested="
               << resident_model_shard_store_managed_tail_shards_requested()
@@ -80290,6 +80298,7 @@ void release_resident_model_shard_store() {
     store.metrics = ResidentModelShardStoreMetrics{};
     store.ring_ready = false;
     store.single_device_arena = false;
+    store.text_only = false;
     store.valid = false;
 }
 
@@ -81656,17 +81665,18 @@ bool try_resident_model_shard_store_device_bf16_view(
     }
     const ResidentModelShardStoreShard &shard =
         store.shards[found->second.shard_index];
+    uint64_t device_offset = 0;
     if (shard.device_base == nullptr ||
-        found->second.absolute_begin > shard.file_bytes ||
-        expected_bytes > shard.file_bytes - found->second.absolute_begin) {
+        !qrt_resident_text_shard::offset(shard.layout,
+            found->second.absolute_begin, expected_bytes, &device_offset)) {
         if (failure != nullptr) {
-            *failure = "resident model shard store tensor view is out of bounds";
+            *failure = "resident model tensor view is absent from the selected resident scope";
         }
         return false;
     }
     *out = reinterpret_cast<const uint16_t *>(
         static_cast<const unsigned char *>(shard.device_base) +
-        found->second.absolute_begin
+        device_offset
     );
     ++store.metrics.device_view_hit_count;
     return true;
@@ -82084,13 +82094,20 @@ bool copy_resident_model_shard_store_host_slice(
         store.shards[found->second.shard_index];
     const uint64_t absolute_begin =
         found->second.absolute_begin + relative_begin;
+    uint64_t device_offset = 0;
+    if (!shard.device_base || !qrt_resident_text_shard::offset(
+            shard.layout, absolute_begin, byte_count, &device_offset)) {
+        if (failure != nullptr)
+            *failure = "resident model host slice is absent from the selected resident scope";
+        return false;
+    }
     const bool host_backed =
         shard.registered_host || shard.host_mapped;
     if (host_backed) {
         std::memcpy(
             out,
             static_cast<const unsigned char *>(shard.host_base) +
-                absolute_begin,
+                device_offset,
             static_cast<size_t>(byte_count)
         );
         ++store.metrics.host_backing_slice_copy_count;
@@ -82098,7 +82115,7 @@ bool copy_resident_model_shard_store_host_slice(
     } else {
         const unsigned char *source =
             static_cast<const unsigned char *>(shard.device_base) +
-            absolute_begin;
+            device_offset;
         const hipError_t status = hipMemcpy(
             out,
             source,
@@ -82627,18 +82644,14 @@ bool copy_resident_model_shard_store_chunk(
             failure_stage,
             failure
         ) ||
-        !check_hip(
-            hipMemcpyAsync(
-                static_cast<unsigned char *>(shard->device_base) + relative,
-                slot->host,
-                static_cast<size_t>(count),
-                hipMemcpyHostToDevice,
-                slot->stream
-            ),
-            "resident_model_shard_store_h2d",
-            failure_stage,
-            failure
-        ) ||
+        !qrt_resident_text_shard::copy(shard->layout, relative, count,
+            [&](uint64_t destination, uint64_t source, uint64_t bytes) {
+                return check_hip(hipMemcpyAsync(
+                    static_cast<unsigned char *>(shard->device_base) + destination,
+                    static_cast<unsigned char *>(slot->host) + source,
+                    static_cast<size_t>(bytes), hipMemcpyHostToDevice, slot->stream),
+                    "resident_model_shard_store_h2d", failure_stage, failure);
+            }) ||
         !check_hip(
             hipEventRecord(slot->copy_end, slot->stream),
             "resident_model_shard_store_h2d_end",
@@ -82790,6 +82803,35 @@ bool load_resident_model_shard_store_shard(
         return false;
     }
 
+    std::vector<qrt_resident_text_shard::Tensor> shard_tensors;
+    for (const auto &item : store->tensors) {
+        if (item.second.shard_index == shard_index)
+            shard_tensors.push_back({item.second.absolute_begin, item.second.bytes,
+                qrt_resident_text_shard::keep(item.first)});
+    }
+    if (!qrt_resident_text_shard::build(file_bytes, std::move(shard_tensors),
+            store->text_only, &resident_shard.layout)) {
+        if (failure_stage) *failure_stage = "resident_model_shard_store_layout";
+        if (failure) *failure = "resident model shard has overlapping or invalid tensor ranges";
+        return false;
+    }
+    const uint64_t device_bytes = resident_shard.layout.device_bytes;
+    store->metrics.omitted_tensor_count += resident_shard.layout.omitted_tensors;
+    store->metrics.omitted_tensor_bytes += resident_shard.layout.omitted_tensor_bytes;
+    if (store->text_only)
+        std::cerr << "BATCH_MARK resident_model_text_shard_layout shard_index=" << shard_index
+                  << " file_bytes=" << file_bytes << " device_bytes=" << device_bytes
+                  << " retained_spans=" << resident_shard.layout.spans.size()
+                  << " kept_tensors=" << resident_shard.layout.kept_tensors
+                  << " omitted_tensors=" << resident_shard.layout.omitted_tensors
+                  << " omitted_tensor_bytes=" << resident_shard.layout.omitted_tensor_bytes
+                  << " original_disk_offsets=1 quantized=0" << std::endl;
+    if (!device_bytes) {
+        store->metrics.file_bytes += file_bytes;
+        ++store->metrics.shard_count;
+        return true;
+    }
+
     size_t gpu_free_before_bytes = 0u;
     size_t gpu_total_before_bytes = 0u;
     const hipError_t gpu_info_before_status = hipMemGetInfo(
@@ -82807,7 +82849,7 @@ bool load_resident_model_shard_store_shard(
     if (q262144_request &&
         (gpu_info_before_status != hipSuccess ||
          gpu_free_before_bytes < kQ262144ResidentModelGpuReserveBytes ||
-         file_bytes > gpu_free_before_bytes -
+         device_bytes > gpu_free_before_bytes -
              kQ262144ResidentModelGpuReserveBytes)) {
         if (failure_stage != nullptr) {
             *failure_stage =
@@ -82963,7 +83005,7 @@ bool load_resident_model_shard_store_shard(
                           )
                         : hipMalloc(
                               &resident_shard.device_base,
-                              static_cast<size_t>(file_bytes)
+                              static_cast<size_t>(device_bytes)
                           ),
                     use_managed
                         ? "resident_model_shard_store_managed_arena"
@@ -83001,7 +83043,7 @@ bool load_resident_model_shard_store_shard(
               << " numerical_correctness_claimed=0"
               << std::endl;
     store->metrics.file_bytes += file_bytes;
-    store->metrics.device_bytes += file_bytes;
+    store->metrics.device_bytes += device_bytes;
     if (resident_shard.registered_host) {
         store->metrics.registered_host_bytes += file_bytes;
         ++store->metrics.registered_host_shard_count;
@@ -83012,7 +83054,7 @@ bool load_resident_model_shard_store_shard(
         store->metrics.managed_bytes += file_bytes;
         ++store->metrics.managed_shard_count;
     } else {
-        store->metrics.ordinary_device_bytes += file_bytes;
+        store->metrics.ordinary_device_bytes += device_bytes;
     }
 
     ResidentModelShardStoreFile unbuffered;
@@ -83146,20 +83188,15 @@ bool load_resident_model_shard_store_shard(
                     failure_stage,
                     failure
                 ) ||
-                !check_hip(
-                    hipMemcpyAsync(
-                        static_cast<unsigned char *>(
-                            resident_shard.device_base
-                        ) + streamed_bytes,
-                        slot.host,
-                        static_cast<size_t>(tail_bytes),
-                        hipMemcpyHostToDevice,
-                        slot.stream
-                    ),
-                    "resident_model_shard_store_tail_h2d",
-                    failure_stage,
-                    failure
-                ) ||
+                !qrt_resident_text_shard::copy(resident_shard.layout,
+                    streamed_bytes, tail_bytes,
+                    [&](uint64_t destination, uint64_t source, uint64_t bytes) {
+                        return check_hip(hipMemcpyAsync(
+                            static_cast<unsigned char *>(resident_shard.device_base) + destination,
+                            static_cast<unsigned char *>(slot.host) + source,
+                            static_cast<size_t>(bytes), hipMemcpyHostToDevice, slot.stream),
+                            "resident_model_shard_store_tail_h2d", failure_stage, failure);
+                    }) ||
                 !check_hip(
                     hipEventRecord(slot.copy_end, slot.stream),
                     "resident_model_shard_store_tail_end",
@@ -83198,88 +83235,90 @@ bool load_resident_model_shard_store_shard(
     );
 
     const uint64_t verify_start_ns = qrt_now_ns();
-    const size_t verify_bytes = static_cast<size_t>((std::min<uint64_t>)(
-        static_cast<uint64_t>(kResidentModelShardStoreVerifyBytes),
-        file_bytes
-    ));
-    const std::array<uint64_t, 3> sample_offsets = {
-        UINT64_C(0),
-        (file_bytes - static_cast<uint64_t>(verify_bytes)) / UINT64_C(2),
-        file_bytes - static_cast<uint64_t>(verify_bytes)
-    };
     std::array<unsigned char, kResidentModelShardStoreVerifyBytes> source{};
     ResidentModelShardStoreIoSlot &verify_slot = store->slots[0];
-    for (uint64_t sample_offset : sample_offsets) {
-        if (!resident_model_shard_store_read_at(
-                buffered.handle,
-                sample_offset,
-                source.data(),
-                static_cast<DWORD>(verify_bytes),
-                deadline_ns,
-                &store->metrics.read_wait_ns,
-                "resident_model_shard_store_verify_source",
-                failure_stage,
-                failure
-            )) {
-            return false;
-        }
-        const bool host_backed =
-            resident_shard.registered_host || resident_shard.host_mapped;
-        const unsigned char *resident_sample = nullptr;
-        if (host_backed) {
-            // Registered/host-mapped shards are populated directly through
-            // their host backing.  A D2H copy from the mapped device alias is
-            // redundant and, after several multi-GiB mappings on Windows,
-            // can fail in the copy engine even though the backing bytes are
-            // intact.  Verify the exact persistent storage that the alias
-            // references; ordinary/managed device allocations retain the
-            // original GPU D2H boundary below.
-            resident_sample =
-                static_cast<const unsigned char *>(
-                    resident_shard.host_base
-                ) + sample_offset;
-            ++store->metrics.host_backing_verification_sample_count;
-        } else {
-            if (!check_hip(
-                    hipMemcpyAsync(
-                        verify_slot.host,
-                        static_cast<const unsigned char *>(
-                            resident_shard.device_base
-                        ) + sample_offset,
-                        verify_bytes,
-                        hipMemcpyDeviceToHost,
-                        verify_slot.stream
-                    ),
-                    "resident_model_shard_store_verify_d2h",
-                    failure_stage,
-                    failure
-                ) ||
-                !check_hip(
-                    hipEventRecord(
-                        verify_slot.copy_end,
-                        verify_slot.stream
-                    ),
-                    "resident_model_shard_store_verify_event",
-                    failure_stage,
-                    failure
-                ) ||
-                !check_hip(
-                    hipEventSynchronize(verify_slot.copy_end),
-                    "resident_model_shard_store_verify_wait",
+    for (const auto &span : resident_shard.layout.spans) {
+        const size_t verify_bytes = static_cast<size_t>((std::min<uint64_t>)(
+            static_cast<uint64_t>(kResidentModelShardStoreVerifyBytes),
+            span.bytes
+        ));
+        const std::array<uint64_t, 3> sample_offsets = {
+            UINT64_C(0),
+            (span.bytes - static_cast<uint64_t>(verify_bytes)) / UINT64_C(2),
+            span.bytes - static_cast<uint64_t>(verify_bytes)
+        };
+        for (uint64_t sample_offset : sample_offsets) {
+            if (!resident_model_shard_store_read_at(
+                    buffered.handle,
+                    span.source + sample_offset,
+                    source.data(),
+                    static_cast<DWORD>(verify_bytes),
+                    deadline_ns,
+                    &store->metrics.read_wait_ns,
+                    "resident_model_shard_store_verify_source",
                     failure_stage,
                     failure
                 )) {
                 return false;
             }
-            resident_sample =
-                static_cast<const unsigned char *>(verify_slot.host);
-        }
-        for (size_t index = 0u; index < verify_bytes; ++index) {
-            if (source[index] != resident_sample[index]) {
-                ++store->metrics.verification_mismatch_count;
+            const bool host_backed =
+                resident_shard.registered_host || resident_shard.host_mapped;
+            const unsigned char *resident_sample = nullptr;
+            if (host_backed) {
+                // Registered/host-mapped shards are populated directly through
+                // their host backing.  A D2H copy from the mapped device alias is
+                // redundant and, after several multi-GiB mappings on Windows,
+                // can fail in the copy engine even though the backing bytes are
+                // intact.  Verify the exact persistent storage that the alias
+                // references; ordinary/managed device allocations retain the
+                // original GPU D2H boundary below.
+                resident_sample =
+                    static_cast<const unsigned char *>(
+                        resident_shard.host_base
+                    ) + span.destination + sample_offset;
+                ++store->metrics.host_backing_verification_sample_count;
+            } else {
+                if (!check_hip(
+                        hipMemcpyAsync(
+                            verify_slot.host,
+                            static_cast<const unsigned char *>(
+                                resident_shard.device_base
+                            ) + span.destination + sample_offset,
+                            verify_bytes,
+                            hipMemcpyDeviceToHost,
+                            verify_slot.stream
+                        ),
+                        "resident_model_shard_store_verify_d2h",
+                        failure_stage,
+                        failure
+                    ) ||
+                    !check_hip(
+                        hipEventRecord(
+                            verify_slot.copy_end,
+                            verify_slot.stream
+                        ),
+                        "resident_model_shard_store_verify_event",
+                        failure_stage,
+                        failure
+                    ) ||
+                    !check_hip(
+                        hipEventSynchronize(verify_slot.copy_end),
+                        "resident_model_shard_store_verify_wait",
+                        failure_stage,
+                        failure
+                    )) {
+                    return false;
+                }
+                resident_sample =
+                    static_cast<const unsigned char *>(verify_slot.host);
             }
+            for (size_t index = 0u; index < verify_bytes; ++index) {
+                if (source[index] != resident_sample[index]) {
+                    ++store->metrics.verification_mismatch_count;
+                }
+            }
+            ++store->metrics.verification_sample_count;
         }
-        ++store->metrics.verification_sample_count;
     }
     store->metrics.verify_ns += qrt_elapsed_ns(verify_start_ns, qrt_now_ns());
     size_t gpu_free_ready_bytes = 0u;
@@ -83318,6 +83357,26 @@ bool ensure_resident_model_shard_store(
     std::string *failure
 ) {
     ResidentModelShardStore &store = g_resident_model_shard_store;
+    const bool text_only = env_flag_enabled(
+        "QRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_TEXT_ONLY");
+    if (text_only) {
+        const char *conflicts[] = {
+            "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_W8A8_FULL",
+            "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_LOSSLESS_PALETTE_FULL",
+            "QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_LOSSLESS_ROW_PALETTE_REPLACE_RAW"
+        };
+        bool incompatible = !resident_model_shard_store_requested() ||
+            resident_model_shard_store_single_device_arena_requested() ||
+            resident_model_shard_store_managed_tail_shards_requested() ||
+            resident_model_shard_store_host_mapped_tail_shards_requested() ||
+            resident_model_shard_store_registered_host_tail_shards_requested();
+        for (const char *option : conflicts) incompatible |= env_flag_enabled(option);
+        if (incompatible) {
+            if (failure_stage) *failure_stage = "resident_model_text_only_contract";
+            if (failure) *failure = "text-only storage requires ordinary resident shards without raw-shard replacement";
+            return false;
+        }
+    }
     if (g_q8192_lossless_row_palette_replace_raw_active &&
         g_whole_repeated_layer_weight_model_dir == model_dir) {
         return true;
@@ -83334,6 +83393,7 @@ bool ensure_resident_model_shard_store(
     const uint64_t registered_host_tail_shards_requested =
         resident_model_shard_store_registered_host_tail_shards_requested();
     if (store.valid && store.model_dir == model_dir &&
+        store.text_only == text_only &&
         store.single_device_arena == single_device_arena_requested &&
         store.managed_tail_shards == managed_tail_shards_requested &&
         store.host_mapped_tail_shards ==
@@ -83362,6 +83422,7 @@ bool ensure_resident_model_shard_store(
     const uint64_t start_ns = qrt_now_ns();
     const uint64_t deadline_ns = start_ns + kResidentModelShardStoreTimeoutNs;
     store.model_dir = model_dir;
+    store.text_only = text_only;
     store.single_device_arena = single_device_arena_requested;
     store.managed_tail_shards = managed_tail_shards_requested;
     store.host_mapped_tail_shards = host_mapped_tail_shards_requested;
