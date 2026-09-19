@@ -34,15 +34,15 @@ candidate-count initialization failure and invalid/undersized inputs. Existing
 nine attention regressions and C ABI smoke also pass. These host tests do not
 execute GPU kernels.
 
-The native fixture is prepared for 60 generated combinations through264736
+The native fixture is prepared for 60 generated combinations through 264736
 keys, with both existing error-bound policies, 128 independent CPU original
 QK dots per combination, all probability payloads, native and replayed raw
 surfaces, complete candidate identity, untouched cells, guards and inputs.
 Complete owner checks observe all five stages, compare QK before overwrite,
 reject an undersized slab before submission and use a nonzero output offset.
 
-The original GB10 16384-prefix plus1024-suffix capture provides4194304 context
-cells. A separate8192-query extension repeats those original input rows and
+The original GB10 16384-prefix plus 1024-suffix capture provides 4194304 context
+cells. A separate 8192-query extension repeats those original input rows and
 provides component coverage only. One warmup and three rotated completed-host
 samples compare the original and candidate complete pipelines in one executable;
 every sample is checked. Row preparation is common and reported separately.
@@ -54,3 +54,14 @@ constant under `-Werror`; the corrected mock passes with runtime sources
 unchanged. Windows compilation, native numerical comparisons, original-token
 model runs, system-memory benefit and retained performance remain pending.
 This candidate does not qualify a package or release.
+
+The [preparation record](../benchmarks/correctness/inplace-probability-storage-preparation-20260919.json)
+pins source `dc9172f2a2ac6b583b1fd7705d8e2a5da598d6b1`, all 54 compilation
+inputs and the guard script, the completed local checks, and both the original
+mock failure and corrected syntax result. PowerShell on baiying accepts the
+prepared command with zero parse errors at 2026-09-19T15:44:48Z; no native
+build or GPU action was executed by that grammar check. Native deadlines are
+240 seconds for build, 1500 for generated boundaries, 600 for the original
+1024-query capture and 900 for the 8192-query extension. Both dispatch sides
+require the active original full256k run's final host/process cleanup record
+before these native actions can begin.

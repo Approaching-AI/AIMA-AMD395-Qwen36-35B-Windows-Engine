@@ -100,3 +100,11 @@ and the chunked long route does not enter the one-query suffix ABI. Its only
 current model caller is cold q8192 final-layer liveness, with a 64 MiB allocation
 difference. It remains default-off and unrun natively; it does not address the
 active full256k memory boundary.
+
+The separate [in-place probability candidate](INPLACE_PROBABILITY_STORAGE.md)
+targets the long-attention slab used by that route. It reuses each consumed
+FP32 score cell for its original BF16 probability payload, removing a separate
+probability matrix. Maximum planned scratch falls by 1084358656 bytes. Host
+checks and native command parsing pass, while GPU comparisons and measured
+memory benefit remain pending. It has no provider dispatch or runtime option
+and does not alter the active full256k experiment.
