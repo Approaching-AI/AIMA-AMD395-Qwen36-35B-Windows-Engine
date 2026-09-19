@@ -1,0 +1,404 @@
+{
+  "schema": "compact_suffix_query_preparation_v1",
+  "utc": "2026-09-19T07:41:18.882628+00:00",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "candidate": {
+    "source_commit": "ca4610fd89b507da166f1222580f2c3a68642ec3",
+    "prerequisite_commit": "b35ae93a2ea6c123801ff71dc6108fd88af32d16",
+    "repo": "D:/projects/AIMA-public-compact-suffix-query-20260919-r1",
+    "seed": "D:/projects/AIMA-public-prefill-kv-reservation-20260919-r1",
+    "bundle": "compact-suffix-query-ca4610f.bundle",
+    "bundle_sha256": "9ab7a8591676469a9da0e923dd320a742cf894af1af81939fcdc0d813d60205d",
+    "script": "run-native-compact-suffix-query-r1.ps1",
+    "script_sha256": "ff6a9f8b98e30be96f58fcc8d76dd00757fe7ba610ee08e6676f7c8f0abf023f",
+    "dispatcher": "dispatch_compact_suffix_query_r1.py",
+    "dispatcher_sha256": "27422901109d1761a18626cb9f19bde126d67e7081777624804f47ba21130c1a",
+    "generator": "prepare_compact_suffix_query_native_r1.py",
+    "generator_sha256": "931a764f6c4d8eab65eeb514116ccd8abcd6b5cdf2ac55f68498c9304767572f",
+    "source_sha256": {
+      "native/providers/ck_fmha/attention_deadline.h": "d1f09cb678af6da392bf152da4f88a681afcb1b20363bc8b4ae8555e9ef82da0",
+      "native/providers/ck_fmha/blackwell_attention.h": "837b92c220d62c6e2889452dfe0d318867e3e44f9dfe10580e58ebe943647fbc",
+      "native/providers/ck_fmha/decoded_window_qk.h": "ec66d4193c2445f8bd404868237a28f04e8064e658238c672891bb081e28f54d",
+      "native/providers/ck_fmha/deferred_qk_fallback.h": "3acf7a41842e7f9e2e85450b00ceb2ae384bf35b01e085c6df64ecda03abe490",
+      "native/providers/ck_fmha/discardable_workspace.h": "3cc4f565656ff776d76c000ca556d9d848412e347ffdabafe95d3d88bd752c84",
+      "native/providers/ck_fmha/exact_attention_policy.h": "869c165c0352f6e3e98089be58ec6fb5e65274abb4d32eb636d6a4d99072fec8",
+      "native/providers/ck_fmha/exponent_mask_qk.h": "6f6c9e154c6d2d8f713641c8eedc675f5a76213086435d83d69cff3156f73e3b",
+      "native/providers/ck_fmha/float_pv_replay.h": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+      "native/providers/ck_fmha/fmha_fwd_api.cpp": "60a145abeda7d8b403f81dc5e0408d2e3028b8cdb100b3f8b9d7c2b622c16548",
+      "native/providers/ck_fmha/fmha_fwd_gfx1151_d256_bf16_f32out.cpp": "34abfc8e9187f6ca07deba430fa975adab0f67d054b0e829d230450b62252799",
+      "native/providers/ck_fmha/fused_probability_pv.h": "5957829d67fd3e055d9507b678e2e275a43286a64acdaf58895ddf6b311e9345",
+      "native/providers/ck_fmha/fused_probability_pv_policy.h": "c3c23a6133952b1851ad03662adb4ac754e3031673548efdddae4618002ae9a1",
+      "native/providers/ck_fmha/fused_qk_probability.h": "5245142370a5eba3d3acbf82086325b2518f7e5b6b5d0bd8ffec4a49d42d341f",
+      "native/providers/ck_fmha/long_attention_layout.h": "b94f16310020a757076e6f9bd7d97bea81f91d90567e006a419d5de4acfd1f19",
+      "native/providers/ck_fmha/long_attention_pipeline.h": "86731af5f5e055278083985608dd9dee449e3afa0127c64ff515c91943d8cde9",
+      "native/providers/ck_fmha/long_final_probability_pv.h": "4538d7fde8704454a485ef8ac8e432946d0f43f8b197ff22fbf20d35bf66506a",
+      "native/providers/ck_fmha/long_fused_probability_pv.h": "c8adf466adc6b426ba4bef4260e5e70c76d837aa25460e324fdb4f3d4aa01896",
+      "native/providers/ck_fmha/long_narrow_qk.h": "6b85ffbd52c2a197a09d0279c740137de15c6b722a0a78121581eaf0ffc199d9",
+      "native/providers/ck_fmha/microtile_exact_qk.h": "3de72cfeec586a4609e2a759279307246d4b18444f52536917bd0829c66aeb04",
+      "native/providers/ck_fmha/narrow_domain_qk.h": "9dbc7ee3a9a292b610d1bc0823374e61b7a2feee01a35da123c0ed3454c02463",
+      "native/providers/ck_fmha/narrow_domain_qk_policy.h": "6ae512946e544500ea347b91786535099f3cac51a44e0068ade7ac365def480e",
+      "native/providers/ck_fmha/narrow_domain_qk_workspace.h": "ced9a51778b6463750f491ef06ebb701fb06131458d39de462e695324a43ad1d",
+      "native/providers/ck_fmha/native_delta_probability.h": "4a1bb411ef7641f02db818eef1e85adf4b62fcf74b294a1758cedb6cd2ec32ea",
+      "native/providers/ck_fmha/native_exp2_workspace.h": "a33f65e490070b23224978eaa3a5ea4ae9a6861631caa3fec59c681557cb828b",
+      "native/providers/ck_fmha/prepared_decoded_qk.h": "5b2c12fcc59eba1f8e7445101c3ffc7624f81bf01e9f3fa8d4ce5d90f48782d2",
+      "native/providers/ck_fmha/prepared_decoded_qk_range.h": "275cdf1b5acfc623312b6841f6ce58a0895f2956419c0bae4dddc5cf59fb22e8",
+      "native/providers/ck_fmha/prepared_decoded_qk_range_workspace.h": "4a65c898d237e604a5e23383c311ba7d4e9b584d0ad6611f2864eaff45967028",
+      "native/providers/ck_fmha/prepared_decoded_qk_workspace.h": "f7aeef4016b182ad11c30aab4b3b8d178847b035b993473ed4acca7e99771774",
+      "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp": "7898fdcada2e9221f6e6b72da74c7c404eeb9936b484c5695eba0e6d3abaec30",
+      "native/providers/ck_fmha/register_pv_policy.h": "009b7df1060fd2ed55a47b537d75da17507d0a7048cf2dc8e5fec7e467e1d9c4",
+      "native/providers/ck_fmha/rz_tree_qk.h": "82b01c2f6080b7570f5a0ed851fc64b13173fbbcd45aa622691a15b7dafe4bb5",
+      "native/providers/ck_fmha/selective_qk.h": "4470f9b35d46fb29468aa7e2cdf5e4ef286de86c7252796967219764f7b47324",
+      "native/providers/ck_fmha/selective_qk_tail_policy.h": "9ecd1679270881edacc8d435e1107771b8af8738bdfc42617d341d0b5a6f6aa4",
+      "native/providers/ck_fmha/streamed_exact_attention.h": "c4c0083338cda1516833b52f76f85bad60ad1edc25b3738a87c44725b2160d17",
+      "native/providers/gdn/sm121_attention_rcp.h": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+      "native/providers/gdn/sm121_exp2_interpolated.h": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+      "native/providers/gdn/sm121_exp2_native_delta.h": "18514c6dc67c0f55be29a33e524abe56d3a11735b3c1279e20a488c059725c33",
+      "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+      "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+      "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+      "native/providers/moe_accumulator/sm121_decoded_bf16.h": "861b7984ca4cb87c4f3d71c1e17b8e310aedaf32fe06257bca433ee03097b605",
+      "native/providers/moe_accumulator/sm121_dot_certificate.h": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+      "native/providers/moe_accumulator/sm121_exponent_mask.h": "879c21210883a74a27ccc00ffc5401f6d771f9a9436d6b5f7651699714c55f28",
+      "native/providers/moe_accumulator/sm121_f32_carry.h": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+      "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+      "native/providers/moe_accumulator/sm121_float_subgroup.h": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+      "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+      "native/providers/moe_accumulator/sm121_integer_core.h": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+      "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+      "native/providers/moe_accumulator/sm121_lane_reduce.h": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+      "native/providers/moe_accumulator/sm121_mantissa_parts.h": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+      "native/providers/moe_accumulator/sm121_narrow_f32_carry.h": "85ab733dd564a8dbc5948f5700fcb6c66fbbc5239d0f55e405dbe7e4e210eca9",
+      "native/providers/moe_accumulator/sm121_native_product.h": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+      "native/providers/moe_accumulator/sm121_native_rz_carry.h": "d1f07bd751c578d20c1c1734da7b7223787607c74be8ec2db92585d89d1b5901",
+      "native/providers/moe_accumulator/sm121_paired_products.h": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+      "native/providers/moe_accumulator/sm121_prepared_bf16.h": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+      "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+      "native/providers/moe_accumulator/sm121_pv_final_bound.h": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+      "native/providers/moe_accumulator/sm121_pv_long_final_bound.h": "e0391a1a4476e2a436a179620fd180b4400c108e06a840f23aa504a5e79270b6",
+      "native/providers/moe_accumulator/sm121_rz_tree_spec.h": "971268433b7a7bd9e5b0ca3116af333376fef4cc333f7e0d01f9d52348a54f4f",
+      "native/providers/moe_accumulator/sm121_strided_pair.h": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+      "native/providers/moe_accumulator/sm121_subgroup.h": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+      "native/providers/moe_accumulator/sm121_wave16.h": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+      "native/providers/sm121_attention_capacity.h": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+      "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+      "scripts/baiying_build_ck_fmha_q8192.ps1": "1e03bfbca780f4e6006b301eb0b991a35cfe2f4b5e1991973b3b6561cff88088",
+      "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+      "tests/native/combined_exact_attention_capture.cpp": "98447dd968860d3fd40f0ea839540e35f139c6a5bb02a089a72c194231f104ba",
+      "tests/native/compact_suffix_query_selftest.cpp": "a813229ae5aa6db52520566a52dd1e9badfe5fa4f22cae2a6c5568cdacc44fae",
+      "tests/native/fused_qk_probability_selftest.cpp": "c8386686b14eab803cdbf2d2628f75f4e24f0944b2630625d64d33aafac811bb",
+      "tests/native/long_attention_pipeline_capture.cpp": "76b372871e77c9146d80149d9e691eb1fecde511bd4c2a0cdfad5bddef332815",
+      "tests/native/long_final_pv_bound_selftest.cpp": "64b87dab458876c71e127788df7bbed9d49932ead93e07c750fd5c013b0af9f5",
+      "tests/native/long_final_pv_capture.cpp": "118390e9997604c23fcec1d2d835f0582065fa40e9161da7f532ec875a92d3b3"
+    },
+    "local_compilation_inputs": 71,
+    "previous_model_run": "prefill-kv-reservation-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+    "previous_model_success_required": false,
+    "previous_cleanup_required": true,
+    "native_timeouts_seconds": {
+      "build": 240,
+      "safety": 900,
+      "q1024": 900,
+      "q8192": 1200,
+      "build-ck": 240
+    },
+    "transport_timeout_seconds": {
+      "build": 420,
+      "safety": 1080,
+      "q1024": 1080,
+      "q8192": 1380,
+      "build-ck": 420
+    },
+    "manifest": {
+      "file": "compact-suffix-query-native-source-r1.json",
+      "original_local_sha256": "7c3737c110625d20c7bfa5183c4ff26a8854ddaac885699a906f935485c17b3b"
+    },
+    "native_dispatched": false
+  },
+  "local_evidence": [
+    {
+      "file": "compact-suffix-query-wiring-local-r1.json",
+      "original_local_bytes": 1659,
+      "original_local_sha256": "f88143cdc4ec759a15c107eda34a94075a83d45688b5221fa4ba0c2bc63f2601",
+      "record": [
+        {
+          "command": [
+            "python3",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-p",
+            "test_prepared_decoded_qk_range.py",
+            "-v"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "test_query_origin_views_and_failed_submissions (test_prepared_decoded_qk_range.PreparedDecodedQkRangeTests.test_query_origin_views_and_failed_submissions) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.813s\n\nOK\n",
+          "elapsed_seconds": 0.8476107083261013
+        },
+        {
+          "command": [
+            "python3",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-p",
+            "test_attention_suffix.py",
+            "-v"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "test_actual_staging_offsets_refresh_and_failure_drain (test_attention_suffix.AttentionSuffixTests.test_actual_staging_offsets_refresh_and_failure_drain) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.722s\n\nOK\n",
+          "elapsed_seconds": 0.7526414999738336
+        },
+        {
+          "command": [
+            "python3",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-p",
+            "test_attention_workspace.py",
+            "-v"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "test_atomic_prepare_release_and_failed_submission_drain (test_attention_workspace.AttentionWorkspaceTests.test_atomic_prepare_release_and_failed_submission_drain) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.735s\n\nOK\n",
+          "elapsed_seconds": 0.7628466663882136
+        }
+      ]
+    },
+    {
+      "file": "compact-query-origin-local-r1.json",
+      "original_local_bytes": 2188,
+      "original_local_sha256": "30b6b7f7c52aa4756fb01f53f8d41a6e92e7c4c366a8c51b8e5a2c3dc51d82a4",
+      "record": {
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-p",
+          "test_compact_query_origin.py",
+          "-v"
+        ],
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "test_actual_fallback_and_long_dispatch (test_compact_query_origin.CompactQueryOriginTests.test_actual_fallback_and_long_dispatch) ... /var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-compact-query-4s7u1uwh/check.cpp:47:13: error: use of undeclared identifier 'kZeroExponent'\n   47 |             kZeroExponent,\n      |             ^~~~~~~~~~~~~\n/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-compact-query-4s7u1uwh/check.cpp:75:13: error: use of undeclared identifier 'kZeroExponent'\n   75 |             kZeroExponent,\n      |             ^~~~~~~~~~~~~\n2 errors generated.\nERROR\n\n======================================================================\nERROR: test_actual_fallback_and_long_dispatch (test_compact_query_origin.CompactQueryOriginTests.test_actual_fallback_and_long_dispatch)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<local-home>/projects/AIMA-public-r1191-candidate/tests/test_compact_query_origin.py\", line 173, in test_actual_fallback_and_long_dispatch\n    subprocess.run(['c++','-std=c++17','-O1','-Wall','-Wextra','-Werror',\n  File \"<local-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/subprocess.py\", line 571, in run\n    raise CalledProcessError(retcode, process.args,\nsubprocess.CalledProcessError: Command '['c++', '-std=c++17', '-O1', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-DQRT_SM121_COMPACT_NORMALIZE=1', '-I', '<local-home>/projects/AIMA-public-r1191-candidate', '/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-compact-query-4s7u1uwh/check.cpp', '-o', '/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-compact-query-4s7u1uwh/check']' returned non-zero exit status 1.\n\n----------------------------------------------------------------------\nRan 1 test in 0.252s\n\nFAILED (errors=1)\n",
+        "elapsed_seconds": 0.2813502075150609
+      }
+    },
+    {
+      "file": "compact-query-origin-local-r2.json",
+      "original_local_bytes": 574,
+      "original_local_sha256": "74948bb5e499dd92d3156efc5b66c562a436d47f66f6e4105756fcced978dda7",
+      "record": {
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-p",
+          "test_compact_query_origin.py",
+          "-v"
+        ],
+        "returncode": 0,
+        "stdout": "compact_query_original_dot_checks=400 dispatch_origins=2 invalid_origin_rejected=1\n",
+        "stderr": "test_actual_fallback_and_long_dispatch (test_compact_query_origin.CompactQueryOriginTests.test_actual_fallback_and_long_dispatch) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.934s\n\nOK\n",
+        "elapsed_seconds": 0.9631378753110766
+      }
+    },
+    {
+      "file": "compact-query-final-local-r1.json",
+      "original_local_bytes": 3132,
+      "original_local_sha256": "1c6fd8a13b96e9e4189b1ed3fa225a252f44e90b4ef2ee4562fe2d9e60e5ddf0",
+      "record": {
+        "checks": [
+          {
+            "command": [
+              "python3",
+              "-m",
+              "unittest",
+              "discover",
+              "-s",
+              "tests",
+              "-p",
+              "test_prepared_decoded_qk_launch.py",
+              "-v"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": "test_arena_views_and_failed_launches (test_prepared_decoded_qk_launch.PreparedDecodedQkLaunchTests.test_arena_views_and_failed_launches) ... ok\ntest_exponent_mask_arena_views_and_failed_launches (test_prepared_decoded_qk_launch.PreparedDecodedQkLaunchTests.test_exponent_mask_arena_views_and_failed_launches) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 1.384s\n\nOK\n",
+            "elapsed_seconds": 1.414256208576262
+          },
+          {
+            "command": [
+              "python3",
+              "-m",
+              "unittest",
+              "discover",
+              "-s",
+              "tests",
+              "-p",
+              "test_long_attention_layout.py",
+              "-v"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": "test_extents_and_inactive_short_decode_scope (test_long_attention_layout.LongAttentionLayoutTests.test_extents_and_inactive_short_decode_scope) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.508s\n\nOK\n",
+            "elapsed_seconds": 0.5360342096537352
+          },
+          {
+            "command": [
+              "python3",
+              "tools/public_hygiene.py",
+              "."
+            ],
+            "returncode": 0,
+            "stdout": "public_hygiene=pass finding_count=0\n",
+            "stderr": "",
+            "elapsed_seconds": 11.952081916853786
+          },
+          {
+            "command": [
+              "git",
+              "diff",
+              "--check"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": "",
+            "elapsed_seconds": 0.015310375019907951
+          }
+        ],
+        "source_sha256": {
+          "docs/COMPACT_SUFFIX_QUERY.md": "023abe02c1d339ea04313f776d902733339f28fdbfe1c0916e07570a35a01709",
+          "native/providers/ck_fmha/deferred_qk_fallback.h": "3acf7a41842e7f9e2e85450b00ceb2ae384bf35b01e085c6df64ecda03abe490",
+          "native/providers/ck_fmha/long_narrow_qk.h": "6b85ffbd52c2a197a09d0279c740137de15c6b722a0a78121581eaf0ffc199d9",
+          "native/providers/ck_fmha/prepared_decoded_qk_range.h": "275cdf1b5acfc623312b6841f6ce58a0895f2956419c0bae4dddc5cf59fb22e8",
+          "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp": "acc6f898af4891c39ca0adb7427769d1ce3c988aece7bc8d3b329e24b75f7547",
+          "tests/native/compact_suffix_query_selftest.cpp": "08a035222c1d7c41fe32386b438929ceea1ff1ba67f681c4c77372c77a17d28f",
+          "tests/native/long_attention_pipeline_capture.cpp": "76b372871e77c9146d80149d9e691eb1fecde511bd4c2a0cdfad5bddef332815",
+          "tests/test_attention_suffix.py": "2ce52a9fdbc8dce8764ac6852aadec2841b108164450ba34c402004c41acd2e8",
+          "tests/test_attention_workspace.py": "6bef50f388d0823a70287ed2f7e93122f9d9f1b9d8ffd585842af7c82d077fb3",
+          "tests/test_compact_query_origin.py": "b270c2c52c5ac9ff4232d80047798ba2e28f13b55e2233f49fd1862020b3bccd",
+          "tests/test_prepared_decoded_qk_range.py": "8a7404a45c35722334cb67b5ac60af04cb9a7e43246be915e681253533a411dd"
+        },
+        "native_executed": false
+      }
+    },
+    {
+      "file": "compact-query-marker-local-r2.json",
+      "original_local_bytes": 2532,
+      "original_local_sha256": "a8abf3a84ec30ae6a296ffe96b785afc550425f1676d5ffdc3df1d7cbdfb604b",
+      "record": {
+        "checks": [
+          {
+            "command": [
+              "python3",
+              "-m",
+              "unittest",
+              "discover",
+              "-s",
+              "tests",
+              "-p",
+              "test_attention_suffix.py",
+              "-v"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": "test_actual_staging_offsets_refresh_and_failure_drain (test_attention_suffix.AttentionSuffixTests.test_actual_staging_offsets_refresh_and_failure_drain) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.869s\n\nOK\n",
+            "elapsed_seconds": 0.9030399154871702
+          },
+          {
+            "command": [
+              "python3",
+              "-m",
+              "unittest",
+              "discover",
+              "-s",
+              "tests",
+              "-p",
+              "test_attention_workspace.py",
+              "-v"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": "test_atomic_prepare_release_and_failed_submission_drain (test_attention_workspace.AttentionWorkspaceTests.test_atomic_prepare_release_and_failed_submission_drain) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.774s\n\nOK\n",
+            "elapsed_seconds": 0.8041247492656112
+          }
+        ],
+        "source_sha256": {
+          "docs/COMPACT_SUFFIX_QUERY.md": "023abe02c1d339ea04313f776d902733339f28fdbfe1c0916e07570a35a01709",
+          "native/providers/ck_fmha/deferred_qk_fallback.h": "3acf7a41842e7f9e2e85450b00ceb2ae384bf35b01e085c6df64ecda03abe490",
+          "native/providers/ck_fmha/long_narrow_qk.h": "6b85ffbd52c2a197a09d0279c740137de15c6b722a0a78121581eaf0ffc199d9",
+          "native/providers/ck_fmha/prepared_decoded_qk_range.h": "275cdf1b5acfc623312b6841f6ce58a0895f2956419c0bae4dddc5cf59fb22e8",
+          "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp": "7898fdcada2e9221f6e6b72da74c7c404eeb9936b484c5695eba0e6d3abaec30",
+          "tests/native/compact_suffix_query_selftest.cpp": "a813229ae5aa6db52520566a52dd1e9badfe5fa4f22cae2a6c5568cdacc44fae",
+          "tests/native/long_attention_pipeline_capture.cpp": "76b372871e77c9146d80149d9e691eb1fecde511bd4c2a0cdfad5bddef332815",
+          "tests/test_attention_suffix.py": "62573d266add8f0f48cca2c21ec17e6a0fd1787b6ef26e63fe37c12a2ee27671",
+          "tests/test_attention_workspace.py": "6bef50f388d0823a70287ed2f7e93122f9d9f1b9d8ffd585842af7c82d077fb3",
+          "tests/test_compact_query_origin.py": "b270c2c52c5ac9ff4232d80047798ba2e28f13b55e2233f49fd1862020b3bccd",
+          "tests/test_prepared_decoded_qk_range.py": "8a7404a45c35722334cb67b5ac60af04cb9a7e43246be915e681253533a411dd"
+        },
+        "native_executed": false
+      }
+    }
+  ],
+  "first_failed_fixture": {
+    "file": "compact-query-origin-before-constant-r1.py",
+    "sha256": "ab8f53f7735142cd3ce7f6731b4a4bc0a360a7320efe456738132c3fd58159f0",
+    "cause": "Host fixture omitted kZeroExponent; corrected before the passing check."
+  },
+  "native_script_grammar": {
+    "host": "BAIYING",
+    "utc": "2026-09-19T07:33:43.7782461Z",
+    "scripts": [
+      {
+        "sha256": "ff6a9f8b98e30be96f58fcc8d76dd00757fe7ba610ee08e6676f7c8f0abf023f",
+        "errors": [],
+        "file": "run-native-compact-suffix-query-r1.ps1",
+        "pass": true
+      }
+    ],
+    "script_execution": false,
+    "model_loaded": false,
+    "inference_acceptance": false
+  },
+  "native_script_grammar_original_local_sha256": "0a230ba5b0a19c2ab0f1f58978962aa9d50a0900b5ba50afcb697a5e7c4b0556",
+  "allocation_calculation": {
+    "prefix_tokens": 262144,
+    "suffix_tokens": 1024,
+    "old_query_staging_bytes": 2155872256,
+    "new_query_staging_bytes": 0,
+    "compact_kv_staging_bytes": 538968064,
+    "measured_memory_benefit": false
+  },
+  "native_fixture_plan": {
+    "generated_cases": 24,
+    "variants_per_case": 2,
+    "original_gb10_prefix_tokens": 16384,
+    "original_gb10_suffix_tokens": 1024,
+    "original_gb10_context_cells": 4194304,
+    "optional_q8192": "Repeated captured query rows; component extension only.",
+    "executed": false
+  },
+  "dependency_evidence": "pending-native-candidates-20260919.json",
+  "model_loaded": false,
+  "gb10_output_boundary_attached": false,
+  "native_correctness_acceptance": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "limitation": "Host tests and PowerShell grammar only. Windows compilation, completed native attention comparisons and original-token model regressions are pending. The active full256k model run uses earlier pinned binaries.",
+  "privacy": "Local home prefixes in textual logs are replaced by <local-home>; raw local hashes are retained."
+}

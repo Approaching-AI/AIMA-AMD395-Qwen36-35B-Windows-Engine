@@ -40,3 +40,10 @@ rows and is explicitly a component extension rather than new model evidence.
 Windows compilation, numerical execution and original-token model regressions
 remain pending. The active 256k model run uses earlier pinned binaries. This
 candidate makes no native correctness, memory-benefit or release claim.
+
+[Preparation evidence](../benchmarks/correctness/compact-suffix-query-preparation-20260919.json)
+pins source `ca4610f`, all 71 local compilation inputs, the two build/guard
+scripts, bounded native commands, and the failed and passing local checks.
+Baiying's PowerShell parser accepts the exact command file at
+2026-09-19T07:33:43Z with zero errors; it did not execute the commands or load
+the model. Native dispatch requires the active 256k run's completed cleanup.
