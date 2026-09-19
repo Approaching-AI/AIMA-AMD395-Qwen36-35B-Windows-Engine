@@ -1,5 +1,40 @@
 # Linux sibling fixes reviewed for the next Windows release
 
+## September 20 status: original continuations and archive boundaries
+
+The [API refresh](../benchmarks/correctness/linux-windows-release-review-refresh-20260920.json)
+at 2026-09-19T18:02:10Z rechecks the latest five releases: `.10`, `.9`, `.7`,
+`.6` and `.5`. All five bodies match the preceding review, and the latest `.10`
+tag still resolves to `0522a57caf24bf21e0e6fcc5b234a7fc361fbc94`, with declared
+native source `ec9934446911fdf376da8eebcd83e7b137efbb7c`. The source review below
+therefore remains applicable. This refresh executes no model.
+
+The subsequent Windows long-context repair is independently GB10-anchored.
+A [single-round RoPE correction](../benchmarks/correctness/prefix96-rope-single-round-root-cause-20260919.json)
+fixes the BF16 midpoint at position91018, layer15. The
+[original128k product run](../benchmarks/correctness/rope-single-round-prefix128k-product-20260919.json)
+then matches the combined owner32 and both complete512-token suffixes,
+first logits, actual callbacks, restoration and changed-prefix rejection on
+whole32a/FLA1d. Separate cold owner512 and other binary combinations retain
+their own acceptance boundaries.
+
+The newer wholeb3/CK370 storage stack separately passes
+[original q8192/out512](../benchmarks/correctness/resident-ordered-compact-query-native-q8192-20260919.json)
+and [cold32k/out512](../benchmarks/correctness/resident-ordered-compact-query-cold32k-out512-20260919.json),
+with all original IDs/callbacks and zero first-logit error. Its original full256k
+owner and both suffixes are still running. q8192 TTFT remains above10 seconds;
+the immutable retained-performance target has not changed.
+
+Serverb3d75e9 is now included in the unpublished R6 archive. Its actual
+[protocol, saved-prefix and control-plane checks](../benchmarks/correctness/current-portable-r6-protocol-prefix-controlplane-20260919.json)
+pass45 protocol requests, saved-prefix branches and55 control requests, and its
+[exact ZIP inventory](../benchmarks/correctness/portable-archive-inventory-20260919.json)
+is independently verified. R6 still lacks its exact-archive13-case matrix and
+one-hour soak. R8's newer whole/FLA stack and test commands are prepared but
+unrun. Later model components cannot inherit archive qualification from R6.
+No new archive is release-qualified or published. Windows still rejects visual
+media explicitly; Linux VL and numerical/soak results do not qualify it.
+
 ## September 18 refresh: Linux `.10` tool content
 
 The release API retrieved at 2026-09-17T21:30:40Z identifies
@@ -56,9 +91,11 @@ Both server experiments use the unchanged R4 provider/AOT/table inventory and
 numeric profile. The latest server loads in 21529.5239 ms; its cold TTFT is
 30231.4271 ms and TPOT 100.080780 ms. These are protocol-qualified R4 timings,
 not a replacement for the newer experimental performance stack. The `.9` R4
-archive remains unpublished and unchanged; the new server is not packaged,
-soaked or release-qualified. Retained performance and long-context gates remain
-open, as described in [performance evidence](PERFORMANCE.md).
+archive remains unpublished and unchanged. These HTTP-only measurements do
+not establish later archive or soak acceptance. Retained performance and
+long-context gates remain open, as described in
+[performance evidence](PERFORMANCE.md). The R6 packaging and remaining archive
+boundaries at the September20 review are recorded above.
 
 ## Initial September 13 review
 

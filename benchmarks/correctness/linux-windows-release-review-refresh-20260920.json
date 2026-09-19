@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "kind": "linux_windows_release_review_refresh",
+  "checked_at": "2026-09-19T18:02:10.125415+00:00",
+  "repository": "skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine",
+  "command": [
+    "gh",
+    "api",
+    "repos/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases?per_page=5"
+  ],
+  "raw_release_response": {
+    "file": "linux-release-refresh-20260920-r1.json",
+    "bytes": 68851,
+    "sha256": "7636f6b00394cda26182db76fb6ce0d0a99db6abf62dedf73cbc6f11e4fb192a"
+  },
+  "prior_response": {
+    "file": "linux-release-refresh-20260919-r5.json",
+    "sha256": "8fce677cee7d8fa8414edad97ea92c38ffeb71e14620af7460cc594ce01ba752"
+  },
+  "releases": [
+    {
+      "id": 390268638,
+      "tag_name": "v1.5.1-native-vl.10",
+      "published_at": "2026-09-16T20:58:30Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.10",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "d69fbbcb839434ff9900ada60a733237b17717276a71a1557a1bcbdfcf6a77f5",
+      "body_unchanged_since_prior": true
+    },
+    {
+      "id": 388292711,
+      "tag_name": "v1.5.1-native-vl.9",
+      "published_at": "2026-09-14T09:54:52Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.9",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "add3c8dea37f57170da14b669d9815a1b5c943f12348e76c22f7f30f22ebd503",
+      "body_unchanged_since_prior": true
+    },
+    {
+      "id": 385545118,
+      "tag_name": "v1.5.1-native-vl.7",
+      "published_at": "2026-09-09T13:36:02Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.7",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "4e1d1ac062a9002d760ac7c6a3a740b4d7a52ff11071f6a04263e26ae0e9d9f9",
+      "body_unchanged_since_prior": true
+    },
+    {
+      "id": 384454588,
+      "tag_name": "v1.5.1-native-vl.6",
+      "published_at": "2026-09-08T04:54:46Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.6",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "5095ce0b6b3c0876cc752636806b66dc5b0f269cf88346b53591730108f56605",
+      "body_unchanged_since_prior": true
+    },
+    {
+      "id": 380261311,
+      "tag_name": "v1.5.1-native-vl.5",
+      "published_at": "2026-09-01T06:34:45Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.5",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "133f1c75088a23b53ba22446ca2b1537f826840b73b853a616d92d8e2eac4d05",
+      "body_unchanged_since_prior": true
+    }
+  ],
+  "latest_tag": {
+    "file": "linux-latest-tag-refresh-20260920-r1.json",
+    "sha256": "949a8670537da816fbfad7e2868ecbc43c97c0f451e9aa1472e9d21506fa9e7b",
+    "record": {
+      "ref": "refs/tags/v1.5.1-native-vl.10",
+      "node_id": "REF_kwDOTeFQGL1yZWZzL3RhZ3MvdjEuNS4xLW5hdGl2ZS12bC4xMA",
+      "url": "https://api.github.com/repos/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/git/refs/tags/v1.5.1-native-vl.10",
+      "object": {
+        "sha": "0522a57caf24bf21e0e6fcc5b234a7fc361fbc94",
+        "type": "commit",
+        "url": "https://api.github.com/repos/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/git/commits/0522a57caf24bf21e0e6fcc5b234a7fc361fbc94"
+      }
+    }
+  },
+  "unchanged_latest_native_source": "ec9934446911fdf376da8eebcd83e7b137efbb7c",
+  "windows_evidence": {
+    "sibling_source_review": {
+      "file": "benchmarks/correctness/linux-tool-content-source-review-20260918.json",
+      "bytes": 16432,
+      "sha256": "109a911811760a25e0f0ab638c69a8b2b8a9e5e3dd7c3e5d7ac16f5eaf71d6cf"
+    },
+    "bounded_text_wrappers": {
+      "file": "benchmarks/correctness/tool-text-parts-bounded-native-http-20260918.json",
+      "bytes": 204282,
+      "sha256": "98cc086cf2a14473c673bbbdd86734139c1bba634139b98b84eb416a4b8dd0f5"
+    },
+    "rope_root_cause": {
+      "file": "benchmarks/correctness/prefix96-rope-single-round-root-cause-20260919.json",
+      "bytes": 782265,
+      "sha256": "6dbcf8e475d0d874565928332ccd5c3578e92a7f87dc30964ed5adbc6d2b084a"
+    },
+    "original_prefix128k": {
+      "file": "benchmarks/correctness/rope-single-round-prefix128k-product-20260919.json",
+      "bytes": 583333,
+      "sha256": "b7cfe545120464da849eacd39e2afd347d928ae81dab8d920f6b90bab8a15674"
+    },
+    "ordered_storage_q8192": {
+      "file": "benchmarks/correctness/resident-ordered-compact-query-native-q8192-20260919.json",
+      "bytes": 280683,
+      "sha256": "4afb7da1be9de7fbd03b1f769268e9b95df0fe3d51e8fe902a33de30fc471dd7"
+    },
+    "ordered_storage_cold32k": {
+      "file": "benchmarks/correctness/resident-ordered-compact-query-cold32k-out512-20260919.json",
+      "bytes": 531512,
+      "sha256": "00cab0b83d6dcc7c38d371dec42ba2c87c53827a78521553cc463ac66190dc7b"
+    },
+    "r6_protocol_prefix_control": {
+      "file": "benchmarks/correctness/current-portable-r6-protocol-prefix-controlplane-20260919.json",
+      "bytes": 859987,
+      "sha256": "c0b5094bcb464849f188f50773a387a7daab31fe17d5fe49758b818b4eb27be1"
+    },
+    "r6_archive_inventory": {
+      "file": "benchmarks/correctness/portable-archive-inventory-20260919.json",
+      "bytes": 25135,
+      "sha256": "97a811cff49021df1ded5469a32a81a1e6b26f4639d126e52cd94ba78ef8f3c6"
+    },
+    "published_archive_provenance": {
+      "file": "benchmarks/correctness/published-v101-archive-provenance-20260919.json",
+      "bytes": 38185,
+      "sha256": "3274d3f124953908264bbf92c84b76e4844fc1ce44a2b4b82672baa1c1b97660"
+    }
+  },
+  "scope": "Read-only API refresh and evidence linkage. All five release bodies and the latest tag are unchanged. Existing Windows protocol, original-token and archive records retain their own component identities. R6 exact-archive matrix/soak, R8 staging/tests, active original256k, retained performance and release remain open. Visual media is explicitly unsupported on Windows; no Linux numerical or soak acceptance transfers.",
+  "new_model_execution": false,
+  "model_acceptance_added": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "published": false,
+  "recorder": {
+    "file": "record_linux_windows_refresh_20260920_r1.py",
+    "sha256": "583cf5b0d31a520b31c1a71ff5f4763ca62557b2fc9c9d1f6f6b6982c9eff25c"
+  }
+}
