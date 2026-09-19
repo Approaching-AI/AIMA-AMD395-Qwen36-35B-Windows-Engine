@@ -206,6 +206,16 @@ q8192 output/callback and first logit10.375 passes. Load21331.5202 ms,
 TTFT23241.1652 ms and TPOT100.587183 ms are one functional sample. The new
 96k attention15 capture is active, with the same original input and all
 process/host guards; it carries no new correctness or performance acceptance.
+The [original full attention15 window](../benchmarks/correctness/gb10-prefix128-full15-window-20260919.json)
+passes all576 original IDs and complete owner first logits. Its10 tensors
+total671088640 bytes and retain the8192 actual queries plus98304 logical KV
+positions. Selected rows equal the full window, and the cache tail equals
+the original K RoPE/V projection. All4380 downloaded files verify.
+[CPU controls](../benchmarks/correctness/full15-projection-context-cpu-controls-20260919.json)
+reproduce18 Q/K/V projections and10 complete selected attention contexts,
+including91017–91021 and98303, bitwise in BF16. Both declared separate/FMA
+denominator variants match these consumed outputs; no intermediate FP32
+equivalence is inferred. Native operands remain to be compared at91018.
 
 The new independent row906 GB10 capture fails its q7169 control before any
 long request: token220/logit9.375 instead of82/9.25. Its first observed
