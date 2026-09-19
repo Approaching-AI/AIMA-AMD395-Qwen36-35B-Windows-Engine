@@ -29,6 +29,14 @@ all source, host and cleanup checks pass. Load21269.2616 ms, TTFT73757.2789 ms
 and TPOT155.777343 ms are single functional observations. See the
 [original cold16k boundary](../benchmarks/correctness/rope-single-round-cold16k-out512-20260919.json).
 
+The separate cold32k/out512 request also passes all original 512 IDs and
+callbacks, with first logit 24.75 and zero error. All four cold chunks,
+component identities and host/cleanup checks pass. Load is 21214.8914 ms,
+TTFT 257595.0424 ms, TPOT 211.930275 ms and native wall 387616.606 ms. This is
+a functional observation on whole32a, before the KV reservation candidate;
+it does not establish performance acceptance. See the
+[original cold32k boundary](../benchmarks/correctness/rope-single-round-cold32k-out512-20260919.json).
+
 The retained non-pipelined runtime checks successful HIP submission, end-event synchronization and
 elapsed-time API status before using a completed interval. A finite,
 nonnegative GPU or enclosing monotonic host interval permits continuation.

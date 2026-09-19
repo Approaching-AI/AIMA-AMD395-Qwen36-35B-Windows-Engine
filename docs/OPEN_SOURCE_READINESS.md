@@ -30,9 +30,12 @@ and decode. With FLA `1d11bf7`, CK `ea6faff`, MoE `9235750` and CLI `6d9602c`,
 the repaired stack passes original q8192/out512 and the complete 128k prefix
 case. Both original suffix512 requests, combined owner32, first logits,
 actual callbacks, restoration, changed-prefix rejection and final host checks
-pass. A separate cold16k/out512 request also passes every original ID and
-callback. The 256k prefix test is active; separate cold32/64/128k tests remain
-pending. These are functional results. The qualified q8192 median and all
+pass. Separate cold16k and cold32k/out512 requests also pass every original ID
+and callback. The 256k prefix run stops at the unchanged physical-memory guard
+after 20 chunks (163840 inputs), before producing any output token; cleanup
+passes. A [fixed-capacity KV candidate](PREFILL_KV_RESERVATION.md) builds on
+baiying and is undergoing its first original cold32k comparison. Separate
+cold64/128k tests remain pending. These are functional results. The qualified q8192 median and all
 performance targets above remain unchanged. See the
 [complete correction and evidence](FLA_COMPLETION_GUARD.md).
 
