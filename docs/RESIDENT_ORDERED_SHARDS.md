@@ -43,3 +43,10 @@ fixed arena retains its original release behavior.
 Native MSVC/HIP build, original GB10 continuations, load time and physical-memory
 measurements remain required. The current full 256k run uses the earlier
 whole334/CK370 stack. This candidate is not enabled in a package or release.
+
+The [preparation record](../benchmarks/correctness/resident-ordered-storage-preparation-20260919.json)
+pins source `b3af8b6177c8bbf756be2b63af99bc7bb70b436e`, all 101 local
+compilation inputs and two build/guard scripts. It binds the original metadata
+reference, passing host checks and the native command's successful PowerShell
+parse on baiying at 2026-09-19T11:22:34Z. Compile/native/transport bounds remain
+240/300/390 seconds; native dispatch waits for the existing 256k process cleanup.
