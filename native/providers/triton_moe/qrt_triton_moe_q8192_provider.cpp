@@ -18806,6 +18806,44 @@ qrt_triton_moe_q8192_copy_q1024_early_f32_token0_activation_debug(
 }
 #endif
 
+// The base ABI reports the configured fixed scratch capacity. Add only
+// allocated optional owners; their capacities are not part of that base.
+// In particular, staged replay rows contain 36 bytes per K16, not 32 bytes.
+// This remains allocation accounting, excluding driver/library internals
+// and temporary per-call owners. It is not a GPU residency measurement.
+uint64_t optional_moe_scratch_bytes() {
+    uint64_t bytes = 0;
+    const auto add = [&](const void* pointer, size_t count) {
+        if (pointer) bytes += count;
+    };
+    add(g_state.router_logits_bf16, size_t(kTokens) * kExperts * sizeof(uint16_t));
+    add(g_state.router_logits_f32, size_t(kTokens) * kExperts * sizeof(float));
+    for (size_t i = 0; i < g_state.moe_l2.size(); ++i) {
+        add(g_state.moe_l2[i], kMoeL2Rows[i] * sizeof(float));
+        add(g_state.shared_replay_rows[i], kMoeL2Rows[i] * sizeof(uint32_t));
+        add(g_state.shared_staged_operands[i], kMoeL2Rows[i] *
+            (shared_staged_columns(static_cast<MoeL2>(i)) / 16u) *
+            sizeof(qrt_sm121_staged_half_projection::Row));
+    }
+    const size_t candidates = size_t(g_state.moe_compaction_blocks) * kNativeThreads;
+    add(g_state.moe_compacted_indices, candidates * sizeof(uint32_t));
+    add(g_state.moe_compacted_count, (g_state.partition_replay ? 2u : 1u) * sizeof(uint32_t));
+    add(g_state.moe_expert_order_storage, g_state.moe_class_expert_order
+        ? qrt_moe_class_expert_order::bytes(candidates) : qrt_moe_expert_order::bytes(candidates));
+    const size_t row_bytes = g_state.staged_half_replay
+        ? sizeof(qrt_sm121_staged_half_projection::Row) : 16u * sizeof(uint16_t);
+    add(g_state.prepared_replay_weights, kMoePreparedWeightElements / 16u * row_bytes);
+    add(g_state.prepared_replay_inputs, kMoePreparedInputElements / 16u * row_bytes);
+    add(g_state.prepared_replay_weight_rows, kMoePreparedWeightRows * sizeof(uint32_t));
+    add(g_state.prepared_replay_input_rows, kMoePreparedInputRows * sizeof(uint32_t));
+    add(g_state.moe_half_weight_classes, kMoePreparedWeightRows * sizeof(uint32_t));
+    add(g_state.moe_half_input_classes, kMoePreparedInputRows * sizeof(uint32_t));
+    add(g_state.shared_gate_projection_f32, kSharedProjectionElements * sizeof(float));
+    add(g_state.shared_up_projection_f32, kSharedProjectionElements * sizeof(float));
+    add(g_state.shared_down_projection_f32, kOutputElements * sizeof(float));
+    return bytes;
+}
+
 QRT_TRITON_MOE_EXPORT uint64_t qrt_triton_moe_q8192_scratch_bytes() {
     uint64_t bytes =
         kInputElements * sizeof(uint16_t) +
@@ -18857,6 +18895,7 @@ QRT_TRITON_MOE_EXPORT uint64_t qrt_triton_moe_q8192_scratch_bytes() {
     }
     for (const auto& entry : g_state.weight_metadata)
         if (entry.storage) bytes += size_t(entry.rows) * (sizeof(float) + sizeof(uint32_t));
+    bytes += optional_moe_scratch_bytes();
     return bytes;
 }
 
