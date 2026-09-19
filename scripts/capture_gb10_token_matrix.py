@@ -233,7 +233,9 @@ def execute(args, cases, oracles):
               async_scheduling=False, enable_prefix_caching=False,
               attention_config={"backend": "TRITON_ATTN"}, mm_encoder_attn_backend="TORCH_SDPA",
               speculative_config={"method": "mtp", "num_speculative_tokens": 1},
-              worker_extension_cls=("capture_gb10_runtime_boundaries.RuntimeBoundaryCapture"
+              worker_extension_cls=("capture_gb10_mtp_boundaries.MtpBoundaryCapture"
+                                    if args.mtp_boundaries else
+                                    "capture_gb10_runtime_boundaries.RuntimeBoundaryCapture"
                                     if args.runtime_boundaries else
                                     "capture_gb10_token_matrix.TokenMatrixCapture"))
     load_seconds = time.monotonic() - begun
@@ -286,6 +288,9 @@ def execute(args, cases, oracles):
                 record["full_matrix_case_pass"] = (tokens == expected["output_token_ids"] and
                     abs(worker["raw_logit"] - expected["first_token_raw_logit"]) <= 0.125)
             qualify_runtime_capture(worker, case["prompt_token_ids"], tokens)
+        if args.mtp_boundaries:
+            from capture_gb10_mtp_boundaries import qualify_mtp_capture
+            qualify_mtp_capture(worker, case["prompt_token_ids"], tokens)
         write_json(args.output_dir / (case["name"] + ".json"), record)
         results.append(record)
         print(json.dumps(dict(case=case["name"], first_token=tokens[0], raw_logit=worker["raw_logit"],
@@ -308,6 +313,8 @@ def execute(args, cases, oracles):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--mtp-boundaries", action="store_true",
+                        help="also copy original MTP inputs and outputs; requires --runtime-boundaries")
     parser.add_argument("--oracle-q7169", type=Path, required=True)
     parser.add_argument("--oracle-q8192", type=Path, required=True)
     parser.add_argument("--model-root", type=Path, default=Path("/models"))
@@ -326,6 +333,8 @@ def main():
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--supervisor-pid", type=int, default=0, help=argparse.SUPPRESS)
     args = parser.parse_args()
+    if args.mtp_boundaries and not args.runtime_boundaries:
+        parser.error("--mtp-boundaries requires --runtime-boundaries")
     if not 1 <= args.maximum_prompt_tokens <= MAX_REFERENCE_PROMPT_TOKENS:
         raise ValueError("invalid explicit prompt-token bound")
     cases, oracles = fixtures({7169: args.oracle_q7169, 8192: args.oracle_q8192})
@@ -357,7 +366,7 @@ def main():
                   fixtures=[{k: v for k, v in case.items() if k != "prompt_token_ids"} for case in cases],
                   completed=False, controls_qualified=False, windows_acceptance=False,
                   prefix_caching=False, native_tensor_inputs=False,
-                  runtime_boundaries=args.runtime_boundaries,
+                  runtime_boundaries=args.runtime_boundaries, mtp_boundaries=args.mtp_boundaries,
                   timeout_seconds=args.timeout_seconds, maximum_timeout_seconds=timeout_limit,
                   maximum_additional_prompt_tokens=args.maximum_prompt_tokens)
     if args.additional_cases is not None:

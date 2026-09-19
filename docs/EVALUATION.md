@@ -102,6 +102,16 @@ general transition remains unresolved; these component observations do not
 establish a Windows output-token failure. The active full256k candidate starts
 at the limit and remains a separate, applicable verification of packed decode.
 
+`capture_gb10_token_matrix.py --runtime-boundaries --mtp-boundaries` can now
+observe the original drafter's shifted inputs, target hidden rows, projection
+boundaries and proposed IDs alongside those target transactions. The observer
+also binds a bounded copy of the original fusion/KV weights. It checks accepted
+inputs against generated history and proposed IDs against the next scheduled
+target batch. Five CPU identity checks pass; real MTP capture and the native
+general transition remain unverified. The original scheduler and MTP sources
+were read from the same completed reference container before implementing this
+observer. No draft arithmetic or scheduling rule is replaced.
+
 The [portable-profile preparation](../benchmarks/correctness/packed-q1-portable-preparation-20260920.json)
 normalizes all 535 options of the active full256k environment into 34 relative
 runtime paths. Compared with R6, it adds text-only/ordered-fixed loading and

@@ -36,6 +36,14 @@ adds the fixed-SHA table path plus text-only/ordered-fixed loading options.
 It has 535 options and 34 relative paths. The proposed 269-artifact R9 runtime
 has not been assembled or qualified as an archive.
 
+The optional original MTP observer reuses the reference container's installed
+Torch and Python standard library. It copies at most 64 MiB of selected payloads
+per request, plus a shared weight snapshot bounded to 32 MiB. Source hashes
+pin the unchanged original drafter and model implementations. These files are
+offline diagnostics and add no native Windows library, model tensor or package
+artifact. Removing the observer and its optional CLI flag removes this tooling
+route without changing native inference.
+
 # Optional caller-side document checker
 
 `scripts/check-agent-documents.py` uses only Python 3.10+ standard-library
