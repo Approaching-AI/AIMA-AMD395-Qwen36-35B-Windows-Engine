@@ -83,3 +83,13 @@ inventory covers 4764159 layouts and 26 option/activation choices. All nine
 attention regressions pass. Native build, original model tokens and physical
 memory benefit remain unmeasured for this integration. Package defaults are
 unchanged.
+
+The [provider preparation evidence](../benchmarks/correctness/long-probability-provider-preparation-20260920.json)
+pins source `e662052080cdfb3fbb5c968bad2b280aba9e1bda`, 72 compilation inputs
+and two build/guard scripts. Relative to the component source, only the
+provider and two selection/layout headers change. Windows accepts the exact
+command syntax at 2026-09-19T17:27:19Z without execution. Its build has
+240/390-second native/transport limits and requires both the current full256k
+run's final cleanup and successful generated/original1024/extended8192
+component boundaries. The provider build and component executions remain
+pending; this preparation adds no inference or performance acceptance.
