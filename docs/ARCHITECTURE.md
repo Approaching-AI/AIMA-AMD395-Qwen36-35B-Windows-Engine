@@ -36,22 +36,42 @@ shape and are not restricted to benchmark sizes. At `max_model_len=262144`, a
 requesting output is rejected before native execution.
 
 The opt-in `QRT_QWEN36_CHUNKED_PREFILL=1` route bounds cold activation
-carriers to8192 real inputs, followed by an optional1024-input terminal chunk.
+carriers to 8192 real inputs, followed by an optional 1024-input terminal chunk.
 It seeds the ordinary resident session once, extends original FP32 recurrent
 states and convolution rings, and promotes each completed chunk's BF16 KV into
 the history under the session mutex. Only the completed prompt's sampled token
 crosses the stream ABI; a failed replacement retires its partial state. Decode
-scratch is reserved for the full prompt before the first chunk runs. The current
-attention workspace still limits this experiment to65536 inputs, and prefix
-checkpoint capture is not combined with this mode. Native build9871ef2 passes
-the original cold17408/out512, q8192/out512 control and16384+1024/out512
-prefix cases, including both prefix transactions and owner-state restoration.
-It remains off in the retained profile: the declared measurements exceed the
-performance targets, and larger contexts are unqualified. See
-`benchmarks/correctness/cold-prefill-chunks-20260913.json`. Per-descriptor
+scratch is reserved for the full prompt before the first chunk runs. Attention
+storage grows lazily beyond 131072 tokens to a 264736-token capacity, covering
+the 262144-token owner, 1024 real suffix inputs and resident decode tail. This
+internal storage bound is separate from the server's configured total-context
+budget and from model qualification. Prefix checkpoint capture is not combined
+with the chunked mode.
+
+The single-round RoPE correction passes the original 131072-token owner and
+both 512-token continuations of its 1024-token suffix, including first logits,
+streaming, state restoration and changed-prefix rejection. The subsequent
+ordered-storage stack passes separate original q8192/out512 and cold32768/out512
+requests. Its original 262144-token owner and suffix run is still pending;
+earlier full256k runs stopped at the physical-memory reserve before producing
+output tokens. These experimental routes remain outside the released package,
+and the performance targets remain unmet. See the
+[128k product boundary](../benchmarks/correctness/rope-single-round-prefix128k-product-20260919.json)
+and [current storage evidence](RESIDENT_ORDERED_SHARDS.md). Per-descriptor
 metrics describe the last chunk; the provider wall and actual callback clock
-include all chunks and KV promotion. This mode does not change the1024-input
+include all chunks and KV promotion. This mode does not change the 1024-input
 prefix API's complete teacher-prediction contract.
+
+The storage experiments preserve original model bytes and numerical kernels.
+[Ordered resident storage](RESIDENT_ORDERED_SHARDS.md) loads fixed weights
+directly into their consumer order and shares that owner with the loader;
+[scratch reuse](PREFILL_SCRATCH_REUSE.md) retains drained temporary allocations
+between calls. [Compact suffix queries](COMPACT_SUFFIX_QUERY.md) borrow only
+the new Q rows while staging complete K/V. The separate default-off
+[compact single-query candidate](COMPACT_DECODE_QUERY.md) extends that CK ABI
+ownership to one query. Current resident decode calls separate Q1 kernels;
+this candidate's native and model checks remain pending. Allocation accounting alone
+does not establish physical-memory capacity or inference correctness.
 
 The standalone attention replay also exposes experimental layouts 19–21.
 They reconstruct K16 dots from four integer matrix products and sparse

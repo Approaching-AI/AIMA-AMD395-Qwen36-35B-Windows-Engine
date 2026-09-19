@@ -94,6 +94,9 @@ whole334/CK370 full256k run stopped at the physical reserve after26/32 chunks
 and completed cleanup.
 
 The separate [compact single-query candidate](COMPACT_DECODE_QUERY.md) removes
-historical Q storage from decode and reuses compact KV across generated tokens.
-It remains default-off and is absent from the active full256k stack; native
-and original model boundaries are pending.
+historical Q storage from the CK suffix ABI. A subsequent call-site audit
+corrects its proposed scope: current resident decode calls its own Q1 kernels,
+and the chunked long route does not enter the one-query suffix ABI. Its only
+current model caller is cold q8192 final-layer liveness, with a 64 MiB allocation
+difference. It remains default-off and unrun natively; it does not address the
+active full256k memory boundary.

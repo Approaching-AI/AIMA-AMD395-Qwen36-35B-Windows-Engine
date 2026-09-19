@@ -1,10 +1,19 @@
-# Compact Q for exact single-query decode
+# Compact Q for exact single-query suffix calls
 
-The qualified compact-suffix route omits historical Q storage for multi-query
-prefill. Its one-token continuation still allocates Q/K/V at the complete
-history capacity, although its score kernel reads only the current Q row.
-That ordinary owner grows with each generated token and is separate from the
-compact KV owner left by prefill.
+The CK suffix ABI omits historical Q storage for multi-query prefill. Its
+one-query form still allocates Q/K/V at the complete history capacity, although
+its score kernel reads only the current Q row. This interface is used by cold
+q8192 final-layer query liveness. The current resident token loop instead
+calls its own Q1 score and PV kernels directly, borrowing separate prefix and
+decode-tail K/V. It does not call this suffix ABI.
+
+The [call-site audit](../benchmarks/correctness/compact-query-call-scope-correction-20260919.json)
+corrects the initial description that this owner grows with every generated
+token. The original q8192 run has one final-layer suffix call; cold32k and the
+qualified prefix128k run have none. Chunked prefill disables final-query
+liveness, and the batch suffix accepts 1024 or 8192 queries. Ten auxiliary
+query-count-one CK diagnostics at position8191 belong to terminal corrections
+and do not establish calls through the suffix ABI.
 
 The default-off `QRT_CK_SM121_COMPACT_DECODE_QUERY=1` candidate borrows the
 caller's single Q row and refreshes four original prefix/suffix KV spans in the
@@ -12,14 +21,19 @@ existing compact owner. It grows that owner in 8192-token increments, capped
 at 264736 tokens. The extra unused KV capacity is at most 8191 rows, less than
 16 MiB. Copy lengths, causal positions and consumed history remain the actual
 input extents. The separate long-workspace reservation option does not set
-this decode capacity.
+this single-query capacity.
 
-At 262145 tokens the previous ordinary Q/K/V allocation is 2684364800 bytes.
+For the current q8192 caller, the candidate changes a single 83886080-byte
+ordinary owner to a 16777216-byte compact owner; the Q row already exists.
+This is a 64 MiB allocation difference, with no measured physical-memory or
+latency benefit. It does not address the current full256k memory limit.
+
+At the ABI's supported 262145-token extent, an ordinary Q/K/V allocation is 2684364800 bytes.
 A fresh candidate compact KV owner reserves 542179328 bytes at the supported
 maximum, while the caller retains its 8192-byte Q row. If compact KV already
 exists after prefill, the same owner is reused or replaced after completion;
-there is no additional decode Q/K/V owner. These are allocation sizes, not
-measurements of physical memory or latency.
+there is no additional suffix Q/K/V owner. This larger extent is a component
+capacity example, not a call made by the current resident token loop.
 
 Only the exact single-query score address changes. The original score body
 retains every wave16 product, ordered K16 carry and scale. The compact kernel
@@ -46,11 +60,12 @@ context cells. Each case also checks 128 independent CPU original dots.
 Host C++ syntax uses mocked HIP declarations and the actual launcher signature;
 native compilation and all native cases remain pending.
 
-The current ordered-storage full256k run continues on CK370 without this
-candidate. Original q8192/out512, original long owner and suffix continuations,
-memory comparison and final host cleanup are required before using a new
-provider in the runtime. No model, retained-performance, package or release
-acceptance follows from the host checks or prepared fixture.
+The current ordered-storage full256k run continues on CK370. The candidate
+and its native commands remain unrun and default-off; it is no longer the
+next full256k memory experiment. Existing host addressing checks remain valid,
+but qualifying this generic ABI would not show a benefit for the resident
+token loop. No model, retained-performance, package or release acceptance
+follows from the host checks or prepared fixture.
 
 The [preparation evidence](../benchmarks/correctness/compact-decode-query-preparation-20260919.json)
 pins source `3d8f94c552ddb31baf768fda5a054e07411a429e`, 69 checked local files,

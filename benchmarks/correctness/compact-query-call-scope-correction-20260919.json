@@ -1,0 +1,403 @@
+{
+  "schema_version": 1,
+  "kind": "compact_single_query_runtime_call_scope_correction",
+  "source_commit": "3d8f94c552ddb31baf768fda5a054e07411a429e",
+  "native_execution": false,
+  "new_model_execution": false,
+  "original_preparation": {
+    "file": "benchmarks/correctness/compact-decode-query-preparation-20260919.json",
+    "bytes": 55764,
+    "sha256": "fc51ce1336b2ce4d87a6119b9b0b3b12f80c1f81be9422ca5da4b7827ea18b09"
+  },
+  "call_site_catalog": [
+    "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp:1650:QRT_CK_EXPORT int qrt_ck_fmha_sm121_suffix_bf16_v1(",
+    "native/providers/ck_fmha/suffix_attention_capture_replay.cpp:70:        launch = reinterpret_cast<Launch>(GetProcAddress(module, \"qrt_ck_fmha_sm121_suffix_bf16_v1\"));",
+    "native/providers/final_query_liveness.h:35:                provider.module, \"qrt_ck_fmha_sm121_suffix_bf16_v1\"));",
+    "native/providers/prefix_batch_suffix.h:206:                launch = reinterpret_cast<Launch>(GetProcAddress(provider.module, \"qrt_ck_fmha_sm121_suffix_bf16_v1\"));"
+  ],
+  "source_sections": {
+    "native/providers/whole_provider.cpp": {
+      "resident_decode": {
+        "first_line": 70218,
+        "text": "    if (env_flag_enabled(\"QRT_QWEN36_Q1_SM121_ATTENTION\")) {\n        const unsigned char *rcp = nullptr;\n        if (!q1_sm121_full_requested || aiter_operands_prepared ||\n            qrt_sm121_q1_attention_runtime::prepare(&rcp) != hipSuccess) {\n            return qwen36_resident_decode_set_failure(stage + \"_sm121_contract\",\n                \"SM121 attention requires the exact full-attention corridor and reciprocal table\",\n                failure_stage, failure);\n        }\n        auto checked = [&](hipError_t status, const char *suffix) -> bool {\n            return status == hipSuccess || qwen36_resident_decode_set_failure(\n                stage + suffix, hipGetErrorString(status), failure_stage, failure);\n        };\n        hipLaunchKernelGGL(qrt_sm121_q1_attention::append, dim3(2u), dim3(256u), 0u, stream,\n            device_rope_values, static_cast<uint16_t *>(layer.device_decode_tail_k),\n            static_cast<uint16_t *>(layer.device_decode_tail_v),\n            static_cast<unsigned int>(layer.decode_tail_token_count));\n        if (!checked(hipGetLastError(), \"_sm121_append\")) return false;\n        hipLaunchKernelGGL(qrt_sm121_q1_attention::scores,\n            dim3(workspace_score_scratch_token_capacity), dim3(256u), 0u, stream,\n            device_rope_values, static_cast<const uint16_t *>(layer.device_k),\n            static_cast<const uint16_t *>(layer.device_decode_tail_k), score_scratch,\n            static_cast<unsigned int>(layer.history_tokens), total_tokens,\n            workspace_score_scratch_token_capacity);\n        if (!checked(hipGetLastError(), \"_sm121_scores\") ||\n            !checked(record_qwen36_resident_decode_q1_layer_profile_boundary(&workspace, layer_index,\n                Q1LayerProfileBoundary::kScoreEnd, stream), \"_sm121_score_event\")) return false;\n        hipLaunchKernelGGL(HIP_KERNEL_NAME(\n            qrt_blackwell_attention::blackwell_exact_attention_kernel<true, true, true>),\n            dim3(16u), dim3(256u), 0u, stream,\n            static_cast<const uint16_t *>(nullptr), static_cast<const uint16_t *>(nullptr),\n            static_cast<const uint16_t *>(layer.device_v), device_context_output,\n            static_cast<unsigned int>(absolute_position), 0u, q1_full_core_tables.exp2,\n            static_cast<float *>(nullptr), static_cast<float *>(nullptr), true, rcp,\n            score_scratch, workspace_score_scratch_token_capacity,\n            static_cast<const uint16_t *>(layer.device_decode_tail_v),\n            static_cast<unsigned int>(layer.history_tokens));\n        if (!checked(hipGetLastError(), \"_sm121_online_pv\") ||\n            !checked(record_qwen36_resident_decode_q1_layer_profile_boundary(&workspace, layer_index,\n                Q1LayerProfileBoundary::kSoftmaxEnd, stream), \"_sm121_pv_event\")) return false;\n        hipLaunchKernelGGL(qwen36_resident_full_attention_grouped_bf16_post_kernel,\n            dim3(16u), dim3(256u), 0u, stream, device_rope_values,\n            device_context_output, device_context_bf16_output,\n            q1_full_core_tables.beta, score_scratch);\n        if (!checked(hipGetLastError(), \"_sm121_gate\")) return false;\n        ++workspace.full_attention_score_scratch_use_count;\n        workspace.full_attention_score_scratch_token_count += total_tokens;\n        workspace.full_attention_score_scratch_kernel_launch_count += UINT64_C(4);\n        if (workspace.aggregate_run_metadata_ready)\n            ++workspace.aggregate_run_metadata_score_marker_elision_count;\n        ++layer.decode_tail_token_count;\n        lease->mark_work_submitted();\n        return true;\n    }\n"
+      },
+      "final_query_scope": {
+        "first_line": 141394,
+        "text": "            const qrt_final_query_liveness::Scope final_query_scope(\n                env_flag_enabled(\"QRT_QWEN36_FINAL_QUERY_LIVENESS\") &&\n                final_full_prefix_attention && explicit_final_targets_are_q1 &&\n                prefill_tokens == kRetainedPrefillTokens &&\n                segment.full_attention_layer == kDescriptorBatchFinalLayer &&\n                !ScopedQwen36PrefixBatchSuffix::active &&\n                !g_qwen36_chunked_prefill_total_tokens &&\n                !raw_env_flag_enabled(\"QRT_QWEN36_PREFIX_CHECKPOINTS\") &&\n                !g_qwen36_mtp_tensor_namespace_active);\n"
+      }
+    },
+    "native/providers/final_query_liveness.h": "// Included after the CK loader. This experiment preserves full-prefix QKV\n// production and resident KV capture. Only layer39 attention queries whose\n// outputs have no consumer are removed; all later row-local operators retain\n// their current implementation and allocation shape.\n#pragma once\n\nnamespace qrt_final_query_liveness {\n\ninline thread_local bool active = false;\n\nstruct Scope {\n    const bool previous;\n    explicit Scope(bool enabled) : previous(active) { active = enabled; }\n    ~Scope() { active = previous; }\n    Scope(const Scope&) = delete;\n    Scope& operator=(const Scope&) = delete;\n};\n\ninline hipError_t launch(const uint16_t *q, const uint16_t *k,\n    const uint16_t *v, float *output, unsigned tokens) {\n    if (!active || tokens != 8192u || !q || !k || !v || !output)\n        return hipErrorInvalidValue;\n#ifndef _WIN32\n    return hipErrorNotSupported;\n#else\n    using Launch = int (__cdecl *)(const uint16_t *, const uint16_t *,\n        const uint16_t *, const uint16_t *, const uint16_t *, float *,\n        void *, unsigned, unsigned);\n    Launch suffix_launch = nullptr;\n    {\n        auto &provider = ck_fmha_provider_state();\n        std::lock_guard<std::mutex> lock(provider.mutex);\n        if (provider.module)\n            suffix_launch = reinterpret_cast<Launch>(GetProcAddress(\n                provider.module, \"qrt_ck_fmha_sm121_suffix_bf16_v1\"));\n    }\n    if (!suffix_launch) return hipErrorNotSupported;\n    constexpr size_t query_features = 4096u;\n    constexpr size_t kv_features = 512u;\n    const size_t last = tokens - 1u;\n    // Defined zero contexts keep the unchanged full-shape gate/OUT/MoE\n    // consumers from reading uninitialized storage. Their earlier rows have\n    // no model-output consumer in this scope and are not valid hidden states.\n    auto status = hipMemsetAsync(output, 0,\n        size_t(tokens) * query_features * sizeof(float), nullptr);\n    if (status != hipSuccess) return status;\n    status = static_cast<hipError_t>(suffix_launch(\n        q + last * query_features, k, v,\n        k + last * kv_features, v + last * kv_features,\n        output + last * query_features, nullptr, tokens - 1u, 1u));\n    if (status == hipSuccess)\n        std::cerr << \"BATCH_MARK final_query_liveness layer=39 tokens=8192\"\n            << \" query_start=8191 query_count=1 full_prefix_qkv=1\"\n            << \" original_kv_capture=1 unused_contexts_zeroed=1\"\n            << \" downstream_full_shape=1 suffix_workspace_bytes=83886080\"\n            << \" gb10_boundary_required=1\" << std::endl;\n    return status;\n#endif\n}\n\ninline hipError_t output_projection(const uint16_t *weights,\n    const uint16_t *contexts, uint16_t *output, unsigned tokens) {\n    static_assert(kOutProjectionRows == 2048u && kValueFeatures == 4096u);\n    if (!active || tokens != 8192u || !weights || !contexts || !output)\n        return hipErrorInvalidValue;\n    const size_t last = tokens - 1u;\n    auto status = hipMemsetAsync(output, 0,\n        size_t(tokens) * kOutProjectionRows * sizeof(uint16_t), nullptr);\n    if (status != hipSuccess) return status;\n    // Reuse the original K16/width26 output dot already exercised by decode.\n    // Only this last row is consumed; zero dead rows need no interval selector\n    // or replay. The original residual and unrounded variance remain separate.\n    hipLaunchKernelGGL(q1_linear_output_sm121_kernel,\n        dim3(kOutProjectionRows / 16u), dim3(256u), 0, nullptr,\n        weights, contexts + last * kValueFeatures,\n        output + last * kOutProjectionRows);\n    status = hipGetLastError();\n    if (status == hipSuccess)\n        std::cerr << \"BATCH_MARK final_query_output_liveness layer=39 tokens=8192\"\n            << \" live_rows=1 first_live_row=8191 output_features=2048 k=4096\"\n            << \" original_k16=1 original_bf16_endpoint=1 dead_rows_zeroed=1\"\n            << \" residual_norm_unchanged=1 additional_device_bytes=0 submitted=1\"\n            << std::endl;\n    return status;\n}\n\n} // namespace qrt_final_query_liveness\n",
+    "native/providers/prefix_batch_suffix.h": "// Included after the resident session types and provider loaders. This scope\n// borrows only the transaction's mutable shadow; the resident owner is never\n// replaced by the temporary prefill session used for suffix orchestration.\n#pragma once\n#include \"sm121_attention_capacity.h\"\n#include \"prefix_linear_capture.h\"\n#include \"prefix_attention_capture.h\"\n\n__global__ void qwen36_prefix_suffix_halo_kernel(\n    const float *qkv, const float *ring_f32, const uint16_t *ring_bf16,\n    float *halo, unsigned prefix, unsigned tokens\n) {\n    const size_t i = size_t(blockIdx.x) * blockDim.x + threadIdx.x;\n    if (i >= size_t(tokens + 3u) * 8192u) return;\n    const unsigned row = unsigned(i / 8192u), channel = unsigned(i % 8192u);\n    if (row >= 3u) halo[i] = qkv[i - 3u * 8192u];\n    else {\n        const size_t source = size_t((prefix - 3u + row) % 4u) * 8192u + channel;\n        halo[i] = ring_bf16 ? device_bf16_to_float(ring_bf16[source]) : ring_f32[source];\n    }\n}\n\n__global__ void qwen36_prefix_suffix_ring_kernel(\n    const float *qkv, float *ring_f32, uint16_t *ring_bf16,\n    unsigned prefix, unsigned tokens\n) {\n    const unsigned i = blockIdx.x * blockDim.x + threadIdx.x;\n    if (i >= 4u * 8192u) return;\n    const unsigned row = tokens - 4u + i / 8192u, channel = i % 8192u;\n    const size_t destination = size_t((prefix + row) % 4u) * 8192u + channel;\n    const float value = qkv[size_t(row) * 8192u + channel];\n    if (ring_bf16) ring_bf16[destination] = device_float_to_bf16(value);\n    else ring_f32[destination] = value;\n}\n\n__global__ void qwen36_prefix_suffix_canonical_state_kernel(\n    const float *source, float *destination, bool key_major\n) {\n    const unsigned i = blockIdx.x * blockDim.x + threadIdx.x;\n    if (i >= 32u * 128u * 128u) return;\n    const unsigned base = i / 16384u * 16384u;\n    destination[i] = source[key_major ? base + (i % 128u) * 128u + (i % 16384u) / 128u : i];\n}\n\nstruct ScopedQwen36PrefixBatchSuffix {\n    inline static thread_local ScopedQwen36PrefixBatchSuffix *active = nullptr;\n    ScopedQwen36PrefixBatchSuffix *previous;\n    Qwen36ResidentSessionState *session;\n    unsigned prefix, tokens;\n    bool terminal_only = false;\n    uint64_t convolution_layers = 0u, recurrent_layers = 0u, attention_layers = 0u;\n    float *halo = nullptr;\n    uint32_t *indices = nullptr;\n    std::array<uint32_t, 2> terminal_ids{};\n    std::array<float, 2> terminal_logits{};\n    bool terminal_valid = false;\n    std::string failure;\n\n    ScopedQwen36PrefixBatchSuffix(Qwen36ResidentSessionState *owner, unsigned before, unsigned count,\n        bool last_row_only = false)\n        : previous(active), session(owner), prefix(before), tokens(count), terminal_only(last_row_only) { active = this; }\n    ~ScopedQwen36PrefixBatchSuffix() {\n        // The caller synchronizes before publishing counters. Drain even a\n        // partial enqueue before freeing the shared convolution workspace.\n        (void)hipStreamSynchronize(nullptr);\n        if (indices) (void)hipFree(indices);\n        if (halo) (void)hipFree(halo);\n        active = previous;\n    }\n    ScopedQwen36PrefixBatchSuffix(const ScopedQwen36PrefixBatchSuffix&) = delete;\n    ScopedQwen36PrefixBatchSuffix& operator=(const ScopedQwen36PrefixBatchSuffix&) = delete;\n\n    bool reject(const char *reason) { failure = reason; return false; }\n    bool check(hipError_t status) {\n        if (status == hipSuccess) return true;\n        failure = hipGetErrorString(status); return false;\n    }\n    bool validate() {\n        if (previous || !session || !session->valid || !session->owner_engine ||\n            session->prefix_tokens != prefix || session->committed_decode_token_count ||\n            prefix < 8192u || prefix % 8192u ||\n            (tokens != 1024u && !(terminal_only && tokens == 8192u)) ||\n            prefix > qrt_sm121_attention_capacity::kTokens - tokens)\n            return reject(\"batch suffix requires an untouched aligned prefix and 1024 actual inputs, or an 8192-input cold chunk\");\n        for (unsigned i = 0; i < 40u; ++i) {\n            if (i % 4u != 3u) {\n                const auto &layer = session->linear_layers[i];\n                const bool bf16 = layer.qkv_element_kind == Qwen36ResidentSessionElementKind::kBf16;\n                if (!layer.valid || !layer.device_recurrent_state || !layer.device_qkv_ring ||\n                    layer.prefix_tokens != prefix || layer.decode_qkv_token_count ||\n                    layer.decode_recurrent_token_count || layer.recurrent_state_bytes != 524288u * 4u ||\n                    (!bf16 && layer.qkv_element_kind != Qwen36ResidentSessionElementKind::kF32) ||\n                    layer.qkv_ring_bytes != 4u * 8192u * (bf16 ? 2u : 4u))\n                    return reject(\"batch suffix linear state or convolution ring has incompatible layout\");\n            } else {\n                const auto &layer = session->full_attention_layers[i];\n                if (!layer.valid || !layer.device_k || !layer.device_v ||\n                    !layer.device_decode_tail_k || !layer.device_decode_tail_v ||\n                    layer.element_kind != Qwen36ResidentSessionElementKind::kBf16 ||\n                    layer.history_tokens != prefix || layer.decode_tail_token_count ||\n                    layer.decode_tail_capacity_tokens < tokens ||\n                    layer.k_bytes < size_t(prefix) * 1024u || layer.v_bytes < size_t(prefix) * 1024u ||\n                    layer.decode_tail_k_bytes < size_t(tokens) * 1024u ||\n                    layer.decode_tail_v_bytes < size_t(tokens) * 1024u)\n                    return reject(\"batch suffix attention requires BF16 prefix KV and a separate writable tail\");\n            }\n        }\n        return true;\n    }\n\n    bool convolution(unsigned layer_index, const float *qkv, const uint16_t *weights,\n        float *output, unsigned count, unsigned arithmetic, const uint32_t *silu_keys,\n        const uint16_t *silu_values, unsigned silu_probe, const unsigned char *silu_table) {\n        if (layer_index >= 40u || layer_index % 4u == 3u || count != tokens ||\n            !qkv || !weights || !output || !silu_table ||\n            (convolution_layers & (UINT64_C(1) << layer_index)))\n            return reject(\"batch suffix convolution escaped its original-input layer scope\");\n        auto &layer = session->linear_layers[layer_index];\n        if (!halo) {\n            if (!check(hipMalloc(reinterpret_cast<void **>(&halo), size_t(tokens + 3u) * 8192u * 4u)) ||\n                !check(hipMalloc(reinterpret_cast<void **>(&indices), size_t(tokens) * 4u * 4u))) return false;\n            std::vector<uint32_t> host_indices(size_t(tokens) * 4u);\n            for (unsigned row = 0; row < tokens; ++row)\n                for (unsigned tap = 0; tap < 4u; ++tap) host_indices[row * 4u + tap] = row + tap;\n            if (!check(hipMemcpy(indices, host_indices.data(), host_indices.size() * 4u, hipMemcpyHostToDevice))) return false;\n        }\n        const bool bf16 = layer.qkv_element_kind == Qwen36ResidentSessionElementKind::kBf16;\n        auto *ring_f32 = bf16 ? nullptr : static_cast<float *>(layer.device_qkv_ring);\n        auto *ring_bf16 = bf16 ? static_cast<uint16_t *>(layer.device_qkv_ring) : nullptr;\n        hipLaunchKernelGGL(qwen36_prefix_suffix_halo_kernel,\n            dim3((size_t(tokens + 3u) * 8192u + 255u) / 256u), dim3(256), 0, 0,\n            qkv, ring_f32, ring_bf16, halo, prefix, tokens);\n        if (!check(hipGetLastError())) return false;\n        hipLaunchKernelGGL(selected_conv_qkv_window_kernel, dim3(8192u / 256u, tokens), dim3(256), 0, 0,\n            halo, weights, indices, output, tokens, arithmetic, silu_keys, silu_values, silu_probe, silu_table);\n        if (!check(hipGetLastError())) return false;\n        hipLaunchKernelGGL(qwen36_prefix_suffix_ring_kernel, dim3(4u * 8192u / 256u), dim3(256), 0, 0,\n            qkv, ring_f32, ring_bf16, prefix, tokens);\n        if (!check(hipGetLastError())) return false;\n        layer.decode_qkv_token_count = tokens;\n        convolution_layers |= UINT64_C(1) << layer_index;\n        return true;\n    }\n\n    int recurrent(unsigned layer_index, const float *raw, const float *gates,\n        float *output, float *canonical_state, int decay, int count) {\n        if (layer_index >= 40u || layer_index % 4u == 3u || count != int(tokens) || decay ||\n            !raw || !gates || !output || !(convolution_layers & (UINT64_C(1) << layer_index)) ||\n            (recurrent_layers & (UINT64_C(1) << layer_index)))\n            return reject(\"batch suffix FLA requires one matching convolution and raw log gates\");\n#ifndef _WIN32\n        return reject(\"batch suffix FLA requires Windows\");\n#else\n        auto &layer = session->linear_layers[layer_index];\n        qrt_fla_checkpoint::SeededLaunch launch = nullptr;\n        {\n            auto &provider = fla_chunk_gdn_dynamic_provider_state();\n            std::lock_guard<std::mutex> lock(provider.mutex);\n            launch = layer.recurrent_state_key_major ? provider.seeded_key_major_launch : provider.seeded_launch;\n        }\n        if (!launch) return reject(\"FLA provider lacks the original FP32 seeded state interface\");\n        qrt_prefix_linear_capture::Plan capture;\n        if (!qrt_prefix_linear_capture::environment(capture, failure)) return 0;\n        const auto original_launch = [&] {\n            return launch(raw, gates, output, layer.device_recurrent_state, 0, nullptr, count) != 0;\n        };\n        const bool captured = qrt_prefix_linear_capture::run(capture, layer_index, prefix, tokens,\n            raw, gates, output, layer.device_recurrent_state, layer.recurrent_state_key_major,\n            [](void *host, const void *device, size_t bytes) {\n                return hipMemcpy(host, device, bytes, hipMemcpyDeviceToHost) == hipSuccess;\n            }, original_launch, failure);\n        if (!captured) {\n            if (!failure.empty()) return 0;\n            failure = fla_chunk_gdn_dynamic_provider_last_error(); return 0;\n        }\n        if (canonical_state) {\n            hipLaunchKernelGGL(qwen36_prefix_suffix_canonical_state_kernel,\n                dim3(524288u / 256u), dim3(256), 0, 0,\n                layer.device_recurrent_state, canonical_state, layer.recurrent_state_key_major);\n            if (!check(hipGetLastError())) return 0;\n        }\n        layer.decode_recurrent_token_count = tokens;\n        recurrent_layers |= UINT64_C(1) << layer_index;\n        return 1;\n#endif\n    }\n\n    hipError_t attention(unsigned layer_index, const uint16_t *q, const uint16_t *k,\n        const uint16_t *v, float *output, unsigned count) {\n        if (layer_index >= 40u || layer_index % 4u != 3u || count != tokens ||\n            !q || !k || !v || !output || (attention_layers & (UINT64_C(1) << layer_index))) {\n            reject(\"batch suffix attention escaped its original-input layer scope\"); return hipErrorInvalidValue;\n        }\n#ifndef _WIN32\n        reject(\"batch suffix attention requires Windows\"); return hipErrorNotSupported;\n#else\n        using Launch = int (*)(const uint16_t *, const uint16_t *, const uint16_t *,\n            const uint16_t *, const uint16_t *, float *, void *, unsigned, unsigned);\n        Launch launch = nullptr;\n        {\n            auto &provider = ck_fmha_provider_state();\n            std::lock_guard<std::mutex> lock(provider.mutex);\n            // Direct BF16 exports prepare their own exact workspace. The\n            // loader's prepared flag belongs to the packed F32 q8192 route.\n            if (provider.module)\n                launch = reinterpret_cast<Launch>(GetProcAddress(provider.module, \"qrt_ck_fmha_sm121_suffix_bf16_v1\"));\n        }\n        if (!launch) { reject(\"CK provider lacks exact compact suffix attention\"); return hipErrorNotSupported; }\n        auto &layer = session->full_attention_layers[layer_index];\n        hipError_t status = hipMemcpyAsync(layer.device_decode_tail_k, k, size_t(tokens) * 1024u,\n            hipMemcpyDeviceToDevice, nullptr);\n        if (status == hipSuccess) status = hipMemcpyAsync(layer.device_decode_tail_v, v, size_t(tokens) * 1024u,\n            hipMemcpyDeviceToDevice, nullptr);\n        if (status == hipSuccess) {\n            qrt_prefix_attention_capture::Plan capture;\n            if (!qrt_prefix_attention_capture::environment(capture, failure)) {\n                (void)hipStreamSynchronize(nullptr); return hipErrorInvalidValue;\n            }\n            const bool captured = qrt_prefix_attention_capture::run(capture, layer_index, prefix, tokens,\n                q, static_cast<const uint16_t *>(layer.device_k), static_cast<const uint16_t *>(layer.device_v),\n                k, v, output, [&](void *host, const void *device, size_t bytes) {\n                    status = hipMemcpy(host, device, bytes, hipMemcpyDeviceToHost);\n                    return status == hipSuccess;\n                }, [&] {\n                    status = hipError_t(launch(q, static_cast<const uint16_t *>(layer.device_k),\n                        static_cast<const uint16_t *>(layer.device_v), k, v, output, nullptr, prefix, tokens));\n                    return status == hipSuccess;\n                }, failure);\n            if (!captured) {\n                (void)hipStreamSynchronize(nullptr);\n                if (failure.empty()) check(status);\n                else if (status != hipSuccess) failure += std::string(\": \") + hipGetErrorString(status);\n                return status == hipSuccess ? hipErrorInvalidValue : status;\n            }\n        }\n        if (status != hipSuccess) { (void)hipStreamSynchronize(nullptr); check(status); return status; }\n        layer.decode_tail_token_count = tokens;\n        attention_layers |= UINT64_C(1) << layer_index;\n        return hipSuccess;\n#endif\n    }\n\n    bool complete() const {\n        return failure.empty() && convolution_layers == UINT64_C(0x7777777777) &&\n            recurrent_layers == UINT64_C(0x7777777777) && attention_layers == UINT64_C(0x8888888888) &&\n            terminal_valid;\n    }\n};\n"
+  },
+  "source_sha256": {
+    "native/providers/whole_provider.cpp": "be48f0de938897be8c1778713cf6b0588b8be62d6e8fd045f38b6dd1d970b449",
+    "native/providers/final_query_liveness.h": "f7df422413398f445e02be25fc3de3839f7f3075b9fedcdcaeba7482598be0d6",
+    "native/providers/prefix_batch_suffix.h": "4f3ea2adf7728844e270b96db305b4da062a71e746c023fc65f4b98543fd808d"
+  },
+  "completed_model_observations": [
+    {
+      "name": "resident-ordered-compact-query-q8192-product-q8192-out512-mode1-r1",
+      "host": "BAIYING",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "command_file": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\scripts\\baiying_guarded_inference.ps1",
+      "effective_whole_provider": {
+        "commit": "b3af8b6177c8bbf756be2b63af99bc7bb70b436e",
+        "metadata_path": "D:\\projects\\AIMA-public-resident-ordered-storage-20260919-r1\\build\\resident-ordered-storage-whole-provider\\build-provenance.json",
+        "metadata_sha256": "fba46d2d8f6705128f91a613cda6b7e1f2b5346ef0c51f8149e5cc5b7a11f67f",
+        "build_run_sha256": "2c4051b0e039ef5557293271591044c0924f3c03ce4aab7f479920588d53f5ab",
+        "dll_path": "D:\\projects\\AIMA-public-resident-ordered-storage-20260919-r1\\build\\resident-ordered-storage-whole-provider\\qrt_qwen36_whole_provider.dll",
+        "dll_sha256": "9164529b6ffe09ca57867a715c916acc2184c72da344fb617bcbcc3a17be6817",
+        "artifacts": [
+          {
+            "name": "qrt_qwen36_whole_provider.dll",
+            "bytes": 13549056,
+            "sha256": "9164529b6ffe09ca57867a715c916acc2184c72da344fb617bcbcc3a17be6817"
+          },
+          {
+            "name": "q1_moe_avx512bf16_host_provider.obj",
+            "bytes": 183170,
+            "sha256": "65c88d511d47b635c6e047af5d0e06af3b86ec4c09db5cd068dde6ae4df0d79f"
+          }
+        ],
+        "source_sha256": "be48f0de938897be8c1778713cf6b0588b8be62d6e8fd045f38b6dd1d970b449",
+        "dispatch_policy_sha256": "4fd95a932236498d6a2d7e5a0dc2523f2ead1dfdaff1c147acfa357e1645b0fe"
+      },
+      "effective_ck_provider": {
+        "commit": "37014953c28e5b5a91573c6233fdda00bb279b85",
+        "metadata_path": "D:\\projects\\AIMA-public-compact-suffix-query-20260919-r2\\build\\compact-suffix-query\\build-ck-provenance.json",
+        "metadata_sha256": "599681d26ec1aeb62081f56ab8868d5d35ff753b8ec8cf0656fcf94f969f9976",
+        "build_run_sha256": "b93dc75fbf922d7d062e656f2ffd8af7fe804bb4393a7da68d05051f2138fd27",
+        "dll_path": "D:\\projects\\AIMA-public-compact-suffix-query-20260919-r2\\build\\compact-suffix-query\\qrt_ck_fmha_sm121.dll",
+        "dll_sha256": "2ab47f4443fa8bb30b521c75b1c6785e8ce1a998b97021bd252aaed77c3aa64b",
+        "artifact": {
+          "sha256": "2ab47f4443fa8bb30b521c75b1c6785e8ce1a998b97021bd252aaed77c3aa64b",
+          "file": "D:\\projects\\AIMA-public-compact-suffix-query-20260919-r2\\build\\compact-suffix-query\\qrt_ck_fmha_sm121.dll",
+          "bytes": 2106368
+        }
+      },
+      "qualified_original_model_boundary": {
+        "file": "benchmarks/correctness/resident-ordered-compact-query-native-q8192-20260919.json",
+        "bytes": 280683,
+        "sha256": "4afb7da1be9de7fbd03b1f769268e9b95df0fe3d51e8fe902a33de30fc471dd7"
+      },
+      "raw_sha256": {
+        "run-record.json": "600f532ab46d2115d4a527d68f1bf292ef1d408a4a1e701c73273e6099d0b7cf",
+        "runtime.env": "6fadca7623c7e7129dd900ad9ddd17f3597ff4932d1d29b981f9b3ae7ab19d1a",
+        "product.stderr.log": "09ed338dc4dca2ad82285281b1547ccad114a94a6be6295126a6a9454031c991",
+        "boundary-analysis.json": "888f3b5fbdd6697c0fa13e3378090ebb76bf1e450d868b9d8833b9827e877212"
+      },
+      "options": {
+        "QRT_QWEN36_Q1_SM121_ATTENTION": "1",
+        "QRT_QWEN36_Q1_SM121_FULL": "1",
+        "QRT_QWEN36_FINAL_QUERY_LIVENESS": "1",
+        "QRT_QWEN36_MOE_REGISTERED_WEIGHT_METADATA": "1"
+      },
+      "final_query_liveness_markers": [
+        "BATCH_MARK final_query_liveness layer=39 tokens=8192 query_start=8191 query_count=1 full_prefix_qkv=1 original_kv_capture=1 unused_contexts_zeroed=1 downstream_full_shape=1 suffix_workspace_bytes=83886080 gb10_boundary_required=1"
+      ],
+      "ck_call_counts": [
+        {
+          "query_start": 0,
+          "query_count": 8192,
+          "calls": 9
+        },
+        {
+          "query_start": 8191,
+          "query_count": 1,
+          "calls": 10
+        }
+      ],
+      "moe_registered_metadata_prepare": [
+        "BATCH_MARK moe_registered_weight_metadata_prepare layers=40 entries=80 workspace_bytes=251658240 elapsed_ms=1296.537200 original_norm_bits=1 flags_only=1 completed=1"
+      ],
+      "moe_registered_metadata_hits": 80,
+      "audited_call_sections_match_effective_whole": true,
+      "host_cleanup_pass": true
+    },
+    {
+      "name": "resident-ordered-compact-query-cold512-q32768-long-prefix32768-owner-out512-mode1-r1",
+      "host": "BAIYING",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "command_file": "D:\\projects\\run-long-final-pv-prefix128k-guard-r1.ps1",
+      "effective_whole_provider": {
+        "commit": "b3af8b6177c8bbf756be2b63af99bc7bb70b436e",
+        "metadata_path": "D:\\projects\\AIMA-public-resident-ordered-storage-20260919-r1\\build\\resident-ordered-storage-whole-provider\\build-provenance.json",
+        "metadata_sha256": "fba46d2d8f6705128f91a613cda6b7e1f2b5346ef0c51f8149e5cc5b7a11f67f",
+        "build_run_sha256": "2c4051b0e039ef5557293271591044c0924f3c03ce4aab7f479920588d53f5ab",
+        "dll_path": "D:\\projects\\AIMA-public-resident-ordered-storage-20260919-r1\\build\\resident-ordered-storage-whole-provider\\qrt_qwen36_whole_provider.dll",
+        "dll_sha256": "9164529b6ffe09ca57867a715c916acc2184c72da344fb617bcbcc3a17be6817",
+        "artifacts": [
+          {
+            "name": "qrt_qwen36_whole_provider.dll",
+            "bytes": 13549056,
+            "sha256": "9164529b6ffe09ca57867a715c916acc2184c72da344fb617bcbcc3a17be6817"
+          },
+          {
+            "name": "q1_moe_avx512bf16_host_provider.obj",
+            "bytes": 183170,
+            "sha256": "65c88d511d47b635c6e047af5d0e06af3b86ec4c09db5cd068dde6ae4df0d79f"
+          }
+        ],
+        "source_sha256": "be48f0de938897be8c1778713cf6b0588b8be62d6e8fd045f38b6dd1d970b449",
+        "dispatch_policy_sha256": "4fd95a932236498d6a2d7e5a0dc2523f2ead1dfdaff1c147acfa357e1645b0fe"
+      },
+      "effective_ck_provider": {
+        "commit": "37014953c28e5b5a91573c6233fdda00bb279b85",
+        "metadata_path": "D:\\projects\\AIMA-public-compact-suffix-query-20260919-r2\\build\\compact-suffix-query\\build-ck-provenance.json",
+        "metadata_sha256": "599681d26ec1aeb62081f56ab8868d5d35ff753b8ec8cf0656fcf94f969f9976",
+        "build_run_sha256": "b93dc75fbf922d7d062e656f2ffd8af7fe804bb4393a7da68d05051f2138fd27",
+        "dll_path": "D:\\projects\\AIMA-public-compact-suffix-query-20260919-r2\\build\\compact-suffix-query\\qrt_ck_fmha_sm121.dll",
+        "dll_sha256": "2ab47f4443fa8bb30b521c75b1c6785e8ce1a998b97021bd252aaed77c3aa64b",
+        "artifact": {
+          "sha256": "2ab47f4443fa8bb30b521c75b1c6785e8ce1a998b97021bd252aaed77c3aa64b",
+          "file": "D:\\projects\\AIMA-public-compact-suffix-query-20260919-r2\\build\\compact-suffix-query\\qrt_ck_fmha_sm121.dll",
+          "bytes": 2106368
+        }
+      },
+      "qualified_original_model_boundary": {
+        "file": "benchmarks/correctness/resident-ordered-compact-query-cold32k-out512-20260919.json",
+        "bytes": 531512,
+        "sha256": "00cab0b83d6dcc7c38d371dec42ba2c87c53827a78521553cc463ac66190dc7b"
+      },
+      "raw_sha256": {
+        "run-record.json": "874f629cab67d663106ac44b9b4d1ca2477c55fda023be9f792c4196b18b0abb",
+        "runtime.env": "0f5f082af3811f596365bb25c8b188f56132dfc6ae545e3aeb7f6476c5de6891",
+        "product.stderr.log": "8400271c20a470fbbd40e76b9d8fa83b19e959dfdbe4a069af723507d6f2c14a",
+        "boundary-analysis.json": "10ed59cdc9dfe478fe3a22def4ea78259f133cc7ad1576078e74be4cd5011613"
+      },
+      "options": {
+        "QRT_QWEN36_Q1_SM121_ATTENTION": "1",
+        "QRT_QWEN36_Q1_SM121_FULL": "1",
+        "QRT_QWEN36_FINAL_QUERY_LIVENESS": "1",
+        "QRT_QWEN36_MOE_REGISTERED_WEIGHT_METADATA": "1"
+      },
+      "final_query_liveness_markers": [],
+      "ck_call_counts": [
+        {
+          "query_start": 0,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 8191,
+          "query_count": 1,
+          "calls": 10
+        },
+        {
+          "query_start": 8192,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 16384,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 24576,
+          "query_count": 8192,
+          "calls": 10
+        }
+      ],
+      "moe_registered_metadata_prepare": [
+        "BATCH_MARK moe_registered_weight_metadata_prepare layers=40 entries=80 workspace_bytes=251658240 elapsed_ms=1288.518900 original_norm_bits=1 flags_only=1 completed=1"
+      ],
+      "moe_registered_metadata_hits": 320,
+      "audited_call_sections_match_effective_whole": true,
+      "host_cleanup_pass": true
+    },
+    {
+      "name": "rope-single-round-prefix128k-long-prefix131072-suffix1024-out512-mode1-r1",
+      "host": "BAIYING",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "command_file": "D:\\projects\\run-long-final-pv-prefix128k-guard-r1.ps1",
+      "effective_whole_provider": {
+        "commit": "32a1b96af4126d44c7e80208dc76ea31160a010e",
+        "metadata_path": "D:\\projects\\AIMA-public-rope-single-round-20260919-r2\\build\\rope-single-round-whole-provider\\build-provenance.json",
+        "metadata_sha256": "eb76f2a8d0e9f1071f77e03360ad27b770981c56465284142c2cb6b549d4b3df",
+        "build_run_sha256": "7dd258ec27f823da32bdfcb2850121dcda969feb5e0e2fb075d6fd72660d06ed",
+        "dll_path": "D:\\projects\\AIMA-public-rope-single-round-20260919-r2\\build\\rope-single-round-whole-provider\\qrt_qwen36_whole_provider.dll",
+        "dll_sha256": "f598dbf941644c03bce1855c42cd8266364700e1acdc14367998ad1d9153b76e",
+        "artifacts": [
+          {
+            "name": "qrt_qwen36_whole_provider.dll",
+            "bytes": 13505536,
+            "sha256": "f598dbf941644c03bce1855c42cd8266364700e1acdc14367998ad1d9153b76e"
+          },
+          {
+            "name": "q1_moe_avx512bf16_host_provider.obj",
+            "bytes": 183170,
+            "sha256": "6fb37d971579663b91222de524b05b96aba2db9623c1a6ffee9e369a8fa8f8a9"
+          }
+        ],
+        "source_sha256": "1cf61a2008a5abca4cb5661af12973a7173665a41cf5ebdd762556e0516dd30a",
+        "dispatch_policy_sha256": "4fd95a932236498d6a2d7e5a0dc2523f2ead1dfdaff1c147acfa357e1645b0fe"
+      },
+      "effective_ck_provider": {
+        "commit": "ea6faff785474f9acdf84e72ce596a62db3ea7c5",
+        "metadata_path": "D:\\projects\\AIMA-public-long-final-pv-provider-20260918-r1\\build\\long-final-pv-provider\\build-ck-provenance.json",
+        "metadata_sha256": "9c39a97e856e8a173fd58a9eca6d1b59ec2182071e42911aed06771a1cdd2100",
+        "build_run_sha256": "395a0fcdf70c5bd8f1a0d5b04ec7ea741f11a72dec59b25706e7c1d9fad32f79",
+        "dll_path": "D:\\projects\\AIMA-public-long-final-pv-provider-20260918-r1\\build\\long-final-pv-provider\\qrt_ck_fmha_sm121.dll",
+        "dll_sha256": "e10b2db6fefcd55dc1848895f0eb3e11e67bdacb0b8368a2e9b993468c355ad8",
+        "artifact": {
+          "sha256": "e10b2db6fefcd55dc1848895f0eb3e11e67bdacb0b8368a2e9b993468c355ad8",
+          "file": "D:\\projects\\AIMA-public-long-final-pv-provider-20260918-r1\\build\\long-final-pv-provider\\qrt_ck_fmha_sm121.dll",
+          "bytes": 2101760
+        }
+      },
+      "qualified_original_model_boundary": {
+        "file": "benchmarks/correctness/rope-single-round-prefix128k-product-20260919.json",
+        "bytes": 583333,
+        "sha256": "b7cfe545120464da849eacd39e2afd347d928ae81dab8d920f6b90bab8a15674"
+      },
+      "raw_sha256": {
+        "run-record.json": "2cdf7fbcf3840fb5bb85c4c063f6137f03f8e6c6453990035b07850c70602b92",
+        "runtime.env": "6d42b48ff6b04123aff0ccd2db192e4861a713828c6848f49912aa78569fe279",
+        "product.stderr.log": "c3109e73ecc820d6be26dc1eb9c95181a0544bea6932cd383bb50663cdeb51cb",
+        "boundary-analysis.json": "abc4d7830a490b6b0e9b7b7012d7e19db81c1bfd1e5d873e67079f6d2109594a"
+      },
+      "options": {
+        "QRT_QWEN36_Q1_SM121_ATTENTION": "1",
+        "QRT_QWEN36_Q1_SM121_FULL": "1",
+        "QRT_QWEN36_FINAL_QUERY_LIVENESS": "1",
+        "QRT_QWEN36_MOE_REGISTERED_WEIGHT_METADATA": "1"
+      },
+      "final_query_liveness_markers": [],
+      "ck_call_counts": [
+        {
+          "query_start": 0,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 8191,
+          "query_count": 1,
+          "calls": 10
+        },
+        {
+          "query_start": 8192,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 16384,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 24576,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 32768,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 40960,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 49152,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 57344,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 65536,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 73728,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 81920,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 90112,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 98304,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 106496,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 114688,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 122880,
+          "query_count": 8192,
+          "calls": 10
+        },
+        {
+          "query_start": 131072,
+          "query_count": 1024,
+          "calls": 20
+        }
+      ],
+      "moe_registered_metadata_prepare": [
+        "BATCH_MARK moe_registered_weight_metadata_prepare layers=40 entries=80 workspace_bytes=251658240 elapsed_ms=1202.958400 original_norm_bits=1 flags_only=1 completed=1"
+      ],
+      "moe_registered_metadata_hits": 1440,
+      "audited_call_sections_match_effective_whole": true,
+      "host_cleanup_pass": true
+    }
+  ],
+  "findings": {
+    "resident_token_loop_calls_ck_suffix_export": false,
+    "resident_token_loop_owns_separate_prefix_and_tail_kv": true,
+    "current_single_query_suffix_caller": "cold q8192 final layer only",
+    "chunked_prefill_disables_final_query_liveness": true,
+    "batch_suffix_accepts_queries": [
+      1024,
+      8192
+    ],
+    "auxiliary_q1_terminal_records_are_not_suffix_export_calls": true,
+    "cold_q8192_single_suffix_calls": 1,
+    "cold32k_single_suffix_calls": 0,
+    "prefix128k_single_suffix_calls": 0,
+    "expected_current_full256k_single_suffix_calls": 0,
+    "latter_full256k_count_is_source_inference_not_completed_run": true,
+    "already_enabled_moe_weight_metadata_cache": true
+  },
+  "corrected_allocation_scope": {
+    "cold_q8192_ordinary_owner_bytes": 83886080,
+    "cold_q8192_compact_owner_bytes": 16777216,
+    "cold_q8192_allocation_difference_bytes": 67108864,
+    "existing_caller_q_row_bytes": 8192,
+    "long262145_example_is_supported_abi_capacity_only": true,
+    "current_generated_token_staging_benefit_claim_withdrawn": true,
+    "current_full256k_memory_repair_claim_withdrawn": true,
+    "physical_memory_or_latency_benefit_measured": false
+  },
+  "decision": "Keep the candidate default-off and its prepared native commands unrun. The source/addressing checks remain valid, but it is not the next full256k memory experiment. Qualifying the generic ABI would not establish a benefit for the current resident token loop.",
+  "numerical_or_native_acceptance_added": false,
+  "retained_performance_acceptance": false,
+  "package_qualification": false,
+  "release_qualification": false,
+  "recorder": {
+    "file": "audit_compact_query_call_scope_r1.py",
+    "sha256": "9ef4bacf294efa44c361d9bd64e0b39aee0f9ad169f6b1e3bb600e49aee55fdd"
+  }
+}
