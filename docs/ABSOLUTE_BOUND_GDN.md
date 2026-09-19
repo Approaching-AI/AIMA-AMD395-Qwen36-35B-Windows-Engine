@@ -2,8 +2,9 @@
 
 This isolated candidate uses an absolute dot bound to omit a W/H or Q/H
 dot only when its original BF16 consumers are constant across the entire
-interval. It is not selected by the runtime dispatcher. Native correctness,
-complete component timing and real-model performance remain unmeasured.
+interval. It is not selected by the runtime dispatcher. Native numerical
+checks pass, but the complete captured component is slower than the retained
+chain. No real-model performance result is claimed for this candidate.
 
 `absolute_dot_bound.h` accumulates upward bounds on each operand row's L1
 norm and maximum magnitude. The smaller of the two L1/L-infinity products
@@ -60,10 +61,23 @@ full-context model inference. The independent first-chunk reconstruction
 also matches captured normalization, inverse, W/U, residual and checkpoint
 boundaries in both early-layer controls.
 
-`absolute_bound_gdn_selftest.cpp` compares the retained complete chain with
-bounded state only, then bounded state plus output. Paired scores and W/U
-stay original. The prepared native checks include production U=V ownership,
-seven generated families, eight boundary shapes, full original q7169
-captures and the existing q8192 component extension. A positive component
-result still requires a real q8192 model run with the matching GB10 token
-and logit boundary before any product performance claim.
+`absolute_bound_gdn_selftest.cpp` now passes all 336 native safety cases,
+covering production U=V ownership, seven generated families and eight boundary
+shapes. All original q7169 outputs, W/U, residuals, checkpoints and final state
+match in both bounded variants. The q8192 component extension also matches the
+retained chain in every attempt. It repeats 1024 captured rows after 7168
+original rows and is not a new original-token prompt.
+
+| Complete chain, production U=V | Retained ms | Bounded state ms | Bounded state and output ms |
+| --- | ---: | ---: | ---: |
+| Original q7169 capture | 72.1251 | 77.9414 | 84.4634 |
+| q8192 capture extension | 82.5894 | 90.1849 | 91.8468 |
+
+These medians include paired scores, W/U, state, output, certificates, replay
+and barriers over 1024-token segments. Each uses one warmup and three rotated
+completed-host samples. Allocation, transfer, comparison, normalization, gate
+scan, KKT and inversion are outside the interval. The
+[native record](../benchmarks/correctness/absolute-bound-gdn-native-components-20260919.json)
+binds all 26 build inputs, exact executable, original capture and completed
+host cleanup. The measured implementation remains outside runtime and package
+selection; admission counts alone did not predict a faster complete chain.

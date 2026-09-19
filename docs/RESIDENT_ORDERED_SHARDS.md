@@ -40,13 +40,27 @@ sizes, mismatched fixed aliases, partial copy/event/wait failures, and
 drain-before-free with one release per owner. The ordinary independently owned
 fixed arena retains its original release behavior.
 
-Native MSVC/HIP build, original GB10 continuations, load time and physical-memory
-measurements remain required. The current full 256k run uses the earlier
-whole334/CK370 stack. This candidate is not enabled in a package or release.
+The native MSVC/HIP build now passes on baiying in 95867.030 ms. It verifies
+all 103 build inputs and preserves the retained compiler arguments. The
+13549056-byte whole-provider DLL has SHA256
+`9164529b6ffe09ca57867a715c916acc2184c72da344fb617bcbcc3a17be6817`.
+
+The original q8192/out512 regression also passes: all 512 output IDs and actual
+callbacks match GB10, and first logit 10.375 has zero error. All 26 shard layouts,
+1665 byte samples, shared fixed aliases and original QKVZ+A/B consumers pass.
+Actual combined storage is 69321232896 bytes, with no duplicate fixed owner.
+Load is 21750.9763 ms, TTFT 23250.782 ms and TPOT 101.226319 ms. The
+[native build and q8192 record](../benchmarks/correctness/resident-ordered-compact-query-native-q8192-20260919.json)
+binds source, actual allocation markers and final host/process cleanup. These
+are functional and allocation observations, not retained performance or
+physical-memory qualification. Separate cold32k is active; full256k remains
+unrun with this candidate. It is not enabled in a package or release.
 
 The [preparation record](../benchmarks/correctness/resident-ordered-storage-preparation-20260919.json)
 pins source `b3af8b6177c8bbf756be2b63af99bc7bb70b436e`, all 101 local
 compilation inputs and two build/guard scripts. It binds the original metadata
 reference, passing host checks and the native command's successful PowerShell
 parse on baiying at 2026-09-19T11:22:34Z. Compile/native/transport bounds remain
-240/300/390 seconds; native dispatch waits for the existing 256k process cleanup.
+240/300/390 seconds. The build and q8192 regression started after the earlier
+whole334/CK370 full256k run stopped at the physical reserve after26/32 chunks
+and completed cleanup.

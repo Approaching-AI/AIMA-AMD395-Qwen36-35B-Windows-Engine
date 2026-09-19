@@ -65,6 +65,23 @@ compact Q alone and21916213248 for the b35/ea6 control. The
 does not show a physical-memory benefit or establish full256k capacity. No
 retained performance or release qualification follows from these single runs.
 
+The same whole334/CK370/FLA1d stack subsequently reaches 26 of the original
+32 owner chunks, committing 212992 inputs, before the unchanged 8 GiB physical
+reserve stops the process. Native wall is 14297954.775 ms; sampled available
+physical memory reaches 8141103104 bytes and commit reserve stays above
+35703902208 bytes. No output token or completed owner/suffix boundary is
+produced. All final host checks pass and no engine process remains. The
+[complete exit record](../benchmarks/correctness/scratch-compact-query-prefix256k-incomplete-20260919.json)
+attaches all 250 completed compact-Q markers and the read-only workspace
+observation. It supplies no numerical or performance acceptance. The different
+stop points across separate runs do not isolate a leak or prove memory benefit.
+
+The active run confirms that the full raw model store and a separate
+3879600640-byte fixed-weight arena both exist. The prepared
+[ordered storage candidate](RESIDENT_ORDERED_SHARDS.md) removes that duplicate
+owner and unused tensor storage. Its planned allocation reduction remains
+6462144520 bytes; native physical-memory benefit is still unmeasured.
+
 [Preparation evidence](../benchmarks/correctness/prefill-scratch-reuse-preparation-20260919.json)
 pins source `3348836`, the passing local checks and the bounded Windows build.
 The command file passes baiying's PowerShell parser at2026-09-19T07:58:54Z;
