@@ -108,3 +108,10 @@ probability matrix. Maximum planned scratch falls by 1084358656 bytes. Host
 checks and native command parsing pass, while GPU comparisons and measured
 memory benefit remain pending. It has no provider dispatch or runtime option
 and does not alter the active full256k experiment.
+
+[Memory accounting and Windows observations](MEMORY_ACCOUNTING.md) now bind
+read-only GPU/process counters to this exact ordered-storage run. They also
+distinguish the seed pool's post-release marker from live suffix allocations
+and correct omitted optional buffers in the source-level MoE scratch report.
+The active experiment retains its frozen MoE binary; neither the accounting
+repair nor the snapshots establish memory savings or a completed 256k boundary.
