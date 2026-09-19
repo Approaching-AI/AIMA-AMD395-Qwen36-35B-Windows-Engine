@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "scope": "Read-only environment identification for the active original full256k run; no inference or performance acceptance",
+  "host": "BAIYING",
+  "observed_utc": "2026-09-19T18:39:59.0587362Z",
+  "model_reference": "D:/models/Qwen3.6-35B-A3B",
+  "native_command_file": "run-resident-ordered-compact-query-prefix256k-r1.ps1",
+  "native_command_sha256": "ea11c7b1d8a512bf9164edc77929b85a538807d740f4d1b87d969ad95555d777",
+  "whole_source_commit": "b3af8b6177c8bbf756be2b63af99bc7bb70b436e",
+  "ck_source_commit": "37014953c28e5b5a91573c6233fdda00bb279b85",
+  "fla_source_commit": "1d11bf742268924ecf5df1e0e66a0e19fb7cec15",
+  "cli_source_commit": "6d9602cb9e51096f4e336ecf07a2b220e53f6a54",
+  "source_manifest": {
+    "file": "resident-ordered-compact-query-prefix256k-source-r1.json",
+    "sha256": "5d9ad636b80efaa7949f26bba5eb1855fa7e56a06008e7e3202d316227da0756"
+  },
+  "observation": {
+    "file": "resident-ordered-toolchain-observation-r2.json",
+    "sha256": "52fdb2400d38fdb4f2ba3942f425fc619e8a9eccff60aed8fea4f5ba5c55466d",
+    "bytes": 11308,
+    "observer_file": "observe-resident-ordered-toolchain-r1.ps1",
+    "observer_sha256": "6e998e6cf1a4ef1eaf7fec970b6c832529ebaff70de8c5b6e2904c6037190d51",
+    "command": [
+      "ssh",
+      "-o",
+      "BatchMode=yes",
+      "-o",
+      "ConnectTimeout=10",
+      "baiying",
+      "powershell.exe -NoProfile -NonInteractive -File D:/projects/observe-resident-ordered-toolchain-r1.ps1"
+    ],
+    "returncode": 0,
+    "snapshot": {
+      "host": "BAIYING",
+      "utc": "2026-09-19T18:39:59.0587362Z",
+      "readonly": true,
+      "native_dispatched": false,
+      "environment_changed": false,
+      "target_pid": 12488,
+      "launch": {
+        "pid": 12488,
+        "utc": "2026-09-19T13:47:58.1521168Z",
+        "timeout_seconds": 28800,
+        "job_kill_on_close": true
+      },
+      "process": {
+        "name": "qrt-product",
+        "start_utc": "2026-09-19T13:47:58.1539131Z"
+      },
+      "modules": [
+        {
+          "name": "qrt-product.exe",
+          "path": "D:\\projects\\AIMA-public-prefix-owner-cli-20260918-r1\\build\\prefix-owner-cli\\qrt-product.exe",
+          "file_version": null,
+          "product_version": null,
+          "description": null,
+          "image_bytes": 970752
+        },
+        {
+          "name": "qrt_qwen36_whole_provider.dll",
+          "path": "D:\\projects\\AIMA-public-resident-ordered-storage-20260919-r1\\build\\resident-ordered-storage-whole-provider\\qrt_qwen36_whole_provider.dll",
+          "file_version": null,
+          "product_version": null,
+          "description": null,
+          "image_bytes": 15912960
+        },
+        {
+          "name": "rocblas.dll",
+          "path": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\rocblas.dll",
+          "file_version": null,
+          "product_version": null,
+          "description": null,
+          "image_bytes": 41205760
+        },
+        {
+          "name": "libhipblaslt.dll",
+          "path": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\libhipblaslt.dll",
+          "file_version": null,
+          "product_version": null,
+          "description": null,
+          "image_bytes": 6025216
+        },
+        {
+          "name": "amdhip64_7.dll",
+          "path": "C:\\WINDOWS\\SYSTEM32\\amdhip64_7.dll",
+          "file_version": "10.0.3679.0",
+          "product_version": "10.0.3679.0",
+          "description": "AMD Accelerated Parallel Processing amdhip64 7.2 Runtime",
+          "image_bytes": 17526784
+        },
+        {
+          "name": "qrt_triton_moe_q8192_provider.dll",
+          "path": "D:\\projects\\AIMA-public-moe-down-compact-20260917-r6\\build\\moe-down-compact-provider\\qrt_triton_moe_q8192_provider.dll",
+          "file_version": null,
+          "product_version": null,
+          "description": null,
+          "image_bytes": 946176
+        },
+        {
+          "name": "amd_comgr_3.dll",
+          "path": "C:\\WINDOWS\\SYSTEM32\\amd_comgr_3.dll",
+          "file_version": "3.0.0.0",
+          "product_version": "3.0.0.0",
+          "description": "AMD Code Object Manager (Commit Hash: 590b9320a5be, Build Type: Driver)",
+          "image_bytes": 114511872
+        },
+        {
+          "name": "qrt_aiter_fused_gdn_q8192_provider.dll",
+          "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\aiter-gdn\\qrt_aiter_fused_gdn_q8192_provider.dll",
+          "file_version": null,
+          "product_version": null,
+          "description": null,
+          "image_bytes": 180224
+        },
+        {
+          "name": "qrt_ck_fmha_sm121.dll",
+          "path": "D:\\projects\\AIMA-public-compact-suffix-query-20260919-r2\\build\\compact-suffix-query\\qrt_ck_fmha_sm121.dll",
+          "file_version": null,
+          "product_version": null,
+          "description": null,
+          "image_bytes": 2138112
+        },
+        {
+          "name": "qrt_fla_chunk_gdn_provider.dll",
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+          "file_version": null,
+          "product_version": null,
+          "description": null,
+          "image_bytes": 1019904
+        }
+      ],
+      "installed_sdks": [
+        {
+          "path": "C:\\Program Files\\AMD\\ROCm\\7.1",
+          "hip_version_header": "C:\\Program Files\\AMD\\ROCm\\7.1\\include\\hip\\hip_version.h",
+          "hip_version_defines": [
+            "#define HIP_VERSION_H",
+            "#define HIP_VERSION_MAJOR 7",
+            "#define HIP_VERSION_MINOR 1",
+            "#define HIP_VERSION_PATCH 51803",
+            "#define HIP_VERSION_GITHASH \"d3a86bd04\"",
+            "#define HIP_VERSION_BUILD_ID 0",
+            "#define HIP_VERSION_BUILD_NAME \"\""
+          ],
+          "binaries": [
+            {
+              "path": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\amdhip64_7.dll",
+              "bytes": 18176408,
+              "file_version": "10.0.3665.0",
+              "product_version": "10.0.3665.0"
+            },
+            {
+              "path": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\amd_comgr_3.dll",
+              "bytes": 115274648,
+              "file_version": null,
+              "product_version": null
+            },
+            {
+              "path": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+              "bytes": 454040,
+              "file_version": null,
+              "product_version": null
+            },
+            {
+              "path": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\clang.exe",
+              "bytes": 104265112,
+              "file_version": "21.0.0git",
+              "product_version": "21.0.0git"
+            }
+          ]
+        }
+      ],
+      "video_controllers": [
+        {
+          "name": "Todesk Virtual Display Adapter",
+          "driver_version": "16.44.2.509",
+          "driver_date": "2023-04-24T00:00:00.0000000Z",
+          "pnp_device_id": "ROOT\\DISPLAY\\0000",
+          "status": "OK"
+        },
+        {
+          "name": "AMD Radeon(TM) 8060S Graphics",
+          "driver_version": "32.0.31036.15",
+          "driver_date": "2026-08-12T00:00:00.0000000Z",
+          "pnp_device_id": "PCI\\VEN_1002&DEV_1586&SUBSYS_801D2014&REV_C1\\4&35FE04F8&0&0041",
+          "status": "OK"
+        }
+      ],
+      "windows": {
+        "product_name": "Windows 10 Pro",
+        "display_version": "25H2",
+        "current_build": "26200",
+        "ubr": 9457
+      },
+      "record_complete": false,
+      "inference_acceptance": false,
+      "performance_improvement_accepted": false
+    }
+  },
+  "build_toolchain": {
+    "metadata_file": "resident-ordered-storage-build-r1/build-provenance.json",
+    "metadata_sha256": "fba46d2d8f6705128f91a613cda6b7e1f2b5346ef0c51f8149e5cc5b7a11f67f",
+    "hipcc": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+    "clang": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\clang++.exe",
+    "rocm_root": "C:\\Program Files\\AMD\\ROCm\\7.1"
+  },
+  "prior_observer_transport_failure": {
+    "file": "resident-ordered-toolchain-observation-r1.json",
+    "sha256": "d44a5a9be1f8aa6e2c48a47b220213b60c5c7ded4485fd416adc810b313bb22b",
+    "returncode": 1,
+    "snapshot_produced": false,
+    "resolution": "Same observer used file transport successfully in revision2; failed encoded-command response retained"
+  },
+  "findings": {
+    "hip6_runtime_loaded": false,
+    "actual_hip_runtime_description": "AMD Accelerated Parallel Processing amdhip64 7.2 Runtime",
+    "actual_hip_runtime_file_version": "10.0.3679.0",
+    "compiler_and_math_libraries_sdk": "7.1",
+    "compiler_sdk_path_alone_does_not_identify_loaded_runtime": true,
+    "amd_documented_hip6_strix_halo_regression_applies": false,
+    "driver_version_matches_official_pro_26q3_windows_store_version": true,
+    "windows_registry_product_name_retained_verbatim": true,
+    "mapped_image_sizes_are_not_file_sizes_or_hashes": true,
+    "no_new_toolchain_native_comparison": true,
+    "newer_toolchain_performance_gain_established": false,
+    "environment_changed": false
+  },
+  "official_document_review": [
+    {
+      "url": "https://rocm.docs.amd.com/projects/install-on-windows/en/latest/about/releasenotes.html",
+      "claim": "The documented Strix Halo slowdown with 26.10-branch drivers affects HIP6; HIP7 applications are excluded.",
+      "application_to_observation": "The actual process maps amdhip64_7.dll and no HIP6 runtime."
+    },
+    {
+      "url": "https://www.amd.com/en/resources/support-articles/release-notes/RN-PRO-WIN-26-Q3.html",
+      "claim": "PRO26.Q3 lists Windows Store driver32.0.31036.15 for RDNA3 and newer.",
+      "application_to_observation": "Matches the observed driver number; no driver package identity inferred beyond that match."
+    },
+    {
+      "url": "https://rocm.docs.amd.com/en/docs-10.0.0/compatibility/compatibility-matrix.html",
+      "claim": "ROCm10 lists gfx1151 and Windows11 25H2, with Adrenalin26.8.1 or CDE CPR26.10.32 in its Ryzen table.",
+      "application_to_observation": "Potential separate toolchain route only; this does not certify the observed PRO driver as that listed combination."
+    },
+    {
+      "url": "https://rocm.docs.amd.com/en/docs-10.0.0/install/rocm.html",
+      "claim": "AMD documents a portable Windows gfx1151 tarball.",
+      "application_to_observation": "No package downloaded, installed, loaded or benchmarked by this observation."
+    },
+    {
+      "url": "https://rocm.docs.amd.com/en/docs-10.0.0/about/release-notes.html",
+      "claim": "ROCm10 notes event handling improvements and a fix for Windows memory-pool allocation stalls.",
+      "application_to_observation": "Neither note establishes the cause of current model latency or a measured gain for this engine."
+    }
+  ],
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}
