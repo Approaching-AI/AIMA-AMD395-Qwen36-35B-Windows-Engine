@@ -13600,8 +13600,8 @@
   "total_bf16_mismatches": 0,
   "prior_root_cause": {
     "file": "benchmarks/correctness/prefix96-rope-single-round-root-cause-20260919.json",
-    "bytes": 783413,
-    "sha256": "4eafab11d2fdca867bedfccd63e06ccfca6fa819bda95be98034934b48b1ea9c"
+    "bytes": 782265,
+    "sha256": "6dbcf8e475d0d874565928332ccd5c3578e92a7f87dc30964ed5adbc6d2b084a"
   },
   "prior_failed_product": {
     "file": "benchmarks/correctness/fla-completed-latency-prefix128k-divergence-20260919.json",
@@ -13616,7 +13616,7 @@
   "short_regression": {
     "file": "benchmarks/correctness/rope-single-round-native-q8192-20260919.json",
     "bytes": 233815,
-    "sha256": "320cbc0ed6650c906004d752173eebdb777b8fe445723dc73d3fa165065b40b3"
+    "sha256": "44af12b9fadd508bb981b05d1827ffc6cdef1efeff94159ae5b2aea57dec4401"
   },
   "observer": {
     "file": "compare_rope_single_round_prefix128k_boundaries_r1.py",

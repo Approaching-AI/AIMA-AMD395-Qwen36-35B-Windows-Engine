@@ -2,7 +2,7 @@
 
 Historical audit date: 2026-08-22
 
-## Current unreleased work, 2026-09-18
+## Current unreleased work, 2026-09-19
 
 The mission and release gates remain open. The latest experimental q8192
 control is FLA `7b20c90`, whole `ddacdc9`, CK `1c2770d`, MoE `9235750` and
@@ -21,22 +21,41 @@ The same DLL also passes actual16k/32k/64k prefixes plus1024 suffix tokens:
 both512-token continuations, first logits, callbacks, state restoration and
 changed-prefix rejection match the original references. Their hit TTFTs are
 8459.984999/13210.9695/25254.1475 ms; original speed ceilings remain unmet.
-Separate cold32k/64k continuations and128k/256k acceptance remain open.
+These earlier component configurations do not qualify later whole-provider
+or FLA binaries. Separate long cold continuations remain their own gates.
 [Complete scope and evidence](LONG_FINAL_PV.md).
 
-The last assembled archive, `v1.0.2-current-stack.20260915.r4`, remains
-unpublished. Its declared cold/prefix, protocol and one-hour soak evidence
-belongs to its original server `4fca963` and R3 runtime assets. The later
-Linux `.10` review found and repaired text-part tool results that could reset
-failed retry windows. Latest server `b3d75e9` passes 54 native Rust tests and
-45 real HTTP requests with the unchanged R4 runtime, including all 512 original
-q8192 GB10 IDs, first logits, early callbacks and normal shutdown. Its cold
-TTFT is 30231.4271 ms and load is 21529.5239 ms. New server packaging and soak
-remain open. Windows continues to reject visual tool results explicitly.
+Whole `32a1b96` fixes a double-rounding error in BF16 RoPE shared by prefill
+and decode. With FLA `1d11bf7`, CK `ea6faff`, MoE `9235750` and CLI `6d9602c`,
+the repaired stack passes original q8192/out512 and the complete 128k prefix
+case. Both original suffix512 requests, combined owner32, first logits,
+actual callbacks, restoration, changed-prefix rejection and final host checks
+pass. A separate cold16k/out512 request also passes every original ID and
+callback. The 256k prefix test is active; separate cold32/64/128k tests remain
+pending. These are functional results. The qualified q8192 median and all
+performance targets above remain unchanged. See the
+[complete correction and evidence](FLA_COMPLETION_GUARD.md).
+
+The last assembled archive, `v1.0.2-current-stack.20260919.r6`, remains
+unpublished. It pins server `b3d75e9`, CLI `6d9602c`, whole `ddacdc9`, CK
+`ea6faff`, MoE `9235750` and FLA `2b33665`. Its 284 inventoried release files
+and 268 runtime artifacts pass packaging and relocation. Its actual archive
+passes 45 protocol requests, saved-prefix branches and 55 control-plane
+requests. The same archive still requires the 13-case CLI matrix and a full
+one-hour soak. Earlier R4 soak evidence belongs to its own runtime. See the
+[R6 protocol, prefix and control-plane evidence](../benchmarks/correctness/current-portable-r6-protocol-prefix-controlplane-20260919.json).
+
+R8 configuration now pins the repaired whole32a/FLA1d pair and the other R6
+components, with the qualified q8192 and 128k prerequisites. The R8 archive
+and its native regressions have not yet run. The standalone
+[archive inventory verifier](PORTABLE_ARCHIVE_VERIFICATION.md) supports
+checking the resulting ZIP against its accepted manifest. Windows continues
+to reject visual tool results explicitly; the Linux `.10` protocol repair
+does not supply a Windows visual inference qualification.
 
 See [current performance and component identities](PERFORMANCE.md),
 [the Linux `.10` source comparison and protocol checks](SIBLING_REVIEW.md), and
-[the latest server HTTP record](../benchmarks/correctness/tool-text-parts-bounded-native-http-20260918.json).
+[the server's original HTTP record](../benchmarks/correctness/tool-text-parts-bounded-native-http-20260918.json).
 Earlier context results remain attached to their exact configurations; none
 lowers the required context/performance targets. The historical audit below
 is not approval to publish the current work.

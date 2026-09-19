@@ -14671,12 +14671,12 @@
   "full_prefix_prerequisite": {
     "file": "benchmarks/correctness/rope-single-round-prefix128k-product-20260919.json",
     "bytes": 583333,
-    "sha256": "03866701cc4dd9234e5a816e4a43901bb34cc7cdbfda8988a2fe8dc67e5ae30e"
+    "sha256": "b7cfe545120464da849eacd39e2afd347d928ae81dab8d920f6b90bab8a15674"
   },
   "short_regression": {
     "file": "benchmarks/correctness/rope-single-round-native-q8192-20260919.json",
     "bytes": 233815,
-    "sha256": "320cbc0ed6650c906004d752173eebdb777b8fe445723dc73d3fa165065b40b3"
+    "sha256": "44af12b9fadd508bb981b05d1827ffc6cdef1efeff94159ae5b2aea57dec4401"
   },
   "acceptance": {
     "original_cold_prompt": true,

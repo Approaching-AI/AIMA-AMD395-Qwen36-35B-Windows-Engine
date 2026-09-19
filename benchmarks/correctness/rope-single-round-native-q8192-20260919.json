@@ -7533,8 +7533,8 @@
   },
   "cause": {
     "file": "benchmarks/correctness/prefix96-rope-single-round-root-cause-20260919.json",
-    "bytes": 783413,
-    "sha256": "4eafab11d2fdca867bedfccd63e06ccfca6fa819bda95be98034934b48b1ea9c"
+    "bytes": 782265,
+    "sha256": "6dbcf8e475d0d874565928332ccd5c3578e92a7f87dc30964ed5adbc6d2b084a"
   },
   "device_bitcast_validation": {
     "file": "benchmarks/correctness/rope-single-round-device-bitcast-local-20260919.json",

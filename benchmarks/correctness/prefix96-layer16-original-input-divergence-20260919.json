@@ -5133,10 +5133,10 @@
           "sha256": "8c6562e327925f7f538785a3797d1a36f1af6ab14ecab27f3c2e4cb302bca9a8"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/raw-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/raw-f32.bin",
           "f32",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-q-core-input-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-q-core-input-bf16.bin",
           "bf16",
           "8192",
           "2048",
@@ -6835,10 +6835,10 @@
           "sha256": "0a9e908af6c9ed517148e23e6e2372dae10a7c234bb4c2a20f35648956ad5820"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/raw-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/raw-f32.bin",
           "f32",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-k-core-input-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-k-core-input-bf16.bin",
           "bf16",
           "8192",
           "2048",
@@ -8537,10 +8537,10 @@
           "sha256": "ab71e38c81e9f65da670e1c3f44833660bbf9a017b09bcc365edd1042e3e50ae"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/raw-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/raw-f32.bin",
           "f32",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-v-core-input-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-v-core-input-bf16.bin",
           "bf16",
           "8192",
           "4096",
@@ -10119,10 +10119,10 @@
           "sha256": "51e4b4c2eafa5e38ecc7e4528e141522811ceaa675e3e19b49ba73d0a92d558c"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/gates-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/gates-f32.bin",
           "f32",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-g-core-input-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-g-core-input-f32.bin",
           "f32",
           "8192",
           "32",
@@ -11692,10 +11692,10 @@
           "sha256": "7cc46de7c93cce3c52b535f62d54aff6c7b304121f22c4f47fcd347ee57bfa61"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/gates-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/gates-f32.bin",
           "f32",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-beta-core-input-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-beta-core-input-bf16.bin",
           "bf16",
           "8192",
           "32",
@@ -13394,10 +13394,10 @@
           "sha256": "ab89430c04734d4e67a84cf1e0e5e9c4ea53330d5796ddd8be4ba028db0c5859"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/output-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/output-f32.bin",
           "f32",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-core-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-core-bf16.bin",
           "bf16",
           "8192",
           "4096",
@@ -13443,10 +13443,10 @@
           "sha256": "a8dada149d8210ffb3ddf38ffc55c84903c7363891761339a57d183c3a7af4a0"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/analysis-original-linear-r1/initial-state-canonical-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/analysis-original-linear-r1/initial-state-canonical-f32.bin",
           "f32",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-initial-state-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-initial-state-f32.bin",
           "f32",
           "1",
           "524288",
@@ -13628,10 +13628,10 @@
           "sha256": "13ac96945c010fc2ea02c243cc35bdb63ea965c68083b48d283739854ef8b935"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/analysis-original-linear-r1/final-state-canonical-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/analysis-original-linear-r1/final-state-canonical-f32.bin",
           "f32",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-final-state-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-final-state-f32.bin",
           "f32",
           "1",
           "524288",
@@ -13686,10 +13686,10 @@
           "sha256": "ff58fa663e8f80e671df6b9a2160de50b0b074961f42acdbc93fb90fdfb0143a"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-qkv_projection-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-qkv_projection-f32.bin",
           "f32",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/analysis-original-linear-r1/reference-qkv_projection-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/analysis-original-linear-r1/reference-qkv_projection-bf16.bin",
           "bf16",
           "1",
           "8192",
@@ -13747,10 +13747,10 @@
           "sha256": "c9f2b230544379f95e767ea4bb14f0e0d2f59dc3196a03911e1f63608cf6d1d6"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-z_projection-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-z_projection-f32.bin",
           "f32",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/analysis-original-linear-r1/reference-z_projection-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/analysis-original-linear-r1/reference-z_projection-bf16.bin",
           "bf16",
           "1",
           "4096",
@@ -13808,10 +13808,10 @@
           "sha256": "03b70be249277255d86f5754623c31ea1396fa9a66fbe811cfa66e9340f26ae6"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-a_projection-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-a_projection-f32.bin",
           "f32",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/analysis-original-linear-r1/reference-a_projection-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/analysis-original-linear-r1/reference-a_projection-bf16.bin",
           "bf16",
           "1",
           "32",
@@ -13869,10 +13869,10 @@
           "sha256": "10bff200a74f554251c2f6211e62d292aaa97323367d85b18cf1ac36f84aebca"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-b_projection-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-b_projection-f32.bin",
           "f32",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/analysis-original-linear-r1/reference-b_projection-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/analysis-original-linear-r1/reference-b_projection-bf16.bin",
           "bf16",
           "1",
           "32",
@@ -14059,10 +14059,10 @@
           "sha256": "0b800cd8a9c34a49933f81e4c3512a3fb67b38d9fc99df2c271e79611758b7f9"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-core-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-core-f32.bin",
           "f32",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/analysis-original-linear-r1/reference-core-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/analysis-original-linear-r1/reference-core-bf16.bin",
           "bf16",
           "1",
           "4096",
@@ -14249,10 +14249,10 @@
           "sha256": "d04b4730f5479b424fa265cb72b6c9a0924d457004ab56c4f0e4d2cc371327f1"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-gated_rmsnorm-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-gated_rmsnorm-bf16.bin",
           "bf16",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/analysis-original-linear-r1/reference-gated_rmsnorm-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/analysis-original-linear-r1/reference-gated_rmsnorm-bf16.bin",
           "bf16",
           "1",
           "4096",
@@ -14439,10 +14439,10 @@
           "sha256": "6ed6c16611f9cd4aed37950585da176fc87bb36b39516b3245de4d7bcfeb4ac6"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-out_projection-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-out_projection-f32.bin",
           "f32",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/analysis-original-linear-r1/reference-out_projection-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/analysis-original-linear-r1/reference-out_projection-bf16.bin",
           "bf16",
           "1",
           "2048",
@@ -14591,12 +14591,12 @@
     "commands": [
       {
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-dot-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix128-layer16-projection-weights-r1/linear_attn-in_proj_qkv-weight-bf16.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/actual-input_rmsnorm-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-dot-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix128-layer16-projection-weights-r1/linear_attn-in_proj_qkv-weight-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/actual-input_rmsnorm-bf16.bin",
           "8192",
           "2048",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/qkv_projection-canonical-f32.bin"
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/qkv_projection-canonical-f32.bin"
         ],
         "returncode": 0,
         "stdout": "{\"rows\":8192,\"width\":2048,\"ascending_k16\":true,\"diagnostic_only\":true}\n",
@@ -14604,12 +14604,12 @@
       },
       {
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-dot-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix128-layer16-projection-weights-r1/linear_attn-in_proj_z-weight-bf16.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/actual-input_rmsnorm-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-dot-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix128-layer16-projection-weights-r1/linear_attn-in_proj_z-weight-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/actual-input_rmsnorm-bf16.bin",
           "4096",
           "2048",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/z_projection-canonical-f32.bin"
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/z_projection-canonical-f32.bin"
         ],
         "returncode": 0,
         "stdout": "{\"rows\":4096,\"width\":2048,\"ascending_k16\":true,\"diagnostic_only\":true}\n",
@@ -14617,12 +14617,12 @@
       },
       {
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-dot-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix128-layer16-projection-weights-r1/linear_attn-out_proj-weight-bf16.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-gated_rmsnorm-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-dot-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix128-layer16-projection-weights-r1/linear_attn-out_proj-weight-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-gated_rmsnorm-bf16.bin",
           "2048",
           "4096",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/out_projection-canonical-f32.bin"
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/out_projection-canonical-f32.bin"
         ],
         "returncode": 0,
         "stdout": "{\"rows\":2048,\"width\":4096,\"ascending_k16\":true,\"diagnostic_only\":true}\n",
@@ -14630,14 +14630,14 @@
       },
       {
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-norm-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-norm-r1",
           "gated",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-core-f32.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-z_projection-f32.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix128-layer16-projection-weights-r1/linear_attn-norm-weight-bf16.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/gated-compat-tables-r1/silu-f32.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/gated-from-actual-core-z"
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-core-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-z_projection-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix128-layer16-projection-weights-r1/linear_attn-norm-weight-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/gated-compat-tables-r1/silu-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/gated-from-actual-core-z"
         ],
         "returncode": 0,
         "stdout": "{\"mode\":\"gated\",\"elements\":4096,\"diagnostic_only\":true}\n",
@@ -14645,14 +14645,14 @@
       },
       {
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-norm-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-norm-r1",
           "consumer",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/actual-seed_hidden-f32.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-out_projection-f32.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix128-layer16-projection-weights-r1/post_attention_layernorm-weight-bf16.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/actual-seed_hidden-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-out_projection-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix128-layer16-projection-weights-r1/post_attention_layernorm-weight-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
           "-",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/consumer-actual"
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/consumer-actual"
         ],
         "returncode": 0,
         "stdout": "{\"mode\":\"consumer\",\"elements\":2048,\"diagnostic_only\":true}\n",
@@ -14660,14 +14660,14 @@
       },
       {
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-norm-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-norm-r1",
           "consumer",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/actual-seed_hidden-f32.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/out_projection-canonical-f32.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix128-layer16-projection-weights-r1/post_attention_layernorm-weight-bf16.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/actual-seed_hidden-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/out_projection-canonical-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix128-layer16-projection-weights-r1/post_attention_layernorm-weight-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
           "-",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/consumer-canonical"
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/consumer-canonical"
         ],
         "returncode": 0,
         "stdout": "{\"mode\":\"consumer\",\"elements\":2048,\"diagnostic_only\":true}\n",
@@ -14840,10 +14840,10 @@
           "sha256": "65b5a930af626202bb5912c907388016420a501e792c337631066305dd101527"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/qkv_projection-canonical-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/qkv_projection-canonical-f32.bin",
           "f32",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-qkv_projection-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-qkv_projection-f32.bin",
           "f32",
           "1",
           "8192",
@@ -15018,10 +15018,10 @@
           "sha256": "ea86bc6c3d8bdd334d01258f4fb3f7402761c704635a77898e7657a4d0afed03"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/z_projection-canonical-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/z_projection-canonical-f32.bin",
           "f32",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-z_projection-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-z_projection-f32.bin",
           "f32",
           "1",
           "4096",
@@ -15196,10 +15196,10 @@
           "sha256": "47253833eac13bd28d9309bf9fb2cb44c8b357a8e7ae47e5db2cb5bea01f6603"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/out_projection-canonical-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/out_projection-canonical-f32.bin",
           "f32",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-out_projection-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-out_projection-f32.bin",
           "f32",
           "1",
           "2048",
@@ -15245,10 +15245,10 @@
           "sha256": "65a1678b61f4e5cb545e42beb39ecc18159f00964ecff6494b7f824d23a9301d"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/gated-from-actual-core-z-norm-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/gated-from-actual-core-z-norm-bf16.bin",
           "bf16",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-gated_rmsnorm-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/capture/linear-16/terminal-gated_rmsnorm-bf16.bin",
           "bf16",
           "1",
           "4096",
@@ -15294,10 +15294,10 @@
           "sha256": "68b8fa40abaf888c36b4aa655cf55d9818095952348658d868c68202deedfabf"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/consumer-actual-norm-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/consumer-actual-norm-bf16.bin",
           "bf16",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/actual-post_attention_rmsnorm-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/actual-post_attention_rmsnorm-f32.bin",
           "f32",
           "1",
           "2048",
@@ -15343,10 +15343,10 @@
           "sha256": "eb044cceabfe444674d9fe27bb88dc4283fc6a9d9dca835e8af06b658a9da139"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/consumer-actual-residual-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/consumer-actual-residual-bf16.bin",
           "bf16",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/actual-post_attention_hidden-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/actual-post_attention_hidden-f32.bin",
           "f32",
           "1",
           "2048",
@@ -15521,10 +15521,10 @@
           "sha256": "4639d022c739d475ee8607acaffe1a9b209642c1ab0aa9039894bbe82cf53c8b"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/consumer-actual-norm-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/consumer-actual-norm-bf16.bin",
           "bf16",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix128-layer16-projection-weights-r1/original-row-norms-r1/98303-layer-16-post-attention-rmsnorm-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix128-layer16-projection-weights-r1/original-row-norms-r1/98303-layer-16-post-attention-rmsnorm-bf16.bin",
           "bf16",
           "1",
           "2048",
@@ -15570,10 +15570,10 @@
           "sha256": "68b8fa40abaf888c36b4aa655cf55d9818095952348658d868c68202deedfabf"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/consumer-canonical-norm-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/consumer-canonical-norm-bf16.bin",
           "bf16",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/actual-post_attention_rmsnorm-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/actual-post_attention_rmsnorm-f32.bin",
           "f32",
           "1",
           "2048",
@@ -15619,10 +15619,10 @@
           "sha256": "eb044cceabfe444674d9fe27bb88dc4283fc6a9d9dca835e8af06b658a9da139"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/consumer-canonical-residual-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/consumer-canonical-residual-bf16.bin",
           "bf16",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/actual-post_attention_hidden-f32.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/actual-post_attention_hidden-f32.bin",
           "f32",
           "1",
           "2048",
@@ -15797,10 +15797,10 @@
           "sha256": "4639d022c739d475ee8607acaffe1a9b209642c1ab0aa9039894bbe82cf53c8b"
         },
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/consumer-canonical-norm-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix-linear-compare-r1",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix96-linear-capture-r1/terminal-cpu-replay-r2/consumer-canonical-norm-bf16.bin",
           "bf16",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/prefix128-layer16-projection-weights-r1/original-row-norms-r1/98303-layer-16-post-attention-rmsnorm-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/prefix128-layer16-projection-weights-r1/original-row-norms-r1/98303-layer-16-post-attention-rmsnorm-bf16.bin",
           "bf16",
           "1",
           "2048",
@@ -15845,7 +15845,7 @@
     },
     "record_prefix96_original_linear_operands_r1.py": {
       "sha256": "630796a3ec8ed7bcb84063613de98a6176fd9c8462b0a5e9064352d66bd406b5",
-      "text": "\"\"\"Record original input divergence without treating this diagnostic as acceptance.\"\"\"\nfrom array import array\nfrom pathlib import Path\nimport hashlib,json\nB=Path(__file__).resolve().parent;P=Path('/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate')\nread=lambda p:json.loads(p.read_text(encoding='utf-8-sig'))\nsha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()\ndef ident(p):return dict(file=str(p.relative_to(B)),bytes=p.stat().st_size,sha256=sha(p))\nd=B/'prefix96-linear-capture-r1';analysis=read(d/'linear-boundary-analysis-r1.json');cpu=read(d/'terminal-cpu-replay-r2/comparison.json')\nr=read(d/'run-record.json');source=read(B/'prefix96-linear-capture-source-r1.json')\nassert r['reason']=='completed' and r['exit_code']==0 and r['host_checks_pass'] and not r['after_processes']\nassert analysis['full_window']['initial-state']['summary']['f32_bit_mismatches']==0\nassert all(cpu['results'][k]['summary']['bf16_mismatches']==0 for k in ('qkv_projection','z_projection','gated_from_actual_core_z','consumer_actual_norm_vs_native','consumer_actual_residual_vs_native','consumer_canonical_norm_vs_native','consumer_canonical_residual_vs_native'))\nrows={}\nfor key,offset,width,stride,sourcefile in [('q-core-input',0,2048,8192,'raw-f32.bin'),('k-core-input',2048,2048,8192,'raw-f32.bin'),('v-core-input',4096,4096,8192,'raw-f32.bin'),('g-core-input',0,32,64,'gates-f32.bin')]:\n    c=analysis['full_window'][key];found=[];ref=B/c['reference']['file'];size=4 if key=='g-core-input' else 2\n    for chunk in c['chunks']:\n        if not chunk['stats']['f32_bit_mismatches']:continue\n        first=chunk['first_row'];count=min(64,8192-first)\n        with (d/'capture/linear-16'/sourcefile).open('rb') as f:f.seek(first*stride*4);native=array('I');native.frombytes(f.read(count*stride*4))\n        with ref.open('rb') as f:f.seek(first*width*size);reference=array('I' if size==4 else 'H');reference.frombytes(f.read(count*width*size))\n        for row in range(count):\n            mismatches=sum(native[row*stride+offset+j]!=(reference[row*width+j] if size==4 else int(reference[row*width+j])<<16) for j in range(width))\n            if mismatches:found.append(dict(row=first+row,position=90112+first+row,f32_bit_mismatches=mismatches))\n    assert sum(x['f32_bit_mismatches'] for x in found)==c['summary']['f32_bit_mismatches'];rows[key]=found\nassert all([x['row'] for x in rows[k]]==[906,907,908,909] for k in ('q-core-input','k-core-input','v-core-input'))\nassert [x['row'] for x in rows['g-core-input']]==[906]\nhelpers=['analyze_prefix96_linear_capture_r1.py','replay_prefix96_captured_terminal_r1.py','replay_prefix96_captured_terminal_r2.py','recover_prefix96_linear_capture_archive_r1.py','record_prefix96_original_linear_operands_r1.py']\nproof=dict(kind='original_native_96k_layer16_input_divergence',host='baiying',model=r['spec']['model'],source_commit=source['whole_source_commit'],\n    command_file=r['spec']['command_file'],command_file_sha256=r['spec']['command_file_sha256'],source_manifest=source,\n    run_record=r,run_record_file=ident(d/'run-record.json'),stdout=ident(d/'product.stdout.jsonl'),stderr=ident(d/'product.stderr.log'),\n    capture_manifest=read(d/'capture-manifest.json'),capture_manifest_file=ident(d/'capture-manifest.json'),\n    original_dispatch=read(d/'dispatch.json'),original_dispatch_file=ident(d/'dispatch.json'),archive_recovery=read(d/'archive-recovery-dispatch-r1.json'),\n    comparison=analysis,comparison_file=ident(d/'linear-boundary-analysis-r1.json'),input_mismatch_rows=rows,\n    terminal_cpu_replay=cpu,terminal_cpu_replay_file=ident(d/'terminal-cpu-replay-r2/comparison.json'),\n    helper_sources={name:dict(sha256=sha(B/name),text=(B/name).read_text()) for name in helpers},\n    interpretation='Original initial state is bitwise exact. All raw Q/K/V differences occur at window rows906..909, original positions91018..91021; one raw FP32 gate differs at906 and beta is exact. Core first differs at906 and propagates to the terminal row. Terminal QKV/Z/A/B match GB10, gated normalization reproduces exactly from actual core/Z, and canonical terminal OUT projection produces the same consumed residual/norm as native. The earliest upstream cause at91018 remains unresolved.',\n    preserved_wrapper_failure='Native completes successfully. Original PS5.1 post-run Measure-Object cannot read bytes from ordered dictionaries; the failed original script/dispatch are retained. A separate archive command verifies the completed run and unchanged original tensors before archiving. Native was not rerun.',\n    diagnostic_only=True,output1_has_no_expected_token_gate=True,inference_acceptance=False,performance_acceptance=False,release_qualified=False)\np=P/'benchmarks/correctness/prefix96-layer16-original-input-divergence-20260919.json'\nwith p.open('x') as f:json.dump(proof,f,indent=2,allow_nan=False);f.write('\\n')\nprint(json.dumps(dict(file=str(p),bytes=p.stat().st_size,sha256=sha(p),input_mismatch_rows=rows),indent=2))\n"
+      "text": "\"\"\"Record original input divergence without treating this diagnostic as acceptance.\"\"\"\nfrom array import array\nfrom pathlib import Path\nimport hashlib,json\nB=Path(__file__).resolve().parent;P=Path('<private-home>/projects/AIMA-public-r1191-candidate')\nread=lambda p:json.loads(p.read_text(encoding='utf-8-sig'))\nsha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()\ndef ident(p):return dict(file=str(p.relative_to(B)),bytes=p.stat().st_size,sha256=sha(p))\nd=B/'prefix96-linear-capture-r1';analysis=read(d/'linear-boundary-analysis-r1.json');cpu=read(d/'terminal-cpu-replay-r2/comparison.json')\nr=read(d/'run-record.json');source=read(B/'prefix96-linear-capture-source-r1.json')\nassert r['reason']=='completed' and r['exit_code']==0 and r['host_checks_pass'] and not r['after_processes']\nassert analysis['full_window']['initial-state']['summary']['f32_bit_mismatches']==0\nassert all(cpu['results'][k]['summary']['bf16_mismatches']==0 for k in ('qkv_projection','z_projection','gated_from_actual_core_z','consumer_actual_norm_vs_native','consumer_actual_residual_vs_native','consumer_canonical_norm_vs_native','consumer_canonical_residual_vs_native'))\nrows={}\nfor key,offset,width,stride,sourcefile in [('q-core-input',0,2048,8192,'raw-f32.bin'),('k-core-input',2048,2048,8192,'raw-f32.bin'),('v-core-input',4096,4096,8192,'raw-f32.bin'),('g-core-input',0,32,64,'gates-f32.bin')]:\n    c=analysis['full_window'][key];found=[];ref=B/c['reference']['file'];size=4 if key=='g-core-input' else 2\n    for chunk in c['chunks']:\n        if not chunk['stats']['f32_bit_mismatches']:continue\n        first=chunk['first_row'];count=min(64,8192-first)\n        with (d/'capture/linear-16'/sourcefile).open('rb') as f:f.seek(first*stride*4);native=array('I');native.frombytes(f.read(count*stride*4))\n        with ref.open('rb') as f:f.seek(first*width*size);reference=array('I' if size==4 else 'H');reference.frombytes(f.read(count*width*size))\n        for row in range(count):\n            mismatches=sum(native[row*stride+offset+j]!=(reference[row*width+j] if size==4 else int(reference[row*width+j])<<16) for j in range(width))\n            if mismatches:found.append(dict(row=first+row,position=90112+first+row,f32_bit_mismatches=mismatches))\n    assert sum(x['f32_bit_mismatches'] for x in found)==c['summary']['f32_bit_mismatches'];rows[key]=found\nassert all([x['row'] for x in rows[k]]==[906,907,908,909] for k in ('q-core-input','k-core-input','v-core-input'))\nassert [x['row'] for x in rows['g-core-input']]==[906]\nhelpers=['analyze_prefix96_linear_capture_r1.py','replay_prefix96_captured_terminal_r1.py','replay_prefix96_captured_terminal_r2.py','recover_prefix96_linear_capture_archive_r1.py','record_prefix96_original_linear_operands_r1.py']\nproof=dict(kind='original_native_96k_layer16_input_divergence',host='baiying',model=r['spec']['model'],source_commit=source['whole_source_commit'],\n    command_file=r['spec']['command_file'],command_file_sha256=r['spec']['command_file_sha256'],source_manifest=source,\n    run_record=r,run_record_file=ident(d/'run-record.json'),stdout=ident(d/'product.stdout.jsonl'),stderr=ident(d/'product.stderr.log'),\n    capture_manifest=read(d/'capture-manifest.json'),capture_manifest_file=ident(d/'capture-manifest.json'),\n    original_dispatch=read(d/'dispatch.json'),original_dispatch_file=ident(d/'dispatch.json'),archive_recovery=read(d/'archive-recovery-dispatch-r1.json'),\n    comparison=analysis,comparison_file=ident(d/'linear-boundary-analysis-r1.json'),input_mismatch_rows=rows,\n    terminal_cpu_replay=cpu,terminal_cpu_replay_file=ident(d/'terminal-cpu-replay-r2/comparison.json'),\n    helper_sources={name:dict(sha256=sha(B/name),text=(B/name).read_text()) for name in helpers},\n    interpretation='Original initial state is bitwise exact. All raw Q/K/V differences occur at window rows906..909, original positions91018..91021; one raw FP32 gate differs at906 and beta is exact. Core first differs at906 and propagates to the terminal row. Terminal QKV/Z/A/B match GB10, gated normalization reproduces exactly from actual core/Z, and canonical terminal OUT projection produces the same consumed residual/norm as native. The earliest upstream cause at91018 remains unresolved.',\n    preserved_wrapper_failure='Native completes successfully. Original PS5.1 post-run Measure-Object cannot read bytes from ordered dictionaries; the failed original script/dispatch are retained. A separate archive command verifies the completed run and unchanged original tensors before archiving. Native was not rerun.',\n    diagnostic_only=True,output1_has_no_expected_token_gate=True,inference_acceptance=False,performance_acceptance=False,release_qualified=False)\np=P/'benchmarks/correctness/prefix96-layer16-original-input-divergence-20260919.json'\nwith p.open('x') as f:json.dump(proof,f,indent=2,allow_nan=False);f.write('\\n')\nprint(json.dumps(dict(file=str(p),bytes=p.stat().st_size,sha256=sha(p),input_mismatch_rows=rows),indent=2))\n"
     }
   },
   "interpretation": "Original initial state is bitwise exact. All raw Q/K/V differences occur at window rows906..909, original positions91018..91021; one raw FP32 gate differs at906 and beta is exact. Core first differs at906 and propagates to the terminal row. Terminal QKV/Z/A/B match GB10, gated normalization reproduces exactly from actual core/Z, and canonical terminal OUT projection produces the same consumed residual/norm as native. The earliest upstream cause at91018 remains unresolved.",

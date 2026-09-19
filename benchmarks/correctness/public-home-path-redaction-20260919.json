@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "kind": "public_home_path_redaction",
+  "source_commit_before_redaction": "11427a8a30306bbee2c863543e7f05534037b332",
+  "files": [
+    {
+      "file": "benchmarks/correctness/prefix96-layer16-original-input-divergence-20260919.json",
+      "before_sha256": "be488dc5bc2891d8d4ed1460df08d1bb9214186886c1eb7e38571a744a1e0406",
+      "before_bytes": 616837,
+      "after_sha256": "9dd9e6c682de3dd31065a15f4fbd205399964409b9616c380e84ed03221d7e6d",
+      "after_bytes": 616088,
+      "private_home_prefix_replacements": 107,
+      "public_reference_updates": []
+    },
+    {
+      "file": "benchmarks/correctness/prefix96-rope-single-round-root-cause-20260919.json",
+      "before_sha256": "4eafab11d2fdca867bedfccd63e06ccfca6fa819bda95be98034934b48b1ea9c",
+      "before_bytes": 783413,
+      "after_sha256": "6dbcf8e475d0d874565928332ccd5c3578e92a7f87dc30964ed5adbc6d2b084a",
+      "after_bytes": 782265,
+      "private_home_prefix_replacements": 164,
+      "public_reference_updates": []
+    },
+    {
+      "file": "benchmarks/correctness/row906-cpu-arithmetic-controls-20260919.json",
+      "before_sha256": "04bb3bdda0ee27d413e8f2026dcc35736be9c8aed2bb06d30f9096627dcda902",
+      "before_bytes": 909058,
+      "after_sha256": "ab00ec46f1c9c222ba0ebafc235d9c5a60d9ad3ac5123f7427a7fe7e115d7636",
+      "after_bytes": 905969,
+      "private_home_prefix_replacements": 449,
+      "public_reference_updates": []
+    },
+    {
+      "file": "benchmarks/correctness/rope-single-round-native-q8192-20260919.json",
+      "before_sha256": "320cbc0ed6650c906004d752173eebdb777b8fe445723dc73d3fa165065b40b3",
+      "before_bytes": 233815,
+      "after_sha256": "44af12b9fadd508bb981b05d1827ffc6cdef1efeff94159ae5b2aea57dec4401",
+      "after_bytes": 233815,
+      "private_home_prefix_replacements": 0,
+      "public_reference_updates": [
+        {
+          "pointer": "/cause",
+          "target": "benchmarks/correctness/prefix96-rope-single-round-root-cause-20260919.json",
+          "before_sha256": "4eafab11d2fdca867bedfccd63e06ccfca6fa819bda95be98034934b48b1ea9c",
+          "after_sha256": "6dbcf8e475d0d874565928332ccd5c3578e92a7f87dc30964ed5adbc6d2b084a"
+        }
+      ]
+    },
+    {
+      "file": "benchmarks/correctness/rope-single-round-native-long-boundary-20260919.json",
+      "before_sha256": "de0a31116b58d3f411cc9c8a91469e4cd2e54ced7de48451449ad18887b146fc",
+      "before_bytes": 566928,
+      "after_sha256": "432f7dea887317c1301ab0a96f7b9a825579499f4035342693c693b3fe90d7e5",
+      "after_bytes": 566928,
+      "private_home_prefix_replacements": 0,
+      "public_reference_updates": [
+        {
+          "pointer": "/prior_root_cause",
+          "target": "benchmarks/correctness/prefix96-rope-single-round-root-cause-20260919.json",
+          "before_sha256": "4eafab11d2fdca867bedfccd63e06ccfca6fa819bda95be98034934b48b1ea9c",
+          "after_sha256": "6dbcf8e475d0d874565928332ccd5c3578e92a7f87dc30964ed5adbc6d2b084a"
+        },
+        {
+          "pointer": "/short_regression",
+          "target": "benchmarks/correctness/rope-single-round-native-q8192-20260919.json",
+          "before_sha256": "320cbc0ed6650c906004d752173eebdb777b8fe445723dc73d3fa165065b40b3",
+          "after_sha256": "44af12b9fadd508bb981b05d1827ffc6cdef1efeff94159ae5b2aea57dec4401"
+        }
+      ]
+    },
+    {
+      "file": "benchmarks/correctness/rope-single-round-prefix128k-product-20260919.json",
+      "before_sha256": "03866701cc4dd9234e5a816e4a43901bb34cc7cdbfda8988a2fe8dc67e5ae30e",
+      "before_bytes": 583333,
+      "after_sha256": "b7cfe545120464da849eacd39e2afd347d928ae81dab8d920f6b90bab8a15674",
+      "after_bytes": 583333,
+      "private_home_prefix_replacements": 0,
+      "public_reference_updates": [
+        {
+          "pointer": "/earlier_live_observation",
+          "target": "benchmarks/correctness/rope-single-round-native-long-boundary-20260919.json",
+          "before_sha256": "de0a31116b58d3f411cc9c8a91469e4cd2e54ced7de48451449ad18887b146fc",
+          "after_sha256": "432f7dea887317c1301ab0a96f7b9a825579499f4035342693c693b3fe90d7e5"
+        },
+        {
+          "pointer": "/prior_root_cause",
+          "target": "benchmarks/correctness/prefix96-rope-single-round-root-cause-20260919.json",
+          "before_sha256": "4eafab11d2fdca867bedfccd63e06ccfca6fa819bda95be98034934b48b1ea9c",
+          "after_sha256": "6dbcf8e475d0d874565928332ccd5c3578e92a7f87dc30964ed5adbc6d2b084a"
+        },
+        {
+          "pointer": "/short_regression",
+          "target": "benchmarks/correctness/rope-single-round-native-q8192-20260919.json",
+          "before_sha256": "320cbc0ed6650c906004d752173eebdb777b8fe445723dc73d3fa165065b40b3",
+          "after_sha256": "44af12b9fadd508bb981b05d1827ffc6cdef1efeff94159ae5b2aea57dec4401"
+        }
+      ]
+    },
+    {
+      "file": "benchmarks/correctness/rope-single-round-cold16k-out512-20260919.json",
+      "before_sha256": "020222e0a5f0177239ed89e4fba51d3881a06e383c1b85a1f90cfc0e4284e24f",
+      "before_bytes": 477580,
+      "after_sha256": "ec574c8cedf2ee14805ea3fb503b036fee2219ccbdeba0203694753ac01cb82c",
+      "after_bytes": 477580,
+      "private_home_prefix_replacements": 0,
+      "public_reference_updates": [
+        {
+          "pointer": "/full_prefix_prerequisite",
+          "target": "benchmarks/correctness/rope-single-round-prefix128k-product-20260919.json",
+          "before_sha256": "03866701cc4dd9234e5a816e4a43901bb34cc7cdbfda8988a2fe8dc67e5ae30e",
+          "after_sha256": "b7cfe545120464da849eacd39e2afd347d928ae81dab8d920f6b90bab8a15674"
+        },
+        {
+          "pointer": "/short_regression",
+          "target": "benchmarks/correctness/rope-single-round-native-q8192-20260919.json",
+          "before_sha256": "320cbc0ed6650c906004d752173eebdb777b8fe445723dc73d3fa165065b40b3",
+          "after_sha256": "44af12b9fadd508bb981b05d1827ffc6cdef1efeff94159ae5b2aea57dec4401"
+        }
+      ]
+    }
+  ],
+  "private_home_prefix_replacements": 720,
+  "public_reference_updates": 8,
+  "canonical_runtime_files_changed": false,
+  "prompt_ids_changed": false,
+  "output_ids_changed": false,
+  "numerical_values_changed": false,
+  "numerical_tolerances_changed": false,
+  "measured_timings_changed": false,
+  "runtime_component_commits_changed": false,
+  "archived_original_git_objects_preserved": true,
+  "verification_command": [
+    "python3",
+    "redact_public_home_paths_r1.py",
+    "<public-checkout>",
+    "verify"
+  ],
+  "verification_program_sha256": "67c766718dc712b4f68a2aeeb392a4cc50a1cd6014c3012b17364efb64738486",
+  "verification_program": "\"\"\"Apply or verify public path-only redactions against immutable Git objects.\"\"\"\nfrom pathlib import Path\nimport hashlib\nimport json\nimport re\nimport subprocess\nimport sys\n\nP = Path(sys.argv[1]).resolve()\nmode = sys.argv[2]\nassert mode in ('apply', 'verify')\nrecord_path = P / 'benchmarks/correctness/public-home-path-redaction-20260919.json'\nnames = [\n    'prefix96-layer16-original-input-divergence',\n    'prefix96-rope-single-round-root-cause',\n    'row906-cpu-arithmetic-controls',\n    'rope-single-round-native-q8192',\n    'rope-single-round-native-long-boundary',\n    'rope-single-round-prefix128k-product',\n    'rope-single-round-cold16k-out512',\n]\nfiles = ['benchmarks/correctness/' + name + '-20260919.json' for name in names]\npattern = re.compile(r'/(?:Users|home|data/home)/[A-Za-z0-9._-]+(?=/|\\b)')\nsha = lambda raw: hashlib.sha256(raw).hexdigest()\nencode = lambda value: (json.dumps(value, indent=2, allow_nan=False) + '\\n').encode()\n\nif mode == 'apply':\n    assert not record_path.exists()\n    base = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=P, text=True, timeout=10).strip()\nelse:\n    existing = json.loads(record_path.read_text())\n    base = existing['source_commit_before_redaction']\n    assert existing['verification_program_sha256'] == sha(Path(__file__).read_bytes())\n    assert existing['verification_program'] == Path(__file__).read_text()\nassert re.fullmatch('[0-9a-f]{40}', base)\n\nchanges, rewritten, reference_updates = {}, {}, []\nfor file in files:\n    original = subprocess.check_output(['git', 'show', base + ':' + file], cwd=P, timeout=15)\n    parsed = json.loads(original)\n    assert encode(parsed) == original, ('noncanonical original JSON', file)\n    if mode == 'apply':\n        assert (P / file).read_bytes() == original, ('concurrent edit', file)\n    paths, updates = [0], []\n\n    def transform(value, pointer=''):\n        if isinstance(value, str):\n            result, count = pattern.subn('<private-home>', value)\n            paths[0] += count\n            return result\n        if isinstance(value, list):\n            return [transform(item, pointer + '/' + str(i)) for i, item in enumerate(value)]\n        if isinstance(value, dict):\n            assert all(not pattern.search(key) for key in value), ('path key requires separate review', file, pointer)\n            result = {key: transform(item, pointer + '/' + key) for key, item in value.items()}\n            target = result.get('file')\n            if isinstance(target, str) and target in changes:\n                change = changes[target]\n                assert result.get('sha256') == change['before_sha256'], (file, pointer, target)\n                assert result.get('bytes') == change['before_bytes'], (file, pointer, target)\n                result['sha256'], result['bytes'] = change['after_sha256'], change['after_bytes']\n                updates.append(dict(pointer=pointer, target=target,\n                                    before_sha256=change['before_sha256'], after_sha256=change['after_sha256']))\n            return result\n        # Numbers, booleans and null are returned unchanged. Hash strings and\n        # token IDs change only in the explicit public file reference above.\n        return value\n\n    updated = encode(transform(parsed))\n    assert not pattern.search(updated.decode())\n    change = dict(file=file, before_sha256=sha(original), before_bytes=len(original),\n                  after_sha256=sha(updated), after_bytes=len(updated),\n                  private_home_prefix_replacements=paths[0], public_reference_updates=updates)\n    changes[file] = change\n    rewritten[file] = updated\n    reference_updates.extend(updates)\n\nassert sum(item['private_home_prefix_replacements'] for item in changes.values()) == 720\nassert len(reference_updates) == 8\nrecords = list(changes.values())\nif mode == 'apply':\n    record = dict(\n        schema_version=1, kind='public_home_path_redaction',\n        source_commit_before_redaction=base, files=records,\n        private_home_prefix_replacements=720, public_reference_updates=8,\n        canonical_runtime_files_changed=False, prompt_ids_changed=False, output_ids_changed=False,\n        numerical_values_changed=False, numerical_tolerances_changed=False,\n        measured_timings_changed=False, runtime_component_commits_changed=False,\n        archived_original_git_objects_preserved=True,\n        verification_command=['python3', Path(__file__).name, '<public-checkout>', 'verify'],\n        verification_program_sha256=sha(Path(__file__).read_bytes()),\n        verification_program=Path(__file__).read_text(),\n        scope='Remove private home prefixes from three public diagnostic renderings and update eight explicit public file references in four downstream renderings. All canonical run records, source identities, raw/tensor hashes, original prompts, output tokens, numerical results and timings stay unchanged. The complete transformation reproduces from the prior immutable Git objects; historical versions remain in Git. This is publication hygiene, with no new native, performance or release acceptance.')\n    for file, raw in rewritten.items():\n        (P / file).write_bytes(raw)\n    with record_path.open('xb') as out:\n        out.write(encode(record))\nelse:\n    assert records == existing['files']\n    for file, raw in rewritten.items():\n        assert (P / file).read_bytes() == raw, ('content changed outside allowed transformation', file)\n\nprint(json.dumps(dict(mode=mode, files=records, pass_exact_transformation=True), indent=2))\n",
+  "scope": "Remove private home prefixes from three public diagnostic renderings and update eight explicit public file references in four downstream renderings. All canonical run records, source identities, raw/tensor hashes, original prompts, output tokens, numerical results and timings stay unchanged. The complete transformation reproduces from the prior immutable Git objects; historical versions remain in Git. This is publication hygiene, with no new native, performance or release acceptance."
+}
