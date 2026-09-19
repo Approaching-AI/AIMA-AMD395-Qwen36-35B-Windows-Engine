@@ -1,16 +1,33 @@
 # Completed FLA stages and latency
 
-The original long-context RoPE discrepancy now disappears in the actual
-repaired native run. At2026-09-19T02:44:20.5467488Z, whole32a/FLA1d has completed
-twelve owner chunks. All708 selected comparisons at twelve original positions
-match their BF16 consumer values. Position91018 matches all40 layer carriers
-and ten layer15 attention stages; the decisive Q/RoPE cell is now the original
--1.9453125. Raw FP32 intermediates before BF16 consumption may still differ.
-The full128k owner/suffix run is active: complete outputs, both512 suffix
-continuations, owner32 and postflight cleanup remain pending. The
+The repaired whole32a/FLA1d stack now passes the complete original 128k prefix
+case on baiying. All 16 owner chunks complete; owner first token/logit 16/25.0
+and all 32 combined owner IDs match. Both suffix requests match every original
+512-token continuation, including output index 122 (321) that previously
+diverged. Suffix first token/logit 248045/6.28125 has zero error. The 512 actual
+timed callbacks, 31 cached-owner callbacks, prefix restoration, changed-prefix
+rejection before provider invocation, source and final host/cleanup checks all
+pass. Native wall is 5773211.967 ms within the original 7200-second deadline.
+Load 21204.9022 ms, hit TTFT 62731.6067 ms and TPOT 588.789589 ms are instrumented
+functional observations; retained performance, portable package and release
+acceptance remain open. See the [complete original 128k boundary](../benchmarks/correctness/rope-single-round-prefix128k-product-20260919.json).
+
+The earlier observation at2026-09-19T02:44:20.5467488Z contains all708 selected
+comparisons at twelve original positions, matching their BF16 consumers.
+Position91018 matches all40 layer carriers and ten layer15 attention stages;
+the decisive Q/RoPE cell is the original -1.9453125. Raw FP32 intermediates
+before BF16 consumption may still differ. The completed product proof verifies
+that the earlier launch/preflight hashes belong to this same complete run. The
 [native boundary observation](../benchmarks/correctness/rope-single-round-native-long-boundary-20260919.json)
 attaches actual command/launch, DLL identities and original GB10 references.
-It does not establish full-model, performance, package or release acceptance.
+Selected intermediate rows alone do not establish every intermediate value.
+
+A separate cold16k/out512 request on the same stack also matches all original
+512 IDs, first logit25.625 with zero error, and512 actual callbacks. A new
+process completes both8192-input chunks without a cached prefix substitution;
+all source, host and cleanup checks pass. Load21269.2616 ms, TTFT73757.2789 ms
+and TPOT155.777343 ms are single functional observations. See the
+[original cold16k boundary](../benchmarks/correctness/rope-single-round-cold16k-out512-20260919.json).
 
 The retained non-pipelined runtime checks successful HIP submission, end-event synchronization and
 elapsed-time API status before using a completed interval. A finite,
