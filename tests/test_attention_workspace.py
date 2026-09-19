@@ -25,6 +25,12 @@ def workspace_capacity_policy():
                      if not line.startswith(("#pragma", "#include")))
 
 
+def compact_decode_policy():
+    header = (ROOT / "native/providers/ck_fmha/compact_decode_query_policy.h").read_text()
+    return "\n".join(line for line in header.splitlines()
+                     if not line.startswith(("#pragma", "#include")))
+
+
 def function(source, signature):
     begin = source.index(signature)
     opening = source.index("{", begin)
@@ -90,7 +96,7 @@ using hipStream_t = void*;
 enum hipError_t { hipSuccess, hipErrorUnknown, hipErrorInvalidValue, hipErrorLaunchTimeOut };
 constexpr unsigned kQueryHeads = 16, kKvHeads = 2, kHeadDim = 256;
 constexpr unsigned kQ262144Tokens = 262144;
-''' + attention_capacity() + workspace_capacity_policy() + long_layout + r'''
+''' + attention_capacity() + workspace_capacity_policy() + compact_decode_policy() + long_layout + r'''
 namespace qrt_blackwell_attention {
 ''' + maximum + r'''
 }
@@ -151,6 +157,7 @@ unsigned mask_preparations=0, mask_queries=0;
 bool masked_arena=false;
 unsigned range_preparations=0, range_queries=0, fail_range_prepare=0;
 unsigned range_start=0, range_count=0, range_origin=0;
+unsigned observed_query_origin=0;
 unsigned long_queries=0,long_domain_preparations=0,long_final_queries=0;
 unsigned selective_qk_queries = 0;
 unsigned value_transposes = 0;
@@ -334,8 +341,11 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
                    unsigned = 0u, bool = false, const SplitQkProducer* producer = nullptr,
                    bool all_pv_replay = false, bool register_pv_rescale = false,
                    const SplitProbabilityProducer* probability_producer = nullptr,
-                   const SplitProbabilityValueProducer* probability_value_producer = nullptr) {
+                   const SplitProbabilityValueProducer* probability_value_producer = nullptr,
+                   unsigned query_origin = 0u) {
     ++queries;
+    observed_query_origin=query_origin;
+    if(query_origin && (query_origin!=start || count!=1u || layout!=2u))std::abort();
     if (track_submissions) {
         ++pending_submissions;
         maximum_pending = std::max(maximum_pending,pending_submissions);
@@ -494,6 +504,7 @@ void reset() {
     float_alignment_queries = 0;decoded_preparations=decoded_queries=fail_decoded_prepare=0;
     mask_preparations=mask_queries=0;masked_arena=false;
     range_preparations=range_queries=fail_range_prepare=range_start=range_count=range_origin=0;
+    observed_query_origin=0;
     long_queries=long_domain_preparations=long_final_queries=0;
     fail_transpose = false;
     preparations = 0; fail_preparation = false;
@@ -504,6 +515,7 @@ void reset() {
     submitted_ranges.clear();
 }
 int main() {
+    unsetenv("QRT_CK_SM121_COMPACT_DECODE_QUERY");
     unsetenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS");
     for (unsigned failure = 1; failure <= 4; ++failure) {
         reset(); fail_allocation = failure;
@@ -1543,6 +1555,32 @@ int main() {
     for(const char* flag:{"QRT_CK_SM121_LONG_ATTENTION_PIPELINE","QRT_CK_SM121_LONG_PREPARED_DECODED_QK",
         "QRT_CK_SM121_LONG_TRANSPOSE_VALUE","QRT_CK_SM121_LONG_DIRECT_PV_OPERANDS"})unsetenv(flag);
     reset();
+    for(const char* invalid:{"-1","2","01","1 ","true"}){
+        setenv("QRT_CK_SM121_COMPACT_DECODE_QUERY",invalid,1);
+        if(launch(8192u,1u)!=hipErrorInvalidValue || allocations || queries)return 310;
+    }
+    for(const char* off:{"","0"}){
+        setenv("QRT_CK_SM121_COMPACT_DECODE_QUERY",off,1);
+        if(launch_sm121_attention(&operand,&operand,&operand,&output,nullptr,8192u,1u,0u,8192u)!=hipErrorInvalidValue ||
+           allocations || queries)return 311;
+    }
+    setenv("QRT_CK_SM121_COMPACT_DECODE_QUERY","1",1);
+    for(unsigned start:{1u,8191u,8192u,131072u,262144u,kSm121MaxTokens-1u}){
+        reset();track_submissions=true;
+        if(launch_sm121_attention(&operand,&operand,&operand,&output,nullptr,start,1u,17u,start)!=hipSuccess ||
+           observed_query_origin!=start || observed_layout!=2u || queries!=1u || pending_submissions ||
+           range_preparations || long_queries || g_sm121_long_pipeline.scratch)return 312;
+        reset();
+        if(launch_sm121_attention(&operand,&operand,&operand,&output,nullptr,start,1u,0u,start+1u)!=hipErrorInvalidValue ||
+           allocations || queries)return 313;
+        reset();fail_query=1u;track_submissions=true;
+        if(launch_sm121_attention(&operand,&operand,&operand,&output,nullptr,start,1u,0u,start)!=hipErrorUnknown ||
+           queries!=1u || syncs!=1u || pending_submissions)return 314;
+    }
+    reset();
+    if(launch_sm121_attention(&operand,&operand,&operand,&output,nullptr,8192u,2u,0u,8192u)!=hipErrorInvalidValue ||
+       allocations || queries)return 315;
+    unsetenv("QRT_CK_SM121_COMPACT_DECODE_QUERY");reset();
     return 0;
 }
 '''

@@ -47,6 +47,7 @@ constexpr unsigned kSubgroupTiledKeys = 8;
 constexpr unsigned kExactTileTokens = 32;
 ''' + attention_capacity() + row + packed + r'''
 void blackwell_exact_scores_kernel() {}
+void blackwell_compact_query_scores_kernel() {}
 void blackwell_cooperative_scores_kernel() {}
 void blackwell_cooperative_value_kernel() {}
 void blackwell_transpose_keys_kernel() {}
@@ -861,6 +862,34 @@ int main() {
                probability_state.calls!=(stage==0u?0u:1u)||probability_state.seen_stages!=stage+1u)return 177;
         }
     }
+    launches=error_queries=events=memsets=0;fail_launch=0;fail_scores=fail_probability=fail_event=false;
+    auto compact_query=[&](unsigned start,unsigned count,unsigned origin,unsigned layout=2u,size_t elements=SIZE_MAX){
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,start,count,17u,
+            nullptr,nullptr,nullptr,true,nullptr,layout,&scratch,elements,
+            nullptr,nullptr,nullptr,0u,false,nullptr,nullptr,0u,nullptr,nullptr,
+            nullptr,0u,1u,1u,false,false,false,0u,false,nullptr,false,false,nullptr,nullptr,origin);
+    };
+    for(unsigned start:{1u,8191u,8192u,131072u,262144u,kSplitMaxTokens-1u}){
+        launches=error_queries=0;
+        const size_t elements=size_t(start+1u)*16u;
+        if(compact_query(start,1u,start,2u,elements-1u)!=hipErrorInvalidValue||launches)return 180;
+        if(compact_query(start,1u,start,2u,elements)!=hipSuccess||launches!=2u||
+           std::strcmp(launch_names[0],"blackwell_compact_query_scores_kernel")||
+           !std::strstr(launch_names[1],"blackwell_exact_attention_kernel<true, true>"))return 181;
+        launches=error_queries=0;fail_scores=true;
+        if(compact_query(start,1u,start)!=hipErrorUnknown||launches!=1u)return 182;
+        launches=error_queries=0;fail_scores=false;fail_probability=true;
+        if(compact_query(start,1u,start)!=hipErrorUnknown||launches!=2u)return 183;
+        launches=error_queries=0;fail_probability=false;
+        if(compact_query(start,1u,start+1u)!=hipErrorInvalidValue||launches)return 184;
+    }
+    for(unsigned layout=0u;layout<=24u;++layout){
+        if(layout!=2u && (compact_query(8192u,1u,8192u,layout)!=hipErrorInvalidValue||launches))return 185;
+    }
+    if(compact_query(8192u,2u,8192u)!=hipErrorInvalidValue||launches)return 186;
+    if(compact_query(8192u,1u,8191u)!=hipErrorInvalidValue||launches)return 187;
+    if(compact_query(8192u,1u,0u)!=hipSuccess||launches!=2u||
+       std::strcmp(launch_names[0],"blackwell_exact_scores_kernel"))return 188;
     return 0;
 }
 '''

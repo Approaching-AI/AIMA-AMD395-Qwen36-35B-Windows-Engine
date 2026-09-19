@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 import unittest
 
-from test_attention_workspace import attention_capacity, function, workspace_capacity_policy
+from test_attention_workspace import attention_capacity, compact_decode_policy, function, workspace_capacity_policy
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -31,7 +31,7 @@ class AttentionSuffixTests(unittest.TestCase):
 #include <utility>
 using hipStream_t=void*;
 enum hipError_t {hipSuccess,hipErrorInvalidValue,hipErrorNotSupported,hipErrorUnknown};
-''' + attention_capacity() + workspace_capacity_policy() + r'''
+''' + attention_capacity() + workspace_capacity_policy() + compact_decode_policy() + r'''
 constexpr unsigned kQueryFeatures=4096,kKvFeatures=512,kSm121MaxTokens=qrt_sm121_attention_capacity::kTokens;
 constexpr unsigned kPrefillChunkTokens=8192;
 constexpr int hipMemcpyDeviceToDevice=1;
@@ -78,6 +78,7 @@ int launch_sm121_attention(const uint16_t* q,const uint16_t* k,const uint16_t* v
 }
 ''' + implementation + r'''
 int main(){
+ unsetenv("QRT_CK_SM121_COMPACT_DECODE_QUERY");
  unsetenv("QRT_CK_SM121_LONG_ATTENTION_PIPELINE");
  unsetenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS");
  // Only mock transport inspects these allocations; no data pages need touching.
@@ -175,6 +176,44 @@ int main(){
  assert(call(16384,129)==hipErrorUnknown&&copies==4&&launches==1&&syncs==1);
  fail_launch=false;
  unsetenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS");
+ // Q1 borrows exactly the caller row and can reuse prior compact KV capacity.
+ unsetenv("QRT_CK_SM121_LONG_ATTENTION_PIPELINE");
+ for(const char* invalid:{"-1","2","01","1 ","true"}){
+  before=allocations;setenv("QRT_CK_SM121_COMPACT_DECODE_QUERY",invalid,1);
+  assert(call(262144,1)==hipErrorInvalidValue&&allocations==before&&!copies&&!launches);
+ }
+ setenv("QRT_CK_SM121_COMPACT_DECODE_QUERY","1",1);before=allocations;
+ for(unsigned prefix:{1u,8191u,8192u,131072u,262144u,kSm121MaxTokens-1u}){
+  assert(call(prefix,1)==hipSuccess&&copies==4&&launches==1&&allocations==before&&
+         g_sm121_compact_suffix.cells==compact&&g_sm121_suffix.cells==retained);
+ }
+ for(unsigned failure=1;failure<=4;++failure){
+  fail_copy=failure;assert(call(262144,1)==hipErrorUnknown&&copies==failure&&!launches&&syncs==1);
+ }
+ fail_copy=0;fail_launch=true;
+ assert(call(262144,1)==hipErrorUnknown&&copies==4&&launches==1&&syncs==1);
+ fail_launch=false;
+ hipFree(g_sm121_compact_suffix.cells);g_sm121_compact_suffix={};
+ fail_allocate=true;
+ assert(call(131072,1)==hipErrorUnknown&&!copies&&!launches&&!g_sm121_compact_suffix.cells);
+ fail_allocate=false;
+ assert(call(131072,1)==hipSuccess&&copies==4&&last_allocation_bytes==size_t(139264u)*2048u);
+ before=allocations;compact=g_sm121_compact_suffix.cells;
+ assert(call(131073,1)==hipSuccess&&copies==4&&allocations==before&&g_sm121_compact_suffix.cells==compact);
+ // A larger decode refreshes the replacement KV; failed growth leaves no owner.
+ fail_allocate=true;
+ assert(call(262144,1)==hipErrorUnknown&&!copies&&!g_sm121_compact_suffix.cells);
+ fail_allocate=false;
+ assert(call(262144,1)==hipSuccess&&copies==4&&last_allocation_bytes==size_t(kSm121MaxTokens)*2048u);
+ before=allocations;compact=g_sm121_compact_suffix.cells;
+ assert(call(kSm121MaxTokens-1u,1)==hipSuccess&&copies==4&&allocations==before&&g_sm121_compact_suffix.cells==compact);
+ expected_compact=false;
+ assert(call(16384,1024)==hipSuccess&&copies==5&&g_sm121_suffix.cells==retained);
+ for(const char* off:{"","0"}){
+  setenv("QRT_CK_SM121_COMPACT_DECODE_QUERY",off,1);
+  assert(call(262144,1)==hipSuccess&&copies==5&&g_sm121_suffix.cells==retained);
+ }
+ unsetenv("QRT_CK_SM121_COMPACT_DECODE_QUERY");
  hipFree(g_sm121_suffix.cells);hipFree(g_sm121_compact_suffix.cells);assert(live.empty());
  for(auto p:expected_inputs)std::free(const_cast<void*>(p));std::free(expected_output);
 }
@@ -190,3 +229,8 @@ int main(){
             self.assertEqual(len(markers), 12)
             self.assertTrue(all('query_staging_bytes=0 copies=4 original_q_view=1 stream_drained=1'
                                 in line for line in markers))
+            decode_markers = [line for line in result.stderr.splitlines()
+                              if line.startswith('SM121_COMPACT_DECODE_QUERY ')]
+            self.assertEqual(len(decode_markers), 10)
+            self.assertTrue(all('suffix_tokens=1 ' in line and
+                'original_single_query_arithmetic=1 stream_drained=1' in line for line in decode_markers))

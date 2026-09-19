@@ -48,6 +48,7 @@
 #include "long_attention_pipeline.h"
 #include "discardable_workspace.h"
 #include "attention_workspace_capacity.h"
+#include "compact_decode_query_policy.h"
 #endif
 
 #if defined(_WIN32)
@@ -519,7 +520,11 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             direct_pv_operands,compact_pv_mode,all_pv_replay,matrix_mode!=0u,
             uses_selective_qk,long_pipeline) || (long_pipeline && !interpolated_exp2))
         return int(hipErrorInvalidValue);
-    if (query_origin && !long_pipeline) return int(hipErrorInvalidValue);
+    bool compact_decode_query = false;
+    if (!qrt_compact_decode_query::select(std::getenv("QRT_CK_SM121_COMPACT_DECODE_QUERY"),
+            query_start, query_count, compact_decode_query)) return int(hipErrorInvalidValue);
+    if (query_origin && !long_pipeline && !(compact_decode_query && query_origin == query_start))
+        return int(hipErrorInvalidValue);
     bool long_final_pv_bound = false;
     if (!qrt_long_attention_layout::select_final_bound(std::getenv("QRT_CK_SM121_LONG_FINAL_PV_BOUND"),
             long_pipeline,long_final_pv_bound)) return int(hipErrorInvalidValue);
@@ -841,7 +846,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             1u, 1u, final_pv_bound, direct_pv_operands, float_alignment_qk, 0u, false,
             prepared_decoded_qk ? &decoded_producer : long_prepared_decoded_qk ? &long_decoded_producer : nullptr,
             all_pv_replay, register_pv_rescale, exact_attention && !fused_probability_pv ? &exact_probability : nullptr,
-            fused_probability_pv ? &fused_probability_value : nullptr);
+            fused_probability_pv ? &fused_probability_value : nullptr, query_origin);
         }
         if (status != int(hipSuccess)) {
             // Earlier slabs and this QK may be queued when a consumer fails.
@@ -1000,19 +1005,24 @@ int launch_sm121_suffix_attention(
             return int(hipErrorInvalidValue);
     }
     if (!sm121_attention_enabled(total)) return int(hipErrorNotSupported);
-    // Ordinary kernels index Q by absolute position. The long range pipeline
-    // can consume the compact caller Q with an explicit absolute origin. Both
-    // assemble complete KV without recomputing any prefix projection.
+    // The long range pipeline and selected exact single-query path can consume
+    // caller Q with an explicit absolute origin. Both assemble complete KV
+    // without recomputing any prefix projection or changing its arithmetic.
     // Every call refreshes all consumed cells, even when the addresses repeat.
     std::lock_guard<std::mutex> lock(g_sm121_suffix_mutex);
     const char* long_option=std::getenv("QRT_CK_SM121_LONG_ATTENTION_PIPELINE");
-    const bool compact_query=suffix_tokens>1u && suffix_tokens<=8192u && total>8192u &&
-        long_option && std::strcmp(long_option,"1")==0;
+    bool compact_decode_query=false;
+    if (!qrt_compact_decode_query::select(std::getenv("QRT_CK_SM121_COMPACT_DECODE_QUERY"),
+            prefix_tokens,suffix_tokens,compact_decode_query)) return int(hipErrorInvalidValue);
+    const bool compact_query=compact_decode_query || (suffix_tokens>1u && suffix_tokens<=8192u && total>8192u &&
+        long_option && std::strcmp(long_option,"1")==0);
     unsigned capacity = total, requested = 0u;
-    // The compact owner contains KV only. Ordinary and one-token callers keep
-    // their existing Q/K/V allocation policy and do not reserve extra Q cells.
+    // A single-query call grows compact KV in bounded chunks, avoiding a new
+    // allocation for every generated token. It reserves at most8191 extra KV
+    // rows, capped at the supported maximum, and retains true copy extents.
     if (compact_query && !qrt_attention_workspace_capacity::select(
-            std::getenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS"), total, 1u,
+            compact_decode_query ? nullptr : std::getenv("QRT_CK_SM121_WORKSPACE_RESERVE_TOKENS"),
+            total, compact_decode_query ? 8192u : 1u,
             capacity, requested)) return int(hipErrorInvalidValue);
     auto& owner=compact_query?g_sm121_compact_suffix:g_sm121_suffix;
     if (owner.capacity_tokens < capacity) {
@@ -1039,9 +1049,13 @@ int launch_sm121_suffix_attention(
     // Drain submitted copies too when a later launcher validation fails. The
     // caller can immediately discard its transaction after any failed call.
     if (status != int(hipSuccess)) (void)hipStreamSynchronize(stream);
-    if (compact_query && status == int(hipSuccess))
+    if (compact_query && !compact_decode_query && status == int(hipSuccess))
         std::fprintf(stderr,"SM121_COMPACT_SUFFIX_QUERY prefix_tokens=%u suffix_tokens=%u staging_capacity=%u staging_bytes=%zu query_staging_bytes=0 copies=4 original_q_view=1 stream_drained=1\n",
             prefix_tokens,suffix_tokens,owner.capacity_tokens,
+            size_t(owner.capacity_tokens)*2u*kKvFeatures*sizeof(uint16_t));
+    if (compact_decode_query && status == int(hipSuccess))
+        std::fprintf(stderr,"SM121_COMPACT_DECODE_QUERY prefix_tokens=%u suffix_tokens=1 staging_capacity=%u staging_bytes=%zu query_staging_bytes=0 copies=4 original_q_view=1 original_single_query_arithmetic=1 stream_drained=1\n",
+            prefix_tokens,owner.capacity_tokens,
             size_t(owner.capacity_tokens)*2u*kKvFeatures*sizeof(uint16_t));
     return status;
 }

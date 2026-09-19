@@ -69,10 +69,11 @@ __device__ __forceinline__ float blackwell_attention_exp(float value, const unsi
 // expose parallelism across the whole causal history instead of waiting for
 // each query CTA to finish its preceding PV tile. Online softmax/PV below still
 // visits every tile in the original order and consumes the same FP32 scores.
-__global__ void blackwell_exact_scores_kernel(
+template<bool RelativeQuery>
+__device__ __forceinline__ void blackwell_exact_scores_body(
     const uint16_t* __restrict__ query, const uint16_t* __restrict__ key,
     float* __restrict__ scores, unsigned int query_start,
-    unsigned int query_count, unsigned int score_stride) {
+    unsigned int query_count, unsigned int score_stride, unsigned int query_origin) {
     const unsigned int cell = blockIdx.x * kBlackwellSubgroups +
         threadIdx.x / kBlackwellMmaGroup;
     const unsigned int cells = query_count * kQueryHeads * score_stride;
@@ -85,7 +86,8 @@ __global__ void blackwell_exact_scores_kernel(
         if (lane == 0u) scores[cell] = -INFINITY;
         return;
     }
-    const size_t query_base = (static_cast<size_t>(token) * kQueryHeads + query_head) * kHeadDim;
+    const unsigned int query_token = RelativeQuery ? token - query_origin : token;
+    const size_t query_base = (static_cast<size_t>(query_token) * kQueryHeads + query_head) * kHeadDim;
     const unsigned int kv_head = query_head / (kQueryHeads / kKvHeads);
     const size_t key_base = (static_cast<size_t>(key_token) * kKvHeads + kv_head) * kHeadDim;
     qrt_q1_moe_hawkeye::Value dot{0u, kBlackwellZeroExponent, false};
@@ -97,6 +99,22 @@ __global__ void blackwell_exact_scores_kernel(
         scores[cell] = qrt_q1_moe_hawkeye::value_to_float(
             qrt_sm121_group16::finish_accumulator(dot)) * kExactScale;
     }
+}
+
+__global__ void blackwell_exact_scores_kernel(
+    const uint16_t* __restrict__ query, const uint16_t* __restrict__ key,
+    float* __restrict__ scores, unsigned int query_start,
+    unsigned int query_count, unsigned int score_stride) {
+    blackwell_exact_scores_body<false>(query, key, scores, query_start,
+        query_count, score_stride, 0u);
+}
+
+__global__ void blackwell_compact_query_scores_kernel(
+    const uint16_t* __restrict__ query, const uint16_t* __restrict__ key,
+    float* __restrict__ scores, unsigned int query_start,
+    unsigned int query_count, unsigned int score_stride, unsigned int query_origin) {
+    blackwell_exact_scores_body<true>(query, key, scores, query_start,
+        query_count, score_stride, query_origin);
 }
 
 // A single bounded transpose makes adjacent independent QK lanes read adjacent
@@ -2241,11 +2259,16 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     bool staged_probability = false, const SplitQkProducer* qk_producer = nullptr,
     bool all_pv_replay = false, bool register_pv_rescale = false,
     const SplitProbabilityProducer* probability_producer = nullptr,
-    const SplitProbabilityValueProducer* probability_value_producer = nullptr) {
+    const SplitProbabilityValueProducer* probability_value_producer = nullptr,
+    unsigned int query_origin = 0u) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= kSplitMaxTokens ||
         query_count > kSplitMaxTokens - query_start || output_start >= kSplitMaxTokens ||
         query_count > kSplitMaxTokens - output_start) return int(hipErrorInvalidValue);
+    // Compact Q is restricted to the existing exact single-query split path.
+    // Its PV consumer uses precomputed scores and never reads the Q pointer.
+    if (query_origin && (query_origin != query_start || query_count != 1u || memory_layout != 2u))
+        return int(hipErrorInvalidValue);
     if (memory_layout > 24u || ((memory_layout == 13u || memory_layout == 22u || memory_layout == 23u || memory_layout == 24u) && (!rcp_table || !vllm_sum)))
         return int(hipErrorInvalidValue);
     if ((memory_layout >= 17u && memory_layout <= 21u) && (!prepared_values || prepared_value_tokens < query_start + query_count ||
@@ -2392,6 +2415,11 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
                 dim3((cells + kThreads - 1u) / kThreads), dim3(kThreads), 0u, stream,
                 q, transposed_key, score_scratch, query_start, query_count, stride, key_stride);
             }
+        } else if (query_origin) {
+            hipLaunchKernelGGL(blackwell_compact_query_scores_kernel,
+                dim3((cells + kBlackwellSubgroups - 1u) / kBlackwellSubgroups),
+                dim3(kThreads), 0u, stream, q, k, score_scratch,
+                query_start, query_count, stride, query_origin);
         } else {
             hipLaunchKernelGGL(blackwell_exact_scores_kernel,
                 dim3((cells + kBlackwellSubgroups - 1u) / kBlackwellSubgroups),
