@@ -14,12 +14,16 @@ device storage, plus one same-size temporary host load buffer. The Windows
 CNG SHA check binds the file before use. `QRT_QWEN36_Q1_SM121_SQRT_TABLE` selects
 its path; it is loaded only for requests whose retained prefix reaches the
 reference drafter's 262144-token limit. The speculative path retains its current
-tables. Native component, load and product qualification are still required.
+tables. Native replay now matches every original state/core bit in both memory
+layouts for all six captured cases. The actual q8192 model also passes all512
+outputs, but its short request does not load this table. The integrated packed
+load cost and original full256k product boundary remain under verification.
 Removing the packed compatibility path removes this artifact and its memory
 cost; it also removes the demonstrated arithmetic repair for that path.
 
 Evidence: [arithmetic domains](../benchmarks/correctness/sm121-packed-normalization-arithmetic-20260920.json)
-and [recurrence candidate](../benchmarks/correctness/prefix256-packed-recurrence-arithmetic-repair-20260920.json).
+and [recurrence candidate](../benchmarks/correctness/prefix256-packed-recurrence-arithmetic-repair-20260920.json),
+with [Windows verification](../benchmarks/correctness/packed-q1-native-regressions-20260920.json).
 
 # Optional caller-side document checker
 

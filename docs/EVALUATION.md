@@ -24,8 +24,8 @@ at2026-09-19T20:23:08Z with identical binaries and output-only observations.
 It was intentionally stopped after18 completed chunks and6396949.2ms when
 independent operator evidence supported a repair candidate. It produced no
 generated tokens; native exit-1 and all final host/cleanup checks are recorded.
-The candidate requires Windows component and full-model verification. No new
-release is qualified.
+The candidate now passes Windows component and q8192 model verification; its
+original full256k rerun is active. No new release is qualified.
 
 The [independent 256k diagnostic reference](../benchmarks/correctness/gb10-prefix256-all-chunk-boundaries-20260920.json)
 has now reproduced all 608 original outputs and the complete first-logit bytes
@@ -58,8 +58,30 @@ isolate the arithmetic differences without changing the reference outputs.
 The [model-independent arithmetic capture](../benchmarks/correctness/sm121-packed-normalization-arithmetic-20260920.json)
 checks2139095041 square-root inputs and2113929216 reciprocal inputs with zero
 differences. A17039392-byte square-root table is added; the existing reciprocal
-artifact is unchanged. Six local regression checks pass. Native token-level
-confirmation of this candidate remains outstanding.
+artifact is unchanged. Six local regression checks pass.
+
+The [Windows candidate regression](../benchmarks/correctness/packed-q1-native-regressions-20260920.json)
+binds whole source `31695a8` and DLL SHA256
+`db68d400627d261ee411ef87e8fcd3e14c0557ea72682a9c9fd18f91835ff39a`.
+The whole-provider build completes in 96479.212 ms with all host checks passing.
+On gfx1151, all six original layer0 cases pass in both state layouts:
+6291456 FP32 state values, 49152 BF16 outputs and every guard match exactly.
+These are captured-input component checks, not model inference.
+
+The same whole DLL with CK370/FLA1d/MoE923/CLI6d reproduces all512 original
+q8192 output IDs and callbacks, first144/logit10.375 with zero logit error.
+Load is21578.9114 ms, callback TTFT23198.7037 ms and TPOT101.437332 ms.
+The packed branch remains inactive on this short request. The load gate passes;
+the10000-ms TTFT gate and retained-performance target remain unmet.
+
+The original262144 owner32 and both1024-suffix out512 continuations started
+on baiying at2026-09-19T22:36:17.9969018Z, PID5520. The command
+`run-packed-q1-prefix256k-r1.ps1` retains the28800-second process deadline,
+8GiB physical/20GiB commit guards, original tokens and0.125 logit tolerance.
+The verified launch uses the new DLL and fixed-SHA square-root artifact,
+without saved model state or reference activations. At22:37:13Z one owner
+chunk had completed, with no generated output yet. Full256k correctness and
+the proposed token-divergence root cause remain unconfirmed pending this run.
 
 The [output arithmetic diagnosis](../benchmarks/correctness/prefix256-reference-output-arithmetic-diagnosis-20260920.json)
 replays final normalization for 44 qualified reference rows: all 90,112 BF16
