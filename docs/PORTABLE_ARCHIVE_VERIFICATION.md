@@ -36,3 +36,10 @@ separately binds sanitized diagnostic renderings to their original Git
 objects. It contains the complete verifier program and before/after hashes.
 Only home-directory prefixes and explicit public file references change;
 canonical runtime hashes, tokens, numerical results and timings remain intact.
+
+The [independent R6 archive check](../benchmarks/correctness/portable-archive-inventory-20260919.json)
+passes on the exact 132397965-byte ZIP copied from baiying. All 285 ZIP files
+(284 inventoried files plus the manifest), 268 runtime entries and six
+declared component artifacts match the original native staging record.
+Ten targeted tests and public hygiene pass. This inspection ran on macOS
+and adds no native inference, R8 archive, performance or release acceptance.
