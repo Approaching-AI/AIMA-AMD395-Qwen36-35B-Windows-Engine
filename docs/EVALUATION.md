@@ -83,6 +83,32 @@ without saved model state or reference activations. At22:37:13Z one owner
 chunk had completed, with no generated output yet. Full256k correctness and
 the proposed token-divergence root cause remain unconfirmed pending this run.
 
+The separate [draft-limit transition reference](../benchmarks/correctness/gb10-draft-limit-transition-20260920.json)
+completes six requests and 144 outputs on the unchanged GB10 reference. Both
+short controls and the original 262144 owner reproduce their tokens and full
+first-logit bytes. Three additional requests use the first 262140, 262142 or
+262143 IDs of that original owner prompt; no Windows values enter the capture.
+All 4112 downloaded manifest entries pass their size/hash checks, and the
+reference container exits cleanly with no remaining GPU process.
+
+All 13 selected layer0 inputs reproduce 6815744 FP32 state values and 53248 BF16
+core outputs exactly on CPU when the observed original operator is selected.
+The existing static initial-prefix policy selects the wrong operator for three
+rows, producing 1680 different BF16 core values on those same inputs. A simple
+absolute-position threshold is also insufficient: q262143 processes position
+262144 as the accepted second row of its final speculative batch, then switches
+to packed at 262145. The other two crossing requests switch at 262144. The native
+general transition remains unresolved; these component observations do not
+establish a Windows output-token failure. The active full256k candidate starts
+at the limit and remains a separate, applicable verification of packed decode.
+
+The [portable-profile preparation](../benchmarks/correctness/packed-q1-portable-preparation-20260920.json)
+normalizes all 535 options of the active full256k environment into 34 relative
+runtime paths. Compared with R6, it adds text-only/ordered-fixed loading and
+the square-root artifact. The proposed R9 package has 269 runtime artifacts and
+285 release files; those are planned counts. Its generator is syntax-checked,
+but staging, ZIP inventory, relocation, HTTP, context matrix and soak are unrun.
+
 The [output arithmetic diagnosis](../benchmarks/correctness/prefix256-reference-output-arithmetic-diagnosis-20260920.json)
 replays final normalization for 44 qualified reference rows: all 90,112 BF16
 outputs agree. For decode input 263348, exact model-row dots and conservative

@@ -25,6 +25,17 @@ Evidence: [arithmetic domains](../benchmarks/correctness/sm121-packed-normalizat
 and [recurrence candidate](../benchmarks/correctness/prefix256-packed-recurrence-arithmetic-repair-20260920.json),
 with [Windows verification](../benchmarks/correctness/packed-q1-native-regressions-20260920.json).
 
+The [near-limit reference](../benchmarks/correctness/gb10-draft-limit-transition-20260920.json)
+also observes requests crossing the limit during generation. Their final
+speculative batch may contain a token at 262144, so the generic switch cannot
+be inferred from absolute position alone. Current runtime selection still
+uses the initial retained prefix; this unresolved selection issue is separate
+from the verified arithmetic table and does not change its dependency cost.
+The [prepared portable profile](../benchmarks/correctness/packed-q1-portable-preparation-20260920.json)
+adds the fixed-SHA table path plus text-only/ordered-fixed loading options.
+It has 535 options and 34 relative paths. The proposed 269-artifact R9 runtime
+has not been assembled or qualified as an archive.
+
 # Optional caller-side document checker
 
 `scripts/check-agent-documents.py` uses only Python 3.10+ standard-library
