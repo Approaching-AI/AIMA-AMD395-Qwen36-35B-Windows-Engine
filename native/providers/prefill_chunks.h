@@ -16,7 +16,7 @@ hipError_t reserve_qwen36_prefill_chunk_attention(
         return hipErrorInvalidValue;
     const size_t bytes = capacity * 1024u;
     void *next = nullptr;
-    hipError_t status = hipMalloc(&next, bytes * 2u);
+    hipError_t status = qrt_unpooled_device_malloc(&next, bytes * 2u);
     if (status != hipSuccess) return status;
     auto *next_v = static_cast<unsigned char *>(next) + bytes;
     status = hipMemcpy(next, layer.device_k, layer.k_bytes, hipMemcpyDeviceToDevice);
@@ -40,7 +40,7 @@ hipError_t resize_qwen36_prefill_chunk_tail(
     if (layer.decode_tail_capacity_tokens == capacity) return hipSuccess;
     const size_t bytes = capacity * 1024u;
     void *next = nullptr;
-    hipError_t status = hipMalloc(&next, bytes * 2u);
+    hipError_t status = qrt_unpooled_device_malloc(&next, bytes * 2u);
     if (status != hipSuccess) return status;
     status = hipFree(layer.device_decode_tail_allocation);
     if (status != hipSuccess) { (void)hipFree(next); return status; }
@@ -88,7 +88,7 @@ hipError_t promote_qwen36_prefill_chunk_attention(
         return hipSuccess;
     }
     void *next = nullptr;
-    hipError_t status = hipMalloc(&next, bytes * 2u);
+    hipError_t status = qrt_unpooled_device_malloc(&next, bytes * 2u);
     if (status != hipSuccess) return status;
     auto *next_k = static_cast<unsigned char *>(next);
     auto *next_v = next_k + bytes;
@@ -196,45 +196,66 @@ int run_qwen36_chunked_prefill(
         unsigned chunks = 1u;
         std::cerr << "BATCH_MARK qwen36_chunked_prefill_chunk index=0 first_position=0 input_tokens=8192"
                   << " history_tokens=8192 sampled_to_caller=0" << std::endl;
-        for (size_t prefix = 8192u; prefix < total;) {
-            const size_t count = (std::min)(size_t(8192u), total - prefix);
-            qrt_qwen36_whole_provider_prefix_request_v1_t suffix{};
-            suffix.expected_prefix_token_count = static_cast<uint32_t>(prefix);
-            suffix.suffix_token_count = static_cast<uint32_t>(count);
-            suffix.suffix_tokens = request.input_tokens + prefix;
-            std::string stage, failure;
-            const uint64_t chunk_start = qrt_now_ns();
-            if (!run_qwen36_resident_batch_suffix(suffix, nullptr, &stage, &failure, true, chunk_result.get()))
-                return fail(stage, failure);
-            // Validate all recurrent counters before promoting any layer. Their
-            // original FP32 states and four-slot convolution rings stay in place.
-            for (unsigned i = 0u; i < QRT_QWEN36_LAYER_COUNT; ++i) {
-                if (i % 4u == 3u) continue;
-                const auto &layer = owner.linear_layers[i];
-                if (!layer.valid || layer.prefix_tokens != prefix ||
-                    layer.decode_qkv_token_count != count || layer.decode_recurrent_token_count != count)
-                    return fail("qwen36_chunked_prefill_linear_commit", "a linear layer did not consume the complete original chunk");
+        {
+            // The seed and persistent KV/tail reservations are complete. Reuse the
+            // same disposable buffers across cold suffix chunks under the session
+            // lock. Each suffix drains its kernels and returns every temporary
+            // handoff before advancing the owner. Release the pool before final
+            // decode-tail allocation, publication or any caller callback.
+            ScopedDescriptorProductDeviceAllocationReuse chunk_scratch_scope(true);
+            for (size_t prefix = 8192u; prefix < total;) {
+                const size_t count = (std::min)(size_t(8192u), total - prefix);
+                qrt_qwen36_whole_provider_prefix_request_v1_t suffix{};
+                suffix.expected_prefix_token_count = static_cast<uint32_t>(prefix);
+                suffix.suffix_token_count = static_cast<uint32_t>(count);
+                suffix.suffix_tokens = request.input_tokens + prefix;
+                std::string stage, failure;
+                const uint64_t chunk_start = qrt_now_ns();
+                if (!run_qwen36_resident_batch_suffix(suffix, nullptr, &stage, &failure, true, chunk_result.get()))
+                    return fail(stage, failure);
+                bool scratch_idle = true;
+                {
+                    std::lock_guard<std::mutex> scratch_lock(g_descriptor_device_allocation_pool_mutex);
+                    for (const auto &block : g_descriptor_device_allocation_pool) {
+                        if (block.in_use) scratch_idle = false;
+                    }
+                }
+                if (!scratch_idle)
+                    return fail("qwen36_chunked_prefill_scratch_handoff",
+                        "completed cold chunk still owns a temporary allocation");
+                // Validate all recurrent counters before promoting any layer. Their
+                // original FP32 states and four-slot convolution rings stay in place.
+                for (unsigned i = 0u; i < QRT_QWEN36_LAYER_COUNT; ++i) {
+                    if (i % 4u == 3u) continue;
+                    const auto &layer = owner.linear_layers[i];
+                    if (!layer.valid || layer.prefix_tokens != prefix ||
+                        layer.decode_qkv_token_count != count || layer.decode_recurrent_token_count != count)
+                        return fail("qwen36_chunked_prefill_linear_commit", "a linear layer did not consume the complete original chunk");
+                }
+                for (unsigned i = 3u; i < QRT_QWEN36_LAYER_COUNT; i += 4u) {
+                    status = promote_qwen36_prefill_chunk_attention(owner.full_attention_layers[i], prefix, count);
+                    if (status != hipSuccess) return fail("qwen36_chunked_prefill_kv_commit", hipGetErrorString(status));
+                    owner.full_attention_kv_bytes += count * 2048u;
+                }
+                for (unsigned i = 0u; i < QRT_QWEN36_LAYER_COUNT; ++i) {
+                    if (i % 4u == 3u) continue;
+                    auto &layer = owner.linear_layers[i];
+                    layer.prefix_tokens = prefix + count;
+                    layer.decode_qkv_token_count = layer.decode_recurrent_token_count = 0u;
+                }
+                owner.prefix_tokens = prefix + count;
+                owner.committed_decode_token_count = 0u;
+                owner.prompt_token_ids_fnv1a64 = qrt_fnv1a64_bytes(request.input_tokens, owner.prefix_tokens * sizeof(uint32_t));
+                owner.mtp_target_hidden_valid = false;
+                std::cerr << "BATCH_MARK qwen36_chunked_prefill_chunk index=" << chunks++
+                          << " first_position=" << prefix << " input_tokens=" << count
+                          << " history_tokens=" << owner.prefix_tokens << " sampled_to_caller=0 elapsed_ms="
+                          << double(qrt_elapsed_ns(chunk_start, qrt_now_ns())) / 1000000.0 << std::endl;
+                prefix += count;
             }
-            for (unsigned i = 3u; i < QRT_QWEN36_LAYER_COUNT; i += 4u) {
-                status = promote_qwen36_prefill_chunk_attention(owner.full_attention_layers[i], prefix, count);
-                if (status != hipSuccess) return fail("qwen36_chunked_prefill_kv_commit", hipGetErrorString(status));
-                owner.full_attention_kv_bytes += count * 2048u;
-            }
-            for (unsigned i = 0u; i < QRT_QWEN36_LAYER_COUNT; ++i) {
-                if (i % 4u == 3u) continue;
-                auto &layer = owner.linear_layers[i];
-                layer.prefix_tokens = prefix + count;
-                layer.decode_qkv_token_count = layer.decode_recurrent_token_count = 0u;
-            }
-            owner.prefix_tokens = prefix + count;
-            owner.committed_decode_token_count = 0u;
-            owner.prompt_token_ids_fnv1a64 = qrt_fnv1a64_bytes(request.input_tokens, owner.prefix_tokens * sizeof(uint32_t));
-            owner.mtp_target_hidden_valid = false;
-            std::cerr << "BATCH_MARK qwen36_chunked_prefill_chunk index=" << chunks++
-                      << " first_position=" << prefix << " input_tokens=" << count
-                      << " history_tokens=" << owner.prefix_tokens << " sampled_to_caller=0 elapsed_ms="
-                      << double(qrt_elapsed_ns(chunk_start, qrt_now_ns())) / 1000000.0 << std::endl;
-            prefix += count;
+            std::cerr << "BATCH_MARK qwen36_chunked_prefill_scratch_reuse input_tokens=" << total
+                      << " continued_chunks=" << chunks - 1u
+                      << " in_use_blocks=0 persistent_kv_unpooled=1" << std::endl;
         }
         status = resize_tails(kQwen36ResidentDecodeTailCapacityTokens);
         if (status != hipSuccess) return fail("qwen36_chunked_prefill_decode_tail", hipGetErrorString(status));
