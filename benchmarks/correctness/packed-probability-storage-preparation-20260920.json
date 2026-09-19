@@ -1,0 +1,519 @@
+{
+  "schema_version": 1,
+  "kind": "packed_probability_storage_preparation",
+  "source_commit": "6f54c7bfed4e2ca9ce471ae99a8632487b57426f",
+  "isolated_component": true,
+  "runtime_dispatch_changed": false,
+  "source_manifest": {
+    "file": "packed-probability-native-source-r1.json",
+    "sha256": "0e6267952408342ec7f1b7e787d1bae7db568b260a0e4fbfabaf9e35f1f2c9b7",
+    "record": {
+      "source_commit": "6f54c7bfed4e2ca9ce471ae99a8632487b57426f",
+      "prerequisite_commit": "37014953c28e5b5a91573c6233fdda00bb279b85",
+      "repo": "D:/projects/AIMA-public-packed-probability-20260920-r1",
+      "seed": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2",
+      "bundle": "packed-probability-6f54c7b.bundle",
+      "script": "run-native-packed-probability-r1.ps1",
+      "dispatcher": "dispatch_packed_probability_r1.py",
+      "compilation_units": [
+        "tests/native/packed_probability_selftest.cpp"
+      ],
+      "local_compilation_inputs": 56,
+      "source_sha256": {
+        "native/providers/ck_fmha/blackwell_attention.h": "77ecadc7f61295832cf1529bbfa5fd95880146b18d7c643933a8928e1ceeac26",
+        "native/providers/ck_fmha/decoded_window_qk.h": "ec66d4193c2445f8bd404868237a28f04e8064e658238c672891bb081e28f54d",
+        "native/providers/ck_fmha/deferred_qk_fallback.h": "3acf7a41842e7f9e2e85450b00ceb2ae384bf35b01e085c6df64ecda03abe490",
+        "native/providers/ck_fmha/float_pv_replay.h": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+        "native/providers/ck_fmha/fused_probability_pv.h": "5957829d67fd3e055d9507b678e2e275a43286a64acdaf58895ddf6b311e9345",
+        "native/providers/ck_fmha/fused_qk_probability.h": "5245142370a5eba3d3acbf82086325b2518f7e5b6b5d0bd8ffec4a49d42d341f",
+        "native/providers/ck_fmha/inplace_probability_pipeline.h": "0b6414ee8d4acec9abe76b9b1b5b4c07aa3a2099285bc22bb065fa4702c527c8",
+        "native/providers/ck_fmha/inplace_probability_storage.h": "71d5c98c594c813b590aa6c5b8ae96cadaf4d0edfd08d9c7894feee7fc8ad64c",
+        "native/providers/ck_fmha/long_attention_layout.h": "b94f16310020a757076e6f9bd7d97bea81f91d90567e006a419d5de4acfd1f19",
+        "native/providers/ck_fmha/long_attention_pipeline.h": "86731af5f5e055278083985608dd9dee449e3afa0127c64ff515c91943d8cde9",
+        "native/providers/ck_fmha/long_final_probability_pv.h": "4538d7fde8704454a485ef8ac8e432946d0f43f8b197ff22fbf20d35bf66506a",
+        "native/providers/ck_fmha/long_fused_probability_pv.h": "18df7d290035c5ca1ac7c3853184418babd89107a7e52221c6127077999b039f",
+        "native/providers/ck_fmha/long_narrow_qk.h": "6b85ffbd52c2a197a09d0279c740137de15c6b722a0a78121581eaf0ffc199d9",
+        "native/providers/ck_fmha/microtile_exact_qk.h": "3de72cfeec586a4609e2a759279307246d4b18444f52536917bd0829c66aeb04",
+        "native/providers/ck_fmha/narrow_domain_qk.h": "9dbc7ee3a9a292b610d1bc0823374e61b7a2feee01a35da123c0ed3454c02463",
+        "native/providers/ck_fmha/native_delta_probability.h": "4a1bb411ef7641f02db818eef1e85adf4b62fcf74b294a1758cedb6cd2ec32ea",
+        "native/providers/ck_fmha/native_exp2_workspace.h": "a33f65e490070b23224978eaa3a5ea4ae9a6861631caa3fec59c681557cb828b",
+        "native/providers/ck_fmha/packed_probability_pipeline.h": "f906a4fa017a46c4042c2335bdf2dabe5388dd5e8db2cfd7fd3af191b7740193",
+        "native/providers/ck_fmha/packed_probability_storage.h": "5bb63c12db0afdf2e7aa86e47f50fb90b827f1936321e352afeac6577330999e",
+        "native/providers/ck_fmha/prepared_decoded_qk.h": "5b2c12fcc59eba1f8e7445101c3ffc7624f81bf01e9f3fa8d4ce5d90f48782d2",
+        "native/providers/ck_fmha/prepared_decoded_qk_range.h": "275cdf1b5acfc623312b6841f6ce58a0895f2956419c0bae4dddc5cf59fb22e8",
+        "native/providers/ck_fmha/prepared_decoded_qk_range_workspace.h": "4a65c898d237e604a5e23383c311ba7d4e9b584d0ad6611f2864eaff45967028",
+        "native/providers/ck_fmha/prepared_decoded_qk_workspace.h": "f7aeef4016b182ad11c30aab4b3b8d178847b035b993473ed4acca7e99771774",
+        "native/providers/ck_fmha/streamed_exact_attention.h": "aafc5f495c6ea965352445ef1f00390e4f7a5f856ec5dd40e18276e6d2df4f15",
+        "native/providers/gdn/sm121_attention_rcp.h": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+        "native/providers/gdn/sm121_exp2_interpolated.h": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+        "native/providers/gdn/sm121_exp2_native_delta.h": "18514c6dc67c0f55be29a33e524abe56d3a11735b3c1279e20a488c059725c33",
+        "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+        "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+        "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+        "native/providers/moe_accumulator/sm121_decoded_bf16.h": "861b7984ca4cb87c4f3d71c1e17b8e310aedaf32fe06257bca433ee03097b605",
+        "native/providers/moe_accumulator/sm121_dot_certificate.h": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+        "native/providers/moe_accumulator/sm121_f32_carry.h": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+        "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+        "native/providers/moe_accumulator/sm121_float_subgroup.h": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+        "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+        "native/providers/moe_accumulator/sm121_integer_core.h": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+        "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+        "native/providers/moe_accumulator/sm121_lane_reduce.h": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+        "native/providers/moe_accumulator/sm121_mantissa_parts.h": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+        "native/providers/moe_accumulator/sm121_narrow_f32_carry.h": "85ab733dd564a8dbc5948f5700fcb6c66fbbc5239d0f55e405dbe7e4e210eca9",
+        "native/providers/moe_accumulator/sm121_native_product.h": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+        "native/providers/moe_accumulator/sm121_paired_products.h": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+        "native/providers/moe_accumulator/sm121_prepared_bf16.h": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+        "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+        "native/providers/moe_accumulator/sm121_pv_final_bound.h": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+        "native/providers/moe_accumulator/sm121_pv_long_final_bound.h": "e0391a1a4476e2a436a179620fd180b4400c108e06a840f23aa504a5e79270b6",
+        "native/providers/moe_accumulator/sm121_strided_pair.h": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+        "native/providers/moe_accumulator/sm121_subgroup.h": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+        "native/providers/moe_accumulator/sm121_wave16.h": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+        "native/providers/sm121_attention_capacity.h": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+        "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+        "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+        "tests/native/combined_exact_attention_capture.cpp": "98447dd968860d3fd40f0ea839540e35f139c6a5bb02a089a72c194231f104ba",
+        "tests/native/fused_qk_probability_selftest.cpp": "c8386686b14eab803cdbf2d2628f75f4e24f0944b2630625d64d33aafac811bb",
+        "tests/native/long_attention_pipeline_capture.cpp": "76b372871e77c9146d80149d9e691eb1fecde511bd4c2a0cdfad5bddef332815",
+        "tests/native/packed_probability_selftest.cpp": "bd840130e1ba978117a0a165bf3489343696334fafab7b8734f6a171d688db7c"
+      },
+      "changed_compilation_inputs_from_ck370": [
+        "native/providers/ck_fmha/blackwell_attention.h",
+        "native/providers/ck_fmha/inplace_probability_pipeline.h",
+        "native/providers/ck_fmha/inplace_probability_storage.h",
+        "native/providers/ck_fmha/long_fused_probability_pv.h",
+        "native/providers/ck_fmha/packed_probability_pipeline.h",
+        "native/providers/ck_fmha/packed_probability_storage.h",
+        "native/providers/ck_fmha/streamed_exact_attention.h",
+        "tests/native/packed_probability_selftest.cpp"
+      ],
+      "external_quoted_includes": [],
+      "previous_model_run": "resident-ordered-compact-query-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+      "previous_model_remote": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/resident-ordered-compact-query-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+      "previous_model_source_manifest": {
+        "file": "resident-ordered-compact-query-prefix256k-source-r1.json",
+        "sha256": "5d9ad636b80efaa7949f26bba5eb1855fa7e56a06008e7e3202d316227da0756"
+      },
+      "previous_model_command_sha256": "ea11c7b1d8a512bf9164edc77929b85a538807d740f4d1b87d969ad95555d777",
+      "previous_model_success_required": false,
+      "previous_cleanup_required": true,
+      "native_timeouts_seconds": {
+        "build": 240,
+        "safety": 1500,
+        "q1024": 600,
+        "q8192": 900
+      },
+      "transport_timeout_seconds": {
+        "build": 420,
+        "safety": 1680,
+        "q1024": 780,
+        "q8192": 1080
+      },
+      "local_validation": {
+        "packed-probability-storage-local-r1/result.json": {
+          "sha256": "7fd67e0765eee4be023c482a492e1906f508aa1cf2b2bf0cd348e80cd30d9f53",
+          "record": {
+            "command": [
+              "python3",
+              "-m",
+              "unittest",
+              "tests.test_packed_probability_storage",
+              "tests.test_inplace_probability_pipeline",
+              "tests.test_inplace_probability_storage"
+            ],
+            "returncode": 0,
+            "stdout": "{\"payload_pairs\":262144,\"consumed_cells\":35016000,\"pair_writes\":17508240,\"interleaved_rows\":true,\"odd_stride_and_causal_tail\":true,\"strict_aliasing\":true,\"single_writer_per_score_word\":true,\"maximum_scratch_bytes\":2240692228,\"maximum_saved_bytes\":1084358656,\"probability_read_bytes\":2,\"gpu_execution\":false}\n{\"pipeline_cases\":96,\"actual_layout_offsets\":true,\"failed_steps_stop_submission\":true,\"gpu_execution\":false}\n{\"payload_encodings\":65536,\"layouts\":1588053,\"consumed_cells\":34979088,\"maximum_old_scratch_bytes\":3325050884,\"maximum_candidate_scratch_bytes\":2240692228,\"maximum_saved_bytes\":1084358656,\"strict_aliasing\":true,\"guards_pass\":true,\"native_acceptance\":false}\n",
+            "stderr": "...\n----------------------------------------------------------------------\nRan 3 tests in 3.793s\n\nOK\n",
+            "wall_seconds": 3.837415125,
+            "source_sha256": {
+              "native/providers/ck_fmha/packed_probability_storage.h": "5bb63c12db0afdf2e7aa86e47f50fb90b827f1936321e352afeac6577330999e",
+              "native/providers/ck_fmha/packed_probability_pipeline.h": "f906a4fa017a46c4042c2335bdf2dabe5388dd5e8db2cfd7fd3af191b7740193",
+              "native/providers/ck_fmha/inplace_probability_pipeline.h": "0b6414ee8d4acec9abe76b9b1b5b4c07aa3a2099285bc22bb065fa4702c527c8",
+              "native/providers/ck_fmha/blackwell_attention.h": "77ecadc7f61295832cf1529bbfa5fd95880146b18d7c643933a8928e1ceeac26",
+              "native/providers/ck_fmha/streamed_exact_attention.h": "aafc5f495c6ea965352445ef1f00390e4f7a5f856ec5dd40e18276e6d2df4f15",
+              "native/providers/ck_fmha/long_fused_probability_pv.h": "18df7d290035c5ca1ac7c3853184418babd89107a7e52221c6127077999b039f",
+              "tests/test_packed_probability_storage.py": "ef6b4d121b949bb21185bba7d81a9efd3664ad01160fc596ee660b3be2bdd45f",
+              "tests/native/packed_probability_storage_host.cpp": "3d149cd8a6e4e136d562eeccb708ef205161b7203990ab5a59027902ded39cd2",
+              "tests/test_inplace_probability_pipeline.py": "7d3002c735cc875e47dd2f1af57c3c5359f00ff9eb95e9e0eddc7e7bcc7614d7"
+            },
+            "gpu_execution": false
+          }
+        },
+        "packed-probability-lanes-local-r1/result.json": {
+          "sha256": "a42d55f2462a72a56672c24e05e98c8b8a1192f7bd023b4bdc1530c2c4705c74",
+          "record": {
+            "command": [
+              "python3",
+              "-m",
+              "unittest",
+              "tests.test_packed_probability_lane_lifetime"
+            ],
+            "returncode": 0,
+            "stdout": "{\"actual_probability_loop_cases\":18,\"host_lanes\":32,\"storage_formats\":3,\"both_sum_orders\":true,\"payload_scale_denominator_and_tail_match\":true,\"host_exp_and_transport\":true,\"gpu_execution\":false}\n",
+            "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 1.403s\n\nOK\n",
+            "wall_seconds": 1.442698917,
+            "source_sha256": {
+              "native/providers/ck_fmha/streamed_exact_attention.h": "aafc5f495c6ea965352445ef1f00390e4f7a5f856ec5dd40e18276e6d2df4f15",
+              "native/providers/ck_fmha/packed_probability_storage.h": "5bb63c12db0afdf2e7aa86e47f50fb90b827f1936321e352afeac6577330999e",
+              "tests/test_packed_probability_lane_lifetime.py": "5b0a6bb56b76c8bd894c662771ef56f6a3f48f4e5befdeba0f611f010d453b12"
+            },
+            "gpu_execution": false
+          }
+        },
+        "packed-probability-regression-r1/result.json": {
+          "sha256": "7a9084da3584466c420eb6875cf6b7112fb171c95f2dbdbf3ca376ff136a9411",
+          "record": {
+            "checks": [
+              {
+                "command": [
+                  "python3",
+                  "-m",
+                  "unittest",
+                  "discover",
+                  "-s",
+                  "tests",
+                  "-p",
+                  "test_attention_*.py",
+                  "-v"
+                ],
+                "returncode": 0,
+                "stdout": "prepacked_integer_coordinates=65077760 causal_or_online_padding=236128 pass\n{\"kind\":\"attention_slab_schedule_host\",\"cases\":2104,\"injected_failures\":1572,\"invalid_configs\":9,\"exact_query_coverage\":true,\"all_pending_slots_drained\":true,\"completion_failure_reported\":true}\n",
+                "stderr": "test_skipped_stages_and_incomplete_observers_are_distinguished (test_attention_capture_phases.AttentionCapturePhaseTests) ... ok\ntest_qkv_probability_coordinates_and_partial_final_online_tile (test_attention_integer_prepacking.IntegerAttentionPrepackingTests) ... ok\ntest_scratch_span_is_checked_and_failed_scores_do_not_submit_pv (test_attention_launch_policy.AttentionLaunchPolicyTests) ... ok\ntest_correction_scratch_returns_to_pool_on_success_and_failure (test_attention_output_tiles.AttentionOutputTileTests) ... ok\ntest_real_wrapper_preserves_strides_and_stops_after_failed_tile (test_attention_output_tiles.AttentionOutputTileTests) ... ok\ntest_query_ownership_and_failure_cleanup (test_attention_slab_schedule.AttentionSlabScheduleTests) ... ok\ntest_actual_staging_offsets_refresh_and_failure_drain (test_attention_suffix.AttentionSuffixTests) ... ok\ntest_atomic_prepare_release_and_failed_submission_drain (test_attention_workspace.AttentionWorkspaceTests) ... ok\ntest_every_extent_rounding_invalid_values_and_unchanged_rejection (test_attention_workspace_capacity.AttentionWorkspaceCapacityTests) ... ok\n\n----------------------------------------------------------------------\nRan 9 tests in 6.375s\n\nOK\n",
+                "wall_seconds": 6.4182035
+              },
+              {
+                "command": [
+                  "python3",
+                  "-m",
+                  "unittest",
+                  "tests.test_public_hygiene"
+                ],
+                "returncode": 0,
+                "stdout": "",
+                "stderr": "...\n----------------------------------------------------------------------\nRan 3 tests in 12.224s\n\nOK\n",
+                "wall_seconds": 12.264230833
+              }
+            ],
+            "source_sha256": {
+              "native/providers/ck_fmha/packed_probability_storage.h": "5bb63c12db0afdf2e7aa86e47f50fb90b827f1936321e352afeac6577330999e",
+              "native/providers/ck_fmha/packed_probability_pipeline.h": "f906a4fa017a46c4042c2335bdf2dabe5388dd5e8db2cfd7fd3af191b7740193",
+              "native/providers/ck_fmha/inplace_probability_pipeline.h": "0b6414ee8d4acec9abe76b9b1b5b4c07aa3a2099285bc22bb065fa4702c527c8",
+              "native/providers/ck_fmha/blackwell_attention.h": "77ecadc7f61295832cf1529bbfa5fd95880146b18d7c643933a8928e1ceeac26",
+              "native/providers/ck_fmha/streamed_exact_attention.h": "aafc5f495c6ea965352445ef1f00390e4f7a5f856ec5dd40e18276e6d2df4f15",
+              "native/providers/ck_fmha/long_fused_probability_pv.h": "18df7d290035c5ca1ac7c3853184418babd89107a7e52221c6127077999b039f"
+            },
+            "gpu_execution": false
+          }
+        },
+        "packed-probability-fixture-syntax-r2/result.json": {
+          "sha256": "8c9244bc4f53cac89e3ea9bb624786c12e2abf0fd5c047feabbbd3f61b5915a1",
+          "record": {
+            "command": [
+              "c++",
+              "-std=c++17",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsyntax-only",
+              "-I",
+              "<private-home>/projects/AIMA-public-r1191-candidate",
+              "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-packed-fixture-syntax-1latimcg/fixture.cpp"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": "",
+            "wall_seconds": 0.219991709,
+            "helper_sha256": "83a0c202ba41e4bbe02f34fdfac1321cbe06be948c49b0120001c12a4ec230cf",
+            "source_sha256": {
+              "native/providers/ck_fmha/blackwell_attention.h": "77ecadc7f61295832cf1529bbfa5fd95880146b18d7c643933a8928e1ceeac26",
+              "native/providers/ck_fmha/streamed_exact_attention.h": "aafc5f495c6ea965352445ef1f00390e4f7a5f856ec5dd40e18276e6d2df4f15",
+              "native/providers/ck_fmha/long_fused_probability_pv.h": "18df7d290035c5ca1ac7c3853184418babd89107a7e52221c6127077999b039f",
+              "native/providers/ck_fmha/long_final_probability_pv.h": "4538d7fde8704454a485ef8ac8e432946d0f43f8b197ff22fbf20d35bf66506a",
+              "native/providers/ck_fmha/long_attention_pipeline.h": "86731af5f5e055278083985608dd9dee449e3afa0127c64ff515c91943d8cde9",
+              "native/providers/ck_fmha/inplace_probability_pipeline.h": "0b6414ee8d4acec9abe76b9b1b5b4c07aa3a2099285bc22bb065fa4702c527c8",
+              "native/providers/ck_fmha/packed_probability_pipeline.h": "f906a4fa017a46c4042c2335bdf2dabe5388dd5e8db2cfd7fd3af191b7740193",
+              "native/providers/ck_fmha/packed_probability_storage.h": "5bb63c12db0afdf2e7aa86e47f50fb90b827f1936321e352afeac6577330999e",
+              "tests/native/packed_probability_selftest.cpp": "bd840130e1ba978117a0a165bf3489343696334fafab7b8734f6a171d688db7c"
+            },
+            "translated_fixture_sha256": "69911eb148ea4c606387a409dc05438792f021a49053447ff4d7f00de00dd8a3",
+            "previous_failure": {
+              "file": "packed-probability-fixture-syntax-r1/result.json",
+              "sha256": "68b3db0f2377b0d296e94f6aace8bef06d078869cd6e085d27ecd34a506ee3cc",
+              "reason": "The new fixture selected a function pointer and omitted its explicit observer argument; default arguments do not follow function pointers. The fixture now supplies nullptr. Runtime kernels unchanged."
+            },
+            "actual_kernel_signatures": true,
+            "actual_pipeline_and_replay_functions": true,
+            "scope": "Mock HIP and prior fixture declarations; actual new fixture, orchestrator and replay bodies, and actual producer/replay kernel declarations. No HIP compilation, execution or numerical acceptance."
+          }
+        }
+      },
+      "maximum_old_scratch_bytes": 3325050884,
+      "maximum_candidate_scratch_bytes": 2240692228,
+      "maximum_saved_bytes": 1084358656,
+      "storage_formats": [
+        "separate_bf16",
+        "tagged_f32",
+        "packed_bf16_in_score_rows"
+      ],
+      "probability_read_bytes": [
+        2,
+        4,
+        2
+      ],
+      "actual_input_extent_unchanged": true,
+      "arithmetic_changed": false,
+      "generated_cases": 60,
+      "independent_cpu_dots_per_case_per_candidate": 128,
+      "candidate_dot_checks_per_case": 256,
+      "generated_gb10_context_cells": 0,
+      "original_captured_queries": 1024,
+      "original_gb10_context_cells": 4194304,
+      "extended_queries_have_original_arithmetic_only": true,
+      "runtime_dispatch_changed": false,
+      "native_dispatched": false,
+      "physical_memory_benefit_measured": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "package_acceptance": false,
+      "release_acceptance": false,
+      "generator": "prepare_packed_probability_native_r1.py",
+      "generator_sha256": "e8f59fc76260c71c81951e28fb70fa47aad45ec88d08412dc798e64ad9f87ce5",
+      "bundle_sha256": "f672511ad505940a2320fb373295587111e45858fcd6670f7ee29f00122cee1d",
+      "script_sha256": "184dc641cc134b79d647eb698a350dbd42f42c37c60ed0f24835ee6863e48857",
+      "dispatcher_sha256": "f8adacbce376d5c4bb2414f44bd63aa3c0e83f9d79f55785878053ac2adae90e"
+    }
+  },
+  "command_text": "param([ValidateSet('build','safety','q1024','q8192')][string]$Action='build')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-packed-probability-20260920-r1';$seed='D:\\projects\\AIMA-public-compact-suffix-query-20260919-r2';$sha='6f54c7bfed4e2ca9ce471ae99a8632487b57426f';$bundle='D:\\projects\\packed-probability-6f54c7b.bundle'\n$m=[IO.File]::ReadAllText('D:\\projects\\packed-probability-native-source-r1.json')|ConvertFrom-Json\nif($m.source_commit -ne $sha -or $m.repo.Replace('/','\\') -ne $repo){throw 'Source manifest mismatch'}\n$previous=[IO.File]::ReadAllText((Join-Path $m.previous_model_remote 'run-record.json'))|ConvertFrom-Json\nif($previous.host -ne 'baiying' -or -not $previous.host_checks_pass -or $previous.after_processes -or\n @($previous.host_checks.PSObject.Properties|Where-Object {-not $_.Value}).Count){throw 'Previous model cleanup is incomplete'}\nif($previous.spec.command_file_sha256 -ne $m.previous_model_command_sha256){throw 'Previous model command mismatch'}\nif((Get-FileHash $bundle -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'f672511ad505940a2320fb373295587111e45858fcd6670f7ee29f00122cee1d'){throw 'Bundle changed'}\nif(-not (Test-Path $repo)){& git -C $seed fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'};& git -C $seed worktree add --detach $repo $sha;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$build=Join-Path $repo 'build\\packed-probability';$null=New-Item -ItemType Directory -Path $build -Force\n$source=Join-Path $repo 'tests\\native\\packed_probability_selftest.cpp';$exe=Join-Path $build 'packed-probability.exe';$provenance=Join-Path $build 'build-provenance.json'\n$sourceInputs=@()\nforeach($property in $m.source_sha256.PSObject.Properties){\n $file=Join-Path $repo $property.Name\n if((Get-FileHash $file -Algorithm SHA256).Hash.ToLowerInvariant() -ne $property.Value){throw ('Source hash mismatch: '+$property.Name)}\n $sourceInputs+=@{file=$file;sha256=$property.Value}\n}\nif($sourceInputs.Count -ne 57 -or $m.local_compilation_inputs -ne 56){throw 'Compilation inventory changed'}\n$spec=[ordered]@{executable='';arguments=@();working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=$sourceInputs;model='D:\\models\\Qwen3.6-35B-A3B; original GB10 16384-prefix plus1024 suffix layer3 Q/K/V';model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false;purpose='Compare separate BF16, tagged FP32 and packed BF16 probabilities inside consumed score rows using shared original long-attention arithmetic. Validate every probability, raw native and replayed surface, candidate, untouched score word, guard and owner stage. Original GB10 context is comparison-only; repeated capture rows are component coverage only. No model or memory/performance acceptance.'}\n$spec.previous_model_run_record_sha256=(Get-FileHash (Join-Path $m.previous_model_remote 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant()\n$safety='D:\\projects\\AIMA-public-native-exp2-delta-20260917\\build\\native-exp2-delta-test-r1\\run-record.json';if((Get-FileHash $safety -Algorithm SHA256).Hash.ToLowerInvariant() -ne '46a1fbaca781b00f04c3d4e3041834e8ba438e563c4c6dc3fabafc1b22126bd2'){throw 'Full-domain prerequisite changed'}\n$qkSafety='D:\\projects\\AIMA-public-microtile-exact-qk-20260917\\build\\microtile-exact-qk-test-r1\\run-record.json';if((Get-FileHash $qkSafety -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'd7da7e549cdf861f246d78dbfbdcb87faf152fd1920f2d19a33b9e6f069db0c6'){throw 'QK safety prerequisite changed'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\nif($Action -eq 'build'){\n $spec.executable='C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe';$spec.arguments=@('-std=c++17','-O3','-DQRT_SM121_DPP_REDUCTION=1','-DQRT_SM121_COMPACT_NORMALIZE=1','-DQRT_CK_SM121_INTERPOLATED_EXP2=1','--offload-arch=gfx1151',$source,'-o',$exe);$timeout=[int]$m.native_timeouts_seconds.$Action\n}else{\n $meta=[IO.File]::ReadAllText($provenance)|ConvertFrom-Json\n if($meta.repo_commit -ne $sha -or (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $meta.executable.sha256){throw 'Executable provenance mismatch'}\n foreach($file in $meta.source_inputs){if((Get-FileHash $file.file -Algorithm SHA256).Hash.ToLowerInvariant() -ne $file.sha256){throw 'Build source changed'}}\n $spec.build_provenance_sha256=(Get-FileHash $provenance -Algorithm SHA256).Hash.ToLowerInvariant();$table='D:\\projects\\sm121-exp2-interpolated-b5752a88.bin';if((Get-FileHash $table -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'b5752a88488d8e6382cc99a897ef822e97758e0a782930c174954a5299126eec'){throw 'Exp2 table changed'}\n $qroot='D:\\projects\\suffix-attention-replay-inputs-r1'\n $q=Join-Path $qroot 'query-bf16.bin'\n $k=Join-Path $qroot 'key-bf16.bin'\n $v=Join-Path $qroot 'value-bf16.bin'\n $reference=Join-Path $qroot 'expected-output-bf16.bin'\n $inputManifest=Join-Path $qroot 'manifest.json'\n if((Get-FileHash $inputManifest -Algorithm SHA256).Hash.ToLowerInvariant() -ne '819e15c5d36e6bf1deaf862839d83365b116e39a37526f90094e9f64bce652f1'){throw 'Original GB10 manifest changed'}\n $spec.reference_manifest_sha256='819e15c5d36e6bf1deaf862839d83365b116e39a37526f90094e9f64bce652f1';$spec.reference_manifest=[IO.File]::ReadAllText($inputManifest)|ConvertFrom-Json\n $rcp='D:\\projects\\sm121-attention-rcp-d2e55754.bin'\n $inputs=@(@{file=$q;sha256='d4445d9a03f92b1586eec9ccd12a794e742552613ed09a3b2ca28b0847ec1612'},\n @{file=$k;sha256='dbfa44ac0e63e961397cba100589a373fda702c18121dd0ea42fbbef442310bd'},\n @{file=$v;sha256='79eed4f839c165b451e4f33a54eafd2031c2876cfd19120cce9a18e36fc464a4'},\n @{file=$reference;sha256='8e49075c5d36e29c17498f70e5bfac083f66b88d041878797c4a5f44bf8b7517'},\n @{file=$table;sha256='b5752a88488d8e6382cc99a897ef822e97758e0a782930c174954a5299126eec'},\n @{file=$rcp;sha256='d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39'})\n foreach($input in $inputs){if((Get-FileHash $input.file -Algorithm SHA256).Hash.ToLowerInvariant() -ne $input.sha256){throw 'Capture or table fingerprint changed'}}\n $tokens=if($Action -eq 'q1024'){1024}else{8192}\n $spec.input_files=$inputs;$spec.reference_is_compute_input=$false;$spec.reference_host='gb10-4t';$spec.reference_context_tokens=1024;$spec.original_gb10_context_cells=4194304;$spec.query_origin=16384\n $spec.tokens=$tokens;$spec.repeated_rows=$tokens-1024;$spec.query_batch=128;$spec.same_executable_comparison=$true\n $spec.executable=$exe;$spec.arguments=@([string]$tokens,$q,$k,$v,$reference,$table,$rcp);$timeout=[int]$m.native_timeouts_seconds.$Action\n if($Action -eq 'safety'){\n  $tokens=0;$spec.tokens=0;$spec.repeated_rows=0;$spec.model='none; generated attention operands';$spec.input_files=@($inputs[4],$inputs[5])\n  $spec.arguments=@('safety',$table,$rcp)\n  $spec.reference_context_tokens=0;$spec.original_gb10_context_cells=0;$spec.reference_host='none; generated operands'\n  $spec.generated_cases=60;$spec.independent_cpu_dots_per_case_per_candidate=128;$spec.candidate_dot_checks_per_case=256;$spec.storage_formats=3\n  $spec.Remove('reference_manifest');$spec.Remove('reference_manifest_sha256')\n }else{\n  $prior=[IO.File]::ReadAllText((Join-Path $repo 'build\\packed-probability-safety-r1\\run-record.json'))|ConvertFrom-Json\n  if($prior.reason -ne 'completed' -or $prior.exit_code -ne 0 -or -not $prior.host_checks_pass){throw 'Safety prerequisite failed'}\n  $spec.safety_run_sha256=(Get-FileHash (Join-Path $repo 'build\\packed-probability-safety-r1\\run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant()\n }\n\n}\n$specPath=Join-Path $build ($Action+'-spec-r1.json');$out=Join-Path $repo ('build\\packed-probability-'+$Action+'-r1')\nif((Test-Path $specPath) -or (Test-Path $out)){throw 'Evidence exists'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'Native subgroup diagnostic failed'}\nif($Action -eq 'build'){\n $meta=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;source_inputs=$sourceInputs;command_file=$PSCommandPath;command_file_sha256=$spec.command_file_sha256;compiler=$spec.executable;arguments=$spec.arguments;run_record_sha256=(Get-FileHash (Join-Path $out 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant();executable=@{file=$exe;bytes=(Get-Item $exe).Length;sha256=(Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()}}\n [IO.File]::WriteAllText($provenance,($meta|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n}else{\n $reports=@([IO.File]::ReadAllLines((Join-Path $out 'product.stdout.jsonl'))|Where-Object {$_.StartsWith('{')}|ForEach-Object {$_|ConvertFrom-Json})\n if($Action -eq 'safety'){\n  if($reports.Count -ne 1 -or $reports[0].kind -ne 'packed_probability_safety' -or $reports[0].cases -ne 60 -or\n   $reports[0].original_cpu_dot_checks -ne 15360 -or $reports[0].storage_formats -ne 3 -or $reports[0].maximum_keys -ne 264736 -or $reports[0].stages -ne 5 -or\n   -not $reports[0].candidate_identity -or -not $reports[0].both_bound_policies -or -not $reports[0].score_stage_before_overwrite -or\n   $reports[0].model_acceptance){throw 'Generated in-place probability boundary failed'}\n }else{\n  if($reports.Count -ne 3 -or $reports[0].mode -ne 0 -or $reports[1].mode -ne 1 -or $reports[2].mode -ne 2){throw 'Incomplete captured comparison'}\n  foreach($x in $reports){\n   if($x.kind -ne 'packed_probability_capture' -or $x.query_count -ne $tokens -or $x.query_start -ne 16384 -or\n    $x.key_tokens -ne 16384+$tokens -or $x.query_batch -ne 128 -or $x.slabs -ne ($tokens/128) -or\n    $x.original_cpu_dot_checks -ne ($tokens*2) -or $x.storage_formats -ne 3 -or $x.original_gb10_context_cells -ne 4194304 -or\n    $x.extended_queries -ne $tokens-1024 -or $x.candidate_checks -ne $reports[0].candidate_checks -or\n    -not $x.complete_candidate_identity -or -not $x.owner_stage_order -or -not $x.every_attempt_checked -or\n    $x.reference_is_compute_input -or $x.model_loaded -or $x.performance_acceptance){throw 'Captured in-place probability boundary failed'}\n   if($x.completed_host_samples_ms.Count -ne 3){throw 'Missing complete timings'}\n   foreach($ms in $x.completed_host_samples_ms){if([double]::IsNaN($ms) -or [double]::IsInfinity($ms) -or $ms -le 0){throw 'Invalid completed time'}}\n  }\n  if($reports[1].maximum_scratch_bytes -ne $reports[2].maximum_scratch_bytes){throw 'Candidate scratch owners differ'}\n  for($i=0;$i -lt 3;$i++){if($reports[$i].storage_format -ne $m.storage_formats[$i] -or $reports[$i].probability_read_bytes -ne $m.probability_read_bytes[$i]){throw 'Storage mode metadata differs'}}\n  if($reports[0].maximum_scratch_bytes-$reports[1].maximum_scratch_bytes -ne (128L*16*(16384+$tokens)*2)){throw 'In-place scratch size differs'}\n }\n foreach($x in $reports){foreach($key in @('payloads_and_unused_scores_bitexact','native_and_replayed_raw_surfaces_bitexact',\n  'nonzero_output_offset','undersized_rejected','guards_and_inputs_pass')){if(-not $x.$key){throw ('Comparison failed: '+$key)}}}\n foreach($input in $spec.input_files){if((Get-FileHash $input.file -Algorithm SHA256).Hash.ToLowerInvariant() -ne $input.sha256){throw 'Input changed during run'}}\n}\n",
+  "dispatcher_text": "from pathlib import Path\nimport base64,hashlib,json,socket,subprocess,sys,time\nB=Path(__file__).resolve().parent\nassert socket.gethostname().split('.')[0].lower()!='baiying'\nread=lambda p:json.loads(p.read_text(encoding='utf-8-sig'))\nsource=read(B/'packed-probability-native-source-r1.json')\naction=sys.argv[1];assert action in ('build','safety','q1024','q8192')\nprevious=read(B/source['previous_model_run']/'run-record.json')\nassert previous['spec']['command_file_sha256']==source['previous_model_command_sha256']\nassert previous['host_checks_pass'] and all(previous['host_checks'].values()) and not previous['after_processes']\n\nif action!='build':\n build=read(B/'packed-probability-build-r1/run-record.json')\n assert build['reason']=='completed' and build['exit_code']==0 and build['host_checks_pass']\nif action not in ('build','safety'):\n safety=read(B/'packed-probability-safety-r1/run-record.json')\n assert safety['reason']=='completed' and safety['exit_code']==0 and safety['host_checks_pass']\nif action=='q8192':\n prior=read(B/'packed-probability-q1024-r1/run-record.json');assert prior['reason']=='completed' and prior['exit_code']==0 and prior['host_checks_pass']\ndirectory=B/('packed-probability-'+action+'-r1');assert not directory.exists();directory.mkdir()\nopts=['-o','BatchMode=yes','-o','ConnectTimeout=10']\nfor key in ('bundle','script','dispatcher'):\n assert hashlib.sha256((B/source[key]).read_bytes()).hexdigest()==source[key+'_sha256']\nif action=='build':\n subprocess.run(['scp',*opts,str(B/'packed-probability-native-source-r1.json'),str(B/source['bundle']),str(B/source['script']),'baiying:D:/projects/'],check=True,timeout=60)\n ps=\"$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';$t=$null;$e=$null;$null=[Management.Automation.Language.Parser]::ParseFile('D:/projects/\"+source['script']+\"',[ref]$t,[ref]$e);if($e.Count){throw ($e|Out-String)}\"\n parsed=subprocess.run(['ssh',*opts,'baiying','powershell.exe -NoProfile -EncodedCommand '+base64.b64encode(ps.encode('utf-16le')).decode()],capture_output=True,text=True,errors='replace',timeout=30)\n with (directory/'script-parse.json').open('x') as f:json.dump(dict(returncode=parsed.returncode,stdout=parsed.stdout,stderr=parsed.stderr),f,indent=2);f.write('\\n')\n parsed.check_returncode()\ncommand=['ssh',*opts,'baiying','powershell.exe -NoProfile -ExecutionPolicy Bypass -File D:/projects/'+source['script']+' -Action '+action]\nstart=time.monotonic()\ntry:\n result=subprocess.run(command,capture_output=True,text=True,errors='replace',timeout=source['transport_timeout_seconds'][action])\n dispatch=dict(command=command,returncode=result.returncode,stdout=result.stdout,stderr=result.stderr,wall_seconds=time.monotonic()-start)\nexcept subprocess.TimeoutExpired as error:\n dispatch=dict(command=command,returncode=None,timeout=True,stdout=str(error.stdout),stderr=str(error.stderr),wall_seconds=time.monotonic()-start)\n with (directory/'dispatch.json').open('x') as f:json.dump(dispatch,f,indent=2);f.write('\\n')\n raise\nwith (directory/'dispatch.json').open('x') as f:json.dump(dispatch,f,indent=2);f.write('\\n')\nremote=source['repo']+'/build/packed-probability-'+action+'-r1'\nfor name in ('run-record.json','product.stdout.jsonl','product.stderr.log','preflight.json','launch.json'):\n subprocess.run(['scp',*opts,'baiying:'+remote+'/'+name,str(directory/name)],check=True,timeout=30)\nrun=read(directory/'run-record.json');print({k:run[k] for k in ('reason','exit_code','wall_ms','host_checks_pass')},flush=True)\nif result.returncode or run['exit_code']:print(result.stderr[-2000:]+(directory/'product.stderr.log').read_text(errors='replace')[-6500:],flush=True)\nresult.check_returncode();assert run['reason']=='completed' and run['exit_code']==0 and run['host_checks_pass']\nif action=='build':\n subprocess.run(['scp',*opts,'baiying:'+source['repo']+'/build/packed-probability/build-provenance.json',str(directory/'build-provenance.json')],check=True,timeout=45)\nelse:\n reports=[json.loads(line) for line in (directory/'product.stdout.jsonl').read_text().splitlines() if line.startswith('{')]\n with (directory/'reports.json').open('x') as f:json.dump(reports,f,indent=2);f.write('\\n')\n assert len(reports)==(1 if action=='safety' else 3)\n if action=='safety':assert reports[0]['cases']==60 and reports[0]['original_cpu_dot_checks']==15360 and reports[0]['storage_formats']==3\n else:\n  assert [r['mode'] for r in reports]==[0,1,2]\n  assert all(r['original_gb10_context_cells']==4194304 and r['every_attempt_checked'] for r in reports)\n  assert len({r['candidate_checks'] for r in reports})==1\n  assert [r['storage_format'] for r in reports]==source['storage_formats']\n  assert [r['probability_read_bytes'] for r in reports]==source['probability_read_bytes']\n print(json.dumps(reports,indent=2),flush=True)\n",
+  "native_command_grammar": {
+    "file": "packed-probability-command-syntax-r1.json",
+    "sha256": "64e5a746b696c797a2a5acfe3b099086e95cd27dccec082080a0ced0f6e070c0",
+    "record": {
+      "host": "Jiawei-MacminideMac-mini.local",
+      "files": [
+        {
+          "file": "run-native-packed-probability-r1.ps1",
+          "sha256": "184dc641cc134b79d647eb698a350dbd42f42c37c60ed0f24835ee6863e48857"
+        }
+      ],
+      "commands": [
+        {
+          "command": [
+            "ssh",
+            "-o",
+            "BatchMode=yes",
+            "-o",
+            "ConnectTimeout=10",
+            "baiying",
+            "powershell.exe -NoProfile -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAJABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAaQBmACgALQBuAG8AdAAgAFsARQBuAHYAaQByAG8AbgBtAGUAbgB0AF0AOgA6AE0AYQBjAGgAaQBuAGUATgBhAG0AZQAuAEUAcQB1AGEAbABzACgAJwBiAGEAaQB5AGkAbgBnACcALABbAFMAdAByAGkAbgBnAEMAbwBtAHAAYQByAGkAcwBvAG4AXQA6ADoATwByAGQAaQBuAGEAbABJAGcAbgBvAHIAZQBDAGEAcwBlACkAKQB7AHQAaAByAG8AdwAgACcASABvAHMAdAAgAG0AaQBzAG0AYQB0AGMAaAAnAH0AOwBpAGYAKABUAGUAcwB0AC0AUABhAHQAaAAgACcARAA6AC8AcAByAG8AagBlAGMAdABzAC8AcABhAGMAawBlAGQALQBwAHIAbwBiAGEAYgBpAGwAaQB0AHkALQBjAG8AbQBtAGEAbgBkAC0AcwB5AG4AdABhAHgALQByADEAJwApAHsAdABoAHIAbwB3ACAAJwBTAHQAYQBnAGkAbgBnACAAZQB4AGkAcwB0AHMAJwB9ADsAJABuAHUAbABsAD0ATgBlAHcALQBJAHQAZQBtACAALQBJAHQAZQBtAFQAeQBwAGUAIABEAGkAcgBlAGMAdABvAHIAeQAgAC0AUABhAHQAaAAgACcARAA6AC8AcAByAG8AagBlAGMAdABzAC8AcABhAGMAawBlAGQALQBwAHIAbwBiAGEAYgBpAGwAaQB0AHkALQBjAG8AbQBtAGEAbgBkAC0AcwB5AG4AdABhAHgALQByADEAJwA="
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.4755633343011141
+        },
+        {
+          "command": [
+            "scp",
+            "-o",
+            "BatchMode=yes",
+            "-o",
+            "ConnectTimeout=10",
+            "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/run-native-packed-probability-r1.ps1",
+            "baiying:D:/projects/packed-probability-command-syntax-r1/"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.2783930404111743
+        },
+        {
+          "command": [
+            "ssh",
+            "-o",
+            "BatchMode=yes",
+            "-o",
+            "ConnectTimeout=10",
+            "baiying",
+            "powershell.exe -NoProfile -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAJABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnAAoAWwBDAG8AbgBzAG8AbABlAF0AOgA6AE8AdQB0AHAAdQB0AEUAbgBjAG8AZABpAG4AZwA9AFsAVABlAHgAdAAuAFUAVABGADgARQBuAGMAbwBkAGkAbgBnAF0AOgA6AG4AZQB3ACgAJABmAGEAbABzAGUAKQAKACQAZgBpAGwAZQBzAD0AWwBUAGUAeAB0AC4ARQBuAGMAbwBkAGkAbgBnAF0AOgA6AFUAVABGADgALgBHAGUAdABTAHQAcgBpAG4AZwAoAFsAQwBvAG4AdgBlAHIAdABdADoAOgBGAHIAbwBtAEIAYQBzAGUANgA0AFMAdAByAGkAbgBnACgAJwBXADMAcwBpAFoAbQBsAHMAWgBTAEkANgBJAEMASgB5AGQAVwA0AHQAYgBtAEYAMABhAFgAWgBsAEwAWABCAGgAWQAyAHQAbABaAEMAMQB3AGMAbQA5AGkAWQBXAEoAcABiAEcAbAAwAGUAUwAxAHkATQBTADUAdwBjAHoARQBpAEwAQwBBAGkAYwAyAGgAaABNAGoAVQAyAEkAagBvAGcASQBqAEUANABOAEcAUgBqAE4AagBRAHgAWQAyAE0AeABNAHoAUgBpAE4AegBsAGsATgBqAFEAMwBaAFcASQAyAE8AVABoAGgATQB6AFUAdwBaAEcASgBrAE4ARABKAG0ATgBEAEoAagBNAHoAZABqAE4AagBCAGwAWgBEAEIAbQBNAGoAUQA0AE0AegBWAGwAWgBUAFkANABOAGoATgBsAE4ARABnADQATgBUAGMAaQBmAFYAMAA9ACcAKQApAHwAQwBvAG4AdgBlAHIAdABGAHIAbwBtAC0ASgBzAG8AbgAKACQAcgBvAHcAcwA9AEAAKAApADsAZgBvAHIAZQBhAGMAaAAoACQAZQBuAHQAcgB5ACAAaQBuACAAJABmAGkAbABlAHMAKQB7AAoAIAAkAHAAYQB0AGgAPQBKAG8AaQBuAC0AUABhAHQAaAAgACcARAA6AC8AcAByAG8AagBlAGMAdABzAC8AcABhAGMAawBlAGQALQBwAHIAbwBiAGEAYgBpAGwAaQB0AHkALQBjAG8AbQBtAGEAbgBkAC0AcwB5AG4AdABhAHgALQByADEAJwAgACQAZQBuAHQAcgB5AC4AZgBpAGwAZQAKACAAJABoAGEAcwBoAD0AKABHAGUAdAAtAEYAaQBsAGUASABhAHMAaAAgACQAcABhAHQAaAAgAC0AQQBsAGcAbwByAGkAdABoAG0AIABTAEgAQQAyADUANgApAC4ASABhAHMAaAAuAFQAbwBMAG8AdwBlAHIASQBuAHYAYQByAGkAYQBuAHQAKAApAAoAIABpAGYAKAAkAGgAYQBzAGgAIAAtAG4AZQAgACQAZQBuAHQAcgB5AC4AcwBoAGEAMgA1ADYAKQB7AHQAaAByAG8AdwAgACcAUwBjAHIAaQBwAHQAIABiAHkAdABlAHMAIABjAGgAYQBuAGcAZQBkACcAfQAKACAAJAB0AG8AawBlAG4AcwA9ACQAbgB1AGwAbAA7ACQAZQByAHIAbwByAHMAPQAkAG4AdQBsAGwACgAgACQAbgB1AGwAbAA9AFsATQBhAG4AYQBnAGUAbQBlAG4AdAAuAEEAdQB0AG8AbQBhAHQAaQBvAG4ALgBMAGEAbgBnAHUAYQBnAGUALgBQAGEAcgBzAGUAcgBdADoAOgBQAGEAcgBzAGUARgBpAGwAZQAoACQAcABhAHQAaAAsAFsAcgBlAGYAXQAkAHQAbwBrAGUAbgBzACwAWwByAGUAZgBdACQAZQByAHIAbwByAHMAKQAKACAAJAByAG8AdwBzACsAPQBAAHsAZgBpAGwAZQA9ACQAZQBuAHQAcgB5AC4AZgBpAGwAZQA7AHMAaABhADIANQA2AD0AJABoAGEAcwBoADsAZQByAHIAbwByAHMAPQBAACgAJABlAHIAcgBvAHIAcwB8AEYAbwByAEUAYQBjAGgALQBPAGIAagBlAGMAdAAgAHsAJABfAC4ATQBlAHMAcwBhAGcAZQB9ACkAOwBwAGEAcwBzAD0AKAAkAGUAcgByAG8AcgBzAC4AQwBvAHUAbgB0ACAALQBlAHEAIAAwACkAfQAKAH0ACgBbAG8AcgBkAGUAcgBlAGQAXQBAAHsAaABvAHMAdAA9AFsARQBuAHYAaQByAG8AbgBtAGUAbgB0AF0AOgA6AE0AYQBjAGgAaQBuAGUATgBhAG0AZQA7AHUAdABjAD0AWwBEAGEAdABlAFQAaQBtAGUAXQA6ADoAVQB0AGMATgBvAHcALgBUAG8AUwB0AHIAaQBuAGcAKAAnAG8AJwApADsAcwBjAHIAaQBwAHQAcwA9ACQAcgBvAHcAcwA7AAoAIABzAGMAcgBpAHAAdABfAGUAeABlAGMAdQB0AGkAbwBuAD0AJABmAGEAbABzAGUAOwBtAG8AZABlAGwAXwBsAG8AYQBkAGUAZAA9ACQAZgBhAGwAcwBlADsAaQBuAGYAZQByAGUAbgBjAGUAXwBhAGMAYwBlAHAAdABhAG4AYwBlAD0AJABmAGEAbABzAGUAfQB8AEMAbwBuAHYAZQByAHQAVABvAC0ASgBzAG8AbgAgAC0ARABlAHAAdABoACAANgAKAGkAZgAoAEAAKAAkAHIAbwB3AHMAfABXAGgAZQByAGUALQBPAGIAagBlAGMAdAAgAHsALQBuAG8AdAAgACQAXwAuAHAAYQBzAHMAfQApAC4AQwBvAHUAbgB0ACkAewBlAHgAaQB0ACAAMQB9AAoA"
+          ],
+          "returncode": 0,
+          "stdout": "{\n    \"host\":  \"BAIYING\",\n    \"utc\":  \"2026-09-19T17:02:59.6038992Z\",\n    \"scripts\":  [\n                    {\n                        \"sha256\":  \"184dc641cc134b79d647eb698a350dbd42f42c37c60ed0f24835ee6863e48857\",\n                        \"errors\":  [\n\n                                   ],\n                        \"file\":  \"run-native-packed-probability-r1.ps1\",\n                        \"pass\":  true\n                    }\n                ],\n    \"script_execution\":  false,\n    \"model_loaded\":  false,\n    \"inference_acceptance\":  false\n}\n",
+          "stderr": "",
+          "wall_seconds": 1.1719990838319063
+        }
+      ],
+      "native_grammar": {
+        "host": "BAIYING",
+        "utc": "2026-09-19T17:02:59.6038992Z",
+        "scripts": [
+          {
+            "sha256": "184dc641cc134b79d647eb698a350dbd42f42c37c60ed0f24835ee6863e48857",
+            "errors": [],
+            "file": "run-native-packed-probability-r1.ps1",
+            "pass": true
+          }
+        ],
+        "script_execution": false,
+        "model_loaded": false,
+        "inference_acceptance": false
+      }
+    }
+  },
+  "initial_fixture_signature_failure": {
+    "file": "packed-probability-fixture-syntax-r1/result.json",
+    "sha256": "68b3db0f2377b0d296e94f6aace8bef06d078869cd6e085d27ecd34a506ee3cc",
+    "record": {
+      "command": [
+        "c++",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsyntax-only",
+        "-I",
+        "<private-home>/projects/AIMA-public-r1191-candidate",
+        "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-packed-fixture-syntax-4oj8olqi/fixture.cpp"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-packed-fixture-syntax-4oj8olqi/fixture.cpp:402:97: error: too few arguments to function call, expected 19, have 18\n  400 |     check(hipError_t(replay_candidate(v,vt,actual.probability(),actual.scales(),\n      |                      ~~~~~~~~~~~~~~~~\n  401 |         actual.output.as<float>(),actual.errors(),actual.accumulator.as<float>(),actual.denominator.as<float>(),\n  402 |         actual.indices(),actual.selected(),start,count,pp_output_start,stride,n,rcp,true,nullptr)));\n      |                                                                                                 ^\n1 error generated.\n",
+      "wall_seconds": 0.236454125,
+      "helper_sha256": "b73c775e74e516992b649ae26de589867d670945c1f788fb244738775c935a53",
+      "source_sha256": {
+        "native/providers/ck_fmha/blackwell_attention.h": "77ecadc7f61295832cf1529bbfa5fd95880146b18d7c643933a8928e1ceeac26",
+        "native/providers/ck_fmha/streamed_exact_attention.h": "aafc5f495c6ea965352445ef1f00390e4f7a5f856ec5dd40e18276e6d2df4f15",
+        "native/providers/ck_fmha/long_fused_probability_pv.h": "18df7d290035c5ca1ac7c3853184418babd89107a7e52221c6127077999b039f",
+        "native/providers/ck_fmha/long_final_probability_pv.h": "4538d7fde8704454a485ef8ac8e432946d0f43f8b197ff22fbf20d35bf66506a",
+        "native/providers/ck_fmha/long_attention_pipeline.h": "86731af5f5e055278083985608dd9dee449e3afa0127c64ff515c91943d8cde9",
+        "native/providers/ck_fmha/inplace_probability_pipeline.h": "0b6414ee8d4acec9abe76b9b1b5b4c07aa3a2099285bc22bb065fa4702c527c8",
+        "native/providers/ck_fmha/packed_probability_pipeline.h": "f906a4fa017a46c4042c2335bdf2dabe5388dd5e8db2cfd7fd3af191b7740193",
+        "native/providers/ck_fmha/packed_probability_storage.h": "5bb63c12db0afdf2e7aa86e47f50fb90b827f1936321e352afeac6577330999e",
+        "tests/native/packed_probability_selftest.cpp": "39595c639e84924c2614bca9b4098580f25b11c2ccae1baead4ec26e270a9332"
+      },
+      "translated_fixture_sha256": "b6bd83c87fb85876963a428c153d33d44347e48d87453e49d50d9b50c3c672b5",
+      "actual_kernel_signatures": true,
+      "actual_pipeline_and_replay_functions": true,
+      "scope": "Mock HIP and prior fixture declarations; actual new fixture, orchestrator and replay bodies, and actual producer/replay kernel declarations. No HIP compilation, execution or numerical acceptance."
+    },
+    "resolution": "The selected replay function pointer requires the optional observer argument explicitly. The corrected fixture supplies nullptr; runtime kernels are unchanged."
+  },
+  "host_reports": [
+    {
+      "payload_pairs": 262144,
+      "consumed_cells": 35016000,
+      "pair_writes": 17508240,
+      "interleaved_rows": true,
+      "odd_stride_and_causal_tail": true,
+      "strict_aliasing": true,
+      "single_writer_per_score_word": true,
+      "maximum_scratch_bytes": 2240692228,
+      "maximum_saved_bytes": 1084358656,
+      "probability_read_bytes": 2,
+      "gpu_execution": false
+    },
+    {
+      "pipeline_cases": 96,
+      "actual_layout_offsets": true,
+      "failed_steps_stop_submission": true,
+      "gpu_execution": false
+    },
+    {
+      "payload_encodings": 65536,
+      "layouts": 1588053,
+      "consumed_cells": 34979088,
+      "maximum_old_scratch_bytes": 3325050884,
+      "maximum_candidate_scratch_bytes": 2240692228,
+      "maximum_saved_bytes": 1084358656,
+      "strict_aliasing": true,
+      "guards_pass": true,
+      "native_acceptance": false
+    }
+  ],
+  "host_actual_probability_loop": {
+    "actual_probability_loop_cases": 18,
+    "host_lanes": 32,
+    "storage_formats": 3,
+    "both_sum_orders": true,
+    "payload_scale_denominator_and_tail_match": true,
+    "host_exp_and_transport": true,
+    "gpu_execution": false
+  },
+  "allocation_plan": {
+    "query_batch": 128,
+    "maximum_keys": 264736,
+    "original_scratch_bytes": 3325050884,
+    "candidate_scratch_bytes": 2240692228,
+    "saved_allocation_bytes": 1084358656,
+    "score_row_stride_bytes_per_key": 4,
+    "packed_probability_bytes_per_key": 2,
+    "one_pair_writer_per_score_word": true,
+    "object_representation_copies": true,
+    "actual_input_extent_unchanged": true,
+    "physical_memory_measured": false,
+    "speed_measured": false
+  },
+  "prior_tagged_preparation": {
+    "file": "benchmarks/correctness/inplace-probability-storage-preparation-20260919.json",
+    "bytes": 48670,
+    "sha256": "3090e5dd8587a4ba02588c8728758ce275e67137f468b92e5e1137a84b9fd6c5"
+  },
+  "active_model": {
+    "name": "resident-ordered-compact-query-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+    "source_manifest": {
+      "file": "resident-ordered-compact-query-prefix256k-source-r1.json",
+      "sha256": "5d9ad636b80efaa7949f26bba5eb1855fa7e56a06008e7e3202d316227da0756"
+    },
+    "pending_original_owner_and_both_suffixes": true,
+    "frozen_binaries_unchanged": true,
+    "new_native_requires_completed_host_process_cleanup": true
+  },
+  "planned_native_checks": {
+    "storage_formats": [
+      "separate_bf16",
+      "tagged_f32",
+      "packed_bf16_in_score_rows"
+    ],
+    "generated_cases": 60,
+    "independent_cpu_dots_per_case_per_candidate": 128,
+    "total_generated_dot_checks": 15360,
+    "all_probabilities_and_untouched_score_words": true,
+    "all_native_and_replayed_raw_surfaces": true,
+    "both_original_error_bound_policies": true,
+    "complete_candidate_identity": true,
+    "immutable_inputs_and_guards": true,
+    "five_owner_stages": true,
+    "nonzero_output_offset": true,
+    "undersized_rejection_before_submission": true,
+    "original_gb10_context_cells": 4194304,
+    "original_queries": 1024,
+    "extended_queries": 8192,
+    "extension_is_repeated_input_component_only": true,
+    "warmups_per_format": 1,
+    "rotated_completed_host_samples_per_format": 3,
+    "every_timed_attempt_checked": true,
+    "common_preparation_separate": true,
+    "reference_not_compute_input": true
+  },
+  "acceptance": {
+    "host_storage_lifetimes": true,
+    "host_actual_loop_transport": true,
+    "host_ownership_failures": true,
+    "existing_attention_regressions": true,
+    "fixture_syntax": true,
+    "native_script_grammar": true,
+    "hip_compilation": false,
+    "native_components": false,
+    "original_model_tokens": false,
+    "memory_improvement": false,
+    "performance": false,
+    "package": false,
+    "release": false,
+    "published": false
+  },
+  "recorder": {
+    "file": "record_packed_probability_preparation_r1.py",
+    "sha256": "9a8f0ae7267d33c3672bd24839424a3aa70fbe1f6239eb98299bdeb1bf3ecc85"
+  }
+}

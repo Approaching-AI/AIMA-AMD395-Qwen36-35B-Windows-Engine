@@ -48,3 +48,13 @@ selection through a function pointer. The corrected fixture supplies it
 explicitly and passes; the failed attempt remains recorded. Windows HIP
 compilation, native correctness, model integration and release qualification
 remain pending.
+
+The [preparation evidence](../benchmarks/correctness/packed-probability-storage-preparation-20260920.json)
+pins source `6f54c7bfed4e2ca9ce471ae99a8632487b57426f`, all 56 compilation
+inputs and the guard script, passing host checks and the original fixture
+failure. PowerShell on baiying accepts the exact command at
+2026-09-19T17:02:59Z with zero errors and no script execution. Native limits
+are 240/1500/600/900 seconds for build/generated cases/original1024/extended8192.
+Both dispatch sides require final cleanup of the current original full256k
+run and verify its command identity; model success is not required to begin
+component repair. All four native actions remain unrun.
