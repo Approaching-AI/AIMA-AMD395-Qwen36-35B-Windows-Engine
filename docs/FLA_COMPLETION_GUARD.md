@@ -176,9 +176,36 @@ exits124 after1964375.798 ms. Ten chunks and416 layer rows complete; no token
 is produced. All2595 available comparisons through selected position82826
 retain exact consumed BF16 boundaries. Host and cleanup checks pass; target91018
 is not reached. The [preserved incomplete run](../benchmarks/correctness/prefix96-row906-log-limit-20260919.json)
-attaches its original command and the next named diagnostic. That active repeat
+attaches its original command and the next named diagnostic. That repeat
 keeps the same DLLs, inputs and5400-second deadline, bounds logs at128MiB and
 observes upstream MoE15 plus linear16 and all-layer norms/residuals.
+
+The [completed repeat](../benchmarks/correctness/prefix96-row906-attention15-divergence-20260919.json)
+now finishes all12 chunks, exit0, wall2660594.22 ms, with passing host and
+cleanup checks. It emits diagnostic token248046/logit31.875. All2988 selected
+row comparisons are preserved. The first11 chunk rows retain exact consumed
+BF16 boundaries. At91018, layers0–14, layer15 seed carrier and layer15 input
+norm match; the first observed consumed difference is layer15 post-attention
+residual,50 cells/max0.000244140625, followed by47 post-attention norm cells.
+Actual MoE15 residual and the next norm replay bitwise from their saved inputs.
+Canonical routed-down recomputation leaves the same246 next-norm differences.
+The earliest observed divergence precedes linear16/GDN. This trace does not
+contain attention15 context/update and does not yet identify its operator.
+
+[Original CPU controls](../benchmarks/correctness/row906-upstream15-cpu-controls-20260919.json)
+reproduce40 selected expert-down rows/81920 weighted BF16 cells and10 layer15
+output projections plus10 post-attention norms bitwise against GB10. A new
+default-off observer reads the entire original Q, prefix/tail KV and context
+around one unchanged suffix-attention invocation. Its4 capture tests,2 prefix
+ABI tests and22 GB10 observation tests pass. Whole model/context qualification
+remains separate; saved reference tensors never feed the actual model run.
+The [native regression](../benchmarks/correctness/prefix-attention-capture-native-q8192-20260919.json)
+builds source02e2a13 on baiying in94977.644 ms with all92 inputs checked.
+All494 GPU executable kernels and metadata are unchanged. Every original
+q8192 output/callback and first logit10.375 passes. Load21331.5202 ms,
+TTFT23241.1652 ms and TPOT100.587183 ms are one functional sample. The new
+96k attention15 capture is active, with the same original input and all
+process/host guards; it carries no new correctness or performance acceptance.
 
 The new independent row906 GB10 capture fails its q7169 control before any
 long request: token220/logit9.375 instead of82/9.25. Its first observed
