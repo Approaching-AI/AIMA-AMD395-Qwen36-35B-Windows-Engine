@@ -23,7 +23,7 @@ All 11 MoE regressions pass. The initial host fixture failed on unused extracted
 constants under `-Werror`; its corrected declarations pass without changing
 runtime source. Windows compilation and use of this repair remain pending.
 
-The ongoing original full256k experiment still uses whole `b3af8b6`, CK `3701495`
+The original full256k experiment used whole `b3af8b6`, CK `3701495`
 and MoE `9235750`. A read-only Windows snapshot at 2026-09-19T15:56:08Z identifies
 `qrt-product` PID 12488, started at 13:47:58Z, and reports:
 
@@ -68,4 +68,11 @@ The [memory accounting record](../benchmarks/correctness/runtime-memory-accounti
 pins both native snapshots, their observers, actual source and process identity,
 the qualified prior model evidence, and all local repair checks. These readings
 do not establish a leak, memory savings, full256k correctness or performance.
-The original owner and both suffix continuations must still complete.
+That process subsequently completed all32 owner chunks and produced512 initial
+suffix outputs. It exited6 on a real token divergence at output181, with
+minimum available physical memory9440714752 bytes and available commit
+39713722368 bytes. All final host checks pass and no engine process remains.
+The [final failure record](../benchmarks/correctness/resident-ordered-prefix256k-token-divergence-20260920.json)
+binds these live observations to the completed native files. This establishes
+that the run passed its memory guards; it does not qualify256k correctness or
+prove which allocation or residency change explains the memory outcome.

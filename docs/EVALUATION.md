@@ -7,6 +7,25 @@ acceptance binds real prompt token IDs, the first generated token, and the
 first-token logit within 0.125. Decode and prefix continuation are compared
 token-for-token. Engine self-hashes are diagnostic only.
 
+The September20 original256k run on whole `b3af8b6`, CK `3701495`, FLA
+`1d11bf7`, MoE `9235750` and CLI `6d9602c` completes all32 owner chunks,
+then fails the first suffix continuation. Owner first16/logit24.375 and suffix
+first248045/logit5.78125 match GB10 exactly. The first181 suffix outputs match;
+output181 is4222 instead of264, with325 differing positions among512 outputs.
+Prefix restoration and every final host/process check pass. Owner32 continuation
+and the timed second suffix were not executed after the initial failure.
+
+The [complete failed case](../benchmarks/correctness/resident-ordered-prefix256k-token-divergence-20260920.json)
+binds original prompt/output IDs, component hashes, command, raw records and
+the same-launch memory observations. Native wall is22865873.897ms; the minimum
+available physical memory is9440714752 bytes, above the unchanged8GiB guard.
+These elapsed times do not qualify performance. The numerical cause remains
+unidentified. A new run started at2026-09-19T20:23:08Z with identical binaries
+and additional output-only observations of chunk-terminal layers and decode
+input263348. Its GB10 comparison captures the same original owner32/suffix512
+plus both short controls. Memory/compiler experiments wait for this diagnosis;
+no new release is qualified.
+
 The [September 14 large-prefix reference capture](../benchmarks/correctness/gb10-large-prefix-actual-references-20260914.json)
 registers the original 131072- and 262144-token owners and their original
 1024-token suffixes. All ten cases complete with 2240 generated tokens and

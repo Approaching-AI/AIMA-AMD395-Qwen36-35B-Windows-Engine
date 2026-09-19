@@ -1,5 +1,13 @@
 # Compact original queries for long attention
 
+The September20 wholeb3/CK370 original256k run completes the owner and first
+512-output suffix, then fails token correctness at output181 (4222 instead
+of264). Both first-token/logit boundaries, prefix restoration and final host
+guards pass. The [failed case and diagnostic follow-up](../benchmarks/correctness/resident-ordered-prefix256k-token-divergence-20260920.json)
+do not yet identify whether compact Q or another numerical surface is involved.
+The earlier qualified component and shorter model cases below retain their
+original scopes; full256k and release remain unqualified.
+
 The long suffix path previously reserved Q storage for every historical token,
 although it reads only the new query rows. A 262144-token prefix plus a 1024-row
 suffix reserves 2155872256 bytes for Q in that staging slab. This candidate
