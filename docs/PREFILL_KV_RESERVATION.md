@@ -59,6 +59,14 @@ The same DLL also passes original q8192/out512, all callbacks and first
 logit 10.375 with zero error. Load is 21298.2486 ms, TTFT 23422.0822 ms and
 TPOT 101.650893 ms. See the
 [q8192 regression](../benchmarks/correctness/prefill-kv-reservation-native-q8192-20260919.json).
-The original 256k owner/suffix case is being rerun with the unchanged memory
-guards and 28800-second process deadline. Full context, retained performance
-and release acceptance remain open.
+The original 256k owner/suffix run with this DLL stops at the unchanged 8 GiB
+physical-memory guard after 19 of 32 chunks (155648 committed inputs). Native
+wall is 7344783.641 ms; minimum available physical memory is 8363024384 bytes.
+The 20 GiB commit reserve and 28800-second deadline are unchanged. No output
+token or completed owner is produced. All final host and process-cleanup
+checks pass. The [completed candidate record](../benchmarks/correctness/prefill-kv-reservation-prefix256k-memory-limit-20260919.json)
+preserves the original GB10 references and both run identities. Final KV
+reservation alone does not resolve this case; the different stop points do
+not isolate a leak or establish a performance regression. Compact Q and
+cross-chunk temporary reuse are prepared as separate candidates. Full context,
+retained performance and release acceptance remain open.

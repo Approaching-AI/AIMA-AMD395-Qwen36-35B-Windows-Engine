@@ -212,6 +212,7 @@ void lf_capture(unsigned queries,const char* qfile,const char* kfile,const char*
 }
 } // namespace
 
+#ifndef QRT_LONG_FINAL_PV_NO_MAIN
 int main(int argc,char** argv)try {
     if(argc==2&&!std::strcmp(argv[1],"bound"))return qrt_long_final_bound_selftest();
     const bool safety=argc==4&&!std::strcmp(argv[1],"safety");
@@ -228,3 +229,4 @@ int main(int argc,char** argv)try {
     if(safety)lf_safety(de.data(),dd.data(),dc.data());else lf_capture(queries,argv[2],argv[3],argv[4],argv[5],de.data(),dd.data(),dc.data());
     de.immutable(exp);dc.immutable(rcp);dd.immutable(packed);return 0;
 }catch(const std::exception& e){std::fprintf(stderr,"long_final_pv_error=%s\n",e.what());return 2;}
+#endif

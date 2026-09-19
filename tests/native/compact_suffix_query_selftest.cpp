@@ -1,7 +1,6 @@
 // Reuse the established complete-surface observer without changing its tests.
-#define main qrt_prior_long_final_main
+#define QRT_LONG_FINAL_PV_NO_MAIN
 #include "long_final_pv_capture.cpp"
-#undef main
 
 namespace {
 void compact_case(const std::vector<uint16_t>& q,const std::vector<uint16_t>& k,
