@@ -10,6 +10,20 @@
 #endif
 
 namespace qrt_sm121_bf16_fma {
+QRT_BF16_FMA_INLINE uint32_t to_bits(float value) {
+#if defined(__HIP_DEVICE_COMPILE__) || defined(__CUDA_ARCH__)
+    return __float_as_uint(value);
+#else
+    uint32_t result;std::memcpy(&result,&value,4);return result;
+#endif
+}
+QRT_BF16_FMA_INLINE float from_bits(uint32_t bits) {
+#if defined(__HIP_DEVICE_COMPILE__) || defined(__CUDA_ARCH__)
+    return __uint_as_float(bits);
+#else
+    float result;std::memcpy(&result,&bits,4);return result;
+#endif
+}
 QRT_BF16_FMA_INLINE unsigned leading(uint64_t x) {
     unsigned result=0;
     while(x>>1u){x>>=1u;++result;}
@@ -69,8 +83,7 @@ QRT_BF16_FMA_INLINE uint16_t exact(uint16_t a,uint16_t b,uint16_t c) {
     return uint16_t(sign|uint16_t(encoded>=0x7f80u?0x7f80u:encoded));
 }
 QRT_BF16_FMA_INLINE float widen(uint16_t x) {
-    const uint32_t bits=uint32_t(x)<<16u;float result;
-    std::memcpy(&result,&bits,sizeof(result));return result;
+    return from_bits(uint32_t(x)<<16u);
 }
 QRT_BF16_FMA_INLINE uint16_t round(uint16_t a,uint16_t b,uint16_t c) {
     const unsigned am=a&0x7fffu,bm=b&0x7fffu,cm=c&0x7fffu;
@@ -78,7 +91,7 @@ QRT_BF16_FMA_INLINE uint16_t round(uint16_t a,uint16_t b,uint16_t c) {
     if((am&&am<128u)||(bm&&bm<128u)||(cm&&cm<128u)||
        am>=0x7f80u||bm>=0x7f80u||cm>=0x7f80u)return exact(a,b,c);
     const float result=fmaf(widen(a),widen(b),widen(c));
-    uint32_t bits;std::memcpy(&bits,&result,sizeof(bits));
+    const uint32_t bits=to_bits(result);
     const unsigned exponent=(bits>>23u)&255u;
     // A FP32 result away from a BF16 midpoint has the same BF16 endpoint.
     // At the midpoint, rounding FP32 first may discard the decisive tail.
@@ -86,11 +99,11 @@ QRT_BF16_FMA_INLINE uint16_t round(uint16_t a,uint16_t b,uint16_t c) {
     return uint16_t((bits+0x7fffu+((bits>>16u)&1u))>>16u);
 }
 QRT_BF16_FMA_INLINE float rounded(float a,float b,float c) {
-    uint32_t x,y,z;std::memcpy(&x,&a,4);std::memcpy(&y,&b,4);std::memcpy(&z,&c,4);
+    const uint32_t x=to_bits(a),y=to_bits(b),z=to_bits(c);
     // Legacy rotary tables can contain full FP32 coefficients. Keep their
     // declared FP32 arithmetic; only BF16 operands use the BF16 FMA contract.
     if((x|y|z)&65535u){
-        const float value=fmaf(a,b,c);uint32_t bits;std::memcpy(&bits,&value,4);
+        const uint32_t bits=to_bits(fmaf(a,b,c));
         return widen(uint16_t((bits+0x7fffu+((bits>>16u)&1u))>>16u));
     }
     return widen(round(uint16_t(x>>16u),uint16_t(y>>16u),uint16_t(z>>16u)));

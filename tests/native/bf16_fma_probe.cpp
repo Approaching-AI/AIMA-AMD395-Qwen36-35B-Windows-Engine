@@ -13,7 +13,7 @@ __global__ void probe(const uint16_t* cases,uint16_t* results,unsigned count){
     results[size_t(i)*2u]=qrt_sm121_bf16_fma::round(row[0],row[1],row[2]);
     const float value=qrt_sm121_bf16_fma::rounded(qrt_sm121_bf16_fma::widen(row[0]),
         qrt_sm121_bf16_fma::widen(row[1]),qrt_sm121_bf16_fma::widen(row[2]));
-    uint32_t bits;std::memcpy(&bits,&value,4);results[size_t(i)*2u+1u]=uint16_t(bits>>16u);
+    results[size_t(i)*2u+1u]=uint16_t(qrt_sm121_bf16_fma::to_bits(value)>>16u);
 }
 void check(hipError_t e){if(e!=hipSuccess)throw std::runtime_error(hipGetErrorString(e));}
 int main(int argc,char** argv)try{

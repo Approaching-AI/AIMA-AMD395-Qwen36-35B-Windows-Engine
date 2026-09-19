@@ -1,0 +1,28 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_sm121_bf16_fma.py",
+    "-v"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "test_captured_original_rotary_endpoint (test_sm121_bf16_fma.Bf16FmaTests.test_captured_original_rotary_endpoint) ... ok\ntest_every_finite_addend_at_real_rotary_midpoint (test_sm121_bf16_fma.Bf16FmaTests.test_every_finite_addend_at_real_rotary_midpoint) ... ok\ntest_legacy_fp32_coefficients_keep_fp32_arithmetic (test_sm121_bf16_fma.Bf16FmaTests.test_legacy_fp32_coefficients_keep_fp32_arithmetic) ... ok\ntest_nonfinite_and_signed_zero (test_sm121_bf16_fma.Bf16FmaTests.test_nonfinite_and_signed_zero) ... ok\ntest_random_finite_and_cancellation (test_sm121_bf16_fma.Bf16FmaTests.test_random_finite_and_cancellation) ... ok\ntest_subnormal_overflow_and_midpoint_neighbours (test_sm121_bf16_fma.Bf16FmaTests.test_subnormal_overflow_and_midpoint_neighbours) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 1.675s\n\nOK\n",
+  "seconds": 1.713743083178997,
+  "source_sha256": {
+    "native/providers/gdn/sm121_bf16_fma.h": "2c1e66061c5a36f231c4e35eadc23ca86b0e647b57ab70c5e9adc51048dbd1ad",
+    "tests/native/bf16_fma_probe.cpp": "ed910b61cb16923d7612df6b561d9a17dbca83bb61fb8f540c2c51bdcf32c00d"
+  },
+  "retained_failed_native_build": {
+    "record": "rope-single-round-build-r1/run-record.json",
+    "sha256": "24ffc3cb96b1554327d31f080a2e7b5b6f988a80b2edf6990f75960674604aa8",
+    "compiler_log_sha256": "ba2f075b090ada3fe06d5b114193cdac6de3dd0ad13a75b7809828213229dbf7"
+  },
+  "change": "Use HIP/CUDA bitcast intrinsics on device and memcpy only on host; same BF16 rounding arithmetic.",
+  "inference_acceptance": false
+}
