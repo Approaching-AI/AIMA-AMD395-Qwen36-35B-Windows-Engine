@@ -4,8 +4,9 @@ The original full256k run stopped at the unchanged physical-memory guard after
 20 chunks. Each completed chunk reported 32 freshly allocated temporary blocks,
 2756558868 cached bytes, and zero outstanding blocks before release. The sum of
 those allocations is allocation traffic, not simultaneously live memory and
-not evidence of a leak. The active KV-reservation rerun still uses the earlier
-whole-provider binary.
+not evidence of a leak. The subsequent wholeb35 KV-reservation run stopped
+after19 chunks under the same guard. Neither run produced an output token;
+both completed host cleanup. KV reservation alone did not resolve the case.
 
 This candidate holds the existing temporary allocation pool across the cold
 suffix loop, after the first8192-token seed and persistent KV reservations.
@@ -34,16 +35,27 @@ Persistent KV operations are tested under the production allocator macro with
 a rejecting transient allocator; allocation/copy/free failures preserve the
 prior committed bytes and counters.
 
-Windows compilation and original-token model execution remain pending. The
-candidate reduces repeated application allocation requests by construction;
-system memory, driver residency and product latency must still be measured.
-It makes no native accuracy, performance or release claim.
+Source `334883600c9ea1a9fc11fb4cf943c103b93403be` now builds on baiying in
+94606.459 ms with the retained MSVC/HIP arguments and all100 build inputs
+verified. Host and cleanup checks pass. The13510144-byte whole-provider DLL
+has SHA256 `91652d9566246289c51df12b822e681672ff2a7cc5616a49325a8e44c70964dc`.
+The [native build record](../benchmarks/correctness/prefill-scratch-reuse-native-build-20260919.json)
+also attaches the local ownership and C cold/stream regressions. Original-token
+model checks and measured allocation reuse, system memory and latency remain
+pending. The build itself supplies no inference or release acceptance.
+
+The original q8192/out512 model regression then passes with CK3701495, FLA1d
+and MoE923: all512 IDs and callbacks match, first logit10.375 has zero error,
+and source/cleanup checks pass. Load is21217.0047 ms, TTFT23389.703 ms and
+TPOT101.084037 ms. This [q8192 result](../benchmarks/correctness/scratch-compact-query-native-q8192-20260919.json)
+does not enter the cold-chunk reuse scope and is a single functional sample.
+The separate original cold32k/out512 activation check is running.
 
 [Preparation evidence](../benchmarks/correctness/prefill-scratch-reuse-preparation-20260919.json)
 pins source `3348836`, the passing local checks and the bounded Windows build.
 The command file passes baiying's PowerShell parser at2026-09-19T07:58:54Z;
-no build or model command was executed. Dispatch requires the active256k
-run's completed cleanup.
+that grammar check executed no build or model command. The native build above
+started after both the original256k and compact-Q cold32k completed cleanup.
 
 The independent include traversal now follows the compiler's `native/src`
 search path and covers98 local compilation inputs plus two build/guard scripts.
