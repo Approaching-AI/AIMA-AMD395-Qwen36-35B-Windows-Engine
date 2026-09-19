@@ -235,8 +235,17 @@ Full-FP32 legacy coefficients retain their arithmetic. All33554432 original
 Q and4194304 K RoPE cells match with the new helper; the old helper reproduces
 the same single Q mismatch. Six local FMA tests cover244568 cases, signed
 zeros, overflow, subnormals, cancellation and the captured real endpoint.
-Windows build, GPU arithmetic and real-model regressions remain pending.
-This finding does not qualify full128k continuation or product performance.
+After correcting device bitcasts, Windows source32a1b96 builds in95260.867 ms
+with93 inputs checked. The actual gfx1151 probe matches all489122 endpoints
+from244561 independent integer-oracle cases. Original q8192/out512 matches
+every output and callback, with first token144/logit10.375/error0. Load is
+21252.8118 ms, TTFT23311.4135 ms and TPOT101.181524 ms; these are functional
+sample timings, not a replacement median. See the
+[native arithmetic and q8192 regression](../benchmarks/correctness/rope-single-round-native-q8192-20260919.json).
+The complete original128k owner/1024 suffix/512-output regression is running
+with read-only row906 carriers and attention15 stages. Its7200-second bound,
+owner32 check, both512 suffix continuations, original logits and restoration
+requirements are unchanged. Full128k continuation and performance remain open.
 
 The new independent row906 GB10 capture fails its q7169 control before any
 long request: token220/logit9.375 instead of82/9.25. Its first observed
