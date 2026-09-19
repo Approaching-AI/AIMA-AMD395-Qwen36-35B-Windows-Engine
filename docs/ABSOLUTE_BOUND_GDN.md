@@ -41,6 +41,25 @@ also check the scaled result, and 4,096 complete reconstructed outputs match
 GB10. The output certificate admits 1,143 and 1,822 of those output samples.
 These are admission observations, not measured speedups.
 
+A separate [seeded sequence audit](../benchmarks/correctness/absolute-bound-gdn-seeded-sequence-20260919.json)
+reconstructs the complete original 8192-token windows at layer 16/position
+90112 and layer 33/position 114688. Each window uses its original initial
+state, then carries each computed FP32 state into the next 64-token chunk.
+All 33,554,432 output BF16 cells and 524,288 final FP32 state cells per layer
+match GB10 bit for bit. Both residual consumers and the output consumer are
+checked against every original W/H and Q/H dot, with zero false admissions.
+
+| Original seeded window | State dots admitted | Output dots admitted |
+| --- | ---: | ---: |
+| Layer 16, position 90112 | 923,629 / 33,554,432 (2.75%) | 698,608 / 33,554,432 (2.08%) |
+| Layer 33, position 114688 | 5,821,286 / 33,554,432 (17.35%) | 4,276,959 / 33,554,432 (12.75%) |
+
+These CPU observations show that admission depends strongly on the layer
+and its incoming state. They do not measure native GPU speed or qualify
+full-context model inference. The independent first-chunk reconstruction
+also matches captured normalization, inverse, W/U, residual and checkpoint
+boundaries in both early-layer controls.
+
 `absolute_bound_gdn_selftest.cpp` compares the retained complete chain with
 bounded state only, then bounded state plus output. Paired scores and W/U
 stay original. The prepared native checks include production U=V ownership,
