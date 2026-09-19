@@ -38,3 +38,17 @@ Windows compilation and original-token model execution remain pending. The
 candidate reduces repeated application allocation requests by construction;
 system memory, driver residency and product latency must still be measured.
 It makes no native accuracy, performance or release claim.
+
+[Preparation evidence](../benchmarks/correctness/prefill-scratch-reuse-preparation-20260919.json)
+pins source `3348836`, the passing local checks and the bounded Windows build.
+The command file passes baiying's PowerShell parser at2026-09-19T07:58:54Z;
+no build or model command was executed. Dispatch requires the active256k
+run's completed cleanup.
+
+The independent include traversal now follows the compiler's `native/src`
+search path and covers98 local compilation inputs plus two build/guard scripts.
+The previous91-file traversal omitted seven files reached through that search
+path. All seven were already fingerprinted in the original full build records
+for both32a andb35; their original source bytes and native artifact hashes now
+reproduce in the linked evidence. Only `prefill_chunks.h` differs fromb35 among
+the100 inputs. This inventory correction does not create new native evidence.
