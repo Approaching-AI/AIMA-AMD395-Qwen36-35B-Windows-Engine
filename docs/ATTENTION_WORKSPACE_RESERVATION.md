@@ -39,3 +39,12 @@ also pass.
 Windows build, original GB10 continuations, physical-memory observations and
 product performance remain unmeasured for this option. The currently running
 full256k case uses earlier CK370 without this option. No package enables it.
+
+The [preparation record](../benchmarks/correctness/attention-workspace-reservation-preparation-20260919.json)
+pins source `abbd7b17e7ac9042e6b8be77275e655207c0c1ea`, 65 local compilation
+inputs and two build/guard scripts. Only the CK provider and added capacity
+policy differ from CK370 among compilation inputs. Ten local attention and
+ownership tests, C smoke and public hygiene pass. The bounded build command
+passes baiying's PowerShell parser at 2026-09-19T11:46:19Z; native dispatch
+retains 240/390-second native/transport limits and requires the active model's
+completed cleanup record.
