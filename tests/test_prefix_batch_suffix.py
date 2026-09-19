@@ -20,9 +20,13 @@ class PrefixBatchSuffixTests(unittest.TestCase):
 #include <cstring>
 #include <mutex>
 #include <string>
+#include "native/providers/prefix_attention_capture.h"
 #define _WIN32 1
 enum hipError_t {hipSuccess,hipErrorInvalidValue,hipErrorNotSupported,hipErrorUnknown};
 constexpr int hipMemcpyDeviceToDevice=1;
+constexpr int hipMemcpyDeviceToHost=2;
+hipError_t hipMemcpy(void*,const void*,size_t,int){assert(false);return hipErrorUnknown;}
+const char* hipGetErrorString(hipError_t){return "fake HIP failure";}
 unsigned copies=0,syncs=0,calls=0,fail_copy=0;bool fail_launch=false,missing_symbol=false;
 hipError_t hipStreamSynchronize(void*){++syncs;return hipSuccess;}
 hipError_t hipMemcpyAsync(void*,const void*,size_t bytes,int kind,void*){
@@ -41,6 +45,7 @@ struct Scope {Session* session;unsigned tokens=1024,prefix=16384;uint64_t attent
 ''' + method + r'''
 };
 int main(){
+ unsetenv("QRT_QWEN36_PREFIX_ATTENTION_CAPTURE_DIR");
  Session session{};uint16_t input[16]{};float output[16]{};
  auto call=[&](){copies=syncs=calls=0;session.full_attention_layers[3].decode_tail_token_count=0;
   Scope scope{&session,1024,16384,0,{}};auto status=scope.attention(3,input,input,input,output,1024);
@@ -53,12 +58,16 @@ int main(){
  for(unsigned i=1;i<=2;++i){fail_copy=i;assert(call()==hipErrorUnknown&&copies==i&&!calls&&syncs==1);}
  fail_copy=0;fail_launch=true;assert(call()==hipErrorUnknown&&copies==2&&calls==1&&syncs==1);
  fail_launch=false;assert(call()==hipSuccess);
+ setenv("QRT_QWEN36_PREFIX_ATTENTION_CAPTURE_DIR","unused-test-directory",1);
+ setenv("QRT_QWEN36_PREFIX_ATTENTION_CAPTURE_LAYER","invalid",1);
+ assert(call()==hipErrorInvalidValue&&copies==2&&!calls&&syncs==1);
+ unsetenv("QRT_QWEN36_PREFIX_ATTENTION_CAPTURE_DIR");
 }
 '''
         with tempfile.TemporaryDirectory() as tmp:
             exe = str(Path(tmp)/'attention')
             subprocess.run(['c++','-std=c++17','-O2','-Wall','-Wextra','-Werror',
-                '-fsanitize=undefined','-fno-sanitize-recover=all','-x','c++','-','-o',exe],
+                '-fsanitize=undefined','-fno-sanitize-recover=all','-I'+str(ROOT),'-x','c++','-','-o',exe],
                 input=source,text=True,check=True,timeout=30)
             subprocess.run([exe],check=True,timeout=15,capture_output=True)
 

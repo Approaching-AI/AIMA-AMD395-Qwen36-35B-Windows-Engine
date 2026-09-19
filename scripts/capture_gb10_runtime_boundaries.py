@@ -326,12 +326,18 @@ def full_prefill_attention_window(case, prompt_tokens):
                 not isinstance(plan, dict) or set(plan) != {'layer', 'first_position', 'tokens'} or
                 any(type(item) is not int for item in plan.values()) or
                 not 0 <= plan['layer'] < 40 or plan['layer'] % 4 != 3 or
-                not 1 <= plan['first_position'] < 32768 or not 1 <= plan['tokens'] <= 1024 or
-                plan['first_position'] + plan['tokens'] > 32768):
+                not 1 <= plan['first_position'] <= 131072 or not 1 <= plan['tokens'] <= 8192 or
+                plan['first_position'] + plan['tokens'] > 139264):
             raise ValueError('invalid bounded original attention transaction')
         if name == case and plan['first_position'] + plan['tokens'] > prompt_tokens:
             raise ValueError('attention observation extends beyond the original prompt')
     return plans.get(case)
+
+
+def observation_byte_limit(attention_window):
+    # One original 8192-row attention transaction plus its complete logical KV
+    # history needs more than the selected-row ceiling. Other cases keep it.
+    return (1024 if attention_window is not None else 512) << 20
 
 
 def observation_timeout_seconds(prompt_tokens):
@@ -358,6 +364,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         # Position selection is separate from the cache's actual MTP row.
         # Capture both scheduled identities, then qualify against real tokens.
         selected = observation_positions(case, prompt_tokens)
+        full_attention_window = full_prefill_attention_window(case, prompt_tokens)
+        self._qrt_boundary_byte_limit = observation_byte_limit(full_attention_window)
         self._qrt_boundary_handles = []
         self._qrt_boundary_transactions = []
         self._qrt_boundary_files = {}
@@ -445,7 +453,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 raise ValueError("boundary dtype changed")
             value = value.detach().contiguous().cpu()
             payload = value.view(torch.uint8).numpy().tobytes()
-            if self._qrt_boundary_bytes + len(payload) > 512 << 20:
+            if self._qrt_boundary_bytes + len(payload) > self._qrt_boundary_byte_limit:
                 raise ValueError("boundary artifact ceiling exceeded")
             suffix = {torch.bfloat16: "bf16", torch.float32: "f32", torch.int32: "i32"}[value.dtype]
             key = f'txn{transaction["ordinal"]:04d}-{label}-{suffix}'
@@ -629,7 +637,6 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         # Observe one full-attention owner after the selected linear/MoE boundary.
         # Hooks retain original qkv/norm/RoPE/attention/output results, including
         # the BF16 sigmoid-product endpoint at the output projection input.
-        full_attention_window = full_prefill_attention_window(case, prompt_tokens)
         full_layer = (full_attention_window['layer'] if full_attention_window else
                       full_attention_observation_layer())
         full_attention_labels = set()
@@ -982,7 +989,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 Path(inspect.getsourcefile(type(layers[0]))),
                 Path(inspect.getsourcefile(layers[0].forward)),
                 Path(inspect.getsourcefile(type(layers[0].input_layernorm)))})],
-            maximum_saved_bytes=512 << 20, maximum_observation_seconds=180,
+            maximum_saved_bytes=self._qrt_boundary_byte_limit,
+            maximum_observation_seconds=self._qrt_boundary_timeout,
             all_decode_state_hashes=state_hashes_enabled,
             maximum_state_hash_transactions=1024 * len(self._qrt_boundary_linear_layers),
             decode_operator_sources=[dict(file=str(path), sha256=file_sha(path))

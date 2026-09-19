@@ -12,6 +12,7 @@ from capture_gb10_runtime_boundaries import (  # noqa: E402
     full_attention_observation_layer, full_cache_observation_offset,
     full_cache_observation_row, full_cache_row_is_qualified,
     full_prefill_attention_window, full_prefill_linear_window, matches_linear_window,
+    observation_byte_limit,
     full_prefill_linear_core_only, full_prefill_linear_labels,
     observation_positions, observation_timeout_seconds, prepared_token_ids, qualify_transaction,
     recurrent_state_selection, selected_prefill_moe_observation,
@@ -127,13 +128,31 @@ class RuntimeBoundaryTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 full_prefill_attention_window(case, 17407)
         for value in ([], {}, {case: dict(plan, layer=2)}, {case: dict(plan, layer=43)},
-                      {case: dict(plan, first_position=0)}, {case: dict(plan, tokens=1025)},
+                      {case: dict(plan, first_position=0)}, {case: dict(plan, tokens=8193)},
                       {case: dict(plan, first_position=32700)}, {case: dict(plan, tokens=True)},
                       {case: dict(plan, extra=1)}, {'undeclared-extent': plan}):
             with patch.dict(os.environ, {'QRT_GB10_FULL_PREFILL_ATTENTION_WINDOWS':
                                         json.dumps(value)}, clear=True):
                 with self.assertRaises(ValueError):
                     full_prefill_attention_window(case, 17408)
+
+    def test_full_attention_cold_chunk_keeps_complete_cache_bounded(self):
+        case = 'long-prefix131072-owner-out512'
+        plan = dict(layer=15, first_position=90112, tokens=8192)
+        with patch.dict(os.environ, {'QRT_GB10_FULL_PREFILL_ATTENTION_WINDOWS':
+                                    json.dumps({case: plan})}, clear=True):
+            self.assertEqual(full_prefill_attention_window(case, 131072), plan)
+            self.assertEqual(observation_byte_limit(plan), 1024 << 20)
+            control = full_prefill_attention_window('q8192-out32', 8192)
+            self.assertIsNone(control)
+            self.assertEqual(observation_byte_limit(control), 512 << 20)
+            self.assertTrue(matches_linear_window(plan, 15, dict(first_position=90112, token_count=8192)))
+            self.assertFalse(matches_linear_window(plan, 15, dict(first_position=81920, token_count=8192)))
+        for change in (dict(first_position=131073), dict(tokens=8193), dict(tokens=True)):
+            with patch.dict(os.environ, {'QRT_GB10_FULL_PREFILL_ATTENTION_WINDOWS':
+                                        json.dumps({case: dict(plan, **change)})}, clear=True):
+                with self.assertRaises(ValueError):
+                    full_prefill_attention_window(case, 139264)
 
     def test_seeded_prefill_window_matches_original_batch_and_preserves_controls(self):
         case = 'long-prefix16384-suffix1024-out512'

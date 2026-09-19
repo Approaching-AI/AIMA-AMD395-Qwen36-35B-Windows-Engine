@@ -1,0 +1,68 @@
+{
+  "kind": "original_prefix_attention_capture_local_checks",
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_prefix_attention_capture.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "test_bounded_original_transaction_selection (test_prefix_attention_capture.PrefixAttentionCaptureTests) ... ok\ntest_disabled_and_other_transactions_execute_once_without_reads (test_prefix_attention_capture.PrefixAttentionCaptureTests) ... ok\ntest_exact_original_inputs_and_original_output (test_prefix_attention_capture.PrefixAttentionCaptureTests) ... ok\ntest_failures_leave_no_completion_and_preserve_existing_directory (test_prefix_attention_capture.PrefixAttentionCaptureTests) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 2.097s\n\nOK\n",
+      "wall_seconds": 2.1371626249999998
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_prefix_batch_suffix.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "test_bf16_export_without_legacy_f32_prepare_and_submit_failures (test_prefix_batch_suffix.PrefixBatchSuffixTests) ... ok\ntest_original_ring_layouts_and_canonical_state (test_prefix_batch_suffix.PrefixBatchSuffixTests) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 1.523s\n\nOK\n",
+      "wall_seconds": 1.563733875
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_gb10_runtime_boundaries.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "test_actual_case_offsets_keep_prefill_and_bind_declared_history (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_all_short_prefill_rows_preserve_actual_history_and_long_controls (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_bounded_positions_do_not_guess_the_accepted_mtp_row (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_cache_can_bind_an_accepted_second_target_row (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_cache_position_is_scoped_to_its_frozen_case (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_complete_large_request_has_a_bounded_observation_deadline (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_draft_row_requires_every_input_through_that_row (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_embedded_text_uses_the_prepared_real_token_buffer (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_full_attention_capture_has_one_valid_owner (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_full_attention_cold_chunk_keeps_complete_cache_bounded (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_interior_prefill_positions_bind_real_unsampled_rows_and_preserve_controls (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_long_chunk_end_observations_preserve_real_row_identity (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_original_8192_core_window_keeps_seed_and_output_without_large_projections (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_partial_prefill_and_two_target_rows_keep_actual_logit_indices (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_recurrent_input_uses_the_previous_accepted_slot (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_routed_moe_observer_preserves_results_arguments_and_restores_on_errors (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_routed_moe_option_requires_bounded_selected_rows (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_seeded_prefill_window_matches_original_batch_and_preserves_controls (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_selected_long_prefill_moe_keeps_actual_chunk_row_identity (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_selected_prefill_moe_rejects_unbounded_or_cross_prompt_chunks (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_short_moe_capture_requires_the_complete_original_prefill (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\ntest_suffix_attention_window_binds_original_extent_and_leaves_controls_unselected (test_gb10_runtime_boundaries.RuntimeBoundaryTests) ... ok\n\n----------------------------------------------------------------------\nRan 22 tests in 0.067s\n\nOK\n",
+      "wall_seconds": 0.1259071249999999
+    }
+  ],
+  "source_sha256": {
+    "native/providers/prefix_attention_capture.h": "3763cfdc9dff959e2d1ba22406015ef84bba0d5e402f2b791072266620f258dc",
+    "native/providers/prefix_batch_suffix.h": "4f3ea2adf7728844e270b96db305b4da062a71e746c023fc65f4b98543fd808d",
+    "native/providers/whole_provider.cpp": "c0194044d7638f47fcb0db573d8452df808a13a1bd5817588f8ec1ebb87f5aa0",
+    "scripts/capture_gb10_runtime_boundaries.py": "5c35bb0ae1ce74eec58f69d5fce506bea59055cf387fc3ab8b172382eda3c3dd",
+    "tests/test_prefix_attention_capture.py": "5e71e7d11312547bf8c457a659adc9380652e7e3e36496420d3daa5c6cd4aac4",
+    "tests/test_prefix_batch_suffix.py": "ad82802abd59457548789546372202ecaee7f8aee6ea3cce3eb1da96206f2dcd",
+    "tests/test_gb10_runtime_boundaries.py": "43725185fbfffcfb68fcebd78316878213445d79418183feb872f4953274d662"
+  },
+  "arithmetic_changed": false,
+  "inference_acceptance": false,
+  "prior_harness_missing_capture_header": "prefix-attention-capture-local-r1.json"
+}

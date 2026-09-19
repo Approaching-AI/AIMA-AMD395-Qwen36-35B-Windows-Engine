@@ -4,6 +4,7 @@
 #pragma once
 #include "sm121_attention_capacity.h"
 #include "prefix_linear_capture.h"
+#include "prefix_attention_capture.h"
 
 __global__ void qwen36_prefix_suffix_halo_kernel(
     const float *qkv, const float *ring_f32, const uint16_t *ring_bf16,
@@ -210,9 +211,28 @@ struct ScopedQwen36PrefixBatchSuffix {
             hipMemcpyDeviceToDevice, nullptr);
         if (status == hipSuccess) status = hipMemcpyAsync(layer.device_decode_tail_v, v, size_t(tokens) * 1024u,
             hipMemcpyDeviceToDevice, nullptr);
-        if (status == hipSuccess) status = hipError_t(launch(q,
-            static_cast<const uint16_t *>(layer.device_k), static_cast<const uint16_t *>(layer.device_v),
-            k, v, output, nullptr, prefix, tokens));
+        if (status == hipSuccess) {
+            qrt_prefix_attention_capture::Plan capture;
+            if (!qrt_prefix_attention_capture::environment(capture, failure)) {
+                (void)hipStreamSynchronize(nullptr); return hipErrorInvalidValue;
+            }
+            const bool captured = qrt_prefix_attention_capture::run(capture, layer_index, prefix, tokens,
+                q, static_cast<const uint16_t *>(layer.device_k), static_cast<const uint16_t *>(layer.device_v),
+                k, v, output, [&](void *host, const void *device, size_t bytes) {
+                    status = hipMemcpy(host, device, bytes, hipMemcpyDeviceToHost);
+                    return status == hipSuccess;
+                }, [&] {
+                    status = hipError_t(launch(q, static_cast<const uint16_t *>(layer.device_k),
+                        static_cast<const uint16_t *>(layer.device_v), k, v, output, nullptr, prefix, tokens));
+                    return status == hipSuccess;
+                }, failure);
+            if (!captured) {
+                (void)hipStreamSynchronize(nullptr);
+                if (failure.empty()) check(status);
+                else if (status != hipSuccess) failure += std::string(": ") + hipGetErrorString(status);
+                return status == hipSuccess ? hipErrorInvalidValue : status;
+            }
+        }
         if (status != hipSuccess) { (void)hipStreamSynchronize(nullptr); check(status); return status; }
         layer.decode_tail_token_count = tokens;
         attention_layers |= UINT64_C(1) << layer_index;
