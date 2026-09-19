@@ -1,0 +1,3577 @@
+{
+  "analysis": {
+    "kind": "gb10_original_prefix256k_all_chunk_boundaries",
+    "authority_host": "gb10-4t",
+    "runtime_host": "aitopatom-66c4",
+    "source_commit": "1c9511395bf7f9dcc78a8aedcb05c700feee0568",
+    "dependency_source_commit": "9b2a99edeede83ce77a4b775a509256f65894a7f",
+    "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "source_manifest": {
+      "name": "qrt-gb10-prefix256-divergence-20260920-r1",
+      "observer_source_commit": "5bc055d71b5c63f3610e54cbbb8dfc6e0afb4ea6",
+      "observer_change": "Optional prefill position plan3 to32 only; compute methods unchanged.",
+      "source_commit": "1c9511395bf7f9dcc78a8aedcb05c700feee0568",
+      "dependency_source_commit": "9b2a99edeede83ce77a4b775a509256f65894a7f",
+      "archive": "qrt-gb10-prefix256-divergence-20260920-r1.tar",
+      "archive_sha256": "99b92149a376c0adc5ac53984f01707292188ed841274e8fb7bd9bb7c61eebd7",
+      "archive_bytes": 11284480,
+      "script": "run-qrt-gb10-prefix256-divergence-20260920-r1.py",
+      "script_sha256": "2a20ff6ef4c4a9b5c9d7d873468ca22d4906dede7f05162a81d8a65a91b7a7db",
+      "dispatcher": "dispatch_gb10_prefix256_divergence_r1.py",
+      "dispatcher_sha256": "5dca4a221d5478f1178bf410c4012635543ec136056677ed813eb761f48e22e0",
+      "capture_script_sha256": "6012ce9e6f8f34a1eb8f8843f9e43515b0751cb96b8dd17913c6492d424e5804",
+      "boundary_observer_sha256": "65421b39f4fe573f3297150e672111ec2fab3a4f5753a81689948751d076b2c2",
+      "source_inputs_sha256": "9c83f1ef7b39a48ad85d215c974eacf8f761d181ec03730c9e8ffe702ba759d5",
+      "anchors_sha256": "dd1ed05c43c12a1a16ec0751b39dfe27b077f7eaa5a7f84b6611198cf0524c42",
+      "decode_offsets": {
+        "long-prefix262144-suffix1024-out512": [
+          0,
+          179,
+          180
+        ]
+      },
+      "prefill_positions": {
+        "long-prefix262144-owner-out32": [
+          8191,
+          16383,
+          24575,
+          32767,
+          40959,
+          49151,
+          57343,
+          65535,
+          73727,
+          81919,
+          90111,
+          98303,
+          106495,
+          114687,
+          122879,
+          131071,
+          139263,
+          147455,
+          155647,
+          163839,
+          172031,
+          180223,
+          188415,
+          196607,
+          204799,
+          212991,
+          221183,
+          229375,
+          237567,
+          245759,
+          253951,
+          262143
+        ],
+        "long-prefix262144-suffix1024-out512": [
+          131071,
+          196607,
+          262143
+        ]
+      },
+      "total_cases_with_controls": 4,
+      "expected_total_outputs": 608,
+      "capture_timeout_seconds": 1800,
+      "container_timeout_seconds": 1830,
+      "host_supervisor_seconds": 1842,
+      "ssh_timeout_seconds": 1935,
+      "reference_math_configuration_unchanged": true,
+      "original_continuations_and_full_first_logits_required": true,
+      "source_generator": "prepare_gb10_prefix256_divergence_r1.py",
+      "source_generator_sha256": "0af475560ba1236befdabd28813ce667916204ea854d837749e9f434d10ccf32",
+      "native_dispatched": false,
+      "windows_acceptance": false
+    },
+    "cases": [
+      {
+        "name": "q7169-out32",
+        "prompt_tokens": 7169,
+        "outputs": 32,
+        "first_token": 82,
+        "first_logit": 9.25,
+        "first_logit_absolute_error": 0.0,
+        "full_first_logits_sha256": "719813bb031f041544c91840b0092fd43a0e3ef96ccbb9ac44cd2f713a5763c9",
+        "case_sha256": "b14158bb2347ad7e5b48ae1db8f7becfcd2194aa272ed2bca9b298c91dae1df9",
+        "request_seconds": 11.016148814931512,
+        "original_all_output_ids_pass": true,
+        "selected_rows_requalified": true,
+        "boundary_files": 500,
+        "boundary_bytes": 20449284
+      },
+      {
+        "name": "q8192-out32",
+        "prompt_tokens": 8192,
+        "outputs": 32,
+        "first_token": 144,
+        "first_logit": 10.375,
+        "first_logit_absolute_error": 0.0,
+        "full_first_logits_sha256": "145adfd0d14158d649b4c57f1dbb5151466d73f9183821e7da24e831d74112c0",
+        "case_sha256": "49dafbfe89deb63e46c5c8766e13226589fb15c8020e94b05111d8b209e29fd8",
+        "request_seconds": 3.377004573936574,
+        "original_all_output_ids_pass": true,
+        "selected_rows_requalified": true,
+        "boundary_files": 500,
+        "boundary_bytes": 20449284
+      },
+      {
+        "name": "long-prefix262144-owner-out32",
+        "prompt_tokens": 262144,
+        "outputs": 32,
+        "first_token": 16,
+        "first_logit": 24.375,
+        "first_logit_absolute_error": 0.0,
+        "full_first_logits_sha256": "a29f8caade68a34ae1201e9f3d9b5b8849e8ec3548235c46c99679fb23042cfe",
+        "case_sha256": "7f58ebba0f550a4614882738c606812b203e12b9103b7f0a61cd97c1ffcd62b6",
+        "request_seconds": 312.51004322699737,
+        "original_all_output_ids_pass": true,
+        "selected_rows_requalified": true,
+        "boundary_files": 7624,
+        "boundary_bytes": 196579716
+      },
+      {
+        "name": "long-prefix262144-suffix1024-out512",
+        "prompt_tokens": 263168,
+        "outputs": 512,
+        "first_token": 248045,
+        "first_logit": 5.78125,
+        "first_logit_absolute_error": 0.0,
+        "full_first_logits_sha256": "8819f100f74f9e07be158509b703dedfaf91497b4a5b0aaf371ba82b6548912e",
+        "case_sha256": "25e89438b04b0ef23a43e4c795a4b4380e1523867cb23a3230478b6f418c0215",
+        "request_seconds": 338.6637430510018,
+        "original_all_output_ids_pass": true,
+        "selected_rows_requalified": true,
+        "boundary_files": 1712,
+        "boundary_bytes": 54484620
+      }
+    ],
+    "capture_sha256": "e51a0fb3bd329d66f8a0099309c6131577637fcea2dc5290996b7b997a60e5c6",
+    "dispatch_sha256": "c2b4b98dec90f1183f1812d709fa90b07b0c1e4b73e86e12e7b2d498bd4c0614",
+    "downloaded_manifest_sha256": "4a98230f2dc96395f020d4e005e1d2a015628defa3a0759a46f1cf3aed52b725",
+    "downloaded_files_verified": 10383,
+    "command_file": "run-qrt-gb10-prefix256-divergence-20260920-r1.py",
+    "command_file_sha256": "2a20ff6ef4c4a9b5c9d7d873468ca22d4906dede7f05162a81d8a65a91b7a7db",
+    "selected_positions": {
+      "long-prefix262144-owner-out32": [
+        8191,
+        16383,
+        24575,
+        32767,
+        40959,
+        49151,
+        57343,
+        65535,
+        73727,
+        81919,
+        90111,
+        98303,
+        106495,
+        114687,
+        122879,
+        131071,
+        139263,
+        147455,
+        155647,
+        163839,
+        172031,
+        180223,
+        188415,
+        196607,
+        204799,
+        212991,
+        221183,
+        229375,
+        237567,
+        245759,
+        253951,
+        262143,
+        262144
+      ],
+      "long-prefix262144-suffix1024-out512": [
+        131071,
+        196607,
+        262143,
+        263167,
+        263168,
+        263347,
+        263348
+      ]
+    },
+    "target": {
+      "position": 263348,
+      "output_index": 181,
+      "transaction": 213,
+      "row": 0,
+      "input_token_id": 369,
+      "original_generated_history_matches": true,
+      "files": {
+        "layer-00-input-rmsnorm": {
+          "file": "txn0213-layer-00-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "569e5e849578ea677b9aad54717c5f3b5a8a9f1e95a9171e22ee4cdb179a6df8",
+          "transaction": 213,
+          "label": "layer-00-input-rmsnorm"
+        },
+        "linear-00-qkv": {
+          "file": "txn0213-linear-00-qkv-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            8192
+          ],
+          "bytes": 16384,
+          "sha256": "21f320a83e2ad40c668803eb5ab512694119397bb0bf6a0946505048ac50141a",
+          "transaction": 213,
+          "label": "linear-00-qkv"
+        },
+        "linear-00-z-projection": {
+          "file": "txn0213-linear-00-z-projection-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            4096
+          ],
+          "bytes": 8192,
+          "sha256": "7f89c4b97ce20d9e586ba4638b1377c6838a478fb852443057c4d7c71c2412f4",
+          "transaction": 213,
+          "label": "linear-00-z-projection"
+        },
+        "linear-00-b-projection": {
+          "file": "txn0213-linear-00-b-projection-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            32
+          ],
+          "bytes": 64,
+          "sha256": "2d2a10fbee78a84f44f302e2964d7321ee7f4b119f98040adb3fd422abc78101",
+          "transaction": 213,
+          "label": "linear-00-b-projection"
+        },
+        "linear-00-a-projection": {
+          "file": "txn0213-linear-00-a-projection-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            32
+          ],
+          "bytes": 64,
+          "sha256": "c57f3f784111e1b839219f1422484992834d6dc3151931b8b7984cf7ee358a85",
+          "transaction": 213,
+          "label": "linear-00-a-projection"
+        },
+        "linear-00-conv-history-before": {
+          "file": "txn0213-linear-00-conv-history-before-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            8192,
+            4
+          ],
+          "bytes": 65536,
+          "sha256": "d0879395442ea2172b63127f9d6045d3071064b4ac8e29518a63242773b854e5",
+          "transaction": 213,
+          "label": "linear-00-conv-history-before"
+        },
+        "linear-00-conv-decode-output": {
+          "file": "txn0213-linear-00-conv-decode-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            8192
+          ],
+          "bytes": 16384,
+          "sha256": "38b9c8c8a7b0217364798102e42638ec2aa00777927715c940209329faeca0ed",
+          "transaction": 213,
+          "label": "linear-00-conv-decode-output"
+        },
+        "linear-00-conv-history-after": {
+          "file": "txn0213-linear-00-conv-history-after-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            8192,
+            4
+          ],
+          "bytes": 65536,
+          "sha256": "2acc62943f64fb7bb8d3276867d3c51011e4b9ddaa9066c99eef35f5faee343b",
+          "transaction": 213,
+          "label": "linear-00-conv-history-after"
+        },
+        "linear-00-decode-state-before": {
+          "file": "txn0213-linear-00-decode-state-before-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            32,
+            128,
+            128
+          ],
+          "bytes": 2097152,
+          "sha256": "eb291ec0906ebd2d2f07d5e2c6dd9356d455105c0c69f5dff11ef5de926da2d5",
+          "transaction": 213,
+          "label": "linear-00-decode-state-before"
+        },
+        "linear-00-decode-state-after": {
+          "file": "txn0213-linear-00-decode-state-after-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            32,
+            128,
+            128
+          ],
+          "bytes": 2097152,
+          "sha256": "d41fca0b50977cc964c67d53b880b6af66b3ec7a93fc90ab1e634eb7e3092216",
+          "transaction": 213,
+          "label": "linear-00-decode-state-after"
+        },
+        "linear-00-core": {
+          "file": "txn0213-linear-00-core-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            4096
+          ],
+          "bytes": 8192,
+          "sha256": "018f952776e7ca9c6e743325089c43268816d7cd4216d3edcc86f2921a923d97",
+          "transaction": 213,
+          "label": "linear-00-core"
+        },
+        "linear-00-z": {
+          "file": "txn0213-linear-00-z-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            4096
+          ],
+          "bytes": 8192,
+          "sha256": "7f89c4b97ce20d9e586ba4638b1377c6838a478fb852443057c4d7c71c2412f4",
+          "transaction": 213,
+          "label": "linear-00-z"
+        },
+        "linear-00-gated": {
+          "file": "txn0213-linear-00-gated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            4096
+          ],
+          "bytes": 8192,
+          "sha256": "2acfe19f81a3556666a9221679f365ecd213f2836a553af41b1504a96328e8bc",
+          "transaction": 213,
+          "label": "linear-00-gated"
+        },
+        "linear-00-output-projection": {
+          "file": "txn0213-linear-00-output-projection-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "4ba28f57c7363308dd08ba5ea48fba388805525df33d94d02d022ea9531f8c56",
+          "transaction": 213,
+          "label": "linear-00-output-projection"
+        },
+        "layer-00-post-attention-rmsnorm": {
+          "file": "txn0213-layer-00-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "3006054e454d1eee79930b4a6da5140583af6c52adfa27b718553de9ef69002f",
+          "transaction": 213,
+          "label": "layer-00-post-attention-rmsnorm"
+        },
+        "moe-00-input": {
+          "file": "txn0213-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "3006054e454d1eee79930b4a6da5140583af6c52adfa27b718553de9ef69002f",
+          "transaction": 213,
+          "label": "moe-00-input"
+        },
+        "moe-00-router": {
+          "file": "txn0213-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            256
+          ],
+          "bytes": 512,
+          "sha256": "6622c7fceb198eaee86b0cbeb5342eba98262f1864da299a9358381c28532ac0",
+          "transaction": 213,
+          "label": "moe-00-router"
+        },
+        "moe-00-topk-weights": {
+          "file": "txn0213-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "c2612d3365e0ef609d725768eaf6786bc28fe886239952f639a5f8e5198305d3",
+          "transaction": 213,
+          "label": "moe-00-topk-weights"
+        },
+        "moe-00-topk-ids": {
+          "file": "txn0213-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "305c07237de2232552a7751174385bdc93210389d2ffa5d9b798dfd0cc6b2a5e",
+          "transaction": 213,
+          "label": "moe-00-topk-ids"
+        },
+        "moe-00-shared-gate-up": {
+          "file": "txn0213-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1024
+          ],
+          "bytes": 2048,
+          "sha256": "27c9ed7682c9c9302cd7f5c77ad6966915f1da15d270da2a6bddadde5c30416c",
+          "transaction": 213,
+          "label": "moe-00-shared-gate-up"
+        },
+        "moe-00-shared-activated": {
+          "file": "txn0213-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            512
+          ],
+          "bytes": 1024,
+          "sha256": "84b26ce31f28dd626b68129f2a32b97f3dd5e1dbedbc99bf31efa30535ca7c8c",
+          "transaction": 213,
+          "label": "moe-00-shared-activated"
+        },
+        "moe-00-shared-down": {
+          "file": "txn0213-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "1ec294aceb44aa304db149d8e97a136daca57333fea6536ef7668fffe7f116f9",
+          "transaction": 213,
+          "label": "moe-00-shared-down"
+        },
+        "moe-00-shared-gate": {
+          "file": "txn0213-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1
+          ],
+          "bytes": 2,
+          "sha256": "7818ad9764887ab9abcf450a473e42bb99888ce7d8b793dee2b7fe3d8d21957d",
+          "transaction": 213,
+          "label": "moe-00-shared-gate"
+        },
+        "moe-00-shared": {
+          "file": "txn0213-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "bb48055ed22dcb5477679a2531adf2dacb1c7af6244b58dfdaaaa659f51f1842",
+          "transaction": 213,
+          "label": "moe-00-shared"
+        },
+        "moe-00-expert-part-0": {
+          "file": "txn0213-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "bb48055ed22dcb5477679a2531adf2dacb1c7af6244b58dfdaaaa659f51f1842",
+          "transaction": 213,
+          "label": "moe-00-expert-part-0"
+        },
+        "moe-00-expert-part-1": {
+          "file": "txn0213-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "4869cb32773c1072a815492233f404d2f4b857d4b553946e0f50d7242e75b976",
+          "transaction": 213,
+          "label": "moe-00-expert-part-1"
+        },
+        "moe-00-output": {
+          "file": "txn0213-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "f6c2c99acd64568c5c9e99402b93d6487ea257d48f84691bdfa521b9f73b1c92",
+          "transaction": 213,
+          "label": "moe-00-output"
+        },
+        "layer-00-hidden": {
+          "file": "txn0213-layer-00-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "f6c2c99acd64568c5c9e99402b93d6487ea257d48f84691bdfa521b9f73b1c92",
+          "transaction": 213,
+          "label": "layer-00-hidden"
+        },
+        "layer-00-residual": {
+          "file": "txn0213-layer-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "06be5aba0cc9dbb7f1f0f6eed84a2439ac98132ccb840fe7924d7b7d0a37371f",
+          "transaction": 213,
+          "label": "layer-00-residual"
+        },
+        "layer-00-combined": {
+          "file": "txn0213-layer-00-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "e3a6909609821aaa842014ea3b6d265e730c50ac0cd7c7196a505d67d8b50ed8",
+          "transaction": 213,
+          "label": "layer-00-combined"
+        },
+        "moe-00-next-hidden": {
+          "file": "txn0213-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "f6c2c99acd64568c5c9e99402b93d6487ea257d48f84691bdfa521b9f73b1c92",
+          "transaction": 213,
+          "label": "moe-00-next-hidden"
+        },
+        "moe-00-residual": {
+          "file": "txn0213-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "06be5aba0cc9dbb7f1f0f6eed84a2439ac98132ccb840fe7924d7b7d0a37371f",
+          "transaction": 213,
+          "label": "moe-00-residual"
+        },
+        "layer-01-input-rmsnorm": {
+          "file": "txn0213-layer-01-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "00d4d93a9422adca5d40b3e1f9061811d9036dbe950a2f484d1b4a9f49232d27",
+          "transaction": 213,
+          "label": "layer-01-input-rmsnorm"
+        },
+        "layer-01-post-attention-rmsnorm": {
+          "file": "txn0213-layer-01-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "c1c6f3995112ef4a2903ecad770d4c011437f3f88685a0531b18688a963e351d",
+          "transaction": 213,
+          "label": "layer-01-post-attention-rmsnorm"
+        },
+        "layer-01-hidden": {
+          "file": "txn0213-layer-01-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "8bee7475fa12c33759881a0f00d46b1962a6d7707a5991da60ff241caae1b0b6",
+          "transaction": 213,
+          "label": "layer-01-hidden"
+        },
+        "layer-01-residual": {
+          "file": "txn0213-layer-01-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "8c83d31eec5dc5bcf3d237853edeaf3f5ca4682bf9967affbfc1727ba5c05cd7",
+          "transaction": 213,
+          "label": "layer-01-residual"
+        },
+        "layer-01-combined": {
+          "file": "txn0213-layer-01-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "3924a02df093aa22b3f0a0bb62297ad6385436760ac476b62401b090a3a36000",
+          "transaction": 213,
+          "label": "layer-01-combined"
+        },
+        "layer-02-input-rmsnorm": {
+          "file": "txn0213-layer-02-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "f48df6e0c596abdef1d41f016278aa1de6710c342c9a7f09d71ae2265fe91624",
+          "transaction": 213,
+          "label": "layer-02-input-rmsnorm"
+        },
+        "linear-02-qkv": {
+          "file": "txn0213-linear-02-qkv-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            8192
+          ],
+          "bytes": 16384,
+          "sha256": "79cb1acbea4ee56d4e7a6180b4ed4920054fae21beaea629b3df46b995264338",
+          "transaction": 213,
+          "label": "linear-02-qkv"
+        },
+        "linear-02-z-projection": {
+          "file": "txn0213-linear-02-z-projection-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            4096
+          ],
+          "bytes": 8192,
+          "sha256": "921166f9d976e9d17dc7191b735f86dca1ebc5f172e10292adb8b0c4e48ac5ae",
+          "transaction": 213,
+          "label": "linear-02-z-projection"
+        },
+        "linear-02-b-projection": {
+          "file": "txn0213-linear-02-b-projection-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            32
+          ],
+          "bytes": 64,
+          "sha256": "67d342b48dbbe30bf3f3c83ff844bbb0b2ba5224cdc3f2d29d323c69117827e1",
+          "transaction": 213,
+          "label": "linear-02-b-projection"
+        },
+        "linear-02-a-projection": {
+          "file": "txn0213-linear-02-a-projection-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            32
+          ],
+          "bytes": 64,
+          "sha256": "6ac664ef32c3cbb2195d5ade51c8bc0ff658c00de5efdc4505cb502c8a64f415",
+          "transaction": 213,
+          "label": "linear-02-a-projection"
+        },
+        "linear-02-conv-history-before": {
+          "file": "txn0213-linear-02-conv-history-before-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            8192,
+            4
+          ],
+          "bytes": 65536,
+          "sha256": "fb82406788fd952324f43aad92ddd7eda42597ead7b595ee37757778c3ea41d2",
+          "transaction": 213,
+          "label": "linear-02-conv-history-before"
+        },
+        "linear-02-conv-decode-output": {
+          "file": "txn0213-linear-02-conv-decode-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            8192
+          ],
+          "bytes": 16384,
+          "sha256": "c75febb2ffa568142ab95fb94d121379bbe6681d2280ce177804ec8b635601cd",
+          "transaction": 213,
+          "label": "linear-02-conv-decode-output"
+        },
+        "linear-02-conv-history-after": {
+          "file": "txn0213-linear-02-conv-history-after-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            8192,
+            4
+          ],
+          "bytes": 65536,
+          "sha256": "e8c88e37face77ad676d6d73e552f08417908c9c274d63b4c7939ec594a3c1e8",
+          "transaction": 213,
+          "label": "linear-02-conv-history-after"
+        },
+        "linear-02-decode-state-before": {
+          "file": "txn0213-linear-02-decode-state-before-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            32,
+            128,
+            128
+          ],
+          "bytes": 2097152,
+          "sha256": "d1ce36345bb9c636d462f8a6f6a5266904b245d6d8815542cf74a4e540a63e0c",
+          "transaction": 213,
+          "label": "linear-02-decode-state-before"
+        },
+        "linear-02-decode-state-after": {
+          "file": "txn0213-linear-02-decode-state-after-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            32,
+            128,
+            128
+          ],
+          "bytes": 2097152,
+          "sha256": "dbee80f10d61f18ab297c584c1693ff855b6727c6482e9edb55a893f2d6b745e",
+          "transaction": 213,
+          "label": "linear-02-decode-state-after"
+        },
+        "linear-02-core": {
+          "file": "txn0213-linear-02-core-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            4096
+          ],
+          "bytes": 8192,
+          "sha256": "247b8d520acbe9012274bc98d1c23e46d957588ddc53120ff54419c2dd55b7c5",
+          "transaction": 213,
+          "label": "linear-02-core"
+        },
+        "linear-02-z": {
+          "file": "txn0213-linear-02-z-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            4096
+          ],
+          "bytes": 8192,
+          "sha256": "921166f9d976e9d17dc7191b735f86dca1ebc5f172e10292adb8b0c4e48ac5ae",
+          "transaction": 213,
+          "label": "linear-02-z"
+        },
+        "linear-02-gated": {
+          "file": "txn0213-linear-02-gated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            4096
+          ],
+          "bytes": 8192,
+          "sha256": "d742e1e086ddcf72b77c1d41dd98864e63733d9385220a0e7356cba6ed70fc8b",
+          "transaction": 213,
+          "label": "linear-02-gated"
+        },
+        "linear-02-output-projection": {
+          "file": "txn0213-linear-02-output-projection-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "c96426946c00224027a97b4245c5668d375e7913b4f38c57600e157875833d66",
+          "transaction": 213,
+          "label": "linear-02-output-projection"
+        },
+        "layer-02-post-attention-rmsnorm": {
+          "file": "txn0213-layer-02-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "a396ff85cc577ebd9330815c3eb3518a6ac4fb8b6e24f296d1422683d567cfdf",
+          "transaction": 213,
+          "label": "layer-02-post-attention-rmsnorm"
+        },
+        "moe-02-input": {
+          "file": "txn0213-moe-02-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "a396ff85cc577ebd9330815c3eb3518a6ac4fb8b6e24f296d1422683d567cfdf",
+          "transaction": 213,
+          "label": "moe-02-input"
+        },
+        "moe-02-router": {
+          "file": "txn0213-moe-02-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            256
+          ],
+          "bytes": 512,
+          "sha256": "f0f6903fac113262441a1c59e6ade88f0c47fbfc95ee4a70eb497409017c39c1",
+          "transaction": 213,
+          "label": "moe-02-router"
+        },
+        "moe-02-topk-weights": {
+          "file": "txn0213-moe-02-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "6270cea166453fcd444d58fb58f1e80f3f14dfb3cfc1e9748ed6575e2db9eec9",
+          "transaction": 213,
+          "label": "moe-02-topk-weights"
+        },
+        "moe-02-topk-ids": {
+          "file": "txn0213-moe-02-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "c13f31e9cb9aaf2bb5663d0de4573a15f3030511d36b83267323db2432160365",
+          "transaction": 213,
+          "label": "moe-02-topk-ids"
+        },
+        "moe-02-shared-gate-up": {
+          "file": "txn0213-moe-02-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1024
+          ],
+          "bytes": 2048,
+          "sha256": "9cc598d9b337a1c342fa1c8c7847489820565a3b1000e62491c201c54175dfc7",
+          "transaction": 213,
+          "label": "moe-02-shared-gate-up"
+        },
+        "moe-02-shared-activated": {
+          "file": "txn0213-moe-02-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            512
+          ],
+          "bytes": 1024,
+          "sha256": "a2e069fb5d33956c66b301edb4a457ababdd5d8cb0340f48e908c491c070e8f3",
+          "transaction": 213,
+          "label": "moe-02-shared-activated"
+        },
+        "moe-02-shared-down": {
+          "file": "txn0213-moe-02-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "253ee2c0bf0672f02022b984f2b1ffb0f9d9be45ecf052f2110b6657cfa3540c",
+          "transaction": 213,
+          "label": "moe-02-shared-down"
+        },
+        "moe-02-shared-gate": {
+          "file": "txn0213-moe-02-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1
+          ],
+          "bytes": 2,
+          "sha256": "b4245e1880553d8150dee978e237c0f06d7b4b16d776c0816f07a3c2a7b6e361",
+          "transaction": 213,
+          "label": "moe-02-shared-gate"
+        },
+        "moe-02-shared": {
+          "file": "txn0213-moe-02-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "1b01eecb230457b0adbe62bb5b74779c2c296289cf9014e2e1f1a40de9846d3f",
+          "transaction": 213,
+          "label": "moe-02-shared"
+        },
+        "moe-02-expert-part-0": {
+          "file": "txn0213-moe-02-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "1b01eecb230457b0adbe62bb5b74779c2c296289cf9014e2e1f1a40de9846d3f",
+          "transaction": 213,
+          "label": "moe-02-expert-part-0"
+        },
+        "moe-02-expert-part-1": {
+          "file": "txn0213-moe-02-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "bb3bc643822f937fe6520570809d164645db9210fe107ce627b9f8c56ce04a85",
+          "transaction": 213,
+          "label": "moe-02-expert-part-1"
+        },
+        "moe-02-output": {
+          "file": "txn0213-moe-02-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "c54dbae2cb7351ad6f20d55ab4f6861a656804c660b6ef8d25990a0500fd3c43",
+          "transaction": 213,
+          "label": "moe-02-output"
+        },
+        "layer-02-hidden": {
+          "file": "txn0213-layer-02-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "c54dbae2cb7351ad6f20d55ab4f6861a656804c660b6ef8d25990a0500fd3c43",
+          "transaction": 213,
+          "label": "layer-02-hidden"
+        },
+        "layer-02-residual": {
+          "file": "txn0213-layer-02-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "ea9b2abb204f977933645f17078c070632a31e2c28ba3a9b02caa5db404f8da8",
+          "transaction": 213,
+          "label": "layer-02-residual"
+        },
+        "layer-02-combined": {
+          "file": "txn0213-layer-02-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "f79565b71af88b66270e6fd59e2692551f17a36f6f461e8dc79f2aade13e4262",
+          "transaction": 213,
+          "label": "layer-02-combined"
+        },
+        "moe-02-next-hidden": {
+          "file": "txn0213-moe-02-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "c54dbae2cb7351ad6f20d55ab4f6861a656804c660b6ef8d25990a0500fd3c43",
+          "transaction": 213,
+          "label": "moe-02-next-hidden"
+        },
+        "moe-02-residual": {
+          "file": "txn0213-moe-02-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "ea9b2abb204f977933645f17078c070632a31e2c28ba3a9b02caa5db404f8da8",
+          "transaction": 213,
+          "label": "moe-02-residual"
+        },
+        "layer-03-input-rmsnorm": {
+          "file": "txn0213-layer-03-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "8e40e56b35718ddbdc77bc0ce0ea2e3bbde7ee2a9f786d7a688ecdcc0493b63e",
+          "transaction": 213,
+          "label": "layer-03-input-rmsnorm"
+        },
+        "full-03-qkv": {
+          "file": "txn0213-full-03-qkv-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            9216
+          ],
+          "bytes": 18432,
+          "sha256": "4f6aaf940dcf38b590cde417c129ca23036341fa5fa4ace9b01e39b3622469f2",
+          "transaction": 213,
+          "label": "full-03-qkv"
+        },
+        "full-03-q-norm": {
+          "file": "txn0213-full-03-q-norm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            4096
+          ],
+          "bytes": 8192,
+          "sha256": "e1fc74e2ff4eae2119f4d67fd08c1782e076810706e14fa323f01cabed00dd00",
+          "transaction": 213,
+          "label": "full-03-q-norm"
+        },
+        "full-03-k-norm": {
+          "file": "txn0213-full-03-k-norm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            512
+          ],
+          "bytes": 1024,
+          "sha256": "52719640ebfb9726df3f76a3fc450b715fcf30bd6addd51bfc58a4bb2399e148",
+          "transaction": 213,
+          "label": "full-03-k-norm"
+        },
+        "full-03-q-rope": {
+          "file": "txn0213-full-03-q-rope-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            4096
+          ],
+          "bytes": 8192,
+          "sha256": "8fa6faeab3e0631cffe5a1bcfa5c36912e1e95c32ace1bc0fa1d5a03d0073bff",
+          "transaction": 213,
+          "label": "full-03-q-rope"
+        },
+        "full-03-k-rope": {
+          "file": "txn0213-full-03-k-rope-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            512
+          ],
+          "bytes": 1024,
+          "sha256": "36c8077511145c9fe463af310f76319fce3d85e2069ce9cab1cbe2341a7df941",
+          "transaction": 213,
+          "label": "full-03-k-rope"
+        },
+        "full-03-context": {
+          "file": "txn0213-full-03-context-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            4096
+          ],
+          "bytes": 8192,
+          "sha256": "ea425681aec5f9af20eba7bf5e069d3018e12200b8a32fa1d6d0034f3aab7461",
+          "transaction": 213,
+          "label": "full-03-context"
+        },
+        "full-03-gated": {
+          "file": "txn0213-full-03-gated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            4096
+          ],
+          "bytes": 8192,
+          "sha256": "0a84e0bf76c4a915bd5854d56e9690ae1b5510430e6ebc2edf1fc55422930fa0",
+          "transaction": 213,
+          "label": "full-03-gated"
+        },
+        "full-03-output": {
+          "file": "txn0213-full-03-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "b48b2d0250027946bf97923f68cb6ff9f350b14d073455aff63ca35d84ab9f0c",
+          "transaction": 213,
+          "label": "full-03-output"
+        },
+        "layer-03-post-attention-rmsnorm": {
+          "file": "txn0213-layer-03-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "d9235d77dc34c65d420d7c1612072c3850932ad1baced73f8e98783a9296c16c",
+          "transaction": 213,
+          "label": "layer-03-post-attention-rmsnorm"
+        },
+        "layer-03-hidden": {
+          "file": "txn0213-layer-03-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "5b29fc553cad8fe421f20344170743df97dad6d1aadc66c8a7ee92ab3606c56e",
+          "transaction": 213,
+          "label": "layer-03-hidden"
+        },
+        "layer-03-residual": {
+          "file": "txn0213-layer-03-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "81426dec80eb44e7f4d0fbded449bc64348cf12fad4c72d20cff5f5888595d39",
+          "transaction": 213,
+          "label": "layer-03-residual"
+        },
+        "layer-03-combined": {
+          "file": "txn0213-layer-03-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "7773736b60a3a050a08b1878239c3d64888e1c9011788b28b00423995dc57881",
+          "transaction": 213,
+          "label": "layer-03-combined"
+        },
+        "layer-04-input-rmsnorm": {
+          "file": "txn0213-layer-04-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "8f8051d39b74aae72ffee880962cd463553f6172ba2112f081c190f3a584d992",
+          "transaction": 213,
+          "label": "layer-04-input-rmsnorm"
+        },
+        "layer-04-post-attention-rmsnorm": {
+          "file": "txn0213-layer-04-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "2ab02acd16aa067cb72ac7596e7e576f629c3ff4671504ac93bb9cfe2315539b",
+          "transaction": 213,
+          "label": "layer-04-post-attention-rmsnorm"
+        },
+        "layer-04-hidden": {
+          "file": "txn0213-layer-04-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "e708fee0f7a60cd18710798b6fc739efad1b8343e473c7069dcc433a7a7bd369",
+          "transaction": 213,
+          "label": "layer-04-hidden"
+        },
+        "layer-04-residual": {
+          "file": "txn0213-layer-04-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "ba07629e707382b4c58dadd9f1e15f22d4fa3884ca7d4306d1a2e14136ce9d54",
+          "transaction": 213,
+          "label": "layer-04-residual"
+        },
+        "layer-04-combined": {
+          "file": "txn0213-layer-04-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "579a414264fd63c485f5b3ef380e8c1470d92fb574e0cea0f2efa3325e052613",
+          "transaction": 213,
+          "label": "layer-04-combined"
+        },
+        "layer-05-input-rmsnorm": {
+          "file": "txn0213-layer-05-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "ce70afee5470b20f60c7632723407bd670aff9d2e1b2f26f1f34014514376190",
+          "transaction": 213,
+          "label": "layer-05-input-rmsnorm"
+        },
+        "layer-05-post-attention-rmsnorm": {
+          "file": "txn0213-layer-05-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "f952b34dbb7410bb45716d05b32cd725f7d667e128991ddffd4028208101938a",
+          "transaction": 213,
+          "label": "layer-05-post-attention-rmsnorm"
+        },
+        "layer-05-hidden": {
+          "file": "txn0213-layer-05-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "1cd805fdf8d70151c5b8361a68e7630ea469b9873d5ac3be8b36a910389b3a79",
+          "transaction": 213,
+          "label": "layer-05-hidden"
+        },
+        "layer-05-residual": {
+          "file": "txn0213-layer-05-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "126b27d49b84cb0c25b6e0e5a18ba1b0cab9f8c64ab14886df6eb9614ba93ccf",
+          "transaction": 213,
+          "label": "layer-05-residual"
+        },
+        "layer-05-combined": {
+          "file": "txn0213-layer-05-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "2d373ac9fd5e8b0d4f6340633fe26e8e25f22f36a7a05f0f2c611d56f018f01e",
+          "transaction": 213,
+          "label": "layer-05-combined"
+        },
+        "layer-06-input-rmsnorm": {
+          "file": "txn0213-layer-06-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "cce3ac4782a96b1de1a6f9cbd9f352e0ae6b01d6214ea6835241e3387355e004",
+          "transaction": 213,
+          "label": "layer-06-input-rmsnorm"
+        },
+        "layer-06-post-attention-rmsnorm": {
+          "file": "txn0213-layer-06-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "1e457155412e530dfb0a7f5796a38516ee4457ecef8ab12c365cc63d531b4e4c",
+          "transaction": 213,
+          "label": "layer-06-post-attention-rmsnorm"
+        },
+        "layer-06-hidden": {
+          "file": "txn0213-layer-06-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "68664ac20aa6af37ab0fae9acf73b4d73a3c9fb485b22c3e4cb729594dcac152",
+          "transaction": 213,
+          "label": "layer-06-hidden"
+        },
+        "layer-06-residual": {
+          "file": "txn0213-layer-06-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "6395c8fd94ac3d887e61fefefcc839d02211d49b8dbf1deed511ee733255f27e",
+          "transaction": 213,
+          "label": "layer-06-residual"
+        },
+        "layer-06-combined": {
+          "file": "txn0213-layer-06-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "5c39e5feae31f15ea4de00c057e962294165663b165930ee97073bc4e4ba737a",
+          "transaction": 213,
+          "label": "layer-06-combined"
+        },
+        "layer-07-input-rmsnorm": {
+          "file": "txn0213-layer-07-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "c393e273153a1f2656f1d3d0fbcab63c63e37c6abc02647ffccabbcbe47cb44e",
+          "transaction": 213,
+          "label": "layer-07-input-rmsnorm"
+        },
+        "layer-07-post-attention-rmsnorm": {
+          "file": "txn0213-layer-07-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "91c572dba98691596f358b960b9a1eaf47a2ac2dbfe0cfe3c95467a99c034b4a",
+          "transaction": 213,
+          "label": "layer-07-post-attention-rmsnorm"
+        },
+        "layer-07-hidden": {
+          "file": "txn0213-layer-07-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "b46c7a955d9b20eca29241cc7fc32fe9eec3677d71b5711cc8f6c8e4aa387804",
+          "transaction": 213,
+          "label": "layer-07-hidden"
+        },
+        "layer-07-residual": {
+          "file": "txn0213-layer-07-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "20c7fd1a26ec18b95e4abbec86260f5fc7e20fd662f49c23891d244bd2b022aa",
+          "transaction": 213,
+          "label": "layer-07-residual"
+        },
+        "layer-07-combined": {
+          "file": "txn0213-layer-07-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "b6dca95dccc8436722d2bdc05be09e6470dd97d0d1404349e19502140ba4cde0",
+          "transaction": 213,
+          "label": "layer-07-combined"
+        },
+        "layer-08-input-rmsnorm": {
+          "file": "txn0213-layer-08-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "0f39e090e57bb070eb9c9bd85173446b86e968a90df17a548777226a2691db40",
+          "transaction": 213,
+          "label": "layer-08-input-rmsnorm"
+        },
+        "layer-08-post-attention-rmsnorm": {
+          "file": "txn0213-layer-08-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "d6993ae02b7cb8d203e43a14c0373d9d15c0e1e7031e384efa7fc01d50370d02",
+          "transaction": 213,
+          "label": "layer-08-post-attention-rmsnorm"
+        },
+        "layer-08-hidden": {
+          "file": "txn0213-layer-08-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "dd10920de34fb4e7efaa4424b46ffd7ae04b3ec88d4f8ed954857bbb1552d5a0",
+          "transaction": 213,
+          "label": "layer-08-hidden"
+        },
+        "layer-08-residual": {
+          "file": "txn0213-layer-08-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "1776ae7e0523e2226a9a8e2036ed4973cdaf2629138e5d5816e0ed682b6d1300",
+          "transaction": 213,
+          "label": "layer-08-residual"
+        },
+        "layer-08-combined": {
+          "file": "txn0213-layer-08-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "f5737cb056b495b1879cfd0e29021738664ceb8e803f5a68defe8693090fe7ae",
+          "transaction": 213,
+          "label": "layer-08-combined"
+        },
+        "layer-09-input-rmsnorm": {
+          "file": "txn0213-layer-09-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "46dbe43619318f779a564d41cc41f9afed67c3916a1a00cd4ecd82c31ff0726f",
+          "transaction": 213,
+          "label": "layer-09-input-rmsnorm"
+        },
+        "layer-09-post-attention-rmsnorm": {
+          "file": "txn0213-layer-09-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "1873e95155f3f62419ea3029f35d97bf879d3fe4e6351e3237554211765fd280",
+          "transaction": 213,
+          "label": "layer-09-post-attention-rmsnorm"
+        },
+        "layer-09-hidden": {
+          "file": "txn0213-layer-09-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "708fe52ca618f22f790a382afff8cc572f08035b42b40b6540a9dfb2c368299e",
+          "transaction": 213,
+          "label": "layer-09-hidden"
+        },
+        "layer-09-residual": {
+          "file": "txn0213-layer-09-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "fce9208c83ea11fb2a240dca30f511e65748bb0818a0abeaad798b90bffee3fd",
+          "transaction": 213,
+          "label": "layer-09-residual"
+        },
+        "layer-09-combined": {
+          "file": "txn0213-layer-09-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "9eba61fbf85957ff1e72dfea4988268c326fbe2e1321638d0574b1c78b5c8619",
+          "transaction": 213,
+          "label": "layer-09-combined"
+        },
+        "layer-10-input-rmsnorm": {
+          "file": "txn0213-layer-10-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "f599a7ab5b57ebe5cf58c02403d8ebc79fd9295808d960ebf2074553a02a3e64",
+          "transaction": 213,
+          "label": "layer-10-input-rmsnorm"
+        },
+        "layer-10-post-attention-rmsnorm": {
+          "file": "txn0213-layer-10-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "aa1a30eefd7d3c5448946244a6acc533bbe87a9adc9cc97facaf0a49dd23cb51",
+          "transaction": 213,
+          "label": "layer-10-post-attention-rmsnorm"
+        },
+        "layer-10-hidden": {
+          "file": "txn0213-layer-10-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "9983108991601ae390d738941ac65fef407435863297cd22f4284346646ce099",
+          "transaction": 213,
+          "label": "layer-10-hidden"
+        },
+        "layer-10-residual": {
+          "file": "txn0213-layer-10-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "bf31e94698ca68e730bab36301842db8118272189b37493b90752b8a5882ac0a",
+          "transaction": 213,
+          "label": "layer-10-residual"
+        },
+        "layer-10-combined": {
+          "file": "txn0213-layer-10-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "2d424e19336db26685eb87263a8696fe1d9b525e4d953d01f560f34571831fd3",
+          "transaction": 213,
+          "label": "layer-10-combined"
+        },
+        "layer-11-input-rmsnorm": {
+          "file": "txn0213-layer-11-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "8397698d605349872b0567f0253bd49d3ebcdfc5e3faff634a0bce34840cf933",
+          "transaction": 213,
+          "label": "layer-11-input-rmsnorm"
+        },
+        "layer-11-post-attention-rmsnorm": {
+          "file": "txn0213-layer-11-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "99a33912e5e47587f6f50035da3e3a128762a4ad42ab583c90dcbf77563eabcf",
+          "transaction": 213,
+          "label": "layer-11-post-attention-rmsnorm"
+        },
+        "layer-11-hidden": {
+          "file": "txn0213-layer-11-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "1582b370bc205a787de1a161deaf6f63ace7de64d19c14c15436c048f161dad8",
+          "transaction": 213,
+          "label": "layer-11-hidden"
+        },
+        "layer-11-residual": {
+          "file": "txn0213-layer-11-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "b1df0a02e3c7ede190f1c879e6e05b6ef793955ba5c6552ad2cc6d2ec81ed1a3",
+          "transaction": 213,
+          "label": "layer-11-residual"
+        },
+        "layer-11-combined": {
+          "file": "txn0213-layer-11-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "1b5191ea7e706a3700ca9aee0376f12d92df5ba9c3b4faefa95d9839209112ca",
+          "transaction": 213,
+          "label": "layer-11-combined"
+        },
+        "layer-12-input-rmsnorm": {
+          "file": "txn0213-layer-12-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "773ad73ca69ee7f40acee47103a1fdde8bc6778d82148c3c5e8ce0a635a544c7",
+          "transaction": 213,
+          "label": "layer-12-input-rmsnorm"
+        },
+        "layer-12-post-attention-rmsnorm": {
+          "file": "txn0213-layer-12-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "27cfd9ea1f5d26226eb149b7f8d165bc57ab8bbe80d87198f1dd0a4623c8ad8f",
+          "transaction": 213,
+          "label": "layer-12-post-attention-rmsnorm"
+        },
+        "layer-12-hidden": {
+          "file": "txn0213-layer-12-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "6354b34ebfe62a42ba94ff587793a05c904cdb9169515501d425ec537330df9c",
+          "transaction": 213,
+          "label": "layer-12-hidden"
+        },
+        "layer-12-residual": {
+          "file": "txn0213-layer-12-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "15b3bcb084bff707a938a460e20c3f77bdc8bcb25b64c7a8fc61e768bede9dbe",
+          "transaction": 213,
+          "label": "layer-12-residual"
+        },
+        "layer-12-combined": {
+          "file": "txn0213-layer-12-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "e6e24f2bfec554daba6b7d9aa9c16c8b2cd1c65d0cf0f3876c2f58abc4e5d3ae",
+          "transaction": 213,
+          "label": "layer-12-combined"
+        },
+        "layer-13-input-rmsnorm": {
+          "file": "txn0213-layer-13-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "d9ef616ef3ea2c80d9986fd6d8b6d7bc119d1566ec0657be83c9ee88e6cc232d",
+          "transaction": 213,
+          "label": "layer-13-input-rmsnorm"
+        },
+        "layer-13-post-attention-rmsnorm": {
+          "file": "txn0213-layer-13-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "df6265227c33afd2ae1591fb0739ae2a25ddebbf8c91958002c10c38a2f768f0",
+          "transaction": 213,
+          "label": "layer-13-post-attention-rmsnorm"
+        },
+        "layer-13-hidden": {
+          "file": "txn0213-layer-13-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "0fe7da29b1d61cdf99b7e142fd4cd0dfc8718ac728a13d2125071186bbc4d6b5",
+          "transaction": 213,
+          "label": "layer-13-hidden"
+        },
+        "layer-13-residual": {
+          "file": "txn0213-layer-13-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "fc32ab7e66d84816aace6448120ff0088b899b30d8782887062205d275aad110",
+          "transaction": 213,
+          "label": "layer-13-residual"
+        },
+        "layer-13-combined": {
+          "file": "txn0213-layer-13-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "30f41d7dd193e63dc4ed26974f0f2461663139fe783905c8f7c3e31d4e7d6b05",
+          "transaction": 213,
+          "label": "layer-13-combined"
+        },
+        "layer-14-input-rmsnorm": {
+          "file": "txn0213-layer-14-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "0d29fed2a1c8e481dbd7843caae27c197a6e7b2d2f94e998be2ed6b11f530499",
+          "transaction": 213,
+          "label": "layer-14-input-rmsnorm"
+        },
+        "layer-14-post-attention-rmsnorm": {
+          "file": "txn0213-layer-14-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "43939bf687144c278890462643043a82cb08c00b8e70ee7c152e9b3555875ff7",
+          "transaction": 213,
+          "label": "layer-14-post-attention-rmsnorm"
+        },
+        "layer-14-hidden": {
+          "file": "txn0213-layer-14-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "a56126859ba3ec4a9a8c083e6634f1c4a0e5a6b3670128a13394a5793123d406",
+          "transaction": 213,
+          "label": "layer-14-hidden"
+        },
+        "layer-14-residual": {
+          "file": "txn0213-layer-14-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "c652cc96b78738a504f805e5852f74a77fd14cd6c6b006b768a3ee6e24d7e2bb",
+          "transaction": 213,
+          "label": "layer-14-residual"
+        },
+        "layer-14-combined": {
+          "file": "txn0213-layer-14-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "5008d75b74be9cf28be0faff09a949799a369ea54f14e9560d6a166638a33220",
+          "transaction": 213,
+          "label": "layer-14-combined"
+        },
+        "layer-15-input-rmsnorm": {
+          "file": "txn0213-layer-15-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "a41ba6250f5483c5b413b281f643aa8816f580321d03cf128c606f74b3d691d6",
+          "transaction": 213,
+          "label": "layer-15-input-rmsnorm"
+        },
+        "layer-15-post-attention-rmsnorm": {
+          "file": "txn0213-layer-15-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "0d9477e7cc3d1de3a67d51e4a0bbf351d1572bb1293efefad0b09c55312f1f92",
+          "transaction": 213,
+          "label": "layer-15-post-attention-rmsnorm"
+        },
+        "layer-15-hidden": {
+          "file": "txn0213-layer-15-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "ba3f7aba3c75f27e13c4ccd041779ef361ab9be560828ba93c3369d1d81d7420",
+          "transaction": 213,
+          "label": "layer-15-hidden"
+        },
+        "layer-15-residual": {
+          "file": "txn0213-layer-15-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "b25df0a8c11a326b3d4b120aeb685caeae5ddc7d5087d4687d496119e02b2ea2",
+          "transaction": 213,
+          "label": "layer-15-residual"
+        },
+        "layer-15-combined": {
+          "file": "txn0213-layer-15-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "66adbcf4f003bf0710977806da4f14d53e8f90b015059a2c12a9ae820c7de278",
+          "transaction": 213,
+          "label": "layer-15-combined"
+        },
+        "layer-16-input-rmsnorm": {
+          "file": "txn0213-layer-16-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "c1cc032ce1dac414d18575e14039ea09d5463115d9d41a42b7566bcf0e4b973a",
+          "transaction": 213,
+          "label": "layer-16-input-rmsnorm"
+        },
+        "layer-16-post-attention-rmsnorm": {
+          "file": "txn0213-layer-16-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "a40ef4e598a37f1ecdd800fb91e8dd40bf7d7008cd8c1ba7b72faab24060e673",
+          "transaction": 213,
+          "label": "layer-16-post-attention-rmsnorm"
+        },
+        "layer-16-hidden": {
+          "file": "txn0213-layer-16-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "cc7703efd2b5bd4a643ddcfcc1dc119653941c3ed0d6e2b3201408b1e8582546",
+          "transaction": 213,
+          "label": "layer-16-hidden"
+        },
+        "layer-16-residual": {
+          "file": "txn0213-layer-16-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "de949fd9fd11f11b8a8aec25b3dc36617f6e7e84bd2ffb52a359076cdd022ee2",
+          "transaction": 213,
+          "label": "layer-16-residual"
+        },
+        "layer-16-combined": {
+          "file": "txn0213-layer-16-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "558cfd92f1e2333630f67c5bcd5fa0edac6c4fca4b614b1bfcab5fab6c46444d",
+          "transaction": 213,
+          "label": "layer-16-combined"
+        },
+        "layer-17-input-rmsnorm": {
+          "file": "txn0213-layer-17-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "63a1e00654c292d26830a67352e365982341e47c17f82b8100b6e0e36fada8e5",
+          "transaction": 213,
+          "label": "layer-17-input-rmsnorm"
+        },
+        "layer-17-post-attention-rmsnorm": {
+          "file": "txn0213-layer-17-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "dda96573560d3b96ae8759e50d23a0c486a59ac71d9ace8792198f23a3e86df4",
+          "transaction": 213,
+          "label": "layer-17-post-attention-rmsnorm"
+        },
+        "layer-17-hidden": {
+          "file": "txn0213-layer-17-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "7c34fd41d6b156ab0b59fdefb1f9e120efec87b154d64090d0d99220be80b97c",
+          "transaction": 213,
+          "label": "layer-17-hidden"
+        },
+        "layer-17-residual": {
+          "file": "txn0213-layer-17-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "7c5372ae33ee3fe69608bc9c993f48523ab46f26528a9ef5823fdf38d6a6b5d8",
+          "transaction": 213,
+          "label": "layer-17-residual"
+        },
+        "layer-17-combined": {
+          "file": "txn0213-layer-17-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "bcebac93f7405512455ca1c62c83b10bff81485cb10cf81132c9b4e61b2c0a38",
+          "transaction": 213,
+          "label": "layer-17-combined"
+        },
+        "layer-18-input-rmsnorm": {
+          "file": "txn0213-layer-18-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "3bed2219b110b7f465e70ccdcf693dc181dfaabef38a4036a5d4b01d1f7fb518",
+          "transaction": 213,
+          "label": "layer-18-input-rmsnorm"
+        },
+        "layer-18-post-attention-rmsnorm": {
+          "file": "txn0213-layer-18-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "b122289fbf6dbf42c3fa85f0c0e41969f1f3269fda5ca2d5f0f2e874225030f7",
+          "transaction": 213,
+          "label": "layer-18-post-attention-rmsnorm"
+        },
+        "layer-18-hidden": {
+          "file": "txn0213-layer-18-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "ada6ab29690b6b455138d12eabf7c093791ffaf19d0cd10b58a6a18893952d47",
+          "transaction": 213,
+          "label": "layer-18-hidden"
+        },
+        "layer-18-residual": {
+          "file": "txn0213-layer-18-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "e172426e700368c039c0129dc23c315a86b384a70ec327a433d4e1b865c77f3d",
+          "transaction": 213,
+          "label": "layer-18-residual"
+        },
+        "layer-18-combined": {
+          "file": "txn0213-layer-18-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "afbd5efd7d0c0a245cecc33d25ee91b637b9614e630129ee565e86c878e40471",
+          "transaction": 213,
+          "label": "layer-18-combined"
+        },
+        "layer-19-input-rmsnorm": {
+          "file": "txn0213-layer-19-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "d800f01e0a23faac7a79f9c39aa547cf69f34c69b4507bf6745a1a316cd0a95d",
+          "transaction": 213,
+          "label": "layer-19-input-rmsnorm"
+        },
+        "layer-19-post-attention-rmsnorm": {
+          "file": "txn0213-layer-19-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "ae370af9ba5f497e6aae7026cde037db7ca53121455b741d37ad33494372e6a1",
+          "transaction": 213,
+          "label": "layer-19-post-attention-rmsnorm"
+        },
+        "layer-19-hidden": {
+          "file": "txn0213-layer-19-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "3318c6e46df075e4f720225fe30d66ec28a304a466d4ff8470b99b7b0f722b84",
+          "transaction": 213,
+          "label": "layer-19-hidden"
+        },
+        "layer-19-residual": {
+          "file": "txn0213-layer-19-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "1aaf5f1d0e1c5bec0c09586d87bf6dd947afd656265196b70b3eb57b90ebf10f",
+          "transaction": 213,
+          "label": "layer-19-residual"
+        },
+        "layer-19-combined": {
+          "file": "txn0213-layer-19-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "17275d0da9230bb43665afd8ba52f30c202b63da5aadd9f52383aabd81009078",
+          "transaction": 213,
+          "label": "layer-19-combined"
+        },
+        "layer-20-input-rmsnorm": {
+          "file": "txn0213-layer-20-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "14488eb954882fe1678baf0e95016f0ef8d02d3c90147d12f1d123a05310a438",
+          "transaction": 213,
+          "label": "layer-20-input-rmsnorm"
+        },
+        "layer-20-post-attention-rmsnorm": {
+          "file": "txn0213-layer-20-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "ba6432a4fedd803dd8fb0f33082fee68c5f97e51c8f48e1054986af0a312b397",
+          "transaction": 213,
+          "label": "layer-20-post-attention-rmsnorm"
+        },
+        "layer-20-hidden": {
+          "file": "txn0213-layer-20-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "e98b35c60fc92b1a62687d03876a270f6b303ffb9919d577effe7f4d18b7e848",
+          "transaction": 213,
+          "label": "layer-20-hidden"
+        },
+        "layer-20-residual": {
+          "file": "txn0213-layer-20-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "0c800c5724ab8f5fb1fa20ac5024640bc09cd0e6373854ee2e205805bbea9201",
+          "transaction": 213,
+          "label": "layer-20-residual"
+        },
+        "layer-20-combined": {
+          "file": "txn0213-layer-20-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "67ebc55e529adf92ecba04146178fa552928110b532a7331d296b0a7e04d3523",
+          "transaction": 213,
+          "label": "layer-20-combined"
+        },
+        "layer-21-input-rmsnorm": {
+          "file": "txn0213-layer-21-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "1b463f594a7253997c601d7a760aa55b36649d615b22ee103a163eb030e497e7",
+          "transaction": 213,
+          "label": "layer-21-input-rmsnorm"
+        },
+        "layer-21-post-attention-rmsnorm": {
+          "file": "txn0213-layer-21-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "a0b322cae9e7bda7350f4a09bf157e851a7c788e70c26cd9443235eba10cd5eb",
+          "transaction": 213,
+          "label": "layer-21-post-attention-rmsnorm"
+        },
+        "layer-21-hidden": {
+          "file": "txn0213-layer-21-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "50b005c2d289b9b99da59f7c595a7988059782a60b21f684425a208d2a268427",
+          "transaction": 213,
+          "label": "layer-21-hidden"
+        },
+        "layer-21-residual": {
+          "file": "txn0213-layer-21-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "3ab9cb2d82930ae82304f5db1f67fe3571c4aa404102a499d3248e76eb35dc26",
+          "transaction": 213,
+          "label": "layer-21-residual"
+        },
+        "layer-21-combined": {
+          "file": "txn0213-layer-21-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "24c9a4b5f606beb57574182558f3cab4d37f1d2e667be5ed987744e731e35aff",
+          "transaction": 213,
+          "label": "layer-21-combined"
+        },
+        "layer-22-input-rmsnorm": {
+          "file": "txn0213-layer-22-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "d75200abcac31766f83ed3e65b4a24148797edd447c782410ec110cd424bf5c2",
+          "transaction": 213,
+          "label": "layer-22-input-rmsnorm"
+        },
+        "layer-22-post-attention-rmsnorm": {
+          "file": "txn0213-layer-22-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "d04a878234e8ec5759f03d7adfe08a641bd51c7301c8a00d47179862b2815d38",
+          "transaction": 213,
+          "label": "layer-22-post-attention-rmsnorm"
+        },
+        "layer-22-hidden": {
+          "file": "txn0213-layer-22-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "08f96740cdde066266916e93b3c62b37e455845024c992904ad59c5c8905ee39",
+          "transaction": 213,
+          "label": "layer-22-hidden"
+        },
+        "layer-22-residual": {
+          "file": "txn0213-layer-22-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "818df02076a15c11e4bb7959c907586072676f7cf6a1fe8fca48fdb1dcbc3039",
+          "transaction": 213,
+          "label": "layer-22-residual"
+        },
+        "layer-22-combined": {
+          "file": "txn0213-layer-22-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "c38bf77dfb911402ca161d06458607d90e9a746a98416ccc01edb494ef52635c",
+          "transaction": 213,
+          "label": "layer-22-combined"
+        },
+        "layer-23-input-rmsnorm": {
+          "file": "txn0213-layer-23-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "8cefd841a3c3b8bf7e4f6863a0cd635ba46a292080b8c30de7a11285db7f9e13",
+          "transaction": 213,
+          "label": "layer-23-input-rmsnorm"
+        },
+        "layer-23-post-attention-rmsnorm": {
+          "file": "txn0213-layer-23-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "d8d9f1c3d6ac74b965d3e3a21c12cea13dab8de9c1ae8df916de3d44f50eab5e",
+          "transaction": 213,
+          "label": "layer-23-post-attention-rmsnorm"
+        },
+        "layer-23-hidden": {
+          "file": "txn0213-layer-23-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "99503b84f1c4d38068505c0f198cc747ea08538db40c46eb9b90af7860a5136c",
+          "transaction": 213,
+          "label": "layer-23-hidden"
+        },
+        "layer-23-residual": {
+          "file": "txn0213-layer-23-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "8a2910c8c29ab2461d47fe5b56c6fd0362624d9ace14f309717655ad97b5e1db",
+          "transaction": 213,
+          "label": "layer-23-residual"
+        },
+        "layer-23-combined": {
+          "file": "txn0213-layer-23-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "11b10e1e7c359fe52912198afade8d7d58bc850be971ae1b5016ea920d8f1c6a",
+          "transaction": 213,
+          "label": "layer-23-combined"
+        },
+        "layer-24-input-rmsnorm": {
+          "file": "txn0213-layer-24-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "73cfd589dbf365e69bc7c4ec500dbf454afcb76b05569e51c80cbf32712d8c2d",
+          "transaction": 213,
+          "label": "layer-24-input-rmsnorm"
+        },
+        "layer-24-post-attention-rmsnorm": {
+          "file": "txn0213-layer-24-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "49f732887af7da2204046c90debbb5baf3b4a2c77a26e71052b1ce222d482b60",
+          "transaction": 213,
+          "label": "layer-24-post-attention-rmsnorm"
+        },
+        "layer-24-hidden": {
+          "file": "txn0213-layer-24-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "9fe3a87e10acae197615fe2f0f4a8371f68fe9d54c0c229df6774c591c1ae2cc",
+          "transaction": 213,
+          "label": "layer-24-hidden"
+        },
+        "layer-24-residual": {
+          "file": "txn0213-layer-24-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "003469d2584f7f6764dbfe31f0102b8b727d0f8b08c67b2a92b740cb6a7bb774",
+          "transaction": 213,
+          "label": "layer-24-residual"
+        },
+        "layer-24-combined": {
+          "file": "txn0213-layer-24-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "4a3e54b15a1eb4c375043e05aff7067db8ed7bccc2b487ad8ac6d43a5871fab6",
+          "transaction": 213,
+          "label": "layer-24-combined"
+        },
+        "layer-25-input-rmsnorm": {
+          "file": "txn0213-layer-25-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "9e09ca51cd9bc32da9b16f06345635a2373b00c509bf9549e04afbdc9c02b552",
+          "transaction": 213,
+          "label": "layer-25-input-rmsnorm"
+        },
+        "layer-25-post-attention-rmsnorm": {
+          "file": "txn0213-layer-25-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "877a4e0d9f3580a818373276652714e1b74f0ba2594db5f87bb6125d5d42eb19",
+          "transaction": 213,
+          "label": "layer-25-post-attention-rmsnorm"
+        },
+        "layer-25-hidden": {
+          "file": "txn0213-layer-25-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "875c98439e2c5bb175969f8eb3d07c88afbca0f1b976377a5390523b766198fc",
+          "transaction": 213,
+          "label": "layer-25-hidden"
+        },
+        "layer-25-residual": {
+          "file": "txn0213-layer-25-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "cca200aed5078871a59bdd3c2da66bc9acae253c9c87536de852572ca257dae2",
+          "transaction": 213,
+          "label": "layer-25-residual"
+        },
+        "layer-25-combined": {
+          "file": "txn0213-layer-25-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "f48e7a6655c7083c896f62726d1ccb26414f6acd4629e2646b8f496962c31571",
+          "transaction": 213,
+          "label": "layer-25-combined"
+        },
+        "layer-26-input-rmsnorm": {
+          "file": "txn0213-layer-26-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "82e0552157c35d2db5f40464c07e287fe83e1fecd91e83dcc4916765780e60ae",
+          "transaction": 213,
+          "label": "layer-26-input-rmsnorm"
+        },
+        "layer-26-post-attention-rmsnorm": {
+          "file": "txn0213-layer-26-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "aaf5c55e3cd844ff5a15687cf730db3b4d86d5c9efb8ed3411253dd8fbc9526f",
+          "transaction": 213,
+          "label": "layer-26-post-attention-rmsnorm"
+        },
+        "layer-26-hidden": {
+          "file": "txn0213-layer-26-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "baf5f1161ff859f881c24b56b41e42f1a31a43826267e42f7dfac72e9efab279",
+          "transaction": 213,
+          "label": "layer-26-hidden"
+        },
+        "layer-26-residual": {
+          "file": "txn0213-layer-26-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "09e9442d151f468d6bce90d2f46e757e95877a36fd299532ffe0c6e05635d1e4",
+          "transaction": 213,
+          "label": "layer-26-residual"
+        },
+        "layer-26-combined": {
+          "file": "txn0213-layer-26-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "10ffe97ce1348ce2c156fc39636b168a662f5cf52496830327c3f6c56a3b2aa9",
+          "transaction": 213,
+          "label": "layer-26-combined"
+        },
+        "layer-27-input-rmsnorm": {
+          "file": "txn0213-layer-27-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "e369bd09ba2e77a9ba065c57b6f0b425a76770b0c4cf3be3a5d43a5b380d0562",
+          "transaction": 213,
+          "label": "layer-27-input-rmsnorm"
+        },
+        "layer-27-post-attention-rmsnorm": {
+          "file": "txn0213-layer-27-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "4d920815e22d309dfd4c0c1d6634350881ccaeeadc136d44a7e51840ab0efd50",
+          "transaction": 213,
+          "label": "layer-27-post-attention-rmsnorm"
+        },
+        "layer-27-hidden": {
+          "file": "txn0213-layer-27-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "bf7bbe127c6da7b339b5ecf10267bff3673d1f13f100e4db4b7727537606acc7",
+          "transaction": 213,
+          "label": "layer-27-hidden"
+        },
+        "layer-27-residual": {
+          "file": "txn0213-layer-27-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "ca794889fe068fa425bad0917534f84571b5637e14548590551a5dbcaace37dc",
+          "transaction": 213,
+          "label": "layer-27-residual"
+        },
+        "layer-27-combined": {
+          "file": "txn0213-layer-27-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "ece89a516ffc2c2e3cb0caf443ec29a356ef3faec5271726ffd04a15f6505cef",
+          "transaction": 213,
+          "label": "layer-27-combined"
+        },
+        "layer-28-input-rmsnorm": {
+          "file": "txn0213-layer-28-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "f157b11aefb1d5c60f17e8a59eabf40fb9fe49ba3003037f2ef04264c985c249",
+          "transaction": 213,
+          "label": "layer-28-input-rmsnorm"
+        },
+        "layer-28-post-attention-rmsnorm": {
+          "file": "txn0213-layer-28-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "cd4f78baabb4b991c04ccc871ae33ae117b9a97f91c0af9a0585eda6cd236684",
+          "transaction": 213,
+          "label": "layer-28-post-attention-rmsnorm"
+        },
+        "layer-28-hidden": {
+          "file": "txn0213-layer-28-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "5dd089d27665bf6e78806fe70a2787ba491b87fbec085eaa27639bcac9bb6444",
+          "transaction": 213,
+          "label": "layer-28-hidden"
+        },
+        "layer-28-residual": {
+          "file": "txn0213-layer-28-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "e88b7955fe1222bb01f1097e6e51c13c00adb7c946aaab8c2017663537713161",
+          "transaction": 213,
+          "label": "layer-28-residual"
+        },
+        "layer-28-combined": {
+          "file": "txn0213-layer-28-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "a4cc67c13b856fac6d42f12af09409bf177bbc66e407b0b18e4059bd69b0a1bb",
+          "transaction": 213,
+          "label": "layer-28-combined"
+        },
+        "layer-29-input-rmsnorm": {
+          "file": "txn0213-layer-29-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "bd46417ec5f07466303469bd554cbc4358816832a72f35b83da4e98c1b5637c1",
+          "transaction": 213,
+          "label": "layer-29-input-rmsnorm"
+        },
+        "layer-29-post-attention-rmsnorm": {
+          "file": "txn0213-layer-29-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "dd435cfd8fa5facd31681f12a96f35f341df64a2bbcf8370a058a35b1dcce8c7",
+          "transaction": 213,
+          "label": "layer-29-post-attention-rmsnorm"
+        },
+        "layer-29-hidden": {
+          "file": "txn0213-layer-29-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "45a7d75655045b99489ca947a3960cece641ca19ef91d6ad1e31dc0ec8f6b2e7",
+          "transaction": 213,
+          "label": "layer-29-hidden"
+        },
+        "layer-29-residual": {
+          "file": "txn0213-layer-29-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "098d8519f94007b7043bad96bed74da5240565368a2a0102aa49e79075d646cd",
+          "transaction": 213,
+          "label": "layer-29-residual"
+        },
+        "layer-29-combined": {
+          "file": "txn0213-layer-29-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "a55746a93030386f74f4a97177b45183a49b7139da84b4f1c596cbd5a63af427",
+          "transaction": 213,
+          "label": "layer-29-combined"
+        },
+        "layer-30-input-rmsnorm": {
+          "file": "txn0213-layer-30-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "23421e0792e410881cfc7c352f9fac80a83586947dc48648002643c0c981b397",
+          "transaction": 213,
+          "label": "layer-30-input-rmsnorm"
+        },
+        "layer-30-post-attention-rmsnorm": {
+          "file": "txn0213-layer-30-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "b4ce2548b445aaee297dfaf095fef3db0cbb678ad873e65ef872f771eda458be",
+          "transaction": 213,
+          "label": "layer-30-post-attention-rmsnorm"
+        },
+        "layer-30-hidden": {
+          "file": "txn0213-layer-30-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "6aaaf089f23db6f91a99ce08e2a5d3adc120b6561d5459297aa8665d048499b9",
+          "transaction": 213,
+          "label": "layer-30-hidden"
+        },
+        "layer-30-residual": {
+          "file": "txn0213-layer-30-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "0fb243530a1f2d836bcedfa7289112331a711d3fa37a5150474430a689d43090",
+          "transaction": 213,
+          "label": "layer-30-residual"
+        },
+        "layer-30-combined": {
+          "file": "txn0213-layer-30-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "d1a410d611843febb024e5bce25ac8c46dc55e2693845d3493fd2d21ea8711ff",
+          "transaction": 213,
+          "label": "layer-30-combined"
+        },
+        "layer-31-input-rmsnorm": {
+          "file": "txn0213-layer-31-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "e710bf893b8da94577e70ba368f461c76db66f9a3fabde0345ec196d6b4b30de",
+          "transaction": 213,
+          "label": "layer-31-input-rmsnorm"
+        },
+        "layer-31-post-attention-rmsnorm": {
+          "file": "txn0213-layer-31-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "cb0c46918f2375859fd46041e73febe441b76d648eed02f397d5950da1a82179",
+          "transaction": 213,
+          "label": "layer-31-post-attention-rmsnorm"
+        },
+        "layer-31-hidden": {
+          "file": "txn0213-layer-31-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "7cc92b5f745d204a849512ca2d71f031861ca87d1d4cf90868a78a4731c52c3d",
+          "transaction": 213,
+          "label": "layer-31-hidden"
+        },
+        "layer-31-residual": {
+          "file": "txn0213-layer-31-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "9b24ac65c1f0ede006b59798193417ac5d249f37a3ae4ceef6aef5e262442456",
+          "transaction": 213,
+          "label": "layer-31-residual"
+        },
+        "layer-31-combined": {
+          "file": "txn0213-layer-31-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "aaeb9e6ac77c60a3870977582ffffa66b33ba1ac36becd08e7bf1612c7415d5a",
+          "transaction": 213,
+          "label": "layer-31-combined"
+        },
+        "layer-32-input-rmsnorm": {
+          "file": "txn0213-layer-32-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "fab2205f223408425de2bb56eeac64d1b8b85d0b0a358ca04bc45dc82a0b5a15",
+          "transaction": 213,
+          "label": "layer-32-input-rmsnorm"
+        },
+        "layer-32-post-attention-rmsnorm": {
+          "file": "txn0213-layer-32-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "703aea79c3a6fd8c04a7f9ce90bc3f004c7d6c7e0a8ae6be05ffb02cb54d2597",
+          "transaction": 213,
+          "label": "layer-32-post-attention-rmsnorm"
+        },
+        "layer-32-hidden": {
+          "file": "txn0213-layer-32-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "4e21368cae58e4b63f31b0e0a6b746d6fa01cc030ac2f4940b6e7324202d18a9",
+          "transaction": 213,
+          "label": "layer-32-hidden"
+        },
+        "layer-32-residual": {
+          "file": "txn0213-layer-32-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "75374f0e396cfa177324b0611e8baa99850fd3b3da7690016b680d455d7da600",
+          "transaction": 213,
+          "label": "layer-32-residual"
+        },
+        "layer-32-combined": {
+          "file": "txn0213-layer-32-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "8220349d51f4e7339c2b435b69c4cbdf0465100ec97361f5b04c74a66a8de39f",
+          "transaction": 213,
+          "label": "layer-32-combined"
+        },
+        "layer-33-input-rmsnorm": {
+          "file": "txn0213-layer-33-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "a5c2e989c290ce4996771226523477d15a08b94ab69cc3cf9cdc32d7c9471259",
+          "transaction": 213,
+          "label": "layer-33-input-rmsnorm"
+        },
+        "layer-33-post-attention-rmsnorm": {
+          "file": "txn0213-layer-33-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "a1ea321aeae852568a22d7c939b3762bda394f0c17aca7c63b950e7c56551288",
+          "transaction": 213,
+          "label": "layer-33-post-attention-rmsnorm"
+        },
+        "layer-33-hidden": {
+          "file": "txn0213-layer-33-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "4e9b449ed7464751480704944b31600789e662a4a1aa3110e82d366dcac95a44",
+          "transaction": 213,
+          "label": "layer-33-hidden"
+        },
+        "layer-33-residual": {
+          "file": "txn0213-layer-33-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "28015cb3ddc57f67b9f4a926fd8a7fda50077b65f3c13dc2bd1544828309d758",
+          "transaction": 213,
+          "label": "layer-33-residual"
+        },
+        "layer-33-combined": {
+          "file": "txn0213-layer-33-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "719be5608ec073e0d538d1b3df191d9d78c9bad27a83a502a717cc522c407a81",
+          "transaction": 213,
+          "label": "layer-33-combined"
+        },
+        "layer-34-input-rmsnorm": {
+          "file": "txn0213-layer-34-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "a483dacb70a81639a7ecc1ad5d938350e4242280b96af68583996368c05facbb",
+          "transaction": 213,
+          "label": "layer-34-input-rmsnorm"
+        },
+        "layer-34-post-attention-rmsnorm": {
+          "file": "txn0213-layer-34-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "21d65642d6d65a63f4349be8e599d6b21bbbad1d65f77ab1e0423d35f0cf899d",
+          "transaction": 213,
+          "label": "layer-34-post-attention-rmsnorm"
+        },
+        "layer-34-hidden": {
+          "file": "txn0213-layer-34-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "d6857f0443daa953ebf7752245fd281c68430b79f6e298afd95f98b08555e7fb",
+          "transaction": 213,
+          "label": "layer-34-hidden"
+        },
+        "layer-34-residual": {
+          "file": "txn0213-layer-34-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "f2e54448a716c4fc1e2e967e25137af748f93d63b4db684d6aa45cae11a40324",
+          "transaction": 213,
+          "label": "layer-34-residual"
+        },
+        "layer-34-combined": {
+          "file": "txn0213-layer-34-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "f0b09862698bc9d9561f666422cb4ba1fc7f3cbfa21ff49ae6422e5868c56890",
+          "transaction": 213,
+          "label": "layer-34-combined"
+        },
+        "layer-35-input-rmsnorm": {
+          "file": "txn0213-layer-35-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "2e371c89c7e2b3f01242c0f45a6b52897caf88fb19738440289b7ccf17391db8",
+          "transaction": 213,
+          "label": "layer-35-input-rmsnorm"
+        },
+        "layer-35-post-attention-rmsnorm": {
+          "file": "txn0213-layer-35-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "cc7eb41545dabfc8c0681c16156332937d52b20206ddb6894d1be1bb4343058d",
+          "transaction": 213,
+          "label": "layer-35-post-attention-rmsnorm"
+        },
+        "layer-35-hidden": {
+          "file": "txn0213-layer-35-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "0c4627e62f4d66d190b220d5fd51cc41ed4634949677db89001c4afcf0384753",
+          "transaction": 213,
+          "label": "layer-35-hidden"
+        },
+        "layer-35-residual": {
+          "file": "txn0213-layer-35-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "968f7920365bc8bce63fa160230cc820f59c340a49524c8fa53af286815d863b",
+          "transaction": 213,
+          "label": "layer-35-residual"
+        },
+        "layer-35-combined": {
+          "file": "txn0213-layer-35-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "77a5668bf027b7a60cdd66ca9744bd1cc2079c721444a7787b83494a3c5b2132",
+          "transaction": 213,
+          "label": "layer-35-combined"
+        },
+        "layer-36-input-rmsnorm": {
+          "file": "txn0213-layer-36-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "8f984a6537684ce80a52adeb40ffe883387b3a1e401cf952c6aa029478e515f1",
+          "transaction": 213,
+          "label": "layer-36-input-rmsnorm"
+        },
+        "layer-36-post-attention-rmsnorm": {
+          "file": "txn0213-layer-36-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "576b6a944666d88c7ccb9ced62631a087f2835c915e410202b3e9e97b4c1f062",
+          "transaction": 213,
+          "label": "layer-36-post-attention-rmsnorm"
+        },
+        "layer-36-hidden": {
+          "file": "txn0213-layer-36-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "ad22dd3d8e4193b357d8bac8ee013fef2a440e954750dbc43b9def90480ed90a",
+          "transaction": 213,
+          "label": "layer-36-hidden"
+        },
+        "layer-36-residual": {
+          "file": "txn0213-layer-36-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "96870270539951a9ade879c22056ce5ddc7262ae31bc4baca8a438aa048a26e1",
+          "transaction": 213,
+          "label": "layer-36-residual"
+        },
+        "layer-36-combined": {
+          "file": "txn0213-layer-36-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "b99d9110d5e3875124c37ccdad5dd8a7bf2e5311111da6272ac1c57930f7dbf9",
+          "transaction": 213,
+          "label": "layer-36-combined"
+        },
+        "layer-37-input-rmsnorm": {
+          "file": "txn0213-layer-37-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "2fd8e23b6c1722073c4e4280acc47b3c200a756c6b293cdb9c985169c99dda62",
+          "transaction": 213,
+          "label": "layer-37-input-rmsnorm"
+        },
+        "layer-37-post-attention-rmsnorm": {
+          "file": "txn0213-layer-37-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "9f68521e06263baaf4b2f414415ec98c92e64303abf72bba553d0bb0aade0fac",
+          "transaction": 213,
+          "label": "layer-37-post-attention-rmsnorm"
+        },
+        "layer-37-hidden": {
+          "file": "txn0213-layer-37-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "723d3973887eebb9f00e5930816b249bf5efda4c45fa3c26592fe91103e39357",
+          "transaction": 213,
+          "label": "layer-37-hidden"
+        },
+        "layer-37-residual": {
+          "file": "txn0213-layer-37-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "28737f597efdbe6974e86865c66153a2c1152f9040e7a5efae3c3107484b469a",
+          "transaction": 213,
+          "label": "layer-37-residual"
+        },
+        "layer-37-combined": {
+          "file": "txn0213-layer-37-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "33d9db40284ee02a19118f97b64ff5997e2ba33e7c120d19078eba4516054e58",
+          "transaction": 213,
+          "label": "layer-37-combined"
+        },
+        "layer-38-input-rmsnorm": {
+          "file": "txn0213-layer-38-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "877ff1cd60e32471b78fe5021ca918d2139e0f0f249f1bee837929635ee1c252",
+          "transaction": 213,
+          "label": "layer-38-input-rmsnorm"
+        },
+        "layer-38-post-attention-rmsnorm": {
+          "file": "txn0213-layer-38-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "da94b5286088a9183973019fa9c31e12f5b97d3d0d7a790eb8bb607c949891f9",
+          "transaction": 213,
+          "label": "layer-38-post-attention-rmsnorm"
+        },
+        "layer-38-hidden": {
+          "file": "txn0213-layer-38-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "1554a6eafeb3d8f9d44bffa4b2aecd3e84482599b3dec0e29618f483146abbe2",
+          "transaction": 213,
+          "label": "layer-38-hidden"
+        },
+        "layer-38-residual": {
+          "file": "txn0213-layer-38-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "960b8561029ade8755a8e24fa7b19eec86d3b0a316a44347e2fe099786c0e9a2",
+          "transaction": 213,
+          "label": "layer-38-residual"
+        },
+        "layer-38-combined": {
+          "file": "txn0213-layer-38-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "1cc19d3ecb17884669084c994ff58ec61f98dca257b913e3559ef71fd4e78f72",
+          "transaction": 213,
+          "label": "layer-38-combined"
+        },
+        "layer-39-input-rmsnorm": {
+          "file": "txn0213-layer-39-input-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "cc35d022348cbc1e9e0ea4bb219fbf553598510b2c59731cbf1568b7688279c5",
+          "transaction": 213,
+          "label": "layer-39-input-rmsnorm"
+        },
+        "layer-39-post-attention-rmsnorm": {
+          "file": "txn0213-layer-39-post-attention-rmsnorm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "242accf4d36cb2d7a4a18b917072c675133232e0d9175170c48362e75ee07e1b",
+          "transaction": 213,
+          "label": "layer-39-post-attention-rmsnorm"
+        },
+        "layer-39-hidden": {
+          "file": "txn0213-layer-39-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "4602341ffeb99f9e493b3b65f097aebf990f86defddc229a5cb0ac86232e8242",
+          "transaction": 213,
+          "label": "layer-39-hidden"
+        },
+        "layer-39-residual": {
+          "file": "txn0213-layer-39-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "b5a4afef9703444e051af8addb1dedab6ff94d437e9bdcbba0b43f765b7b7dea",
+          "transaction": 213,
+          "label": "layer-39-residual"
+        },
+        "layer-39-combined": {
+          "file": "txn0213-layer-39-combined-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "c9de612f7e892aa4541cc86cfc4dcdf89eff90a1cad5792871b9c2b97aaad47f",
+          "transaction": 213,
+          "label": "layer-39-combined"
+        },
+        "final-norm": {
+          "file": "txn0213-final-norm-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "48bc26d61ef9d56e2a19b91c00b6b0cefd5538b3af62ec7c417dbdcd921258c1",
+          "transaction": 213,
+          "label": "final-norm"
+        },
+        "position-263348-logits": {
+          "file": "txn0213-position-263348-logits-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            248320
+          ],
+          "bytes": 496640,
+          "sha256": "73dc730ee615e07437488a48e0d4cf069fa7435240ec9c3bea03b19c8dd47753",
+          "transaction": 213,
+          "label": "position-263348-logits"
+        }
+      },
+      "reference_top_five": [
+        {
+          "token": 264,
+          "logit": 25.5
+        },
+        {
+          "token": 4222,
+          "logit": 25.5
+        },
+        {
+          "token": 6821,
+          "logit": 21.5
+        },
+        {
+          "token": 9781,
+          "logit": 20.625
+        },
+        {
+          "token": 52920,
+          "logit": 19.875
+        }
+      ],
+      "reference_competing_tokens": [
+        {
+          "token": 264,
+          "logit": 25.5
+        },
+        {
+          "token": 4222,
+          "logit": 25.5
+        }
+      ],
+      "native_observed_top_two": [
+        {
+          "token": 4222,
+          "logit": 25.5
+        },
+        {
+          "token": 264,
+          "logit": 25.375
+        }
+      ],
+      "native_token_marker": "BATCH_MARK qwen36_whole_provider_resident_decode_token output_index=55 position=263348 input_token=369 output_token=4222 output_logit=25.5 step_ms=1098.15 end_ms=58183.8 committed_decode_tokens=1205 top2_valid=1 top1_id=4222 top1_logit=25.5 top2_id=264 top2_logit=25.375 top2_margin=0.125 minimum_output_tokens=0 minimum_output_token_index=0 stop_token_suppressed=0 greedy_token_id=4222 greedy_token_logit=25.5 gb10_teacher_forced_input=0 gb10_reference_token=4222 prediction_matches_gb10_reference=1 numerical_correctness_claimed=0",
+      "native_stderr_sha256": "e81d2b508979114d85539b68d41a8ca7e0514cb2b2b373717be7846dca1c8f48",
+      "diagnosis": "The original native run selects4222 over264 by0.125; the independent qualified reference selects264. Compare captured external tensors to locate the cause. Local marker reference-like fields are not used as external authority."
+    },
+    "original608_output_ids_and_full_first_logits_reproduced": true,
+    "reference_qualified": true,
+    "original_boundary_observer_unchanged": false,
+    "observer_source_commit": "5bc055d71b5c63f3610e54cbbb8dfc6e0afb4ea6",
+    "observer_change": "Optional prefill position plan3 to32 only; compute methods unchanged.",
+    "original_compute_methods_unchanged": true,
+    "native_values_supplied_to_reference": false,
+    "original_oracles_changed": false,
+    "windows_acceptance": false,
+    "performance_acceptance": false
+  },
+  "dispatch": {
+    "host": "aitopatom-66c4",
+    "command": [
+      "docker",
+      "run",
+      "--name",
+      "qrt-gb10-prefix256-divergence-20260920-r1",
+      "--hostname",
+      "aitopatom-66c4",
+      "--gpus",
+      "all",
+      "--network",
+      "none",
+      "--memory",
+      "108g",
+      "--shm-size",
+      "8g",
+      "--cpus",
+      "8",
+      "-e",
+      "PYTHONPATH=/work/scripts",
+      "-e",
+      "QRT_GB10_OBSERVE_FLASHINFER_AUTOTUNER=1",
+      "-e",
+      "VLLM_ALLOW_LONG_MAX_MODEL_LEN=1",
+      "-e",
+      "VLLM_WORKER_MULTIPROC_METHOD=spawn",
+      "-v",
+      "<private-home>/qrt-gb10-prefix256-divergence-20260920-r1:/work",
+      "-v",
+      "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+      "-v",
+      "<private-home>/qrt-gb10-prefix256-divergence-20260920-r1/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
+      "-v",
+      "<private-home>/qrt-gb10-prefix256-divergence-20260920-r1/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
+      "-v",
+      "<private-home>/qrt-gb10-prefix256-divergence-20260920-r1/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
+      "-v",
+      "<private-home>/qrt-gb10-prefix256-divergence-20260920-r1/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
+      "-v",
+      "<private-home>/qrt-gb10-prefix256-divergence-20260920-r1/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
+      "-v",
+      "<private-home>/qrt-gb10-prefix256-divergence-20260920-r1/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
+      "-v",
+      "<private-home>/qrt-gb10-prefix256-divergence-20260920-r1/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
+      "-v",
+      "<private-home>/qrt-gb10-prefix256-divergence-20260920-r1/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
+      "-e",
+      "QRT_GB10_CASE_BOUNDARY_OFFSETS={\"long-prefix262144-suffix1024-out512\":[0,179,180]}",
+      "-e",
+      "QRT_GB10_CASE_PREFILL_POSITIONS={\"long-prefix262144-owner-out32\":[8191,16383,24575,32767,40959,49151,57343,65535,73727,81919,90111,98303,106495,114687,122879,131071,139263,147455,155647,163839,172031,180223,188415,196607,204799,212991,221183,229375,237567,245759,253951,262143],\"long-prefix262144-suffix1024-out512\":[131071,196607,262143]}",
+      "-w",
+      "/work",
+      "--entrypoint",
+      "timeout",
+      "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+      "--signal=TERM",
+      "--kill-after=10",
+      "1830",
+      "python3",
+      "scripts/capture_gb10_token_matrix.py",
+      "--runtime-boundaries",
+      "--source-commit",
+      "1c9511395bf7f9dcc78a8aedcb05c700feee0568",
+      "--oracle-q7169",
+      "contracts/arbitrary_q7169_gb10_oracle.json",
+      "--oracle-q8192",
+      "contracts/hprefill_q8192_gb10_oracle.json",
+      "--additional-cases",
+      "additional-cases.json",
+      "--maximum-prompt-tokens",
+      "263168",
+      "--output-dir",
+      "capture",
+      "--expected-host",
+      "aitopatom-66c4",
+      "--timeout-seconds",
+      "1800",
+      "--execute"
+    ],
+    "command_file": "<private-home>/run-qrt-gb10-prefix256-divergence-20260920-r1.py",
+    "command_file_sha256": "2a20ff6ef4c4a9b5c9d7d873468ca22d4906dede7f05162a81d8a65a91b7a7db",
+    "source_commit": "1c9511395bf7f9dcc78a8aedcb05c700feee0568",
+    "returncode": 0,
+    "reason": "completed",
+    "wall_seconds": 949.3622815780109,
+    "minimum_host_available_bytes": 14404939776,
+    "container_status": "false 0",
+    "archive_sha256": "99b92149a376c0adc5ac53984f01707292188ed841274e8fb7bd9bb7c61eebd7",
+    "gpu_processes_after": "",
+    "host_guard_pass": true,
+    "frozen_autotune_profile_sha256": "e56809a3c40509122313bce164745787b0aa217081ddc0398ffc97646930df4e",
+    "unexpected_new_autotune_cache_files": [],
+    "frozen_autotune_cache_no_misses": true,
+    "long_reference_reproduced": true,
+    "long_reference_checks": [
+      {
+        "name": "long-prefix262144-owner-out32",
+        "prompt_matches": true,
+        "outputs_complete": true,
+        "all_outputs_match": true,
+        "first_logit_matches": true,
+        "full_first_logits_equal": true
+      },
+      {
+        "name": "long-prefix262144-suffix1024-out512",
+        "prompt_matches": true,
+        "outputs_complete": true,
+        "all_outputs_match": true,
+        "first_logit_matches": true,
+        "full_first_logits_equal": true
+      }
+    ],
+    "reference_boundary_qualified": true
+  },
+  "native_failure": {
+    "file": "benchmarks/correctness/resident-ordered-prefix256k-token-divergence-20260920.json",
+    "bytes": 333667,
+    "sha256": "43b196cb3f649e16f692d20d61857894726e2bee7abe649bc9f5ea26d7c35846"
+  },
+  "original_reference": {
+    "file": "benchmarks/correctness/gb10-large-prefix-actual-references-20260914.json",
+    "bytes": 112783,
+    "sha256": "caf76d71966d9bf75ec1a2042eeb093d7dced1d54649c7f1bdb2ad3d2a0537d3"
+  },
+  "command_file": {
+    "file": "run-qrt-gb10-prefix256-divergence-20260920-r1.py",
+    "sha256": "2a20ff6ef4c4a9b5c9d7d873468ca22d4906dede7f05162a81d8a65a91b7a7db",
+    "text": "import subprocess,socket,json,time,hashlib,tarfile,shutil\nfrom pathlib import Path\nassert socket.gethostname()==\"aitopatom-66c4\"\nname=\"qrt-gb10-prefix256-divergence-20260920-r1\";root=Path(\"<private-home>\")/name;archive=root.with_suffix(\".tar\")\nassert not root.exists()\nassert shutil.disk_usage(root.parent).free > 4*(1<<30)\nassert hashlib.sha256(archive.read_bytes()).hexdigest()==\"99b92149a376c0adc5ac53984f01707292188ed841274e8fb7bd9bb7c61eebd7\"\nassert subprocess.check_output([\"docker\",\"inspect\",\"--format\",\"{{.State.Running}}\",\"qwen36-lm-head-capture\"],text=True,timeout=10).strip()==\"false\"\nroot.mkdir()\nwith tarfile.open(archive) as t:t.extractall(root,filter=\"data\")\ncommand=['docker', 'run', '--name', 'qrt-gb10-prefix256-divergence-20260920-r1', '--hostname', 'aitopatom-66c4', '--gpus', 'all', '--network', 'none', '--memory', '108g', '--shm-size', '8g', '--cpus', '8', '-e', 'PYTHONPATH=/work/scripts', '-e', 'QRT_GB10_OBSERVE_FLASHINFER_AUTOTUNER=1', '-e', 'VLLM_ALLOW_LONG_MAX_MODEL_LEN=1', '-e', 'VLLM_WORKER_MULTIPROC_METHOD=spawn', '-v', '<private-home>/qrt-gb10-prefix256-divergence-20260920-r1:/work', '-v', '/mnt/data/models/Qwen3.6-35B-A3B:/models:ro', '-v', '<private-home>/qrt-gb10-prefix256-divergence-20260920-r1/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro', '-v', '<private-home>/qrt-gb10-prefix256-divergence-20260920-r1/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro', '-v', '<private-home>/qrt-gb10-prefix256-divergence-20260920-r1/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro', '-v', '<private-home>/qrt-gb10-prefix256-divergence-20260920-r1/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro', '-v', '<private-home>/qrt-gb10-prefix256-divergence-20260920-r1/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro', '-v', '<private-home>/qrt-gb10-prefix256-divergence-20260920-r1/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro', '-v', '<private-home>/qrt-gb10-prefix256-divergence-20260920-r1/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro', '-v', '<private-home>/qrt-gb10-prefix256-divergence-20260920-r1/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro', '-e', 'QRT_GB10_CASE_BOUNDARY_OFFSETS={\"long-prefix262144-suffix1024-out512\":[0,179,180]}', '-e', 'QRT_GB10_CASE_PREFILL_POSITIONS={\"long-prefix262144-owner-out32\":[8191,16383,24575,32767,40959,49151,57343,65535,73727,81919,90111,98303,106495,114687,122879,131071,139263,147455,155647,163839,172031,180223,188415,196607,204799,212991,221183,229375,237567,245759,253951,262143],\"long-prefix262144-suffix1024-out512\":[131071,196607,262143]}', '-w', '/work', '--entrypoint', 'timeout', 'sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d', '--signal=TERM', '--kill-after=10', '1830', 'python3', 'scripts/capture_gb10_token_matrix.py', '--runtime-boundaries', '--source-commit', '1c9511395bf7f9dcc78a8aedcb05c700feee0568', '--oracle-q7169', 'contracts/arbitrary_q7169_gb10_oracle.json', '--oracle-q8192', 'contracts/hprefill_q8192_gb10_oracle.json', '--additional-cases', 'additional-cases.json', '--maximum-prompt-tokens', '263168', '--output-dir', 'capture', '--expected-host', 'aitopatom-66c4', '--timeout-seconds', '1800', '--execute']\ninputs=json.loads((root/'source-inputs.json').read_text())\nassert inputs['source_commit']=='1c9511395bf7f9dcc78a8aedcb05c700feee0568'\nfor relative,expected in inputs['files'].items():\n assert hashlib.sha256((root/relative).read_bytes()).hexdigest()==expected\nprofile=json.loads((root/'frozen-autotune-profile.json').read_text())\nfor entry in profile['records']:\n assert hashlib.sha256((root/entry['stage_path']).read_bytes()).hexdigest()==entry['sha256']\ndef available():\n for line in Path(\"/proc/meminfo\").read_text().splitlines():\n  if line.startswith(\"MemAvailable:\"):return int(line.split()[1])*1024\nassert available()>110*(1<<30)\nassert not subprocess.check_output(['nvidia-smi','--query-compute-apps=pid','--format=csv,noheader'],text=True,timeout=10).strip()\nstart=time.monotonic();minimum=available();reason=\"completed\"\nwith (root/\"container.log\").open(\"w\") as log:\n process=subprocess.Popen(command,stdout=log,stderr=subprocess.STDOUT)\n while process.poll() is None:\n  minimum=min(minimum,available())\n  if time.monotonic()-start>1842 or minimum<8*(1<<30):\n   reason=\"deadline\" if time.monotonic()-start>1842 else \"host_memory_reserve\"\n   subprocess.run([\"docker\",\"kill\",name],capture_output=True,timeout=15)\n   break\n  try:process.wait(timeout=1)\n  except subprocess.TimeoutExpired:pass\n process.wait(timeout=20)\ngpu_after=subprocess.check_output(['nvidia-smi','--query-compute-apps=pid','--format=csv,noheader'],text=True,timeout=10).strip()\n# Persist any unexpected GPU cleanup result before qualification.\nstatus=subprocess.check_output([\"docker\",\"inspect\",\"--format\",\"{{.State.Running}} {{.State.ExitCode}}\",name],text=True,timeout=10).strip()\nrecord=dict(host=socket.gethostname(),command=command,command_file=__file__,command_file_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),source_commit=\"1c9511395bf7f9dcc78a8aedcb05c700feee0568\",returncode=process.returncode,reason=reason,wall_seconds=time.monotonic()-start,minimum_host_available_bytes=minimum,container_status=status,archive_sha256=\"99b92149a376c0adc5ac53984f01707292188ed841274e8fb7bd9bb7c61eebd7\")\nrecord['gpu_processes_after']=gpu_after\nrecord['host_guard_pass']=not gpu_after and minimum>=8*(1<<30)\nrecord['frozen_autotune_profile_sha256']=hashlib.sha256((root/'frozen-autotune-profile.json').read_bytes()).hexdigest()\n(root/'dispatch-core.json').write_text(json.dumps(record,indent=2)+'\\n')\ntry:\n diff=subprocess.check_output(['docker','diff',name],text=True,timeout=45)\n (root/'docker-diff.txt').write_text(diff)\n record['unexpected_new_autotune_cache_files']=[line[2:] for line in diff.splitlines() if line.endswith('.autotune.json')]\n record['frozen_autotune_cache_no_misses']=not record['unexpected_new_autotune_cache_files']\nexcept subprocess.TimeoutExpired:\n record['postprocessing_error']='docker diff exceeded 45 seconds; durable dispatch-core.json preserved'\n record['unexpected_new_autotune_cache_files']=None\n record['frozen_autotune_cache_no_misses']=None\ncapture_path=root/'capture/capture.json'\nrecord['long_reference_reproduced']=False\nif capture_path.exists():\n captured=json.loads(capture_path.read_text());anchors=json.loads((root/'continuation-anchors.json').read_text());rows=[]\n for expected in anchors:\n  actual=next((c for c in captured['cases'] if c['name']==expected['name']),None)\n  rows.append(dict(name=expected['name'],prompt_matches=actual is not None and actual['prompt']['u32le_sha256']==expected['prompt_u32le_sha256'],outputs_complete=actual is not None and len(actual['output_token_ids'])==len(expected['original_outputs']),all_outputs_match=actual is not None and actual['output_token_ids']==expected['original_outputs'],first_logit_matches=actual is not None and abs(actual['first_token_raw_logit']-expected['original_first_logit'])<=0.125,full_first_logits_equal=actual is not None and actual['worker']['sha256']==expected['original_first_logits_sha256']))\n record['long_reference_checks']=rows\n record['long_reference_reproduced']=captured['completed'] and captured['controls_qualified'] and len(captured['cases'])==4 and all(all(v for k,v in row.items() if k!='name') for row in rows)\nrecord['reference_boundary_qualified']=bool(record['long_reference_reproduced'] and record['frozen_autotune_cache_no_misses'] and record['host_guard_pass'])\n(root/\"dispatch.json\").write_text(json.dumps(record,indent=2)+\"\\n\")\nprint(json.dumps(record))\nfor line in (root/\"container.log\").read_text(errors=\"replace\").splitlines()[-22:]:print(line[:1000])\nselected=[p for p in root.rglob('*') if p.is_file() and (p.suffix in ('.json','.txt','.log','.py') or p.suffix=='.bin')]\nselected_bytes=sum(p.stat().st_size for p in selected)\nassert selected_bytes<384*(1<<20)\nmanifest={str(p.relative_to(root)):dict(bytes=p.stat().st_size,sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in selected}\n(root/'compact-download-manifest.json').write_text(json.dumps(manifest,indent=2)+'\\n')\nselected.append(root/'compact-download-manifest.json')\ncompact=root/'compact-download.tar'\nwith tarfile.open(compact,'w') as t:\n for p in selected:t.add(p,arcname=str(p.relative_to(root)))\nprint(json.dumps(dict(compact_archive_bytes=compact.stat().st_size,compact_archive_sha256=hashlib.sha256(compact.read_bytes()).hexdigest(),selected_files=len(selected),selected_bytes=selected_bytes)),flush=True)\nraise SystemExit(process.returncode or (0 if record['reference_boundary_qualified'] else 1))\n"
+  }
+}

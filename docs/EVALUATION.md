@@ -26,6 +26,17 @@ input263348. Its GB10 comparison captures the same original owner32/suffix512
 plus both short controls. Memory/compiler experiments wait for this diagnosis;
 no new release is qualified.
 
+The [independent 256k diagnostic reference](../benchmarks/correctness/gb10-prefix256-all-chunk-boundaries-20260920.json)
+has now reproduced all 608 original outputs and the complete first-logit bytes
+for all four requests. At decode input position 263348, GB10 gives both token
+264 and token 4222 a logit of 25.5 and selects 264. The failed native run gives
+264 a logit of 25.375 and 4222 a logit of 25.5. This is an observed numerical
+difference; its cause remains under investigation. All 32 owner chunk ends and
+the selected suffix decode boundaries are available for external comparison.
+At 20:36:59Z, the live Windows replay matches every layer's BF16 terminal row
+and the final normalization for its first six completed chunks. Terminal-row
+agreement does not establish every row, cached state or the full product gate.
+
 The [September 14 large-prefix reference capture](../benchmarks/correctness/gb10-large-prefix-actual-references-20260914.json)
 registers the original 131072- and 262144-token owners and their original
 1024-token suffixes. All ten cases complete with 2240 generated tokens and
