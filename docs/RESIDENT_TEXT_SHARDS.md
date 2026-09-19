@@ -49,3 +49,12 @@ requires a1416626176-byte combined projection allocation. Its net effect must
 therefore include that replacement and be measured with original continuations;
 the gross arena size is not an established memory saving. This candidate leaves
 that option unchanged.
+
+[Preparation evidence](../benchmarks/correctness/resident-text-shards-preparation-20260919.json)
+pins source `fe63489bd18ad43e8f5c09d42bc955695083dbe4`, the original headers,
+all101 native build inputs and the local reports. Only the whole-provider
+translation unit and its new layout header differ from whole3348836 in that
+input set. At2026-09-19T10:14:08Z, baiying's PowerShell parser accepts the
+prepared command with no error. The build remains undispatched while the
+original256k run is active; its completion and cleanup are checked before
+dispatch. The compile/native/transport limits remain240/300/390 seconds.
