@@ -79,9 +79,17 @@ transport evidence do not substitute for that product gate. The candidate
 record is
 `benchmarks/performance/prefill-diagnostic-public-complete-aot-r1187-r1190.json`.
 
-## Version 1.0.1 release gates
+## Historical source and release evidence
 
-| Area | Result | Published basis |
+These rows summarize historical audits from multiple source revisions.
+The exact downloadable v1.0.1 archive was published on August 15 from
+`2bf04571`; its acceptance records 19658.8225 ms load and q8192 TTFT of
+3840.4419–3877.0237 ms. The 1.036619x neighbor result belongs to the later
+August 16 source `09bd96fd`, not that archive. See the
+[source and archive attribution](PERFORMANCE.md#q8192-neighbor-continuity-gate).
+Neither historical record qualifies the current candidate.
+
+| Area | Result | Historical basis |
 |---|---|---|
 | Native source and ABI | Pass | C/C++/HIP core plus Rust server/CLI |
 | Windows build | Pass | clean MSVC/Rust/HIP build scripts and manifests |
@@ -91,9 +99,10 @@ record is
 | Request pressure | Pass | bounded FIFO concurrency, queue metrics, overload errors |
 | Context behavior | Pass | continuous inputs, maximum boundary, explicit overflow rejection |
 | Prefix cache | Pass | seed, COW hit, resident hit, A-B-A isolation |
-| q8192 product target | Pass | 3,852.909 ms and 2,126.186 tok/s |
-| q8192 neighbor continuity | Pass | 18/18 GB10 matches; worst ratio 1.036619x |
-| Load bound | Pass | 19,940.245 ms, below 30 seconds |
+| q8192 product target | Pass | retained source row: 3,852.909 ms and 2,126.186 tok/s |
+| Published v1.0.1 neighbor continuity | Historical limits pass | 18/18 GB10 matches; worst ratio 1.426480x, residual 1640.221 ms; historical limits 2x / 5000 ms |
+| Later source neighbor continuity | Pass | `09bd96fd`: 18/18 GB10 matches; worst ratio 1.036619x, residual 142.288 ms; limits 1.10x / 500 ms |
+| Published v1.0.1 load bound | Pass | 19,658.823 ms, below 30 seconds |
 | Correctness | Pass | external BF16 first-token/logit and long continuation |
 | MMLU-Pro | Pass | both 7,486 / 12,032; zero projection mismatch |
 | Licensing/privacy | Pass | Apache-2.0, upstream notices, clean public-tree scan |

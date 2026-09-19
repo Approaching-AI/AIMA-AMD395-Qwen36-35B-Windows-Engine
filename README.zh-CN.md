@@ -83,10 +83,14 @@ API、tool calling、错误码、队列和上下文限制详见 [API.md](docs/AP
 | decode | 30.551 tok/s | >= 28.168 tok/s |
 | TPOT | 32.732 ms | <= 35.502 ms |
 
-v1.0.1 还完成了 q8191、q8192、q8193 边界验收：每个长度分别测试一 token、
-两 token continuation，各重复三次，18/18 输出均与 GB10 BF16 oracle 完全一致。
-q8192 TTFT 为 3,858.763–3,903.565 ms，最差邻界比值为 1.036619x，最差正残差为
-142.288 ms。
+可下载的 v1.0.1 安装包于 8 月 15 日发布，来自提交 `2bf04571`。其公开验收记录中，
+q8191、q8192、q8193 的一 token、两 token continuation 各重复三次，18/18 输出均与
+GB10 BF16 oracle 一致。q8192 TTFT 为 3,840.442–3,877.024 ms，最差邻界比值为
+1.426480x，最差正残差为 1,640.221 ms，通过的是该安装包当时的历史门槛。
+
+8 月 16 日的后续源码修复 `09bd96fd` 将最差比值降至 1.036619x，正残差降至
+142.288 ms，18/18 输出仍与 GB10 一致，q8192 TTFT 为 3,858.763–3,903.565 ms。
+这组后续源码结果不属于上述已发布安装包。详见[源码与归档归属说明](docs/PERFORMANCE.md#q8192-neighbor-continuity-gate)。
 
 仓库公开 12 条性能记录、GB10 锚定的 token 正确性、长上下文 continuation、
 OpenAI 功能验收，以及完整脱敏后的 MMLU-Pro candidate/reference 逐题数据。

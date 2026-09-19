@@ -126,11 +126,16 @@ The retained q8192 real-model result on the qualified Windows platform was:
 | Decode | 30.551 tok/s | >= 28.168 tok/s |
 | TPOT | 32.732 ms | <= 35.502 ms |
 
-The v1.0.1 boundary repair was additionally qualified at q8191, q8192, and
-q8193 with one- and two-token continuations, three cold-prefix repetitions per
-shape. All 18 outputs matched the GB10 BF16 oracle exactly. q8192 TTFT was
-3,858.763–3,903.565 ms; the worst neighbor ratio was 1.036619x and the worst
-positive residual was 142.288 ms.
+The downloadable v1.0.1 archive was published on August 15 from commit
+`2bf04571`. Its published acceptance records 18/18 GB10 matches at q8191,
+q8192 and q8193 with one- and two-token continuations. q8192 TTFT was
+3,840.442–3,877.024 ms; the worst neighbor ratio was 1.426480x and positive
+residual was 1,640.221 ms. These passed that archive's historical limits.
+
+The August 16 source repair at `09bd96fd` subsequently reduced the worst
+neighbor ratio to 1.036619x and residual to 142.288 ms, with all 18 GB10
+matches and q8192 TTFT of 3,858.763–3,903.565 ms. That later result does not
+describe the downloadable archive. See the [source and archive attribution](docs/PERFORMANCE.md#q8192-neighbor-continuity-gate).
 
 The repository publishes all 12 retained performance rows, GB10-anchored token
 correctness, maximum-context and prefix-continuation digests, OpenAI surface

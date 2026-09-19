@@ -27,6 +27,11 @@ REQUIRED_RUNTIME = {
     "engine/qrt.exe", "product-cli/qrt-product.exe",
     "whole-provider/qrt_qwen36_whole_provider.dll", "runtime.env",
 }
+PUBLISHED_V101 = {
+    "archive_sha256": "47ed5d9e0401fc30e2942812b85882b55bfa94eb0bab11f4b518d9042450f4f2",
+    "source_commit": "2bf04571dbd17122bd24fe7b8b7d207153458f7e",
+    "runtime_manifest_sha256": "8c8b7feb76c9621e4071e5d6b21d8a45533518ee80e43ad8b279b5855ff8dcce",
+}
 
 
 class InventoryError(ValueError):
@@ -104,10 +109,16 @@ def checksum_sidecar(path: Path, archive: Path) -> str:
 
 def verify_archive(path: Path, expected_sha256: str, *,
                    expected_runtime_manifest_sha256: str | None = None,
+                   profile: str = "current",
                    maximum_bytes: int = 8 * 1024**3) -> dict:
     require(isinstance(expected_sha256, str) and SHA256.fullmatch(expected_sha256),
             "an explicit lowercase archive SHA256 is required")
     require(type(maximum_bytes) is int and maximum_bytes > 0, "invalid archive size limit")
+    require(profile in ("current", "published-v1.0.1"), "unknown inventory profile")
+    historical = profile == "published-v1.0.1"
+    if historical:
+        require(expected_sha256 == PUBLISHED_V101["archive_sha256"],
+                "historical profile requires the exact published v1.0.1 archive")
     if expected_runtime_manifest_sha256 is not None:
         require(SHA256.fullmatch(expected_runtime_manifest_sha256) is not None,
                 "invalid expected runtime manifest SHA256")
@@ -161,6 +172,9 @@ def verify_archive(path: Path, expected_sha256: str, *,
                     "release directory/version mismatch")
             source = release.get("source_commit")
             require(isinstance(source, str) and COMMIT.fullmatch(source), "invalid release source commit")
+            if historical:
+                require(release.get("version") == "1.0.1" and source == PUBLISHED_V101["source_commit"],
+                        "published v1.0.1 source/version mismatch")
             inventory = records(release.get("files"), "release")
             require(set(relative) == set(inventory) | {RELEASE_MANIFEST},
                     "ZIP files differ from complete release inventory")
@@ -179,7 +193,10 @@ def verify_archive(path: Path, expected_sha256: str, *,
                     and runtime.get("offload_arch") == "gfx1151"
                     and runtime.get("repo_commit") == source, "runtime source/target mismatch")
             runtime_inventory = records(runtime.get("artifacts"), "runtime")
-            require(REQUIRED_RUNTIME <= runtime_inventory.keys(), "required runtime artifact is absent")
+            # The frozen 2026-08-15 archive exposes the server CLI only.
+            # Current archives must also carry the independent product CLI.
+            required = REQUIRED_RUNTIME - {"product-cli/qrt-product.exe"} if historical else REQUIRED_RUNTIME
+            require(required <= runtime_inventory.keys(), "required runtime artifact is absent")
             require(any(name.startswith("ck-fmha/") and name.count("/") == 1
                         and name.endswith(".dll") for name in runtime_inventory), "CK DLL is absent")
             for name, record in runtime_inventory.items():
@@ -203,11 +220,14 @@ def verify_archive(path: Path, expected_sha256: str, *,
                     require(type(artifact["bytes"]) is int and artifact["bytes"] == actual[packaged]["bytes"],
                             f"component byte count mismatch: {name}")
             runtime_digest = actual[RUNTIME_MANIFEST]["sha256"]
+            if historical:
+                require(runtime_digest == PUBLISHED_V101["runtime_manifest_sha256"],
+                        "published v1.0.1 runtime manifest mismatch")
             if expected_runtime_manifest_sha256 is not None:
                 require(runtime_digest == expected_runtime_manifest_sha256,
                         "pinned runtime manifest SHA256 mismatch")
             result = dict(
-                schema_version=1, kind="portable_archive_inventory", archive=path.name,
+                schema_version=1, kind="portable_archive_inventory", inventory_profile=profile, archive=path.name,
                 archive_bytes=archive_bytes, archive_sha256=archive_digest, version=release["version"],
                 source_commit=source, target=TARGET, release_files=len(inventory), archive_files=len(actual),
                 runtime_artifacts=len(runtime_inventory), uncompressed_bytes=total,
@@ -233,12 +253,14 @@ def main() -> int:
     group.add_argument("--sha256")
     group.add_argument("--checksum-file", type=Path)
     parser.add_argument("--runtime-manifest-sha256")
+    parser.add_argument("--profile", choices=("current", "published-v1.0.1"), default="current")
     parser.add_argument("--maximum-bytes", type=int, default=8 * 1024**3)
     args = parser.parse_args()
     try:
         expected = args.sha256 or checksum_sidecar(args.checksum_file, args.archive)
         result = verify_archive(args.archive, expected,
                                 expected_runtime_manifest_sha256=args.runtime_manifest_sha256,
+                                profile=args.profile,
                                 maximum_bytes=args.maximum_bytes)
     except (OSError, ValueError, KeyError, UnicodeError, zipfile.BadZipFile, RuntimeError) as error:
         print(f"archive verification failed: {error}", file=sys.stderr)

@@ -14,6 +14,13 @@ explicit `--sha256` can supply the expected archive digest instead. Pass
 `--runtime-manifest-sha256` from the accepted native run to bind the check to
 that precise runtime inventory as well.
 
+Use `--profile published-v1.0.1` only for the original published rollback
+archive. This mode requires its fixed archive SHA256, source commit and
+runtime-manifest hash. That historical package contains the server CLI;
+the default `current` profile also requires the separate product CLI used
+by current candidates. Historical inventory inspection supplies no new
+model correctness, rollback execution or current release acceptance.
+
 The verifier checks the complete release file set, each file's CRC, SHA256
 and byte count, and every runtime artifact's matching release entry. It
 checks source/target consistency and the packaged DLLs named by component

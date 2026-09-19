@@ -3556,6 +3556,21 @@ load remained below the 30-second product bound.
 
 ## q8192-neighbor continuity gate
 
+The downloadable v1.0.1 ZIP was published on August 15, 2026, from commit
+`2bf04571dbd17122bd24fe7b8b7d207153458f7e`. Its archive SHA256 is
+`47ed5d9e0401fc30e2942812b85882b55bfa94eb0bab11f4b518d9042450f4f2`.
+The [published acceptance asset](https://github.com/Approaching-AI/AIMA-AMD395-Qwen36-35B-Windows-Engine/releases/download/v1.0.1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1-acceptance.json)
+records 18/18 GB10 matches, q8192 TTFT of 3840.4419–3877.0237 ms
+(median 3872.9778 ms), and load of 19658.8225 ms. Its worst neighbor ratio
+was 1.426479679 and positive residual 1640.2208 ms. Those passed the original
+2x / 5000 ms limits; they do not pass the later 1.10x / 500 ms limits.
+Historical limits do not change any current acceptance target.
+
+The August 16 results below belong to later source `09bd96fd`, including
+the 72-request sweep. They are retained source-build evidence and must not
+be attributed to the August 15 archive. Archive inventory verification and
+any new rollback execution have separate evidence.
+
 The v1.0.1 repair replaces fixed-q8192-only CK-FMHA and fused-GDN calls with
 dynamic q8191/q8193 entries while leaving the retained q8192 entry points
 unchanged. The isolated gfx1151 provider smoke produced:
@@ -3572,8 +3587,9 @@ token, with maximum absolute error `2.98e-8`; none exceeded the declared
 fixed q8192, and q262144 tile-regression checks were also exact. These numbers
 remain synthetic component evidence rather than product inference evidence.
 
-The native Windows real-model publication gate passed on `baiying` from a
-clean build at source commit `09bd96fd2d85a0715f1501d16fb6391ce199d0f1`.
+The later native Windows real-model source-build gate passed on `baiying`
+on August 16 from a clean build at source commit
+`09bd96fd2d85a0715f1501d16fb6391ce199d0f1`.
 It used the model at
 `D:\models\Qwen3.6-35B-A3B`, the public GB10 oracle, `max_tokens=1` and `2`,
 and three cold-prefix repetitions per shape. All 18 returned token sequences
@@ -3585,10 +3601,11 @@ matched GB10 exactly.
 | q8192 | 3,878.767 ms | 3,885.607 ms | 3,858.763–3,903.565 ms |
 | q8193 | 3,904.950 ms | 3,892.132 ms | 3,846.939–3,905.346 ms |
 
-The worst neighbor/q8192 median ratio is now `1.036619`; the worst positive
+For that later source build, the worst neighbor/q8192 median ratio is
+`1.036619`; the worst positive
 residual is `142.288 ms`. Both pass the tightened `1.10x` and `500 ms`
 limits, and every q8192 sample beats the retained `4,187.416 ms` TTFT target.
-The former q8193 5.5-second fallback is no longer present.
+Its q8193 cases no longer take the archive's 5.5-second fallback.
 
 ## Wide prompt-length continuity gate
 

@@ -97,6 +97,20 @@ class ReleaseArchiveTests(unittest.TestCase):
             with self.assertRaises(verify.InventoryError):
                 verify.checksum_sidecar(sidecar, self.path)
 
+    def test_historical_profile_requires_the_fixed_published_archive(self):
+        expected = self.package()
+        with self.assertRaisesRegex(verify.InventoryError, "exact published v1.0.1"):
+            verify.verify_archive(self.path, expected, profile="published-v1.0.1")
+        with self.assertRaisesRegex(verify.InventoryError, "unknown inventory profile"):
+            verify.verify_archive(self.path, expected, profile="unrecognized")
+
+    def test_current_profile_requires_the_separate_product_cli(self):
+        self.runtime_files.pop("product-cli/qrt-product.exe")
+        self.runtime["artifacts"] = inventory(self.runtime_files)
+        expected = self.package()
+        with self.assertRaisesRegex(verify.InventoryError, "required runtime artifact"):
+            verify.verify_archive(self.path, expected)
+
     def test_changed_missing_and_unlisted_files(self):
         for change in (
             lambda files: files.__setitem__("runtime.env", b"changed"),
