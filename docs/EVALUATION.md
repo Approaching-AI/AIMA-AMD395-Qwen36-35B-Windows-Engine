@@ -37,6 +37,22 @@ At 20:36:59Z, the live Windows replay matches every layer's BF16 terminal row
 and the final normalization for its first six completed chunks. Terminal-row
 agreement does not establish every row, cached state or the full product gate.
 
+The [output arithmetic diagnosis](../benchmarks/correctness/prefix256-reference-output-arithmetic-diagnosis-20260920.json)
+replays final normalization for 44 qualified reference rows: all 90,112 BF16
+outputs agree. For decode input 263348, exact model-row dots and conservative
+FP32 summation bounds place both 264 and 4222 inside the BF16 25.5 bin. Given
+those reference operands, ordinary FP32 addition ordering cannot explain native
+264=25.375. Actual Windows operands still require comparison. BF16 argmax is
+active and the legacy position-scoped score permutations are disabled.
+
+The [original chunk-score comparison](../benchmarks/correctness/prefix256-original-chunk-score-bounds-20260920.json)
+checks all 160 recorded top-five scores across the original 32 owner chunks.
+All fall within intervals derived from captured GB10 final-norm rows and
+original model weights; 135 intervals determine a single BF16 endpoint and
+25 remain inconclusive. These component bounds do not qualify unobserved
+hidden values, cached states or the failed continuation. Neither check
+establishes a numerical root cause.
+
 The [September 14 large-prefix reference capture](../benchmarks/correctness/gb10-large-prefix-actual-references-20260914.json)
 registers the original 131072- and 262144-token owners and their original
 1024-token suffixes. All ten cases complete with 2240 generated tokens and
