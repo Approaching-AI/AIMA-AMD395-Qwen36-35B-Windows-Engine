@@ -28,7 +28,7 @@ struct ShortFinalizer {
 // The default remains the validated input-indexed native correction. Isolated
 // component tests may supply another independently verified EXP representation.
 template<bool FuseQk, class Exp = NativeExp, bool FinalBound = true,
-    class Finalizer = ShortFinalizer>
+    class Finalizer = ShortFinalizer, bool InplaceProbability = false>
 __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
     const uint16_t* value, const uint32_t* packed_query, const uint32_t* packed_key,
     const unsigned* query_flags, const unsigned* key_flags,
@@ -38,6 +38,7 @@ __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
     const unsigned char* exp2_table, const unsigned char* packed_exp,
     const unsigned char* rcp_table, bool vllm_sum, const float* source_scores = nullptr) {
     static_assert(attention::kHeadDim == 256u && attention::kQueryHeads == 16u && attention::kKvHeads == 2u);
+    static_assert(!InplaceProbability || !FuseQk, "in-place P requires completed independent QK");
     __shared__ uint32_t qvalues[FuseQk ? 32 : 1][FuseQk ? 256 : 1];
     __shared__ uint32_t kvalues[FuseQk ? 128 : 1][FuseQk ? 32 : 1];
     __shared__ float scores[FuseQk ? 32 : 1][FuseQk ? 32 : 1], alpha[32], denominator[32];
@@ -141,7 +142,10 @@ __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
                     (running_max[r] - next_max) * attention::kExactLog2e);
                 p = key < tokens ? Exp::evaluate(exp2_table, packed_exp,
                     (score - next_max) * attention::kExactLog2e) : 0.0f;
-                if (key < stride) probabilities[(size_t(row) * 16u + head) * stride + key] = attention::f32_to_bf16(p);
+                // In-place storage writes only this lane's already-consumed
+                // score cell. Other lanes/rows and later K32 tiles remain live.
+                if (key < stride) qrt_inplace_probability_storage::store<InplaceProbability>(
+                    probabilities, (size_t(row) * 16u + head) * stride + key, attention::f32_to_bf16(p));
                 float sum = p;
                 if (vllm_sum) {
                     constexpr unsigned order[] = {1u, 4u, 2u, 16u, 8u};
