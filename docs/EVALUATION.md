@@ -19,12 +19,13 @@ The [complete failed case](../benchmarks/correctness/resident-ordered-prefix256k
 binds original prompt/output IDs, component hashes, command, raw records and
 the same-launch memory observations. Native wall is22865873.897ms; the minimum
 available physical memory is9440714752 bytes, above the unchanged8GiB guard.
-These elapsed times do not qualify performance. The numerical cause remains
-unidentified. A new run started at2026-09-19T20:23:08Z with identical binaries
-and additional output-only observations of chunk-terminal layers and decode
-input263348. Its GB10 comparison captures the same original owner32/suffix512
-plus both short controls. Memory/compiler experiments wait for this diagnosis;
-no new release is qualified.
+These elapsed times do not qualify performance. A diagnostic replay started
+at2026-09-19T20:23:08Z with identical binaries and output-only observations.
+It was intentionally stopped after18 completed chunks and6396949.2ms when
+independent operator evidence supported a repair candidate. It produced no
+generated tokens; native exit-1 and all final host/cleanup checks are recorded.
+The candidate requires Windows component and full-model verification. No new
+release is qualified.
 
 The [independent 256k diagnostic reference](../benchmarks/correctness/gb10-prefix256-all-chunk-boundaries-20260920.json)
 has now reproduced all 608 original outputs and the complete first-logit bytes
@@ -33,9 +34,32 @@ for all four requests. At decode input position 263348, GB10 gives both token
 264 a logit of 25.375 and 4222 a logit of 25.5. This is an observed numerical
 difference; its cause remains under investigation. All 32 owner chunk ends and
 the selected suffix decode boundaries are available for external comparison.
-At 20:36:59Z, the live Windows replay matches every layer's BF16 terminal row
-and the final normalization for its first six completed chunks. Terminal-row
+At 21:46:29Z, the Windows replay matched every layer's BF16 terminal row
+and final normalization for its first16 completed chunks. Terminal-row
 agreement does not establish every row, cached state or the full product gate.
+
+The [packed recurrence repair candidate](../benchmarks/correctness/prefix256-packed-recurrence-arithmetic-repair-20260920.json)
+identifies an original operator difference: the target permits263680 context
+tokens while its MTP drafter retains262144. The observed256k continuations use
+the non-speculative packed recurrence; the short controls and previously
+captured128k continuation use the speculative recurrence. The packed operator
+rounds beta to BF16, uses a different Q/K reduction followed by SM121 square
+root and reciprocal, and uses one state-projection order across V rows.
+The earlier native code applied the speculative arithmetic to both cases.
+
+On identical original layer0 inputs, the previous arithmetic differs in1780
+BF16 core outputs across four packed positions. The complete candidate matches
+all3145728 state elements and24576 core outputs across those four positions
+and both short controls. These are CPU operator checks, not model acceptance.
+The original compiled cubin and its diagnostic-only PTX variant reproduce
+every state/core bit for all four packed cases on GB10. Their observations
+isolate the arithmetic differences without changing the reference outputs.
+
+The [model-independent arithmetic capture](../benchmarks/correctness/sm121-packed-normalization-arithmetic-20260920.json)
+checks2139095041 square-root inputs and2113929216 reciprocal inputs with zero
+differences. A17039392-byte square-root table is added; the existing reciprocal
+artifact is unchanged. Six local regression checks pass. Native token-level
+confirmation of this candidate remains outstanding.
 
 The [output arithmetic diagnosis](../benchmarks/correctness/prefix256-reference-output-arithmetic-diagnosis-20260920.json)
 replays final normalization for 44 qualified reference rows: all 90,112 BF16

@@ -68,7 +68,8 @@ int main(int argc, char **argv) try {
                       dq, dr, dw, dc, position, dsi);
     check(hipGetLastError());
     hipLaunchKernelGGL(qrt_sm121_q1::recurrent, dim3(32), dim3(128), 0, nullptr,
-                      dc, da, db, ds, true, dout, nullptr, nullptr, ddiag, dg, dbe, de, drr);
+                      dc, da, db, ds, true, dout, nullptr, nullptr, ddiag, dg, dbe, de, drr,
+                      false, nullptr, nullptr);
     check(hipGetLastError()); check(hipDeviceSynchronize());
     check(hipMemcpy(conv.data(), dc, conv.size() * 4, hipMemcpyDeviceToHost));
     check(hipMemcpy(core.data(), dout, core.size() * 4, hipMemcpyDeviceToHost));

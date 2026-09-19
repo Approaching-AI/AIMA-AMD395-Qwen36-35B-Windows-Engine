@@ -41,6 +41,19 @@ QRT_RCP_HD inline float evaluate(const unsigned char* table, float denominator) 
     const uint32_t result = bits(rn) + delta - (uint32_t(exponent) << 23u);
     return value(result);
 }
+// The same mantissa artifact was separately checked for all 2,113,929,216
+// positive normal inputs with unbiased exponents -126..125. Packed Q1 head
+// normalization needs this domain because its square root can be below one.
+QRT_RCP_HD inline float evaluate_normal(const unsigned char* table, float denominator) {
+    const uint32_t input = bits(denominator);
+    const int exponent = int((input >> 23u) & 255u) - 127;
+    if (!table || (input >> 31u) || exponent < -126 || exponent > 125)
+        return value(0x7fc00000u);
+    const uint32_t mantissa = input & 0x7fffffu;
+    volatile float rn = 1.0f / value(0x3f800000u | mantissa);
+    const int32_t delta = reinterpret_cast<const int8_t*>(table + 32u)[mantissa];
+    return value(uint32_t(int64_t(bits(rn)) + delta - int64_t(exponent) * 0x800000));
+}
 inline bool valid_layout(const unsigned char* table, size_t bytes) {
     if (!table || bytes != table_bytes || std::memcmp(table, "QRCPTB01", 8)) return false;
     const uint32_t expected[] = {1u, uint32_t(entries), 0u, 18u, 1u, 0u};

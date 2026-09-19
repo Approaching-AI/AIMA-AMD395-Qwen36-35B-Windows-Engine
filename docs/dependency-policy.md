@@ -1,3 +1,26 @@
+# Experimental packed Q1 normalization table
+
+The non-speculative Q1 recurrence uses a model-independent SM121 square-root
+table, SHA256 `4f40ec04656a43948813e188f914e7e2f78d8f6b09b45e647027978aa520191a`.
+Its 17,039,392 bytes reproduce the original square-root instruction; ordinary
+rounded square root does not reproduce the captured normalized Q/K values.
+The existing reciprocal artifact remains byte-identical, with its normal
+exponent range now checked exhaustively from -126 through 125. The builder
+reuses the reference host's installed Torch/NumPy/Triton; these remain offline
+tools and add no Windows DLL or Python dependency.
+
+Packaging adds the square-root data file and about 16.25 MiB of persistent
+device storage, plus one same-size temporary host load buffer. The Windows
+CNG SHA check binds the file before use. `QRT_QWEN36_Q1_SM121_SQRT_TABLE` selects
+its path; it is loaded only for requests whose retained prefix reaches the
+reference drafter's 262144-token limit. The speculative path retains its current
+tables. Native component, load and product qualification are still required.
+Removing the packed compatibility path removes this artifact and its memory
+cost; it also removes the demonstrated arithmetic repair for that path.
+
+Evidence: [arithmetic domains](../benchmarks/correctness/sm121-packed-normalization-arithmetic-20260920.json)
+and [recurrence candidate](../benchmarks/correctness/prefix256-packed-recurrence-arithmetic-repair-20260920.json).
+
 # Optional caller-side document checker
 
 `scripts/check-agent-documents.py` uses only Python 3.10+ standard-library

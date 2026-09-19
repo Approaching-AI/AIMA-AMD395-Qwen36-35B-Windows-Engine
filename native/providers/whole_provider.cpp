@@ -41,6 +41,7 @@
 #include "sm121_q1_moe_runtime.h"
 #include "sm121_q1_full_runtime.h"
 #include "sm121_q1_attention_runtime.h"
+#include "sm121_q1_packed_runtime.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "moe_accumulator/sm121_wave16.h"
 #include "moe_accumulator/sm121_subgroup.h"
@@ -69818,12 +69819,26 @@ bool run_qwen36_resident_linear_sm121_core_step(
                   << " input_tokens=1 fp32_seed=1" << std::endl;
 #endif
     } else {
+        const bool packed_decode = qrt_sm121_q1_packed_runtime::applies_to_prefix(
+            g_qwen36_resident_session.prefix_tokens);
+        qrt_sm121_q1_packed_runtime::Tables packed_tables;
+        if (packed_decode) {
+            const hipError_t prepared_packed = qrt_sm121_q1_packed_runtime::prepare(&packed_tables);
+            if (prepared_packed != hipSuccess)
+                return qwen36_resident_decode_set_failure(stage, hipGetErrorString(prepared_packed), failure_stage, failure);
+        }
         hipLaunchKernelGGL(qrt_sm121_q1::recurrent, dim3(32), dim3(128), 0, stream,
             conv, a, b, layer.device_recurrent_state, layer.recurrent_state_key_major,
-            output, postconv, gates, nullptr, g_table, tables.beta, tables.exp2, tables.rsqrt);
+            output, postconv, gates, nullptr, g_table, tables.beta, tables.exp2, tables.rsqrt,
+            packed_decode, packed_tables.sqrt, packed_tables.reciprocal);
         const hipError_t launched = hipGetLastError();
         if (launched != hipSuccess)
             return qwen36_resident_decode_set_failure(stage, hipGetErrorString(launched), failure_stage, failure);
+        if (packed_decode && layer_index == 0u && layer.decode_recurrent_token_count == 0u)
+            std::cerr << "BATCH_MARK qwen36_q1_packed_recurrence prefix_tokens="
+                      << g_qwen36_resident_session.prefix_tokens << " position=" << position
+                      << " reference_draft_context_limit=" << qrt_sm121_q1_packed_runtime::reference_draft_context_limit
+                      << " beta_bf16=1 packed_qk_normalization=1" << std::endl;
     }
     ++layer.decode_recurrent_token_count;
     lease->mark_work_submitted();

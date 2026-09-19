@@ -47,17 +47,20 @@ __global__ void recurrent(const float *conv, const float *a, const float *b,
                           float *state, bool key_major, float *core,
                           float *postconv, float *gates, float *diagnostic,
                           const float *g_table, const float *beta_table,
-                          const unsigned char *exp2, const unsigned char *rsqrt) {
+                          const unsigned char *exp2, const unsigned char *rsqrt,
+                          bool packed_decode, const unsigned char *sqrt_table,
+                          const unsigned char *reciprocal) {
     const unsigned int head = blockIdx.x, v = threadIdx.x, key_head = head / 2;
     __shared__ float q[128], k[128], q_inverse, k_inverse, decay, beta, g;
     q[v] = conv[key_head * 128 + v];
     k[v] = conv[2048 + key_head * 128 + v];
     __syncthreads();
     if (v == 0) {
-        q_inverse = inverse_norm(q, rsqrt);
-        k_inverse = inverse_norm(k, rsqrt);
+        q_inverse = packed_decode ? packed_inverse_norm(q, sqrt_table, reciprocal) : inverse_norm(q, rsqrt);
+        k_inverse = packed_decode ? packed_inverse_norm(k, sqrt_table, reciprocal) : inverse_norm(k, rsqrt);
         g = g_table[head * 65536u + bf16(a[head])];
         beta = beta_table[bf16(b[head])];
+        if (packed_decode) beta = widen(bf16(beta));
         decay = qrt_sm121_exp2::evaluate(exp2, multiply(g, 0x1.715476p+0f));
     }
     __syncthreads();
@@ -67,7 +70,7 @@ __global__ void recurrent(const float *conv, const float *a, const float *b,
     const float value = conv[4096 + head * 128 + v];
     const unsigned int stride = key_major ? 128 : 1;
     float *row = state + head * 16384 + (key_major ? v : v * 128);
-    const float projected = state_dot(row, stride, decay, k, v, true);
+    const float projected = state_dot(row, stride, decay, k, v, true, packed_decode);
     const float residual = multiply(add(value, -projected), beta);
     for (unsigned int i = 0; i < 128; ++i)
         row[i * stride] = fmaf(residual, k[i], multiply(row[i * stride], decay));

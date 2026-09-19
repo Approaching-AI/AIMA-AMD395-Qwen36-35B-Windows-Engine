@@ -1,6 +1,8 @@
 #ifndef QRT_SM121_Q1_MATH_H
 #define QRT_SM121_Q1_MATH_H
 #include "sm121_rsqrt_table.h"
+#include "sm121_sqrt_table.h"
+#include "sm121_attention_rcp.h"
 #include <cmath>
 
 #if defined(__HIPCC__) || defined(__CUDACC__)
@@ -94,6 +96,27 @@ QRT_Q1_INLINE float inverse_norm(const float *values, const unsigned char *rsqrt
         add(add(add(warp[0], warp[2]), add(warp[1], warp[3])), 1.0e-6f));
 }
 
+// Original packed single-token PTX 8b7a2223... assigns four adjacent K values
+// to each lane. Its sqrt.approx and div.full lower to SM121 square root and
+// reciprocal instructions; their intermediate rounding is observable.
+QRT_Q1_INLINE float packed_inverse_norm(const float* values,
+                                        const unsigned char* sqrt_table,
+                                        const unsigned char* reciprocal) {
+    float partial[32];
+    for (unsigned int lane = 0; lane < 32; ++lane) {
+        const unsigned int i = lane * 4;
+        float sum = multiply(values[i + 1], values[i + 1]);
+        sum = fmaf(values[i], values[i], sum);
+        sum = fmaf(values[i + 2], values[i + 2], sum);
+        partial[lane] = fmaf(values[i + 3], values[i + 3], sum);
+    }
+    for (unsigned int step = 16; step; step >>= 1)
+        for (unsigned int lane = 0; lane < step; ++lane)
+            partial[lane] = add(partial[lane], partial[lane + step]);
+    const float root = qrt_sm121_sqrt::evaluate(sqrt_table, add(partial[0], 1.0e-6f));
+    return qrt_sm121_attention_rcp::evaluate_normal(reciprocal, root);
+}
+
 // The recurrent matrix layout gives four adjacent K values to each lane.
 // In the decayed K projection, the last four V rows in each BV=32 block
 // use the paired-FP32 lowering (product 0, then FMA 1/2/3); other rows use
@@ -102,11 +125,12 @@ QRT_Q1_INLINE float inverse_norm(const float *values, const unsigned char *rsqrt
 // This is a fixed layout rule, independent of tensor values and token IDs.
 QRT_Q1_INLINE float state_dot(const float *state, unsigned int stride,
                              float decay, const float *right,
-                             unsigned int value_dim, bool apply_decay) {
+                             unsigned int value_dim, bool apply_decay,
+                             bool packed_decode = false) {
     float partial[32];
     for (unsigned int lane = 0; lane < 32; ++lane) {
         const unsigned int base = lane * 4;
-        const unsigned int first = (apply_decay && value_dim % 32 >= 28) ? 0 : 1;
+        const unsigned int first = (apply_decay && !packed_decode && value_dim % 32 >= 28) ? 0 : 1;
         const unsigned int second = first ^ 1u;
         float x = state[(base + first) * stride];
         if (apply_decay) x = multiply(x, decay);
