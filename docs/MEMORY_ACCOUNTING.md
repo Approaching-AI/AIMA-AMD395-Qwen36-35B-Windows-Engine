@@ -44,10 +44,25 @@ describes these distinctions. Separate WMI class reads are not an atomic sample.
 The first process-counter timeout is preserved alongside the successful
 filtered retry.
 
+A second snapshot at 16:20:44Z identifies the same process and adapter.
+Dedicated usage falls by 2278285312 bytes and shared usage rises by
+2264989696 bytes, while total commitment falls by 13295616 bytes. This
+observation does not establish growing total allocation, fragmentation, or
+the cause of redistribution. The [counter comparison and workspace record](../benchmarks/correctness/resident-ordered-memory-counter-delta-20260920.json)
+preserves both observations and their process start time.
+
 The first cold chunk's allocation-pool marker is printed after releasing its
 pool. Its 2756558868 cached bytes cannot establish the current suffix pool's
 live size. A separate read-only CK workspace snapshot belongs to this ordered
 run; the earlier whole334 snapshot belongs to a different experiment.
+
+The refreshed workspace selection at 16:32:31Z also includes the long decoded
+Q/K allocation marker omitted by the first observer. It reports 522125312
+bytes at capacity 188416, following 22 checked growth allocations. The decoded
+owner is active in the long pipeline. Its separate prepared-Q/K summary marker
+is suppressed when that pipeline runs; a zero count for that summary does not
+mean unused storage. These allocation capacities do not measure total GPU
+residency.
 
 The [memory accounting record](../benchmarks/correctness/runtime-memory-accounting-20260920.json)
 pins both native snapshots, their observers, actual source and process identity,
