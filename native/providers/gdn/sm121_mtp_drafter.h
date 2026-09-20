@@ -11,6 +11,7 @@
 #include "sm121_mtp_moe.h"
 #include "sm121_mtp_head.h"
 #include "sm121_mtp_model_weights.h"
+#include "sm121_mtp_cache_snapshot.h"
 
 namespace qrt_sm121_mtp {
 struct DrafterWeights {
@@ -56,6 +57,28 @@ struct DrafterObservation {
     const uint16_t* final_hidden = nullptr;
     const uint16_t* final_residual = nullptr;
     const uint16_t* vocabulary_logits = nullptr;
+};
+
+// Copyable immutable KV checkpoint. Session shadows may share it; a live
+// drafter restores into separate storage before appending another branch.
+// Target cache/token identity must be paired by the enclosing request owner.
+// Checkpoint operations are serialized by the caller, as with Drafter use.
+class DrafterCheckpoint final {
+public:
+    bool valid(uint64_t epoch) const {
+        return storage_ && !storage_->quarantined && storage_->device &&
+            storage_->tokens && storage_->tokens <= 262144u && binding_.valid(epoch);
+    }
+    uint64_t epoch() const { return binding_.epoch(); }
+    unsigned tokens() const { return storage_ ? storage_->tokens : 0u; }
+    size_t allocated_bytes() const { return size_t(tokens())*1024u*sizeof(uint16_t); }
+    const uint16_t* cache_data(uint64_t epoch) const { return valid(epoch) ? storage_->device : nullptr; }
+private:
+    friend class Drafter;
+    void quarantine() const { mtp_cache_snapshot_detail::quarantine(storage_); }
+    std::shared_ptr<mtp_cache_snapshot_detail::Storage> storage_;
+    ModelWeightBinding binding_;
+    DrafterTables tables_;
 };
 
 // Synchronous request owner over asynchronous kernels. Input hidden rows must
@@ -115,6 +138,51 @@ public:
         cache_.swap(next.cache_); std::swap(storage_, next.storage_);
         invalidate_observation();
         return hipSuccess;
+    }
+
+    PromptStep checkpoint(DrafterCheckpoint* output, uint64_t current_epoch, hipStream_t stream = nullptr) {
+        if (quarantined_) return {completion_error_, "quarantined", retained_tokens(), true};
+        if (!output || !cache_ || !retained_tokens() || !model_current(current_epoch) ||
+            !model_binding_.valid(current_epoch))
+            return {hipErrorInvalidValue, "cache_checkpoint_contract", retained_tokens()};
+        DrafterCheckpoint next;
+        try { next.storage_ = std::make_shared<mtp_cache_snapshot_detail::Storage>(); }
+        catch (...) { return {hipErrorOutOfMemory, "cache_checkpoint_owner", retained_tokens()}; }
+        next.binding_ = model_binding_; next.tables_ = tables_;
+        next.storage_->tokens = retained_tokens();
+        hipError_t status = hipMalloc(reinterpret_cast<void**>(&next.storage_->device), next.allocated_bytes());
+        if (status != hipSuccess) return {status, "cache_checkpoint_allocation", retained_tokens()};
+        status = hipMemcpyAsync(next.storage_->device, cache_->data(), next.allocated_bytes(),
+            hipMemcpyDeviceToDevice, stream);
+        const hipError_t completed = hipStreamSynchronize(stream);
+        if (completed != hipSuccess) {
+            next.quarantine(); quarantine(completed);
+            return {completed, "cache_checkpoint_completion", retained_tokens(), true};
+        }
+        if (status != hipSuccess) return {status, "cache_checkpoint_copy", retained_tokens()};
+        if (!next.valid(current_epoch)) return {hipErrorInvalidValue, "cache_checkpoint_epoch", retained_tokens()};
+        *output = std::move(next);
+        return {hipSuccess, "complete", retained_tokens()};
+    }
+
+    PromptStep restore(const DrafterCheckpoint& checkpoint, unsigned capacity, unsigned append_rows,
+        uint64_t current_epoch, hipStream_t stream = nullptr) {
+        if (quarantined_) return {completion_error_, "quarantined", retained_tokens(), true};
+        if (retained_tokens() || !checkpoint.valid(current_epoch) || capacity < checkpoint.tokens())
+            return {hipErrorInvalidValue, "cache_restore_contract", retained_tokens()};
+        const hipError_t reserved = reserve(capacity, append_rows);
+        if (reserved != hipSuccess) return {reserved, "cache_restore_reserve", retained_tokens()};
+        if (!bind(checkpoint.binding_, checkpoint.tables_, current_epoch))
+            return {hipErrorInvalidValue, "cache_restore_binding", retained_tokens()};
+        const auto restored = cache_->restore_completed(checkpoint.cache_data(current_epoch), checkpoint.tokens(), stream);
+        if (restored.completion_unknown) { checkpoint.quarantine(); quarantine(restored.status); }
+        if (restored.status != hipSuccess) return restored;
+        if (!model_current(current_epoch)) {
+            (void)cache_->truncate(0u);
+            return {hipErrorInvalidValue, "cache_restore_epoch", retained_tokens()};
+        }
+        invalidate_observation();
+        return restored;
     }
 
     // Storage epochs are supplied by the model owner and checked before every

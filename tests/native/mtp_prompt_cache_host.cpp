@@ -12,6 +12,7 @@ using hipError_t = int;
 using hipStream_t = void*;
 constexpr int hipSuccess = 0, hipErrorInvalidValue = 1, hipErrorOutOfMemory = 2;
 constexpr int hipMemcpyDeviceToHost = 3, injected = 99;
+constexpr int hipMemcpyDeviceToDevice = 4;
 static std::map<void*, bool> allocations;
 static std::vector<std::function<void()>> queued;
 static std::vector<std::string> stages;

@@ -627,6 +627,23 @@ completed cleanup record before any remote execution; a failed model boundary
 does not prevent the subsequent repair build. No result or release acceptance
 follows from these preparations.
 
+The [immutable MTP KV checkpoint candidate](../benchmarks/correctness/mtp-immutable-kv-checkpoint-local-20260920.json)
+copies completed K/V into separate owned device storage and retains the
+original model lease. Session shadows may share this immutable checkpoint;
+restoration creates an independent live cache. A restored drafter requires a
+new actual target-hidden append before proposing, because mutable fusion and
+normalization scratch are deliberately not restored. Failed known transfers
+preserve the prior checkpoint; unknown completion retains both transfer ends
+and the model lease. Epoch validation also runs after each completed copy.
+
+All 51 local regressions pass in 30.409 seconds, including snapshot aliasing,
+later branch writes, model lifetime, save/restore failure, post-copy epoch
+changes and delayed copies after owner destruction. These are queued host
+ownership checks. Target cache/token/generation/candidate/schedule pairing and
+actual prefix/session wiring remain pending; this candidate does not establish
+prefix or GPU correctness. Frozen native batches retain their earlier commits
+and do not qualify this new checkpoint API.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a

@@ -189,6 +189,23 @@ public:
     }
 
 private:
+    friend class Drafter;
+    // Restore only a completed immutable snapshot into an empty request.
+    // Fusion/normalization scratch is not part of persistent K/V state: a
+    // subsequent proposal requires a fresh actual target append.
+    PromptStep restore_completed(const uint16_t* source, unsigned int rows, hipStream_t stream) {
+        if (quarantined_) return {completion_error_, "quarantined", retained_, true};
+        if (!source || !cache_ || retained_ || !rows || rows > capacity_)
+            return {hipErrorInvalidValue, "cache_restore_contract", retained_};
+        invalidate_tail();
+        const hipError_t copied = hipMemcpyAsync(cache_, source, size_t(rows)*1024u*sizeof(uint16_t),
+            hipMemcpyDeviceToDevice, stream);
+        const hipError_t completed = hipStreamSynchronize(stream);
+        if (completed != hipSuccess) return quarantine(completed, "cache_restore_completion");
+        if (copied != hipSuccess) return {copied, "cache_restore_copy", retained_};
+        retained_ = rows;
+        return {hipSuccess, "complete", retained_};
+    }
     void invalidate_tail() { tail_rows_ = 0u; ++generation_; }
     PromptStep quarantine(hipError_t status, const char* stage) {
         invalidate_tail();

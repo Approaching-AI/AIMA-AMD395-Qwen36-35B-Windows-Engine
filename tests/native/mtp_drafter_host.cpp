@@ -31,6 +31,8 @@ static unsigned attention_tokens=0, attention_first=0, attention_rows=0;
 static std::vector<uint16_t> expected_hidden;
 static std::vector<uint32_t> expected_ids;
 static bool expected_split=true;
+static uint16_t cache_fill=55u;
+static std::function<void()> completion_hook;
 static hipError_t allocate(void** pointer,size_t bytes,bool host) {
     if(++allocation_call==fail_allocation)return hipErrorOutOfMemory;
     assert(!posix_memalign(pointer,256u,(bytes+255u)&~size_t(255u)));
@@ -50,7 +52,9 @@ static hipError_t enqueue(const std::string& stage,hipStream_t stream,std::funct
 }
 static hipError_t hipStreamSynchronize(hipStream_t stream) {
     assert(stream==expected_stream);if(++sync_call==fail_sync)return injected;
-    auto work=std::move(queued);queued.clear();for(auto& action:work)action();return hipSuccess;
+    auto work=std::move(queued);queued.clear();for(auto& action:work)action();
+    if(completion_hook){auto hook=std::move(completion_hook);completion_hook={};hook();}
+    return hipSuccess;
 }
 static hipError_t hipMemsetAsync(void* p,int value,size_t bytes,hipStream_t stream) {
     return enqueue("clear",stream,[=]{std::memset(p,value,bytes);});
@@ -89,8 +93,9 @@ static hipError_t launch_normalize(const uint16_t* in,const uint16_t*,const unsi
 }
 static hipError_t launch_key_values(const uint16_t* in,const uint16_t*,const unsigned char*,const uint16_t*,
     unsigned,unsigned first,unsigned rows,unsigned capacity,uint16_t* out,uint16_t*,hipStream_t stream) {
+    const auto value=cache_fill;
     assert(first+rows<=capacity);return enqueue("cache",stream,[=]{assert(in[0]==44u);
-        std::fill_n(out+first*1024u,rows*1024u,55u);});
+        std::fill_n(out+first*1024u,rows*1024u,value);});
 }
 static hipError_t launch_projection(const uint16_t* weights,const uint16_t* in,uint16_t* out,
     unsigned output,unsigned input,unsigned rows,unsigned maximum_blocks,hipStream_t stream) {
@@ -138,6 +143,7 @@ static hipError_t launch_head(const uint16_t*,const uint16_t* in,uint16_t* logit
 }
 #include "sm121_mtp_prompt_cache.h"
 #include "sm121_mtp_model_weights.h"
+#include "sm121_mtp_cache_snapshot.h"
 #include "sm121_mtp_drafter.h"
 #include "sm121_mtp_target_inputs.h"
 namespace qrt_sm121_mtp_runtime {
@@ -180,6 +186,7 @@ static void reset() {
     assert(queued.empty());allocation_call=fail_allocation=sync_call=fail_sync=copies=0;
     stages.clear();fail_stage.clear();invalid_input=invalid_moe=invalid_head=invalid_id=invalid_logit=false;
     expected_hidden.clear();expected_ids.clear();expected_split=true;
+    cache_fill=55u;completion_hook={};
 }
 static bool bind(qrt_sm121_mtp::Drafter& d,uint64_t epoch=10u) {
     using namespace qrt_sm121_mtp;
@@ -310,11 +317,95 @@ static void test_prefill_probe(const std::string& directory) {
         }assert(allocations.size()==26u);late_completion();assert(allocations.empty());
     }
 }
+static void seed_leased(qrt_sm121_mtp::Drafter& drafter,const std::shared_ptr<LeasedWeights>& source) {
+    using namespace qrt_sm121_mtp;
+    ModelWeights model;assert(model.prepare(source,10u,expected_stream).status==hipSuccess);
+    const auto* p=reinterpret_cast<const uint16_t*>(0x60000);
+    const auto* t=reinterpret_cast<const unsigned char*>(0x70000);
+    DrafterTables tables{t,p,262144u,t,t,{p,p,reinterpret_cast<const uint32_t*>(0x80000)}};
+    assert(drafter.reserve(8u,4u)==hipSuccess&&drafter.bind(model.binding(10u),tables,10u));
+    assert(append(drafter,0u,2u).status==hipSuccess);
+}
+static void test_checkpoints() {
+    using namespace qrt_sm121_mtp;
+    reset();{Drafter raw;DrafterCheckpoint absent;
+        assert(bind(raw)&&raw.reserve(4,2)==hipSuccess&&append(raw,0,2).status==hipSuccess);
+        reset();assert(raw.checkpoint(&absent,10u,expected_stream).status==hipErrorInvalidValue);
+        assert(!absent.tokens()&&stages.empty()); // A bare epoch is not a model lease.
+    }assert(allocations.empty());
+    reset();{
+        DrafterCheckpoint saved;std::weak_ptr<LeasedWeights> borrowed;
+        {auto source=std::make_shared<LeasedWeights>();borrowed=source;Drafter original;
+            seed_leased(original,source);assert(original.checkpoint(&saved,10u,expected_stream).status==hipSuccess);
+            assert(saved.tokens()==2u&&saved.epoch()==10u&&saved.allocated_bytes()==4096u);
+            assert(saved.cache_data(10u)!=original.cache_data());
+            assert(original.truncate(0u,10u));cache_fill=99u;
+            assert(append(original,0u,2u).status==hipSuccess&&original.cache_data()[0]==99u);
+            assert(std::all_of(saved.cache_data(10u),saved.cache_data(10u)+2048u,[](auto x){return x==55u;}));
+        }
+        assert(allocations.size()==2u&&!borrowed.expired());
+        auto alias=saved;saved={};assert(alias.valid(10u)&&!alias.valid(11u));
+        reset();{Drafter restored;assert(restored.restore(alias,8u,2u,10u,expected_stream).status==hipSuccess);
+            assert(restored.retained_tokens()==2u&&restored.cache_data()!=alias.cache_data(10u));
+            assert(!restored.observation(10u).rows&&propose(restored,1u,1u).status==hipErrorInvalidValue);
+            assert(append(restored,2u,2u).status==hipSuccess&&propose(restored,3u,1u).rows==1u);
+            assert(alias.tokens()==2u&&alias.cache_data(10u)[0]==55u);
+        }
+        assert(allocations.size()==2u);alias={};assert(borrowed.expired());
+    }assert(allocations.empty());
+    for(unsigned kind=0;kind<3u;++kind){
+        reset();{auto source=std::make_shared<LeasedWeights>();Drafter d;seed_leased(d,source);
+            DrafterCheckpoint saved;assert(d.checkpoint(&saved,10u,expected_stream).status==hipSuccess);
+            const auto* original=saved.cache_data(10u);reset();
+            if(!kind)fail_allocation=1;
+            if(kind==1)fail_stage="weight_copy1";
+            if(kind==2)completion_hook=[&]{source->generation=11u;};
+            const auto result=d.checkpoint(&saved,10u,expected_stream);
+            assert(result.status!=hipSuccess&&!result.completion_unknown&&!d.quarantined()&&queued.empty());
+            assert(allocations.size()==27u&&saved.tokens()==2u);source->generation=10u;
+            assert(saved.cache_data(10u)==original);
+        }assert(allocations.empty());
+    }
+    for(unsigned kind=0;kind<3u;++kind){
+        reset();{auto source=std::make_shared<LeasedWeights>();DrafterCheckpoint saved;
+            {Drafter d;seed_leased(d,source);assert(d.checkpoint(&saved,10u,expected_stream).status==hipSuccess);}
+            assert(allocations.size()==2u);Drafter restored;reset();
+            assert(restored.restore(saved,1u,2u,10u,expected_stream).status==hipErrorInvalidValue&&stages.empty());
+            assert(restored.restore(saved,8u,2u,11u,expected_stream).status==hipErrorInvalidValue&&stages.empty());
+            if(!kind)fail_allocation=1;
+            if(kind==1)fail_stage="weight_copy1";
+            if(kind==2)completion_hook=[&]{source->generation=11u;};
+            const auto result=restored.restore(saved,8u,2u,10u,expected_stream);
+            assert(result.status!=hipSuccess&&!result.completion_unknown&&!restored.quarantined());
+            assert(!restored.retained_tokens()&&queued.empty());source->generation=10u;reset();
+            assert(saved.valid(10u)&&restored.restore(saved,8u,2u,10u,expected_stream).status==hipSuccess);
+            assert(restored.retained_tokens()==2u&&saved.cache_data(10u)[0]==55u);
+        }assert(allocations.empty());
+    }
+    for(bool partial:{false,true}){
+        reset();{auto source=std::make_shared<LeasedWeights>();Drafter d;seed_leased(d,source);
+            DrafterCheckpoint saved;reset();fail_sync=1;if(partial)fail_stage="weight_copy1";
+            const auto result=d.checkpoint(&saved,10u,expected_stream);
+            assert(result.completion_unknown&&d.quarantined()&&!saved.valid(10u));
+        }
+        assert(allocations.size()==27u);late_completion();assert(allocations.empty());
+    }
+    for(bool partial:{false,true}){
+        reset();{auto source=std::make_shared<LeasedWeights>();DrafterCheckpoint saved;
+            {Drafter d;seed_leased(d,source);assert(d.checkpoint(&saved,10u,expected_stream).status==hipSuccess);}
+            Drafter restored;reset();fail_sync=1;if(partial)fail_stage="weight_copy1";
+            const auto result=restored.restore(saved,8u,2u,10u,expected_stream);
+            assert(result.completion_unknown&&restored.quarantined()&&!saved.valid(10u));
+        }
+        assert(allocations.size()==27u);late_completion();assert(allocations.empty());
+    }
+}
 int main(int argc,char** argv){
     assert(argc==2);
     using qrt_sm121_mtp::Drafter;
     test_target_inputs();
     test_prefill_probe(argv[1]);
+    test_checkpoints();
     for(unsigned fail=1;fail<=25u;++fail){
         reset();{Drafter d;assert(d.reserve(8,2)==hipSuccess&&allocations.size()==25u);auto* old=d.cache_data();
             reset();fail_allocation=fail;assert(d.reserve(16,4)==hipErrorOutOfMemory);
