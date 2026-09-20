@@ -606,6 +606,27 @@ token/logit/callback comparisons remain unrun. Earlier frozen native plans keep
 their original source identities. Continuation, real target acceptance and
 prefix rollback still require integration and validation.
 
+The [Windows preparation for this integration](../benchmarks/correctness/mtp-native-actual-prefill-windows-preparation-20260920.json)
+binds source `e743a72`, 135 compilation inputs and 137 build inputs. It
+supersedes the unrun target-hidden-only plan. The new whole build records the
+same source closure that its evidence checker expects; the earlier template
+had recorded a larger repository inventory. Compilation and model execution
+remain unrun. Native build and revised q7169/out32/q8192/out512 scripts parse
+on baiying, without loading a model or invoking a build.
+
+The product runs enable original resident MTP weights and a separate verified
+BF16 sigmoid table. Each collects at most 29 diagnostic files/55000000 bytes,
+including complete actual inputs, native KV/frontiers/logits and final metadata.
+The ordinary original token/logit/callback gate remains attached to the run.
+The additional comparison reports internal bit differences independently of
+the original first-proposal token/logit boundary. Offline original-data fixtures
+and deliberate query-bit corruption validate the comparator only. A schema
+substitution error in the first unrun product preparation is preserved and
+corrected in revision 2. Both dispatchers require the active 256k process's
+completed cleanup record before any remote execution; a failed model boundary
+does not prevent the subsequent repair build. No result or release acceptance
+follows from these preparations.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
