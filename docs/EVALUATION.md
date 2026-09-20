@@ -105,12 +105,35 @@ are written and hash checked:1279 files/272263168 bytes. The actual bounded
 Windows archive step passes. Load21548.1439ms, TTFT23258.9129ms and
 TPOT102.69098ms remain diagnostic timings above the immutable TTFT target.
 
-The next native observer also selects lightweight endpoints for all10 full
-attention layers at both positions. It retains the existing128KiB per-file
-limit and allows512 stage files/32MiB only when explicitly enabled. Full K/V
-history capture remains separately bounded and disabled in this diagnostic.
-The full256k diagnostic has not been dispatched; its earlier preparations
-remain unrun while this complete endpoint coverage is verified.
+The [complete Q1 observer regression](../benchmarks/correctness/native-all-q1-observer-q8192-20260920.json)
+at source `1a9743a` passes all 512 original q8192 outputs and callbacks, with
+first token 144 and logit 10.375. Both positions retain 1198 linear stages,
+280 lightweight stages across all 10 full-attention layers, 80 output carriers
+and the terminal norm: 1559 files totaling 275048448 bytes. Linear file hashes
+match completed device-read hashes; full-stage paths, sizes and completed-write
+flags match the manifest. All host checks and cleanup pass. Load is
+21592.2763 ms, diagnostic TTFT 23349.8473 ms and TPOT 103.289158 ms. Full K/V
+history capture remains separately bounded and disabled. The full-stage
+observer retains the 128KiB file limit and permits 512 files/32MiB only when
+explicitly enabled.
+
+The [new original reference](../benchmarks/correctness/gb10-prefix256-all-linear-divergence-boundaries-20260920.json)
+reproduces all 608 outputs and all four complete first-logit buffers. All 30
+linear layers are captured at inputs 263168 and 263356 in the suffix case.
+At the latter position, input token 279 precedes output index 189. GB10 gives
+8240/2468 logits 22.875/22.75; the previous Windows run reverses those scores.
+The [all-layer CPU replay](../benchmarks/correctness/prefix256-all-linear-original-recurrence-cpu-20260920.json)
+reproduces every one of 31457280 FP32 state values and 245760 BF16 core outputs
+across all 60 selected rows. This checks the recurrence on original operands;
+the actual Windows operands and other operators still require comparison.
+
+`run-all-q1-prefix256k-r2.ps1` started the complete original 256k diagnostic on
+baiying at 2026-09-20T06:13:16Z, PID 2552, with a 28800-second native timeout.
+It uses whole `1a9743a`, CK370/FLA1d/MoE923/CLI6d and the unchanged real model.
+At 06:14:53Z, two owner chunks had completed, with no generated output and
+21810253824 bytes of available physical memory. The original 8/20GiB guards
+remain active. The run will observe both selected inputs across all 40 layers;
+its final correctness, cleanup and performance are not yet established.
 
 The separate [draft-limit transition reference](../benchmarks/correctness/gb10-draft-limit-transition-20260920.json)
 completes six requests and 144 outputs on the unchanged GB10 reference. Both
