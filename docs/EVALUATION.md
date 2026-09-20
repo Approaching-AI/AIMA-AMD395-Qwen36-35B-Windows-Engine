@@ -30,11 +30,31 @@ The1113 captured-surface comparisons identify two remaining paths. At263356,
 layer0's normalized input is exact but its device-token prefetch still used
 old K16 projections; all13 QKV differences and the Z difference correspond to
 that qualified old operator. Prefetch now selects the same packed projection
-as ordinary long-context decode. At263168, layers0–2 and layer3 QKV/norm/RoPE
-are exact; the first independent difference is layer3 attention context
-(564 BF16 values). A bounded original-cache capture is being prepared to
-resolve it. Thirty local dispatch/observer tests pass; the revised whole DLL
-and product continuation have not yet run. Release remains unqualified.
+as ordinary long-context decode. Thirty local dispatch/observer tests pass.
+The [f963 Windows build and real q8192 regression](../benchmarks/correctness/packed-prefetch-native-q8192-regression-20260921.json)
+now pass: all512 output IDs and actual callbacks match, first144/logit10.375.
+Load21747.0382ms passes; TTFT23528.748ms and TPOT101.384643ms remain above
+the performance goals. The revised long-context prefetch path is not yet
+qualified by a full256k rerun.
+
+The [remaining attention root cause](../benchmarks/correctness/prefix256-segmented-attention-root-cause-20260921.json)
+is now reproduced independently. A fresh original-model capture matches all608
+outputs and complete first-logit bytes across the four original requests.
+At263168, the first three layers and layer3 QKV/norm/RoPE are exact. Replaying
+the original layer3 query and complete263169-row K/V history through its
+single-query3D operator matches all4096 captured BF16 context values. The2D
+operator reproduces all564 Windows differences exactly. The original3D path
+uses16 segments,16-token tiles and an ordered final merge; the native packed
+decode path still calls the2D32-token-tile implementation. Native replacement
+and a correctness-attached full256k product rerun remain open.
+
+The [target cache publication boundary](../benchmarks/correctness/q2-cache-publication-local-20260921.json)
+passes eight local regressions, including all80 partial-copy failure positions.
+It selects the accepted private states/rings and KV rows, validates all writable
+ranges before submission, and retains every borrowed owner when completion
+cannot be established. The real owner must reserve rollback and host metadata;
+this boundary does not publish token metadata or callbacks. Native publication
+and a live MTP request remain unrun. Release remains unqualified.
 
 The September20 original256k run on whole `b3af8b6`, CK `3701495`, FLA
 `1d11bf7`, MoE `9235750` and CLI `6d9602c` completes all32 owner chunks,

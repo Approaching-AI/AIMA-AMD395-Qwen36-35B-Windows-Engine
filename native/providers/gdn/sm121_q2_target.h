@@ -132,6 +132,8 @@ struct Storage {
     TargetSnapshot snapshot;
     std::array<uint32_t, 2> inputs{};
     bool complete = false, quarantined = false;
+    bool publication_started = false, cache_published = false;
+    hipError_t quarantine_status = hipSuccess;
     Storage* quarantine_next = nullptr;
     std::shared_ptr<Storage> quarantine_hold;
     ~Storage() {
@@ -140,9 +142,10 @@ struct Storage {
     }
 };
 inline std::atomic<Storage*> quarantined_head{nullptr};
-inline void quarantine(const std::shared_ptr<Storage>& storage) {
+inline void quarantine(const std::shared_ptr<Storage>& storage, hipError_t status) {
     if (!storage || storage->quarantined) return;
     storage->complete = false; storage->quarantined = true;
+    storage->quarantine_status = status;
     storage->weights.quarantine();
     if (storage->source) storage->source->quarantine();
     // No allocation is needed on the error path. Preserve device, pinned host,
@@ -250,6 +253,14 @@ public:
     const std::array<uint32_t,2>* inputs() const { return ready() ? &storage_->inputs : nullptr; }
     const uint16_t* vocabulary_logits() const { return ready() ? storage_->scratch.vocabulary_logits : nullptr; }
     size_t allocated_bytes() const { return storage_ ? storage_->bytes : 0; }
+    // Cache publication or an observer may borrow the completed result on a
+    // later stream operation. That operation has its own completion boundary.
+    bool quarantine_borrower(hipError_t status) const {
+        if (status == hipSuccess || !storage_) return false;
+        target_detail::quarantine(storage_,status);
+        return true;
+    }
+    bool cache_published() const { return ready() && storage_->cache_published; }
     TargetLinearSelection linear(unsigned layer, unsigned rows) const {
         if (!ready() || layer >= target_layers || layer%4u == 3u || rows < 1u || rows > 2u) return {};
         const auto& s = *storage_; const auto& cache = s.snapshot.linear[layer];
@@ -263,6 +274,7 @@ public:
     }
 private:
     friend class Target;
+    friend class CachePublisher;
     std::shared_ptr<target_detail::Storage> storage_;
 };
 
@@ -278,6 +290,7 @@ public:
         const std::array<uint32_t,2>& inputs, TargetResult* output,
         unsigned maximum_blocks = 1024u, hipStream_t stream = nullptr) {
         if (output) *output = {};
+        if (storage_ && storage_->quarantined) terminal_ = storage_->quarantine_status;
         if (terminal_ != hipSuccess) return {terminal_,"target_quarantined",true};
         if (!output || !source || !maximum_blocks || maximum_blocks > 4096u) return invalid("target_contract");
         TargetSnapshot snapshot;
@@ -292,14 +305,15 @@ public:
         const auto reserved = reserve(snapshot.processed_tokens+2u);
         if (reserved != hipSuccess) return {reserved,"target_workspace"};
         auto& s = *storage_;
-        s.complete = false; s.weights = weights; s.source = std::move(source); s.snapshot = snapshot; s.inputs = inputs;
+        s.complete = false; s.publication_started = false; s.cache_published = false;
+        s.weights = weights; s.source = std::move(source); s.snapshot = snapshot; s.inputs = inputs;
         if (!target_detail::valid(s)) return invalid("target_graph");
         *s.host = {};
         auto& p = s.scratch;
         const auto fail = [&](hipError_t error, const char* stage) {
             const auto completed = hipStreamSynchronize(stream);
             if (completed != hipSuccess) {
-                target_detail::quarantine(storage_); terminal_ = completed;
+                target_detail::quarantine(storage_,completed); terminal_ = completed;
                 return TargetStep{completed,stage,true};
             }
             return TargetStep{error,stage};
@@ -345,7 +359,7 @@ public:
         if (status != hipSuccess) return fail(status,"target_hidden_download");
         status = hipStreamSynchronize(stream);
         if (status != hipSuccess) {
-            target_detail::quarantine(storage_); terminal_ = status;
+            target_detail::quarantine(storage_,status); terminal_ = status;
             return {status,"target_completion",true};
         }
         if (!target_detail::current(s)) return invalid("target_completed_frontier");
@@ -358,7 +372,7 @@ public:
         s.complete = true; output->storage_ = storage_;
         return {};
     }
-    bool quarantined() const { return terminal_ != hipSuccess; }
+    bool quarantined() const { return terminal_ != hipSuccess || (storage_ && storage_->quarantined); }
 private:
     static TargetStep invalid(const char* stage) { return {hipErrorInvalidValue,stage}; }
     hipError_t reserve(unsigned capacity) {

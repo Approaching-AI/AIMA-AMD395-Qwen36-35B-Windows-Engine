@@ -20,7 +20,7 @@ static hipError_t hipHostFree(void*);
 static hipError_t hipMemcpyAsync(void*,const void*,size_t,int,hipStream_t);
 static hipError_t hipMemsetAsync(void*,int,size_t,hipStream_t);
 static hipError_t hipStreamSynchronize(hipStream_t);
-#include "sm121_q2_target.h"
+#include "sm121_q2_publication.h"
 using namespace qrt_sm121_q2;
 using qrt_sm121_mtp::ModelTensorView;
 static hipStream_t wanted_stream=reinterpret_cast<void*>(0x1234u);
@@ -85,10 +85,15 @@ struct Weights final:qrt_sm121_mtp::ModelWeightSource{
         *output={s.name.c_str(),fake<uint16_t>(unsigned(it-specs.begin())),s.rank,s.shape,s.bytes(),generation,true,true};return true;
     }
 };
-struct Source final:TargetStateSource{
+struct Source final:TargetCacheOwner{
     mutable TargetSnapshot state;
     mutable bool isolated=false;
     bool decline=false,throws=false;
+    bool publication_allowed=true,publication_throws=false;
+    mutable unsigned invalidations=0;
+    std::vector<void*> owned_caches;
+    struct Guard {unsigned char* base;size_t bytes;};
+    std::vector<Guard> guards;
     std::function<void(TargetSnapshot&)> corrupt;
     explicit Source(unsigned first=8192u){
         state.owner=this;state.model_epoch=7;state.processed_tokens=first;state.current_token=144;
@@ -109,7 +114,27 @@ struct Source final:TargetStateSource{
             }
         }
     }
-    ~Source(){assert(pending.empty());}
+    void writable_caches(unsigned element_bytes){
+        const auto buffer=[&](size_t bytes){
+            void* p=nullptr;assert(hipMalloc(&p,bytes+512u)==hipSuccess);
+            std::memset(p,0x5a,bytes+512u);owned_caches.push_back(p);guards.push_back({static_cast<unsigned char*>(p),bytes});
+            return static_cast<unsigned char*>(p)+256u;
+        };
+        for(unsigned layer=0;layer<40u;++layer){
+            if(layer%4u==3u){
+                auto& p=state.attention[layer].decoded;p.element_bytes=element_bytes;
+                p.keys=buffer(size_t(p.capacity)*512u*element_bytes);
+                p.values=buffer(size_t(p.capacity)*512u*element_bytes);
+            }else{
+                auto& p=state.linear[layer];p.state=reinterpret_cast<float*>(buffer(state_elements*4u));
+                p.ring=buffer(ring_elements*p.ring_element_bytes);
+            }
+        }
+    }
+    void check_guards()const{
+        for(const auto& g:guards)for(size_t i=0;i<256u;++i){assert(g.base[i]==0x5au);assert(g.base[256u+g.bytes+i]==0x5au);}
+    }
+    ~Source(){assert(pending.empty());check_guards();for(auto* p:owned_caches)(void)hipFree(p);}
     bool snapshot(TargetSnapshot* result)const override{
         if(throws)throw std::runtime_error("snapshot");if(decline)return false;
         *result=state;if(corrupt)corrupt(*result);return true;
@@ -119,7 +144,20 @@ struct Source final:TargetStateSource{
             s.processed_tokens==state.processed_tokens&&s.current_token==state.current_token;
     }
     void quarantine()const noexcept override{isolated=true;}
+    bool prepare_publication(const TargetSnapshot& s,unsigned rows)const override{
+        assert(rows==1u||rows==2u);if(publication_throws)throw std::bad_alloc();
+        return publication_allowed&&matches(s);
+    }
+    void invalidate()const noexcept override{isolated=true;++invalidations;}
 };
+hipError_t publication_detail::copy_plane(const uint16_t* input,void* output,unsigned rows,unsigned stride,unsigned bytes,hipStream_t stream){
+    assert(stream==wanted_stream&&stride==512u&&(bytes==2u||bytes==4u));
+    return enqueue({{input,output},[=]{for(unsigned row=0;row<rows;++row)for(unsigned col=0;col<512u;++col){
+        const uint16_t value=input[size_t(row)*1024u+col];
+        if(bytes==2u)static_cast<uint16_t*>(output)[size_t(row)*stride+col]=value;
+        else{uint32_t bits=uint32_t(value)<<16u;std::memcpy(static_cast<float*>(output)+size_t(row)*stride+col,&bits,4u);}
+    }}});
+}
 static uint16_t marker(unsigned layer,unsigned row,bool residual){return uint16_t((residual?0x3e00u:0x3f00u)+layer*2u+row);}
 template<class V>static void layer_result(const V& v,unsigned layer){
     qrt_sm121_mtp::MoeBuffers moe;
@@ -142,9 +180,9 @@ template<class Element>hipError_t launch_linear_layer(const LinearLayerViews<Ele
         layer_result(v,layer);
         for(unsigned row=0;row<2u;++row){
             float* state=v.linear.recurrent.staged_states+size_t(row)*state_elements;
-            state[0]=state[state_elements-1u]=float(layer*2u+row+1u);
+            std::fill_n(state,state_elements,float(layer*2u+row+1u));
             Element* ring=v.linear.convolution.staged_rings+size_t(row)*ring_elements;
-            ring[0]=ring[ring_elements-1u]=Element(layer*2u+row+1u);
+            std::fill_n(ring,ring_elements,Element(layer*2u+row+1u));
         }
     }});
 }
@@ -296,6 +334,114 @@ int main(){
         assert(!weak.expired());verify(saved,8192u);saved={};assert(weak.expired());
     }
     assert(allocations.empty());
+    for(unsigned bytes:{2u,4u})for(unsigned accepted:{1u,2u}){
+        reset();auto original=std::make_shared<Weights>();ModelWeights model;
+        assert(model.prepare(original,7,wanted_stream).status==hipSuccess);auto binding=model.binding(7);
+        auto source=std::make_shared<Source>(7u);source->writable_caches(bytes);Target target;TargetResult result;
+        reset();assert(target.evaluate(binding,source,{144,255},&result,1024,wanted_stream).status==hipSuccess);
+        auto other=std::make_shared<Source>(7u);reset();
+        assert(CachePublisher::publish(result,*other,accepted,wanted_stream).status==hipErrorInvalidValue&&!calls);
+        for(unsigned rows:{0u,3u})assert(CachePublisher::publish(result,*source,rows,wanted_stream).status==hipErrorInvalidValue&&!calls);
+        source->publication_allowed=false;
+        assert(CachePublisher::publish(result,*source,accepted,wanted_stream).status==hipErrorInvalidValue&&!calls);
+        source->publication_allowed=true;source->publication_throws=true;
+        assert(CachePublisher::publish(result,*source,accepted,wanted_stream).status==hipErrorOutOfMemory&&!calls);
+        source->publication_throws=false;
+        assert(!result.quarantine_borrower(hipSuccess));
+        assert(CachePublisher::publish(result,*source,accepted,wanted_stream).status==hipSuccess);
+        assert(calls==80u&&syncs==1u&&pending.empty()&&result.cache_published()&&!source->invalidations);
+        // Only the accepted state/ring and its K/V rows may be selected. The
+        // rejected second candidate, committed history and unused tail survive.
+        for(unsigned layer=0;layer<40u;++layer){
+            if(layer%4u!=3u){
+                const auto& p=source->state.linear[layer];
+                for(size_t i=0;i<state_elements;++i)assert(p.state[i]==float(layer*2u+accepted));
+                for(size_t i=0;i<ring_elements;++i){
+                    if(p.ring_element_bytes==2u)assert(static_cast<const uint16_t*>(p.ring)[i]==layer*2u+accepted);
+                    else assert(static_cast<const float*>(p.ring)[i]==float(layer*2u+accepted));
+                }
+            }else{
+                const auto& p=source->state.attention[layer].decoded;
+                for(const void* data:{p.keys,p.values})for(unsigned row=0;row<p.capacity;++row)for(unsigned col=0;col<512u;++col){
+                    const bool written=row>=p.tokens&&row<p.tokens+accepted;
+                    const uint16_t value=uint16_t(layer*2u+(row-p.tokens)+1u);
+                    if(bytes==2u)assert(static_cast<const uint16_t*>(data)[size_t(row)*512u+col]==(written?value:0x5a5au));
+                    else{uint32_t actual=0;std::memcpy(&actual,static_cast<const float*>(data)+size_t(row)*512u+col,4u);
+                        assert(actual==(written?uint32_t(value)<<16u:0x5a5a5a5au));}
+                }
+            }
+        }
+        const auto before=calls;
+        assert(CachePublisher::publish(result,*source,accepted,wanted_stream).status==hipErrorInvalidValue&&calls==before);
+        source->check_guards();
+        // Same producer storage may be reused only after the old result dies.
+        result={};reset();
+        assert(target.evaluate(binding,source,{144,255},&result,1024,wanted_stream).status==hipSuccess);
+        assert(!result.cache_published());
+        reset();assert(CachePublisher::publish(result,*source,accepted,wanted_stream).status==hipSuccess);
+        if(bytes==2u&&accepted==1u)for(unsigned failure=1u;failure<=80u;++failure){
+            result={};source->isolated=false;reset();
+            assert(target.evaluate(binding,source,{144,255},&result,1024,wanted_stream).status==hipSuccess);
+            reset();fail_at=failure;
+            const auto step=CachePublisher::publish(result,*source,1u,wanted_stream);
+            assert(step.status==fault&&!step.completion_unknown&&source->isolated&&!result.ready());
+            assert(calls==failure&&syncs==1u&&pending.empty());source->check_guards();
+        }
+    }
+    assert(allocations.empty());
+    for(unsigned bad=0;bad<8u;++bad){
+        reset();auto original=std::make_shared<Weights>();ModelWeights model;
+        assert(model.prepare(original,7,wanted_stream).status==hipSuccess);auto binding=model.binding(7);
+        auto source=std::make_shared<Source>(7u);source->writable_caches(2u);auto& s=source->state;
+        switch(bad){
+            case 0:s.attention[39].decoded.capacity=s.attention[39].decoded.tokens+1u;break;
+            case 1:s.linear[38].state=s.linear[0].state;break;
+            case 2:s.attention[3].prefix.keys=s.linear[0].state;break;
+            case 3:s.tables.beta=s.linear[0].state;break;
+            case 4:s.linear[0].state=reinterpret_cast<const float*>(fake<uint16_t>(0));break;
+            case 5:s.attention[39].decoded.stride=1024u;break;
+            case 6:s.attention[39].decoded.keys=s.attention[39].decoded.values;break;
+            case 7:s.tables.g[38]=s.linear[0].state;break;
+        }
+        Target target;TargetResult result;reset();
+        assert(target.evaluate(binding,source,{144,255},&result,1024,wanted_stream).status==hipSuccess);
+        reset();assert(CachePublisher::publish(result,*source,2u,wanted_stream).status==hipErrorInvalidValue);
+        assert(calls==0u&&syncs==0u&&!source->invalidations);source->check_guards();
+    }
+    assert(allocations.empty());
+    for(unsigned failure:{0u,17u,80u}){
+        reset();std::weak_ptr<Source> weak_source;std::weak_ptr<Weights> weak_weights;
+        {
+            auto original=std::make_shared<Weights>();weak_weights=original;ModelWeights model;
+            assert(model.prepare(original,7,wanted_stream).status==hipSuccess);auto binding=model.binding(7);
+            auto source=std::make_shared<Source>(7u);weak_source=source;source->writable_caches(4u);
+            Target target;TargetResult result;
+            reset();assert(target.evaluate(binding,source,{144,255},&result,1024,wanted_stream).status==hipSuccess);
+            reset();failed_fence=true;fail_at=failure;
+            const auto step=CachePublisher::publish(result,*source,2u,wanted_stream);
+            assert(step.status==fault&&step.completion_unknown&&!result.ready()&&source->isolated&&!binding.valid(7)&&target.quarantined());
+            const auto submitted=calls;
+            assert(target.evaluate(binding,source,{144,255},&result,1024,wanted_stream).completion_unknown&&calls==submitted);
+        }
+        assert(!weak_source.expired()&&!weak_weights.expired()&&!pending.empty());
+        recover_test_quarantine();assert(weak_source.expired()&&weak_weights.expired()&&allocations.empty());
+    }
+    // An independent observer can report an unresolved later borrow even if
+    // the mutable frontier has changed since the original producer completed.
+    {
+        reset();std::weak_ptr<Source> weak_source;std::weak_ptr<Weights> weak_weights;
+        {
+            auto original=std::make_shared<Weights>();weak_weights=original;ModelWeights model;
+            assert(model.prepare(original,7,wanted_stream).status==hipSuccess);auto binding=model.binding(7);
+            auto source=std::make_shared<Source>();weak_source=source;TargetResult saved;
+            {Target target;assert(target.evaluate(binding,source,{144,255},&saved,1024,wanted_stream).status==hipSuccess);}
+            const auto* read=saved.linear(0,1).state;enqueue({{read},[read]{assert(read[0]==1.0f);}});
+            ++source->state.current_token;assert(!saved.ready());
+            assert(saved.quarantine_borrower(fault)&&source->isolated);
+        }
+        assert(!weak_source.expired()&&!weak_weights.expired()&&!pending.empty());
+        recover_test_quarantine();assert(weak_source.expired()&&weak_weights.expired()&&allocations.empty());
+    }
     for(unsigned submission_failure:{0u,44u}){
         reset();std::weak_ptr<Source> weak_source;std::weak_ptr<Weights> weak_weights;
         {
@@ -311,4 +457,5 @@ int main(){
         recover_test_quarantine();assert(weak_source.expired()&&weak_weights.expired()&&allocations.empty());
     }
     std::cout<<"all 89 submission failures drained; 40 per-layer invalid flags retained; private owners and unknown completion checked\n";
+    std::cout<<"all 80 publication failures drained; accepted cache rows and later borrowed lifetimes checked\n";
 }

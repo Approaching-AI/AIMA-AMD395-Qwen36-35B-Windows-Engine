@@ -13,7 +13,7 @@ class Q2TargetTests(unittest.TestCase):
     def test_complete_graph_failures_and_owner_lifetimes(self):
         with tempfile.TemporaryDirectory(prefix='qrt-q2-target-') as temporary:
             directory = Path(temporary)
-            for name in ('sm121_q2_target.h', 'sm121_q2_model_weights.h', 'sm121_mtp_model_weights.h'):
+            for name in ('sm121_q2_target.h', 'sm121_q2_publication.h', 'sm121_q2_model_weights.h', 'sm121_mtp_model_weights.h'):
                 (directory / name).write_text((PROVIDERS / name).read_text().replace('#include <hip/hip_runtime.h>', ''))
             # Preserve actual layer layouts and complete validators. Only device
             # producers are replaced by a deferred queue with identifiable data.
@@ -45,6 +45,7 @@ class Q2TargetTests(unittest.TestCase):
             run = subprocess.run([str(exe)], capture_output=True, text=True, timeout=90)
             self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
             self.assertIn('all 89 submission failures drained', run.stdout)
+            self.assertIn('all 80 publication failures drained', run.stdout)
 
 
 if __name__ == '__main__':
