@@ -141,14 +141,35 @@ host guards pass and no GPU process remains. The corrected observer binds 198
 accepted-history rows and 124 original partial-prefill backup rows. The dynamic
 norm reduction matches all 1978368 selected outputs; the static reduction
 differs at 12 cells. All 39 fusion/KV projection representatives and their key
-norms match independently. Actual launcher selection is being captured on the
-two short controls and q262143 at source `fedfaa85ccf4efa127b1222901c2293ae634b088`.
+norms match independently.
+
+The [completed launcher and shared-math verification](../benchmarks/correctness/gb10-mtp-launcher-schedule-native-math-20260920.json)
+at source `fedfaa85ccf4efa127b1222901c2293ae634b088` reproduces both short controls
+and q262143: all 80 output IDs and full first-logit buffers match. All 3202
+downloaded entries pass; reference wall is 628.787778 seconds, container exit 0,
+host guards pass and no GPU process remains. Its 497 actual norm calls select
+four kernels. Embedding, target-hidden and input norms all select the dynamic
+stride-512 reduction, including short, chunked and two-row decode shapes.
+All original MTP transactions and selected frontend files through Q/K RoPE and
+V reproduce exactly. Some context and downstream buffers differ between these
+two qualified reference runs; the cause is unresolved and these intermediate
+hashes do not override matching reference proposals, target batches and tokens.
+
+The separate native MTP normalization and fusion-input kernels now share their
+lane, warp, reciprocal-root and output arithmetic with a portable C++ probe.
+That probe matches all 1978368 original normalization values and 1318912 fusion
+input values from 322 qualified rows across six cases. GPU launches and the
+embedding gather still require Windows verification; the kernels are not wired
+into model inference and do not qualify a complete drafter.
 
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
 draft is rejected. Six CPU boundary regressions pass, including the original
-q262140/q262142/q262143 transitions and a rejected final draft. This helper is
+q262140/q262142/q262143 transitions and a rejected final draft. An additional
+offline replay matches all 109 observed target batches across the six original
+cases, including scheduled rows, positions, modes and subsequent proposal
+presence. Captured acceptance counts are diagnostic inputs only. This helper is
 not wired into inference; integration still requires actual native proposals
 and the complete original MTP prompt KV history.
 

@@ -55,6 +55,14 @@ only standard C++17. They add no runtime dependency and do not load model data.
 The helper requires actual acceptance counts from its eventual caller; reference
 counts used by its diagnostic probe must never feed native generation.
 
+The separate native MTP normalization and fusion-input kernels reuse HIP and
+the existing SM121 reciprocal-root table. Their CPU probe uses standard C++17.
+They introduce no library or data artifact. The concrete arithmetic benefit is
+matching the selected original stride-512 norm reduction and fusion order on
+all 322 qualified reference rows. Windows launches and complete native MTP
+integration remain unmeasured. A future full prompt KV route must account for
+its own cache and selectively loaded MTP weights; these kernels allocate neither.
+
 # Optional caller-side document checker
 
 `scripts/check-agent-documents.py` uses only Python 3.10+ standard-library
