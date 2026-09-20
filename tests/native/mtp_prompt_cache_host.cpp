@@ -49,9 +49,11 @@ static hipError_t hipMemcpyAsync(void* p, const void* q, size_t n, int kind, hip
     return enqueue("copy", stream, [=] { std::memcpy(p, q, n); });
 }
 namespace qrt_sm121_mtp {
+static bool observed_split1024 = false;
 static hipError_t launch_fusion_inputs(const uint16_t*, const uint16_t*, const uint32_t*,
     const uint16_t*, const uint16_t*, const unsigned char*, unsigned rows, uint16_t* out,
-    uint32_t* invalid, hipStream_t stream) {
+    uint32_t* invalid, hipStream_t stream, bool split1024) {
+    observed_split1024 = split1024;
     return enqueue("gather", stream, [=] {
         *invalid = invalid_token ? 1u : 0u; std::fill_n(out, rows * 4096u, 11u);
     });
@@ -85,9 +87,11 @@ static void reset_faults() {
     assert(queued.empty()); allocation_call = sync_call = fail_allocation = fail_sync = 0;
     fail_stage.clear(); invalid_token = false; stages.clear();
 }
-static qrt_sm121_mtp::PromptStep append(qrt_sm121_mtp::PromptCache& cache, unsigned first, unsigned rows) {
+static qrt_sm121_mtp::PromptStep append(qrt_sm121_mtp::PromptCache& cache, unsigned first,
+                                      unsigned rows, bool split1024 = false) {
     uint16_t value = 0; uint32_t id = 1; unsigned char table = 0;
     qrt_sm121_mtp::PromptWeights weights{&value,&value,&value,&value,&value,&value,&value};
+    weights.split1024_pre_fc_norm = split1024;
     return cache.append(weights, &value, &id, &table, &value, 8u, first, rows,
                         project, nullptr, expected_stream);
 }
@@ -106,12 +110,14 @@ int main() {
     { PromptCache c; assert(c.reserve(8u,2u) == hipSuccess);
       assert(c.allocated_bytes() == 8u*2048u + 2u*18432u + 8u);
       assert(append(c,0u,2u).status == hipSuccess && c.retained_tokens() == 2u);
+      assert(!qrt_sm121_mtp::observed_split1024);
       assert((stages == std::vector<std::string>{"clear","gather","copy","fc","norm","kv","cache"}));
       const auto* pointer = c.data(); const auto calls = stages.size();
       assert(append(c,1u,2u).status == hipErrorInvalidValue && stages.size() == calls);
       assert(c.reserve(9u,2u) == hipErrorInvalidValue && c.data() == pointer);
       assert(!c.truncate(3u) && c.truncate(1u));
-      assert(append(c,1u,2u).status == hipSuccess && c.retained_tokens() == 3u);
+      assert(append(c,1u,2u,true).status == hipSuccess && c.retained_tokens() == 3u);
+      assert(qrt_sm121_mtp::observed_split1024);
       assert(c.data()[3u*1024u] == 0xa5a5u); // Unpublished tail untouched.
     } assert(allocations.empty());
     // Recoverable launch failures drain partially queued work and preserve prefix.

@@ -14,6 +14,7 @@ struct PromptWeights {
     const uint16_t* input_norm = nullptr;
     const uint16_t* kv_projection = nullptr; // Contiguous [K512,V512] x 2048.
     const uint16_t* key_norm = nullptr;
+    bool split1024_pre_fc_norm = false;
 };
 
 // The caller supplies a qualified BF16 projection implementation. Outputs
@@ -111,7 +112,7 @@ public:
         if (status != hipSuccess) return fail(status, "clear_input_flag");
         status = launch_fusion_inputs(weights.embeddings, target_hidden, shifted_ids,
             weights.embedding_norm, weights.hidden_norm, rsqrt_table, rows,
-            fusion_input_, invalid_input_, stream);
+            fusion_input_, invalid_input_, stream, weights.split1024_pre_fc_norm);
         if (status != hipSuccess) return fail(status, "fusion_inputs");
         *host_invalid_ = 0;
         status = hipMemcpyAsync(host_invalid_, invalid_input_, sizeof(uint32_t), hipMemcpyDeviceToHost, stream);

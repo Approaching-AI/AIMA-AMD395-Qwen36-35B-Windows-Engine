@@ -22,10 +22,11 @@ template<class T> std::vector<T> read_file(const char* path) {
     return output;
 }
 
-float row_inverse(const uint16_t* row, const unsigned char* table) {
+float row_inverse(const uint16_t* row, const unsigned char* table, bool split1024) {
     std::array<float, 512> lanes{}, next{};
     for (unsigned int lane = 0; lane < lanes.size(); ++lane)
-        lanes[lane] = qrt_sm121_mtp::lane_sumsq(row, lane);
+        lanes[lane] = split1024 ? qrt_sm121_mtp::lane_sumsq_split1024(row, lane)
+                                : qrt_sm121_mtp::lane_sumsq(row, lane);
     for (unsigned int offset = 16; offset; offset >>= 1) {
         for (unsigned int lane = 0; lane < lanes.size(); ++lane)
             next[lane] = qrt_sm121_q1::add(lanes[lane], lanes[lane ^ offset]);
@@ -38,13 +39,15 @@ float row_inverse(const uint16_t* row, const unsigned char* table) {
 }
 
 int main(int argc, char** argv) try {
-    if (argc != 5 && argc != 7)
-        throw std::runtime_error("input weights expected rsqrt_table [second_input second_weights]");
+    const bool split1024 = argc > 1 && std::string(argv[argc - 1]) == "--split1024";
+    const int arguments = argc - (split1024 ? 1 : 0);
+    if (arguments != 5 && arguments != 7)
+        throw std::runtime_error("input weights expected rsqrt_table [second_input second_weights] [--split1024]");
     const auto input = read_file<uint16_t>(argv[1]);
     const auto weights = read_file<uint16_t>(argv[2]);
     const auto expected = read_file<uint16_t>(argv[3]);
     const auto table = read_file<unsigned char>(argv[4]);
-    const bool fusion = argc == 7;
+    const bool fusion = arguments == 7;
     const auto second_input = fusion ? read_file<uint16_t>(argv[5]) : std::vector<uint16_t>{};
     const auto second_weights = fusion ? read_file<uint16_t>(argv[6]) : std::vector<uint16_t>{};
     const size_t rows = input.size() / 2048u;
@@ -62,7 +65,7 @@ int main(int argc, char** argv) try {
         for (size_t part = 0; part < parts; ++part) {
             const uint16_t* values = (part ? second_input : input).data() + row * 2048u;
             const uint16_t* norm_weights = (part ? second_weights : weights).data();
-            const float rstd = row_inverse(values, table.data());
+            const float rstd = row_inverse(values, table.data(), split1024);
             for (size_t column = 0; column < 2048u; ++column) {
                 const uint16_t actual = qrt_sm121_mtp::normalized(
                     qrt_sm121_q1::widen(values[column]), rstd, norm_weights[column]);
@@ -80,7 +83,8 @@ int main(int argc, char** argv) try {
         }
     }
     std::cout << "{\"mode\":\"" << (fusion ? "fusion_inputs" : "normalization")
-              << "\",\"rows\":" << rows << ",\"elements\":" << expected.size()
+              << "\",\"split1024\":" << (split1024 ? "true" : "false")
+              << ",\"rows\":" << rows << ",\"elements\":" << expected.size()
               << ",\"bf16_mismatches\":" << mismatches
               << ",\"maximum_absolute_error\":" << maximum_error << ",\"first_difference\":";
     if (mismatches) std::cout << "{\"index\":" << first << ",\"actual_bits\":" << first_actual

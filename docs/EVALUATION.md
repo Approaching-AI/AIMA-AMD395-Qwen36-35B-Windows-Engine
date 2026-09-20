@@ -131,8 +131,34 @@ Qualification checks every shifted ID against the actual prompt and first
 sample, and compares the full copies with all existing selected observations,
 including the KV slice within the original QKV projection. This supplements
 selected-row operator evidence for a future complete prompt-cache check.
-Fifteen local identity/CLI tests pass; the new full capture and Windows
-prompt-cache orchestration remain unrun. This mode does not qualify timing.
+Fifteen local identity/CLI tests pass. The [complete capture and CPU replay](../benchmarks/correctness/gb10-mtp-complete-prompt-frontends-20260920.json)
+now reproduce both controls, all64 output IDs and both complete first-logit
+buffers. Reference wall is318.859460 seconds; container exit0, host guards and
+cleanup pass. All1843 downloaded manifest entries pass size/hash verification.
+The complete frontend payloads contain582059012 bytes across15361 prompt rows.
+
+The original pre-FC norms in this run select a fifth kernel, S4L4, with
+R0_BLOCK1024 and two FMA partial sums. Earlier captures selected GCEZ's four
+stride-512 values for these norms. The selection change remains unexplained;
+the unchanged reference configuration still reproduces every output and full
+first logit. All selected frontend rows through K/RoPE/V match the earlier
+capture, but complete hidden-normalization replay with the earlier order finds
+seven BF16 differences. This is an operator comparison, not a failed token gate.
+
+The native frontend now supports the observed split1024 pre-FC order explicitly;
+the default four-value order and input normalization remain available. On all
+15361 original rows, normalization and fusion-input checks compare157296640
+BF16 values, FC/KV projections47188992, and K normalization/RoPE/V23594496.
+All228080128 comparisons match. Separate FC/KV replay of all322 previously
+qualified selected rows also matches989184 outputs. These are CPU checks.
+
+The new independent HIP prompt-cache probe computes both projections using
+the existing original K16 accumulator, with no projection workspace. It checks
+the computed intermediates and every cell of a512MiB cache, using the complete
+original operands. Expected output buffers are compared only on the host.
+Its Windows build and execution remain unrun; complete native MTP is unwired.
+The updated ownership/schedule host test passes under ASan/UBSan. These
+observations do not qualify product timing or a release.
 
 The [short MTP arithmetic check](../benchmarks/correctness/gb10-mtp-short-frontier-arithmetic-20260920.json)
 uses 66 accepted-history rows from the two completed controls. The existing

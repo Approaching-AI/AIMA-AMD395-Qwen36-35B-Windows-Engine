@@ -22,6 +22,16 @@ QRT_MTP_INLINE float lane_sumsq(const uint16_t* row, unsigned int lane) {
     return sum;
 }
 
+// The separately observed S4L4... launcher uses R0_BLOCK=1024. Each lane
+// keeps two partials across the two reduction blocks, then adds them before
+// the same warp reduction. PTX d248c8... uses FMA for each partial update.
+QRT_MTP_INLINE float lane_sumsq_split1024(const uint16_t* row, unsigned int lane) {
+    using namespace qrt_sm121_q1;
+    const float a = widen(row[lane]), b = widen(row[lane + 512u]);
+    const float c = widen(row[lane + 1024u]), d = widen(row[lane + 1536u]);
+    return add(fmaf(c, c, fmaf(a, a, 0.0f)), fmaf(d, d, fmaf(b, b, 0.0f)));
+}
+
 QRT_MTP_INLINE float sum_warps(const float* warps) {
     float partial[16];
     for (unsigned int i = 0; i < 16; ++i) partial[i] = warps[i];

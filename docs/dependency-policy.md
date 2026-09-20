@@ -56,6 +56,12 @@ tokens. q8192 uses310411264 bytes, including the actual shifted input IDs.
 It reuses Torch and standard-library file/hash operations, preserving the
 existing selected-row and shared-weight ceilings. These offline artifacts
 support whole prompt-cache validation and are not packaged with the runtime.
+The completed two-control capture saves582059012 full-frontend bytes; its
+complete diagnostic download is522991645 compressed bytes. The new original
+K16 FC/KV baseline reuses the existing HIP integer accumulator and requires no
+projection workspace or added library. Its bounded prompt-cache probe remains
+unrun on Windows. The explicit split1024 pre-FC norm reuses the same arithmetic
+table as the prior reduction and adds no data artifact.
 
 The isolated MTP draft-limit state machine and its offline schedule probe use
 only standard C++17. They add no runtime dependency and do not load model data.
