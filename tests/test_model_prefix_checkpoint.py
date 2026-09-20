@@ -33,6 +33,7 @@ class ModelPrefixCheckpointTests(unittest.TestCase):
         start = text.index("class ScopedQwen36ResidentSessionShadowTransaction final {")
         shadow = text[start:text.index("\nbool run_qwen36_q16_serial_transaction_probe_if_requested(", start)]
         query = function(text, "QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_checkpoint_query_v1(")
+        release = function(text, "bool release_qwen36_resident_session_locked()")
         run_cpp(r'''
 #include "native/src/qrt.h"
 #include "native/src/qrt_prefix_checkpoint.h"
@@ -40,6 +41,7 @@ class ModelPrefixCheckpointTests(unittest.TestCase):
 #include "native/providers/gdn/fla_checkpoint.h"
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
@@ -52,16 +54,25 @@ class ModelPrefixCheckpointTests(unittest.TestCase):
 #include <string>
 #include <unordered_set>
 #include <vector>
+#include <tuple>
+#include <type_traits>
 using hipError_t=int;
 constexpr int hipSuccess=0,hipErrorInvalidValue=1,hipMemcpyDeviceToDevice=2;
-static unsigned alloc_calls=0,fail_alloc=0;
+static unsigned alloc_calls=0,fail_alloc=0,copy_calls=0,fail_copy=0,device_syncs=0,cleanup_calls=0;
+static bool fail_device_sync=false,other_stream_pending=false;
+static std::vector<std::tuple<void*,const void*,size_t>> pending;
 static std::unordered_set<void*> allocations;
 int hipMalloc(void** p,size_t n){if(++alloc_calls==fail_alloc){*p=nullptr;return 1;}
  *p=std::malloc(n);assert(*p);allocations.insert(*p);return 0;}
-int hipFree(void* p){assert(allocations.erase(p)==1);std::free(p);return 0;}
-int hipMemcpy(void* d,const void* s,size_t n,int){std::memcpy(d,s,n);return 0;}
+int hipFree(void* p){assert(pending.empty()&&!other_stream_pending);assert(allocations.erase(p)==1);std::free(p);return 0;}
+int hipMemcpy(void* d,const void* s,size_t n,int){
+ if(++copy_calls==fail_copy){pending.emplace_back(d,s,n);return 1;}
+ std::memcpy(d,s,n);return 0;}
 int hipMemset(void* d,int c,size_t n){std::memset(d,c,n);return 0;}
 int hipStreamSynchronize(void*){return 0;}
+int hipDeviceSynchronize(){++device_syncs;if(fail_device_sync)return 1;
+ for(auto copy:pending)std::memcpy(std::get<0>(copy),std::get<1>(copy),std::get<2>(copy));
+ pending.clear();other_stream_pending=false;return 0;}
 const char* hipGetErrorString(int){return "injected";}
 enum class Qwen36ResidentSessionElementKind {kNone,kF32,kBf16};
 enum class Qwen36ResidentDecodeActivationWorkspacePhase {kIdle,kBusy};
@@ -80,6 +91,8 @@ Qwen36ResidentSessionState g_qwen36_resident_root_session;
 #define g_qwen36_resident_session g_qwen36_resident_root_session
 std::recursive_mutex g_qwen36_resident_session_mutex;
 bool release_qwen36_resident_dual_attention_state_locked(){return true;}
+bool release_qwen36_resident_decode_activation_workspace_locked(){++cleanup_calls;return true;}
+bool release_qwen36_q1024_suffix_cache_locked(){++cleanup_calls;return true;}
 bool raw_env_flag_enabled(const char*){return false;}
 bool refresh_qwen36_resident_session_immutable_weight_views(Qwen36ResidentSessionState*){return true;}
 uint16_t qrt_float_to_bf16(float f){uint32_t b;std::memcpy(&b,&f,4);return uint16_t((b+0x7fff+((b>>16)&1))>>16);}
@@ -97,7 +110,7 @@ struct PrefillLinearAttentionDescriptorBatchRun {
  bool final_norm_attempted=true,token_loop_validation_attempted=true;
 };
 #define QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL int
-''' + lookup + finish + hidden + shadow + query + r'''
+''' + lookup + finish + hidden + shadow + query + release + r'''
 void* allocate(size_t bytes,int value){void* p=nullptr;assert(!hipMalloc(&p,bytes));std::memset(p,value,bytes);return p;}
 void setup(bool contiguous){
  auto& s=g_qwen36_resident_session;s={};s.valid=s.provider_completed=true;s.prefix_tokens=129;
@@ -140,6 +153,17 @@ void teardown(){
  for(auto& v:s.linear_layers)if(v.device_allocation)hipFree(v.device_allocation);
  for(auto& v:s.full_attention_layers){if(v.device_allocation)hipFree(v.device_allocation);if(v.device_decode_tail_allocation)hipFree(v.device_decode_tail_allocation);}
  s={};assert(allocations.empty());
+}
+void recover_test_quarantine(){
+ // The fake queue establishes completion. Production has no recovery/free API
+ // for a shadow whose GPU completion remains unknown.
+ assert(g_qwen36_resident_completion_unknown&&g_qwen36_resident_shadow_quarantine);
+ fail_device_sync=false;assert(!hipDeviceSynchronize());
+ auto* q=g_qwen36_resident_shadow_quarantine;
+ assert(!q->next);g_qwen36_resident_session=q->original;
+ for(const auto* group:{&q->linear,&q->full,&q->tail})for(void* p:*group)if(p)hipFree(p);
+ g_qwen36_resident_shadow_quarantine=nullptr;
+ auto held=std::move(q->retained);held.reset();g_qwen36_resident_completion_unknown=false;
 }
 int main(){
  (void)kQwen36DflashStateCommitTokenCount;(void)kQwen36DflashMultiStateCommitTokenCount;
@@ -210,6 +234,102 @@ int main(){
   assert(s.prefix_checkpoints==store);
   original.prefix_checkpoints.reset();store.reset();teardown();
  }
+ // Failed copies are allowed to have submitted work. Every partial destination
+ // is tracked before submission and is freed only after an all-stream drain.
+ for(bool contiguous:{false,true}){
+  setup(contiguous);auto& s=g_qwen36_resident_session;const auto base=allocations.size();
+  std::vector<uint32_t> input(129,42);const auto digest=qrt_fnv1a64_bytes(input.data(),128u*4u);
+  const unsigned count=contiguous?50u:40u;std::string stage,error;
+  for(unsigned at=1;at<=count;++at){
+   fail_copy=copy_calls+at;
+   {ScopedQwen36ResidentSessionShadowTransaction tx(17,digest,&stage,&error,128,input.data());assert(!tx.ready());}
+   fail_copy=0;assert(pending.empty()&&allocations.size()==base&&s.valid&&s.prefix_tokens==129u);
+  }
+  // Same failures with unknown completion retain both original metadata and
+  // partial clones even after the transaction and active-session scope end.
+  for(unsigned at:{1u,20u,count}){
+   std::weak_ptr<Qwen36ResidentPrefixCheckpointStore> weak=s.prefix_checkpoints;
+   fail_copy=copy_calls+at;fail_device_sync=true;
+   {ScopedQwen36ResidentSessionShadowTransaction tx(17,digest,&stage,&error,128,input.data());assert(!tx.ready());}
+   fail_copy=0;assert(!s.valid&&g_qwen36_resident_completion_unknown&&!pending.empty());
+   const auto retained=allocations.size();assert(retained>base&&!weak.expired());
+   const auto before=alloc_calls;
+   {ScopedQwen36ResidentSessionShadowTransaction tx(17,digest,&stage,&error,128,input.data());assert(!tx.ready());}
+   assert(alloc_calls==before);cleanup_calls=0;
+   assert(!release_qwen36_resident_session_locked()&&!cleanup_calls&&allocations.size()==retained);
+   s={};assert(!weak.expired());recover_test_quarantine();assert(allocations.size()==base&&s.valid);
+  }
+  // Work on a non-default stream must also finish before a healthy rollback.
+  {ScopedQwen36ResidentSessionShadowTransaction tx(17,s.prompt_token_ids_fnv1a64,&stage,&error);
+   assert(tx.ready());other_stream_pending=true;assert(tx.rollback("all_streams"));}
+  assert(!other_stream_pending&&allocations.size()==base);
+  for(unsigned phase=0;phase<3u;++phase){
+   const auto original=s.linear_layers[0].device_allocation;
+   {ScopedQwen36ResidentSessionShadowTransaction tx(17,s.prompt_token_ids_fnv1a64,&stage,&error);
+    assert(tx.ready()&&s.linear_layers[0].device_allocation!=original);
+    other_stream_pending=true;fail_device_sync=true;
+    if(phase==0u)assert(!tx.rollback("failed_fence"));
+    if(phase==1u)assert(!tx.commit(&stage,&error));
+   }
+   assert(g_qwen36_resident_completion_unknown&&!s.valid&&allocations.count(original));
+   assert(other_stream_pending&&allocations.size()==base+40u);
+   recover_test_quarantine();assert(s.valid&&allocations.size()==base&&s.linear_layers[0].device_allocation==original);
+  }
+  teardown();
+ }
+ assert(device_syncs>100u);
+}
+''')
+
+    def test_quarantined_engine_release_preserves_nonowner_and_last_engine(self):
+        text = (ROOT / 'native/providers/whole_provider.cpp').read_text()
+        release = function(text, 'qrt_qwen36_whole_provider_release_engine_v1(')
+        run_cpp(r'''
+#include "native/src/qrt.h"
+#include <algorithm>
+#include <atomic>
+#include <cassert>
+#include <cstring>
+#include <mutex>
+#include <vector>
+using Result=qrt_qwen36_whole_provider_engine_lifecycle_result_v1_t;
+std::recursive_mutex g_qwen36_resident_session_mutex;
+std::atomic<bool> g_qwen36_resident_completion_unknown{false};
+std::vector<const qrt_engine_t*> g_qwen36_whole_provider_live_engines;
+struct Session {const qrt_engine_t* owner_engine=nullptr;bool valid=false;} g_qwen36_resident_session;
+unsigned session_releases=0,shared_releases=0;
+uint64_t qrt_now_ns(){return 1;}
+uint64_t qrt_elapsed_ns(uint64_t a,uint64_t b){return b-a;}
+void init_qwen36_provider_engine_lifecycle_result(Result* r,unsigned operation){*r={};r->operation=operation;}
+int fail_qwen36_provider_engine_lifecycle(Result* r,qrt_status_t status,const char* stage,const char*,uint64_t){
+ r->status=status;std::strncpy(r->failure_stage,stage,sizeof(r->failure_stage)-1);return 0;}
+void capture_qwen36_provider_engine_lifecycle_before_locked(const qrt_engine_t* e,Result* r){
+ r->engine_session_owner_before=g_qwen36_resident_session.owner_engine==e;}
+void capture_qwen36_provider_engine_lifecycle_after_locked(const qrt_engine_t*,Result* r){r->live_engine_count_after=g_qwen36_whole_provider_live_engines.size();}
+bool release_qwen36_resident_session_locked(){++session_releases;if(g_qwen36_resident_completion_unknown)return false;g_qwen36_resident_session={};return true;}
+uint64_t qwen36_resident_session_owned_bytes_locked(){return g_qwen36_resident_session.valid?1:0;}
+void qrt_prefill_descriptor_batch_hip_release_v1(){++shared_releases;}
+void emit_qwen36_provider_engine_lifecycle_marker(const char*,const Result&){}
+''' + 'int ' + release + r'''
+int main(){
+ auto* owner=reinterpret_cast<const qrt_engine_t*>(uintptr_t(0x1000));
+ auto* other=reinterpret_cast<const qrt_engine_t*>(uintptr_t(0x2000));
+ Result result;g_qwen36_whole_provider_live_engines={owner,other};g_qwen36_resident_session={owner,true};
+ g_qwen36_resident_completion_unknown=true;
+ for(auto* engine:{owner,other}){
+  assert(!qrt_qwen36_whole_provider_release_engine_v1(engine,&result));
+  assert(!result.completed&&g_qwen36_whole_provider_live_engines.size()==2u&&!session_releases&&!shared_releases);
+ }
+ // A scoped branch can be quarantined while the root session is empty.
+ g_qwen36_resident_session={};g_qwen36_whole_provider_live_engines={other};
+ assert(!qrt_qwen36_whole_provider_release_engine_v1(other,&result));
+ assert(g_qwen36_whole_provider_live_engines.size()==1u&&!session_releases&&!shared_releases);
+ g_qwen36_resident_completion_unknown=false;g_qwen36_whole_provider_live_engines={owner,other};g_qwen36_resident_session={owner,true};
+ assert(qrt_qwen36_whole_provider_release_engine_v1(other,&result)&&result.completed);
+ assert(result.shared_model_weights_retained&&!session_releases&&!shared_releases);
+ assert(qrt_qwen36_whole_provider_release_engine_v1(owner,&result)&&result.completed);
+ assert(result.resident_session_released&&result.shared_model_weights_released&&session_releases==1u&&shared_releases==1u);
+ assert(g_qwen36_whole_provider_live_engines.empty());
 }
 ''')
 

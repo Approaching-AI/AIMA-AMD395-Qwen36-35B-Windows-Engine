@@ -59778,6 +59778,19 @@ struct Qwen36ResidentSessionState {
     bool valid = false;
 };
 
+// A failed shadow fence must retain the original metadata owners as well as
+// every partially allocated clone. Allocate this holder before submitting work;
+// its self-reference makes the failure path independent of host allocation.
+struct Qwen36ResidentShadowQuarantine {
+    Qwen36ResidentSessionState original;
+    Qwen36ResidentSessionState current;
+    std::array<void *, QRT_QWEN36_LAYER_COUNT> linear{}, full{}, tail{};
+    std::shared_ptr<Qwen36ResidentShadowQuarantine> retained;
+    Qwen36ResidentShadowQuarantine *next = nullptr;
+};
+Qwen36ResidentShadowQuarantine *g_qwen36_resident_shadow_quarantine = nullptr;
+std::atomic<bool> g_qwen36_resident_completion_unknown{false};
+
 Qwen36ResidentSessionState g_qwen36_resident_root_session;
 thread_local Qwen36ResidentSessionState *g_qwen36_resident_active_session =
     &g_qwen36_resident_root_session;
@@ -63424,6 +63437,11 @@ bool release_qwen36_resident_decode_activation_workspace_locked() {
 }
 
 bool release_qwen36_resident_session_locked() {
+    if (g_qwen36_resident_completion_unknown) {
+        g_qwen36_resident_session.valid = false;
+        g_qwen36_resident_session.route_active = false;
+        return false;
+    }
     // A decode lease owns the session mutex until its final stream sync, so
     // this is the only owner allowed to retire activation-workspace storage.
     const bool dual_attention_cleanup_safe =
@@ -68724,6 +68742,11 @@ public:
         size_t expected_prefix_tokens = 0u,
         const uint32_t *input_prefix_tokens = nullptr
     ) : lock_(g_qwen36_resident_session_mutex) {
+        if (g_qwen36_resident_completion_unknown) {
+            set_failure("qwen36_resident_shadow_quarantined",
+                "resident shadow state has an unresolved GPU completion", failure_stage, failure);
+            return;
+        }
         if (!release_qwen36_resident_dual_attention_state_locked()) {
             set_failure(
                 "qwen36_resident_shadow_transaction_dual_release",
@@ -68758,6 +68781,13 @@ public:
                 failure_stage,
                 failure
             );
+            return;
+        }
+        try {
+            quarantine_ = std::make_shared<Qwen36ResidentShadowQuarantine>();
+        } catch (...) {
+            set_failure("qwen36_resident_shadow_owner",
+                "resident shadow transaction could not reserve its failure owner", failure_stage, failure);
             return;
         }
         if (checkpoint != nullptr) {
@@ -68822,6 +68852,10 @@ public:
                 source.recurrent_state_bytes + source.qkv_ring_bytes;
             void *allocation = nullptr;
             status = hipMalloc(&allocation, allocation_bytes);
+            if (allocation != nullptr) {
+                shadow_linear_allocations_[layer_index] = allocation;
+                shadow_bytes_ += allocation_bytes;
+            }
             if (status == hipSuccess) {
                 status = hipMemcpy(
                     allocation,
@@ -68831,13 +68865,8 @@ public:
                 );
             }
             if (status != hipSuccess) {
-                if (allocation != nullptr) {
-                    (void)hipFree(allocation);
-                }
                 break;
             }
-            shadow_linear_allocations_[layer_index] = allocation;
-            shadow_bytes_ += allocation_bytes;
             Qwen36ResidentSessionLinearLayer &destination =
                 g_qwen36_resident_session.linear_layers[layer_index];
             destination = source;
@@ -68872,6 +68901,11 @@ public:
                 : source.decode_tail_k_bytes + source.decode_tail_v_bytes;
             void *allocation = nullptr;
             status = hipMalloc(&allocation, allocation_bytes);
+            if (allocation != nullptr) {
+                (source.decode_tail_contiguous ? shadow_full_attention_allocations_
+                                               : shadow_full_attention_tail_allocations_)[layer_index] = allocation;
+                shadow_bytes_ += allocation_bytes;
+            }
             if (status == hipSuccess && checkpoint != nullptr &&
                 source.decode_tail_contiguous) {
                 // Preserve the contiguous decoder layout, but copy only the
@@ -68898,12 +68932,8 @@ public:
                 );
             }
             if (status != hipSuccess) {
-                if (allocation != nullptr) {
-                    (void)hipFree(allocation);
-                }
                 break;
             }
-            shadow_bytes_ += allocation_bytes;
             if (source.decode_tail_contiguous) {
                 shadow_full_attention_allocations_[layer_index] = allocation;
                 destination.device_allocation = allocation;
@@ -68970,7 +69000,10 @@ public:
         }
 
         if (status != hipSuccess) {
-            restore_original_and_free_shadow(false, "clone_failure");
+            // A failed copy may already have borrowed either allocation.
+            // Drain every stream before restoring/freeing any partial clone.
+            const hipError_t completed = hipDeviceSynchronize();
+            (void)restore_original_and_free_shadow(completed, false, "clone_failure");
             set_failure(
                 "qwen36_resident_shadow_transaction_clone",
                 std::string("resident shadow transaction clone failed: ") +
@@ -69031,10 +69064,13 @@ public:
             g_qwen36_resident_session.committed_decode_token_count;
         const bool dual_release_ok =
             release_qwen36_resident_dual_attention_state_locked();
-        const hipError_t sync_status = hipStreamSynchronize(nullptr);
-        restore_original_and_free_shadow(true, reason);
+        const hipError_t sync_status = hipDeviceSynchronize();
+        const bool restored = restore_original_and_free_shadow(
+            sync_status != hipSuccess ? sync_status
+                : dual_release_ok ? hipSuccess : hipErrorInvalidValue,
+            true, reason);
         const bool unchanged =
-            g_qwen36_resident_session.valid == original_.valid &&
+            restored && g_qwen36_resident_session.valid == original_.valid &&
             g_qwen36_resident_session.generation == original_.generation &&
             g_qwen36_resident_session.committed_decode_token_count ==
                 original_.committed_decode_token_count &&
@@ -69053,7 +69089,7 @@ public:
             << " restored_committed_decode_tokens="
             << g_qwen36_resident_session.committed_decode_token_count
             << " original_allocations_restored="
-            << (original_allocations_restored() ? 1 : 0)
+            << (restored && original_allocations_restored() ? 1 : 0)
             << " live_state_unchanged=" << (unchanged ? 1 : 0)
             << " sync_status=" << static_cast<unsigned int>(sync_status)
             << std::endl;
@@ -69089,9 +69125,9 @@ public:
             );
             return false;
         }
-        const hipError_t sync_status = hipStreamSynchronize(nullptr);
+        const hipError_t sync_status = hipDeviceSynchronize();
         if (sync_status != hipSuccess) {
-            (void)rollback("commit_sync_failure");
+            (void)restore_original_and_free_shadow(sync_status, true, "commit_sync_failure");
             set_failure(
                 "qwen36_resident_shadow_transaction_commit_sync",
                 std::string("resident shadow transaction commit sync failed: ") +
@@ -69218,7 +69254,33 @@ private:
         return true;
     }
 
-    void restore_original_and_free_shadow(bool emit_marker, const char *reason) {
+    bool restore_original_and_free_shadow(hipError_t completed, bool emit_marker, const char *reason) {
+        if (completed != hipSuccess || g_qwen36_resident_completion_unknown) {
+            static_assert(std::is_nothrow_move_assignable<Qwen36ResidentSessionState>::value,
+                "shadow quarantine must not allocate while retaining original metadata");
+            quarantine_->original = std::move(original_);
+            // Active sessions can belong to a scoped branch rather than the
+            // root global. Retain their metadata owners before that scope ends.
+            quarantine_->current = std::move(g_qwen36_resident_session);
+            quarantine_->linear = shadow_linear_allocations_;
+            quarantine_->full = shadow_full_attention_allocations_;
+            quarantine_->tail = shadow_full_attention_tail_allocations_;
+            quarantine_->retained = quarantine_;
+            quarantine_->next = g_qwen36_resident_shadow_quarantine;
+            g_qwen36_resident_shadow_quarantine = quarantine_.get();
+            g_qwen36_resident_completion_unknown = true;
+            g_qwen36_resident_session.valid = false;
+            g_qwen36_resident_session.route_active = false;
+            original_captured_ = false;
+            ready_ = false;
+            std::cerr << "BATCH_MARK qwen36_resident_shadow_quarantine"
+                      << " generation=" << quarantine_->original.generation
+                      << " reason=" << (reason != nullptr ? reason : "unspecified")
+                      << " status=" << static_cast<unsigned>(completed)
+                      << " original_and_partial_clones_retained=1 shared_release_blocked=1"
+                      << std::endl;
+            return false;
+        }
         g_qwen36_resident_session = original_;
         const bool immutable_weight_views_refreshed =
             refresh_qwen36_resident_session_immutable_weight_views(
@@ -69271,10 +69333,12 @@ private:
                 << (immutable_weight_views_refreshed ? 1 : 0)
                 << std::endl;
         }
+        return free_status == hipSuccess && immutable_weight_views_refreshed;
     }
 
     std::unique_lock<std::recursive_mutex> lock_;
     Qwen36ResidentSessionState original_{};
+    std::shared_ptr<Qwen36ResidentShadowQuarantine> quarantine_;
     std::array<void *, QRT_QWEN36_LAYER_COUNT> shadow_linear_allocations_{};
     std::array<void *, QRT_QWEN36_LAYER_COUNT>
         shadow_full_attention_allocations_{};
@@ -223433,6 +223497,10 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
 QRT_PREFILL_DESCRIPTOR_BATCH_HIP_EXPORT void
 QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL
 qrt_prefill_descriptor_batch_hip_release_v1(void) {
+    if (g_qwen36_resident_completion_unknown) {
+        std::cerr << "BATCH_MARK qwen36_shared_release_quarantined unresolved_shadow_fence=1" << std::endl;
+        return;
+    }
     release_qwen36_q1024_owner_provider();
     size_t tensor_location_cache_entries = 0u;
     const TensorLocationCacheStats tensor_location_cache_stats =
@@ -223634,6 +223702,12 @@ qrt_qwen36_whole_provider_release_engine_v1(
         engine,
         out_result
     );
+    if (g_qwen36_resident_completion_unknown) {
+        capture_qwen36_provider_engine_lifecycle_after_locked(engine, out_result);
+        return fail_qwen36_provider_engine_lifecycle(out_result, QRT_STATUS_UNSUPPORTED,
+            "qwen36_whole_provider_engine_release_quarantined",
+            "whole-provider engine release retained owners after an unresolved shadow fence", start_ns);
+    }
     auto engine_it = std::find(
         g_qwen36_whole_provider_live_engines.begin(),
         g_qwen36_whole_provider_live_engines.end(),

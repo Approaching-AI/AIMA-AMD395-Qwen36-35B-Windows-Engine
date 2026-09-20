@@ -954,6 +954,28 @@ four cache layouts, including both state outcomes, complete logits and actual
 samples. Its host syntax check passes with Windows/HIP API declarations; actual
 HIP compilation, native execution and live request integration are still unrun.
 
+The [continuous target native preparation](../benchmarks/correctness/q2-continuous-target-native-preparation-20260921.json)
+pins source69baaaa,70 compilation files and72 source inputs. Its203 bound input
+files reuse28 earlier component inputs; the347235611-byte bundle contains the
+remaining files. Four configurations will compare135778304 values and actual
+samples. The dispatcher requires completed full256k cleanup and both preceding
+linear/attention component qualifications. Its local serialization check rejects
+dispatch while full256k remains active. No remote action has been attempted.
+
+The [resident shadow quarantine repair](../benchmarks/correctness/resident-shadow-quarantine-local-20260921.json)
+fixes cleanup after an unsuccessful GPU fence. Previously, failed clone copies
+could free their destination immediately, and rollback restored old metadata
+and freed shadow caches even when its default-stream fence failed. Every clone
+is now registered before copying; restoration and commit require all-stream
+completion. Unknown completion retains original and current metadata plus all
+partial clones in a preallocated owner. Session, engine and direct shared-weight
+release preserve those allocations. Five host sanitizer regressions pass in
+5.602 seconds, including90 failed-copy positions, six partial-copy quarantine
+cases and explicit/commit/destructor failure paths in both cache layouts.
+Healthy rollback and shared-engine release still pass. This change requires a
+new Windows whole build and real-model regression; it is not in the active
+f93 full256k DLL or the frozen69baaaa target probe.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
