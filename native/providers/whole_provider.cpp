@@ -183951,8 +183951,10 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
             "QRT_QWEN36_Q1_LINEAR_STAGE_TRACE_LAYER",
             UINT_MAX
         ));
+        const bool all_full_layers = generic_position != UINT_MAX &&
+            env_flag_enabled("QRT_QWEN36_Q1_FULL_STAGE_TRACE_ALL_LAYERS");
         const bool generic_trace =
-            generic_position != UINT_MAX && generic_layer != UINT_MAX;
+            generic_position != UINT_MAX && (generic_layer != UINT_MAX || all_full_layers);
         const unsigned int selected_layer = env_u32_or_default(
             "QRT_QWEN36_Q1024_Q1_STAGE_LAYER",
             3u
@@ -183971,9 +183973,15 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
         const unsigned int target_layer = generic_trace
             ? generic_layer
             : selected_layer;
+        const qrt_q1_trace::Selection trace_selection{
+            static_cast<uint32_t>(target_position),
+            generic_trace ? env_u32_or_default(
+                "QRT_QWEN36_Q1_LAYER_TRACE_SECOND_POSITION", UINT_MAX) : UINT_MAX,
+            1u, target_layer, false
+        };
         if ((!generic_trace && !q1024_trace) ||
-            absolute_position != target_position ||
-            descriptor.layer_index != target_layer || stage == nullptr ||
+            !trace_selection.position(absolute_position) ||
+            !qrt_q1_trace::full_layer(descriptor.layer_index, target_layer, all_full_layers) || stage == nullptr ||
             device_data == nullptr || bytes == 0u) {
             return;
         }
@@ -183983,7 +183991,9 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
             : "QRT_QWEN36_Q1_FULL_STAGE_DUMP_PREFIX");
         const bool dump_requested = dump_prefix != nullptr && dump_prefix[0] != '\0';
         const size_t file_limit = cache_stage ? (16u << 20u) : (128u << 10u);
-        const size_t total_limit = cache_stage ? (32u << 20u) : (4u << 20u);
+        const size_t total_limit = cache_stage ? (32u << 20u)
+            : ((all_full_layers ? 32u : 4u) << 20u);
+        const size_t count_limit = !cache_stage && all_full_layers ? 512u : 64u;
         static size_t stage_dumped_files = 0u, stage_dumped_bytes = 0u;
         static size_t cache_dumped_files = 0u, cache_dumped_bytes = 0u;
         size_t &dumped_files = cache_stage ? cache_dumped_files : stage_dumped_files;
@@ -184013,7 +184023,7 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
         bool dump_ok = false;
         std::string dump_path;
         if (dump_requested && status == hipSuccess && bytes <= file_limit &&
-            dumped_files < 64u && dumped_bytes <= total_limit - bytes) {
+            dumped_files < count_limit && dumped_bytes <= total_limit - bytes) {
             std::ostringstream path;
             path << dump_prefix << ".txn" << q1024_q1_full_stage_active_transaction
                  << ".pos" << absolute_position << ".layer" << descriptor.layer_index

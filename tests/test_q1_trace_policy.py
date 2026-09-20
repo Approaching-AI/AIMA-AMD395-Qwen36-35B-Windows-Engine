@@ -38,6 +38,17 @@ int main() {
         }
     }
     assert(layers==30 && files==1560 && bytes==(420u<<20));
+    unsigned full_layers=0;
+    for (unsigned layer=0;layer<40;++layer) {
+        const bool full=qrt_q1_trace::full_layer(layer,0,true);
+        assert(full != selected.linear_layer(layer));
+        full_layers+=full;
+    }
+    assert(full_layers==10);
+    assert(qrt_q1_trace::full_layer(3,3,false));
+    assert(!qrt_q1_trace::full_layer(7,3,false));
+    assert(!qrt_q1_trace::full_layer(40,3,true));
+    assert(!qrt_q1_trace::full_layer(kUnselected,3,true));
     assert(!selected.linear_layer(40) && !selected.linear_layer(kUnselected));
     assert(!selected.may_write(2048,0,1));
     assert(!selected.may_write(0,(512u<<20),1));

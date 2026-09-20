@@ -97,8 +97,20 @@ linear layers while leaving the short controls' layer selections unchanged.
 The native Q1 observer can select all30 layers and two nearby positions,
 including263168 and263356. Raw artifacts remain bounded to2048 files/512MiB,
 with2MiB per file; the default single-layer limits remain64 files/16MiB.
-Both positions also retain all40 output carriers. These changes affect optional
-observation only; the new native build and full256k diagnostic remain unrun.
+Both positions also retain all40 output carriers. The
+[native q8192 observer regression](../benchmarks/correctness/native-all-linear-observer-q8192-20260920.json)
+at e226c47 passes all512 outputs, callbacks and the exact10.375 first logit.
+All1198 recurrent-stage files,80 output carriers and the terminal norm file
+are written and hash checked:1279 files/272263168 bytes. The actual bounded
+Windows archive step passes. Load21548.1439ms, TTFT23258.9129ms and
+TPOT102.69098ms remain diagnostic timings above the immutable TTFT target.
+
+The next native observer also selects lightweight endpoints for all10 full
+attention layers at both positions. It retains the existing128KiB per-file
+limit and allows512 stage files/32MiB only when explicitly enabled. Full K/V
+history capture remains separately bounded and disabled in this diagnostic.
+The full256k diagnostic has not been dispatched; its earlier preparations
+remain unrun while this complete endpoint coverage is verified.
 
 The separate [draft-limit transition reference](../benchmarks/correctness/gb10-draft-limit-transition-20260920.json)
 completes six requests and 144 outputs on the unchanged GB10 reference. Both

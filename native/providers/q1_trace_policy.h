@@ -8,6 +8,10 @@
 namespace qrt_q1_trace {
 constexpr uint32_t kUnselected = (std::numeric_limits<uint32_t>::max)();
 
+inline bool full_layer(uint32_t value, uint32_t selected, bool all_layers) {
+    return value < 40 && value % 4 == 3 && (all_layers || value == selected);
+}
+
 struct Selection {
     uint32_t first = kUnselected;
     uint32_t second = kUnselected;
