@@ -895,6 +895,27 @@ greedy argmax. The drafter keeps its independently qualified arithmetic. The
 new native head probe compares complete logits and actual samples at three
 submission sizes; compilation and numerical verification remain unrun.
 
+The [full-model Q2 input and weight-binding record](../benchmarks/correctness/q2-full-model-inputs-and-weight-binding-20260921.json)
+extends the original observer at6e502ff to all30 linear owners and10 attention
+owners of the first q8192 two-row transaction. All64 control outputs and both
+complete first-logit buffers reproduce the prior original capture. All1103
+comparable earlier frontiers are byte-identical. The complete3817-file record
+retains561930419 raw bytes; q8192's target observations occupy436466956 bytes.
+Reference execution finishes in311.116139 seconds including startup, with
+unchanged frozen autotune selections and passing host/process checks. These
+are reference-capture timings, not Windows performance.
+
+Target source0a1e3a0 resolves633 original BF16 tensors through the existing
+resident model allocation owner. Only shared gate/up weights are newly packed,
+using167772160 bytes; target and MTP readers pin the same original shards.
+Every tensor name, shape, dtype and byte extent matches current GB10 safetensors
+headers. This metadata check does not hash every original payload. Three local
+sanitizer checks pass in9.432318 seconds, covering actual acquisition/release,
+all80 pack-copy failure points, epoch changes and unknown-completion lifetime.
+The observer's58 local checks also pass. The target binding is not yet called
+by the live target transaction; Windows compilation, complete target execution,
+state publication and inference acceptance remain pending.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
