@@ -12,6 +12,8 @@
 #include <vector>
 
 using namespace qrt_sm121_q2;
+const char* phase = "read_inputs";
+unsigned active_configuration = ~0u;
 template<class T> std::vector<T> read(const char* path, size_t count) {
     std::ifstream file(path, std::ios::binary | std::ios::ate);
     if (!file || file.tellg() != std::streamoff(count * sizeof(T))) throw std::runtime_error(path);
@@ -43,6 +45,15 @@ template<class T> struct GuardedHost {
 #ifndef QRT_Q2_CPU_PROBE
 void check(hipError_t status) {
     if (status != hipSuccess) throw std::runtime_error(hipGetErrorString(status));
+}
+void kernel_resources(const char* name, const void* kernel) {
+    hipFuncAttributes attributes{};
+    check(hipFuncGetAttributes(&attributes, kernel));
+    std::cerr << "{\"kind\":\"q2_kernel_resources\",\"kernel\":\"" << name
+        << "\",\"maximum_threads\":" << attributes.maxThreadsPerBlock
+        << ",\"registers\":" << attributes.numRegs
+        << ",\"local_bytes\":" << attributes.localSizeBytes
+        << ",\"shared_bytes\":" << attributes.sharedSizeBytes << "}\n";
 }
 struct Device {
     std::vector<void*> pointers;
@@ -101,6 +112,13 @@ int main(int argc, char** argv) try {
     const auto* actual_qkv = qkv.data(); const auto* actual_conv_weights = conv_weights.data(); const auto* actual_silu = silu.data();
 #else
     std::cout << "true";
+    phase = "kernel_resources";
+    kernel_resources("recurrence", reinterpret_cast<const void*>(recurrent_detail::kernel));
+    if (linear) {
+        kernel_resources("convolution_f32", reinterpret_cast<const void*>(linear_detail::convolution<float>));
+        kernel_resources("convolution_bf16", reinterpret_cast<const void*>(linear_detail::convolution<uint16_t>));
+    }
+    phase = "upload_inputs";
     Device device;
     const RecurrentTables tables{device.upload(g), device.upload(beta), device.upload(exp2), device.upload(rsqrt)};
     const auto* convolution = linear ? nullptr : device.upload(conv); const auto* projection_a = device.upload(a); const auto* projection_b = device.upload(b);
@@ -110,6 +128,8 @@ int main(int argc, char** argv) try {
 #endif
     const unsigned configurations = linear ? 4u : 2u;
     for (unsigned configuration=0;configuration<configurations;++configuration) {
+        active_configuration = configuration;
+        phase = "prepare_configuration";
         const bool key_major=(configuration&1u)!=0u, bf16_ring=configuration>=2u;
         std::vector<float> before(state_elements);
         for (unsigned head = 0; head < 32u; ++head)
@@ -169,6 +189,7 @@ int main(int argc, char** argv) try {
             ++rejected;
         }
         if(linear) {
+            phase = "launch_connected_linear";
             const auto submit=[&](const auto* ring,auto* staged_ring) {
                 using Element=std::remove_const_t<std::remove_pointer_t<decltype(ring)>>;
                 ConvolutionViews<Element> cv{actual_qkv,ring,actual_conv_weights,actual_silu,staged_ring,conv_output,position};
@@ -204,8 +225,10 @@ int main(int argc, char** argv) try {
         }
         input_bad += std::memcmp(before.data(),untouched.data(),before.size()*sizeof(float)) != 0;
 #else
+        phase = linear ? "connected_completion" : "launch_recurrence";
         if(!linear)check(launch_recurrent(view,tables));
         check(hipDeviceSynchronize());
+        phase = "copy_results";
         check(hipMemcpy(staged.storage.data(),state_allocation,staged.storage.size()*4u,hipMemcpyDeviceToHost));
         check(hipMemcpy(core.storage.data(),core_allocation,core.storage.size()*2u,hipMemcpyDeviceToHost));
         input_bad += device.differences(view.initial_state,untouched);
@@ -273,4 +296,8 @@ int main(int argc, char** argv) try {
         << ",\"guard_errors\":" << guard_bad << ",\"rejected_aliases\":" << rejected
         << ",\"passed\":" << (passed?"true":"false") << ",\"resident_cache_published\":false,\"inference_acceptance\":false}\n";
     return passed?0:1;
-} catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 2; }
+} catch (const std::exception& error) {
+    std::cerr << "phase=" << phase << " configuration=" << active_configuration
+        << " error=" << error.what() << '\n';
+    return 2;
+}
