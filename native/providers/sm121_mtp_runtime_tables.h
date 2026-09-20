@@ -104,12 +104,17 @@ inline hipError_t prepare(qrt_sm121_mtp::DrafterTables* output, unsigned last_po
     if (status != hipSuccess) return status;
     if (!full.core.rsqrt || !full.core.exp2 || full.core.rsqrt != moe.core.rsqrt ||
         full.core.exp2 != moe.core.exp2 || !full.rope || full.rope_rows <= last_position ||
-        full.rope_rows > 262144u || !reciprocal || !moe.router || !moe.silu)
+        !reciprocal || !moe.router || !moe.silu)
         return hipErrorInvalidValue;
     const uint16_t* sigmoid = nullptr;
     status = prepare_sigmoid(std::getenv("QRT_QWEN36_MTP_BF16_SIGMOID_TABLE"), &sigmoid);
     if (status != hipSuccess) return status;
-    *output = {full.core.rsqrt, full.rope, static_cast<unsigned>(full.rope_rows),
+    // The target owns a verified table that may cover positions beyond the
+    // drafter limit. Borrow its supported prefix without expanding MTP's
+    // logical context or rejecting the shared long-context allocation.
+    const unsigned rope_rows = static_cast<unsigned>(
+        full.rope_rows < 262144u ? full.rope_rows : 262144u);
+    *output = {full.core.rsqrt, full.rope, rope_rows,
         full.core.exp2, reciprocal, {moe.silu, sigmoid, moe.router}};
     return hipSuccess;
 }

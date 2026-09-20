@@ -81,7 +81,8 @@ namespace qrt_sm121_q1_runtime {struct Tables{const unsigned char *exp2=nullptr,
 namespace qrt_sm121_q1_full_runtime {
 struct Tables{qrt_sm121_q1_runtime::Tables core;const uint16_t* rope=nullptr;size_t rope_rows=0;};
 hipError_t prepare(Tables* out,size_t){++full_calls;if(mode==11)return injected;
-    *out={{exp2_table,rsqrt_table,reinterpret_cast<const float*>(0x7000)},rope_table,262144};return hipSuccess;}
+    *out={{exp2_table,rsqrt_table,reinterpret_cast<const float*>(0x7000)},rope_table,
+        mode==16?264736u:mode==17?8191u:262144u};return hipSuccess;}
 }
 namespace qrt_sm121_q1_moe_runtime {
 struct Tables{qrt_sm121_q1_runtime::Tables core;const uint32_t* router=nullptr;const uint16_t* silu=nullptr;};
@@ -104,7 +105,7 @@ int main(int argc,char** argv){
         assert(qrt_sm121_mtp_runtime::prepare(&tables,262144)==hipErrorInvalidValue&&!full_calls&&!tables.rsqrt);return 0;
     }
     auto status=qrt_sm121_mtp_runtime::prepare(&tables,8191);
-    if(mode==0){
+    if(mode==0||mode==16){
         assert(status==hipSuccess&&tables.rsqrt==rsqrt_table&&tables.exp2==exp2_table&&tables.reciprocal==rcp_table);
         assert(tables.rope==rope_table&&tables.rope_rows==262144&&tables.moe.silu==silu_table&&tables.moe.router_exp_fraction==router_table);
         assert(tables.moe.sigmoid&&std::memcmp(tables.moe.sigmoid,data.data(),data.size())==0);
@@ -134,7 +135,7 @@ int main(int argc,char** argv){
                 '-fsanitize=address,undefined','-fno-sanitize-recover=all',str(path),'-o',str(exe)],
                 capture_output=True,text=True,timeout=60)
             self.assertEqual(build.returncode,0,build.stderr)
-            for case in range(16):
+            for case in range(18):
                 with self.subTest(case=case):
                     run = subprocess.run([str(exe),str(case),str(directory/f'case-{case}.bin')],
                         capture_output=True,text=True,timeout=15)

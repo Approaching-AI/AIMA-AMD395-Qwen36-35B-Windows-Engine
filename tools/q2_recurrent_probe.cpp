@@ -280,7 +280,11 @@ int main(int argc, char** argv) try {
         selection_bad += accepted_state(view,0u) != nullptr || accepted_state(view,3u) != nullptr;
     }
 #ifndef QRT_Q2_CPU_PROBE
-    input_bad += device.differences(convolution,conv)+device.differences(projection_a,a)+device.differences(projection_b,b);
+    phase = "verify_immutable_inputs";
+    // Connected execution computes convolution in private staging. Its
+    // captured comparison buffer is never uploaded as a compute operand.
+    if (!linear) input_bad += device.differences(convolution,conv);
+    input_bad += device.differences(projection_a,a)+device.differences(projection_b,b);
     input_bad += device.differences(tables.g,g)+device.differences(tables.beta,beta);
     input_bad += device.differences(tables.exp2,exp2)+device.differences(tables.rsqrt,rsqrt);
     if(linear)input_bad+=device.differences(actual_qkv,qkv)+device.differences(actual_conv_weights,conv_weights)+device.differences(actual_silu,silu);
