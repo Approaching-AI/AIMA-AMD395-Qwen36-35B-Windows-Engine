@@ -1,9 +1,8 @@
 #pragma once
-#include "sm121_q2_recurrent_layout.h"
+#include "sm121_q2_cache_view.h"
 #include <array>
 
 namespace qrt_sm121_q2 {
-constexpr unsigned target_context_limit = 263680u;
 struct AttentionBlockViews {
     const uint16_t* normalized_input = nullptr; // [2,2048]
     const uint16_t* q_weights = nullptr;        // [8192,2048], interleaved Q/gate.
@@ -12,8 +11,7 @@ struct AttentionBlockViews {
     const uint16_t* output_weights = nullptr;   // [2048,4096]
     const uint16_t* q_norm_weights = nullptr;   // [256], BF16 delta.
     const uint16_t* k_norm_weights = nullptr;   // [256], BF16 delta.
-    const uint16_t* history = nullptr;          // [history_capacity,K512+V512], read only.
-    unsigned history_capacity = 0;
+    CacheView cache;                           // Readonly prefix/decode planes plus private tail.
     unsigned first_position = 0;               // Exactly the committed history length.
     uint16_t* q_projected = nullptr;            // [2,8192]
     uint16_t* kv_projected = nullptr;           // [2,K512+V512]
@@ -50,12 +48,13 @@ inline std::array<Span,12> write_spans(const AttentionBlockViews& v) {
         {v.gated, 2u*4096u*2u, 2u}, {v.output, 2u*2048u*2u, 2u}
     }};
 }
-inline std::array<Span,13> read_spans(const AttentionBlockViews& v, const AttentionBlockTables& t) {
+inline std::array<Span,16> read_spans(const AttentionBlockViews& v, const AttentionBlockTables& t) {
+    const auto history = cache_view_detail::history_spans(v.cache);
     return {{
         {v.normalized_input, 8192u, 2u}, {v.q_weights, 8192u*2048u*2u, 2u},
         {v.k_weights, 512u*2048u*2u, 2u}, {v.v_weights, 512u*2048u*2u, 2u},
         {v.output_weights, 2048u*4096u*2u, 2u}, {v.q_norm_weights, 512u, 2u},
-        {v.k_norm_weights, 512u, 2u}, {v.history, size_t(v.history_capacity)*1024u*2u, 2u},
+        {v.k_norm_weights, 512u, 2u}, history[0], history[1], history[2], history[3],
         {t.rsqrt, qrt_sm121_rsqrt::table_bytes, 1u}, {t.exp2, qrt_sm121_exp2::table_bytes, 1u},
         {t.reciprocal, qrt_sm121_attention_rcp::table_bytes, 1u},
         {t.rope, size_t(t.rope_rows)*64u*2u, 2u}, {t.sigmoid, 65536u*2u, 2u}
@@ -64,8 +63,8 @@ inline std::array<Span,13> read_spans(const AttentionBlockViews& v, const Attent
 } // namespace attention_block_detail
 
 inline bool valid_attention_block(const AttentionBlockViews& v, const AttentionBlockTables& t) {
-    if (!v.history_capacity || v.history_capacity > target_context_limit ||
-        v.first_position > v.history_capacity || v.first_position > target_context_limit - 2u ||
+    if (!valid_cache_view(v.cache) || v.cache.staged != v.staged_kv ||
+        v.first_position != v.cache.committed_tokens() || v.first_position > target_context_limit - 2u ||
         t.rope_rows > target_context_limit || t.rope_rows < v.first_position + 2u ||
         v.score_stride < v.first_position + 2u || v.score_stride > target_context_limit ||
         v.score_stride % 32u) return false;
@@ -75,7 +74,7 @@ inline bool valid_attention_block(const AttentionBlockViews& v, const AttentionB
         for (size_t j = 0; j < i; ++j)
             if (!recurrent_detail::disjoint(writes[i], writes[j])) return false;
         for (const auto& read : reads)
-            if (!recurrent_detail::disjoint(writes[i], read)) return false;
+            if (read.bytes && !recurrent_detail::disjoint(writes[i], read)) return false;
     }
     return true;
 }

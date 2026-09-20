@@ -21,6 +21,7 @@ class Q2AttentionBlockTests(unittest.TestCase):
 #include "native/providers/gdn/sm121_q2_attention_block_layout.h"
 #include <cassert>
 #include <tuple>
+#include <type_traits>
 #include <initializer_list>
 using namespace qrt_sm121_q2;
 enum hipError_t {hipSuccess,hipErrorInvalidValue,hipErrorUnknown};
@@ -30,7 +31,7 @@ namespace qrt_sm121_mtp {void query_rows(){} void publish_attention_context(){} 
 namespace qrt_sm121_q2::attention_block_detail {void private_key_values(){} void private_scores(){}}
 namespace qrt_sm121_q1_moe {template<unsigned K>void projection(){}}
 namespace qrt_blackwell_attention {
-template<bool A,bool B=false,bool C=false,bool D=false,bool E=false,bool F=false,bool G=false,bool H=false>
+template<bool A,bool B=false,bool C=false,bool D=false,bool E=false,bool F=false,bool G=false,bool H=false,class V=const uint16_t*>
 void blackwell_exact_attention_kernel(){}
 }
 unsigned launches=0,fail_at=0;
@@ -60,18 +61,18 @@ template<class... Args>void record(void(*kernel)(),dim3 grid,dim3 block,size_t s
   assert(std::get<0>(a)==v.kv_projected && std::get<1>(a)==v.k_norm_weights);
   assert(std::get<2>(a)==t.rsqrt && std::get<3>(a)==t.rope && std::get<4>(a)==v.first_position);
   assert(std::get<5>(a)==v.staged_kv && std::get<6>(a)==v.k_norm);
- }else if constexpr(sizeof...(Args)==6){
+ }else if constexpr(sizeof...(Args)==5 && std::is_same<std::decay_t<std::tuple_element_t<1,decltype(a)>>,CacheView>::value){
   assert(launches==8u && kernel==attention_block_detail::private_scores && grid.x==2u*v.score_stride && grid.y==1u && block.x==256u);
-  assert(std::get<0>(a)==v.queries && std::get<1>(a)==v.history && std::get<2>(a)==v.staged_kv);
-  assert(std::get<3>(a)==v.scores && std::get<4>(a)==v.first_position && std::get<5>(a)==v.score_stride);
+  assert(std::get<0>(a)==v.queries && std::get<1>(a).prefix.keys==v.cache.prefix.keys && std::get<1>(a).staged==v.staged_kv);
+  assert(std::get<2>(a)==v.scores && std::get<3>(a)==v.first_position && std::get<4>(a)==v.score_stride);
  }else if constexpr(sizeof...(Args)==15){
-  assert((kernel==qrt_blackwell_attention::blackwell_exact_attention_kernel<true,true,true,false,false,false,false,true>));
+  assert((kernel==qrt_blackwell_attention::blackwell_exact_attention_kernel<true,true,false,false,false,false,false,true,CacheView>));
   assert(launches==9u && grid.x==16u && grid.y==2u && block.x==256u);
-  assert(!std::get<0>(a) && !std::get<1>(a) && std::get<2>(a)==v.history+512u);
+  assert(!std::get<0>(a) && !std::get<1>(a) && !std::get<2>(a));
   assert(std::get<3>(a)==v.float_context && std::get<4>(a)==v.first_position && !std::get<5>(a));
   assert(std::get<6>(a)==t.exp2 && !std::get<7>(a) && !std::get<8>(a));
   assert(std::get<9>(a) && std::get<10>(a)==t.reciprocal && std::get<11>(a)==v.scores);
-  assert(std::get<12>(a)==v.score_stride && std::get<13>(a)==v.staged_kv+512u && std::get<14>(a)==v.first_position);
+  assert(std::get<12>(a)==v.score_stride && std::get<13>(a).staged==v.staged_kv && std::get<13>(a).prefix.keys==v.cache.prefix.keys && std::get<14>(a)==v.first_position);
  }else if constexpr(sizeof...(Args)==3){
   assert(launches==10u && kernel==qrt_sm121_mtp::publish_attention_context && grid.x==32u && grid.y==1u && block.x==256u);
   assert(std::get<0>(a)==v.float_context && std::get<1>(a)==v.context && std::get<2>(a)==8192u);
@@ -92,18 +93,18 @@ int main(){
  AttentionBlockViews v;AttentionBlockTables t;unsigned slot=1;
  const uint16_t* AttentionBlockViews::* reads[]={&AttentionBlockViews::normalized_input,&AttentionBlockViews::q_weights,
   &AttentionBlockViews::k_weights,&AttentionBlockViews::v_weights,&AttentionBlockViews::output_weights,
-  &AttentionBlockViews::q_norm_weights,&AttentionBlockViews::k_norm_weights,&AttentionBlockViews::history};
+  &AttentionBlockViews::q_norm_weights,&AttentionBlockViews::k_norm_weights};
  uint16_t* AttentionBlockViews::* writes[]={&AttentionBlockViews::q_projected,&AttentionBlockViews::kv_projected,
   &AttentionBlockViews::q_norm,&AttentionBlockViews::k_norm,&AttentionBlockViews::queries,&AttentionBlockViews::gates,
   &AttentionBlockViews::staged_kv,&AttentionBlockViews::context,&AttentionBlockViews::gated,&AttentionBlockViews::output};
  for(auto m:reads)v.*m=fake<uint16_t>(slot++);
  for(auto m:writes)v.*m=fake<uint16_t>(slot++);
- v.scores=fake<float>(slot++);v.float_context=fake<float>(slot++);v.history_capacity=263680u;
+ v.scores=fake<float>(slot++);v.float_context=fake<float>(slot++);v.cache.prefix={fake<uint16_t>(slot++),fake<uint16_t>(slot++),0u,263680u,512u,2u};v.cache.staged=v.staged_kv;
  t.rsqrt=fake<unsigned char>(slot++);t.exp2=fake<unsigned char>(slot++);t.reciprocal=fake<unsigned char>(slot++);
  t.rope=fake<uint16_t>(slot++);t.rope_rows=263680u;t.sigmoid=fake<uint16_t>(slot++);
  expected=&v;tables=&t;
  for(unsigned first:{0u,31u,7169u,8194u,262143u,263678u}){
-  v.first_position=first;v.score_stride=(first+33u)&~31u;
+  v.first_position=first;v.cache.prefix.tokens=first;v.score_stride=(first+33u)&~31u;
   for(unsigned fail=0;fail<=14u;++fail){
    launches=0;fail_at=fail;
    assert(launch_attention_block(v,t,expected_stream)==(fail?hipErrorUnknown:hipSuccess));
@@ -126,8 +127,8 @@ int main(){
  }
  for(auto r:reads){auto b=v;b.scores=reinterpret_cast<float*>(const_cast<uint16_t*>(v.*r))+1u;reject(b,t);}
  auto b=v;b.float_context=v.scores+1u;reject(b,t);b=v;b.scores=nullptr;reject(b,t);
- b=v;b.history_capacity=0;reject(b,t);b=v;b.history_capacity=v.first_position-1u;reject(b,t);
- b=v;b.history_capacity=263681u;reject(b,t);
+ b=v;b.cache.prefix.capacity=0;reject(b,t);b=v;b.cache.prefix.capacity=v.first_position-1u;reject(b,t);
+ b=v;b.cache.prefix.capacity=263681u;reject(b,t);
  for(unsigned first:{263679u,~0u}){b=v;b.first_position=first;reject(b,t);}
  for(unsigned stride:{0u,32u,263679u,263712u,~0u}){b=v;b.score_stride=stride;reject(b,t);}
  auto z=t;z.rope_rows=v.first_position+1u;reject(v,z);z=t;z.rope_rows=~0u;reject(v,z);
@@ -136,6 +137,11 @@ int main(){
  }
  z=t;z.rsqrt=nullptr;reject(v,z);z=t;z.exp2=nullptr;reject(v,z);z=t;z.reciprocal=nullptr;reject(v,z);
  z=t;z.rope=nullptr;reject(v,z);z=t;z.sigmoid=nullptr;reject(v,z);
+ b=v;b.cache.staged=fake<uint16_t>(slot);reject(b,t);
+ b=v;b.cache.prefix.keys=v.output+1u;reject(b,t);
+ b=v;b.cache.prefix.values=v.gated+1u;reject(b,t);
+ b=v;b.cache.decoded={v.gated,v.gated+512u,0u,2u,1024u,2u};reject(b,t);
+ b=v;b.scores=reinterpret_cast<float*>(const_cast<void*>(v.cache.prefix.keys))+1u;reject(b,t);
  // Read-only weights may share storage. They cannot overlap any producer.
  b=v;b.v_weights=b.k_weights;assert(valid_attention_block(b,t));
  for(unsigned rows:{0u,3u,~0u})assert(!accepted_attention(v,rows).key_values);

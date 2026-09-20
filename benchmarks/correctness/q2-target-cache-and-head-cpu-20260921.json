@@ -1,0 +1,967 @@
+{
+  "kind": "private_target_cache_views_and_original_q2_head",
+  "base_source_commit": "c4d861daab775726bfc4ccffd94ed7d1ccf0e940",
+  "candidate_source_files": {
+    "native/providers/ck_fmha/blackwell_attention.h": "b8cefe638bfcc5c41ff73349624f65741395a383e4e6f72059882a7ae39a82ed",
+    "native/providers/gdn/sm121_q2_cache_view.h": "4246d746ac25eb861b70df83c595bc2aea43ecffb8e3960c1dfab7bd49cbfd93",
+    "native/providers/gdn/sm121_q2_attention_block_layout.h": "26101eed3fa24e5f15ce52e8af0be9ac3b1318bba09e0f21406e1a16bee19f93",
+    "native/providers/gdn/sm121_q2_attention_block.h": "ec58287e49bed021a881349eaf36084d40e416e00a08383455a2ef96bd1d3a20",
+    "native/providers/gdn/sm121_q2_attention_layer.h": "19990d6045e91cb5ed45e01f834ff840faf7977a3e6d2fff3d06ba7aa8ca4fbc",
+    "native/providers/gdn/sm121_q2_head.h": "40e2ad91de2d422ddfa9bdc54a52a0ac199f21f3013d818594c34148237f4ab1",
+    "tools/q2_attention_layer_hip_probe.cpp": "ad4f91a19a552a0771dcd0c0c91c6d46b71025b49151e5e044bb0767db7a967e",
+    "tools/q2_target_head_hip_probe.cpp": "d80997a46139c27e3ef04261d79263a356f42042c4cc426fde336e76d83fdadd",
+    "tests/test_q2_cache_view.py": "9f46dbacaede862eb9657e6289383f8bab8ddebe7f50bd06bb6d29c34dc65bb0",
+    "tests/test_q2_attention_block.py": "1c39c80137ac83d92a54ba77eb55c94962776652cab65a266c6852aa020584f5",
+    "tests/test_q2_attention_layer.py": "396bd54e770d1e1e9365750c2ec271113e97e9e94ec1a7ee64c26e062d01b102",
+    "tests/test_q2_target_head.py": "8838d512bc38074fbe1103977282fab8daaf858022f463b4771c9d1220be85f9",
+    "tests/test_mtp_attention_launch.py": "30e20a5fff37a0376f890aba8de82c5294865bd07f8419cae0bed34a050bb5bf",
+    "tests/test_mtp_moe_launch.py": "1cdf1aa4fac444e3420b257ff8b0e3e9bae4be92eae99f58535e689a95fe9196",
+    "tests/test_attention_workspace.py": "0eaf281a70aa0193e5fd266ac8e73386fd4ab4191ab058e86a353417b2bb1764",
+    "tests/native/mtp_moe_workspace_host.cpp": "70e490a9493ce21e5f1df3e2e9b160b7fa93a747addf3c2527f49fb0bdae51df"
+  },
+  "local_validation": {
+    "file": "q2-cache-head-local-r1/validation.json",
+    "sha256": "a605116984cc136fccd8d73b86b51f60136810ba1323ae110a6048f2c81c0607",
+    "record": {
+      "command": [
+        "python3.12",
+        "-m",
+        "unittest",
+        "-v",
+        "test_q2_cache_view",
+        "test_q2_attention_block",
+        "test_q2_attention_layer",
+        "test_q2_target_head",
+        "test_mtp_attention_launch",
+        "test_mtp_moe_launch"
+      ],
+      "cwd": "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tests",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "test_prefix_decode_and_private_rows (test_q2_cache_view.Q2CacheViewTests.test_prefix_decode_and_private_rows) ... ok\ntest_private_history_and_submission_failures (test_q2_attention_block.Q2AttentionBlockTests.test_private_history_and_submission_failures) ... ok\ntest_private_layer_graph_and_partial_failure (test_q2_attention_layer.Q2AttentionLayerTests.test_private_layer_graph_and_partial_failure) ... ok\ntest_private_k16_logits_and_real_argmax (test_q2_target_head.Q2TargetHeadTests.test_private_k16_logits_and_real_argmax) ... ok\ntest_original_cache_view_and_failed_stage_stop (test_mtp_attention_launch.MtpAttentionLaunchTests.test_original_cache_view_and_failed_stage_stop) ... ok\ntest_disjoint_workspace_and_rejected_extents (test_mtp_moe_launch.MtpMoeLaunchTests.test_disjoint_workspace_and_rejected_extents) ... ok\ntest_launch_contract_and_partial_submission_stop (test_mtp_moe_launch.MtpMoeLaunchTests.test_launch_contract_and_partial_submission_stop) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 5.493s\n\nOK\n",
+      "seconds": 5.524797792546451,
+      "tests": 7,
+      "all_pass": true,
+      "base_source_commit": "c4d861daab775726bfc4ccffd94ed7d1ccf0e940",
+      "source_files": {
+        "native/providers/ck_fmha/blackwell_attention.h": "b8cefe638bfcc5c41ff73349624f65741395a383e4e6f72059882a7ae39a82ed",
+        "native/providers/gdn/sm121_q2_cache_view.h": "4246d746ac25eb861b70df83c595bc2aea43ecffb8e3960c1dfab7bd49cbfd93",
+        "native/providers/gdn/sm121_q2_attention_block_layout.h": "26101eed3fa24e5f15ce52e8af0be9ac3b1318bba09e0f21406e1a16bee19f93",
+        "native/providers/gdn/sm121_q2_attention_block.h": "ec58287e49bed021a881349eaf36084d40e416e00a08383455a2ef96bd1d3a20",
+        "native/providers/gdn/sm121_q2_attention_layer.h": "19990d6045e91cb5ed45e01f834ff840faf7977a3e6d2fff3d06ba7aa8ca4fbc",
+        "native/providers/gdn/sm121_q2_head.h": "40e2ad91de2d422ddfa9bdc54a52a0ac199f21f3013d818594c34148237f4ab1",
+        "tools/q2_attention_layer_hip_probe.cpp": "ad4f91a19a552a0771dcd0c0c91c6d46b71025b49151e5e044bb0767db7a967e",
+        "tools/q2_target_head_hip_probe.cpp": "830e582a2df88a2a188f3891f6bb3abca07c734fdd1627872f985011fe04b8d8",
+        "tests/test_q2_cache_view.py": "9f46dbacaede862eb9657e6289383f8bab8ddebe7f50bd06bb6d29c34dc65bb0",
+        "tests/test_q2_attention_block.py": "1c39c80137ac83d92a54ba77eb55c94962776652cab65a266c6852aa020584f5",
+        "tests/test_q2_attention_layer.py": "396bd54e770d1e1e9365750c2ec271113e97e9e94ec1a7ee64c26e062d01b102",
+        "tests/test_q2_target_head.py": "8838d512bc38074fbe1103977282fab8daaf858022f463b4771c9d1220be85f9",
+        "tests/test_mtp_attention_launch.py": "30e20a5fff37a0376f890aba8de82c5294865bd07f8419cae0bed34a050bb5bf",
+        "tests/test_mtp_moe_launch.py": "1cdf1aa4fac444e3420b257ff8b0e3e9bae4be92eae99f58535e689a95fe9196",
+        "tests/test_attention_workspace.py": "0eaf281a70aa0193e5fd266ac8e73386fd4ab4191ab058e86a353417b2bb1764",
+        "tests/native/mtp_moe_workspace_host.cpp": "70e490a9493ce21e5f1df3e2e9b160b7fa93a747addf3c2527f49fb0bdae51df"
+      },
+      "native_compilation": false,
+      "native_execution": false,
+      "inference_acceptance": false
+    }
+  },
+  "head_cpu_comparison": {
+    "file": "qrt-q2-target-head-cpu-20260921-r1/comparison.json",
+    "sha256": "5169894a62e9ef840268944638ecec50ec34fb9b848bb30b07162cab061fffbf",
+    "record": {
+      "host": "aitopatom-66c4",
+      "command": [
+        "/usr/bin/python3",
+        "/home/qujing/run_q2_target_head_cpu_r1.py"
+      ],
+      "command_file_sha256": "a813076999247df2e29889644601846312d8f1a28baa0b84e4faa816fbb2bc85",
+      "source_plan_sha256": "06c28f2d28559344c4e50d4b0505fcdf50afc784d08ae3aa8fa6fe6ef8e57dc1",
+      "source_commit": "c4d861daab775726bfc4ccffd94ed7d1ccf0e940",
+      "source_files": {
+        "q2_target_head_cpu_r1.cpp": "8e2470a3d6703df3a76fa087930c22b6678c5ed78c66ef0fa9a220b65e0f6061",
+        "native/providers/moe_accumulator/sm121_shared_gate.h": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+        "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a"
+      },
+      "compile": [
+        "g++",
+        "-std=c++17",
+        "-O2",
+        "-ffp-contract=off",
+        "-fno-fast-math",
+        "-march=native",
+        "-I",
+        "/home/qujing/qrt-q2-target-head-cpu-20260921-r1",
+        "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q2_target_head_cpu_r1.cpp",
+        "-o",
+        "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head"
+      ],
+      "executable_sha256": "84ae7753d0256588593a0c6a05cddfda84df9e152a5fcd5604c2415c3c7a5fdf",
+      "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+      "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+      "weight": {
+        "name": "lm_head.weight",
+        "file": "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
+        "offset": 4112,
+        "bytes": 1017118720,
+        "shape": [
+          248320,
+          2048
+        ],
+        "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+        "sha256": "394297e7d76ec7239250841017960a62ea6b4fa3af44a9f08ea6e6b743a94661"
+      },
+      "results": [
+        {
+          "case": {
+            "name": "q7169-out32-txn1-row0",
+            "original_case": "q7169-out32",
+            "transaction": 1,
+            "row": 0,
+            "position": 7169,
+            "input_token": 82,
+            "expected_token": 220,
+            "expected_logit": 9.9375,
+            "input": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-final-norm-bf16.bin",
+              "bytes": 8192,
+              "sha256": "cbca115e8ff8a3d2206eaf463c658aad5bb1020f4b4248d687bba48ea8e20d0e",
+              "shape": [
+                2,
+                2048
+              ]
+            },
+            "logits": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-position-7169-logits-bf16.bin",
+              "bytes": 496640,
+              "sha256": "d14c0ba865c14a5073360355f94c43303e29cdae1f76e06f0b27f7f73f35e30d",
+              "shape": [
+                1,
+                248320
+              ]
+            }
+          },
+          "command": [
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
+            "4112",
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q7169-out32-txn1-row0-input.bin",
+            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-position-7169-logits-bf16.bin"
+          ],
+          "input_slice_sha256": "c853db8460111b5a9060ee48e170ae225bb714e27c966d059a5a6b0b91617380",
+          "input_row_bytes": 4096,
+          "returncode": 0,
+          "report": {
+            "variants": [
+              {
+                "policy": "original_mtp_gemv",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 103,
+                  "first_difference": {
+                    "row": 0,
+                    "route": 0,
+                    "channel": 858,
+                    "actual_bits": 49017,
+                    "expected_bits": 49016
+                  }
+                },
+                "actual_token": 220,
+                "expected_token": 220,
+                "actual_logit": 9.9375,
+                "expected_logit": 9.9375,
+                "maximum_bf16_logit_error": 0.03125
+              },
+              {
+                "policy": "original_k16",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 0,
+                  "first_difference": null
+                },
+                "actual_token": 220,
+                "expected_token": 220,
+                "actual_logit": 9.9375,
+                "expected_logit": 9.9375,
+                "maximum_bf16_logit_error": 0
+              }
+            ],
+            "gpu_used": false,
+            "inference_acceptance": false
+          },
+          "stderr": "",
+          "seconds": 1.3926815369632095
+        },
+        {
+          "case": {
+            "name": "q7169-out32-txn1-row1",
+            "original_case": "q7169-out32",
+            "transaction": 1,
+            "row": 1,
+            "position": 7170,
+            "input_token": 144,
+            "expected_token": 244,
+            "expected_logit": 18.25,
+            "input": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-final-norm-bf16.bin",
+              "bytes": 8192,
+              "sha256": "cbca115e8ff8a3d2206eaf463c658aad5bb1020f4b4248d687bba48ea8e20d0e",
+              "shape": [
+                2,
+                2048
+              ]
+            },
+            "logits": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-position-7170-logits-bf16.bin",
+              "bytes": 496640,
+              "sha256": "88516caec6ccb398371a4e5287f4e3950e8f2d4f433f62826d29335e206ddbec",
+              "shape": [
+                1,
+                248320
+              ]
+            }
+          },
+          "command": [
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
+            "4112",
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q7169-out32-txn1-row1-input.bin",
+            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-position-7170-logits-bf16.bin"
+          ],
+          "input_slice_sha256": "810c3d8c3b9122bdef167b0e13ab237c8c9644b6aebefa5535fd1c61b3ee953b",
+          "input_row_bytes": 4096,
+          "returncode": 0,
+          "report": {
+            "variants": [
+              {
+                "policy": "original_mtp_gemv",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 480,
+                  "first_difference": {
+                    "row": 0,
+                    "route": 0,
+                    "channel": 1015,
+                    "actual_bits": 47571,
+                    "expected_bits": 47570
+                  }
+                },
+                "actual_token": 244,
+                "expected_token": 244,
+                "actual_logit": 18.25,
+                "expected_logit": 18.25,
+                "maximum_bf16_logit_error": 0.015625
+              },
+              {
+                "policy": "original_k16",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 0,
+                  "first_difference": null
+                },
+                "actual_token": 244,
+                "expected_token": 244,
+                "actual_logit": 18.25,
+                "expected_logit": 18.25,
+                "maximum_bf16_logit_error": 0
+              }
+            ],
+            "gpu_used": false,
+            "inference_acceptance": false
+          },
+          "stderr": "",
+          "seconds": 1.3899497860111296
+        },
+        {
+          "case": {
+            "name": "q7169-out32-txn2-row0",
+            "original_case": "q7169-out32",
+            "transaction": 2,
+            "row": 0,
+            "position": 7170,
+            "input_token": 220,
+            "expected_token": 196,
+            "expected_logit": 11.0,
+            "input": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-final-norm-bf16.bin",
+              "bytes": 8192,
+              "sha256": "b0f44855bfc65791268768ca3d753a4c74b9fb1bdd1fc144f9df1b610ba6bbe5",
+              "shape": [
+                2,
+                2048
+              ]
+            },
+            "logits": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-position-7170-logits-bf16.bin",
+              "bytes": 496640,
+              "sha256": "f4346ed0b7f1091debcc594670d64f09a6e1be2af0ce8f297f7356b77305aa40",
+              "shape": [
+                1,
+                248320
+              ]
+            }
+          },
+          "command": [
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
+            "4112",
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q7169-out32-txn2-row0-input.bin",
+            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-position-7170-logits-bf16.bin"
+          ],
+          "input_slice_sha256": "7bdc08aed5fcef30e40ca7252a993d37c967496e6c2a192738feafb55d4cbe88",
+          "input_row_bytes": 4096,
+          "returncode": 0,
+          "report": {
+            "variants": [
+              {
+                "policy": "original_mtp_gemv",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 124,
+                  "first_difference": {
+                    "row": 0,
+                    "route": 0,
+                    "channel": 1187,
+                    "actual_bits": 46688,
+                    "expected_bits": 46742
+                  }
+                },
+                "actual_token": 196,
+                "expected_token": 196,
+                "actual_logit": 11,
+                "expected_logit": 11,
+                "maximum_bf16_logit_error": 0.03125
+              },
+              {
+                "policy": "original_k16",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 0,
+                  "first_difference": null
+                },
+                "actual_token": 196,
+                "expected_token": 196,
+                "actual_logit": 11,
+                "expected_logit": 11,
+                "maximum_bf16_logit_error": 0
+              }
+            ],
+            "gpu_used": false,
+            "inference_acceptance": false
+          },
+          "stderr": "",
+          "seconds": 1.389032476930879
+        },
+        {
+          "case": {
+            "name": "q7169-out32-txn2-row1",
+            "original_case": "q7169-out32",
+            "transaction": 2,
+            "row": 1,
+            "position": 7171,
+            "input_token": 144,
+            "expected_token": 244,
+            "expected_logit": 18.125,
+            "input": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-final-norm-bf16.bin",
+              "bytes": 8192,
+              "sha256": "b0f44855bfc65791268768ca3d753a4c74b9fb1bdd1fc144f9df1b610ba6bbe5",
+              "shape": [
+                2,
+                2048
+              ]
+            },
+            "logits": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-position-7171-logits-bf16.bin",
+              "bytes": 496640,
+              "sha256": "051aeceebbbe7cdc2f4110f78a4518a4f097aeebc89e1b7158c04af2b944c6d2",
+              "shape": [
+                1,
+                248320
+              ]
+            }
+          },
+          "command": [
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
+            "4112",
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q7169-out32-txn2-row1-input.bin",
+            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-position-7171-logits-bf16.bin"
+          ],
+          "input_slice_sha256": "884b545fddb03a811bc839a9e3daa6dc249115135f3fee296691ce67dd879769",
+          "input_row_bytes": 4096,
+          "returncode": 0,
+          "report": {
+            "variants": [
+              {
+                "policy": "original_mtp_gemv",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 487,
+                  "first_difference": {
+                    "row": 0,
+                    "route": 0,
+                    "channel": 23,
+                    "actual_bits": 49246,
+                    "expected_bits": 49245
+                  }
+                },
+                "actual_token": 244,
+                "expected_token": 244,
+                "actual_logit": 18.125,
+                "expected_logit": 18.125,
+                "maximum_bf16_logit_error": 0.015625
+              },
+              {
+                "policy": "original_k16",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 0,
+                  "first_difference": null
+                },
+                "actual_token": 244,
+                "expected_token": 244,
+                "actual_logit": 18.125,
+                "expected_logit": 18.125,
+                "maximum_bf16_logit_error": 0
+              }
+            ],
+            "gpu_used": false,
+            "inference_acceptance": false
+          },
+          "stderr": "",
+          "seconds": 1.3879169919528067
+        },
+        {
+          "case": {
+            "name": "q7169-out32-txn3-row0",
+            "original_case": "q7169-out32",
+            "transaction": 3,
+            "row": 0,
+            "position": 7171,
+            "input_token": 196,
+            "expected_token": 220,
+            "expected_logit": 9.375,
+            "input": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-final-norm-bf16.bin",
+              "bytes": 8192,
+              "sha256": "0af9ea8b5760a4004f59c3e10d71974fd66374f6143ba95677f23a3a637b086d",
+              "shape": [
+                2,
+                2048
+              ]
+            },
+            "logits": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-position-7171-logits-bf16.bin",
+              "bytes": 496640,
+              "sha256": "10aaf602aa39977c87aee2eda73c1639036c7cc32427bc17fa68e97ae99f4b41",
+              "shape": [
+                1,
+                248320
+              ]
+            }
+          },
+          "command": [
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
+            "4112",
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q7169-out32-txn3-row0-input.bin",
+            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-position-7171-logits-bf16.bin"
+          ],
+          "input_slice_sha256": "f17aac3dba5cb2ee5fdc8cc386f6a602396916b404a1813da7e2c56b3ed4adfa",
+          "input_row_bytes": 4096,
+          "returncode": 0,
+          "report": {
+            "variants": [
+              {
+                "policy": "original_mtp_gemv",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 110,
+                  "first_difference": {
+                    "row": 0,
+                    "route": 0,
+                    "channel": 1227,
+                    "actual_bits": 15145,
+                    "expected_bits": 15146
+                  }
+                },
+                "actual_token": 220,
+                "expected_token": 220,
+                "actual_logit": 9.375,
+                "expected_logit": 9.375,
+                "maximum_bf16_logit_error": 0.03125
+              },
+              {
+                "policy": "original_k16",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 0,
+                  "first_difference": null
+                },
+                "actual_token": 220,
+                "expected_token": 220,
+                "actual_logit": 9.375,
+                "expected_logit": 9.375,
+                "maximum_bf16_logit_error": 0
+              }
+            ],
+            "gpu_used": false,
+            "inference_acceptance": false
+          },
+          "stderr": "",
+          "seconds": 1.3878634499851614
+        },
+        {
+          "case": {
+            "name": "q7169-out32-txn3-row1",
+            "original_case": "q7169-out32",
+            "transaction": 3,
+            "row": 1,
+            "position": 7172,
+            "input_token": 196,
+            "expected_token": 220,
+            "expected_logit": 9.6875,
+            "input": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-final-norm-bf16.bin",
+              "bytes": 8192,
+              "sha256": "0af9ea8b5760a4004f59c3e10d71974fd66374f6143ba95677f23a3a637b086d",
+              "shape": [
+                2,
+                2048
+              ]
+            },
+            "logits": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-position-7172-logits-bf16.bin",
+              "bytes": 496640,
+              "sha256": "c2cbfa09130a78acff61def903f81764d468f124dda060742c1a07dd731ede5b",
+              "shape": [
+                1,
+                248320
+              ]
+            }
+          },
+          "command": [
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
+            "4112",
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q7169-out32-txn3-row1-input.bin",
+            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-position-7172-logits-bf16.bin"
+          ],
+          "input_slice_sha256": "88f95559d0c829c9dc1436c3afedbb5f90a1a4d9816d539244cfffdefed783ce",
+          "input_row_bytes": 4096,
+          "returncode": 0,
+          "report": {
+            "variants": [
+              {
+                "policy": "original_mtp_gemv",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 118,
+                  "first_difference": {
+                    "row": 0,
+                    "route": 0,
+                    "channel": 2022,
+                    "actual_bits": 48804,
+                    "expected_bits": 48803
+                  }
+                },
+                "actual_token": 220,
+                "expected_token": 220,
+                "actual_logit": 9.6875,
+                "expected_logit": 9.6875,
+                "maximum_bf16_logit_error": 0.03125
+              },
+              {
+                "policy": "original_k16",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 0,
+                  "first_difference": null
+                },
+                "actual_token": 220,
+                "expected_token": 220,
+                "actual_logit": 9.6875,
+                "expected_logit": 9.6875,
+                "maximum_bf16_logit_error": 0
+              }
+            ],
+            "gpu_used": false,
+            "inference_acceptance": false
+          },
+          "stderr": "",
+          "seconds": 1.3902287839446217
+        },
+        {
+          "case": {
+            "name": "q8192-out32-txn1-row0",
+            "original_case": "q8192-out32",
+            "transaction": 1,
+            "row": 0,
+            "position": 8192,
+            "input_token": 144,
+            "expected_token": 255,
+            "expected_logit": 17.875,
+            "input": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-final-norm-bf16.bin",
+              "bytes": 8192,
+              "sha256": "5a66a235805383b82f4da5f2cf243abd2f5c336c61c5d278d0eb80edaae8b8d1",
+              "shape": [
+                2,
+                2048
+              ]
+            },
+            "logits": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-position-8192-logits-bf16.bin",
+              "bytes": 496640,
+              "sha256": "9d5e534ff558268fbbe23aa40bae591ec5b4a86c97940c554bd6b232f4be87ce",
+              "shape": [
+                1,
+                248320
+              ]
+            }
+          },
+          "command": [
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
+            "4112",
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q8192-out32-txn1-row0-input.bin",
+            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-position-8192-logits-bf16.bin"
+          ],
+          "input_slice_sha256": "8dc463afa50d9ba83c98df765d6a9b3b96fc57c32dcda1eae8e3c730a06e8614",
+          "input_row_bytes": 4096,
+          "returncode": 0,
+          "report": {
+            "variants": [
+              {
+                "policy": "original_mtp_gemv",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 523,
+                  "first_difference": {
+                    "row": 0,
+                    "route": 0,
+                    "channel": 131,
+                    "actual_bits": 16272,
+                    "expected_bits": 16271
+                  }
+                },
+                "actual_token": 255,
+                "expected_token": 255,
+                "actual_logit": 17.875,
+                "expected_logit": 17.875,
+                "maximum_bf16_logit_error": 0.015625
+              },
+              {
+                "policy": "original_k16",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 0,
+                  "first_difference": null
+                },
+                "actual_token": 255,
+                "expected_token": 255,
+                "actual_logit": 17.875,
+                "expected_logit": 17.875,
+                "maximum_bf16_logit_error": 0
+              }
+            ],
+            "gpu_used": false,
+            "inference_acceptance": false
+          },
+          "stderr": "",
+          "seconds": 1.400333430035971
+        },
+        {
+          "case": {
+            "name": "q8192-out32-txn1-row1",
+            "original_case": "q8192-out32",
+            "transaction": 1,
+            "row": 1,
+            "position": 8193,
+            "input_token": 255,
+            "expected_token": 82,
+            "expected_logit": 9.5625,
+            "input": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-final-norm-bf16.bin",
+              "bytes": 8192,
+              "sha256": "5a66a235805383b82f4da5f2cf243abd2f5c336c61c5d278d0eb80edaae8b8d1",
+              "shape": [
+                2,
+                2048
+              ]
+            },
+            "logits": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-position-8193-logits-bf16.bin",
+              "bytes": 496640,
+              "sha256": "1b67cb0cfc0c6f9d5e1437c19111281314fc7e6273efc418330a6c15c17b32f2",
+              "shape": [
+                1,
+                248320
+              ]
+            }
+          },
+          "command": [
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
+            "4112",
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q8192-out32-txn1-row1-input.bin",
+            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-position-8193-logits-bf16.bin"
+          ],
+          "input_slice_sha256": "dd26887865d2a50dc1a2e698f25b5a2bee6be9e4294f778fc7f70b90be1a94c8",
+          "input_row_bytes": 4096,
+          "returncode": 0,
+          "report": {
+            "variants": [
+              {
+                "policy": "original_mtp_gemv",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 107,
+                  "first_difference": {
+                    "row": 0,
+                    "route": 0,
+                    "channel": 15,
+                    "actual_bits": 16628,
+                    "expected_bits": 16627
+                  }
+                },
+                "actual_token": 82,
+                "expected_token": 82,
+                "actual_logit": 9.5625,
+                "expected_logit": 9.5625,
+                "maximum_bf16_logit_error": 0.03125
+              },
+              {
+                "policy": "original_k16",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 0,
+                  "first_difference": null
+                },
+                "actual_token": 82,
+                "expected_token": 82,
+                "actual_logit": 9.5625,
+                "expected_logit": 9.5625,
+                "maximum_bf16_logit_error": 0
+              }
+            ],
+            "gpu_used": false,
+            "inference_acceptance": false
+          },
+          "stderr": "",
+          "seconds": 1.3704991929698735
+        },
+        {
+          "case": {
+            "name": "q8192-out32-txn2-row0",
+            "original_case": "q8192-out32",
+            "transaction": 2,
+            "row": 0,
+            "position": 8194,
+            "input_token": 82,
+            "expected_token": 57,
+            "expected_logit": 9.75,
+            "input": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-final-norm-bf16.bin",
+              "bytes": 8192,
+              "sha256": "f2e9c04ac2c2b276170655c189788e4a05ce260a10ccce783dd77f0322f0283e",
+              "shape": [
+                2,
+                2048
+              ]
+            },
+            "logits": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-position-8194-logits-bf16.bin",
+              "bytes": 496640,
+              "sha256": "259d3c74b52eab301c705688692273deaf158075552a295dc8cf9c8c4f5d8f8e",
+              "shape": [
+                1,
+                248320
+              ]
+            }
+          },
+          "command": [
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
+            "4112",
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q8192-out32-txn2-row0-input.bin",
+            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-position-8194-logits-bf16.bin"
+          ],
+          "input_slice_sha256": "8a5fe280d822745d88fd8d5967d4a8c8c78ba42b2b382386ba13a7e64c72f16e",
+          "input_row_bytes": 4096,
+          "returncode": 0,
+          "report": {
+            "variants": [
+              {
+                "policy": "original_mtp_gemv",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 116,
+                  "first_difference": {
+                    "row": 0,
+                    "route": 0,
+                    "channel": 1640,
+                    "actual_bits": 47669,
+                    "expected_bits": 47668
+                  }
+                },
+                "actual_token": 57,
+                "expected_token": 57,
+                "actual_logit": 9.75,
+                "expected_logit": 9.75,
+                "maximum_bf16_logit_error": 0.03125
+              },
+              {
+                "policy": "original_k16",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 0,
+                  "first_difference": null
+                },
+                "actual_token": 57,
+                "expected_token": 57,
+                "actual_logit": 9.75,
+                "expected_logit": 9.75,
+                "maximum_bf16_logit_error": 0
+              }
+            ],
+            "gpu_used": false,
+            "inference_acceptance": false
+          },
+          "stderr": "",
+          "seconds": 1.40035518608056
+        },
+        {
+          "case": {
+            "name": "q8192-out32-txn2-row1",
+            "original_case": "q8192-out32",
+            "transaction": 2,
+            "row": 1,
+            "position": 8195,
+            "input_token": 158,
+            "expected_token": 104,
+            "expected_logit": 19.75,
+            "input": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-final-norm-bf16.bin",
+              "bytes": 8192,
+              "sha256": "f2e9c04ac2c2b276170655c189788e4a05ce260a10ccce783dd77f0322f0283e",
+              "shape": [
+                2,
+                2048
+              ]
+            },
+            "logits": {
+              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-position-8195-logits-bf16.bin",
+              "bytes": 496640,
+              "sha256": "093e71d1866d2fab9b30a185f42c61725317ba95421a7cb8367b4b0096511491",
+              "shape": [
+                1,
+                248320
+              ]
+            }
+          },
+          "command": [
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
+            "4112",
+            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q8192-out32-txn2-row1-input.bin",
+            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-position-8195-logits-bf16.bin"
+          ],
+          "input_slice_sha256": "24fa3fb0fd0852390c92077a874ecbe427e38e237c2fcbbded661f5cb216700d",
+          "input_row_bytes": 4096,
+          "returncode": 0,
+          "report": {
+            "variants": [
+              {
+                "policy": "original_mtp_gemv",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 164,
+                  "first_difference": {
+                    "row": 0,
+                    "route": 0,
+                    "channel": 28,
+                    "actual_bits": 49385,
+                    "expected_bits": 49384
+                  }
+                },
+                "actual_token": 104,
+                "expected_token": 104,
+                "actual_logit": 19.75,
+                "expected_logit": 19.75,
+                "maximum_bf16_logit_error": 0.0625
+              },
+              {
+                "policy": "original_k16",
+                "projection": {
+                  "elements": 248320,
+                  "bf16_mismatches": 0,
+                  "first_difference": null
+                },
+                "actual_token": 104,
+                "expected_token": 104,
+                "actual_logit": 19.75,
+                "expected_logit": 19.75,
+                "maximum_bf16_logit_error": 0
+              }
+            ],
+            "gpu_used": false,
+            "inference_acceptance": false
+          },
+          "stderr": "",
+          "seconds": 1.3875019430415705
+        }
+      ],
+      "seconds": 13.903583006933331,
+      "policies": {
+        "original_mtp_gemv": {
+          "elements": 2483200,
+          "bf16_mismatches": 2332,
+          "maximum_error": 0.0625,
+          "all_tokens_match": true,
+          "all_first_logits_match": true
+        },
+        "original_k16": {
+          "elements": 2483200,
+          "bf16_mismatches": 0,
+          "maximum_error": 0,
+          "all_tokens_match": true,
+          "all_first_logits_match": true
+        }
+      },
+      "gpu_used": false,
+      "model_loaded": false,
+      "inference_acceptance": false
+    },
+    "dispatch_sha256": "1099b633d1721d67cb900dfdc133ba84cd06e6035591e4b46ecf87870a318e12",
+    "helpers": {
+      "q2_target_head_cpu_r1.cpp": "8e2470a3d6703df3a76fa087930c22b6678c5ed78c66ef0fa9a220b65e0f6061",
+      "prepare_q2_target_head_cpu_r1.py": "ede377c133c4a387dd6f4ee6cc3c44ff22b9873003ec9378386ac7c5dc36617b",
+      "run_q2_target_head_cpu_r1.py": "a813076999247df2e29889644601846312d8f1a28baa0b84e4faa816fbb2bc85",
+      "dispatch_q2_target_head_cpu_r1.py": "3b254862a85b30037cd16e7b9a362375e68a839c6c3bbd0332c148e41be7d0df"
+    }
+  },
+  "scope": {
+    "original_target_rows": 10,
+    "rejected_rows": 4,
+    "head_values": 2483200,
+    "k16_bit_mismatches": 0,
+    "mtp_gemv_bit_mismatches": 2332,
+    "mtp_gemv_maximum_error": 0.0625,
+    "both_policies_match_all_observed_tokens_and_top_logits": true,
+    "head_policy": "Use K16 for the private two-row target output head; the existing MTP drafter head remains unchanged.",
+    "cache": "Read original separate/interleaved prefix and committed decode planes directly; BF16 and FP32 kinds may differ. Two candidate rows remain private. Views borrow allocations and do not copy full history or publish cache state.",
+    "gpu_argument": "An explicit trivially-copyable cache view is passed to the scalar attention kernel. The original pointer argument is non-deduced and remains the default for existing calls.",
+    "host_validation": "Seven sanitizer regressions; cache-plane access and boundaries, complete private attention routing, K16 head windows and every bounded partial failure. These do not compile or execute HIP kernels.",
+    "native_probe": "Attention layer: eight cache layouts with NaN and finite unused-tail poison, 16 configurations. Target head: blocks257/1024/4096, complete logits, actual samples, guards and validity.",
+    "native_probe_reporting_revision": "The uncompiled head probe records actual and expected samples separately after the host checks; the fresh candidate hash binds that diagnostic change."
+  },
+  "native_compilation": false,
+  "native_execution": false,
+  "target_runtime_integration": false,
+  "model_loaded": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

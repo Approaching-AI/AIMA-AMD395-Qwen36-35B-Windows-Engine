@@ -162,17 +162,35 @@ void compare_moe(const Buffer& workspace){
     for(size_t i=0;i<workspace.bytes;++i)if(!written[i])guards+=host[256u+i]!=0xa5u;
 }
 void execute(const qrt_sm121_q2::AttentionLayerViews& borrowed,
-    const qrt_sm121_q2::AttentionLayerTables& tables,unsigned position,uint16_t poison){
+    const qrt_sm121_q2::AttentionLayerTables& tables,unsigned position,uint16_t poison,unsigned layout){
     using namespace qrt_sm121_q2;auto v=borrowed;auto& a=v.attention;
     const auto keys=read_role<uint16_t>("history_k",size_t(position+2u)*512u);
     const auto values=read_role<uint16_t>("history_v",size_t(position+2u)*512u);
-    std::vector<uint16_t> history(size_t(position+2u)*1024u,poison);
-    for(unsigned token=0;token<position;++token){
-        std::copy_n(keys.data()+size_t(token)*512u,512u,history.data()+size_t(token)*1024u);
-        std::copy_n(values.data()+size_t(token)*512u,512u,history.data()+size_t(token)*1024u+512u);
-    }
-    Buffer retained(history.size()*2u);retained.upload(history);
-    a.history=static_cast<const uint16_t*>(retained.data());a.history_capacity=position+2u;a.first_position=position;
+    if(layout>7u)throw std::runtime_error("cache layout");
+    std::vector<std::unique_ptr<Buffer>> history_owners;
+    const auto plane=[&](unsigned first,unsigned tokens,unsigned stride,unsigned bytes){
+        if(!tokens)return CachePlane{};
+        const unsigned capacity=tokens+2u;
+        const size_t value_offset=stride==1024u?512u:size_t(capacity)*512u;
+        std::vector<uint16_t> content(size_t(capacity)*1024u,poison);
+        for(unsigned row=0;row<tokens;++row){
+            std::copy_n(keys.data()+size_t(first+row)*512u,512u,content.data()+size_t(row)*stride);
+            std::copy_n(values.data()+size_t(first+row)*512u,512u,content.data()+value_offset+size_t(row)*stride);
+        }
+        auto owner=std::make_unique<Buffer>(content.size()*bytes);
+        if(bytes==2u)owner->upload(content);
+        else {std::vector<float> widened(content.size());
+            for(size_t i=0;i<content.size();++i)widened[i]=qrt_sm121_q1::widen(content[i]);
+            owner->upload(widened);}
+        const auto* base=static_cast<const unsigned char*>(owner->data());
+        CachePlane result{base,base+value_offset*bytes,tokens,capacity,stride,bytes};
+        history_owners.push_back(std::move(owner));return result;
+    };
+    const unsigned prefix_tokens=layout>=4u && position>=3u?position-3u:position;
+    const unsigned prefix_bytes=(layout==1u||layout==3u||layout==5u||layout==7u)?4u:2u;
+    const unsigned tail_bytes=(layout==5u||layout==6u)?4u:2u;
+    a.cache.prefix=plane(0u,prefix_tokens,layout<2u?1024u:512u,prefix_bytes);
+    a.cache.decoded=plane(prefix_tokens,position-prefix_tokens,512u,tail_bytes);a.first_position=position;
     a.score_stride=(position+33u)&~31u;
     Buffer norm(8192u),residual(8192u),moe_input(8192u),output_residual(8192u),moe(qrt_sm121_mtp::moe_workspace_bytes(2u));
     Buffer qp(32768u),kvp(4096u),qn(16384u),kn(2048u),q(16384u),gate(16384u),kv(4096u);
@@ -182,7 +200,7 @@ void execute(const qrt_sm121_q2::AttentionLayerViews& borrowed,
     v.moe_workspace=moe.data();v.moe_workspace_bytes=moe.bytes;a.normalized_input=v.normalized_input;
     a.q_projected=static_cast<uint16_t*>(qp.data());a.kv_projected=static_cast<uint16_t*>(kvp.data());
     a.q_norm=static_cast<uint16_t*>(qn.data());a.k_norm=static_cast<uint16_t*>(kn.data());
-    a.queries=static_cast<uint16_t*>(q.data());a.gates=static_cast<uint16_t*>(gate.data());a.staged_kv=static_cast<uint16_t*>(kv.data());
+    a.queries=static_cast<uint16_t*>(q.data());a.gates=static_cast<uint16_t*>(gate.data());a.staged_kv=static_cast<uint16_t*>(kv.data());a.cache.staged=a.staged_kv;
     a.scores=static_cast<float*>(scores.data());a.float_context=static_cast<float*>(fp_context.data());
     a.context=static_cast<uint16_t*>(context.data());a.gated=static_cast<uint16_t*>(gated.data());a.output=static_cast<uint16_t*>(out.data());
     check(launch_attention_layer(v,tables));check(hipDeviceSynchronize());
@@ -219,7 +237,7 @@ void execute(const qrt_sm121_q2::AttentionLayerViews& borrowed,
     for(unsigned rows:{1u,2u}){const auto selected=accepted_attention(a,rows);
         if(selected.key_values!=a.staged_kv || selected.first_position!=position || selected.rows!=rows)
             throw std::runtime_error("private accepted tail");}
-    immutable+=retained.changed();
+    for(const auto& owner:history_owners)immutable+=owner->changed();
 }
 int main(int argc,char** argv)try{
     if(argc!=3)throw std::runtime_error("bound TSV plan first-position");
@@ -264,10 +282,12 @@ int main(int argc,char** argv)try{
         {inputs.upload<uint16_t>("silu",65536u+12u)+12u,sigmoid,inputs.upload<uint32_t>("router_exp",1u<<23u)}};
     // Neither uncommitted historical tail may be consumed or changed. Repeat
     // with NaN and finite poison while recomputing actual candidate K/V privately.
-    execute(v,tables,position,0x7fc1u);execute(v,tables,position,0x3f80u);
+    for(unsigned layout=0;layout<8u;++layout){
+        execute(v,tables,position,0x7fc1u,layout);execute(v,tables,position,0x3f80u,layout);
+    }
     immutable+=inputs.changed();size_t total=0,mismatches=0;unsigned count=0;
     std::cout<<"{\"kind\":\"original_q2_complete_attention_layer\",\"first_position\":"<<position
-        <<",\"configurations\":2,\"history_tail_poison_bf16\":[32705,16256],\"stages\":[";
+        <<",\"configurations\":16,\"cache_layouts\":8,\"history_tail_poison_bf16\":[32705,16256],\"stages\":[";
     for(const auto& entry:comparisons){const auto& c=entry.second;if(count++)std::cout<<',';total+=c.elements;mismatches+=c.mismatches;
         std::cout<<"{\"stage\":\""<<c.name<<"\",\"elements\":"<<c.elements<<",\"bit_mismatches\":"<<c.mismatches
             <<",\"first_difference\":["<<c.first<<','<<c.actual<<','<<c.expected<<"]}";}

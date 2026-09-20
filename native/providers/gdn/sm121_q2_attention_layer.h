@@ -57,7 +57,7 @@ inline bool valid_attention_layer(const AttentionLayerViews& v, const AttentionL
         // Block read zero is this layer's normalized_input producer, already
         // checked for exact identity and disjointness from every other write.
         for (size_t j = 1; j < block_reads.size(); ++j)
-            if (!recurrent_detail::disjoint(writes[i], block_reads[j])) return false;
+            if (block_reads[j].bytes && !recurrent_detail::disjoint(writes[i], block_reads[j])) return false;
         for (const auto& write : block_writes)
             if (!recurrent_detail::disjoint(writes[i], write)) return false;
     }

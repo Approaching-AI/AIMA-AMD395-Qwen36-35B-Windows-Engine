@@ -879,6 +879,22 @@ in unused historical tail rows, checks masks, all guards and MoE validity,
 and requires unchanged history. Its compilation, execution and integration
 with actual target acceptance remain pending.
 
+The [target cache and output-head extension](../benchmarks/correctness/q2-target-cache-and-head-cpu-20260921.json)
+reads the ordinary target's separate K/V prefix and decode-tail allocations
+directly, including mixed BF16/FP32 carriers. A copied POD descriptor selects
+committed history or the two private candidate rows. Existing scalar-attention
+pointer calls retain their default argument type. Seven sanitizer regressions
+pass; actual native execution remains pending. The attention probe now covers
+eight cache layouts, each with NaN and finite poison in unused history tails.
+
+An independent CPU comparison of all2483200 original logits across ten target
+rows finds K16 arithmetic bit-exact. The drafter's GEMV order differs in2332
+BF16 values, maximum0.0625, although every observed token and top logit agrees.
+The private target head therefore uses K16 projections followed by the existing
+greedy argmax. The drafter keeps its independently qualified arithmetic. The
+new native head probe compares complete logits and actual samples at three
+submission sizes; compilation and numerical verification remain unrun.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a

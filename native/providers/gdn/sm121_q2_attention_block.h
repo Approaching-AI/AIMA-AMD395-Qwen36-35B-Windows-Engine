@@ -33,21 +33,17 @@ __global__ void private_key_values(const uint16_t* projected, const uint16_t* we
     staged[source + 512u + lane] = projected[source + 512u + lane];
 }
 
-__global__ void private_scores(const uint16_t* queries, const uint16_t* history,
-    const uint16_t* staged, float* scores, unsigned first_position, unsigned stride) {
+__global__ void private_scores(const uint16_t* queries, CacheView cache,
+    float* scores, unsigned first_position, unsigned stride) {
     const unsigned cell = blockIdx.x*16u + threadIdx.x/16u;
     if (cell >= 2u*16u*stride) return;
     const unsigned lane = threadIdx.x & 15u, token = cell % stride;
     const unsigned head = (cell/stride) % 16u, row = cell/(stride*16u);
     if (token > first_position + row) { if (!lane) scores[cell] = -INFINITY; return; }
-    const bool tail = token >= first_position;
-    const auto* key = tail ? staged : history;
-    const unsigned source_token = tail ? token - first_position : token;
     const size_t qb = size_t(row)*4096u + head*256u;
-    const size_t kb = size_t(source_token)*1024u + (head/8u)*256u;
     qrt_q1_moe_hawkeye::Value sum{0u, -133, false};
     for (unsigned base = 0; base < 256u; base += 16u)
-        sum = qrt_sm121_wave16::accumulate(sum, queries[qb + base + lane], key[kb + base + lane], lane);
+        sum = qrt_sm121_wave16::accumulate(sum, queries[qb + base + lane], cache.key(token, head/8u, base + lane), lane);
     if (!lane) scores[cell] = qrt_sm121_q1::multiply(qrt_q1_moe_hawkeye::value_to_float(
         qrt_sm121_group16::finish_accumulator(sum)), 0.0625f);
 }
@@ -83,14 +79,14 @@ inline hipError_t launch_attention_block(const AttentionBlockViews& v,
     status = hipGetLastError(); if (status != hipSuccess) return status;
     hipLaunchKernelGGL(attention_block_detail::private_scores,
         dim3(2u*v.score_stride), dim3(256u), 0u, stream,
-        v.queries, v.history, v.staged_kv, v.scores, v.first_position, v.score_stride);
+        v.queries, v.cache, v.scores, v.first_position, v.score_stride);
     status = hipGetLastError(); if (status != hipSuccess) return status;
     hipLaunchKernelGGL(HIP_KERNEL_NAME(
-        qrt_blackwell_attention::blackwell_exact_attention_kernel<true, true, true, false, false, false, false, true>),
+        qrt_blackwell_attention::blackwell_exact_attention_kernel<true, true, false, false, false, false, false, true, CacheView>),
         dim3(16u,2u), dim3(256u), 0u, stream,
-        static_cast<const uint16_t*>(nullptr), static_cast<const uint16_t*>(nullptr), v.history + 512u,
+        static_cast<const uint16_t*>(nullptr), static_cast<const uint16_t*>(nullptr), static_cast<const uint16_t*>(nullptr),
         v.float_context, v.first_position, 0u, t.exp2, static_cast<float*>(nullptr), static_cast<float*>(nullptr),
-        true, t.reciprocal, v.scores, v.score_stride, v.staged_kv + 512u, v.first_position);
+        true, t.reciprocal, v.scores, v.score_stride, v.cache, v.first_position);
     status = hipGetLastError(); if (status != hipSuccess) return status;
     hipLaunchKernelGGL(qrt_sm121_mtp::publish_attention_context, dim3(32u), dim3(256u), 0u, stream,
         v.float_context, v.context, 8192u);

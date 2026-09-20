@@ -567,9 +567,13 @@ __global__ void blackwell_strided_scores_kernel(
 
 // One CTA owns one causal query/head. Both terminal replacement and bounded
 // prefix replay share the same Blackwell QK and fused-C PV arithmetic.
+// Keep the default pointer argument non-deduced so existing nullptr calls
+// retain their original kernel signature. Target views are explicit POD values.
+template<class T> struct ExactValueArgument { using Type = T; };
+
 template <bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false,
           bool NativeProducts = false, bool StridedValue = false, bool WarpSoftmax = false,
-          bool PreparedValue = false, bool MtpCache = false>
+          bool PreparedValue = false, bool MtpCache = false, class ValueView = const uint16_t*>
 __global__ void blackwell_exact_attention_kernel(
     const uint16_t *__restrict__ query,
     const uint16_t *__restrict__ key,
@@ -584,7 +588,7 @@ __global__ void blackwell_exact_attention_kernel(
     const unsigned char* rcp_table,
     const float* precomputed_scores,
     unsigned int score_stride,
-    const uint16_t* auxiliary_value,
+    typename ExactValueArgument<ValueView>::Type auxiliary_value,
     unsigned int decode_prefix_tokens) {
     static_assert(!SplitDecodeValue || (SerialValue && PrecomputedScores),
                   "split decode V requires precomputed QK and the serial-value layout");
@@ -597,9 +601,13 @@ __global__ void blackwell_exact_attention_kernel(
     static_assert(!MtpCache || (SerialValue && PrecomputedScores &&
                   !StridedValue && !NativeProducts && !WarpSoftmax && !PreparedValue),
                   "MTP interleaved cache requires the scalar precomputed-score baseline");
-    // This internal auxiliary slot holds either a BF16 decode tail or the
-    // lossless uint32 V encoding. The template modes are mutually exclusive.
-    const auto* prepared_value = reinterpret_cast<const uint32_t*>(auxiliary_value);
+    constexpr bool typed_value = !std::is_pointer<ValueView>::value;
+    static_assert(!typed_value || (MtpCache && !SplitDecodeValue && std::is_trivially_copyable<ValueView>::value),
+                  "typed target history requires the scalar interleaved-arithmetic baseline");
+    // A typed view borrows the target's actual prefix/tail planes by value.
+    // Pointer modes retain their original BF16 tail or lossless V encoding.
+    const uint32_t* prepared_value = nullptr;
+    if constexpr (PreparedValue) prepared_value = reinterpret_cast<const uint32_t*>(auxiliary_value);
     __shared__ float score[kExactTileTokens];
     __shared__ float probability[kExactTileTokens];
     __shared__ float sum_scratch[kExactTileTokens];
@@ -820,13 +828,17 @@ __global__ void blackwell_exact_attention_kernel(
                         for (unsigned part = 0u; part < step; ++part) {
                             const unsigned int key_token = tile * kExactTileTokens + begin + item + part;
                             if (key_token < tokens) {
-                                const bool in_tail = SplitDecodeValue && key_token >= decode_prefix_tokens;
-                                const uint16_t *source = in_tail ? auxiliary_value : value;
-                                const unsigned int source_token = in_tail ? key_token - decode_prefix_tokens : key_token;
-                                // Interleaved caches pass cache+512. A private two-row
-                                // target tail uses the same stride without publishing it.
-                                const size_t token_stride = MtpCache ? 1024u : kKvHeads * kHeadDim;
-                                values[part] = source[static_cast<size_t>(source_token) * token_stride + kv_head * kHeadDim + thread];
+                                if constexpr (typed_value) {
+                                    values[part] = auxiliary_value.value(key_token, kv_head, thread);
+                                } else {
+                                    const bool in_tail = SplitDecodeValue && key_token >= decode_prefix_tokens;
+                                    const uint16_t *source = in_tail ? auxiliary_value : value;
+                                    const unsigned int source_token = in_tail ? key_token - decode_prefix_tokens : key_token;
+                                    // Interleaved caches pass cache+512. A private two-row
+                                    // target tail uses the same stride without publishing it.
+                                    const size_t token_stride = MtpCache ? 1024u : kKvHeads * kHeadDim;
+                                    values[part] = source[static_cast<size_t>(source_token) * token_stride + kv_head * kHeadDim + thread];
+                                }
                             }
                         }
                         if constexpr (kPairedProducts && !NativeProducts) {
