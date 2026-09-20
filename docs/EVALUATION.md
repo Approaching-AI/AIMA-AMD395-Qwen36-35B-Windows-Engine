@@ -465,6 +465,25 @@ complete drafter replay remain pending. Production retention of actual target
 hidden rows and native acceptance scheduling remain unwired. No inference,
 performance or release acceptance follows from these component checks.
 
+The [complete drafter probe's bound inputs](../benchmarks/correctness/mtp-complete-drafter-probe-inputs-20260920.json)
+now cover both original prompt histories, 22 intermediate surfaces and all 39
+actual sampled proposals. Its 132 files total 123836961 bytes. Each case has
+33 selected query rows: the sampled prompt endpoint, subsequent accepted rows
+and one actual terminal proposal input beyond the returned 32-token budget.
+That terminal input is bound to the unchanged original proposer call; it is
+not an additional qualified continuation output. Initial operand preparation
+rejected this distinction, and the revised preparation records it explicitly.
+All sampled head inputs equal their corresponding original final-norm rows.
+
+The model's complete embedding-tensor hash is now recorded on GB10. All 256
+unique IDs appearing in 15435 observed input rows reproduce their original
+embedding bytes. The probe reads model weights directly, computes full prompt
+KV and every downstream stage, and compares expected frontiers only on the
+host. It runs one/two-row proposal batches and checks the complete final KV
+history after discarding provisional suffixes. Reference scheduling drives
+this component probe only. Host syntax passes; native compilation and GPU
+execution remain pending.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a

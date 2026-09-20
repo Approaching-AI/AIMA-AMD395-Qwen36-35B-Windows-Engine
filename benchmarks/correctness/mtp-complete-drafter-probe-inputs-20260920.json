@@ -1,0 +1,2038 @@
+{
+  "kind": "complete_mtp_drafter_probe_and_original_input_binding",
+  "source_base": "5d682d1",
+  "source_sha256": "4ed2260175e8eca0e99a5d4f8a3100b5e1b48ef0681962c84ddccad5c544f71e",
+  "interface_sha256": "150de371896227091e8d7669f05b023116e29ff84b58707c035fd9478cf94c15",
+  "syntax": {
+    "file": "mtp-drafter-probe-syntax-r2/validation.json",
+    "sha256": "10da17c4db913209f8ce6e81240fd0786dc323d2d0d04de094529259e5c7a4e0",
+    "record": {
+      "command": [
+        "c++",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsyntax-only",
+        "-I",
+        "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/tmpr8i6stj3",
+        "-I",
+        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate",
+        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tools/mtp_drafter_hip_probe.cpp"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "source_sha256": "4ed2260175e8eca0e99a5d4f8a3100b5e1b48ef0681962c84ddccad5c544f71e",
+      "interface_source_sha256": "150de371896227091e8d7669f05b023116e29ff84b58707c035fd9478cf94c15",
+      "scope": "Probe host C++ syntax with declaration-only HIP/drafter interface; no kernel compilation or execution.",
+      "helper_sha256": "22dd7c57576fac3ce47d8234b65d4637714ed4b3b34f55807c8dc53cb66de563"
+    }
+  },
+  "operands": {
+    "file": "mtp-drafter-operands-r2/operands.json",
+    "sha256": "51b4c09710fabe53e4a5c88f4d22889adc427d14713395c047578eedde2a887c",
+    "cases": [
+      {
+        "name": "q7169-out32",
+        "transactions": [
+          {
+            "transaction": 0,
+            "first": 0,
+            "append_rows": 7169,
+            "query_first": 7168,
+            "query_rows": 1,
+            "expected_first": 0,
+            "hidden": "t0000-hidden.bin",
+            "ids": "t0000-ids.bin",
+            "original_sampled_row": 7168,
+            "original_draft_id": 144
+          },
+          {
+            "transaction": 1,
+            "first": 7169,
+            "append_rows": 2,
+            "query_first": 7169,
+            "query_rows": 1,
+            "expected_first": 1,
+            "hidden": "t0001-hidden.bin",
+            "ids": "t0001-ids.bin",
+            "original_sampled_row": 0,
+            "original_draft_id": 144
+          },
+          {
+            "transaction": 2,
+            "first": 7170,
+            "append_rows": 2,
+            "query_first": 7170,
+            "query_rows": 1,
+            "expected_first": 2,
+            "hidden": "t0002-hidden.bin",
+            "ids": "t0002-ids.bin",
+            "original_sampled_row": 0,
+            "original_draft_id": 196
+          },
+          {
+            "transaction": 3,
+            "first": 7171,
+            "append_rows": 2,
+            "query_first": 7171,
+            "query_rows": 1,
+            "expected_first": 3,
+            "hidden": "t0003-hidden.bin",
+            "ids": "t0003-ids.bin",
+            "original_sampled_row": 0,
+            "original_draft_id": 220
+          },
+          {
+            "transaction": 4,
+            "first": 7172,
+            "append_rows": 2,
+            "query_first": 7172,
+            "query_rows": 2,
+            "expected_first": 4,
+            "hidden": "t0004-hidden.bin",
+            "ids": "t0004-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 196
+          },
+          {
+            "transaction": 5,
+            "first": 7174,
+            "append_rows": 2,
+            "query_first": 7174,
+            "query_rows": 1,
+            "expected_first": 6,
+            "hidden": "t0005-hidden.bin",
+            "ids": "t0005-ids.bin",
+            "original_sampled_row": 0,
+            "original_draft_id": 220
+          },
+          {
+            "transaction": 6,
+            "first": 7175,
+            "append_rows": 2,
+            "query_first": 7175,
+            "query_rows": 2,
+            "expected_first": 7,
+            "hidden": "t0006-hidden.bin",
+            "ids": "t0006-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 220
+          },
+          {
+            "transaction": 7,
+            "first": 7177,
+            "append_rows": 2,
+            "query_first": 7177,
+            "query_rows": 2,
+            "expected_first": 9,
+            "hidden": "t0007-hidden.bin",
+            "ids": "t0007-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 196
+          },
+          {
+            "transaction": 8,
+            "first": 7179,
+            "append_rows": 2,
+            "query_first": 7179,
+            "query_rows": 2,
+            "expected_first": 11,
+            "hidden": "t0008-hidden.bin",
+            "ids": "t0008-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 220
+          },
+          {
+            "transaction": 9,
+            "first": 7181,
+            "append_rows": 2,
+            "query_first": 7181,
+            "query_rows": 2,
+            "expected_first": 13,
+            "hidden": "t0009-hidden.bin",
+            "ids": "t0009-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 220
+          },
+          {
+            "transaction": 10,
+            "first": 7183,
+            "append_rows": 2,
+            "query_first": 7183,
+            "query_rows": 2,
+            "expected_first": 15,
+            "hidden": "t0010-hidden.bin",
+            "ids": "t0010-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 196
+          },
+          {
+            "transaction": 11,
+            "first": 7185,
+            "append_rows": 2,
+            "query_first": 7185,
+            "query_rows": 2,
+            "expected_first": 17,
+            "hidden": "t0011-hidden.bin",
+            "ids": "t0011-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 220
+          },
+          {
+            "transaction": 12,
+            "first": 7187,
+            "append_rows": 2,
+            "query_first": 7187,
+            "query_rows": 2,
+            "expected_first": 19,
+            "hidden": "t0012-hidden.bin",
+            "ids": "t0012-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 220
+          },
+          {
+            "transaction": 13,
+            "first": 7189,
+            "append_rows": 2,
+            "query_first": 7189,
+            "query_rows": 2,
+            "expected_first": 21,
+            "hidden": "t0013-hidden.bin",
+            "ids": "t0013-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 196
+          },
+          {
+            "transaction": 14,
+            "first": 7191,
+            "append_rows": 2,
+            "query_first": 7191,
+            "query_rows": 2,
+            "expected_first": 23,
+            "hidden": "t0014-hidden.bin",
+            "ids": "t0014-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 220
+          },
+          {
+            "transaction": 15,
+            "first": 7193,
+            "append_rows": 2,
+            "query_first": 7193,
+            "query_rows": 2,
+            "expected_first": 25,
+            "hidden": "t0015-hidden.bin",
+            "ids": "t0015-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 220
+          },
+          {
+            "transaction": 16,
+            "first": 7195,
+            "append_rows": 2,
+            "query_first": 7195,
+            "query_rows": 2,
+            "expected_first": 27,
+            "hidden": "t0016-hidden.bin",
+            "ids": "t0016-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 196
+          },
+          {
+            "transaction": 17,
+            "first": 7197,
+            "append_rows": 2,
+            "query_first": 7197,
+            "query_rows": 2,
+            "expected_first": 29,
+            "hidden": "t0017-hidden.bin",
+            "ids": "t0017-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 220
+          },
+          {
+            "transaction": 18,
+            "first": 7199,
+            "append_rows": 2,
+            "query_first": 7199,
+            "query_rows": 2,
+            "expected_first": 31,
+            "hidden": "t0018-hidden.bin",
+            "ids": "t0018-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 220
+          }
+        ],
+        "selected_rows": [
+          {
+            "transaction": 0,
+            "saved_index": 1,
+            "position": 7168,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 1,
+            "saved_index": 0,
+            "position": 7169,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 2,
+            "saved_index": 0,
+            "position": 7170,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 3,
+            "saved_index": 0,
+            "position": 7171,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 4,
+            "saved_index": 0,
+            "position": 7172,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 4,
+            "saved_index": 1,
+            "position": 7173,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 5,
+            "saved_index": 0,
+            "position": 7174,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 6,
+            "saved_index": 0,
+            "position": 7175,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 6,
+            "saved_index": 1,
+            "position": 7176,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 7,
+            "saved_index": 0,
+            "position": 7177,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 7,
+            "saved_index": 1,
+            "position": 7178,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 8,
+            "saved_index": 0,
+            "position": 7179,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 8,
+            "saved_index": 1,
+            "position": 7180,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 9,
+            "saved_index": 0,
+            "position": 7181,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 9,
+            "saved_index": 1,
+            "position": 7182,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 10,
+            "saved_index": 0,
+            "position": 7183,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 10,
+            "saved_index": 1,
+            "position": 7184,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 11,
+            "saved_index": 0,
+            "position": 7185,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 11,
+            "saved_index": 1,
+            "position": 7186,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 12,
+            "saved_index": 0,
+            "position": 7187,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 12,
+            "saved_index": 1,
+            "position": 7188,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 13,
+            "saved_index": 0,
+            "position": 7189,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 13,
+            "saved_index": 1,
+            "position": 7190,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 14,
+            "saved_index": 0,
+            "position": 7191,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 14,
+            "saved_index": 1,
+            "position": 7192,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 15,
+            "saved_index": 0,
+            "position": 7193,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 15,
+            "saved_index": 1,
+            "position": 7194,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 16,
+            "saved_index": 0,
+            "position": 7195,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 16,
+            "saved_index": 1,
+            "position": 7196,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 17,
+            "saved_index": 0,
+            "position": 7197,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 17,
+            "saved_index": 1,
+            "position": 7198,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 18,
+            "saved_index": 0,
+            "position": 7199,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 18,
+            "saved_index": 1,
+            "position": 7200,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": null,
+            "input_provenance": "unchanged_original_proposer_call"
+          }
+        ],
+        "original_prompt_rows": 7169,
+        "expected_query_rows": 33,
+        "final_history_rows": 7201,
+        "standalone_head_rows": 19
+      },
+      {
+        "name": "q8192-out32",
+        "transactions": [
+          {
+            "transaction": 0,
+            "first": 0,
+            "append_rows": 8192,
+            "query_first": 8191,
+            "query_rows": 1,
+            "expected_first": 0,
+            "hidden": "t0000-hidden.bin",
+            "ids": "t0000-ids.bin",
+            "original_sampled_row": 8191,
+            "original_draft_id": 255
+          },
+          {
+            "transaction": 1,
+            "first": 8192,
+            "append_rows": 2,
+            "query_first": 8192,
+            "query_rows": 2,
+            "expected_first": 1,
+            "hidden": "t0001-hidden.bin",
+            "ids": "t0001-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 158
+          },
+          {
+            "transaction": 2,
+            "first": 8194,
+            "append_rows": 2,
+            "query_first": 8194,
+            "query_rows": 1,
+            "expected_first": 3,
+            "hidden": "t0002-hidden.bin",
+            "ids": "t0002-ids.bin",
+            "original_sampled_row": 0,
+            "original_draft_id": 136
+          },
+          {
+            "transaction": 3,
+            "first": 8195,
+            "append_rows": 2,
+            "query_first": 8195,
+            "query_rows": 1,
+            "expected_first": 4,
+            "hidden": "t0003-hidden.bin",
+            "ids": "t0003-ids.bin",
+            "original_sampled_row": 0,
+            "original_draft_id": 136
+          },
+          {
+            "transaction": 4,
+            "first": 8196,
+            "append_rows": 2,
+            "query_first": 8196,
+            "query_rows": 1,
+            "expected_first": 5,
+            "hidden": "t0004-hidden.bin",
+            "ids": "t0004-ids.bin",
+            "original_sampled_row": 0,
+            "original_draft_id": 144
+          },
+          {
+            "transaction": 5,
+            "first": 8197,
+            "append_rows": 2,
+            "query_first": 8197,
+            "query_rows": 1,
+            "expected_first": 6,
+            "hidden": "t0005-hidden.bin",
+            "ids": "t0005-ids.bin",
+            "original_sampled_row": 0,
+            "original_draft_id": 144
+          },
+          {
+            "transaction": 6,
+            "first": 8198,
+            "append_rows": 2,
+            "query_first": 8198,
+            "query_rows": 1,
+            "expected_first": 7,
+            "hidden": "t0006-hidden.bin",
+            "ids": "t0006-ids.bin",
+            "original_sampled_row": 0,
+            "original_draft_id": 136
+          },
+          {
+            "transaction": 7,
+            "first": 8199,
+            "append_rows": 2,
+            "query_first": 8199,
+            "query_rows": 1,
+            "expected_first": 8,
+            "hidden": "t0007-hidden.bin",
+            "ids": "t0007-ids.bin",
+            "original_sampled_row": 0,
+            "original_draft_id": 220
+          },
+          {
+            "transaction": 8,
+            "first": 8200,
+            "append_rows": 2,
+            "query_first": 8200,
+            "query_rows": 2,
+            "expected_first": 9,
+            "hidden": "t0008-hidden.bin",
+            "ids": "t0008-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 220
+          },
+          {
+            "transaction": 9,
+            "first": 8202,
+            "append_rows": 2,
+            "query_first": 8202,
+            "query_rows": 2,
+            "expected_first": 11,
+            "hidden": "t0009-hidden.bin",
+            "ids": "t0009-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 196
+          },
+          {
+            "transaction": 10,
+            "first": 8204,
+            "append_rows": 2,
+            "query_first": 8204,
+            "query_rows": 2,
+            "expected_first": 13,
+            "hidden": "t0010-hidden.bin",
+            "ids": "t0010-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 220
+          },
+          {
+            "transaction": 11,
+            "first": 8206,
+            "append_rows": 2,
+            "query_first": 8206,
+            "query_rows": 2,
+            "expected_first": 15,
+            "hidden": "t0011-hidden.bin",
+            "ids": "t0011-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 220
+          },
+          {
+            "transaction": 12,
+            "first": 8208,
+            "append_rows": 2,
+            "query_first": 8208,
+            "query_rows": 2,
+            "expected_first": 17,
+            "hidden": "t0012-hidden.bin",
+            "ids": "t0012-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 196
+          },
+          {
+            "transaction": 13,
+            "first": 8210,
+            "append_rows": 2,
+            "query_first": 8210,
+            "query_rows": 2,
+            "expected_first": 19,
+            "hidden": "t0013-hidden.bin",
+            "ids": "t0013-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 220
+          },
+          {
+            "transaction": 14,
+            "first": 8212,
+            "append_rows": 2,
+            "query_first": 8212,
+            "query_rows": 2,
+            "expected_first": 21,
+            "hidden": "t0014-hidden.bin",
+            "ids": "t0014-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 220
+          },
+          {
+            "transaction": 15,
+            "first": 8214,
+            "append_rows": 2,
+            "query_first": 8214,
+            "query_rows": 2,
+            "expected_first": 23,
+            "hidden": "t0015-hidden.bin",
+            "ids": "t0015-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 196
+          },
+          {
+            "transaction": 16,
+            "first": 8216,
+            "append_rows": 2,
+            "query_first": 8216,
+            "query_rows": 2,
+            "expected_first": 25,
+            "hidden": "t0016-hidden.bin",
+            "ids": "t0016-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 220
+          },
+          {
+            "transaction": 17,
+            "first": 8218,
+            "append_rows": 2,
+            "query_first": 8218,
+            "query_rows": 2,
+            "expected_first": 27,
+            "hidden": "t0017-hidden.bin",
+            "ids": "t0017-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 220
+          },
+          {
+            "transaction": 18,
+            "first": 8220,
+            "append_rows": 2,
+            "query_first": 8220,
+            "query_rows": 2,
+            "expected_first": 29,
+            "hidden": "t0018-hidden.bin",
+            "ids": "t0018-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 196
+          },
+          {
+            "transaction": 19,
+            "first": 8222,
+            "append_rows": 2,
+            "query_first": 8222,
+            "query_rows": 2,
+            "expected_first": 31,
+            "hidden": "t0019-hidden.bin",
+            "ids": "t0019-ids.bin",
+            "original_sampled_row": 1,
+            "original_draft_id": 220
+          }
+        ],
+        "selected_rows": [
+          {
+            "transaction": 0,
+            "saved_index": 1,
+            "position": 8191,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 1,
+            "saved_index": 0,
+            "position": 8192,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 1,
+            "saved_index": 1,
+            "position": 8193,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 2,
+            "saved_index": 0,
+            "position": 8194,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 3,
+            "saved_index": 0,
+            "position": 8195,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 4,
+            "saved_index": 0,
+            "position": 8196,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 5,
+            "saved_index": 0,
+            "position": 8197,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 6,
+            "saved_index": 0,
+            "position": 8198,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 7,
+            "saved_index": 0,
+            "position": 8199,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 8,
+            "saved_index": 0,
+            "position": 8200,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 8,
+            "saved_index": 1,
+            "position": 8201,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 9,
+            "saved_index": 0,
+            "position": 8202,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 9,
+            "saved_index": 1,
+            "position": 8203,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 10,
+            "saved_index": 0,
+            "position": 8204,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 10,
+            "saved_index": 1,
+            "position": 8205,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 11,
+            "saved_index": 0,
+            "position": 8206,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 11,
+            "saved_index": 1,
+            "position": 8207,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 12,
+            "saved_index": 0,
+            "position": 8208,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 12,
+            "saved_index": 1,
+            "position": 8209,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 13,
+            "saved_index": 0,
+            "position": 8210,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 13,
+            "saved_index": 1,
+            "position": 8211,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 14,
+            "saved_index": 0,
+            "position": 8212,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 14,
+            "saved_index": 1,
+            "position": 8213,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 15,
+            "saved_index": 0,
+            "position": 8214,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 15,
+            "saved_index": 1,
+            "position": 8215,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 16,
+            "saved_index": 0,
+            "position": 8216,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 16,
+            "saved_index": 1,
+            "position": 8217,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 17,
+            "saved_index": 0,
+            "position": 8218,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 17,
+            "saved_index": 1,
+            "position": 8219,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 18,
+            "saved_index": 0,
+            "position": 8220,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 18,
+            "saved_index": 1,
+            "position": 8221,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 19,
+            "saved_index": 0,
+            "position": 8222,
+            "selected_for_sampling": false,
+            "input_matches_returned_history": true,
+            "input_provenance": "unchanged_original_proposer_call"
+          },
+          {
+            "transaction": 19,
+            "saved_index": 1,
+            "position": 8223,
+            "selected_for_sampling": true,
+            "input_matches_returned_history": null,
+            "input_provenance": "unchanged_original_proposer_call"
+          }
+        ],
+        "original_prompt_rows": 8192,
+        "expected_query_rows": 33,
+        "final_history_rows": 8224,
+        "standalone_head_rows": 20
+      }
+    ],
+    "files": [
+      {
+        "local_file": "qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-target-hidden.bin",
+        "archive_path": "q7169-out32/t0000-hidden.bin",
+        "bytes": 29364224,
+        "sha256": "266b9862248923f671ea81e2f84617aff4286c8bbb6cdd9f04c636e32c4b238e",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-shifted-input-ids.bin",
+        "archive_path": "q7169-out32/t0000-ids.bin",
+        "bytes": 28676,
+        "sha256": "30c020db1b9cf8ad79b6bac7adab02aa96dc9e06c9529c525d9272fe16fe0341",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0001-target-hidden.bin",
+        "archive_path": "q7169-out32/t0001-hidden.bin",
+        "bytes": 8192,
+        "sha256": "cbca115e8ff8a3d2206eaf463c658aad5bb1020f4b4248d687bba48ea8e20d0e",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/t0001-ids.bin",
+        "archive_path": "q7169-out32/t0001-ids.bin",
+        "bytes": 8,
+        "sha256": "50d4e695387a094b1cbd590bb42ff9ce411ce09ef302495ffc116bcf68e6deb0",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0002-target-hidden.bin",
+        "archive_path": "q7169-out32/t0002-hidden.bin",
+        "bytes": 8192,
+        "sha256": "b0f44855bfc65791268768ca3d753a4c74b9fb1bdd1fc144f9df1b610ba6bbe5",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/t0002-ids.bin",
+        "archive_path": "q7169-out32/t0002-ids.bin",
+        "bytes": 8,
+        "sha256": "8bb3a73ab29790de5d922435ebd663b5501af010cf4ff9fe30c1b2bad077baa9",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0003-target-hidden.bin",
+        "archive_path": "q7169-out32/t0003-hidden.bin",
+        "bytes": 8192,
+        "sha256": "0af9ea8b5760a4004f59c3e10d71974fd66374f6143ba95677f23a3a637b086d",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/t0003-ids.bin",
+        "archive_path": "q7169-out32/t0003-ids.bin",
+        "bytes": 8,
+        "sha256": "50d4e695387a094b1cbd590bb42ff9ce411ce09ef302495ffc116bcf68e6deb0",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0004-target-hidden.bin",
+        "archive_path": "q7169-out32/t0004-hidden.bin",
+        "bytes": 8192,
+        "sha256": "9209f358d763c1d7195a82e7f679956b01d86878b788bd17b90c1fbe2a75477a",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/t0004-ids.bin",
+        "archive_path": "q7169-out32/t0004-ids.bin",
+        "bytes": 8,
+        "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0005-target-hidden.bin",
+        "archive_path": "q7169-out32/t0005-hidden.bin",
+        "bytes": 8192,
+        "sha256": "30970def74c237b19a37de6dad09a825603d240fffd26b0406ed9c93623ce2aa",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/t0005-ids.bin",
+        "archive_path": "q7169-out32/t0005-ids.bin",
+        "bytes": 8,
+        "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0006-target-hidden.bin",
+        "archive_path": "q7169-out32/t0006-hidden.bin",
+        "bytes": 8192,
+        "sha256": "bd171394b3267b7db291f1db124848c391a297dda6fe8c090d9b0057a5e2f2b8",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/t0006-ids.bin",
+        "archive_path": "q7169-out32/t0006-ids.bin",
+        "bytes": 8,
+        "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0007-target-hidden.bin",
+        "archive_path": "q7169-out32/t0007-hidden.bin",
+        "bytes": 8192,
+        "sha256": "57639f19f6f4dc531ad033f8b6b8a2a0430050287f36a6b4bc2fde7c723632e2",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/t0007-ids.bin",
+        "archive_path": "q7169-out32/t0007-ids.bin",
+        "bytes": 8,
+        "sha256": "1894d04d8fc1b29a06bb097de81c0c0a95d93c108e710109fe0b2a80eef7b9f3",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0008-target-hidden.bin",
+        "archive_path": "q7169-out32/t0008-hidden.bin",
+        "bytes": 8192,
+        "sha256": "b1c4fe467bc161d58161efd62d68c7ee9c599376e70572475969a6443a4faca8",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/t0008-ids.bin",
+        "archive_path": "q7169-out32/t0008-ids.bin",
+        "bytes": 8,
+        "sha256": "68b5c2afdcebf179a3ab9085bf218128cadb3c983b833af00b6f47558b474075",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0009-target-hidden.bin",
+        "archive_path": "q7169-out32/t0009-hidden.bin",
+        "bytes": 8192,
+        "sha256": "4c13c16cf4ad6e206f81aa11befe9afa569963a91131a752598510d9f365331b",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/t0009-ids.bin",
+        "archive_path": "q7169-out32/t0009-ids.bin",
+        "bytes": 8,
+        "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0010-target-hidden.bin",
+        "archive_path": "q7169-out32/t0010-hidden.bin",
+        "bytes": 8192,
+        "sha256": "5ef7ac990fac09084dde5156147ad8b95f745b072ffadb4db6b4991924b6184a",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/t0010-ids.bin",
+        "archive_path": "q7169-out32/t0010-ids.bin",
+        "bytes": 8,
+        "sha256": "1894d04d8fc1b29a06bb097de81c0c0a95d93c108e710109fe0b2a80eef7b9f3",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0011-target-hidden.bin",
+        "archive_path": "q7169-out32/t0011-hidden.bin",
+        "bytes": 8192,
+        "sha256": "e8fa8a0b03a104ef2a011aa25584aca5f5a6770e7ac6135f9f1cb5f63abc3083",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/t0011-ids.bin",
+        "archive_path": "q7169-out32/t0011-ids.bin",
+        "bytes": 8,
+        "sha256": "68b5c2afdcebf179a3ab9085bf218128cadb3c983b833af00b6f47558b474075",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0012-target-hidden.bin",
+        "archive_path": "q7169-out32/t0012-hidden.bin",
+        "bytes": 8192,
+        "sha256": "4ce1b7e8d5913bba143600c97416920d49950991dc30e101e223993b34d0563d",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/t0012-ids.bin",
+        "archive_path": "q7169-out32/t0012-ids.bin",
+        "bytes": 8,
+        "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0013-target-hidden.bin",
+        "archive_path": "q7169-out32/t0013-hidden.bin",
+        "bytes": 8192,
+        "sha256": "b7760ed8e600b356ae3f86696440b47522a061a558fd250a824a675bb13a91db",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/t0013-ids.bin",
+        "archive_path": "q7169-out32/t0013-ids.bin",
+        "bytes": 8,
+        "sha256": "1894d04d8fc1b29a06bb097de81c0c0a95d93c108e710109fe0b2a80eef7b9f3",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0014-target-hidden.bin",
+        "archive_path": "q7169-out32/t0014-hidden.bin",
+        "bytes": 8192,
+        "sha256": "3ff31b06a98beadcabe2c8cf8638ee1307d3f0bf781112f43ac8116d1d0ea3b9",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/t0014-ids.bin",
+        "archive_path": "q7169-out32/t0014-ids.bin",
+        "bytes": 8,
+        "sha256": "68b5c2afdcebf179a3ab9085bf218128cadb3c983b833af00b6f47558b474075",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0015-target-hidden.bin",
+        "archive_path": "q7169-out32/t0015-hidden.bin",
+        "bytes": 8192,
+        "sha256": "518bea36dde3fa88bf2418071cc68a9aed66b4c2eb3cd561e915103af0ec7b02",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/t0015-ids.bin",
+        "archive_path": "q7169-out32/t0015-ids.bin",
+        "bytes": 8,
+        "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0016-target-hidden.bin",
+        "archive_path": "q7169-out32/t0016-hidden.bin",
+        "bytes": 8192,
+        "sha256": "aa22fb62b55e7fc08204fb1d6dcf2a5f68bce76a65efc5ed9abf22be19861512",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/t0016-ids.bin",
+        "archive_path": "q7169-out32/t0016-ids.bin",
+        "bytes": 8,
+        "sha256": "1894d04d8fc1b29a06bb097de81c0c0a95d93c108e710109fe0b2a80eef7b9f3",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0017-target-hidden.bin",
+        "archive_path": "q7169-out32/t0017-hidden.bin",
+        "bytes": 8192,
+        "sha256": "1abba983776bb8daada37c9d10f4e7a399532808c1dc84f1dffb98db2c914740",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/t0017-ids.bin",
+        "archive_path": "q7169-out32/t0017-ids.bin",
+        "bytes": 8,
+        "sha256": "68b5c2afdcebf179a3ab9085bf218128cadb3c983b833af00b6f47558b474075",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0018-target-hidden.bin",
+        "archive_path": "q7169-out32/t0018-hidden.bin",
+        "bytes": 8192,
+        "sha256": "db466a4571693e8d124d77a1daf928119f6c3963364d21575391f446c3ec5295",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/t0018-ids.bin",
+        "archive_path": "q7169-out32/t0018-ids.bin",
+        "bytes": 8,
+        "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/query-projection.bin",
+        "archive_path": "q7169-out32/query-projection.bin",
+        "bytes": 540672,
+        "sha256": "10bc3730ecfe38948df80c5bfe6af1bfc718823f71dab76bfc0cfb22920e7959",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/gates.bin",
+        "archive_path": "q7169-out32/gates.bin",
+        "bytes": 270336,
+        "sha256": "51ca3c0e14915a2cc2ec3c35d784416c5e34a619fa2dc054df124a59defa448a",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/queries.bin",
+        "archive_path": "q7169-out32/queries.bin",
+        "bytes": 270336,
+        "sha256": "452e04b591e61d4ddbd615554bf5e11f2f002ce75d0d379baf8df936f1986567",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/context.bin",
+        "archive_path": "q7169-out32/context.bin",
+        "bytes": 270336,
+        "sha256": "25e8a60559edadc33ea683530935e1341f4f643a477126513845113324109d24",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/gated.bin",
+        "archive_path": "q7169-out32/gated.bin",
+        "bytes": 270336,
+        "sha256": "b80863ce0bb96340ca48d828980dc0347f09704590ca7d43cb28180066ea848c",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/attention-output.bin",
+        "archive_path": "q7169-out32/attention-output.bin",
+        "bytes": 135168,
+        "sha256": "695f32a34f840b21052c86542026838bf363ec7712ffb9eb8d67ffe75495168e",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/post-attention-norm.bin",
+        "archive_path": "q7169-out32/post-attention-norm.bin",
+        "bytes": 135168,
+        "sha256": "5d5fe66d2c77acdc5d0b877f46b480c05ccbd3a5da103bf10302549ebc4ff8dc",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/final-norm.bin",
+        "archive_path": "q7169-out32/final-norm.bin",
+        "bytes": 135168,
+        "sha256": "6d053547c313561384081a5a3fc1b09fd861848fc0924314501a54bcad1a5ccb",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/moe-output.bin",
+        "archive_path": "q7169-out32/moe-output.bin",
+        "bytes": 135168,
+        "sha256": "46c2d0a60f83e05a545dde581114a2b45e80e78cc6556fe55bfcb19d8cf02a16",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/attention-residual.bin",
+        "archive_path": "q7169-out32/attention-residual.bin",
+        "bytes": 135168,
+        "sha256": "ed915d0cf69b97ca636d598f3d1bd362bb21742ebd723491a93ffce9c10163bd",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/router.bin",
+        "archive_path": "q7169-out32/router.bin",
+        "bytes": 16896,
+        "sha256": "bf138c6634396a8f31840137d640bb228838d2d24daf2aa20a9caf89f3bbb160",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/shared-gate.bin",
+        "archive_path": "q7169-out32/shared-gate.bin",
+        "bytes": 66,
+        "sha256": "98878a26f89e32d7f31ffd8deb9c81b7d50f00006ea6c9477bc44bcffa83c8e1",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/shared-gate-up.bin",
+        "archive_path": "q7169-out32/shared-gate-up.bin",
+        "bytes": 67584,
+        "sha256": "2b387cd45feac59492829690d2fddec0bfa57d4808d3d63b80d80463cc559934",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/shared-activated.bin",
+        "archive_path": "q7169-out32/shared-activated.bin",
+        "bytes": 33792,
+        "sha256": "53c4d6319ea83de1b7ae6c1e7160f70ffc6ef0d4addbe179ad6c326e509f1e43",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/shared-down.bin",
+        "archive_path": "q7169-out32/shared-down.bin",
+        "bytes": 135168,
+        "sha256": "27b847b06f35e9e7506a21fb8fc7750e175f1547ee1e18d13e1ae22b2a2ceafb",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/shared.bin",
+        "archive_path": "q7169-out32/shared.bin",
+        "bytes": 135168,
+        "sha256": "414086756b95d945414b1c0d5e0e526af12f8ed36692468463668ab03ae31e66",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/routed-gate-up.bin",
+        "archive_path": "q7169-out32/routed-gate-up.bin",
+        "bytes": 540672,
+        "sha256": "1c589e846140c699d68142c2ce1f8ff67464775e19dbc79e9cd4e4d9b7c932e4",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/routed-activated.bin",
+        "archive_path": "q7169-out32/routed-activated.bin",
+        "bytes": 270336,
+        "sha256": "780949b91f844395fe8bcade22eedb9271db833d8cf235259f351d5e7ddf1883",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/routed-weighted.bin",
+        "archive_path": "q7169-out32/routed-weighted.bin",
+        "bytes": 1081344,
+        "sha256": "398b92d0b90af6da7f6a3b9cd802ed54d02bd89475c9ae7b110f43e6b42af0f4",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/expert-part-1.bin",
+        "archive_path": "q7169-out32/expert-part-1.bin",
+        "bytes": 135168,
+        "sha256": "27346f6e1642ac895202cb9bd735894c5c774ba67c2130ba157c34cadeff1eb4",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/topk-ids.bin",
+        "archive_path": "q7169-out32/topk-ids.bin",
+        "bytes": 1056,
+        "sha256": "062c69146fb87cf6790e592982ab5da50c46bcc311b3506af4e4185bea31e0e0",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/topk-weights.bin",
+        "archive_path": "q7169-out32/topk-weights.bin",
+        "bytes": 1056,
+        "sha256": "ea7da9f42b8506352460885d97471d4dc0bcf3c1214ce2927ebb92ea1bc0e0db",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/input.bin",
+        "archive_path": "q7169-out32/input.bin",
+        "bytes": 77824,
+        "sha256": "c7825b57a9b5a7c205ba31b10411a7e1215d4c3a0247540e6341fc72ac946b24",
+        "role": "standalone_head_only_original_hidden"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/logits.bin",
+        "archive_path": "q7169-out32/logits.bin",
+        "bytes": 9436160,
+        "sha256": "53ca8626da80ff0d6f29dfd6aac6a2d899876d9e8d2e76cccbe80f0ee9a28631",
+        "role": "comparison_only_original_full_vocabulary"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/history-k.bin",
+        "archive_path": "q7169-out32/history-k.bin",
+        "bytes": 7373824,
+        "sha256": "fc1b1e47b541606f57217ab8a8f008c2a9116caf5b8d7d45c72e23307ff68830",
+        "role": "comparison_only_original_history_and_observed_terminal_row"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/history-v.bin",
+        "archive_path": "q7169-out32/history-v.bin",
+        "bytes": 7373824,
+        "sha256": "24505e6f897583b67f4fb675828d81a877bd0a42ffee15208f786be74fc4bbe8",
+        "role": "comparison_only_original_history_and_observed_terminal_row"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q7169-out32/transactions.txt",
+        "archive_path": "q7169-out32/transactions.txt",
+        "bytes": 991,
+        "sha256": "88dea46c2e9ddcf20ef51179486d5fe4bc7690217e8e06e6662aa5388736428f",
+        "role": "component_probe_original_schedule"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-target-hidden.bin",
+        "archive_path": "q8192-out32/t0000-hidden.bin",
+        "bytes": 33554432,
+        "sha256": "d3f015bd83c4c8aec8c8dc095b7dc9d8ef173676dfe4996a42764350411064df",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-shifted-input-ids.bin",
+        "archive_path": "q8192-out32/t0000-ids.bin",
+        "bytes": 32768,
+        "sha256": "0f4192d2ecd566da3d0ea71e5454b2fd39c1aa0d87e297a9f369f19d340b5fef",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0001-target-hidden.bin",
+        "archive_path": "q8192-out32/t0001-hidden.bin",
+        "bytes": 8192,
+        "sha256": "5a66a235805383b82f4da5f2cf243abd2f5c336c61c5d278d0eb80edaae8b8d1",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0001-ids.bin",
+        "archive_path": "q8192-out32/t0001-ids.bin",
+        "bytes": 8,
+        "sha256": "1f61a0725c67655aef72e34758ad902e6eb0d3e87014e398dacc712a7c271a9b",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0002-target-hidden.bin",
+        "archive_path": "q8192-out32/t0002-hidden.bin",
+        "bytes": 8192,
+        "sha256": "f2e9c04ac2c2b276170655c189788e4a05ce260a10ccce783dd77f0322f0283e",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0002-ids.bin",
+        "archive_path": "q8192-out32/t0002-ids.bin",
+        "bytes": 8,
+        "sha256": "3ce54ad883c3ca6b5412437f495e236a27a51bd6560ceb81bd669f31f7df2b5c",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0003-target-hidden.bin",
+        "archive_path": "q8192-out32/t0003-hidden.bin",
+        "bytes": 8192,
+        "sha256": "ff5a424e4ab6cb67019bf8739ab38dfd2aed9004db96041e5ff02714e4cb0a30",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0003-ids.bin",
+        "archive_path": "q8192-out32/t0003-ids.bin",
+        "bytes": 8,
+        "sha256": "357344c2de51bad0297442b8c72f756da44384ed6f03776e545831468ebf5dfd",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0004-target-hidden.bin",
+        "archive_path": "q8192-out32/t0004-hidden.bin",
+        "bytes": 8192,
+        "sha256": "1815006b04b6f3b7178570664fff008d0e646005dcc267a5fa605aa68dcbc5d0",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0004-ids.bin",
+        "archive_path": "q8192-out32/t0004-ids.bin",
+        "bytes": 8,
+        "sha256": "a0d4a9c6554dd1823491cdb0bf87a9c5a2cae1f247bb9c46cdcd1445a1f930c4",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0005-target-hidden.bin",
+        "archive_path": "q8192-out32/t0005-hidden.bin",
+        "bytes": 8192,
+        "sha256": "4a98ac488ecef588e8ae4ff5d3bd97529d0864c86b7c133512ea96d78674f32f",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0005-ids.bin",
+        "archive_path": "q8192-out32/t0005-ids.bin",
+        "bytes": 8,
+        "sha256": "a0d4a9c6554dd1823491cdb0bf87a9c5a2cae1f247bb9c46cdcd1445a1f930c4",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0006-target-hidden.bin",
+        "archive_path": "q8192-out32/t0006-hidden.bin",
+        "bytes": 8192,
+        "sha256": "7225300b4699516f596bf85e6f756edb1bc89335be5ce1c8ef261b58ab9f7514",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0006-ids.bin",
+        "archive_path": "q8192-out32/t0006-ids.bin",
+        "bytes": 8,
+        "sha256": "c7a42ca3447b6367f9ed3c5d94c2cdb54a987960ab6951652a1a975385c8d90a",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0007-target-hidden.bin",
+        "archive_path": "q8192-out32/t0007-hidden.bin",
+        "bytes": 8192,
+        "sha256": "4c7474334a375c10bc657bb6ed73b7b98aca757b03a967e8ac13ca4d4b1029b2",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0007-ids.bin",
+        "archive_path": "q8192-out32/t0007-ids.bin",
+        "bytes": 8,
+        "sha256": "a0d4a9c6554dd1823491cdb0bf87a9c5a2cae1f247bb9c46cdcd1445a1f930c4",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0008-target-hidden.bin",
+        "archive_path": "q8192-out32/t0008-hidden.bin",
+        "bytes": 8192,
+        "sha256": "2dbe8d58a6847bfb4cabd912f4d6a4c5cb69ebc90e2ae0d3a5a931734d6bcc72",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0008-ids.bin",
+        "archive_path": "q8192-out32/t0008-ids.bin",
+        "bytes": 8,
+        "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0009-target-hidden.bin",
+        "archive_path": "q8192-out32/t0009-hidden.bin",
+        "bytes": 8192,
+        "sha256": "e706d914ac81c3a6978e04d3de5fce63dfb547aa38a308ba5338e17f7187ad3b",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0009-ids.bin",
+        "archive_path": "q8192-out32/t0009-ids.bin",
+        "bytes": 8,
+        "sha256": "1894d04d8fc1b29a06bb097de81c0c0a95d93c108e710109fe0b2a80eef7b9f3",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0010-target-hidden.bin",
+        "archive_path": "q8192-out32/t0010-hidden.bin",
+        "bytes": 8192,
+        "sha256": "e0219ddb99e38061a52e8fe3877681db7fcb2d15ed63f46a0a9940881fb6941b",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0010-ids.bin",
+        "archive_path": "q8192-out32/t0010-ids.bin",
+        "bytes": 8,
+        "sha256": "68b5c2afdcebf179a3ab9085bf218128cadb3c983b833af00b6f47558b474075",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0011-target-hidden.bin",
+        "archive_path": "q8192-out32/t0011-hidden.bin",
+        "bytes": 8192,
+        "sha256": "06b8631a126c0f748e8aa6dccd397c92b64305122ffe93dc5b02778c887207f9",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0011-ids.bin",
+        "archive_path": "q8192-out32/t0011-ids.bin",
+        "bytes": 8,
+        "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0012-target-hidden.bin",
+        "archive_path": "q8192-out32/t0012-hidden.bin",
+        "bytes": 8192,
+        "sha256": "0ba3942ea67de9ec7963d42900503f90aa20a8e9c26e2c905445271ed6771b36",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0012-ids.bin",
+        "archive_path": "q8192-out32/t0012-ids.bin",
+        "bytes": 8,
+        "sha256": "1894d04d8fc1b29a06bb097de81c0c0a95d93c108e710109fe0b2a80eef7b9f3",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0013-target-hidden.bin",
+        "archive_path": "q8192-out32/t0013-hidden.bin",
+        "bytes": 8192,
+        "sha256": "cea9cc988bc46666cc31880f52bfde0dab221462247ed2d427c9ed5541e02e85",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0013-ids.bin",
+        "archive_path": "q8192-out32/t0013-ids.bin",
+        "bytes": 8,
+        "sha256": "68b5c2afdcebf179a3ab9085bf218128cadb3c983b833af00b6f47558b474075",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0014-target-hidden.bin",
+        "archive_path": "q8192-out32/t0014-hidden.bin",
+        "bytes": 8192,
+        "sha256": "591c97de8c39b1278fc4c5f074b3363ca8786cf38159bee20228e8e0bf8851f0",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0014-ids.bin",
+        "archive_path": "q8192-out32/t0014-ids.bin",
+        "bytes": 8,
+        "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0015-target-hidden.bin",
+        "archive_path": "q8192-out32/t0015-hidden.bin",
+        "bytes": 8192,
+        "sha256": "2ea8ab60cd7da8df022f492fe656f348442726b98ab023ac3a615d30c3d86d3f",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0015-ids.bin",
+        "archive_path": "q8192-out32/t0015-ids.bin",
+        "bytes": 8,
+        "sha256": "1894d04d8fc1b29a06bb097de81c0c0a95d93c108e710109fe0b2a80eef7b9f3",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0016-target-hidden.bin",
+        "archive_path": "q8192-out32/t0016-hidden.bin",
+        "bytes": 8192,
+        "sha256": "02940b709f5d3d5329ab6a179cc365db79c44dfb3f4e27857b9c7b1d6e921d4b",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0016-ids.bin",
+        "archive_path": "q8192-out32/t0016-ids.bin",
+        "bytes": 8,
+        "sha256": "68b5c2afdcebf179a3ab9085bf218128cadb3c983b833af00b6f47558b474075",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0017-target-hidden.bin",
+        "archive_path": "q8192-out32/t0017-hidden.bin",
+        "bytes": 8192,
+        "sha256": "518924861c8fc6858c748b345f794b103d1e443a40ac6d0ee4c0c82106ebf25b",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0017-ids.bin",
+        "archive_path": "q8192-out32/t0017-ids.bin",
+        "bytes": 8,
+        "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0018-target-hidden.bin",
+        "archive_path": "q8192-out32/t0018-hidden.bin",
+        "bytes": 8192,
+        "sha256": "87d1178e0da9e2ccf064506252bd0fd731dfb3fbaff06139cd4bc4bff0b41824",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0018-ids.bin",
+        "archive_path": "q8192-out32/t0018-ids.bin",
+        "bytes": 8,
+        "sha256": "1894d04d8fc1b29a06bb097de81c0c0a95d93c108e710109fe0b2a80eef7b9f3",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0019-target-hidden.bin",
+        "archive_path": "q8192-out32/t0019-hidden.bin",
+        "bytes": 8192,
+        "sha256": "452a2df9b6eecfd4f96e113e902b86fa6eae85965c7433e288fb489c7cdcc601",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/t0019-ids.bin",
+        "archive_path": "q8192-out32/t0019-ids.bin",
+        "bytes": 8,
+        "sha256": "68b5c2afdcebf179a3ab9085bf218128cadb3c983b833af00b6f47558b474075",
+        "role": "original_operator_input"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/query-projection.bin",
+        "archive_path": "q8192-out32/query-projection.bin",
+        "bytes": 540672,
+        "sha256": "09b7b0a287bbaca795882880bd0e4409c591810738c3f11ad99e0f4852be7367",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/gates.bin",
+        "archive_path": "q8192-out32/gates.bin",
+        "bytes": 270336,
+        "sha256": "c4ae6bd9c75db28955e4a9ce64508c6f8ef3a6f064c713a50a6e477f61235e56",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/queries.bin",
+        "archive_path": "q8192-out32/queries.bin",
+        "bytes": 270336,
+        "sha256": "04126fd81f557dcc6cb9f31c584530ba5dac5c792668c49ffcb91512c587df1b",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/context.bin",
+        "archive_path": "q8192-out32/context.bin",
+        "bytes": 270336,
+        "sha256": "44a959c7e4023380a8c9e72ac5eff52cb8d5855dca0039c851e83f5a053fbb55",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/gated.bin",
+        "archive_path": "q8192-out32/gated.bin",
+        "bytes": 270336,
+        "sha256": "8d7c6c1e5de3436b99ab10827e35283b1862d5f2c9d2592fa0ffca2c04b2a875",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/attention-output.bin",
+        "archive_path": "q8192-out32/attention-output.bin",
+        "bytes": 135168,
+        "sha256": "9651b8812a2974c16d94793822ce5edb8d2b196e09315bb8378f738fcbbb8571",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/post-attention-norm.bin",
+        "archive_path": "q8192-out32/post-attention-norm.bin",
+        "bytes": 135168,
+        "sha256": "a49bfce0c91cf36389159fbc469d88d8a6586208892742d32d1e85f793e58f3c",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/final-norm.bin",
+        "archive_path": "q8192-out32/final-norm.bin",
+        "bytes": 135168,
+        "sha256": "9e2b65fe61eea6819f28c5e97dbc2fef702e8b2848d55b75a3ad85be0cf74ec2",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/moe-output.bin",
+        "archive_path": "q8192-out32/moe-output.bin",
+        "bytes": 135168,
+        "sha256": "e28985db7256a293d522a169752019ba1fc0b5d00713d731a361ad76b1679609",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/attention-residual.bin",
+        "archive_path": "q8192-out32/attention-residual.bin",
+        "bytes": 135168,
+        "sha256": "bb700df0a69fdbd7ec4b78d0f15046cb4a740fa93c4318e1ac729cbef48ac192",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/router.bin",
+        "archive_path": "q8192-out32/router.bin",
+        "bytes": 16896,
+        "sha256": "c6cba747ba10dd89412717634b9c3c1065eb0e7dd226c474f3c629de9fe6907d",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/shared-gate.bin",
+        "archive_path": "q8192-out32/shared-gate.bin",
+        "bytes": 66,
+        "sha256": "c67eb062c435d29a88840144ab60a8909eb57aa0ceae7c76a7f6c1639623808d",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/shared-gate-up.bin",
+        "archive_path": "q8192-out32/shared-gate-up.bin",
+        "bytes": 67584,
+        "sha256": "868ebd64fe6684eaea420d447689903ccdf5af122668c83b8b7d8d33a4a5f924",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/shared-activated.bin",
+        "archive_path": "q8192-out32/shared-activated.bin",
+        "bytes": 33792,
+        "sha256": "328d511fa4736f987d617064470fd23e797498d3d5f5074057e616c082d7cc2b",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/shared-down.bin",
+        "archive_path": "q8192-out32/shared-down.bin",
+        "bytes": 135168,
+        "sha256": "4c3a16b9702a726550835eac3d439a03b6f5026b7cfcefdb2ccfb8829c37c108",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/shared.bin",
+        "archive_path": "q8192-out32/shared.bin",
+        "bytes": 135168,
+        "sha256": "c1be50098953eb2aeae9be5882cf69bf30e44a56b9fd6e001b8234e53688824d",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/routed-gate-up.bin",
+        "archive_path": "q8192-out32/routed-gate-up.bin",
+        "bytes": 540672,
+        "sha256": "202f6341d48b2c50b48330ff135fa6c0f68c9a0b8e9aba77c683f057c5aa810a",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/routed-activated.bin",
+        "archive_path": "q8192-out32/routed-activated.bin",
+        "bytes": 270336,
+        "sha256": "a0126a8ccb351ebf0d472d72075c797fda0bbfa02c9822ad80d3d41b0d5584c2",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/routed-weighted.bin",
+        "archive_path": "q8192-out32/routed-weighted.bin",
+        "bytes": 1081344,
+        "sha256": "71f69b0bc42bfd93b3ff2b042ae8f21a3cd60a565c759ff785180ffa2b1f497a",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/expert-part-1.bin",
+        "archive_path": "q8192-out32/expert-part-1.bin",
+        "bytes": 135168,
+        "sha256": "867d2df587e1af595c187cf2d08406d705085ad12ed58d79e1367ce1d7f1f802",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/topk-ids.bin",
+        "archive_path": "q8192-out32/topk-ids.bin",
+        "bytes": 1056,
+        "sha256": "5066bf6aedee4a6670d4f42fc57200b53d279bed4baf838eb236df768b17c6e4",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/topk-weights.bin",
+        "archive_path": "q8192-out32/topk-weights.bin",
+        "bytes": 1056,
+        "sha256": "fb34e8548d9783e4d0d352d2efb025251ca3c631b3b9b9a6d43d68bfe1855838",
+        "role": "comparison_only_original_frontier"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/input.bin",
+        "archive_path": "q8192-out32/input.bin",
+        "bytes": 81920,
+        "sha256": "e434362a87d4924e6bfff13f27c3a374a0231aaef2c1ce749685554a9dab1c37",
+        "role": "standalone_head_only_original_hidden"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/logits.bin",
+        "archive_path": "q8192-out32/logits.bin",
+        "bytes": 9932800,
+        "sha256": "c29406d46a46a8185569418b8d6c3af94b540051eeb41b22a67797bf47e4f5e7",
+        "role": "comparison_only_original_full_vocabulary"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/history-k.bin",
+        "archive_path": "q8192-out32/history-k.bin",
+        "bytes": 8421376,
+        "sha256": "9ff884fb1f6f7cc909dc68156ea0c62f935aeb6b26661a0fdea074e275181a4d",
+        "role": "comparison_only_original_history_and_observed_terminal_row"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/history-v.bin",
+        "archive_path": "q8192-out32/history-v.bin",
+        "bytes": 8421376,
+        "sha256": "d446049c03c8ba846810bf16f7ced2276ec8f5f7a00077772618c9885bafd282",
+        "role": "comparison_only_original_history_and_observed_terminal_row"
+      },
+      {
+        "local_file": "mtp-drafter-operands-r2/q8192-out32/transactions.txt",
+        "archive_path": "q8192-out32/transactions.txt",
+        "bytes": 1042,
+        "sha256": "732034241ef2857352207eb16ea56a7d80d24d9304c05f5aac66e72c8ae7597e",
+        "role": "component_probe_original_schedule"
+      }
+    ],
+    "total_file_bytes": 123836961,
+    "sampled_hidden_matches_final_norm": true
+  },
+  "original_embeddings": {
+    "file": "original-mtp-embedding-r1/inventory.json",
+    "sha256": "238adf9333ea1050e376363f2312884b869cf9f8ba28dfbfd9919f6f85a9886c",
+    "record": {
+      "host": "aitopatom-66c4",
+      "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+      "index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+      "tensor": {
+        "name": "model.language_model.embed_tokens.weight",
+        "shard": "model-00001-of-00026.safetensors",
+        "shape": [
+          248320,
+          2048
+        ],
+        "dtype": "BF16",
+        "data_offsets": [
+          0,
+          1017118720
+        ],
+        "absolute_begin": 2848,
+        "bytes": 1017118720,
+        "header_sha256": "69c3b8c645af1e7abc1cd7b02224c7e68571e10e2c15d3b638173d42aa407995",
+        "shard_file_bytes": 3996199712,
+        "sha256": "fa0611f12cdb3827ce18c6e008645584fcd16156579011f6c63be499d2443b0f"
+      },
+      "original_captured_rows_sha256": "8dfc9890831814d54b7494e29d6ece6563fe26cf71822a0630caccbee542cc19",
+      "unique_rows": 256,
+      "compared_bytes": 1048576,
+      "byte_mismatches": 0,
+      "seconds": 0.8829409510362893,
+      "gpu_used": false,
+      "model_framework_loaded": false,
+      "source_rows": 15435,
+      "source_spec_sha256": "0dc9f4aee4845f43ff8ed47b9da23f12d5eef81edf693ac09a18891e70df4d4a",
+      "transport_sha256": "8b99c6df012f84ec478230a9c38e851ba60494215c695820e5ebead2e1a71873"
+    }
+  },
+  "initial_operand_preparation_rejection": {
+    "reason": "Guard required returned-output history identity for final sampled row beyond output budget.",
+    "failed_assertion": "all(row['input_matches_generated_history'] and row['input_provenance']=='accepted_history' for _,row in rows)",
+    "helper_sha256": "3e017d12d896c3b99097252f4130d9559802c9c365ff943358ef458c1419b152",
+    "native_dispatched": false
+  },
+  "scope": "Original MTP component replay, with actual observed terminal proposals beyond the returned 32-token control budget.",
+  "native_compilation": false,
+  "native_execution": false,
+  "model_inference": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "limitations": [
+    "Reference row selection and truncation drive the probe only; production acceptance is not implemented by the probe.",
+    "Each case includes one actual original terminal proposal input beyond returned control outputs. It is not a newly qualified continuation output.",
+    "Host syntax uses declaration-only HIP/drafter interfaces. GPU numerical replay is pending."
+  ]
+}
