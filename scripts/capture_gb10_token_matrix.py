@@ -203,6 +203,16 @@ def qualify_runtime_capture(worker, prompt, outputs):
         raise ValueError("selected boundaries lack matching generated histories")
     if not full_cache_row_is_qualified(boundaries["full_attention_cache"], boundaries["transactions"]):
         raise ValueError("full-attention cache lacks a matching generated history")
+    if 'full_attention_caches' in boundaries:
+        caches = boundaries['full_attention_caches']
+        layers = boundaries['full_attention_layers']
+        if (len(layers) != len(set(layers)) or not 1 <= len(layers) <= 10 or
+                any(type(layer) is not int or not 0 <= layer < 40 or layer % 4 != 3 for layer in layers) or
+                (boundaries['full_attention_cache_required'] and [c['layer'] for c in caches] != layers) or
+                (not boundaries['full_attention_cache_required'] and caches) or
+                boundaries['full_attention_cache'] != (caches[0] if caches else None) or
+                any(not full_cache_row_is_qualified(cache, boundaries['transactions']) for cache in caches)):
+            raise ValueError('full-attention owner caches lack complete matching generated histories')
 
 
 def execute(args, cases, oracles):

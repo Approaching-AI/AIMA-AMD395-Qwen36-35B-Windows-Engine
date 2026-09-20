@@ -4,12 +4,13 @@ import os
 import json
 import sys
 import unittest
+from copy import deepcopy
 from types import SimpleNamespace
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from capture_gb10_runtime_boundaries import (  # noqa: E402
-    full_attention_observation_layer, full_cache_observation_offset,
+    full_attention_observation_layer, full_attention_observation_layers, full_cache_observation_offset,
     full_cache_observation_row, full_cache_row_is_qualified,
     full_prefill_attention_window, full_prefill_linear_window, matches_linear_window,
     observation_byte_limit, linear_observation_layers,
@@ -17,11 +18,105 @@ from capture_gb10_runtime_boundaries import (  # noqa: E402
     observation_positions, observation_timeout_seconds, prepared_token_ids, qualify_transaction,
     recurrent_state_selection, selected_prefill_moe_observation,
     short_prefill_moe_observation, target_rows,
-    observe_original_moe_routed, prefill_moe_routed_rows_enabled,
+    observe_original_moe_routed, prefill_moe_routed_rows_enabled, observe_original_attention_owner,
 )
+from capture_gb10_token_matrix import qualify_runtime_capture  # noqa: E402
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_all_full_attention_owners_remain_scoped_to_the_named_case(self):
+        layers = list(range(3, 40, 4))
+        with patch.dict(os.environ, {'QRT_GB10_CASE_BOUNDARY_FULL_LAYERS':
+                json.dumps({'q8192-out32': layers})}, clear=True):
+            self.assertEqual(full_attention_observation_layers('q8192-out32'), layers)
+            self.assertEqual(full_attention_observation_layers('q7169-out32'), [3])
+        for plan in ([], {}, {'q8192-out32': []}, {'q8192-out32': [3, 3]},
+                {'q8192-out32': [0]}, {'q8192-out32': [43]}, {'q8192-out32': [True]},
+                {'q8192-out32': ['3']}, {'q8192-out32': [3.0]}, {'q8192-out32': [[]]},
+                {'q8192': [3]}, {'q8192-out513': [3]}):
+            with self.subTest(plan=plan), patch.dict(os.environ,
+                    {'QRT_GB10_CASE_BOUNDARY_FULL_LAYERS': json.dumps(plan)}, clear=True):
+                with self.assertRaises(ValueError):
+                    full_attention_observation_layers('q8192-out32')
+
+    def test_shared_rotary_owner_scope_preserves_results_and_unwinds_errors(self):
+        active, seen = [], []
+        result = object()
+        def shared_rotary():
+            seen.append([layer for layer in range(3, 40, 4) if active and active[-1] == layer])
+        def inner(argument, *, marker):
+            self.assertEqual((argument, marker), (13, 29))
+            shared_rotary()
+            return result
+        def outer():
+            shared_rotary()
+            self.assertIs(observe_original_attention_owner(active, 39, inner, 13, marker=29), result)
+            shared_rotary()
+            return result
+        self.assertIs(observe_original_attention_owner(active, 3, outer), result)
+        self.assertEqual((active, seen), ([], [[3], [39], [3]]))
+        error = ValueError('original forward error')
+        def fails():
+            shared_rotary()
+            raise error
+        with self.assertRaises(ValueError) as caught:
+            observe_original_attention_owner(active, 7, fails)
+        self.assertIs(caught.exception, error)
+        self.assertEqual(active, [])
+        self.assertEqual(seen[-1], [7])
+
+    def test_case_cache_plan_binds_a_real_target_row_within_its_output_extent(self):
+        key = 'QRT_GB10_CASE_FULL_CACHE'
+        with patch.dict(os.environ, {key: json.dumps({'q8192-out32': dict(offset=1, row=1)})}, clear=True):
+            self.assertEqual(full_cache_observation_offset('q8192-out32'), 1)
+            self.assertEqual(full_cache_observation_row('q8192-out32'), 1)
+            self.assertEqual(full_cache_observation_offset('q7169-out32'), 0)
+            self.assertEqual(full_cache_observation_row('q7169-out32'), 0)
+            self.assertEqual(observation_positions('q8192-out32', 8192), {8191, 8192, 8193})
+        for plan in ([], {}, {'q8192': dict(offset=0, row=0)},
+                {'q8192-out32': dict(offset=31, row=0)}, {'q8192-out32': dict(offset=-1, row=0)},
+                {'q8192-out32': dict(offset=0, row=1)}, {'q8192-out32': dict(offset=1, row=2)},
+                {'q8192-out32': dict(offset=True, row=0)}, {'q8192-out32': dict(offset=0, row=False)},
+                {'q8192-out32': dict(offset=0, row=0.0)}, {'q8192-out32': dict(offset=0)},
+                {'q8192-out32': dict(offset=0, row=0, unknown=1)}, {'q8192-out32': []}):
+            with self.subTest(plan=plan), patch.dict(os.environ, {key: json.dumps(plan)}, clear=True):
+                with self.assertRaises(ValueError):
+                    full_cache_observation_offset('q8192-out32')
+
+    def test_every_cache_owner_is_qualified_against_actual_generated_history(self):
+        transactions = [dict(ordinal=1, first_position=2, input_token_ids=[30, 40],
+            rows=target_rows([2, 3], [30, 40], [0, 1], {2, 3}))]
+        layers = list(range(3, 40, 4))
+        caches = [dict(layer=layer, transaction=1, row=1, tokens=4, input_token_id=40) for layer in layers]
+        boundary = dict(transactions=transactions, selected_positions=[2, 3],
+            full_attention_cache=caches[0], full_attention_caches=caches,
+            full_attention_layers=layers, full_attention_cache_required=True)
+        def qualify(value):
+            qualify_runtime_capture(dict(runtime_boundaries=value), [10, 20], [30, 40, 50])
+        qualify(deepcopy(boundary))
+        # A later owner with a stale/rejected input cannot borrow the first
+        # owner's qualification, even when every selected position is covered.
+        for field, value in (('transaction', 2), ('row', 0), ('tokens', 5), ('input_token_id', 99)):
+            changed = deepcopy(boundary)
+            changed['full_attention_caches'][-1][field] = value
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, 'owner caches'):
+                qualify(changed)
+        for kind in ('missing', 'duplicate', 'reordered', 'primary', 'unrequested'):
+            changed = deepcopy(boundary)
+            if kind == 'missing': changed['full_attention_caches'].pop()
+            if kind == 'duplicate': changed['full_attention_caches'][-1]['layer'] = 3
+            if kind == 'reordered': changed['full_attention_caches'].reverse()
+            if kind == 'primary': changed['full_attention_cache'] = dict(caches[-1])
+            if kind == 'unrequested': changed['full_attention_cache_required'] = False
+            with self.subTest(kind=kind), self.assertRaisesRegex(ValueError, 'owner caches'):
+                qualify(changed)
+        empty = dict(boundary, full_attention_cache=None, full_attention_caches=[],
+                     full_attention_cache_required=False)
+        qualify(deepcopy(empty))
+        legacy = {k: v for k, v in boundary.items() if k not in
+                  {'full_attention_caches', 'full_attention_layers', 'full_attention_cache_required'}}
+        qualify(deepcopy(legacy))
+
     def test_all_linear_layers_are_scoped_to_the_named_original_case(self):
         case = 'long-prefix262144-suffix1024-out512'
         layers = [layer for layer in range(40) if layer % 4 != 3]
