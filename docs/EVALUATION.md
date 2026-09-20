@@ -935,6 +935,25 @@ changes31 hash-verified paths without changing arithmetic. Complete native
 execution, accepted-state publication and target-request integration remain
 unrun.
 
+The [complete private target owner](../benchmarks/correctness/q2-complete-target-owner-local-20260921.json)
+composes both actual embedding rows, all40 target layers, final normalization
+and the target's K16 output head. It alternates layer scratch while retaining
+both candidate states/rings for30 linear layers and both candidate KV rows for
+10 attention layers. All40 MoE error flags survive scratch reuse. Results pin
+the original model, tables and cache owners, and require an unchanged actual
+frontier before selection. Unknown completion quarantines every borrowed owner
+and allocation without allocating on the error path. No live state is published
+by this producer.
+
+Eight sanitizer regressions pass in14.723520 seconds, including89 top-level
+submission/copy failures, every layer's error flag, late-layer preflight errors,
+cross-layer aliases, retained-result lifetime and frontier/epoch changes. These
+tests replace device producers with a deferred queue. The proposed Windows
+probe loads all633 original target weights and compares72 stages under each of
+four cache layouts, including both state outcomes, complete logits and actual
+samples. Its host syntax check passes with Windows/HIP API declarations; actual
+HIP compilation, native execution and live request integration are still unrun.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
