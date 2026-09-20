@@ -14,6 +14,7 @@ using hipError_t = int;
 using hipStream_t = void*;
 constexpr int hipSuccess=0, hipErrorInvalidValue=1, hipErrorOutOfMemory=2;
 constexpr int hipMemcpyDeviceToHost=3, injected=99;
+constexpr int hipMemcpyDeviceToDevice=4;
 struct Allocation { size_t bytes; bool host; };
 static std::map<void*,Allocation> allocations;
 static std::vector<std::function<void()>> queued;
@@ -51,6 +52,8 @@ static hipError_t hipMemsetAsync(void* p,int value,size_t bytes,hipStream_t stre
     return enqueue("clear",stream,[=]{std::memset(p,value,bytes);});
 }
 static hipError_t hipMemcpyAsync(void* p,const void* q,size_t bytes,int kind,hipStream_t stream) {
+    if(kind==hipMemcpyDeviceToDevice)
+        return enqueue("weight_copy"+std::to_string(++copies),stream,[=]{std::memcpy(p,q,bytes);});
     assert(kind==hipMemcpyDeviceToHost);bool pinned=false;
     for(const auto& pair:allocations) {
         auto begin=reinterpret_cast<uintptr_t>(pair.first),address=reinterpret_cast<uintptr_t>(p);
@@ -118,7 +121,34 @@ static hipError_t launch_head(const uint16_t*,const uint16_t* in,uint16_t* logit
 }
 }
 #include "sm121_mtp_prompt_cache.h"
+#include "sm121_mtp_model_weights.h"
 #include "sm121_mtp_drafter.h"
+struct LeasedWeights final:qrt_sm121_mtp::ModelWeightSource {
+    std::array<std::vector<uint16_t>,4> packed_parts;
+    uint64_t generation=10;
+    LeasedWeights() {for(auto& part:packed_parts)part.assign(1048576u,0x3f80u);}
+    uint64_t epoch()const noexcept override{return generation;}
+    bool tensor(const char* name,qrt_sm121_mtp::ModelTensorView* out)const override {
+        using namespace qrt_sm121_mtp;
+        const auto found=std::find_if(model_weight_specs.begin(),model_weight_specs.end(),
+            [&](const auto& spec){return std::strcmp(spec.name,name)==0;});
+        if(found==model_weight_specs.end())return false;
+        auto* p=reinterpret_cast<const uint16_t*>(0x60000);
+        switch(static_cast<ModelWeight>(found-model_weight_specs.begin())){
+        case ModelWeight::Fusion:p=fusion_weight;break;
+        case ModelWeight::Query:p=query_weight;break;
+        case ModelWeight::Output:p=output_weight;break;
+        case ModelWeight::PostAttentionNorm:p=post_weight;break;
+        case ModelWeight::FinalNorm:p=final_weight;break;
+        case ModelWeight::Key:p=packed_parts[0].data();break;
+        case ModelWeight::Value:p=packed_parts[1].data();break;
+        case ModelWeight::SharedGateProjection:p=packed_parts[2].data();break;
+        case ModelWeight::SharedUpProjection:p=packed_parts[3].data();break;
+        default:break;
+        }
+        *out={found->name,p,found->rank,found->shape,found->bytes(),generation,true,true};return true;
+    }
+};
 static void reset() {
     assert(queued.empty());allocation_call=fail_allocation=sync_call=fail_sync=copies=0;
     stages.clear();fail_stage.clear();invalid_input=invalid_moe=invalid_head=invalid_id=invalid_logit=false;
@@ -172,6 +202,43 @@ int main(){
         assert(propose(d,4u,1u).status==hipSuccess&&attention_tokens==5u);
         assert(d.truncate(0u,10u)&&bind(d,11u));assert(propose(d,0,1,10u).status==hipErrorInvalidValue);
     }assert(allocations.empty());
+    // The real Drafter overload retains and checks the model source after the
+    // temporary resolver and all external binding handles are destroyed.
+    reset();{
+        using namespace qrt_sm121_mtp;
+        Drafter d;std::weak_ptr<LeasedWeights> borrowed;
+        const auto* p=reinterpret_cast<const uint16_t*>(0x60000);
+        const auto* t=reinterpret_cast<const unsigned char*>(0x70000);
+        DrafterTables tables{t,p,32u,t,t,{p,p,reinterpret_cast<const uint32_t*>(0x80000)}};
+        {ModelWeights owner;auto model=std::make_shared<LeasedWeights>();borrowed=model;
+            assert(owner.prepare(model,10u,expected_stream).status==hipSuccess);
+            assert(d.reserve(8,2)==hipSuccess&&d.bind(owner.binding(10u),tables,10u));
+        }
+        assert(!borrowed.expired()&&allocations.size()==26u);
+        reset();borrowed.lock()->generation=11u;
+        assert(append(d,0,2).status==hipErrorInvalidValue&&stages.empty());
+        borrowed.lock()->generation=10u;
+        assert(append(d,0,2).status==hipSuccess&&propose(d,1,1).rows==1u);
+        borrowed.lock()->generation=11u;reset();
+        assert(propose(d,1,1).status==hipErrorInvalidValue&&!d.observation(10u).rows);
+        assert(!d.truncate(0u,10u)&&stages.empty());borrowed.lock()->generation=10u;
+        assert(d.truncate(0u,10u)&&bind(d));assert(borrowed.expired()&&allocations.size()==25u);
+    }assert(allocations.empty());
+    reset();std::weak_ptr<LeasedWeights> quarantined_model;
+    {using namespace qrt_sm121_mtp;
+        Drafter d;
+        const auto* p=reinterpret_cast<const uint16_t*>(0x60000);
+        const auto* t=reinterpret_cast<const unsigned char*>(0x70000);
+        DrafterTables tables{t,p,32u,t,t,{p,p,reinterpret_cast<const uint32_t*>(0x80000)}};
+        {ModelWeights owner;auto model=std::make_shared<LeasedWeights>();quarantined_model=model;
+            assert(owner.prepare(model,10u,expected_stream).status==hipSuccess);
+            assert(d.reserve(8,2)==hipSuccess&&d.bind(owner.binding(10u),tables,10u));
+        }
+        assert(append(d,0,2).status==hipSuccess);reset();fail_sync=1;
+        assert(propose(d,1,1).completion_unknown&&d.quarantined());
+    }
+    assert(!quarantined_model.expired()&&allocations.size()==26u);late_completion();
+    assert(allocations.empty()&&!quarantined_model.expired());
     for(const char* stage:{"query","queries","attention","gate","output","post_norm","moe","final_norm","head",
                           "copy1","copy2","copy3","copy4"}){
         reset();{Drafter d;assert(bind(d)&&d.reserve(8,2)==hipSuccess&&append(d,0,2).status==hipSuccess);

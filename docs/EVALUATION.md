@@ -549,6 +549,24 @@ Even a token failure downloads its available raw observations before analysis.
 Production MTP weight binding and actual proposal/acceptance integration remain
 open; these preparations establish no inference or performance result.
 
+The [model-weight binding candidate](../benchmarks/correctness/mtp-model-weight-lease-and-packing-local-20260920.json)
+validates all 21 original tensors and explicitly copies separate K/V and shared
+gate/up tensors into one 8 MiB device pack. Seventeen other weight views retain
+their original addresses. A completed binding owns a shared model-storage
+lease; replacing it cannot free weights still used by an earlier binding.
+The Drafter overload retains that lease, checks its epoch before use and
+quarantines the pack and borrowed model storage if completion is unknown.
+
+All 43 local MTP/prefix tests pass. Queued host copies exercise all 252 invalid
+tensor contracts, allocation failure, every partially submitted copy, changed
+epochs, completed replacement, and late completion after owner destruction.
+All 21 names/shapes/dtypes/byte counts match the original model inventory.
+These are ownership and layout checks with sanitizer instrumentation. The
+Windows resident storage still needs a concrete adapter that actually owns or
+pins its allocations; a bare epoch is insufficient. This candidate has not
+compiled HIP device code or run on GPU. Previously frozen native batches retain
+their own source identities and do not qualify these new ownership changes.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a

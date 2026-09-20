@@ -10,6 +10,7 @@
 #include "sm121_mtp_residual.h"
 #include "sm121_mtp_moe.h"
 #include "sm121_mtp_head.h"
+#include "sm121_mtp_model_weights.h"
 
 namespace qrt_sm121_mtp {
 struct DrafterWeights {
@@ -131,7 +132,17 @@ public:
             !tables.exp2 || !tables.reciprocal || !tables.moe.silu || !tables.moe.sigmoid ||
             !tables.moe.router_exp_fraction) return false;
         weights_ = weights; tables_ = tables; epoch_ = epoch;
+        model_binding_ = {};
         invalidate_observation();
+        return true;
+    }
+
+    // This overload owns the model lease and the explicit K/V and shared
+    // gate/up packs for every subsequent asynchronous stage.
+    bool bind(const ModelWeightBinding& binding, const DrafterTables& tables, uint64_t epoch) {
+        DrafterWeights weights;
+        if (!binding.weights(epoch, &weights) || !bind(weights, tables, epoch)) return false;
+        model_binding_ = binding;
         return true;
     }
 
@@ -139,7 +150,7 @@ public:
         unsigned first_position, unsigned rows, bool split1024_pre_fc_norm,
         uint64_t current_epoch, hipStream_t stream = nullptr, unsigned maximum_blocks = 1024u) {
         if (quarantined_) return {completion_error_, "quarantined", retained_tokens(), true};
-        if (!cache_ || !epoch_ || epoch_ != current_epoch || !maximum_blocks || maximum_blocks > 4096u)
+        if (!cache_ || !model_current(current_epoch) || !maximum_blocks || maximum_blocks > 4096u)
             return {hipErrorInvalidValue, "model_contract", retained_tokens()};
         invalidate_observation();
         PromptWeights prompt = weights_.prompt;
@@ -154,7 +165,7 @@ public:
     DraftStep propose(unsigned first_position, unsigned rows, uint64_t current_epoch,
         hipStream_t stream = nullptr, unsigned maximum_blocks = 1024u) {
         if (quarantined_) return {completion_error_, "quarantined", true};
-        if (!cache_ || !epoch_ || epoch_ != current_epoch || !maximum_blocks || maximum_blocks > 4096u)
+        if (!cache_ || !model_current(current_epoch) || !maximum_blocks || maximum_blocks > 4096u)
             return {hipErrorInvalidValue, "model_contract"};
         const PromptTail tail = cache_->tail(first_position, rows);
         if (!tail.fusion) return {hipErrorInvalidValue, "completed_tail_contract"};
@@ -219,7 +230,7 @@ public:
     }
 
     bool truncate(unsigned tokens, uint64_t current_epoch) {
-        if (quarantined_ || !cache_ || !epoch_ || epoch_ != current_epoch) return false;
+        if (quarantined_ || !cache_ || !model_current(current_epoch)) return false;
         const unsigned previous = cache_->retained_tokens();
         if (!cache_->truncate(tokens)) return false;
         if (tokens != previous) invalidate_observation();
@@ -231,7 +242,7 @@ public:
     size_t allocated_bytes() const { return storage_.bytes + (cache_ ? cache_->allocated_bytes() : 0u); }
     const uint16_t* cache_data() const { return quarantined_ || !cache_ ? nullptr : cache_->data(); }
     DrafterObservation observation(uint64_t current_epoch) const {
-        if (quarantined_ || epoch_ != current_epoch || !observed_rows_) return {};
+        if (quarantined_ || !model_current(current_epoch) || !observed_rows_) return {};
         const auto& s = storage_;
         return {generation_, observed_first_, observed_rows_, s.query_projection, s.queries, s.gates,
             s.context, s.gated_context, s.output_projection, s.post_attention, s.attention_residual,
@@ -259,11 +270,16 @@ private:
             *static_cast<const unsigned*>(context), stream);
     }
     void invalidate_observation() { observed_rows_ = 0; ++generation_; }
+    bool model_current(uint64_t epoch) const {
+        return epoch && epoch_ == epoch && (!model_binding_.epoch() || model_binding_.valid(epoch));
+    }
     void quarantine(hipError_t status) {
         invalidate_observation(); quarantined_ = true; completion_error_ = status;
         if (cache_) (void)cache_->quarantine_borrower(status);
+        model_binding_.quarantine();
     }
     std::unique_ptr<PromptCache> cache_;
+    ModelWeightBinding model_binding_;
     DrafterWeights weights_;
     DrafterTables tables_;
     uint64_t epoch_ = 0, generation_ = 0;

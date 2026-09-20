@@ -11,7 +11,7 @@ class MtpDrafterTests(unittest.TestCase):
     def test_publication_epoch_and_quarantine(self):
         with tempfile.TemporaryDirectory() as temporary:
             directory = Path(temporary)
-            for name in ('sm121_mtp_prompt_cache.h', 'sm121_mtp_drafter.h'):
+            for name in ('sm121_mtp_prompt_cache.h', 'sm121_mtp_drafter.h', 'sm121_mtp_model_weights.h'):
                 source = (ROOT / 'native/providers/gdn' / name).read_text()
                 source = '\n'.join(line for line in source.splitlines()
                                    if not line.startswith('#include "sm121_')
