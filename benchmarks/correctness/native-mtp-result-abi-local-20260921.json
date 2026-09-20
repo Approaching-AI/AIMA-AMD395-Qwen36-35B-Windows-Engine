@@ -1,0 +1,85 @@
+{
+  "kind": "native_mtp_result_abi_local_regression",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "source_parent": "b532817fd65a222a1ccf194bdc58e962cb3e599f",
+  "source_sha256": {
+    "native/providers/whole_provider.cpp": "b3f75cb637e5b50995927ac87c295857e34ac7fee4aedf955907ec79fe8a377a",
+    "native/src/qrt.c": "851904c79ea9ff3230423f86a4d92bae27734df30bb6dd51632ffb219397c076",
+    "native/src/qrt.h": "c7af4d946b863eccbd98a540ffa0a034e1230685b5409514da05bfff9659bc4c",
+    "tests/test_native_mtp_decode.py": "5787883cb86f606ec3db598c664a851748814f910d040b17f38db499f0db0bb8",
+    "tests/native/native_mtp_decode_host.cpp": "b9d769978a6aa0c1fac009ab11544da4b995a8d4412c0febe21367433a21f440"
+  },
+  "actual_coordinator": true,
+  "actual_c_result_validator": true,
+  "gpu_producers": "Host protocol doubles and deferred queues only",
+  "failed_control": {
+    "file": "native-mtp-request-abi-before-r1.json",
+    "sha256": "960f3cbffeb8c2b60680519df1c47dc053efa169947d42373e93a8b20c898548",
+    "result": {
+      "scope": "Actual resident request coordinator at b532817 against actual C ABI result validator; local host queues only",
+      "command": "python3.12 -m unittest tests.test_native_mtp_decode",
+      "chunk_id": "ec6690",
+      "wall_time_seconds": 9.59e-07,
+      "exit_code": 1,
+      "original_token_count": 424,
+      "output": "F\n======================================================================\nFAIL: test_actual_request_commit_cancel_and_failures (tests.test_native_mtp_decode.NativeMtpDecodeTests.test_actual_request_commit_cancel_and_failures)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tests/test_native_mtp_decode.py\", line 28, in test_actual_request_commit_cancel_and_failures\n    self.assertEqual(run.returncode, 0, run.stdout + run.stderr)\nAssertionError: -6 != 0 : BATCH_MARK qwen36_native_mtp_token output_index=1 position=7 input_token=144 output_token=102 output_logit=2 accepted_rows=1 target_and_drafter_committed=1 reference_input=0\nBATCH_MARK qwen36_native_mtp_decode_complete generation=7 target_batches=1 accepted_tokens=1 paired_checkpoint=1 reference_input=0 numerical_correctness_claimed=0\nBATCH_MARK qwen36_native_mtp_token output_index=1 position=7 input_token=144 output_token=102 output_logit=2 accepted_rows=2 target_and_drafter_committed=1 reference_input=0\nBATCH_MARK qwen36_native_mtp_token output_index=2 position=8 input_token=102 output_token=103 output_logit=3 accepted_rows=2 target_and_drafter_committed=1 reference_input=0\nBATCH_MARK qwen36_native_mtp_decode_complete generation=7 target_batches=1 accepted_tokens=2 paired_checkpoint=1 reference_input=0 numerical_correctness_claimed=0\nAssertion failed: (qrt_qwen36_whole_provider_decode_result_valid(&r,&output,&abi_failure)), function main, file native_mtp_decode_host.cpp, line 211.\n\n\n----------------------------------------------------------------------\nRan 1 test in 1.829s\n\nFAILED (failures=1)\n"
+    }
+  },
+  "repaired": {
+    "file": "native-mtp-request-abi-after-r1.json",
+    "sha256": "e59cac0dad5ca40c081e9301fab4ae8ad959fc37150d9f3dc86eea798cb20c10",
+    "result": {
+      "scope": "Actual native request coordinator and C ABI validator with host test queues; native Windows not executed",
+      "command": "python3.12 -m unittest tests.test_native_mtp_decode",
+      "chunk_id": "184b75",
+      "wall_time_seconds": 1.375e-06,
+      "exit_code": 0,
+      "original_token_count": 25,
+      "output": ".\n----------------------------------------------------------------------\nRan 1 test in 1.401s\n\nOK\n"
+    }
+  },
+  "reproducer": "An accepted two-row batch formerly reused one completion timestamp; the second step was zero and the actual existing C result validator rejected it.",
+  "change": "Read the real monotonic clock for each serialized token publication after both cache commits. The second interval includes the preceding callback, like the existing one-row route.",
+  "checks": {
+    "output_capacities": [
+      2,
+      3,
+      4,
+      5,
+      8,
+      64
+    ],
+    "actual_callback_times_match_result": true,
+    "actual_abi_accepts_all_successful_results": true,
+    "old_shared_pair_timestamp_rejected": true,
+    "fault_stages": 16,
+    "unknown_completion_stages": 6,
+    "cancellation_indices": [
+      1,
+      2,
+      3
+    ],
+    "allocation_failure": true,
+    "retirement_admission": true
+  },
+  "abi_changed": false,
+  "reference_inputs": false,
+  "native_windows_built": false,
+  "actual_model_request": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "a0c6dc53f909a67ee21f4130fc5bd9ebe91349971f8645a83354343b5bbfb87a",
+    "original_json_bytes": 4722,
+    "source_revision": "b532817fd65a222a1ccf194bdc58e962cb3e599f+working-tree",
+    "source_path": "build/recovery-20260910/native-mtp-result-abi-local-20260921.raw.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 1
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}

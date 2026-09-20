@@ -111,6 +111,16 @@ been built or run on Windows because the9428 full256k product case is active.
 Local request mocks qualify ordering/lifetime only; they do not establish
 model correctness, performance or release acceptance.
 
+The [native MTP result ABI regression](../benchmarks/correctness/native-mtp-result-abi-local-20260921.json)
+exposes a missing boundary in the initial coordinator test. Accepted pairs
+shared one completion timestamp, so the second token had zero elapsed time;
+the actual C result validator rejected it. The coordinator now measures each
+serialized callback publication after both cache commits. No timestamp is
+invented and the existing ABI remains unchanged. The actual coordinator and
+C validator pass the host regression, including callbacks, cancellation and
+failure recovery; the old pair timing is explicitly rejected. This is local
+ordering and ABI evidence, pending a new Windows build and real MTP outputs.
+
 The native cache-publication probe is prepared in
 tools/q2_cache_publication_hip_probe.cpp. It evaluates the complete original
 q8192 target pair, then checks accepted1/2 rows with BF16/FP32 tails and both

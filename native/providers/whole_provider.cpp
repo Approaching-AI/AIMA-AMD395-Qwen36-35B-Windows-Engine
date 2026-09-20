@@ -218561,8 +218561,11 @@ bool run_qwen36_native_mtp_decode(
             if (!owner->commit_metadata(result,accepted.rows,accepted.outputs) || !live.commit(actual()))
                 return abort("mtp_native_decode_receipt","target and MTP did not commit the same accepted inputs",false);
             ++batches; accepted_total += accepted.rows;
-            const uint64_t end = qrt_elapsed_ns(started,qrt_now_ns());
             for (unsigned row = 0; row < accepted.rows; ++row,++output_index) {
+                // Both rows are committed before either callback. Measure each
+                // serialized publication separately, including the preceding
+                // callback, as required by the existing decode result ABI.
+                const uint64_t end = qrt_elapsed_ns(started,qrt_now_ns());
                 output->output_tokens[output_index] = accepted.outputs[row];
                 output->token_end_elapsed_ns[output_index] = end;
                 output->token_step_elapsed_ns[output_index] = end-previous_end;

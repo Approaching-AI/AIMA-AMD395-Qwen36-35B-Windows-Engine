@@ -175,14 +175,18 @@ public:
 #include "native_mtp_decode_actual.h"
 
 static std::vector<uint32_t> emitted;
-static int emit(void*,uint64_t generation,uint32_t index,uint32_t token,uint64_t,uint64_t end){
+static std::vector<uint64_t> emitted_steps,emitted_ends;
+static int emit(void*,uint64_t generation,uint32_t index,uint32_t token,uint64_t elapsed,uint64_t end){
     ++callbacks;assert(generation==7u&&index==callbacks&&end>0u&&target_committed==drafter_committed);
+    assert(elapsed>0u&&end-(emitted_ends.empty()?0u:emitted_ends.back())==elapsed);
+    emitted_steps.push_back(elapsed);emitted_ends.push_back(end);
     emitted.push_back(token);return index!=cancel_at;
 }
 static void reset_case(){
     assert(!pins&&!targets);g_qwen36_resident_session={};g_qwen36_resident_completion_unknown=false;
     batch_index=rollbacks=commits=aborts=callbacks=cancel_at=target_committed=drafter_committed=0u;
-    fault_stage.clear();fault_unknown=throw_prepare=false;fault_batch=1u;clock_tick=10;emitted.clear();
+    fault_stage.clear();fault_unknown=throw_prepare=false;fault_batch=1u;clock_tick=10;
+    emitted.clear();emitted_steps.clear();emitted_ends.clear();
 }
 static qrt_qwen36_whole_provider_decode_request_v1_t request(unsigned capacity){
     qrt_qwen36_whole_provider_decode_request_v1_t r{};r.expected_session_generation=7u;
@@ -192,18 +196,31 @@ static qrt_qwen36_whole_provider_decode_request_v1_t request(unsigned capacity){
 int main(){
     for(unsigned capacity:{2u,3u,4u,5u,8u,64u}) {
         reset_case();const auto r=request(capacity);qrt_qwen36_whole_provider_decode_result_v1_t output{};
+        output.struct_size=sizeof(output);output.abi_version=QRT_QWEN36_WHOLE_PROVIDER_DECODE_ABI_VERSION;
+        output.batch_size=1u;output.output_token_capacity=capacity;output.prefill_token_count=1u;
+        output.session_generation=r.expected_session_generation;
         output.output_tokens[0]=144u;std::string stage,error;
         assert(run_qwen36_native_mtp_decode(r,&output,10u,&stage,&error));
         assert(output.completed&&output.status==QRT_STATUS_OK&&output.output_token_count==capacity&&
             output.decode_token_count==capacity-1u&&output.timing_count==capacity);
         assert(callbacks==capacity-1u&&commits==1u&&!rollbacks&&!pins&&!targets&&!aborts);
         assert(std::equal(emitted.begin(),emitted.end(),output.output_tokens+1u));
+        assert(std::equal(emitted_steps.begin(),emitted_steps.end(),output.token_step_elapsed_ns+1u));
+        assert(std::equal(emitted_ends.begin(),emitted_ends.end(),output.token_end_elapsed_ns+1u));
         const auto& s=g_qwen36_resident_session;
         assert(s.native_mtp_processed_inputs.size()==7u+capacity-1u&&s.native_mtp_checkpoint.valid);
         assert(s.native_mtp_checkpoint.inputs==s.native_mtp_processed_inputs&&s.native_mtp_checkpoint.current==s.current_token_id);
         assert(output.token_end_elapsed_ns[0]==0u&&output.token_step_elapsed_ns[0]==0u);
         uint64_t elapsed=0;for(unsigned i=1;i<capacity;++i){elapsed+=output.token_step_elapsed_ns[i];assert(elapsed==output.token_end_elapsed_ns[i]);}
         assert(elapsed==output.tpot_elapsed_ns&&elapsed<=output.wall_clock_ns);
+        const char* abi_failure=nullptr;
+        assert(qrt_qwen36_whole_provider_decode_result_valid(&r,&output,&abi_failure));
+        if(capacity>2u){
+            auto old_batch_timing=output;
+            old_batch_timing.token_end_elapsed_ns[2]=old_batch_timing.token_end_elapsed_ns[1];
+            old_batch_timing.token_step_elapsed_ns[2]=0u;
+            assert(!qrt_qwen36_whole_provider_decode_result_valid(&r,&old_batch_timing,&abi_failure));
+        }
     }
     for(const auto* stage:{"shadow_begin","owner","snapshot","source","pack","restore","begin","target","result",
         "prepare","acceptance","publish","metadata","receipt","save","shadow_commit"}) {
