@@ -42,6 +42,7 @@
 #include "sm121_q1_full_runtime.h"
 #include "sm121_q1_attention_runtime.h"
 #include "sm121_q1_packed_runtime.h"
+#include "q1_trace_policy.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "moe_accumulator/sm121_wave16.h"
 #include "moe_accumulator/sm121_subgroup.h"
@@ -163642,8 +163643,14 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
             "QRT_QWEN36_Q1_LINEAR_STAGE_TRACE_COUNT",
             1u
         );
+        const unsigned int second_position = generic_position != UINT_MAX
+            ? env_u32_or_default("QRT_QWEN36_Q1_LAYER_TRACE_SECOND_POSITION", UINT_MAX)
+            : UINT_MAX;
+        const bool all_linear_layers = generic_position != UINT_MAX &&
+            env_flag_enabled("QRT_QWEN36_Q1_LINEAR_STAGE_TRACE_ALL_LAYERS");
         const bool generic_trace =
-            generic_position != UINT_MAX && generic_layer != UINT_MAX;
+            generic_position != UINT_MAX &&
+            (generic_layer != UINT_MAX || all_linear_layers);
         const unsigned int selected_layer = env_u32_or_default(
             "QRT_QWEN36_Q1024_Q1_STAGE_LAYER",
             0u
@@ -163662,12 +163669,16 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
         const unsigned int target_layer = generic_trace
             ? generic_layer
             : selected_layer;
-        const size_t trace_count = generic_trace ? generic_count : 1u;
+        const qrt_q1_trace::Selection trace_selection{
+            static_cast<uint32_t>(target_position),
+            generic_trace ? second_position : UINT_MAX,
+            generic_trace ? generic_count : 1u,
+            target_layer,
+            generic_trace && all_linear_layers
+        };
         if ((!generic_trace && !q1024_trace) ||
-            trace_count == 0u || trace_count > 512u ||
-            absolute_position < target_position ||
-            absolute_position - target_position >= trace_count ||
-            descriptor.layer_index != target_layer || stage == nullptr ||
+            !trace_selection.position(absolute_position) ||
+            !trace_selection.linear_layer(descriptor.layer_index) || stage == nullptr ||
             device_data == nullptr || bytes == 0u) {
             return;
         }
@@ -163723,16 +163734,17 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
         const char *dump_prefix = std::getenv(
             "QRT_QWEN36_Q1_LINEAR_STAGE_DUMP_PREFIX"
         );
-        // A range records compact hashes at every step; raw tensors remain
-        // limited to its first position and the existing artifact ceilings.
+        // A range records hashes at every step. Raw tensors are bounded to
+        // its first position and one optional nearby position. The explicit
+        // all-layer diagnostic has a separate bounded artifact allowance.
         const bool dump_requested = dump_prefix != nullptr &&
-            dump_prefix[0] != '\0' && absolute_position == target_position;
+            dump_prefix[0] != '\0' && trace_selection.raw_position(absolute_position);
         static size_t dumped_files = 0u;
         static size_t dumped_bytes = 0u;
         bool dump_ok = false;
         std::string dump_path;
-        if (dump_requested && status == hipSuccess && bytes <= (2u << 20u) &&
-            dumped_files < 64u && dumped_bytes <= (16u << 20u) - bytes) {
+        if (dump_requested && status == hipSuccess &&
+            trace_selection.may_write(dumped_files, dumped_bytes, bytes)) {
             std::ostringstream path;
             path << dump_prefix << ".txn" << q1024_q1_linear_stage_active_transaction
                  << ".pos" << absolute_position << ".layer" << descriptor.layer_index
@@ -187200,8 +187212,14 @@ void emit_q1024_q1_layer_digest(
     const size_t expected_position = generic_trace
         ? static_cast<size_t>(selected_absolute_position)
         : static_cast<size_t>(kQ16384ColdProbePrefillTokens);
+    const qrt_q1_trace::Selection trace_selection{
+        static_cast<uint32_t>(expected_position),
+        generic_trace ? env_u32_or_default(
+            "QRT_QWEN36_Q1_LAYER_TRACE_SECOND_POSITION", UINT_MAX) : UINT_MAX,
+        1u, 0u, false
+    };
     if ((!legacy_q1024_trace && !generic_trace) || workspace == nullptr ||
-        token_position != expected_position ||
+        !trace_selection.position(token_position) ||
         completed_layer >= QRT_QWEN36_LAYER_COUNT) {
         return;
     }
@@ -187243,6 +187261,9 @@ void emit_q1024_q1_layer_digest(
     if (status == hipSuccess && dump_requested) {
         std::ostringstream path;
         path << dump_prefix;
+        if (trace_selection.second != UINT_MAX) {
+            path << ".pos" << token_position;
+        }
         if (keep_trace_transactions) {
             path << ".txn"
                  << std::setfill('0') << std::setw(2)

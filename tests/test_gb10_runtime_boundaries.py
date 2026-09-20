@@ -12,7 +12,7 @@ from capture_gb10_runtime_boundaries import (  # noqa: E402
     full_attention_observation_layer, full_cache_observation_offset,
     full_cache_observation_row, full_cache_row_is_qualified,
     full_prefill_attention_window, full_prefill_linear_window, matches_linear_window,
-    observation_byte_limit,
+    observation_byte_limit, linear_observation_layers,
     full_prefill_linear_core_only, full_prefill_linear_labels,
     observation_positions, observation_timeout_seconds, prepared_token_ids, qualify_transaction,
     recurrent_state_selection, selected_prefill_moe_observation,
@@ -22,6 +22,27 @@ from capture_gb10_runtime_boundaries import (  # noqa: E402
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_all_linear_layers_are_scoped_to_the_named_original_case(self):
+        case = 'long-prefix262144-suffix1024-out512'
+        layers = [layer for layer in range(40) if layer % 4 != 3]
+        with patch.dict(os.environ, {'QRT_GB10_CASE_BOUNDARY_LINEAR_LAYERS':
+                json.dumps({case: layers})}, clear=True):
+            self.assertEqual(linear_observation_layers(case), layers)
+            self.assertEqual(linear_observation_layers('q8192-out32'), [0, 2])
+            self.assertEqual(linear_observation_layers('q8191-out32'), [0, 2, 4])
+            self.assertEqual(observation_byte_limit(None), 512 << 20)
+
+    def test_case_linear_layer_plan_rejects_invalid_extents_and_types(self):
+        case = 'long-prefix262144-suffix1024-out512'
+        for plan in ([], {}, {case: []}, {case: [0, 0]}, {case: [3]},
+                {case: [40]}, {case: [-1]}, {case: [True]}, {case: ['0']},
+                {case: [[]]}, {case: [0.0]},
+                {'missing-output-extent': [0]}, {'q5-out513': [0]}):
+            with self.subTest(plan=plan), patch.dict(os.environ,
+                    {'QRT_GB10_CASE_BOUNDARY_LINEAR_LAYERS': json.dumps(plan)}, clear=True):
+                with self.assertRaises(ValueError):
+                    linear_observation_layers(case)
+
     def test_routed_moe_option_requires_bounded_selected_rows(self):
         with patch.dict(os.environ, {}, clear=True):
             self.assertFalse(prefill_moe_routed_rows_enabled())

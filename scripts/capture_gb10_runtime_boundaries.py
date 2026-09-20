@@ -89,6 +89,26 @@ def observation_layers(name, default, *, linear=False):
     return layers
 
 
+def linear_observation_layers(case):
+    """Expand diagnostic copies only for explicitly named original cases."""
+    default = observation_layers('QRT_GB10_BOUNDARY_LINEAR_LAYERS',
+        [0, 2, 4] if case == 'q8191-out32' else [0, 2], linear=True)
+    value = os.environ.get('QRT_GB10_CASE_BOUNDARY_LINEAR_LAYERS')
+    if value is None:
+        return default
+    plan = json.loads(value)
+    if not isinstance(plan, dict) or not 1 <= len(plan) <= 12:
+        raise ValueError('invalid case-specific linear layer plan')
+    for name, layers in plan.items():
+        match = re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}-out([1-9][0-9]*)', name)
+        if (match is None or not 2 <= int(match.group(1)) <= 512 or
+                not isinstance(layers, list) or not 1 <= len(layers) <= 30 or
+                any(type(layer) is not int or not 0 <= layer < 40 or layer % 4 == 3
+                    for layer in layers) or len(set(layers)) != len(layers)):
+            raise ValueError('invalid bounded case-specific linear layers')
+    return list(plan.get(case, default))
+
+
 def full_cache_observation_offset(case):
     controls = {
         'q8191-out32': ('QRT_GB10_Q8191_FULL_CACHE_OFFSET', 32),
@@ -380,9 +400,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         self._qrt_boundary_active = None
         self._qrt_boundary_selected = selected
         self._qrt_boundary_prompt_tokens = prompt_tokens
-        self._qrt_boundary_linear_layers = observation_layers(
-            'QRT_GB10_BOUNDARY_LINEAR_LAYERS',
-            [0, 2, 4] if case == "q8191-out32" else [0, 2], linear=True)
+        self._qrt_boundary_linear_layers = linear_observation_layers(case)
         full_linear_window = full_prefill_linear_window(case, prompt_tokens)
         full_linear_core_only = full_prefill_linear_core_only()
         full_linear_required = (full_prefill_linear_labels(

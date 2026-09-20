@@ -42,6 +42,8 @@ bool raw_env_flag_enabled(const char*){return enabled;}
 bool qwen36_all_norm_capture_active(unsigned){return false;}
 bool qwen36_exact_arbitrary_product_path_enabled(unsigned){return true;}
 bool dump_qwen36_selected_full_stage(unsigned,unsigned,const char*,const void*,bool,size_t,std::string*,std::string*){return true;}
+// This row-selection test has no active prefix-suffix capture transaction.
+bool capture_qwen36_original_prefix_linear_row(unsigned,unsigned,const char*,const void*,size_t,size_t,std::string*,std::string*){return true;}
 uint64_t qrt_fnv1a64_f32(const float*,size_t){return 0;}
 std::string hex_u64(uint64_t){return "unused-diagnostic-hash";}
 int hipMemcpy(void* destination,const void* source,size_t count,int){

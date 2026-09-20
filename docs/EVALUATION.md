@@ -92,6 +92,13 @@ does not establish inactive arithmetic. Actual output IDs fail the boundary.
 Native internal operands at the new decode input263356 were not captured;
 their capture and independent original comparison are the next diagnostic.
 Existing partial checkpoints are process-resident and do not provide disk replay.
+The diagnostic observer now supports an explicitly named case with all30
+linear layers while leaving the short controls' layer selections unchanged.
+The native Q1 observer can select all30 layers and two nearby positions,
+including263168 and263356. Raw artifacts remain bounded to2048 files/512MiB,
+with2MiB per file; the default single-layer limits remain64 files/16MiB.
+Both positions also retain all40 output carriers. These changes affect optional
+observation only; the new native build and full256k diagnostic remain unrun.
 
 The separate [draft-limit transition reference](../benchmarks/correctness/gb10-draft-limit-transition-20260920.json)
 completes six requests and 144 outputs on the unchanged GB10 reference. Both
@@ -312,9 +319,16 @@ at sourcee034919 reproduces both controls, all64 outputs and full first logits.
 All39 original BF16 draft logits agree with their sampled tokens. The66
 accepted-history rows pass CPU router/shared projections, gating, activation,
 routed summation and final residual normalization with zero differences.
-Original routed-weight projections, native MoE and the complete MTP drafter
-remain open. The reference container exits0 with all host/autotune checks
+The reference container exits0 with all host/autotune checks
 passing and no GPU process remaining.
+
+The [original routed-weight CPU replay](../benchmarks/correctness/gb10-mtp-routed-projections-cpu-20260920.json)
+then compares all66 accepted rows directly against the original MTP expert
+tensors on GB10, without loading a model framework or using the GPU. All1622016
+gate/up and weighted-down BF16 outputs match. Both complete weight-tensor hashes,
+original selected inputs, model index/headers, compiled source and commands
+are bound. This completes CPU arithmetic checks for those MoE rows; native
+GPU MoE and the complete MTP drafter remain open.
 
 The [complete causal-history attention comparison](../benchmarks/correctness/gb10-mtp-causal-attention-arithmetic-20260920.json)
 uses both full original short-prompt K/V caches and31 accepted decode rows per

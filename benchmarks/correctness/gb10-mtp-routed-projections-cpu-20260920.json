@@ -1,0 +1,3737 @@
+{
+  "kind": "original_mtp_routed_projections_cpu_replay",
+  "comparison": {
+    "host": "aitopatom-66c4",
+    "source_commit": "abefe1baeac4fec4d757f0683caf6cac25c391a9",
+    "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "spec_sha256": "37c50ff6c50ba1d92dc0e1f2dd0cda2e96c35e1848c4be52675a8895f8b28aed",
+    "command_file": "/home/qujing/mtp-routed-cpu-gb10-20260920-r1/run.py",
+    "command_file_sha256": "73c3a2a12d8033beae91d384f405f2414265718fb65662e7b7590012e86df8d2",
+    "gpu_used": false,
+    "model_framework_loaded": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "original_tensors": [
+      {
+        "name": "mtp.layers.0.mlp.experts.down_proj",
+        "shard": "model-00026-of-00026.safetensors",
+        "shape": [
+          256,
+          2048,
+          512
+        ],
+        "dtype": "BF16",
+        "data_offsets": [
+          1632654336,
+          2169525248
+        ],
+        "absolute_begin": 1632658448,
+        "bytes": 536870912,
+        "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+        "shard_file_bytes": 2231416848,
+        "sha256": "671f3f8436a859d11582489d78ef3122f392e3d2f7f2635ad7778b6e52d27e9f",
+        "stat_mtime_ns": 1776430522931465839
+      },
+      {
+        "name": "mtp.layers.0.mlp.experts.gate_up_proj",
+        "shard": "model-00025-of-00026.safetensors",
+        "shape": [
+          256,
+          1024,
+          2048
+        ],
+        "dtype": "BF16",
+        "data_offsets": [
+          2759143808,
+          3832885632
+        ],
+        "absolute_begin": 2759146432,
+        "bytes": 1073741824,
+        "header_sha256": "a1213b03752357c4ef03c1fb806bc445f5230de6e4c70fe252328ad707322d39",
+        "shard_file_bytes": 3832888256,
+        "sha256": "149557e68804517a9f161ede0e39cf287d70e847c9970eb5e80e0cd386e97e9a",
+        "stat_mtime_ns": 1776429887286396119
+      }
+    ],
+    "executable_sha256": "e4d95306bea400945556dd9978eeeebaba4293a6ea99b08296389a79cda6e646",
+    "reports": [
+      {
+        "case": "q7169-out32",
+        "record_file": "q7169-out32-0.json",
+        "report": {
+          "first_row": 0,
+          "rows": 4,
+          "gate_up": {
+            "elements": 32768,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "weighted_down": {
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "gpu_used": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q7169-out32",
+        "record_file": "q7169-out32-4.json",
+        "report": {
+          "first_row": 4,
+          "rows": 4,
+          "gate_up": {
+            "elements": 32768,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "weighted_down": {
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "gpu_used": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q7169-out32",
+        "record_file": "q7169-out32-8.json",
+        "report": {
+          "first_row": 8,
+          "rows": 4,
+          "gate_up": {
+            "elements": 32768,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "weighted_down": {
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "gpu_used": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q7169-out32",
+        "record_file": "q7169-out32-12.json",
+        "report": {
+          "first_row": 12,
+          "rows": 4,
+          "gate_up": {
+            "elements": 32768,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "weighted_down": {
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "gpu_used": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q7169-out32",
+        "record_file": "q7169-out32-16.json",
+        "report": {
+          "first_row": 16,
+          "rows": 4,
+          "gate_up": {
+            "elements": 32768,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "weighted_down": {
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "gpu_used": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q7169-out32",
+        "record_file": "q7169-out32-20.json",
+        "report": {
+          "first_row": 20,
+          "rows": 4,
+          "gate_up": {
+            "elements": 32768,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "weighted_down": {
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "gpu_used": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q7169-out32",
+        "record_file": "q7169-out32-24.json",
+        "report": {
+          "first_row": 24,
+          "rows": 4,
+          "gate_up": {
+            "elements": 32768,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "weighted_down": {
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "gpu_used": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q7169-out32",
+        "record_file": "q7169-out32-28.json",
+        "report": {
+          "first_row": 28,
+          "rows": 4,
+          "gate_up": {
+            "elements": 32768,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "weighted_down": {
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "gpu_used": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q7169-out32",
+        "record_file": "q7169-out32-32.json",
+        "report": {
+          "first_row": 32,
+          "rows": 1,
+          "gate_up": {
+            "elements": 8192,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "weighted_down": {
+            "elements": 16384,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "gpu_used": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q8192-out32",
+        "record_file": "q8192-out32-0.json",
+        "report": {
+          "first_row": 0,
+          "rows": 4,
+          "gate_up": {
+            "elements": 32768,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "weighted_down": {
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "gpu_used": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q8192-out32",
+        "record_file": "q8192-out32-4.json",
+        "report": {
+          "first_row": 4,
+          "rows": 4,
+          "gate_up": {
+            "elements": 32768,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "weighted_down": {
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "gpu_used": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q8192-out32",
+        "record_file": "q8192-out32-8.json",
+        "report": {
+          "first_row": 8,
+          "rows": 4,
+          "gate_up": {
+            "elements": 32768,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "weighted_down": {
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "gpu_used": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q8192-out32",
+        "record_file": "q8192-out32-12.json",
+        "report": {
+          "first_row": 12,
+          "rows": 4,
+          "gate_up": {
+            "elements": 32768,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "weighted_down": {
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "gpu_used": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q8192-out32",
+        "record_file": "q8192-out32-16.json",
+        "report": {
+          "first_row": 16,
+          "rows": 4,
+          "gate_up": {
+            "elements": 32768,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "weighted_down": {
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "gpu_used": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q8192-out32",
+        "record_file": "q8192-out32-20.json",
+        "report": {
+          "first_row": 20,
+          "rows": 4,
+          "gate_up": {
+            "elements": 32768,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "weighted_down": {
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "gpu_used": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q8192-out32",
+        "record_file": "q8192-out32-24.json",
+        "report": {
+          "first_row": 24,
+          "rows": 4,
+          "gate_up": {
+            "elements": 32768,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "weighted_down": {
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "gpu_used": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q8192-out32",
+        "record_file": "q8192-out32-28.json",
+        "report": {
+          "first_row": 28,
+          "rows": 4,
+          "gate_up": {
+            "elements": 32768,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "weighted_down": {
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "gpu_used": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q8192-out32",
+        "record_file": "q8192-out32-32.json",
+        "report": {
+          "first_row": 32,
+          "rows": 1,
+          "gate_up": {
+            "elements": 8192,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "weighted_down": {
+            "elements": 16384,
+            "bf16_mismatches": 0,
+            "first_difference": null
+          },
+          "gpu_used": false,
+          "inference_acceptance": false
+        }
+      }
+    ],
+    "all_bit_exact": true,
+    "compared_elements": 1622016,
+    "reason": "completed",
+    "minimum_host_available_bytes": 123051077632,
+    "wall_seconds": 5.421497764065862,
+    "records": [
+      {
+        "file": "build.json",
+        "sha256": "e82c1a618bf86e06b89e885490ffd9b0016413f35c9a432125404b56f441efbe"
+      },
+      {
+        "file": "q7169-out32-0.json",
+        "sha256": "3c5eb536b6ae08ae374258aae8d6418f0de8ced26a7ba5284e4575140588505e"
+      },
+      {
+        "file": "q7169-out32-4.json",
+        "sha256": "6d8250bac4cd2b86e4fd381e541c133cf84123fd5918650acd2dde3c1b3e3a56"
+      },
+      {
+        "file": "q7169-out32-8.json",
+        "sha256": "1414ed20388195b0faee4d30b0a94dcf6566ac146842fe6a2674ce78ffd8a544"
+      },
+      {
+        "file": "q7169-out32-12.json",
+        "sha256": "d97ad6543838c14632fa2277fff932c219c5dbfa411048d7899fa52c61b326a9"
+      },
+      {
+        "file": "q7169-out32-16.json",
+        "sha256": "a82d7bbbb3a4e1da27fd5f5e106fa1838e10f2d3f956d4f565cd6261fb27518f"
+      },
+      {
+        "file": "q7169-out32-20.json",
+        "sha256": "fd1f999b31327f6c116dd446eef6f8bed72fa2ab934fd2fd1af681e6498d259d"
+      },
+      {
+        "file": "q7169-out32-24.json",
+        "sha256": "a4bb92dfda2fe7ddeeced453fe98a7524ad786e4fbb51c8006401ff596610c1a"
+      },
+      {
+        "file": "q7169-out32-28.json",
+        "sha256": "abd7f62bc9b9cd596b7e0125812b830fc35ecb9ab1b2bf57d5f6fd1d676b0dbc"
+      },
+      {
+        "file": "q7169-out32-32.json",
+        "sha256": "23db06940474ae2c7b671e64523cf30a56ce2d022b68dc8ccf56dd667d293812"
+      },
+      {
+        "file": "q8192-out32-0.json",
+        "sha256": "1aa5d1a7aefe39c410b947b16d7f5806f67f58124be816556b2ee8046e72587c"
+      },
+      {
+        "file": "q8192-out32-4.json",
+        "sha256": "bba5b5f960d155dab9d1a187e0970bb679d8b5b211e6f73e8fb466f20c24dfcd"
+      },
+      {
+        "file": "q8192-out32-8.json",
+        "sha256": "2f8415ca2d796418a1b21dbb03490b68052028cdfd8f6d3dc03563d27396ada9"
+      },
+      {
+        "file": "q8192-out32-12.json",
+        "sha256": "3a38958474a05ad82eef96f26a94ef67477646529a7cc071ac3d31e4aecb081b"
+      },
+      {
+        "file": "q8192-out32-16.json",
+        "sha256": "248ec97f97c4282f182b00761c2105e62809099d63d71806da529d8ca2cacd45"
+      },
+      {
+        "file": "q8192-out32-20.json",
+        "sha256": "a2606f10e1ee1cbe17e2cead6f8376c3b2a27188cfec63e6a4d93674c2a0e2e6"
+      },
+      {
+        "file": "q8192-out32-24.json",
+        "sha256": "6337ed8e852c5f73925c97a636c951d1264864e65206c25903cb8877611a11af"
+      },
+      {
+        "file": "q8192-out32-28.json",
+        "sha256": "505d25720ddec9310dc015325b6992263ac9398712b16a14ffca7a6ed170a8ba"
+      },
+      {
+        "file": "q8192-out32-32.json",
+        "sha256": "9ac9f5f70592e971edfdf8966a2913291d4f180f4fef8f6c8ba8e081f094c428"
+      }
+    ],
+    "host_guard_pass": true,
+    "cpu_children_after": []
+  },
+  "source_and_inputs": {
+    "host": "aitopatom-66c4",
+    "source_commit": "abefe1baeac4fec4d757f0683caf6cac25c391a9",
+    "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+    "tensors": [
+      {
+        "name": "mtp.layers.0.mlp.experts.down_proj",
+        "shard": "model-00026-of-00026.safetensors",
+        "shape": [
+          256,
+          2048,
+          512
+        ],
+        "dtype": "BF16",
+        "data_offsets": [
+          1632654336,
+          2169525248
+        ],
+        "absolute_begin": 1632658448,
+        "bytes": 536870912,
+        "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+        "shard_file_bytes": 2231416848
+      },
+      {
+        "name": "mtp.layers.0.mlp.experts.gate_up_proj",
+        "shard": "model-00025-of-00026.safetensors",
+        "shape": [
+          256,
+          1024,
+          2048
+        ],
+        "dtype": "BF16",
+        "data_offsets": [
+          2759143808,
+          3832885632
+        ],
+        "absolute_begin": 2759146432,
+        "bytes": 1073741824,
+        "header_sha256": "a1213b03752357c4ef03c1fb806bc445f5230de6e4c70fe252328ad707322d39",
+        "shard_file_bytes": 3832888256
+      }
+    ],
+    "cases": [
+      {
+        "name": "q7169-out32",
+        "rows": 33,
+        "selected_rows": [
+          {
+            "transaction": 0,
+            "saved_index": 0,
+            "position": 0,
+            "input_token_id": 95,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 0,
+            "saved_index": 1,
+            "position": 7168,
+            "input_token_id": 82,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 1,
+            "saved_index": 0,
+            "position": 7169,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 2,
+            "saved_index": 0,
+            "position": 7170,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 3,
+            "saved_index": 0,
+            "position": 7171,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 4,
+            "saved_index": 0,
+            "position": 7172,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 4,
+            "saved_index": 1,
+            "position": 7173,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 5,
+            "saved_index": 0,
+            "position": 7174,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 6,
+            "saved_index": 0,
+            "position": 7175,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 6,
+            "saved_index": 1,
+            "position": 7176,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 7,
+            "saved_index": 0,
+            "position": 7177,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 7,
+            "saved_index": 1,
+            "position": 7178,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 8,
+            "saved_index": 0,
+            "position": 7179,
+            "input_token_id": 196,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 8,
+            "saved_index": 1,
+            "position": 7180,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 9,
+            "saved_index": 0,
+            "position": 7181,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 9,
+            "saved_index": 1,
+            "position": 7182,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 10,
+            "saved_index": 0,
+            "position": 7183,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 10,
+            "saved_index": 1,
+            "position": 7184,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 11,
+            "saved_index": 0,
+            "position": 7185,
+            "input_token_id": 196,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 11,
+            "saved_index": 1,
+            "position": 7186,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 12,
+            "saved_index": 0,
+            "position": 7187,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 12,
+            "saved_index": 1,
+            "position": 7188,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 13,
+            "saved_index": 0,
+            "position": 7189,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 13,
+            "saved_index": 1,
+            "position": 7190,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 14,
+            "saved_index": 0,
+            "position": 7191,
+            "input_token_id": 196,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 14,
+            "saved_index": 1,
+            "position": 7192,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 15,
+            "saved_index": 0,
+            "position": 7193,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 15,
+            "saved_index": 1,
+            "position": 7194,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 16,
+            "saved_index": 0,
+            "position": 7195,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 16,
+            "saved_index": 1,
+            "position": 7196,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 17,
+            "saved_index": 0,
+            "position": 7197,
+            "input_token_id": 196,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 17,
+            "saved_index": 1,
+            "position": 7198,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 18,
+            "saved_index": 0,
+            "position": 7199,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          }
+        ],
+        "operands": {
+          "input": {
+            "file": "input.bin",
+            "bytes": 135168,
+            "sha256": "b95e26cf3c68d7fa2d2ad73270f5408fc92ae695243768ac0061058f0eb6a675",
+            "origins": [
+              {
+                "file": "capture/q7169-out32/mtp0000-post-attention-norm.bin",
+                "sha256": "76f4de169b3559c7f208e79f19e55653f32de6a8459ceb4b194e073b06823e2e",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0000-post-attention-norm.bin",
+                "sha256": "76f4de169b3559c7f208e79f19e55653f32de6a8459ceb4b194e073b06823e2e",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0001-post-attention-norm.bin",
+                "sha256": "8c7e26cd066776e0bd2732ef78d5d533640b82a362327109c0f0f6ddd87df3f0",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0002-post-attention-norm.bin",
+                "sha256": "e80b948f3903d668861e3b25f1158eb43fc3f82ce1ec19136c6c9e94df1d2c70",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0003-post-attention-norm.bin",
+                "sha256": "e6c0bfd9d64af430f7f7c1c4c1d259105942d28ace665c26db8e5461a25cf828",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0004-post-attention-norm.bin",
+                "sha256": "5a86d1d5675b89e1c9092695bb91c61c33bb8705f5fe2cf862dfa648928ee080",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0004-post-attention-norm.bin",
+                "sha256": "5a86d1d5675b89e1c9092695bb91c61c33bb8705f5fe2cf862dfa648928ee080",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0005-post-attention-norm.bin",
+                "sha256": "c4d7eaaf679e8810989917593624020b44383814dfeaf017c7524092ff067b22",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0006-post-attention-norm.bin",
+                "sha256": "64b5d519ce10d48326270f6506676c8e10384ccc67360828f8eb2dbf27bf9877",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0006-post-attention-norm.bin",
+                "sha256": "64b5d519ce10d48326270f6506676c8e10384ccc67360828f8eb2dbf27bf9877",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0007-post-attention-norm.bin",
+                "sha256": "2dcd2d12f2593ca5830933321e7d7ca9770956d5e707268075db1f152a9dd152",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0007-post-attention-norm.bin",
+                "sha256": "2dcd2d12f2593ca5830933321e7d7ca9770956d5e707268075db1f152a9dd152",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0008-post-attention-norm.bin",
+                "sha256": "8d7e5bb68b79da96887bb9942d33ba876f163ffb3d0cf48b84e55e35f96e9870",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0008-post-attention-norm.bin",
+                "sha256": "8d7e5bb68b79da96887bb9942d33ba876f163ffb3d0cf48b84e55e35f96e9870",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0009-post-attention-norm.bin",
+                "sha256": "c7e2ea30154acbc6ac0c07dc0c444cae92dd283ee4d8df87ea714d0effdb9c4c",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0009-post-attention-norm.bin",
+                "sha256": "c7e2ea30154acbc6ac0c07dc0c444cae92dd283ee4d8df87ea714d0effdb9c4c",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0010-post-attention-norm.bin",
+                "sha256": "eee86d8e42ad8ab00fffd0ebeb608deb24a0ce77f43ea9ac473f3ec47c31a7cf",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0010-post-attention-norm.bin",
+                "sha256": "eee86d8e42ad8ab00fffd0ebeb608deb24a0ce77f43ea9ac473f3ec47c31a7cf",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0011-post-attention-norm.bin",
+                "sha256": "db3b35bdf8465b512c90a61da33ab6366a0b8a67e55fb6c0a91aa356d2f57d00",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0011-post-attention-norm.bin",
+                "sha256": "db3b35bdf8465b512c90a61da33ab6366a0b8a67e55fb6c0a91aa356d2f57d00",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0012-post-attention-norm.bin",
+                "sha256": "12e193963a800660fbb3e387d4dc9ef76ed9153be8ad746b84df8a0ca8e14017",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0012-post-attention-norm.bin",
+                "sha256": "12e193963a800660fbb3e387d4dc9ef76ed9153be8ad746b84df8a0ca8e14017",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0013-post-attention-norm.bin",
+                "sha256": "f980f8f6689853960d873aea87f0f637079632d4b5262555b75fe767c7e4d3e9",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0013-post-attention-norm.bin",
+                "sha256": "f980f8f6689853960d873aea87f0f637079632d4b5262555b75fe767c7e4d3e9",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0014-post-attention-norm.bin",
+                "sha256": "357b9706e9f3ceb6b86c0ace84e082e21f765dca36a32c0f3e4ef67d07ddf9ba",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0014-post-attention-norm.bin",
+                "sha256": "357b9706e9f3ceb6b86c0ace84e082e21f765dca36a32c0f3e4ef67d07ddf9ba",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0015-post-attention-norm.bin",
+                "sha256": "5526384c19fc2198fd6a34e4c029a1f7bdd27c0475a34b251a0e0a640bdab8de",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0015-post-attention-norm.bin",
+                "sha256": "5526384c19fc2198fd6a34e4c029a1f7bdd27c0475a34b251a0e0a640bdab8de",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0016-post-attention-norm.bin",
+                "sha256": "690e113e0f26a89f4c04e2aba476f839f322b47e3e9eb5b8d92fa0056a9f9283",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0016-post-attention-norm.bin",
+                "sha256": "690e113e0f26a89f4c04e2aba476f839f322b47e3e9eb5b8d92fa0056a9f9283",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0017-post-attention-norm.bin",
+                "sha256": "ef1e35601d58d525d2153ef89d5ff5b6ce51d7d37374513b94a115110e82bcc5",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0017-post-attention-norm.bin",
+                "sha256": "ef1e35601d58d525d2153ef89d5ff5b6ce51d7d37374513b94a115110e82bcc5",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q7169-out32/mtp0018-post-attention-norm.bin",
+                "sha256": "da02794e52e819323519c69e6646df3d066139fb3469c12cabae04eee58f621a",
+                "offset": 0,
+                "bytes": 4096
+              }
+            ]
+          },
+          "routed-gate-up": {
+            "file": "routed-gate-up.bin",
+            "bytes": 540672,
+            "sha256": "b10c2fb360c5924e43e269670e57ed91cb886228a6abb693252c53b5e7b1e420",
+            "origins": [
+              {
+                "file": "capture/q7169-out32/mtp-moe0000-routed-gate-up.bin",
+                "sha256": "853e8f205122a86bf919b37a6b3a669c5cefcc5c67a6688b212bd193a365caf7",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0000-routed-gate-up.bin",
+                "sha256": "853e8f205122a86bf919b37a6b3a669c5cefcc5c67a6688b212bd193a365caf7",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0001-routed-gate-up.bin",
+                "sha256": "b98281de95aa344df534d893f0890528eda4f400305167ab7e5b8dd649e57af5",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0002-routed-gate-up.bin",
+                "sha256": "91bfd46f53ec3a7db8e98304699e529c20edb0bf3ef9ca4f9bd9d379bcde0fc8",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0003-routed-gate-up.bin",
+                "sha256": "e4a1aabe9cd1620890c4ef612ea547618141480edd644a90b09bc5dcdedb36a8",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0004-routed-gate-up.bin",
+                "sha256": "6ca002221b2bd3795311962c2df3fd2c8d2c4190c86b488f9f5ef91c6db2569e",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0004-routed-gate-up.bin",
+                "sha256": "6ca002221b2bd3795311962c2df3fd2c8d2c4190c86b488f9f5ef91c6db2569e",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0005-routed-gate-up.bin",
+                "sha256": "a3248cea221a03ac30a243fff3d15044f104b69b20f236f3c5da3f53b63c5897",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0006-routed-gate-up.bin",
+                "sha256": "d96a40c58fed64042804f764cd58201d04f996219f833bd90256e45cfc05d2ee",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0006-routed-gate-up.bin",
+                "sha256": "d96a40c58fed64042804f764cd58201d04f996219f833bd90256e45cfc05d2ee",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0007-routed-gate-up.bin",
+                "sha256": "3f4902efb77a617aad62377a535160dc870e032c56ca16b3416aefc66f69b69d",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0007-routed-gate-up.bin",
+                "sha256": "3f4902efb77a617aad62377a535160dc870e032c56ca16b3416aefc66f69b69d",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0008-routed-gate-up.bin",
+                "sha256": "884e12d6184eab98187f21a1bb813fb3fe15c14d0c7c3f97d8ac83d37eeac640",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0008-routed-gate-up.bin",
+                "sha256": "884e12d6184eab98187f21a1bb813fb3fe15c14d0c7c3f97d8ac83d37eeac640",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0009-routed-gate-up.bin",
+                "sha256": "f00317b5697d3db5252420212a12b1ea58339d6d0e8966065b5bb49a43a5ae5f",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0009-routed-gate-up.bin",
+                "sha256": "f00317b5697d3db5252420212a12b1ea58339d6d0e8966065b5bb49a43a5ae5f",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0010-routed-gate-up.bin",
+                "sha256": "b3e4e3e64838cfaed6c60690e9bdf03801f36777c696b30dc28eb126a2067b0d",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0010-routed-gate-up.bin",
+                "sha256": "b3e4e3e64838cfaed6c60690e9bdf03801f36777c696b30dc28eb126a2067b0d",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0011-routed-gate-up.bin",
+                "sha256": "c21195cad056fdf352669d1b051ab15a1538320dc8cd9d3089d6ba570f15666a",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0011-routed-gate-up.bin",
+                "sha256": "c21195cad056fdf352669d1b051ab15a1538320dc8cd9d3089d6ba570f15666a",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0012-routed-gate-up.bin",
+                "sha256": "3975f4fad8f5cc3501702636e1a64b1f3183b2df858dd93f3e6e584affc011d9",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0012-routed-gate-up.bin",
+                "sha256": "3975f4fad8f5cc3501702636e1a64b1f3183b2df858dd93f3e6e584affc011d9",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0013-routed-gate-up.bin",
+                "sha256": "f0ef7aa11e8f4f375d6cb31690018d3bbd79c9349022c28ec355dcf477773fe6",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0013-routed-gate-up.bin",
+                "sha256": "f0ef7aa11e8f4f375d6cb31690018d3bbd79c9349022c28ec355dcf477773fe6",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0014-routed-gate-up.bin",
+                "sha256": "c632e61542bd91b987a6b1261475f4706cf4a93451d4d961ba87c7ecb60b1410",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0014-routed-gate-up.bin",
+                "sha256": "c632e61542bd91b987a6b1261475f4706cf4a93451d4d961ba87c7ecb60b1410",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0015-routed-gate-up.bin",
+                "sha256": "5b5e8784a83061d398e64965b74f65d87a19d05b9475e055de29378957c8fe46",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0015-routed-gate-up.bin",
+                "sha256": "5b5e8784a83061d398e64965b74f65d87a19d05b9475e055de29378957c8fe46",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0016-routed-gate-up.bin",
+                "sha256": "54567b292432b7c44b13384a4ea6dcf91f48ff151c59841a87bdceea78ac083a",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0016-routed-gate-up.bin",
+                "sha256": "54567b292432b7c44b13384a4ea6dcf91f48ff151c59841a87bdceea78ac083a",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0017-routed-gate-up.bin",
+                "sha256": "08893eb2fb028fd9b64da6d3f811b7c73490d213b5047d703056ee772e3f9995",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0017-routed-gate-up.bin",
+                "sha256": "08893eb2fb028fd9b64da6d3f811b7c73490d213b5047d703056ee772e3f9995",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0018-routed-gate-up.bin",
+                "sha256": "3e81d7453959524c8733200b5fd3d36ccea207a2b4a3f83d16a6446856de1610",
+                "offset": 0,
+                "bytes": 16384
+              }
+            ]
+          },
+          "routed-activated": {
+            "file": "routed-activated.bin",
+            "bytes": 270336,
+            "sha256": "ee54c21e4465fbfdf5dd2c4f4719f240d0ec5c0fa6b5a6f567e880654edbfb71",
+            "origins": [
+              {
+                "file": "capture/q7169-out32/mtp-moe0000-routed-activated.bin",
+                "sha256": "6e1e6d78bbf4a38a77fc4f5dda2d59632984ae28ec3d1bf482488ef516e79f3e",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0000-routed-activated.bin",
+                "sha256": "6e1e6d78bbf4a38a77fc4f5dda2d59632984ae28ec3d1bf482488ef516e79f3e",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0001-routed-activated.bin",
+                "sha256": "f8a7396be0807d52438625f022e98d7fd551bf264f993b2c42c690e2b5dcbe5f",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0002-routed-activated.bin",
+                "sha256": "84c17009cbea379e9c40e924f593c389e1ebc2f5688771ea5d3b0f1f66d6e33a",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0003-routed-activated.bin",
+                "sha256": "9b63690978ec425d3eb2d7ddb63c5b5e148d05a36aafb2d02e90126c47ab3e49",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0004-routed-activated.bin",
+                "sha256": "be33a814840b5c23158a0c493051097e376158bb38a7a69107473bbe3e330efc",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0004-routed-activated.bin",
+                "sha256": "be33a814840b5c23158a0c493051097e376158bb38a7a69107473bbe3e330efc",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0005-routed-activated.bin",
+                "sha256": "3d6ca1f57dc3948a74450f0f6bf7871f11a7fbe6057fb6cfb1838adf39b700a5",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0006-routed-activated.bin",
+                "sha256": "ed74faf25c227a0aa1a1facd1c898e4634981dd0a3aa29cee304bda90ab1b12f",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0006-routed-activated.bin",
+                "sha256": "ed74faf25c227a0aa1a1facd1c898e4634981dd0a3aa29cee304bda90ab1b12f",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0007-routed-activated.bin",
+                "sha256": "b418d26a526f1f3bba58e8f6bf929ffa1a6a79f129b5db3e35d33522664d69b5",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0007-routed-activated.bin",
+                "sha256": "b418d26a526f1f3bba58e8f6bf929ffa1a6a79f129b5db3e35d33522664d69b5",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0008-routed-activated.bin",
+                "sha256": "370ac5c0759905dfafa4980662a81947befad80fd8a5dab7078d2e8a14ea7ea1",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0008-routed-activated.bin",
+                "sha256": "370ac5c0759905dfafa4980662a81947befad80fd8a5dab7078d2e8a14ea7ea1",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0009-routed-activated.bin",
+                "sha256": "38b47a72ebd5bd1b539a278fa576a952a9673794f8d194aadd6b25a1d16fc280",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0009-routed-activated.bin",
+                "sha256": "38b47a72ebd5bd1b539a278fa576a952a9673794f8d194aadd6b25a1d16fc280",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0010-routed-activated.bin",
+                "sha256": "82cf39481a65d7fb870f7e90b99b848ce6fe1e4f385ab00014bbac07e3abfcbe",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0010-routed-activated.bin",
+                "sha256": "82cf39481a65d7fb870f7e90b99b848ce6fe1e4f385ab00014bbac07e3abfcbe",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0011-routed-activated.bin",
+                "sha256": "57ee4e6941cade8a15fbb09a0057975fbd6eecef207b97e961f19ea559fb411e",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0011-routed-activated.bin",
+                "sha256": "57ee4e6941cade8a15fbb09a0057975fbd6eecef207b97e961f19ea559fb411e",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0012-routed-activated.bin",
+                "sha256": "33ca5561fcf7a955120b5a68c2de554b73085de244aa68fd2f04a6e42455f604",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0012-routed-activated.bin",
+                "sha256": "33ca5561fcf7a955120b5a68c2de554b73085de244aa68fd2f04a6e42455f604",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0013-routed-activated.bin",
+                "sha256": "8a01a6cdcbd0b2010c6b73e3ee0df846155ea96fb829be1563ead7e497ba7e27",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0013-routed-activated.bin",
+                "sha256": "8a01a6cdcbd0b2010c6b73e3ee0df846155ea96fb829be1563ead7e497ba7e27",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0014-routed-activated.bin",
+                "sha256": "02c3f0804416c7c01309fbbd3026ba158cdc2a6a8b75882439448081eb4a01a3",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0014-routed-activated.bin",
+                "sha256": "02c3f0804416c7c01309fbbd3026ba158cdc2a6a8b75882439448081eb4a01a3",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0015-routed-activated.bin",
+                "sha256": "328f826eb48c39b8b27d0c9975d7b3eb481af06da6d774dde2337b89e0ebaa95",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0015-routed-activated.bin",
+                "sha256": "328f826eb48c39b8b27d0c9975d7b3eb481af06da6d774dde2337b89e0ebaa95",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0016-routed-activated.bin",
+                "sha256": "f37f3088c21dbd212ae711614d086d5dccf12910467a65b759abe966ee5f6335",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0016-routed-activated.bin",
+                "sha256": "f37f3088c21dbd212ae711614d086d5dccf12910467a65b759abe966ee5f6335",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0017-routed-activated.bin",
+                "sha256": "f38e34415e6d769f2edd4a9b2821ca105cdec1c525053d66b0bb35dd717ae281",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0017-routed-activated.bin",
+                "sha256": "f38e34415e6d769f2edd4a9b2821ca105cdec1c525053d66b0bb35dd717ae281",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0018-routed-activated.bin",
+                "sha256": "553f567bd255809101d0f87fb0226fedff3a1e573b6eece0c5dcffe7c64225e6",
+                "offset": 0,
+                "bytes": 8192
+              }
+            ]
+          },
+          "routed-weighted": {
+            "file": "routed-weighted.bin",
+            "bytes": 1081344,
+            "sha256": "ba6e5a792300392d330074f4d4da732ab08b88a084c47ac414594319780a2f0d",
+            "origins": [
+              {
+                "file": "capture/q7169-out32/mtp-moe0000-routed-weighted.bin",
+                "sha256": "2b764f6f6afb5863d13564a911773204057ad7e24749837a4eda5200430e1242",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0000-routed-weighted.bin",
+                "sha256": "2b764f6f6afb5863d13564a911773204057ad7e24749837a4eda5200430e1242",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0001-routed-weighted.bin",
+                "sha256": "29ea26fd17c8d1d6a7a22e0835a04aba8df510fb5e2c5c02277a91e2d5a9924b",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0002-routed-weighted.bin",
+                "sha256": "6540432adcb0d998d6b111d25297ed35c4410c9f2fad02e17870bb164e37a995",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0003-routed-weighted.bin",
+                "sha256": "6816919ab36e5a6d5d2908ada04b9e6884172cdae30629590c972df242af2fe7",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0004-routed-weighted.bin",
+                "sha256": "37898757fbe1a38a82611ea8850560536ed4ec6982860e4ec7b7a4fb0fd4ba6c",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0004-routed-weighted.bin",
+                "sha256": "37898757fbe1a38a82611ea8850560536ed4ec6982860e4ec7b7a4fb0fd4ba6c",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0005-routed-weighted.bin",
+                "sha256": "065bd8df96e08e7bd52c23dea644611b3d5e729b377be0ba5efa6985b8838aac",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0006-routed-weighted.bin",
+                "sha256": "3d7b0f18dcff3d6286870f7d9bc5e548673c0c65a2dac6cf3cc6d50e1737fc50",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0006-routed-weighted.bin",
+                "sha256": "3d7b0f18dcff3d6286870f7d9bc5e548673c0c65a2dac6cf3cc6d50e1737fc50",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0007-routed-weighted.bin",
+                "sha256": "877e01f644f00881a0228b254ab99ca6cb4be30a6e80a64e66184276d32b4267",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0007-routed-weighted.bin",
+                "sha256": "877e01f644f00881a0228b254ab99ca6cb4be30a6e80a64e66184276d32b4267",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0008-routed-weighted.bin",
+                "sha256": "5f63f83ab07942ff3bfa90d16d11533e665557ed3503957e80a31bfeed16a616",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0008-routed-weighted.bin",
+                "sha256": "5f63f83ab07942ff3bfa90d16d11533e665557ed3503957e80a31bfeed16a616",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0009-routed-weighted.bin",
+                "sha256": "3ebefe2de28f0e0a6b2d6be01893d9ab335818b26c6a25ed0771f1e0caacea58",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0009-routed-weighted.bin",
+                "sha256": "3ebefe2de28f0e0a6b2d6be01893d9ab335818b26c6a25ed0771f1e0caacea58",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0010-routed-weighted.bin",
+                "sha256": "12a899cee84f22fe081e1fea0307a6ddd762e4f19b7286b75fe4eec1e62ec834",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0010-routed-weighted.bin",
+                "sha256": "12a899cee84f22fe081e1fea0307a6ddd762e4f19b7286b75fe4eec1e62ec834",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0011-routed-weighted.bin",
+                "sha256": "0207aafffee10bf1268b10a3cfed4a17bf873583f0b2a7dbba9a9bae0d702c1b",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0011-routed-weighted.bin",
+                "sha256": "0207aafffee10bf1268b10a3cfed4a17bf873583f0b2a7dbba9a9bae0d702c1b",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0012-routed-weighted.bin",
+                "sha256": "ea245decca5aa5b376793c32def3b1ec10089fbac469149cd00e01a303d39f5d",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0012-routed-weighted.bin",
+                "sha256": "ea245decca5aa5b376793c32def3b1ec10089fbac469149cd00e01a303d39f5d",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0013-routed-weighted.bin",
+                "sha256": "a37e30bd5ef1cd9b829551303b4a8449d2bc1b67af75da36e0bd85f61f18a36b",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0013-routed-weighted.bin",
+                "sha256": "a37e30bd5ef1cd9b829551303b4a8449d2bc1b67af75da36e0bd85f61f18a36b",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0014-routed-weighted.bin",
+                "sha256": "9bf87abd8dd180bfc86a95c9f02c3dd2dc2f8acad7ec852f7f0ce9d6b4494751",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0014-routed-weighted.bin",
+                "sha256": "9bf87abd8dd180bfc86a95c9f02c3dd2dc2f8acad7ec852f7f0ce9d6b4494751",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0015-routed-weighted.bin",
+                "sha256": "79b0d3f5fd4c9ec01f014d0fd073d38cdca2473ea5e1ddc4e1c27dda2d19abec",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0015-routed-weighted.bin",
+                "sha256": "79b0d3f5fd4c9ec01f014d0fd073d38cdca2473ea5e1ddc4e1c27dda2d19abec",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0016-routed-weighted.bin",
+                "sha256": "37494416519b6bd9475901fc57bfea019c064f4d5dd00a0e0de6369a0e094b4a",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0016-routed-weighted.bin",
+                "sha256": "37494416519b6bd9475901fc57bfea019c064f4d5dd00a0e0de6369a0e094b4a",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0017-routed-weighted.bin",
+                "sha256": "b5e89925dd86d28be9e852ca4b5ca32f9d666c5a9ccdd59805a630ca9d9d6329",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0017-routed-weighted.bin",
+                "sha256": "b5e89925dd86d28be9e852ca4b5ca32f9d666c5a9ccdd59805a630ca9d9d6329",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0018-routed-weighted.bin",
+                "sha256": "34aed96147b89c5e78f03e90d6155218f242931e4c13928572c864442d0aea43",
+                "offset": 0,
+                "bytes": 32768
+              }
+            ]
+          },
+          "topk-ids": {
+            "file": "topk-ids.bin",
+            "bytes": 1056,
+            "sha256": "2e1649628fc689f27b02f749f5f7a13cc2251eb740f9359b47f4636114a9c7b2",
+            "origins": [
+              {
+                "file": "capture/q7169-out32/mtp-moe0000-topk-ids.bin",
+                "sha256": "180b90237c3176fea13d78318f5145643d47e82f9972a0cc9c13c7d90bc7a2ce",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0000-topk-ids.bin",
+                "sha256": "180b90237c3176fea13d78318f5145643d47e82f9972a0cc9c13c7d90bc7a2ce",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0001-topk-ids.bin",
+                "sha256": "d5c9f164f21efbd25cadac277d7c8b9b1ef7b7077601fa9bf87c5d0b847d4d99",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0002-topk-ids.bin",
+                "sha256": "4d5773fdc84383672b07c1cbe1411db8478fa8fb5dcb9c1e1a755ce4086727bc",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0003-topk-ids.bin",
+                "sha256": "3cb15a3ede97df2c819d42adb3b5ea761bbecf2fcd0f4462b1cd36ab33025603",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0004-topk-ids.bin",
+                "sha256": "f8e93d9439daa0d673101b54eedd8734157d301075c93858bcd84b3ff1f476dc",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0004-topk-ids.bin",
+                "sha256": "f8e93d9439daa0d673101b54eedd8734157d301075c93858bcd84b3ff1f476dc",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0005-topk-ids.bin",
+                "sha256": "036d100ca14a260bfd9fa42b49dce5b77f1c9d0633f7dbdc97638d873b8cd752",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0006-topk-ids.bin",
+                "sha256": "02d0119d3c47479798c0716291799d5a679e4824d252e677cf072d04705c7dfb",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0006-topk-ids.bin",
+                "sha256": "02d0119d3c47479798c0716291799d5a679e4824d252e677cf072d04705c7dfb",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0007-topk-ids.bin",
+                "sha256": "bf510e5ce64bfb9d89ca0d89f2b67aa5550ddfda9f670e3fd1573889d13df960",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0007-topk-ids.bin",
+                "sha256": "bf510e5ce64bfb9d89ca0d89f2b67aa5550ddfda9f670e3fd1573889d13df960",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0008-topk-ids.bin",
+                "sha256": "46905eed9c6b89c162872ac098fb98cd36221980521a886baaafbe2e83d3eaa7",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0008-topk-ids.bin",
+                "sha256": "46905eed9c6b89c162872ac098fb98cd36221980521a886baaafbe2e83d3eaa7",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0009-topk-ids.bin",
+                "sha256": "6ac8c1b3b86a8a68af570d2f645ab32d847f67b1b46c8f20d65adbd88824e0ee",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0009-topk-ids.bin",
+                "sha256": "6ac8c1b3b86a8a68af570d2f645ab32d847f67b1b46c8f20d65adbd88824e0ee",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0010-topk-ids.bin",
+                "sha256": "8f158286a216c75d6077625e6f6cb51c4affe5623f1556bad6790c75a741631f",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0010-topk-ids.bin",
+                "sha256": "8f158286a216c75d6077625e6f6cb51c4affe5623f1556bad6790c75a741631f",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0011-topk-ids.bin",
+                "sha256": "8f5c4c2fee74cc2f94214f1a48882aa1592a18d64c1f92482f63de1983ed04d6",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0011-topk-ids.bin",
+                "sha256": "8f5c4c2fee74cc2f94214f1a48882aa1592a18d64c1f92482f63de1983ed04d6",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0012-topk-ids.bin",
+                "sha256": "e29d6126f71008b7e8621b0d37e6f491d9b144636c0eed64d81cce00f4a9d475",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0012-topk-ids.bin",
+                "sha256": "e29d6126f71008b7e8621b0d37e6f491d9b144636c0eed64d81cce00f4a9d475",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0013-topk-ids.bin",
+                "sha256": "3b28336ee492da55d4fea0e6e55296c321ee99ce834f427d361db4a9e6b3d9a2",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0013-topk-ids.bin",
+                "sha256": "3b28336ee492da55d4fea0e6e55296c321ee99ce834f427d361db4a9e6b3d9a2",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0014-topk-ids.bin",
+                "sha256": "798d4e6f17e3887a6b349ae68d64400b59cf530f598dff0c68b1b5840458d4ca",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0014-topk-ids.bin",
+                "sha256": "798d4e6f17e3887a6b349ae68d64400b59cf530f598dff0c68b1b5840458d4ca",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0015-topk-ids.bin",
+                "sha256": "a945b972defd5030e02e45710977f88efc2b4ef92f2ad2aa7c32210b08943447",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0015-topk-ids.bin",
+                "sha256": "a945b972defd5030e02e45710977f88efc2b4ef92f2ad2aa7c32210b08943447",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0016-topk-ids.bin",
+                "sha256": "496ba2dce514fffacb729268a5fdb270c4612495d23dcd4b929902e901b22af1",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0016-topk-ids.bin",
+                "sha256": "496ba2dce514fffacb729268a5fdb270c4612495d23dcd4b929902e901b22af1",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0017-topk-ids.bin",
+                "sha256": "3341875124c0a0cc28e893bca4df857a01fa9bebd8c0fc6280872cf77b3fa5c3",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0017-topk-ids.bin",
+                "sha256": "3341875124c0a0cc28e893bca4df857a01fa9bebd8c0fc6280872cf77b3fa5c3",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0018-topk-ids.bin",
+                "sha256": "fb7ddfca267dabcfb6f3248350c3fa78400a516bfdda555f284c25b4c1fde8c0",
+                "offset": 0,
+                "bytes": 32
+              }
+            ]
+          },
+          "topk-weights": {
+            "file": "topk-weights.bin",
+            "bytes": 1056,
+            "sha256": "32286252506edb4e68899e928d7059ea9ee0bda92032c4cf83d516f942cb5fa6",
+            "origins": [
+              {
+                "file": "capture/q7169-out32/mtp-moe0000-topk-weights.bin",
+                "sha256": "4126ad951c8f43150ccec49fc5df9128d82e189e62dc25ba2147c58b041443e5",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0000-topk-weights.bin",
+                "sha256": "4126ad951c8f43150ccec49fc5df9128d82e189e62dc25ba2147c58b041443e5",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0001-topk-weights.bin",
+                "sha256": "8bf819a002d684f64d4b57f2f5b944c4f64d0de9ce8f8bf18297279b1423d2b1",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0002-topk-weights.bin",
+                "sha256": "9aa8f83c54868834384e2c8bee919d589c9483fe2677acedaf1b4000e0a5c4cb",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0003-topk-weights.bin",
+                "sha256": "8357742505408e7e3785a38d9242855bee538ec36e4b2e1f6b6d350ffddfc774",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0004-topk-weights.bin",
+                "sha256": "ef906b9263403a3628d80fbf5a24eb1b91ed22106025782a42bdabf86fcedcda",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0004-topk-weights.bin",
+                "sha256": "ef906b9263403a3628d80fbf5a24eb1b91ed22106025782a42bdabf86fcedcda",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0005-topk-weights.bin",
+                "sha256": "d8e9d37f983d85e74a149b5bf846b5398f27787cf7d1358395032899cbb48fc5",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0006-topk-weights.bin",
+                "sha256": "20951893fb8cf312b96b0afe861b543b5631d723fc1365864c52b310ac157883",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0006-topk-weights.bin",
+                "sha256": "20951893fb8cf312b96b0afe861b543b5631d723fc1365864c52b310ac157883",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0007-topk-weights.bin",
+                "sha256": "a36a1993a74acb227d804fe715041ba106d4e037518ef44c56dc3abe82f3a4af",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0007-topk-weights.bin",
+                "sha256": "a36a1993a74acb227d804fe715041ba106d4e037518ef44c56dc3abe82f3a4af",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0008-topk-weights.bin",
+                "sha256": "6432906af4ead1745916bb41c1237b4ced9364ab3028c5ee78d70a81deb09655",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0008-topk-weights.bin",
+                "sha256": "6432906af4ead1745916bb41c1237b4ced9364ab3028c5ee78d70a81deb09655",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0009-topk-weights.bin",
+                "sha256": "105b5eab7f46a07f1872d3b0aa11af987fac751f6136e0561d72289c337a0cfd",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0009-topk-weights.bin",
+                "sha256": "105b5eab7f46a07f1872d3b0aa11af987fac751f6136e0561d72289c337a0cfd",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0010-topk-weights.bin",
+                "sha256": "88c08ebac63e327207ab9be6334806a22d50010aaa651cfe6bad515b5b4a51ca",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0010-topk-weights.bin",
+                "sha256": "88c08ebac63e327207ab9be6334806a22d50010aaa651cfe6bad515b5b4a51ca",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0011-topk-weights.bin",
+                "sha256": "a2f06145ee7403b23baec1b4e0756a05c4747a7a0662b4ced59850a927ea5373",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0011-topk-weights.bin",
+                "sha256": "a2f06145ee7403b23baec1b4e0756a05c4747a7a0662b4ced59850a927ea5373",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0012-topk-weights.bin",
+                "sha256": "55bd9305f4a92812daf792b6be481d5c151365543ed001ada8d8eaceaacd1281",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0012-topk-weights.bin",
+                "sha256": "55bd9305f4a92812daf792b6be481d5c151365543ed001ada8d8eaceaacd1281",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0013-topk-weights.bin",
+                "sha256": "3ef4a7dcba4015bb04536dc0622ff1cb43f4db7df2a3fbd1f2f106a50dd2ff13",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0013-topk-weights.bin",
+                "sha256": "3ef4a7dcba4015bb04536dc0622ff1cb43f4db7df2a3fbd1f2f106a50dd2ff13",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0014-topk-weights.bin",
+                "sha256": "e619b89bc0c028f23b640107d641c2ca98bde26fdc6af4abb77079943d1433a0",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0014-topk-weights.bin",
+                "sha256": "e619b89bc0c028f23b640107d641c2ca98bde26fdc6af4abb77079943d1433a0",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0015-topk-weights.bin",
+                "sha256": "2bb1f693526cdf6aeccf6b66beeff86e22fca40e33fb212728054d68adcfefd8",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0015-topk-weights.bin",
+                "sha256": "2bb1f693526cdf6aeccf6b66beeff86e22fca40e33fb212728054d68adcfefd8",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0016-topk-weights.bin",
+                "sha256": "40693217c5593a72c26ece02d0bff73684db33a5650292630de3e307d0e4f659",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0016-topk-weights.bin",
+                "sha256": "40693217c5593a72c26ece02d0bff73684db33a5650292630de3e307d0e4f659",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0017-topk-weights.bin",
+                "sha256": "ab2227835cc932a365c72189f29d590bca431bc971bf0c49b6afc1d6b1c9af19",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0017-topk-weights.bin",
+                "sha256": "ab2227835cc932a365c72189f29d590bca431bc971bf0c49b6afc1d6b1c9af19",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q7169-out32/mtp-moe0018-topk-weights.bin",
+                "sha256": "e4e6a11e4afed81813a093b3c345cc01f3357885530e6168a72c7f101fac9122",
+                "offset": 0,
+                "bytes": 32
+              }
+            ]
+          }
+        },
+        "actual_original_outputs": [
+          82,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220
+        ],
+        "original_first_logits_sha256": "719813bb031f041544c91840b0092fd43a0e3ef96ccbb9ac44cd2f713a5763c9"
+      },
+      {
+        "name": "q8192-out32",
+        "rows": 33,
+        "selected_rows": [
+          {
+            "transaction": 0,
+            "saved_index": 0,
+            "position": 0,
+            "input_token_id": 140,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 0,
+            "saved_index": 1,
+            "position": 8191,
+            "input_token_id": 144,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 1,
+            "saved_index": 0,
+            "position": 8192,
+            "input_token_id": 255,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 1,
+            "saved_index": 1,
+            "position": 8193,
+            "input_token_id": 82,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 2,
+            "saved_index": 0,
+            "position": 8194,
+            "input_token_id": 57,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 3,
+            "saved_index": 0,
+            "position": 8195,
+            "input_token_id": 79,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 4,
+            "saved_index": 0,
+            "position": 8196,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 5,
+            "saved_index": 0,
+            "position": 8197,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 6,
+            "saved_index": 0,
+            "position": 8198,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 7,
+            "saved_index": 0,
+            "position": 8199,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 8,
+            "saved_index": 0,
+            "position": 8200,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 8,
+            "saved_index": 1,
+            "position": 8201,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 9,
+            "saved_index": 0,
+            "position": 8202,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 9,
+            "saved_index": 1,
+            "position": 8203,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 10,
+            "saved_index": 0,
+            "position": 8204,
+            "input_token_id": 196,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 10,
+            "saved_index": 1,
+            "position": 8205,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 11,
+            "saved_index": 0,
+            "position": 8206,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 11,
+            "saved_index": 1,
+            "position": 8207,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 12,
+            "saved_index": 0,
+            "position": 8208,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 12,
+            "saved_index": 1,
+            "position": 8209,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 13,
+            "saved_index": 0,
+            "position": 8210,
+            "input_token_id": 196,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 13,
+            "saved_index": 1,
+            "position": 8211,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 14,
+            "saved_index": 0,
+            "position": 8212,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 14,
+            "saved_index": 1,
+            "position": 8213,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 15,
+            "saved_index": 0,
+            "position": 8214,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 15,
+            "saved_index": 1,
+            "position": 8215,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 16,
+            "saved_index": 0,
+            "position": 8216,
+            "input_token_id": 196,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 16,
+            "saved_index": 1,
+            "position": 8217,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 17,
+            "saved_index": 0,
+            "position": 8218,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 17,
+            "saved_index": 1,
+            "position": 8219,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 18,
+            "saved_index": 0,
+            "position": 8220,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 18,
+            "saved_index": 1,
+            "position": 8221,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 19,
+            "saved_index": 0,
+            "position": 8222,
+            "input_token_id": 196,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          }
+        ],
+        "operands": {
+          "input": {
+            "file": "input.bin",
+            "bytes": 135168,
+            "sha256": "7d119cec273dd417d3937d961fd4a7ed424f2da46ff9f83a26e0ceb056485c55",
+            "origins": [
+              {
+                "file": "capture/q8192-out32/mtp0000-post-attention-norm.bin",
+                "sha256": "d33cd55742138df3e5b6caf35f0e9a7634ef6789e07cbc0d91955f10dd5d16eb",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0000-post-attention-norm.bin",
+                "sha256": "d33cd55742138df3e5b6caf35f0e9a7634ef6789e07cbc0d91955f10dd5d16eb",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0001-post-attention-norm.bin",
+                "sha256": "fa3b978260c63ca702e02745feb5cc521f2e27b6f78fdf00d8e988ae10b1bcbe",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0001-post-attention-norm.bin",
+                "sha256": "fa3b978260c63ca702e02745feb5cc521f2e27b6f78fdf00d8e988ae10b1bcbe",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0002-post-attention-norm.bin",
+                "sha256": "ce447c6babca9dbb5a5449da444dc69169327d65e3ced0d177963ca4565d6a51",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0003-post-attention-norm.bin",
+                "sha256": "9a8c3bfdc4679d8808cc068eb04c51988ecf39438bf3c9557e174c4a6f3b98ff",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0004-post-attention-norm.bin",
+                "sha256": "bbf26d3a60785055653d2995d9d2f5ebf6f8e10424edd425e778e70d981bb9a8",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0005-post-attention-norm.bin",
+                "sha256": "d9afa377bf3fbede11fdcfd9189c5087908162a3b5c6a41aa0ae0d96173967c6",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0006-post-attention-norm.bin",
+                "sha256": "6ab196c3aed9bb61ccd9de7a9bccd286e8fe3fdeda9565f1850c185122f287a5",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0007-post-attention-norm.bin",
+                "sha256": "f5ba1c368d1ff266b9e94f9a2e7648f98267e6711b97488951b2ed09e74d5fa3",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0008-post-attention-norm.bin",
+                "sha256": "3cae083ee7158e50c55f062ea5b8e08804576a7f02a30cad03cfedf2a3c789c6",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0008-post-attention-norm.bin",
+                "sha256": "3cae083ee7158e50c55f062ea5b8e08804576a7f02a30cad03cfedf2a3c789c6",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0009-post-attention-norm.bin",
+                "sha256": "b689f0bb5a8316b9c0fcef30c3f411246ced8db1b62bf484ade5d412cf58b2de",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0009-post-attention-norm.bin",
+                "sha256": "b689f0bb5a8316b9c0fcef30c3f411246ced8db1b62bf484ade5d412cf58b2de",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0010-post-attention-norm.bin",
+                "sha256": "3ee01e808b73ff3bd6e04742cdcf9d9856fd8361d4106b7b664886da06c86b41",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0010-post-attention-norm.bin",
+                "sha256": "3ee01e808b73ff3bd6e04742cdcf9d9856fd8361d4106b7b664886da06c86b41",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0011-post-attention-norm.bin",
+                "sha256": "eb64a602ee25d260fea01535712235eecf418d1869096ebfaad0d66ad69b10fc",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0011-post-attention-norm.bin",
+                "sha256": "eb64a602ee25d260fea01535712235eecf418d1869096ebfaad0d66ad69b10fc",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0012-post-attention-norm.bin",
+                "sha256": "1a504ca246323864f5e647cc89008af62db8b4dfb895f57380d4b6e8e83b791e",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0012-post-attention-norm.bin",
+                "sha256": "1a504ca246323864f5e647cc89008af62db8b4dfb895f57380d4b6e8e83b791e",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0013-post-attention-norm.bin",
+                "sha256": "968dd5155c5451d1fc1a037217520df90c867bcdb286c34fef8a2fde120a8849",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0013-post-attention-norm.bin",
+                "sha256": "968dd5155c5451d1fc1a037217520df90c867bcdb286c34fef8a2fde120a8849",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0014-post-attention-norm.bin",
+                "sha256": "98e6f6e5f0133b2171129fded9c9a663d07d9254b5c03bc29ec49acea1ea1540",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0014-post-attention-norm.bin",
+                "sha256": "98e6f6e5f0133b2171129fded9c9a663d07d9254b5c03bc29ec49acea1ea1540",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0015-post-attention-norm.bin",
+                "sha256": "7e0a98972a97bfffe8fea02b31c1a4b9efefba6c9a056dae93dd40b03e53913d",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0015-post-attention-norm.bin",
+                "sha256": "7e0a98972a97bfffe8fea02b31c1a4b9efefba6c9a056dae93dd40b03e53913d",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0016-post-attention-norm.bin",
+                "sha256": "fb6f87337ab4a1cd6661d9a182a71ed47b0d760e91dd161440d7218a78baff4c",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0016-post-attention-norm.bin",
+                "sha256": "fb6f87337ab4a1cd6661d9a182a71ed47b0d760e91dd161440d7218a78baff4c",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0017-post-attention-norm.bin",
+                "sha256": "71845f609519014fe4e1d05603258bda426889c471b967d1e27e0f7dd51365c0",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0017-post-attention-norm.bin",
+                "sha256": "71845f609519014fe4e1d05603258bda426889c471b967d1e27e0f7dd51365c0",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0018-post-attention-norm.bin",
+                "sha256": "b9828a86f65a2fe3b2fb1aad9bc535d19ad6f165568ad864e4ef5cb5b7f89dff",
+                "offset": 0,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0018-post-attention-norm.bin",
+                "sha256": "b9828a86f65a2fe3b2fb1aad9bc535d19ad6f165568ad864e4ef5cb5b7f89dff",
+                "offset": 4096,
+                "bytes": 4096
+              },
+              {
+                "file": "capture/q8192-out32/mtp0019-post-attention-norm.bin",
+                "sha256": "e0c77c8e0b03b9ccf4fa9d6db10f58ad8be5599f386b1bc85d2755fa3140be0a",
+                "offset": 0,
+                "bytes": 4096
+              }
+            ]
+          },
+          "routed-gate-up": {
+            "file": "routed-gate-up.bin",
+            "bytes": 540672,
+            "sha256": "ec8ba0223abf186fc554c7a46f4bdd242ad25e5fc68853a6bab5938cef6b8961",
+            "origins": [
+              {
+                "file": "capture/q8192-out32/mtp-moe0000-routed-gate-up.bin",
+                "sha256": "8791921582f6ab9bcc8fc6afeab6c5838bfeaaa776a697afb3444b72585fe446",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0000-routed-gate-up.bin",
+                "sha256": "8791921582f6ab9bcc8fc6afeab6c5838bfeaaa776a697afb3444b72585fe446",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0001-routed-gate-up.bin",
+                "sha256": "c7f8777c766102e9eddf781ea17dc531cf68757feef8c457b1af714aca3c2cf2",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0001-routed-gate-up.bin",
+                "sha256": "c7f8777c766102e9eddf781ea17dc531cf68757feef8c457b1af714aca3c2cf2",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0002-routed-gate-up.bin",
+                "sha256": "9f428c46f892ac2e2fd8511a8ee31b3d02375ba1a76582570fe1deeed86140ef",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0003-routed-gate-up.bin",
+                "sha256": "71e826a1dddd93f332814cb5ba62e05f73811d9e25ff9a9ba98071ce5df7821a",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0004-routed-gate-up.bin",
+                "sha256": "fe6588acefd66c46c130e4801bcd4b260ce9596d8bc9767755df7117675af35d",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0005-routed-gate-up.bin",
+                "sha256": "3ef7156fb30564ab0819eb8fba41a77f24b8be2fd266b5c09c9ec9cdd1c0b221",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0006-routed-gate-up.bin",
+                "sha256": "11bc125badf754c30faa4113201e6bf3150347d002d6c9d58fd417581b0ac86b",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0007-routed-gate-up.bin",
+                "sha256": "27f5d52b1526a6e1d03891ad94d1d0a521a125f3d7758ca81cdc0cfe9cadd96b",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0008-routed-gate-up.bin",
+                "sha256": "36d28589213e4d1091bf94ae04658a05455a9437ce7dd473d9fe6874abaf20f8",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0008-routed-gate-up.bin",
+                "sha256": "36d28589213e4d1091bf94ae04658a05455a9437ce7dd473d9fe6874abaf20f8",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0009-routed-gate-up.bin",
+                "sha256": "800cbc13bf54e88f4efefdbcaba0be59757f96f067abe9f67076f71f851a5bac",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0009-routed-gate-up.bin",
+                "sha256": "800cbc13bf54e88f4efefdbcaba0be59757f96f067abe9f67076f71f851a5bac",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0010-routed-gate-up.bin",
+                "sha256": "a05b071356df9340b87b751eb76d5fb887aeaaa0793ef149ed675c31bd27d9df",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0010-routed-gate-up.bin",
+                "sha256": "a05b071356df9340b87b751eb76d5fb887aeaaa0793ef149ed675c31bd27d9df",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0011-routed-gate-up.bin",
+                "sha256": "d8ab49907406bc3bee7ca93efca989bef73d19894086827154ba9727c9493523",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0011-routed-gate-up.bin",
+                "sha256": "d8ab49907406bc3bee7ca93efca989bef73d19894086827154ba9727c9493523",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0012-routed-gate-up.bin",
+                "sha256": "541864b5907572db1d838128d781dec54a3afc66334ee157f2822831192a28f1",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0012-routed-gate-up.bin",
+                "sha256": "541864b5907572db1d838128d781dec54a3afc66334ee157f2822831192a28f1",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0013-routed-gate-up.bin",
+                "sha256": "2e65c25140d1b32e5cbdcd1569bb5f363d7916b105c631f0e1426e4398745f83",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0013-routed-gate-up.bin",
+                "sha256": "2e65c25140d1b32e5cbdcd1569bb5f363d7916b105c631f0e1426e4398745f83",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0014-routed-gate-up.bin",
+                "sha256": "07d27cdcbf66e3239d095cd45ad6807f2ad42303b157751ca9286776f6e3bc55",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0014-routed-gate-up.bin",
+                "sha256": "07d27cdcbf66e3239d095cd45ad6807f2ad42303b157751ca9286776f6e3bc55",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0015-routed-gate-up.bin",
+                "sha256": "7535e624d47f8c25b56ededc6110898206ced2d8441bcd42ef2c355d0afc6de3",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0015-routed-gate-up.bin",
+                "sha256": "7535e624d47f8c25b56ededc6110898206ced2d8441bcd42ef2c355d0afc6de3",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0016-routed-gate-up.bin",
+                "sha256": "1eb1ab12e8adb146451bf68a0dcaf153e3b2419102ee099554ba7c4378b26a5c",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0016-routed-gate-up.bin",
+                "sha256": "1eb1ab12e8adb146451bf68a0dcaf153e3b2419102ee099554ba7c4378b26a5c",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0017-routed-gate-up.bin",
+                "sha256": "7f36c3b495e51400ad6ad18a1171ca84467e03b4838dd1289894a445a7250331",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0017-routed-gate-up.bin",
+                "sha256": "7f36c3b495e51400ad6ad18a1171ca84467e03b4838dd1289894a445a7250331",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0018-routed-gate-up.bin",
+                "sha256": "900cbd7aab0d0451968393b489ce5de555932f373f3f28139d6cb3a6cbafbf8b",
+                "offset": 0,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0018-routed-gate-up.bin",
+                "sha256": "900cbd7aab0d0451968393b489ce5de555932f373f3f28139d6cb3a6cbafbf8b",
+                "offset": 16384,
+                "bytes": 16384
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0019-routed-gate-up.bin",
+                "sha256": "adb9e1ebffbfd197da01a7945ff5629f06aece43c64c87b7a59a9f06ae7920f0",
+                "offset": 0,
+                "bytes": 16384
+              }
+            ]
+          },
+          "routed-activated": {
+            "file": "routed-activated.bin",
+            "bytes": 270336,
+            "sha256": "b53124ea70ba1e1b4824e4663226ced35bdd0fa20205e7032188f3d434f5575e",
+            "origins": [
+              {
+                "file": "capture/q8192-out32/mtp-moe0000-routed-activated.bin",
+                "sha256": "47b56912d872c941cf059ffefa28879fa3804087fa2a14c917f042089c37c794",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0000-routed-activated.bin",
+                "sha256": "47b56912d872c941cf059ffefa28879fa3804087fa2a14c917f042089c37c794",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0001-routed-activated.bin",
+                "sha256": "212caec0aa4e3b7a3b9ff4d3433fcbebfd4a1fa5f5f235b8be6c8beaec0a4ba2",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0001-routed-activated.bin",
+                "sha256": "212caec0aa4e3b7a3b9ff4d3433fcbebfd4a1fa5f5f235b8be6c8beaec0a4ba2",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0002-routed-activated.bin",
+                "sha256": "676e2cd1c79b0cf8cf1ec0db1db26f84c19a5e6edc9c5672720b5791f968059a",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0003-routed-activated.bin",
+                "sha256": "27c0470bc6c49c7ef3a9286fcc45de9931450e3ef835b15f2a7b5eb753e9f262",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0004-routed-activated.bin",
+                "sha256": "53f3b760bf8e60483d32dc6a5d49fa34ff658a31a522879cff9c009deab66662",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0005-routed-activated.bin",
+                "sha256": "8d502796d1ec0a66b99da0fecaacdde47f60813c1889c37bb4fdd95403c3c561",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0006-routed-activated.bin",
+                "sha256": "680402a5de4ed775b6cfef44426a3ad554793e4fce48762aaa275ea304c6525b",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0007-routed-activated.bin",
+                "sha256": "35d61dc4e75ff59c081d9fb640fbe983eaa99e40d92a8fe48717819c5dff6515",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0008-routed-activated.bin",
+                "sha256": "c4f2c73765482fe96acdf2076a7842a6575a084c5e82f06ef49f17469d54b12b",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0008-routed-activated.bin",
+                "sha256": "c4f2c73765482fe96acdf2076a7842a6575a084c5e82f06ef49f17469d54b12b",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0009-routed-activated.bin",
+                "sha256": "ed12f23c66711be4bee05acadbf94e80af0072b7a0ba020947d587f4680657b1",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0009-routed-activated.bin",
+                "sha256": "ed12f23c66711be4bee05acadbf94e80af0072b7a0ba020947d587f4680657b1",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0010-routed-activated.bin",
+                "sha256": "053dbb65bd34d212459942dd2d6591b2afde0ecb632fe6849f22ffd90d2c073e",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0010-routed-activated.bin",
+                "sha256": "053dbb65bd34d212459942dd2d6591b2afde0ecb632fe6849f22ffd90d2c073e",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0011-routed-activated.bin",
+                "sha256": "b13cd17b0c1a0b38508d5d69a8e28d3d39d9d394fc6f0c2cd82738001f89c0c0",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0011-routed-activated.bin",
+                "sha256": "b13cd17b0c1a0b38508d5d69a8e28d3d39d9d394fc6f0c2cd82738001f89c0c0",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0012-routed-activated.bin",
+                "sha256": "15d58999415e099a914a66cca994dabfe7f68f7d690b1700c1a6706fb07a9d6f",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0012-routed-activated.bin",
+                "sha256": "15d58999415e099a914a66cca994dabfe7f68f7d690b1700c1a6706fb07a9d6f",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0013-routed-activated.bin",
+                "sha256": "4702203598ab0452d099f8d9fa84a66d9bcacac6b6ec7522819e6c92bd248f45",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0013-routed-activated.bin",
+                "sha256": "4702203598ab0452d099f8d9fa84a66d9bcacac6b6ec7522819e6c92bd248f45",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0014-routed-activated.bin",
+                "sha256": "50cf541bc0afd0e20a8e1366476481bdee4b75555348cceebc17f67b08ece434",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0014-routed-activated.bin",
+                "sha256": "50cf541bc0afd0e20a8e1366476481bdee4b75555348cceebc17f67b08ece434",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0015-routed-activated.bin",
+                "sha256": "2628234b0d4c10023cda170067c379d2243b8bc9aecd1ca3c5fbe9e61ef989f5",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0015-routed-activated.bin",
+                "sha256": "2628234b0d4c10023cda170067c379d2243b8bc9aecd1ca3c5fbe9e61ef989f5",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0016-routed-activated.bin",
+                "sha256": "e153c830a3cbb839088d9ace1ae199446ef3cf733025b75e14af6dfa101bf31b",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0016-routed-activated.bin",
+                "sha256": "e153c830a3cbb839088d9ace1ae199446ef3cf733025b75e14af6dfa101bf31b",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0017-routed-activated.bin",
+                "sha256": "15f9bdadd1324847f36466953de2313f803f1a079605b0f7e53810fe2dd40b0e",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0017-routed-activated.bin",
+                "sha256": "15f9bdadd1324847f36466953de2313f803f1a079605b0f7e53810fe2dd40b0e",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0018-routed-activated.bin",
+                "sha256": "3c86e6539e09d6112f074a968fd474232c931bd58831ce9eae4236554ae7d784",
+                "offset": 0,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0018-routed-activated.bin",
+                "sha256": "3c86e6539e09d6112f074a968fd474232c931bd58831ce9eae4236554ae7d784",
+                "offset": 8192,
+                "bytes": 8192
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0019-routed-activated.bin",
+                "sha256": "e9e4a671ea3674d869d5e38d4fdcfcad95d6202be074a281b1cc49604c9e0cf7",
+                "offset": 0,
+                "bytes": 8192
+              }
+            ]
+          },
+          "routed-weighted": {
+            "file": "routed-weighted.bin",
+            "bytes": 1081344,
+            "sha256": "5ddd750457f500d1ee23627cbe5d73c42337f81a872ff5c086a5d9a293f4b428",
+            "origins": [
+              {
+                "file": "capture/q8192-out32/mtp-moe0000-routed-weighted.bin",
+                "sha256": "ffa44bc6251ef77b86f257c73fd47aae7c6a9a6b7f3bcdc7fb204bc403e9477b",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0000-routed-weighted.bin",
+                "sha256": "ffa44bc6251ef77b86f257c73fd47aae7c6a9a6b7f3bcdc7fb204bc403e9477b",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0001-routed-weighted.bin",
+                "sha256": "9bf3a39f03806f09d155239928d76ae32e8562800e7f2524091244858d0d8b39",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0001-routed-weighted.bin",
+                "sha256": "9bf3a39f03806f09d155239928d76ae32e8562800e7f2524091244858d0d8b39",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0002-routed-weighted.bin",
+                "sha256": "b34b75f9a740058c318218b2dc188d8f52ecf03a3c3f29c30f98405b113167c3",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0003-routed-weighted.bin",
+                "sha256": "3c8dcfe89e8d4f1c5c8a58121cd072d7bb76d6cbc56bbd43aa5e8e216c14f702",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0004-routed-weighted.bin",
+                "sha256": "342d96f84fcbe626a373a9d780556c3edf76b03cf9cdac51c98af61437b0a2d5",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0005-routed-weighted.bin",
+                "sha256": "d866b351a9f3d876e7f76be5dc77e96f0db3d2bee1dfb019b89f21216bb41cf9",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0006-routed-weighted.bin",
+                "sha256": "2d078c5bdd90b36ead10c180babf5ae1a351669356a68f7d6133911d318b69f3",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0007-routed-weighted.bin",
+                "sha256": "a76979054125a1fecf903e0418daf6c1dba98a0e1cf1879fc5a4245d2150301f",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0008-routed-weighted.bin",
+                "sha256": "8204360bfbe86f8956420bd3aebe2ab9553bfc487edc8ae5ced023d50dd6616e",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0008-routed-weighted.bin",
+                "sha256": "8204360bfbe86f8956420bd3aebe2ab9553bfc487edc8ae5ced023d50dd6616e",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0009-routed-weighted.bin",
+                "sha256": "a2aa7e6bafd97a79391006ba056b07e0c77a7722c64dee71dc7317930027a1df",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0009-routed-weighted.bin",
+                "sha256": "a2aa7e6bafd97a79391006ba056b07e0c77a7722c64dee71dc7317930027a1df",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0010-routed-weighted.bin",
+                "sha256": "6c85d5664ec6d287e53ee84b455fac6c37f0fa3e31ce20457eca47267137f436",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0010-routed-weighted.bin",
+                "sha256": "6c85d5664ec6d287e53ee84b455fac6c37f0fa3e31ce20457eca47267137f436",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0011-routed-weighted.bin",
+                "sha256": "26425625d1056dfcd4adc714ca739433a958e2abebe373a1b0068f8a47576497",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0011-routed-weighted.bin",
+                "sha256": "26425625d1056dfcd4adc714ca739433a958e2abebe373a1b0068f8a47576497",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0012-routed-weighted.bin",
+                "sha256": "fdb8796dd676f7cc0fec9bd1c8dd5658b8290e581cd73a495167fdc04cdddf8d",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0012-routed-weighted.bin",
+                "sha256": "fdb8796dd676f7cc0fec9bd1c8dd5658b8290e581cd73a495167fdc04cdddf8d",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0013-routed-weighted.bin",
+                "sha256": "d8e52346fc8f96a097ca013022c660bbf3e665478dab1da2862fb805721e42bc",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0013-routed-weighted.bin",
+                "sha256": "d8e52346fc8f96a097ca013022c660bbf3e665478dab1da2862fb805721e42bc",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0014-routed-weighted.bin",
+                "sha256": "1ffa1d09fd9c3b1e1ebfcf1a77b9f33cfc436eeb550f6858cbf2ccd920e9fed5",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0014-routed-weighted.bin",
+                "sha256": "1ffa1d09fd9c3b1e1ebfcf1a77b9f33cfc436eeb550f6858cbf2ccd920e9fed5",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0015-routed-weighted.bin",
+                "sha256": "9a1b6671464be645c761bf0da2cb05f0589325a5c97488e33f884df7a4b518a0",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0015-routed-weighted.bin",
+                "sha256": "9a1b6671464be645c761bf0da2cb05f0589325a5c97488e33f884df7a4b518a0",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0016-routed-weighted.bin",
+                "sha256": "0147daaf0424e76753d7e81f87d871387082f30add89741572efd35233c344c3",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0016-routed-weighted.bin",
+                "sha256": "0147daaf0424e76753d7e81f87d871387082f30add89741572efd35233c344c3",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0017-routed-weighted.bin",
+                "sha256": "3dee7b93b8f253b7e548a46619b709af392d20227d65e3bd52b492541b322115",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0017-routed-weighted.bin",
+                "sha256": "3dee7b93b8f253b7e548a46619b709af392d20227d65e3bd52b492541b322115",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0018-routed-weighted.bin",
+                "sha256": "68ede85f6bb90abf43a0a52982922d7dd16b3fdb956ba8daffec5e8de0a6dc81",
+                "offset": 0,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0018-routed-weighted.bin",
+                "sha256": "68ede85f6bb90abf43a0a52982922d7dd16b3fdb956ba8daffec5e8de0a6dc81",
+                "offset": 32768,
+                "bytes": 32768
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0019-routed-weighted.bin",
+                "sha256": "e5adb3c91ad7cb562abf6919879b7b8ec517e07b712c223a556e37fdee7b52ff",
+                "offset": 0,
+                "bytes": 32768
+              }
+            ]
+          },
+          "topk-ids": {
+            "file": "topk-ids.bin",
+            "bytes": 1056,
+            "sha256": "63dae444eb6b74bc9cdbacb44abef5865a27db74a472de280accc214aa68008f",
+            "origins": [
+              {
+                "file": "capture/q8192-out32/mtp-moe0000-topk-ids.bin",
+                "sha256": "70a063dcacdd60d29edf83b508ecb2a0accc72f743e1f93a42e8e5d8490c1532",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0000-topk-ids.bin",
+                "sha256": "70a063dcacdd60d29edf83b508ecb2a0accc72f743e1f93a42e8e5d8490c1532",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0001-topk-ids.bin",
+                "sha256": "b8135fded29736cdc200b06a5151395bd5096b9820108a5a0caa995cb9afb941",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0001-topk-ids.bin",
+                "sha256": "b8135fded29736cdc200b06a5151395bd5096b9820108a5a0caa995cb9afb941",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0002-topk-ids.bin",
+                "sha256": "a3a5182660e909eac5d6b5747f570ff49aeec540cf92bf7be6b8d5d53a21fdb0",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0003-topk-ids.bin",
+                "sha256": "a5bf4a9a77969f286b4f73442be5ed82710b2268f2fcac932c7126f8384cf08f",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0004-topk-ids.bin",
+                "sha256": "2e97e72f7046803c6e3fb2da4c5598d9c463b243d19debdc749dd8933c58bb85",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0005-topk-ids.bin",
+                "sha256": "2ab70c1555276dad91c5a59cb04247a03b187793088dd45a2eb63a4922cd1c4f",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0006-topk-ids.bin",
+                "sha256": "f0375067c16a1a799dbab6147fabbb280b6ebf46a1338decaa73116653914cba",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0007-topk-ids.bin",
+                "sha256": "d82db0f3601f438aebe6a5f8a6882d9691c15bcee6c94d2b5281a464fe0e3463",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0008-topk-ids.bin",
+                "sha256": "fa8d647a2b50d810351c986f989c068bd1d338259a875551d63c1c89bce67fa7",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0008-topk-ids.bin",
+                "sha256": "fa8d647a2b50d810351c986f989c068bd1d338259a875551d63c1c89bce67fa7",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0009-topk-ids.bin",
+                "sha256": "5e76f3e445457eee9b8eb05dd4de30c17a163e1d9fc28c962cad658e6a349b93",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0009-topk-ids.bin",
+                "sha256": "5e76f3e445457eee9b8eb05dd4de30c17a163e1d9fc28c962cad658e6a349b93",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0010-topk-ids.bin",
+                "sha256": "6b8fad525006670c70e312256391e33c7d8161e2e41af5fedb207488578bbfeb",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0010-topk-ids.bin",
+                "sha256": "6b8fad525006670c70e312256391e33c7d8161e2e41af5fedb207488578bbfeb",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0011-topk-ids.bin",
+                "sha256": "fac2b7896af1f5490201f481bd5af0a459f829cbe2ba7d40675ab1efd6cbbcaa",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0011-topk-ids.bin",
+                "sha256": "fac2b7896af1f5490201f481bd5af0a459f829cbe2ba7d40675ab1efd6cbbcaa",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0012-topk-ids.bin",
+                "sha256": "0ce60f5aae7cd995b1200093435f63faf911184bb84751f269f1d1188ba73448",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0012-topk-ids.bin",
+                "sha256": "0ce60f5aae7cd995b1200093435f63faf911184bb84751f269f1d1188ba73448",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0013-topk-ids.bin",
+                "sha256": "b3f5a8900a26665007e1923c2d04f97931812c0004cad9e3c11972e9c16a4c0b",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0013-topk-ids.bin",
+                "sha256": "b3f5a8900a26665007e1923c2d04f97931812c0004cad9e3c11972e9c16a4c0b",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0014-topk-ids.bin",
+                "sha256": "ffacbabf0354ab9301b8e24d23634739e39639e4cf32f63b99336568b4420573",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0014-topk-ids.bin",
+                "sha256": "ffacbabf0354ab9301b8e24d23634739e39639e4cf32f63b99336568b4420573",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0015-topk-ids.bin",
+                "sha256": "6c436913c18cee568b6c1354715f6c62593c3eee5a02993999363d333e78713c",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0015-topk-ids.bin",
+                "sha256": "6c436913c18cee568b6c1354715f6c62593c3eee5a02993999363d333e78713c",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0016-topk-ids.bin",
+                "sha256": "0be111d5ec5a9ba2a6c152dcf98838a60ac0bf87eadad00ac851990f4a29cf8c",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0016-topk-ids.bin",
+                "sha256": "0be111d5ec5a9ba2a6c152dcf98838a60ac0bf87eadad00ac851990f4a29cf8c",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0017-topk-ids.bin",
+                "sha256": "303e735ad14e39d1d3941812a83d174661704e5dc198393b71970a3a6e531e67",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0017-topk-ids.bin",
+                "sha256": "303e735ad14e39d1d3941812a83d174661704e5dc198393b71970a3a6e531e67",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0018-topk-ids.bin",
+                "sha256": "6c436913c18cee568b6c1354715f6c62593c3eee5a02993999363d333e78713c",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0018-topk-ids.bin",
+                "sha256": "6c436913c18cee568b6c1354715f6c62593c3eee5a02993999363d333e78713c",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0019-topk-ids.bin",
+                "sha256": "8d9afc317498decb34ff8a0045f55792b4cfcae146fb137e31156d6f4c603971",
+                "offset": 0,
+                "bytes": 32
+              }
+            ]
+          },
+          "topk-weights": {
+            "file": "topk-weights.bin",
+            "bytes": 1056,
+            "sha256": "f4d1d6fbfebc6f28e5c08e115af3927b6a3cb816779dffb06430367b8f0bb8d5",
+            "origins": [
+              {
+                "file": "capture/q8192-out32/mtp-moe0000-topk-weights.bin",
+                "sha256": "7c0567a0d70d4cdcfbdec7f69c1b188b832d21b9cc566ac012d5c122fd4c0218",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0000-topk-weights.bin",
+                "sha256": "7c0567a0d70d4cdcfbdec7f69c1b188b832d21b9cc566ac012d5c122fd4c0218",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0001-topk-weights.bin",
+                "sha256": "7ebd68b3f7090d6e960c6014f317e0b3a48a3f95c7ad4638d82ef063279803a6",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0001-topk-weights.bin",
+                "sha256": "7ebd68b3f7090d6e960c6014f317e0b3a48a3f95c7ad4638d82ef063279803a6",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0002-topk-weights.bin",
+                "sha256": "f6a1515227adfb70d7e96e1b456764fff8dfb0fe9003250a9333a3518ea81403",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0003-topk-weights.bin",
+                "sha256": "735b86b939973654001f1b1418843b6bc1383f07a6017e1ac587602dc5294233",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0004-topk-weights.bin",
+                "sha256": "a473f1d1343259e2852290b7bce509735364b1ca0ed1059738895587233e8287",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0005-topk-weights.bin",
+                "sha256": "b6fedf808f4a686170bb0fed77891dfd504ae1111556e4c7fc263b06dfa585e4",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0006-topk-weights.bin",
+                "sha256": "8ab118ce01979d12259862efaae85e6e1ae0adccce2a7950b320424fdf67154d",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0007-topk-weights.bin",
+                "sha256": "d549293d6100f722169dafd4a529cc1254e7b477e5bea6e61a3e72ed409c981c",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0008-topk-weights.bin",
+                "sha256": "83150d37dba9a7ee480cd014a3cf06d54ac691eff2b7ed6d48cff630f81859a4",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0008-topk-weights.bin",
+                "sha256": "83150d37dba9a7ee480cd014a3cf06d54ac691eff2b7ed6d48cff630f81859a4",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0009-topk-weights.bin",
+                "sha256": "0cd8755130e23b7b1e8383ccda61869a104c402bac6ec57ee89454886409d8c9",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0009-topk-weights.bin",
+                "sha256": "0cd8755130e23b7b1e8383ccda61869a104c402bac6ec57ee89454886409d8c9",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0010-topk-weights.bin",
+                "sha256": "946307a3ce33a238a19a429fc1bf3f732e26a7dfee6ae9a2c1cd6c5e277d0b23",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0010-topk-weights.bin",
+                "sha256": "946307a3ce33a238a19a429fc1bf3f732e26a7dfee6ae9a2c1cd6c5e277d0b23",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0011-topk-weights.bin",
+                "sha256": "68f6973ce12f0ca1975c721bd8585228bcfcaf5712428d281cb9d489cb4dc1a8",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0011-topk-weights.bin",
+                "sha256": "68f6973ce12f0ca1975c721bd8585228bcfcaf5712428d281cb9d489cb4dc1a8",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0012-topk-weights.bin",
+                "sha256": "6276a6c4bac896ba146cedb4fe2ee3ae1e848a5657800dc1369530896f6655bf",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0012-topk-weights.bin",
+                "sha256": "6276a6c4bac896ba146cedb4fe2ee3ae1e848a5657800dc1369530896f6655bf",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0013-topk-weights.bin",
+                "sha256": "07e5d72a93477ec1896d57222bf45a026e1794bff17ccc6e538183564ae5297b",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0013-topk-weights.bin",
+                "sha256": "07e5d72a93477ec1896d57222bf45a026e1794bff17ccc6e538183564ae5297b",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0014-topk-weights.bin",
+                "sha256": "4cb266e8a20f2be6463e73caa50673ac8b98753961b6953a5c06c8bc5c2c1589",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0014-topk-weights.bin",
+                "sha256": "4cb266e8a20f2be6463e73caa50673ac8b98753961b6953a5c06c8bc5c2c1589",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0015-topk-weights.bin",
+                "sha256": "b163d7ca6cf6eaa4544b0766538df08da035896870a45dbf1808b4e8dda5b2f8",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0015-topk-weights.bin",
+                "sha256": "b163d7ca6cf6eaa4544b0766538df08da035896870a45dbf1808b4e8dda5b2f8",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0016-topk-weights.bin",
+                "sha256": "9e8e22bd1e8da8d8830c951259e825b27932a9c3f8417ddf510f00e626d86a65",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0016-topk-weights.bin",
+                "sha256": "9e8e22bd1e8da8d8830c951259e825b27932a9c3f8417ddf510f00e626d86a65",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0017-topk-weights.bin",
+                "sha256": "67a6d25fd0c95885e7b98bafbeecf40a1a37f03b3bf48a623e5c93bfbcef34bb",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0017-topk-weights.bin",
+                "sha256": "67a6d25fd0c95885e7b98bafbeecf40a1a37f03b3bf48a623e5c93bfbcef34bb",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0018-topk-weights.bin",
+                "sha256": "e9017b549970de1b655fa55eaf3a75b851f8321b0b0a2c60d44dc0e083665073",
+                "offset": 0,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0018-topk-weights.bin",
+                "sha256": "e9017b549970de1b655fa55eaf3a75b851f8321b0b0a2c60d44dc0e083665073",
+                "offset": 32,
+                "bytes": 32
+              },
+              {
+                "file": "capture/q8192-out32/mtp-moe0019-topk-weights.bin",
+                "sha256": "b6d0bcd3eeff9a891dec555e17c2499fc06ce0efefa23511e98128784cec60fa",
+                "offset": 0,
+                "bytes": 32
+              }
+            ]
+          }
+        },
+        "actual_original_outputs": [
+          144,
+          255,
+          82,
+          57,
+          79,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196
+        ],
+        "original_first_logits_sha256": "145adfd0d14158d649b4c57f1dbb5151466d73f9183821e7da24e831d74112c0"
+      }
+    ],
+    "files": {
+      "mtp_routed_projection_cpu_probe.cpp": {
+        "bytes": 5390,
+        "sha256": "5047586363e60855ff74fe66832301653812ac9a0221c83fb61891891af3beb8"
+      },
+      "q1_moe_hawkeye_bf16_accumulator.h": {
+        "bytes": 12459,
+        "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a"
+      },
+      "run.py": {
+        "bytes": 5748,
+        "sha256": "73c3a2a12d8033beae91d384f405f2414265718fb65662e7b7590012e86df8d2"
+      },
+      "q7169-out32/input.bin": {
+        "bytes": 135168,
+        "sha256": "b95e26cf3c68d7fa2d2ad73270f5408fc92ae695243768ac0061058f0eb6a675"
+      },
+      "q7169-out32/routed-gate-up.bin": {
+        "bytes": 540672,
+        "sha256": "b10c2fb360c5924e43e269670e57ed91cb886228a6abb693252c53b5e7b1e420"
+      },
+      "q7169-out32/routed-activated.bin": {
+        "bytes": 270336,
+        "sha256": "ee54c21e4465fbfdf5dd2c4f4719f240d0ec5c0fa6b5a6f567e880654edbfb71"
+      },
+      "q7169-out32/routed-weighted.bin": {
+        "bytes": 1081344,
+        "sha256": "ba6e5a792300392d330074f4d4da732ab08b88a084c47ac414594319780a2f0d"
+      },
+      "q7169-out32/topk-ids.bin": {
+        "bytes": 1056,
+        "sha256": "2e1649628fc689f27b02f749f5f7a13cc2251eb740f9359b47f4636114a9c7b2"
+      },
+      "q7169-out32/topk-weights.bin": {
+        "bytes": 1056,
+        "sha256": "32286252506edb4e68899e928d7059ea9ee0bda92032c4cf83d516f942cb5fa6"
+      },
+      "q8192-out32/input.bin": {
+        "bytes": 135168,
+        "sha256": "7d119cec273dd417d3937d961fd4a7ed424f2da46ff9f83a26e0ceb056485c55"
+      },
+      "q8192-out32/routed-gate-up.bin": {
+        "bytes": 540672,
+        "sha256": "ec8ba0223abf186fc554c7a46f4bdd242ad25e5fc68853a6bab5938cef6b8961"
+      },
+      "q8192-out32/routed-activated.bin": {
+        "bytes": 270336,
+        "sha256": "b53124ea70ba1e1b4824e4663226ced35bdd0fa20205e7032188f3d434f5575e"
+      },
+      "q8192-out32/routed-weighted.bin": {
+        "bytes": 1081344,
+        "sha256": "5ddd750457f500d1ee23627cbe5d73c42337f81a872ff5c086a5d9a293f4b428"
+      },
+      "q8192-out32/topk-ids.bin": {
+        "bytes": 1056,
+        "sha256": "63dae444eb6b74bc9cdbacb44abef5865a27db74a472de280accc214aa68008f"
+      },
+      "q8192-out32/topk-weights.bin": {
+        "bytes": 1056,
+        "sha256": "f4d1d6fbfebc6f28e5c08e115af3927b6a3cb816779dffb06430367b8f0bb8d5"
+      }
+    },
+    "reference_dispatch_sha256": "87595fd468ce45dc57bd1bbde21d18091e466d3a94068723bdd5378388dd8981",
+    "reference_capture_sha256": "7d0ef0f9cc4d8d3686698062a8707278968f4c4a3e552fdde23295214cb71025",
+    "original_operand_cpu_comparison_sha256": "cfdcc9121fbffd2cd8f871c81ebc75c0ff8f97ad5f5cf930ae038af9020b87cd",
+    "wrapper_sha256": "73c3a2a12d8033beae91d384f405f2414265718fb65662e7b7590012e86df8d2",
+    "dispatcher_sha256": "2f8576efdaa9d52d59e5b306a8b623673092389e80371acd07171c025d1adf72",
+    "process_timeout_seconds": 420,
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "build": {
+    "label": "build",
+    "command": [
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=2",
+      "100",
+      "c++",
+      "-std=c++17",
+      "-O2",
+      "-fno-fast-math",
+      "-ffp-contract=off",
+      "-I.",
+      "mtp_routed_projection_cpu_probe.cpp",
+      "-o",
+      "mtp-routed-cpu"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "",
+    "seconds": 0.4996001869440079,
+    "available_before": 123185500160,
+    "available_after": 123187851264
+  },
+  "comparison_sha256": "3cb7c243ae6d3af8b284648313cabdb722f7dc17d2c8ac31a3f1f0248a9fea45",
+  "transport_sha256": "2a131c0892c5d0a0a4e26756fdea88bd5e463747138bb0b4b7beb88f131830f3",
+  "previous_frontier_evidence": {
+    "file": "gb10-mtp-moe-original-frontiers-20260920.json",
+    "sha256": "77431960c7cd10eebb395c3b76e295b59885d209c95ee9ff2911122ae0589b7c"
+  },
+  "complete_original_accepted_rows": 66,
+  "all_bit_exact": true,
+  "gpu_used": false,
+  "model_framework_loaded": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_acceptance": false,
+  "scope": "Original captured post-attention-norm, expert IDs, F32 routing weights and activation rows are replayed against read-only original MTP expert weights on the reference host CPU. Gate/up K16 and weighted-down K16 BF16 endpoints all match. Full tensor byte hashes, safetensor headers, prompt/output lineage and compiled source are bound. This completes CPU arithmetic qualification on the66 original accepted rows; it does not execute native GPU MoE or a complete drafter.",
+  "recorder": {
+    "file": "record_mtp_routed_cpu_r1.py",
+    "sha256": "2fec3a45d1f9afb5af5b475c22c0c4d12159a5ae8342396c899538c857a11d81"
+  }
+}
