@@ -282,8 +282,15 @@ Original calls return their objects unchanged; all capture data is diagnostic.
 Qualification checks each sampled hidden row against the original final norm,
 each draft token against its complete248320-value original logits, and retains
 the accepted/rejected input provenance. The capture has separate64MiB per-case
-and16MiB shared-weight limits. Real-model validation of this observer remains
-unrun; this does not qualify a native MoE or a complete MTP drafter.
+and16MiB shared-weight limits. Its
+[first run](../benchmarks/correctness/gb10-mtp-moe-observer-configuration-rejection-20260920.json)
+stopped during observer setup because the new guard incorrectly excluded
+shared overlap and internal routing. It produced no inference outputs; memory
+guards and GPU cleanup passed. The corrected observer follows the pinned
+original shared-overlap path, binds the original router/shared-module identities,
+and persists its configuration before qualification. All66 local checks pass.
+Real-model validation of the corrected observer remains pending; this does not
+qualify a native MoE or a complete MTP drafter.
 
 The [complete causal-history attention comparison](../benchmarks/correctness/gb10-mtp-causal-attention-arithmetic-20260920.json)
 uses both full original short-prompt K/V caches and31 accepted decode rows per

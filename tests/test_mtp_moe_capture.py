@@ -13,7 +13,27 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
 from capture_gb10_mtp_moe import (  # noqa: E402
-    FRONTIERS, WEIGHTS, observe_original_moe_routed, qualify_moe_capture)
+    FRONTIERS, WEIGHTS, observe_original_moe_routed, qualify_moe_capture, qualify_moe_configuration)
+
+
+CONFIGURATION = dict(tp_size=1, ep_size=1, shared_expert_present=True,
+    enable_eplb=False, sequence_parallel=False, use_overlapped=True,
+    internal_router=True, router_is_original_module=True,
+    shared_is_original_module=True, shared_gate_is_original_module=True)
+
+
+class MtpMoeConfigurationTests(unittest.TestCase):
+    def test_pinned_shared_overlap_and_original_internal_router_are_accepted(self):
+        original = copy.deepcopy(CONFIGURATION)
+        qualify_moe_configuration(original)
+        self.assertEqual(original, CONFIGURATION)
+
+    def test_foreign_router_module_or_distributed_configuration_is_rejected(self):
+        for changed in (dict(tp_size=2), dict(ep_size=2), dict(enable_eplb=True),
+                dict(router_is_original_module=False), dict(shared_is_original_module=False),
+                dict(shared_gate_is_original_module=False)):
+            with self.subTest(changed=changed), self.assertRaisesRegex(ValueError, 'configuration changed'):
+                qualify_moe_configuration(dict(CONFIGURATION, **changed))
 
 
 class MtpRoutedCallTests(unittest.TestCase):
@@ -90,7 +110,7 @@ class MtpMoeCaptureTests(unittest.TestCase):
         transaction = dict(ordinal=0, sampled_rows=[0], draft_token_ids=[[14]], rows=[
             dict(row=0, selected_for_sampling=True, input_provenance='accepted_history'),
             dict(row=1, selected_for_sampling=False, input_provenance='rejected_padding')])
-        self.moe = dict(files=files, draft_logits={'0': draft}, weights=weights,
+        self.moe = dict(files=files, draft_logits={'0': draft}, weights=weights, configuration=CONFIGURATION.copy(),
             weights_directory='../mtp-moe-original-weights', original_results_returned_unchanged=True,
             bytes=sum(meta['bytes'] for meta in files.values()) + draft['hidden']['bytes'] + draft['logits']['bytes'])
         self.worker = dict(mtp_moe=self.moe, mtp_boundaries=dict(original_history_qualified=True,

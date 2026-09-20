@@ -28,6 +28,17 @@ WEIGHTS = {'router': (256, 2048), 'shared-gate': (1, 2048),
            'shared-gate-up': (1024, 2048), 'shared-down': (2048, 512), 'final-norm': (2048,)}
 
 
+def qualify_moe_configuration(configuration):
+    # The pinned FusedMoE enables shared overlap at TP1 and runs the original
+    # router inside the MoE runner. The observer must follow that existing path.
+    expected = dict(tp_size=1, ep_size=1, shared_expert_present=True,
+        enable_eplb=False, sequence_parallel=False, use_overlapped=True,
+        internal_router=True, router_is_original_module=True,
+        shared_is_original_module=True, shared_gate_is_original_module=True)
+    if configuration != expected:
+        raise ValueError('original MTP MoE configuration changed: ' + repr(configuration))
+
+
 def observe_original_moe_routed(forward, module, observe, tokens, *args, **kwargs):
     """Keep the separately pinned target observer unchanged during MTP capture.
 
@@ -70,6 +81,7 @@ def qualify_moe_capture(worker, directory):
     root = Path(directory)
     mtp, moe = worker['mtp_boundaries'], worker['mtp_moe']
     transactions = mtp['transactions']
+    qualify_moe_configuration(moe['configuration'])
     if (not mtp['original_history_qualified'] or not transactions or
             not moe['original_results_returned_unchanged'] or
             not 0 < moe['bytes'] <= MAXIMUM_BYTES or
@@ -170,16 +182,26 @@ class MtpMoeBoundaryCapture(MtpKernelBoundaryCapture):
                 (type(mlp), '0f7c2df8fa972a193922bad89260d6cf1b6acb97a63b9c6675bc0be362d0a1e5'),
                 (type(mlp.shared_expert), '58899ae017336a4ea00e37788788969e17a6178c113961486acca9e6569f4a8f'),
                 (type(mlp.experts), 'c6b929944dfab05216164844882adbd3a5266094eec8db71d875a3a993e3b1f0'),
+                (type(mlp.experts).__mro__[1], 'b47fe17d1f760f184b95140fc474259520fc60ff2ed4d68bb558eb6e23b1328a'),
                 (type(router), '411faeb99079135084bef8734e82ff1e3d0c82c913198bb35d8140e77c41cbfa'),
                 (routed_module, '607c0a459306a71ff7d01445772494367f3924098739bbd3b4f43020738297d4')):
             path = Path(inspect.getsourcefile(value))
             if file_sha(path) != expected:
                 raise ValueError('original MTP MoE implementation changed')
             sources.append(dict(file=str(path), sha256=expected))
-        if (mlp.tp_size != 1 or mlp.ep_size != 1 or mlp.shared_expert is None or
-                mlp.enable_eplb or mlp.is_sequence_parallel or mlp.experts.use_overlapped or
-                mlp.experts.is_internal_router or mlp.shared_expert.expert_gate is not mlp.shared_expert_gate):
-            raise ValueError('original MTP MoE configuration changed')
+        configuration = dict(tp_size=mlp.tp_size, ep_size=mlp.ep_size,
+            shared_expert_present=mlp.shared_expert is not None,
+            enable_eplb=mlp.enable_eplb, sequence_parallel=mlp.is_sequence_parallel,
+            use_overlapped=mlp.experts.use_overlapped, internal_router=mlp.experts.is_internal_router,
+            router_is_original_module=mlp.experts.gate is mlp.gate,
+            shared_is_original_module=mlp.experts.shared_experts is mlp.shared_expert,
+            shared_gate_is_original_module=mlp.shared_expert.expert_gate is mlp.shared_expert_gate)
+        import json
+        with (root / 'mtp-moe-configuration.json').open('x') as stream:
+            json.dump(configuration, stream, indent=2)
+            stream.write('\n')
+        qualify_moe_configuration(configuration)
+        self._qrt_mtp_moe_configuration = configuration
         self._qrt_mtp_moe_files = {}
         self._qrt_mtp_moe_drafts = {}
         self._qrt_mtp_moe_bytes = 0
@@ -311,7 +333,7 @@ class MtpMoeBoundaryCapture(MtpKernelBoundaryCapture):
         router.select_experts = select
         mlp.experts.forward = experts
         model.compute_logits = logits
-        record['mtp_moe'] = dict(sources=sources, maximum_saved_bytes=MAXIMUM_BYTES,
+        record['mtp_moe'] = dict(sources=sources, configuration=configuration, maximum_saved_bytes=MAXIMUM_BYTES,
             maximum_weight_bytes=MAXIMUM_WEIGHT_BYTES, original_results_returned_unchanged=True)
         return record
 
@@ -324,5 +346,6 @@ class MtpMoeBoundaryCapture(MtpKernelBoundaryCapture):
         record['mtp_moe'] = dict(files=self._qrt_mtp_moe_files, bytes=self._qrt_mtp_moe_bytes,
             draft_logits=self._qrt_mtp_moe_drafts, weights=self._qrt_mtp_moe_weights,
             weights_directory='../mtp-moe-original-weights', sources=self._qrt_mtp_moe_sources,
+            configuration=self._qrt_mtp_moe_configuration,
             original_results_returned_unchanged=True, diagnostic_only=True)
         return record
