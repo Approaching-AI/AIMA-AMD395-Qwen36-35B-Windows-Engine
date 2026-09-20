@@ -1,4 +1,5 @@
 #include "mtp_target_rows.h"
+#include "mtp_decode_rows.h"
 #include "mtp_target_rows_trace.h"
 #include <cassert>
 #include <cmath>
@@ -166,6 +167,57 @@ static void scopes_and_head_selection() {
     assert(values.size() == 2u * hidden_width && values.front() == 3 && values.back() == 1);
 }
 
+static void actual_decode_acceptance() {
+    const uint32_t inputs[]={999u,200u}, accepted[]={200u,77u}, rejected[]={201u,77u};
+    std::vector<float> hidden(2u*hidden_width,1.0f);
+    std::fill(hidden.begin()+hidden_width,hidden.end(),2.0f);
+    for(unsigned mode=0;mode<3u;++mode){
+        DecodeRows batch;
+        assert(batch.capture(8192u,inputs,mode==0u?rejected:accepted,2u,mode==2u?1u:8u,{0,1},hidden));
+        const size_t rows=mode==1u?2u:1u;
+        assert(batch.completed()&&batch.rows()==rows&&batch.first_position()==8192u&&batch.scheduled_rows()==2u);
+        assert(batch.accepted_before_capacity_clip()==(mode==0u?1u:2u));
+        assert(batch.hidden().size()==rows*hidden_width&&batch.hidden()[0]==0x3f80u);
+        assert(batch.shifted_tokens().size()==rows&&batch.shifted_tokens()[0]==(mode==0u?201u:200u));
+        if(rows==2u)assert(batch.hidden().back()==0x4000u&&batch.shifted_tokens().back()==77u&&batch.inputs()[1]==200u);
+        assert(batch.inputs()[0]==999u);
+        assert(!batch.capture(8192u,inputs,rejected,2u,8u,{0,1},hidden)); // Immutable after completion.
+    }
+    // Neither rejected padding nor capacity-clipped hidden enters MTP.
+    hidden.back()=INFINITY;
+    DecodeRows rejection,clipped,bad;
+    assert(rejection.capture(8192u,inputs,rejected,2u,8u,{0,1},hidden));
+    assert(clipped.capture(8192u,inputs,accepted,2u,1u,{0,1},hidden));
+    assert(!bad.capture(8192u,inputs,accepted,2u,8u,{0,1},hidden));
+    assert(!bad.completed()&&bad.hidden().empty()&&bad.shifted_tokens().empty());
+    hidden.back()=2.0f;
+    const uint32_t invalid[]={200u,vocabulary};
+    assert(!bad.capture(8192u,inputs,invalid,2u,8u,{0,1},hidden));
+    assert(!bad.capture(8192u,nullptr,accepted,2u,8u,{0,1},hidden));
+    assert(!bad.capture(8192u,inputs,nullptr,2u,8u,{0,1},hidden));
+    assert(!bad.capture(8192u,inputs,accepted,2u,0u,{0,1},hidden));
+    assert(!bad.capture(8192u,inputs,accepted,2u,8u,{1,0},hidden));
+    assert(!bad.capture(8192u,inputs,accepted,3u,8u,{0,1},hidden));
+    assert(!bad.capture(UINT64_MAX,inputs,accepted,2u,8u,{0,1},hidden));
+    hidden[0]=from_bits(0x7f7fffffu);
+    assert(!bad.capture(8192u,inputs,accepted,2u,8u,{0,1},hidden));
+    hidden.resize(hidden_width);hidden[0]=from_bits(0x3f818000u);
+    DecodeRows single;
+    assert(single.capture(262144u,inputs,accepted,1u,1u,{0},hidden));
+    assert(single.rows()==1u&&single.hidden()[0]==0x3f82u&&single.shifted_tokens()[0]==200u);
+    // Schedule retirement uses the original two-row extent even after a
+    // rejection or output-capacity clip shortens this target commit.
+    for(uint64_t first:{262141u,262142u,262143u}){
+        for(unsigned committed:{1u,2u}){
+            qrt_mtp_draft_schedule::Schedule schedule;qrt_mtp_draft_schedule::Batch before,after;
+            assert(schedule.reset(first)&&schedule.peek(&before)&&before.scheduled_rows==2u);
+            assert(schedule.begin(&before)&&!schedule.peek(&after));
+            assert(schedule.complete(committed)&&schedule.peek(&after));
+            assert(after.first_position==first+committed&&after.speculative==(first+2u<262144u));
+        }
+    }
+}
+
 int main(int argc, char **argv) {
     assert(argc == 2);
     identities_and_chunk_tails();
@@ -173,6 +225,7 @@ int main(int argc, char **argv) {
     row_and_number_failures();
     failed_provider_publication();
     scopes_and_head_selection();
+    actual_decode_acceptance();
     const uint32_t prompt[] = {10, 11};
     PrefillRows traced(prompt, 2, 0, 2);
     const std::string prefix = std::string(argv[1]) + "/actual";

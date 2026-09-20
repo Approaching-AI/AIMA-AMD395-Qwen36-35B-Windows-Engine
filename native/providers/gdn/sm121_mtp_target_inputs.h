@@ -5,6 +5,7 @@
 #include <new>
 #include "sm121_mtp_drafter.h"
 #include "../mtp_target_rows.h"
+#include "../mtp_decode_rows.h"
 
 namespace qrt_sm121_mtp {
 namespace mtp_target_input_detail {
@@ -42,9 +43,23 @@ public:
     PromptStep append(Drafter& drafter, const qrt_mtp_target_rows::PrefillRows& batch,
         bool split1024_pre_fc_norm, uint64_t epoch, hipStream_t stream = nullptr,
         unsigned maximum_blocks = 1024u) {
+        return append_completed(drafter, batch, batch.published(), split1024_pre_fc_norm,
+            epoch, stream, maximum_blocks);
+    }
+    PromptStep append(Drafter& drafter, const qrt_mtp_target_rows::DecodeRows& batch,
+        uint64_t epoch, hipStream_t stream = nullptr, unsigned maximum_blocks = 1024u) {
+        return append_completed(drafter, batch, batch.completed(), false, epoch, stream, maximum_blocks);
+    }
+    bool quarantined() const { return terminal_ != hipSuccess; }
+    size_t allocated_bytes() const { return storage_ ? 2u * storage_->bytes : 0u; }
+
+private:
+    template<class Rows>
+    PromptStep append_completed(Drafter& drafter, const Rows& batch, bool completed_rows,
+        bool split1024_pre_fc_norm, uint64_t epoch, hipStream_t stream, unsigned maximum_blocks) {
         if (terminal_ != hipSuccess)
             return {terminal_, "target_input_quarantined", drafter.retained_tokens(), true};
-        if (!batch.published() || !batch.rows() ||
+        if (!completed_rows || !batch.rows() ||
             batch.rows() > qrt_mtp_target_rows::maximum_batch_rows ||
             batch.first_position() >= 262144u || batch.rows() > 262144u - batch.first_position() ||
             batch.hidden().size() != batch.rows() * qrt_mtp_target_rows::hidden_width ||
@@ -81,10 +96,6 @@ public:
         if (result.completion_unknown) quarantine(result.status);
         return result;
     }
-    bool quarantined() const { return terminal_ != hipSuccess; }
-    size_t allocated_bytes() const { return storage_ ? 2u * storage_->bytes : 0u; }
-
-private:
     void quarantine(hipError_t status) {
         terminal_ = status;
         mtp_target_input_detail::quarantine(storage_.release());

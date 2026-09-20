@@ -644,6 +644,24 @@ actual prefix/session wiring remain pending; this candidate does not establish
 prefix or GPU correctness. Frozen native batches retain their earlier commits
 and do not qualify this new checkpoint API.
 
+The [native request transaction candidate](../benchmarks/correctness/mtp-actual-target-request-transaction-local-20260920.json)
+pairs that immutable KV with the exact processed token IDs, target owner and
+generation, model epoch, current target token, schedule and completed next
+proposal. Actual target samples decide acceptance; only accepted hidden rows
+and shifted output IDs enter MTP. The live branch appends without copying its
+full history per step. A target commit receipt must match the entire prepared
+frontier before native state is published. Abort restores the previous KV
+extent and candidate. Saving and restoring a request uses one complete KV copy
+at each boundary and never reuses stale mutable scratch.
+
+All 51 local regressions pass in 30.036 seconds. Accepted, rejected and
+output-clipped blocks, mismatched receipts, retry, epoch changes, copyable model
+ownership and unknown-completion lifetime run under ASan/UBSan with queued HIP
+and kernel doubles. This API is not yet connected to the live target session
+or q2 executor; complete-prompt seeding is bounded to 8192 rows. Native numerical
+validation, chunked prefill, partial prefix recovery and streaming remain open.
+The earlier frozen Windows build and product plans do not qualify this change.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
@@ -651,8 +669,8 @@ draft is rejected. Six CPU boundary regressions pass, including the original
 q262140/q262142/q262143 transitions and a rejected final draft. An additional
 offline replay matches all 109 observed target batches across the six original
 cases, including scheduled rows, positions, modes and subsequent proposal
-presence. Captured acceptance counts are diagnostic inputs only. This helper is
-not wired into inference; integration still requires actual native proposals
+presence. Captured acceptance counts are diagnostic inputs only. The native
+request candidate consumes this helper; product integration still requires actual native proposals
 and the complete original MTP prompt KV history.
 
 The [portable-profile preparation](../benchmarks/correctness/packed-q1-portable-preparation-20260920.json)

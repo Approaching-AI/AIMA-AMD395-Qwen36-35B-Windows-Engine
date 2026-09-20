@@ -146,6 +146,7 @@ static hipError_t launch_head(const uint16_t*,const uint16_t* in,uint16_t* logit
 #include "sm121_mtp_cache_snapshot.h"
 #include "sm121_mtp_drafter.h"
 #include "sm121_mtp_target_inputs.h"
+#include "sm121_mtp_request.h"
 namespace qrt_sm121_mtp_runtime {
 static bool fail_tables=false;
 static hipError_t prepare(qrt_sm121_mtp::DrafterTables* out,unsigned last) {
@@ -400,12 +401,14 @@ static void test_checkpoints() {
         assert(allocations.size()==27u);late_completion();assert(allocations.empty());
     }
 }
+#include "mtp_request_host.inc"
 int main(int argc,char** argv){
     assert(argc==2);
     using qrt_sm121_mtp::Drafter;
     test_target_inputs();
     test_prefill_probe(argv[1]);
     test_checkpoints();
+    test_request();
     for(unsigned fail=1;fail<=25u;++fail){
         reset();{Drafter d;assert(d.reserve(8,2)==hipSuccess&&allocations.size()==25u);auto* old=d.cache_data();
             reset();fail_allocation=fail;assert(d.reserve(16,4)==hipErrorOutOfMemory);

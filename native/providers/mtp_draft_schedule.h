@@ -26,13 +26,18 @@ public:
         return true;
     }
 
-    bool begin(Batch* output) {
+    bool peek(Batch* output) const {
         if (!output || !initialized_ || active_) return false;
         const unsigned int rows = next_speculative_ ? 2u : 1u;
         if (next_position_ > (std::numeric_limits<uint64_t>::max)() - rows)
             return false;
-        current_ = {next_position_, rows, next_speculative_};
-        *output = current_;
+        *output = {next_position_, rows, next_speculative_};
+        return true;
+    }
+
+    bool begin(Batch* output) {
+        if (!peek(output)) return false;
+        current_ = *output;
         active_ = true;
         return true;
     }
