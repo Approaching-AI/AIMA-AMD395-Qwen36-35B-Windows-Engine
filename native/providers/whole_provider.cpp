@@ -45,6 +45,7 @@
 #include "mtp_target_rows.h"
 #include "mtp_target_rows_trace.h"
 #include "gdn/sm121_mtp_resident_weights.h"
+#include "sm121_mtp_prefill_probe.h"
 #include "q1_trace_policy.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "moe_accumulator/sm121_wave16.h"
@@ -41075,6 +41076,7 @@ private:
             "BATCH_MARK final_query_liveness",
             "BATCH_MARK final_query_output_liveness",
             "BATCH_MARK qwen36_mtp_target_rows",
+            "BATCH_MARK qwen36_mtp_native_prefill_probe",
             "BATCH_MARK full_attention_ck_compact_bf16",
             "BATCH_MARK full_attention_ck_q1_dynamic",
             "BATCH_MARK full_attention_ck_q1_kv8192",
@@ -160251,9 +160253,19 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
 
     const char *mtp_target_trace_prefix = std::getenv("QRT_QWEN36_MTP_TARGET_ROWS_DUMP_PREFIX");
     const bool mtp_target_trace_requested = mtp_target_trace_prefix && mtp_target_trace_prefix[0];
+    const char *mtp_native_probe_prefix = std::getenv("QRT_QWEN36_MTP_NATIVE_PREFILL_PROBE_PREFIX");
+    const bool mtp_native_probe_requested = mtp_native_probe_prefix && mtp_native_probe_prefix[0];
+    if (mtp_native_probe_requested &&
+        ((request->input_token_count != 7169u && request->input_token_count != 8192u) ||
+         ScopedQwen36PrefixBatchSuffix::active || g_qwen36_chunked_prefill_total_tokens ||
+         !env_flag_enabled("QRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_MTP"))) {
+        qrt_qwen36_whole_provider_set_failure(out_result, "mtp_native_prefill_probe_request",
+            "native MTP prefill diagnostics require one complete q7169/q8192 prompt and original resident MTP weights", start_ns);
+        return 0;
+    }
     std::unique_ptr<qrt_mtp_target_rows::PrefillRows> mtp_probe_rows;
     std::unique_ptr<qrt_mtp_target_rows::Scope> mtp_probe_scope;
-    if (mtp_target_trace_requested && !qrt_mtp_target_rows::Scope::active) {
+    if ((mtp_target_trace_requested || mtp_native_probe_requested) && !qrt_mtp_target_rows::Scope::active) {
         if (request->input_token_count > qrt_mtp_target_rows::maximum_batch_rows ||
             ScopedQwen36PrefixBatchSuffix::active || g_qwen36_chunked_prefill_total_tokens) {
             qrt_qwen36_whole_provider_set_failure(out_result, "mtp_target_trace_request",
@@ -161255,6 +161267,18 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
             return 0;
         }
         std::string trace_failure;
+        if (mtp_native_probe_requested) {
+            std::string probe_stage;
+            const auto source = acquire_qwen36_mtp_model_weight_source(request->model_dir, &probe_stage, &trace_failure);
+            if (!source || !qrt_sm121_mtp_runtime::probe_prefill(*batch, source,
+                    mtp_native_probe_prefix, probe_stage, trace_failure)) {
+                qrt_qwen36_whole_provider_set_failure(out_result, probe_stage, trace_failure, start_ns);
+                return 0;
+            }
+            std::cerr << "BATCH_MARK qwen36_mtp_native_prefill_probe rows=" << batch->rows()
+                      << " completed=1 actual_target_hidden=1 original_resident_weights=1"
+                      << " mtp_acceptance_enabled=0 numerical_correctness_claimed=0" << std::endl;
+        }
         if (mtp_target_trace_requested &&
             !qrt_mtp_target_rows::write_trace(*batch, mtp_target_trace_prefix, &trace_failure)) {
             qrt_qwen36_whole_provider_set_failure(out_result, "mtp_target_rows_trace", trace_failure, start_ns);

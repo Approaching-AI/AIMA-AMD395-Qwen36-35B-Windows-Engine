@@ -239,6 +239,13 @@ public:
     unsigned retained_tokens() const { return cache_ ? cache_->retained_tokens() : 0u; }
     unsigned capacity() const { return storage_.capacity; }
     bool quarantined() const { return quarantined_; }
+    // An observer may enqueue reads of a completed proposal or KV cache. It
+    // must retain every source allocation if its own completion fence fails.
+    bool quarantine_borrower(hipError_t completion_status) {
+        if (completion_status == hipSuccess) return false;
+        quarantine(completion_status);
+        return true;
+    }
     size_t allocated_bytes() const { return storage_.bytes + (cache_ ? cache_->allocated_bytes() : 0u); }
     const uint16_t* cache_data() const { return quarantined_ || !cache_ ? nullptr : cache_->data(); }
     DrafterObservation observation(uint64_t current_epoch) const {

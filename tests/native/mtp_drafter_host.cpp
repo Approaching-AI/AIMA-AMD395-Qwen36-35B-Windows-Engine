@@ -15,6 +15,7 @@ using hipStream_t = void*;
 constexpr int hipSuccess=0, hipErrorInvalidValue=1, hipErrorOutOfMemory=2;
 constexpr int hipMemcpyDeviceToHost=3, injected=99;
 constexpr int hipMemcpyDeviceToDevice=4;
+constexpr int hipMemcpyHostToDevice=5;
 struct Allocation { size_t bytes; bool host; };
 static std::map<void*,Allocation> allocations;
 static std::vector<std::function<void()>> queued;
@@ -27,6 +28,9 @@ static const uint16_t *fusion_weight=reinterpret_cast<uint16_t*>(0x10000),
     *query_weight=reinterpret_cast<uint16_t*>(0x20000), *output_weight=reinterpret_cast<uint16_t*>(0x30000),
     *post_weight=reinterpret_cast<uint16_t*>(0x40000), *final_weight=reinterpret_cast<uint16_t*>(0x50000);
 static unsigned attention_tokens=0, attention_first=0, attention_rows=0;
+static std::vector<uint16_t> expected_hidden;
+static std::vector<uint32_t> expected_ids;
+static bool expected_split=true;
 static hipError_t allocate(void** pointer,size_t bytes,bool host) {
     if(++allocation_call==fail_allocation)return hipErrorOutOfMemory;
     assert(!posix_memalign(pointer,256u,(bytes+255u)&~size_t(255u)));
@@ -54,6 +58,12 @@ static hipError_t hipMemsetAsync(void* p,int value,size_t bytes,hipStream_t stre
 static hipError_t hipMemcpyAsync(void* p,const void* q,size_t bytes,int kind,hipStream_t stream) {
     if(kind==hipMemcpyDeviceToDevice)
         return enqueue("weight_copy"+std::to_string(++copies),stream,[=]{std::memcpy(p,q,bytes);});
+    if(kind==hipMemcpyHostToDevice){
+        assert(allocations.count(const_cast<void*>(q))&&allocations.at(const_cast<void*>(q)).host);
+        assert(allocations.at(const_cast<void*>(q)).bytes>=bytes);
+        assert(allocations.count(p)&&!allocations.at(p).host&&allocations.at(p).bytes>=bytes);
+        return enqueue("input_copy",stream,[=]{std::memcpy(p,q,bytes);});
+    }
     assert(kind==hipMemcpyDeviceToHost);bool pinned=false;
     for(const auto& pair:allocations) {
         auto begin=reinterpret_cast<uintptr_t>(pair.first),address=reinterpret_cast<uintptr_t>(p);
@@ -63,9 +73,15 @@ static hipError_t hipMemcpyAsync(void* p,const void* q,size_t bytes,int kind,hip
     assert(pinned);return enqueue("copy"+std::to_string(++copies),stream,[=]{std::memcpy(p,q,bytes);});
 }
 namespace qrt_sm121_mtp {
-static hipError_t launch_fusion_inputs(const uint16_t*,const uint16_t*,const uint32_t*,const uint16_t*,
-    const uint16_t*,const unsigned char*,unsigned rows,uint16_t* out,uint32_t* invalid,hipStream_t stream,bool) {
-    return enqueue("gather",stream,[=]{*invalid=invalid_input?1u:0u;std::fill_n(out,rows*4096u,11u);});
+static hipError_t launch_fusion_inputs(const uint16_t*,const uint16_t* hidden,const uint32_t* ids,const uint16_t*,
+    const uint16_t*,const unsigned char*,unsigned rows,uint16_t* out,uint32_t* invalid,hipStream_t stream,bool split) {
+    return enqueue("gather",stream,[=]{
+        if(!expected_hidden.empty()){
+            assert(expected_hidden.size()==size_t(rows)*2048u&&expected_ids.size()==rows&&split==expected_split);
+            assert(std::equal(expected_hidden.begin(),expected_hidden.end(),hidden));
+            assert(std::equal(expected_ids.begin(),expected_ids.end(),ids));
+        }
+        *invalid=invalid_input?1u:0u;std::fill_n(out,rows*4096u,11u);});
 }
 static hipError_t launch_normalize(const uint16_t* in,const uint16_t*,const unsigned char*,unsigned rows,
     uint16_t* out,hipStream_t stream) {
@@ -123,6 +139,17 @@ static hipError_t launch_head(const uint16_t*,const uint16_t* in,uint16_t* logit
 #include "sm121_mtp_prompt_cache.h"
 #include "sm121_mtp_model_weights.h"
 #include "sm121_mtp_drafter.h"
+#include "sm121_mtp_target_inputs.h"
+namespace qrt_sm121_mtp_runtime {
+static bool fail_tables=false;
+static hipError_t prepare(qrt_sm121_mtp::DrafterTables* out,unsigned last) {
+    assert(last==7168u||last==8191u);if(fail_tables)return injected;
+    const auto* p=reinterpret_cast<const uint16_t*>(0x60000);
+    const auto* t=reinterpret_cast<const unsigned char*>(0x70000);
+    *out={t,p,262144u,t,t,{p,p,reinterpret_cast<const uint32_t*>(0x80000)}};return hipSuccess;
+}
+}
+#include "sm121_mtp_prefill_probe.h"
 struct LeasedWeights final:qrt_sm121_mtp::ModelWeightSource {
     std::array<std::vector<uint16_t>,4> packed_parts;
     uint64_t generation=10;
@@ -152,6 +179,7 @@ struct LeasedWeights final:qrt_sm121_mtp::ModelWeightSource {
 static void reset() {
     assert(queued.empty());allocation_call=fail_allocation=sync_call=fail_sync=copies=0;
     stages.clear();fail_stage.clear();invalid_input=invalid_moe=invalid_head=invalid_id=invalid_logit=false;
+    expected_hidden.clear();expected_ids.clear();expected_split=true;
 }
 static bool bind(qrt_sm121_mtp::Drafter& d,uint64_t epoch=10u) {
     using namespace qrt_sm121_mtp;
@@ -159,7 +187,7 @@ static bool bind(qrt_sm121_mtp::Drafter& d,uint64_t epoch=10u) {
     const auto* t=reinterpret_cast<const unsigned char*>(0x70000);
     DrafterWeights w{{p,p,p,fusion_weight,p,p,p},query_weight,p,output_weight,post_weight,
         {p,p,p,p,p,p},final_weight,p};
-    DrafterTables tables{t,p,32u,t,t,{p,p,reinterpret_cast<const uint32_t*>(0x80000)}};
+    DrafterTables tables{t,p,262144u,t,t,{p,p,reinterpret_cast<const uint32_t*>(0x80000)}};
     return d.bind(w,tables,epoch);
 }
 static qrt_sm121_mtp::PromptStep append(qrt_sm121_mtp::Drafter& d,unsigned first,unsigned rows,uint64_t epoch=10u) {
@@ -174,8 +202,119 @@ static void late_completion() {
     assert(hipStreamSynchronize(expected_stream)==hipSuccess);
     while(!allocations.empty())release(allocations.begin()->first,allocations.begin()->second.host);
 }
-int main(){
+static std::unique_ptr<qrt_mtp_target_rows::PrefillRows> target_batch(unsigned rows=2u) {
+    std::vector<uint32_t> ids(rows);for(unsigned i=0;i<rows;++i)ids[i]=100u+i;
+    auto batch=std::make_unique<qrt_mtp_target_rows::PrefillRows>(ids.data(),ids.size(),0u,rows);
+    std::vector<float> hidden(size_t(rows)*2048u);
+    for(size_t i=0;i<hidden.size();++i)hidden[i]=1.0f+float(i%127)/128.0f;
+    assert(batch->stage(batch->local_rows(),hidden,999u)&&batch->publish(999u));
+    expected_hidden=batch->hidden();expected_ids=batch->shifted_tokens();return batch;
+}
+static void test_target_inputs() {
+    using namespace qrt_sm121_mtp;
+    reset();{Drafter d;TargetInputs inputs;uint32_t token=100;
+        qrt_mtp_target_rows::PrefillRows unpublished(&token,1u,0u,1u);
+        assert(inputs.append(d,unpublished,true,10u,expected_stream).status==hipErrorInvalidValue);
+        assert(!inputs.allocated_bytes()&&allocations.empty()&&stages.empty());
+    }
+    for(unsigned rows:{2u,8192u}){
+        reset();{Drafter d;TargetInputs inputs;assert(bind(d)&&d.reserve(rows,rows)==hipSuccess);
+            auto batch=target_batch(rows);
+            assert(inputs.append(d,*batch,true,10u,expected_stream).status==hipSuccess);
+            assert(d.retained_tokens()==rows&&inputs.allocated_bytes()==size_t(rows)*8200u);
+            assert(propose(d,rows-1u,1u).rows==1u);
+            assert(d.truncate(0u,10u));
+            const auto calls=allocation_call;expected_split=false;
+            assert(inputs.append(d,*batch,false,10u,expected_stream).status==hipSuccess);
+            assert(allocation_call==calls&&queued.empty());
+        }assert(allocations.empty());
+    }
+    // Upload failure, stale model and failed drafter entry cannot leave H2D
+    // work behind or expose a new completed KV prefix.
+    for(unsigned failure=0;failure<5u;++failure){
+        reset();{Drafter d;TargetInputs inputs;assert(bind(d)&&d.reserve(2,2)==hipSuccess);
+            auto batch=target_batch();allocation_call=0;
+            if(failure<2)fail_allocation=failure+1u;
+            if(failure==2)fail_stage="input_copy";
+            if(failure==4)fail_stage="gather";
+            const auto result=inputs.append(d,*batch,true,failure==3?9u:10u,expected_stream);
+            assert(result.status!=hipSuccess&&!result.completion_unknown&&!inputs.quarantined());
+            assert(!d.retained_tokens()&&queued.empty());
+            if(failure<2)assert(!inputs.allocated_bytes());
+            else assert(inputs.allocated_bytes()==16400u);
+            reset();batch=target_batch();
+            assert(inputs.append(d,*batch,true,10u,expected_stream).status==hipSuccess);
+        }assert(allocations.empty());
+    }
+    // Destroy the original host batch and both request owners before the
+    // delayed copy/kernel is allowed to finish. ASan observes actual reads.
+    for(unsigned failure=0;failure<4u;++failure){
+        reset();{Drafter d;TargetInputs inputs;assert(bind(d)&&d.reserve(2,2)==hipSuccess);
+            auto batch=target_batch();sync_call=0;fail_sync=failure<2?1u:2u;
+            if(failure==1)fail_stage="input_copy";
+            if(failure==3)fail_stage="gather";
+            const auto result=inputs.append(d,*batch,true,10u,expected_stream);
+            assert(result.status==injected&&result.completion_unknown&&inputs.quarantined());
+            assert(d.quarantined()==(failure>=2)&&!d.retained_tokens());
+            const auto calls=stages.size();batch->discard();
+            assert(inputs.append(d,*batch,true,10u,expected_stream).completion_unknown&&stages.size()==calls);
+        }
+        assert(allocations.size()==(failure<2?2u:27u));late_completion();assert(allocations.empty());
+    }
+}
+static void test_prefill_probe(const std::string& directory) {
+    using namespace qrt_sm121_mtp;
+    using namespace qrt_sm121_mtp_runtime;
+    for(unsigned rows:{7169u,8192u}){
+        reset();expected_stream=nullptr;{
+            auto batch=target_batch(rows);std::string stage,failure;
+            auto source=std::make_shared<LeasedWeights>();
+            const std::string prefix=directory+"/prefill-"+std::to_string(rows);
+            assert(probe_prefill(*batch,source,prefix,stage,failure));
+            assert(allocations.empty()&&queued.empty());
+            // A repeated diagnostic cannot replace any prior capture file.
+            assert(!probe_prefill(*batch,source,prefix,stage,failure));
+            assert(stage=="mtp_prefill_capture_path"&&allocations.empty());
+            if(rows==7169u){
+                fail_tables=true;
+                assert(!probe_prefill(*batch,source,prefix+"-no-table",stage,failure));
+                assert(stage=="mtp_prefill_probe_tables"&&allocations.empty());fail_tables=false;
+                assert(!probe_prefill(*batch,nullptr,prefix+"-no-source",stage,failure));
+                assert(stage=="mtp_prefill_probe_contract"&&allocations.empty());
+            }
+        }assert(allocations.empty());expected_stream=reinterpret_cast<void*>(0x1234);
+    }
+    // Actual observer copies: reject a partial transfer, drain every queued
+    // read, and leave the completed proposal usable on known completion.
+    for(unsigned index=0;index<=25u;++index){
+        reset();{Drafter d;assert(bind(d)&&d.reserve(2,2)==hipSuccess&&append(d,0,2).status==hipSuccess);
+            const auto proposal=propose(d,1,1);auto batch=target_batch();reset();
+            if(!index)fail_allocation=1;else fail_stage="copy"+std::to_string(index);
+            std::string stage,failure;const std::string prefix=directory+"/capture-copy-"+std::to_string(index);
+            assert(!prefill_probe_detail::capture(d,proposal,10u,*batch,prefix,0u,0u,1u,stage,failure,expected_stream));
+            assert(stage==(index?"mtp_prefill_capture_copy":"mtp_prefill_capture_allocation"));
+            assert(!d.quarantined()&&d.observation(10u).rows==1u&&queued.empty()&&allocations.size()==25u);
+            assert(!std::filesystem::exists(prefix+".json"));
+        }assert(allocations.empty());
+    }
+    // Every failed-enqueue boundary may still have a partial read in flight.
+    // Retain pinned outputs plus ALL borrowed KV/proposal buffers after scope.
+    for(unsigned index=0;index<=25u;++index){
+        reset();{Drafter d;assert(bind(d)&&d.reserve(2,2)==hipSuccess&&append(d,0,2).status==hipSuccess);
+            const auto proposal=propose(d,1,1);auto batch=target_batch();reset();fail_sync=1;
+            if(index)fail_stage="copy"+std::to_string(index);
+            std::string stage,failure;const std::string prefix=directory+"/capture-sync-"+std::to_string(index);
+            assert(!prefill_probe_detail::capture(d,proposal,10u,*batch,prefix,0u,0u,1u,stage,failure,expected_stream));
+            assert(stage=="mtp_prefill_capture_completion"&&d.quarantined()&&!d.observation(10u).rows);
+            assert(!std::filesystem::exists(prefix+".json"));
+        }assert(allocations.size()==26u);late_completion();assert(allocations.empty());
+    }
+}
+int main(int argc,char** argv){
+    assert(argc==2);
     using qrt_sm121_mtp::Drafter;
+    test_target_inputs();
+    test_prefill_probe(argv[1]);
     for(unsigned fail=1;fail<=25u;++fail){
         reset();{Drafter d;assert(d.reserve(8,2)==hipSuccess&&allocations.size()==25u);auto* old=d.cache_data();
             reset();fail_allocation=fail;assert(d.reserve(16,4)==hipErrorOutOfMemory);

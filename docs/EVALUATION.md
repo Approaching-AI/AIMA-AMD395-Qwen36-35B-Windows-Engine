@@ -580,8 +580,31 @@ acquisition and release bodies, model replacement before old readers finish,
 canonical names after metadata destruction and the existing Windows IO/copy
 cleanup harness. The first full run exposed missing owner declarations in
 three existing host harnesses; the corrected harness passes with identical
-production code. No inference entry point calls the source adapter yet.
-Native compilation, table/input binding and real-model MTP remain pending.
+production code. The opt-in prefill diagnostic below now calls this source
+adapter. Native compilation and real-model MTP remain pending.
+
+The [actual-target prefill integration](../benchmarks/correctness/mtp-native-actual-prefill-integration-local-20260920.json)
+adds `QRT_QWEN36_MTP_NATIVE_PREFILL_PROBE_PREFIX` for one complete q7169/q8192
+prompt. It joins the owned original weights, existing checked arithmetic tables
+and a separately verified BF16 sigmoid table. An owned pinned snapshot uploads
+the actual complete target hidden and shifted IDs before the native drafter
+builds its prompt KV and proposes the next token. It exports 22 comparable
+frontiers, final residual, all 248320 BF16 logits, complete K/V and actual inputs.
+Metadata is written after completed copies and files. The target's emitted
+tokens still use its existing selection; speculative acceptance is not enabled.
+
+All 51 relevant local regressions pass. Actual orchestration runs with queued
+HIP/kernel doubles at q7169/q8192, and actual provider admission/publication
+bodies reject unsupported shapes and retract failed handoffs. Every observer
+copy failure boundary is exercised. Unknown completion keeps pinned buffers,
+drafter cache/scratch and borrowed model storage alive after owner destruction.
+Sixteen fresh-process table scenarios cover exact format, hash rejection,
+upload failures and immutable table reuse. These are sanitizer-backed host
+checks, not GPU arithmetic validation. The new whole compilation closure has
+135 source inputs; its HIP build, actual model first proposal and original
+token/logit/callback comparisons remain unrun. Earlier frozen native plans keep
+their original source identities. Continuation, real target acceptance and
+prefix rollback still require integration and validation.
 
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
