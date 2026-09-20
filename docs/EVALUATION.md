@@ -433,6 +433,38 @@ Bounds are 60 seconds per weight read, 120 for compilation, 300 per case and
 1200 for transport. R1 preparation remains unrun; R2 only renames a PowerShell
 automatic variable and reuses its unchanged source bundle and data archive.
 
+The [output-head diagnosis and drafter owner](../benchmarks/correctness/mtp-head-arithmetic-and-drafter-owner-20260920.json)
+complete the missing CPU output-head comparison. K16 MMA accumulation produced
+10074 differing BF16 logits among 9684480 values, with maximum error 0.0625;
+all 39 sampled tokens and their scores already matched. A bounded comparison
+of 12 summation policies identified the original GEMV order: 16 strided FP32
+FMA partials, then offsets 8/4/2/1. Replaying all 39 original sampled hidden
+rows with that shared arithmetic matches every BF16 logit and sampled token.
+The CPU run reads the complete original LM-head tensor on GB10, loads no model
+framework, uses no GPU and passes host/child-process checks. Source files were
+hash-bound before this implementation was committed.
+
+`sm121_mtp_drafter.h` now owns the complete candidate chain from completed
+prompt-tail rows through Q/attention/gating/O, residual normalization, MoE,
+final normalization, GEMV and greedy BF16 argmax. It publishes candidates only
+after both numerical flags and all host copies complete. Model-storage epochs
+reject stale bindings; target acceptance controls explicit cache truncation.
+An unknown completion quarantines prompt KV, scratch and pinned destinations,
+including when a downstream proposal was reading previously completed KV.
+Thirty-five local tests pass, including every allocation failure, partial
+submission failures, invalid numerical results and completion after owner
+destruction. Host syntax checks cover the output-head kernel bodies and GPU
+probe with stub HIP declarations; they do not compile device code.
+
+The full-prefill and MoE references have identical original transactions,
+outputs, first logits and all 741 saved MTP intermediate files, verified on
+disk. This explicitly joins the qualified full prompt history to the newer
+MoE/output-head operands. The output-head GPU probe compares full vocabularies
+under one/two-row batches and 7/1024-block bounds. Its native execution and the
+complete drafter replay remain pending. Production retention of actual target
+hidden rows and native acceptance scheduling remain unwired. No inference,
+performance or release acceptance follows from these component checks.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a

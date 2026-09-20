@@ -173,6 +173,13 @@ public:
         return current.fusion && current.fusion == view.fusion && current.normalized == view.normalized &&
             current.generation == view.generation;
     }
+    // A downstream proposal may still read this otherwise completed cache.
+    // Its owner must propagate an unknown completion before destroying us.
+    bool quarantine_borrower(hipError_t completion_status) {
+        if (completion_status == hipSuccess) return false;
+        (void)quarantine(completion_status, "borrower_completion");
+        return true;
+    }
     const uint16_t* data() const { return quarantined_ ? nullptr : cache_; }
     bool quarantined() const { return quarantined_; }
     unsigned int retained_tokens() const { return retained_; }
