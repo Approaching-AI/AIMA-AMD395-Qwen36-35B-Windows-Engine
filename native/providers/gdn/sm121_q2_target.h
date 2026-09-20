@@ -261,6 +261,7 @@ public:
         return true;
     }
     bool cache_published() const { return ready() && storage_->cache_published; }
+    bool owned_by(const TargetStateSource& source) const { return storage_ && storage_->source.get() == &source; }
     TargetLinearSelection linear(unsigned layer, unsigned rows) const {
         if (!ready() || layer >= target_layers || layer%4u == 3u || rows < 1u || rows > 2u) return {};
         const auto& s = *storage_; const auto& cache = s.snapshot.linear[layer];

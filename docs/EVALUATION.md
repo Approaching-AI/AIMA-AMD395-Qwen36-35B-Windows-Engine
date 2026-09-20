@@ -82,6 +82,26 @@ cannot be established. The real owner must reserve rollback and host metadata;
 this boundary does not publish token metadata or callbacks. Native publication
 and a live MTP request remain unrun. Release remains unqualified.
 
+The [actual resident owner and request integration](../benchmarks/correctness/native-mtp-resident-request-local-20260921.json)
+now passes14 local regressions under ASan/UBSan in33.643s. The actual provider
+session declarations and factory bind30 states/rings and10 KV owners, preserve
+immutable checkpoints and numerical tables, and compare exact processed inputs.
+Accepted1/2-row metadata advances only after all cache copies complete. Shadow,
+ordinary decode and engine release defer retirement while the cache is borrowed;
+unknown completion retains original/current owners. Tests cover160 invalid
+layer layouts,35 table factory failures, all80 publication failure positions,
+the actual request coordinator, callback cancellation and paired checkpoints.
+The request uses actual DecodeRows acceptance with batch-local row indices0/1.
+
+The opt-in QRT_QWEN36_MTP_NATIVE_DECODE entry restores an exact native MTP
+checkpoint, computes private target pairs, prepares the drafter, publishes the
+accepted cache/metadata and then emits callbacks. It consumes no reference
+tokens or hidden rows. Current admission requires a span before MTP retirement;
+crossing and partial-prefix reseeding remain open. This new source has not yet
+been built or run on Windows because the9428 full256k product case is active.
+Local request mocks qualify ordering/lifetime only; they do not establish
+model correctness, performance or release acceptance.
+
 The September20 original256k run on whole `b3af8b6`, CK `3701495`, FLA
 `1d11bf7`, MoE `9235750` and CLI `6d9602c` completes all32 owner chunks,
 then fails the first suffix continuation. Owner first16/logit24.375 and suffix

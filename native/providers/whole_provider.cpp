@@ -48,6 +48,7 @@
 #include "mtp_target_rows_trace.h"
 #include "gdn/sm121_mtp_resident_weights.h"
 #include "gdn/sm121_q2_resident_weights.h"
+#include "gdn/sm121_q2_resident_cache.h"
 #include "sm121_mtp_prefill_probe.h"
 #include "q1_trace_policy.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
@@ -59802,6 +59803,26 @@ struct Qwen36ResidentShadowQuarantine {
 };
 Qwen36ResidentShadowQuarantine *g_qwen36_resident_shadow_quarantine = nullptr;
 std::atomic<bool> g_qwen36_resident_completion_unknown{false};
+std::atomic<size_t> g_qwen36_target_cache_borrows{0u};
+
+struct Qwen36TargetRollbackPermit {
+    const void* owner = nullptr;
+    std::atomic<bool> active{false};
+};
+class Qwen36TargetCacheBorrow final : public qrt_sm121_q2::ResidentCacheLifetime {
+public:
+    explicit Qwen36TargetCacheBorrow(std::shared_ptr<const Qwen36TargetRollbackPermit> permit)
+        : permit_(std::move(permit)) { g_qwen36_target_cache_borrows.fetch_add(1u,std::memory_order_acq_rel); }
+    ~Qwen36TargetCacheBorrow() override { g_qwen36_target_cache_borrows.fetch_sub(1u,std::memory_order_acq_rel); }
+    bool ready(const void* owner) const noexcept override {
+        return permit_ && permit_->owner == owner && permit_->active.load(std::memory_order_acquire) &&
+            !g_qwen36_resident_completion_unknown.load(std::memory_order_acquire);
+    }
+    bool rollback_ready(const void* owner) const noexcept override { return ready(owner); }
+    void quarantine() const noexcept override { g_qwen36_resident_completion_unknown.store(true,std::memory_order_release); }
+private:
+    std::shared_ptr<const Qwen36TargetRollbackPermit> permit_;
+};
 
 Qwen36ResidentSessionState g_qwen36_resident_root_session;
 thread_local Qwen36ResidentSessionState *g_qwen36_resident_active_session =
@@ -63454,6 +63475,7 @@ bool release_qwen36_resident_session_locked() {
         g_qwen36_resident_session.route_active = false;
         return false;
     }
+    if (g_qwen36_target_cache_borrows.load(std::memory_order_acquire)) return false;
     // A decode lease owns the session mutex until its final stream sync, so
     // this is the only owner allowed to retire activation-workspace storage.
     const bool dual_attention_cleanup_safe =
@@ -65741,7 +65763,8 @@ public:
         generation_ = g_qwen36_resident_session.generation;
         const Qwen36ResidentDecodeActivationWorkspace &activation_workspace =
             g_qwen36_resident_session.activation_workspace;
-        ready_ = g_qwen36_resident_session.valid &&
+        ready_ = !g_qwen36_target_cache_borrows.load(std::memory_order_acquire) &&
+            !g_qwen36_resident_completion_unknown && g_qwen36_resident_session.valid &&
             g_qwen36_resident_session.provider_completed &&
             qwen36_resident_session_prefix_supported(
                 g_qwen36_resident_session.prefix_tokens
@@ -65772,7 +65795,8 @@ public:
         generation_ = g_qwen36_resident_session.generation;
         const Qwen36ResidentDecodeActivationWorkspace &activation_workspace =
             g_qwen36_resident_session.activation_workspace;
-        ready_ = g_qwen36_resident_session.valid &&
+        ready_ = !g_qwen36_target_cache_borrows.load(std::memory_order_acquire) &&
+            !g_qwen36_resident_completion_unknown && g_qwen36_resident_session.valid &&
             g_qwen36_resident_session.provider_completed &&
             qwen36_resident_session_prefix_supported(
                 g_qwen36_resident_session.prefix_tokens
@@ -65813,7 +65837,8 @@ public:
     }
 
     bool ready() const {
-        return ready_ && generation_ == g_qwen36_resident_session.generation;
+        return ready_ && !g_qwen36_target_cache_borrows.load(std::memory_order_acquire) &&
+            !g_qwen36_resident_completion_unknown && generation_ == g_qwen36_resident_session.generation;
     }
 
     uint64_t generation() const {
@@ -68759,6 +68784,11 @@ public:
                 "resident shadow state has an unresolved GPU completion", failure_stage, failure);
             return;
         }
+        if (g_qwen36_target_cache_borrows.load(std::memory_order_acquire)) {
+            set_failure("qwen36_resident_shadow_target_borrow",
+                "resident target cache is still borrowed by a request", failure_stage, failure);
+            return;
+        }
         if (!release_qwen36_resident_dual_attention_state_locked()) {
             set_failure(
                 "qwen36_resident_shadow_transaction_dual_release",
@@ -68797,6 +68827,8 @@ public:
         }
         try {
             quarantine_ = std::make_shared<Qwen36ResidentShadowQuarantine>();
+            target_permit_ = std::make_shared<Qwen36TargetRollbackPermit>();
+            target_permit_->owner = &g_qwen36_resident_session;
         } catch (...) {
             set_failure("qwen36_resident_shadow_owner",
                 "resident shadow transaction could not reserve its failure owner", failure_stage, failure);
@@ -69026,6 +69058,7 @@ public:
             return;
         }
         ready_ = true;
+        target_permit_->active.store(true,std::memory_order_release);
         std::cerr
             << "BATCH_MARK qwen36_resident_shadow_transaction_begin"
             << " generation=" << original_.generation
@@ -69068,10 +69101,18 @@ public:
         return shadow_bytes_;
     }
 
+    std::shared_ptr<const qrt_sm121_q2::ResidentCacheLifetime> acquire_target_cache_lifetime() const {
+        if (!ready() || partial_checkpoint_ || !target_permit_ ||
+            g_qwen36_resident_active_session != &g_qwen36_resident_root_session ||
+            g_qwen36_target_cache_borrows.load(std::memory_order_acquire)) return {};
+        return std::make_shared<Qwen36TargetCacheBorrow>(target_permit_);
+    }
+
     bool rollback(const char *reason) {
         if (!original_captured_) {
             return false;
         }
+        if (target_permit_) target_permit_->active.store(false,std::memory_order_release);
         const size_t mutated_count =
             g_qwen36_resident_session.committed_decode_token_count;
         const bool dual_release_ok =
@@ -69110,6 +69151,11 @@ public:
     }
 
     bool commit(std::string *failure_stage, std::string *failure) {
+        if (g_qwen36_target_cache_borrows.load(std::memory_order_acquire)) {
+            set_failure("qwen36_resident_shadow_target_commit_borrow",
+                "resident target results must retire before committing their cache transaction", failure_stage, failure);
+            return false;
+        }
         if (partial_checkpoint_) {
             set_failure(
                 "qwen36_resident_shadow_checkpoint_commit",
@@ -69180,6 +69226,7 @@ public:
         const size_t committed_count =
             g_qwen36_resident_session.committed_decode_token_count;
         ready_ = false;
+        if (target_permit_) target_permit_->active.store(false,std::memory_order_release);
         committed_ = free_status == hipSuccess;
         if (!committed_) {
             g_qwen36_resident_session.valid = false;
@@ -69267,7 +69314,9 @@ private:
     }
 
     bool restore_original_and_free_shadow(hipError_t completed, bool emit_marker, const char *reason) {
-        if (completed != hipSuccess || g_qwen36_resident_completion_unknown) {
+        if (target_permit_) target_permit_->active.store(false,std::memory_order_release);
+        if (completed != hipSuccess || g_qwen36_resident_completion_unknown ||
+            g_qwen36_target_cache_borrows.load(std::memory_order_acquire)) {
             static_assert(std::is_nothrow_move_assignable<Qwen36ResidentSessionState>::value,
                 "shadow quarantine must not allocate while retaining original metadata");
             quarantine_->original = std::move(original_);
@@ -69351,6 +69400,7 @@ private:
     std::unique_lock<std::recursive_mutex> lock_;
     Qwen36ResidentSessionState original_{};
     std::shared_ptr<Qwen36ResidentShadowQuarantine> quarantine_;
+    std::shared_ptr<Qwen36TargetRollbackPermit> target_permit_;
     std::array<void *, QRT_QWEN36_LAYER_COUNT> shadow_linear_allocations_{};
     std::array<void *, QRT_QWEN36_LAYER_COUNT>
         shadow_full_attention_allocations_{};
@@ -82148,6 +82198,61 @@ std::shared_ptr<const qrt_sm121_mtp::ModelWeightSource> acquire_qwen36_target_mo
             &g_qwen36_mtp_weight_storage_epoch, epoch, std::move(views));
     } catch (const std::bad_alloc&) {
         return fail("target_model_source_host_allocation", "target model lease host allocation failed");
+    }
+}
+
+using Qwen36TargetCacheOwner = qrt_sm121_q2::ResidentCacheOwner<
+    Qwen36ResidentSessionState,Qwen36ResidentSessionElementKind>;
+
+std::shared_ptr<Qwen36TargetCacheOwner> acquire_qwen36_target_cache_owner(
+    const ScopedQwen36ResidentSessionShadowTransaction& transaction,
+    std::string* failure_stage, std::string* failure
+) {
+    const auto fail = [&](const char* stage, const char* message) -> std::shared_ptr<Qwen36TargetCacheOwner> {
+        if (failure_stage) *failure_stage = stage;
+        if (failure) *failure = message;
+        return {};
+    };
+    try {
+        auto lifetime = transaction.acquire_target_cache_lifetime();
+        const auto& session = g_qwen36_resident_session;
+        if (!lifetime || !session.valid || session.activation_workspace.in_use ||
+            session.activation_workspace.phase != Qwen36ResidentDecodeActivationWorkspacePhase::kIdle ||
+            g_qwen36_resident_dual_attention_state.valid || g_qwen36_q1024_suffix_cache.valid ||
+            session.prefix_tokens > qrt_sm121_q2::target_context_limit-2u ||
+            session.committed_decode_token_count > qrt_sm121_q2::target_context_limit-2u-session.prefix_tokens)
+            return fail("target_cache_transaction","native target requires an idle root session with exclusive rollback");
+        const unsigned last_position = static_cast<unsigned>(session.prefix_tokens+session.committed_decode_token_count+1u);
+        qrt_sm121_q1_full_runtime::Tables full;
+        qrt_sm121_q1_moe_runtime::Tables moe;
+        qrt_sm121_q2::TargetTables tables;
+        hipError_t status = qrt_sm121_q1_full_runtime::prepare(&full,last_position);
+        if (status == hipSuccess) status = qrt_sm121_q1_moe_runtime::prepare(&moe);
+        if (status == hipSuccess) status = qrt_sm121_q1_attention_runtime::prepare(&tables.attention.reciprocal);
+        if (status == hipSuccess) status = qrt_sm121_mtp_runtime::prepare_sigmoid(
+            std::getenv("QRT_QWEN36_MTP_BF16_SIGMOID_TABLE"),&tables.attention.sigmoid);
+        if (status != hipSuccess)
+            return fail("target_cache_tables",hipGetErrorString(status));
+        if (!full.core.beta || !full.core.silu || !full.core.rsqrt || !full.core.exp2 ||
+            full.core.rsqrt != moe.core.rsqrt || full.core.exp2 != moe.core.exp2 ||
+            !full.rope || full.rope_rows <= last_position || full.rope_rows > UINT_MAX || !moe.silu || !moe.router)
+            return fail("target_cache_tables","native target numerical table owners differ or lack the requested position");
+        tables.beta = full.core.beta; tables.convolution_silu = full.core.silu;
+        tables.attention.rsqrt = full.core.rsqrt; tables.attention.exp2 = full.core.exp2;
+        tables.attention.rope = full.rope; tables.attention.rope_rows = static_cast<unsigned>(full.rope_rows);
+        tables.moe = {moe.silu,tables.attention.sigmoid,moe.router};
+        std::string table_failure;
+        if (!load_gb10_gated_silu_f32_lut(&tables.gated_silu,&table_failure))
+            return fail("target_cache_gated_silu",table_failure.c_str());
+        for (unsigned layer = 0; layer < qrt_sm121_q2::target_layers; ++layer)
+            if (layer%4u != 3u && !load_q1_sm121_gate_table(layer,&tables.g[layer],&table_failure))
+                return fail("target_cache_gate_table",table_failure.c_str());
+        auto result = Qwen36TargetCacheOwner::create(g_qwen36_resident_session,
+            g_qwen36_mtp_weight_storage_epoch,tables,std::move(lifetime));
+        if (!result) return fail("target_cache_layout","actual target cache allocations, counts or input history differ");
+        return result;
+    } catch (const std::bad_alloc&) {
+        return fail("target_cache_host_allocation","native target cache owner host allocation failed");
     }
 }
 
@@ -218364,6 +218469,147 @@ bool run_qwen36_resident_q1024_suffix_owner(
     return true;
 }
 
+bool run_qwen36_native_mtp_decode(
+    const qrt_qwen36_whole_provider_decode_request_v1_t& request,
+    qrt_qwen36_whole_provider_decode_result_v1_t* output,
+    uint64_t started, std::string* failure_stage, std::string* failure
+) {
+    const auto fail = [&](const char* stage, const char* message) {
+        if (failure_stage) *failure_stage = stage;
+        if (failure) *failure = message;
+        return false;
+    };
+    ScopedQwen36ResidentSessionShadowTransaction transaction(request.expected_session_generation,
+        request.expected_prompt_token_ids_fnv1a64,failure_stage,failure);
+    if (!transaction.ready()) return false;
+    // The first live route uses an existing exact MTP checkpoint. Crossing the
+    // drafter limit requires the ordinary target's subsequent one-row route.
+    // Do not continue Q2 arithmetic after the original schedule retires MTP.
+    const auto& session = g_qwen36_resident_session;
+    const size_t processed = session.native_mtp_processed_inputs.size();
+    if (!output || session.current_token_id != request.initial_output_token_id ||
+        session.prefix_tokens != request.expected_prefix_token_count ||
+        processed > 262144u-request.output_token_capacity-2u)
+        return fail("mtp_native_decode_frontier","native MTP requires an exact frontier and a span before drafter retirement");
+    bool target_mutated = false;
+    uint64_t previous_end = 0u;
+    unsigned batches = 0u, accepted_total = 0u;
+    // Destroy private producers and the cache pin before Shadow resolves its
+    // ownership. Unknown completion self-retains the borrower and its owners.
+    const auto run = [&]() -> bool {
+        auto owner = acquire_qwen36_target_cache_owner(transaction,failure_stage,failure);
+        if (!owner) return false;
+        qrt_sm121_q2::TargetSnapshot snapshot;
+        if (!owner->snapshot(&snapshot)) return fail("mtp_native_decode_snapshot","actual target cache snapshot is unavailable");
+        const uint64_t epoch = snapshot.model_epoch;
+        const auto actual = [&]() {
+            const auto& s = g_qwen36_resident_session;
+            return qrt_sm121_mtp::TargetFrontier{s.owner_engine,s.generation,epoch,
+                s.native_mtp_processed_inputs.data(),s.native_mtp_processed_inputs.size(),s.current_token_id};
+        };
+        auto original = acquire_qwen36_target_model_weight_source(session.model_dir,failure_stage,failure);
+        if (!original) return false;
+        qrt_sm121_q2::ModelWeights weights;
+        const auto packed = weights.prepare(original,epoch);
+        if (packed.status != hipSuccess) {
+            if (packed.completion_unknown) owner->quarantine();
+            return fail(packed.stage,"native target model binding failed");
+        }
+        qrt_sm121_mtp::Request live;
+        const unsigned capacity = static_cast<unsigned>(processed+request.output_token_capacity);
+        const auto restored = live.restore(session.native_mtp_checkpoint,actual(),capacity);
+        if (restored.status != hipSuccess) {
+            if (restored.completion_unknown) owner->quarantine();
+            return fail(restored.stage,"native MTP checkpoint did not restore the actual target frontier");
+        }
+        const auto abort = [&](const char* stage, const char* message, bool unknown) {
+            if (unknown || live.quarantined()) owner->quarantine();
+            else (void)live.abort(epoch);
+            return fail(stage,message);
+        };
+        qrt_sm121_q2::Target target;
+        const auto binding = weights.binding(epoch);
+        const std::vector<unsigned> positions{0u,1u};
+        std::vector<float> normalized(4096u);
+        uint32_t output_index = 1u;
+        while (output_index < request.output_token_capacity) {
+            qrt_sm121_mtp::TargetBatch batch;
+            if (!live.begin(actual(),request.output_token_capacity-output_index,&batch))
+                return abort("mtp_native_decode_begin","native MTP could not schedule the next actual target pair",false);
+            qrt_sm121_q2::TargetResult result;
+            const auto evaluated = target.evaluate(binding,owner,batch.inputs,&result,1024u);
+            if (evaluated.status != hipSuccess)
+                return abort(evaluated.stage,"native two-row target evaluation failed",evaluated.completion_unknown);
+            const auto* host = result.host();
+            if (!host || !result.inputs() || *result.inputs() != batch.inputs)
+                return abort("mtp_native_decode_result","native target returned an unrelated private result",false);
+            const auto samples = host->tokens;
+            const auto logits = host->logits;
+            for (size_t i = 0; i < normalized.size(); ++i) normalized[i] = qrt_sm121_q1::widen(host->normalized[i]);
+            qrt_sm121_mtp::AcceptedTarget accepted;
+            const auto prepared = live.prepare(batch.inputs.data(),samples.data(),2u,positions,normalized,
+                epoch,&accepted,nullptr,1024u);
+            if (prepared.status != hipSuccess)
+                return abort(prepared.stage,"native MTP could not prepare the accepted target rows",prepared.completion_unknown);
+            if (accepted.drafter_retired || accepted.rows < 1u || accepted.rows > 2u ||
+                accepted.rows > request.output_token_capacity-output_index)
+                return abort("mtp_native_decode_acceptance","native MTP returned an unsupported accepted extent",false);
+            target_mutated = true;
+            const auto published = qrt_sm121_q2::CachePublisher::publish(result,*owner,accepted.rows);
+            if (published.status != hipSuccess)
+                return abort(published.stage,"native accepted cache publication failed",published.completion_unknown);
+            if (!owner->commit_metadata(result,accepted.rows,accepted.outputs) || !live.commit(actual()))
+                return abort("mtp_native_decode_receipt","target and MTP did not commit the same accepted inputs",false);
+            ++batches; accepted_total += accepted.rows;
+            const uint64_t end = qrt_elapsed_ns(started,qrt_now_ns());
+            for (unsigned row = 0; row < accepted.rows; ++row,++output_index) {
+                output->output_tokens[output_index] = accepted.outputs[row];
+                output->token_end_elapsed_ns[output_index] = end;
+                output->token_step_elapsed_ns[output_index] = end-previous_end;
+                previous_end = end;
+                std::cerr << "BATCH_MARK qwen36_native_mtp_token output_index=" << output_index
+                          << " position=" << batch.first_position+row << " input_token=" << batch.inputs[row]
+                          << " output_token=" << accepted.outputs[row] << " output_logit=" << logits[row]
+                          << " accepted_rows=" << accepted.rows << " target_and_drafter_committed=1"
+                          << " reference_input=0" << std::endl;
+                if (request.emit_callback && !request.emit_callback(request.emit_user_data,
+                        request.expected_session_generation,output_index,accepted.outputs[row],
+                        output->token_step_elapsed_ns[output_index],end))
+                    return abort("mtp_native_decode_callback","native MTP callback cancelled a committed target pair",false);
+            }
+        }
+        qrt_sm121_mtp::RequestCheckpoint checkpoint;
+        const auto saved = live.save(&checkpoint,actual());
+        if (saved.status != hipSuccess)
+            return abort(saved.stage,"native MTP could not save the paired target checkpoint",saved.completion_unknown);
+        g_qwen36_resident_session.native_mtp_checkpoint = std::move(checkpoint);
+        return true;
+    };
+    bool completed = false;
+    try { completed = run(); }
+    catch (const std::bad_alloc&) { (void)fail("mtp_native_decode_host_allocation","native MTP request host allocation failed"); }
+    catch (...) { (void)fail("mtp_native_decode_exception","native MTP request failed while preparing its private state"); }
+    if (!completed || !transaction.commit(failure_stage,failure)) {
+        (void)transaction.rollback("native_mtp_decode_failure");
+        if (target_mutated || g_qwen36_resident_completion_unknown) {
+            g_qwen36_resident_session.valid = false; g_qwen36_resident_session.route_active = false;
+        }
+        return false;
+    }
+    output->output_token_count = request.output_token_capacity;
+    output->decode_token_count = request.output_token_capacity-1u;
+    output->timing_count = request.output_token_capacity;
+    output->output_tokens_fnv1a64 = qrt_fnv1a64_bytes(output->output_tokens,
+        size_t(output->output_token_count)*sizeof(output->output_tokens[0]));
+    output->tpot_elapsed_ns = previous_end;
+    output->wall_clock_ns = qrt_elapsed_ns(started,qrt_now_ns());
+    output->status = static_cast<int32_t>(QRT_STATUS_OK); output->completed = 1u;
+    std::cerr << "BATCH_MARK qwen36_native_mtp_decode_complete generation=" << session.generation
+              << " target_batches=" << batches << " accepted_tokens=" << accepted_total
+              << " paired_checkpoint=1 reference_input=0 numerical_correctness_claimed=0" << std::endl;
+    return true;
+}
+
 }  // namespace
 
 QRT_PREFILL_DESCRIPTOR_BATCH_HIP_EXPORT int
@@ -218487,6 +218733,16 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_decode_v1(
         resident_engine = const_cast<qrt_engine_t *>(
             session.owner_engine
         );
+    }
+
+    if (raw_env_flag_enabled("QRT_QWEN36_MTP_NATIVE_DECODE")) {
+        if (gb10_continuation_teacher_forced)
+            return set_failure(QRT_STATUS_INVALID_ARGUMENT,"mtp_native_decode_reference_input",
+                "native MTP must schedule drafts from its actual paired checkpoint");
+        std::string native_stage,native_failure;
+        if (!run_qwen36_native_mtp_decode(*request,out_result,start_ns,&native_stage,&native_failure))
+            return set_failure(QRT_STATUS_UNSUPPORTED,native_stage,native_failure);
+        return 1;
     }
 
     ScopedDescriptorBatchResidentEngine resident_engine_scope(
@@ -223535,8 +223791,13 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
 QRT_PREFILL_DESCRIPTOR_BATCH_HIP_EXPORT void
 QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL
 qrt_prefill_descriptor_batch_hip_release_v1(void) {
+    std::lock_guard<std::recursive_mutex> lock(g_qwen36_resident_session_mutex);
     if (g_qwen36_resident_completion_unknown) {
         std::cerr << "BATCH_MARK qwen36_shared_release_quarantined unresolved_shadow_fence=1" << std::endl;
+        return;
+    }
+    if (g_qwen36_target_cache_borrows.load(std::memory_order_acquire)) {
+        std::cerr << "BATCH_MARK qwen36_shared_release_deferred active_target_cache_borrow=1" << std::endl;
         return;
     }
     release_qwen36_q1024_owner_provider();
@@ -223745,6 +224006,12 @@ qrt_qwen36_whole_provider_release_engine_v1(
         return fail_qwen36_provider_engine_lifecycle(out_result, QRT_STATUS_UNSUPPORTED,
             "qwen36_whole_provider_engine_release_quarantined",
             "whole-provider engine release retained owners after an unresolved shadow fence", start_ns);
+    }
+    if (g_qwen36_target_cache_borrows.load(std::memory_order_acquire)) {
+        capture_qwen36_provider_engine_lifecycle_after_locked(engine, out_result);
+        return fail_qwen36_provider_engine_lifecycle(out_result, QRT_STATUS_UNSUPPORTED,
+            "qwen36_whole_provider_engine_release_target_borrow",
+            "whole-provider engine release retained an active target cache borrower", start_ns);
     }
     auto engine_it = std::find(
         g_qwen36_whole_provider_live_engines.begin(),

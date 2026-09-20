@@ -39,6 +39,7 @@ class ModelPrefixCheckpointTests(unittest.TestCase):
 #include "native/src/qrt_prefix_checkpoint.h"
 #include "native/providers/prefix_checkpoint_policy.h"
 #include "native/providers/gdn/fla_checkpoint.h"
+#include "native/providers/gdn/sm121_q2_cache_lifetime.h"
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -88,6 +89,7 @@ struct RequestCheckpoint {std::shared_ptr<const int> retained;};
 }
 ''' + structs + r'''
 Qwen36ResidentSessionState g_qwen36_resident_root_session;
+Qwen36ResidentSessionState* g_qwen36_resident_active_session=&g_qwen36_resident_root_session;
 #define g_qwen36_resident_session g_qwen36_resident_root_session
 std::recursive_mutex g_qwen36_resident_session_mutex;
 bool release_qwen36_resident_dual_attention_state_locked(){return true;}
@@ -277,6 +279,31 @@ int main(){
   }
   teardown();
  }
+ // The actual target pin blocks retirement/reentrant clones and commit. Drop
+ // it before the enclosing transaction publishes or restores the cache.
+ for(bool contiguous:{false,true}) {
+  setup(contiguous);auto& s=g_qwen36_resident_session;std::string stage,error;
+  {
+   ScopedQwen36ResidentSessionShadowTransaction tx(s.generation,s.prompt_token_ids_fnv1a64,&stage,&error);
+   assert(tx.ready());auto pin=tx.acquire_target_cache_lifetime();
+   assert(pin&&pin->ready(&s)&&g_qwen36_target_cache_borrows==1u);
+   const auto before=allocations.size();const auto cleanups=cleanup_calls;
+   assert(!release_qwen36_resident_session_locked()&&allocations.size()==before&&cleanup_calls==cleanups&&s.valid);
+   {ScopedQwen36ResidentSessionShadowTransaction nested(s.generation,s.prompt_token_ids_fnv1a64,&stage,&error);
+    assert(!nested.ready()&&allocations.size()==before);}
+   assert(!tx.commit(&stage,&error)&&tx.ready());
+   pin.reset();assert(!g_qwen36_target_cache_borrows&&tx.commit(&stage,&error));
+  }
+  teardown();
+  setup(contiguous);std::shared_ptr<const qrt_sm121_q2::ResidentCacheLifetime> escaped;
+  {
+   ScopedQwen36ResidentSessionShadowTransaction tx(s.generation,s.prompt_token_ids_fnv1a64,&stage,&error);
+   assert(tx.ready());escaped=tx.acquire_target_cache_lifetime();assert(escaped);
+  }
+  assert(g_qwen36_resident_completion_unknown&&!escaped->ready(&s)&&g_qwen36_target_cache_borrows==1u);
+  assert(!release_qwen36_resident_session_locked());
+  escaped.reset();recover_test_quarantine();teardown();
+ }
  assert(device_syncs>100u);
 }
 ''')
@@ -295,6 +322,7 @@ int main(){
 using Result=qrt_qwen36_whole_provider_engine_lifecycle_result_v1_t;
 std::recursive_mutex g_qwen36_resident_session_mutex;
 std::atomic<bool> g_qwen36_resident_completion_unknown{false};
+std::atomic<size_t> g_qwen36_target_cache_borrows{0u};
 std::vector<const qrt_engine_t*> g_qwen36_whole_provider_live_engines;
 struct Session {const qrt_engine_t* owner_engine=nullptr;bool valid=false;} g_qwen36_resident_session;
 unsigned session_releases=0,shared_releases=0;
@@ -324,7 +352,16 @@ int main(){
  g_qwen36_resident_session={};g_qwen36_whole_provider_live_engines={other};
  assert(!qrt_qwen36_whole_provider_release_engine_v1(other,&result));
  assert(g_qwen36_whole_provider_live_engines.size()==1u&&!session_releases&&!shared_releases);
- g_qwen36_resident_completion_unknown=false;g_qwen36_whole_provider_live_engines={owner,other};g_qwen36_resident_session={owner,true};
+ g_qwen36_resident_completion_unknown=false;g_qwen36_target_cache_borrows=1u;
+ g_qwen36_whole_provider_live_engines={owner,other};g_qwen36_resident_session={owner,true};
+ for(auto* engine:{owner,other}){
+  assert(!qrt_qwen36_whole_provider_release_engine_v1(engine,&result));
+  assert(!result.completed&&g_qwen36_whole_provider_live_engines.size()==2u&&!session_releases&&!shared_releases);
+ }
+ g_qwen36_resident_session={};g_qwen36_whole_provider_live_engines={other};
+ assert(!qrt_qwen36_whole_provider_release_engine_v1(other,&result));
+ assert(g_qwen36_whole_provider_live_engines.size()==1u&&!session_releases&&!shared_releases);
+ g_qwen36_target_cache_borrows=0u;g_qwen36_whole_provider_live_engines={owner,other};g_qwen36_resident_session={owner,true};
  assert(qrt_qwen36_whole_provider_release_engine_v1(other,&result)&&result.completed);
  assert(result.shared_model_weights_retained&&!session_releases&&!shared_releases);
  assert(qrt_qwen36_whole_provider_release_engine_v1(owner,&result)&&result.completed);
