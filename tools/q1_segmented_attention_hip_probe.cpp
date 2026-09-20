@@ -144,6 +144,9 @@ int main(int argc,char** argv)try{
     const auto expected_sum=read_role<float>("expected_segment_sum",scalar_elements);
     const unsigned stride=tokens+17u;
     Buffer scores(size_t(16u)*stride*4u),acc(output_elements*4u),maxima(scalar_elements*4u),sums(scalar_elements*4u),output(4096u*4u);
+    // Guard fills above use the default stream. Complete initialization before
+    // the independent nonblocking compute stream can write the same storage.
+    check(hipDeviceSynchronize());
     hipStream_t stream=nullptr;check(hipStreamCreateWithFlags(&stream,hipStreamNonBlocking));
     std::vector<Comparison> comparisons;size_t padding_errors=0;
     for(unsigned prefix:{tokens-1u,262144u,tokens/2u,1u}){

@@ -42,6 +42,7 @@
 #include "sm121_q1_full_runtime.h"
 #include "sm121_q1_attention_runtime.h"
 #include "sm121_q1_packed_runtime.h"
+#include "gdn/sm121_q1_segmented_attention.h"
 #include "moe_accumulator/sm121_packed_dense.h"
 #include "mtp_target_rows.h"
 #include "mtp_target_rows_trace.h"
@@ -59002,6 +59003,13 @@ static_assert(
     "resident full-attention scratch must cover q8192 scores and D73 partials"
 );
 static_assert(
+    kQ1FullAttentionWave32FullDimensionPartialAccBytes >=
+        qrt_sm121_q1_segmented_attention::output_elements * sizeof(float) &&
+    kQ1FullAttentionWave32FullDimensionPartialScalarBytes >=
+        qrt_sm121_q1_segmented_attention::scalar_elements * sizeof(float),
+    "the disjoint resident partial regions must cover all16 original attention segments"
+);
+static_assert(
     kQ1FullAttentionAiterUnifiedSegmentOutputBytes == 1048576u &&
         kQ1FullAttentionAiterUnifiedSegmentScalarBytes == 4096u &&
         kQ1FullAttentionAiterUnifiedBlockTableEntries == 16480u &&
@@ -70346,18 +70354,35 @@ bool run_qwen36_resident_full_attention_score_value_step(
         if (!checked(hipGetLastError(), "_sm121_scores") ||
             !checked(record_qwen36_resident_decode_q1_layer_profile_boundary(&workspace, layer_index,
                 Q1LayerProfileBoundary::kScoreEnd, stream), "_sm121_score_event")) return false;
-        hipLaunchKernelGGL(HIP_KERNEL_NAME(
-            qrt_blackwell_attention::blackwell_exact_attention_kernel<true, true, true>),
-            dim3(16u), dim3(256u), 0u, stream,
-            static_cast<const uint16_t *>(nullptr), static_cast<const uint16_t *>(nullptr),
-            static_cast<const uint16_t *>(layer.device_v), device_context_output,
-            static_cast<unsigned int>(absolute_position), 0u, q1_full_core_tables.exp2,
-            static_cast<float *>(nullptr), static_cast<float *>(nullptr), true, rcp,
-            score_scratch, workspace_score_scratch_token_capacity,
-            static_cast<const uint16_t *>(layer.device_decode_tail_v),
-            static_cast<unsigned int>(layer.history_tokens));
-        if (!checked(hipGetLastError(), "_sm121_online_pv") ||
-            !checked(record_qwen36_resident_decode_q1_layer_profile_boundary(&workspace, layer_index,
+        const bool use_segmented_attention = qrt_sm121_q1_packed_runtime::applies_to_prefix(
+            g_qwen36_resident_session.prefix_tokens);
+        if (use_segmented_attention) {
+            // The original non-speculative target uses16 independent softmax
+            // segments. These existing partial regions are disjoint from the
+            // live QK scores and covered by the validated workspace owner.
+            if (!checked(qrt_sm121_q1_segmented_attention::launch(
+                    score_scratch, static_cast<const uint16_t *>(layer.device_v),
+                    static_cast<const uint16_t *>(layer.device_decode_tail_v),
+                    workspace.device_full_attention_wave32_full_dimension_partial_acc,
+                    workspace.device_full_attention_wave32_full_dimension_partial_max,
+                    workspace.device_full_attention_wave32_full_dimension_partial_sum,
+                    device_context_output, static_cast<unsigned int>(layer.history_tokens),
+                    total_tokens, workspace_score_scratch_token_capacity,
+                    q1_full_core_tables.exp2, rcp, stream), "_sm121_segmented_pv")) return false;
+        } else {
+            hipLaunchKernelGGL(HIP_KERNEL_NAME(
+                qrt_blackwell_attention::blackwell_exact_attention_kernel<true, true, true>),
+                dim3(16u), dim3(256u), 0u, stream,
+                static_cast<const uint16_t *>(nullptr), static_cast<const uint16_t *>(nullptr),
+                static_cast<const uint16_t *>(layer.device_v), device_context_output,
+                static_cast<unsigned int>(absolute_position), 0u, q1_full_core_tables.exp2,
+                static_cast<float *>(nullptr), static_cast<float *>(nullptr), true, rcp,
+                score_scratch, workspace_score_scratch_token_capacity,
+                static_cast<const uint16_t *>(layer.device_decode_tail_v),
+                static_cast<unsigned int>(layer.history_tokens));
+            if (!checked(hipGetLastError(), "_sm121_online_pv")) return false;
+        }
+        if (!checked(record_qwen36_resident_decode_q1_layer_profile_boundary(&workspace, layer_index,
                 Q1LayerProfileBoundary::kSoftmaxEnd, stream), "_sm121_pv_event")) return false;
         hipLaunchKernelGGL(qwen36_resident_full_attention_grouped_bf16_post_kernel,
             dim3(16u), dim3(256u), 0u, stream, device_rope_values,
@@ -70366,7 +70391,12 @@ bool run_qwen36_resident_full_attention_score_value_step(
         if (!checked(hipGetLastError(), "_sm121_gate")) return false;
         ++workspace.full_attention_score_scratch_use_count;
         workspace.full_attention_score_scratch_token_count += total_tokens;
-        workspace.full_attention_score_scratch_kernel_launch_count += UINT64_C(4);
+        workspace.full_attention_score_scratch_kernel_launch_count += use_segmented_attention ? UINT64_C(5) : UINT64_C(4);
+        if (use_segmented_attention && layer_index == 3u && !layer.decode_tail_token_count)
+            std::cerr << "BATCH_MARK q1_sm121_segmented_attention prefix_tokens="
+                      << g_qwen36_resident_session.prefix_tokens
+                      << " total_tokens=" << total_tokens
+                      << " segments=16 tile_tokens=16 additional_workspace_bytes=0" << std::endl;
         if (workspace.aggregate_run_metadata_ready)
             ++workspace.aggregate_run_metadata_score_marker_elision_count;
         ++layer.decode_tail_token_count;
