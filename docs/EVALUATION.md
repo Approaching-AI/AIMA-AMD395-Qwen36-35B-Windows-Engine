@@ -107,8 +107,14 @@ observe the original drafter's shifted inputs, target hidden rows, projection
 boundaries and proposed IDs alongside those target transactions. The observer
 also binds a bounded copy of the original fusion/KV weights. It checks accepted
 inputs against generated history and proposed IDs against the next scheduled
-target batch. Five CPU identity checks pass; real MTP capture and the native
-general transition remain unverified. The original scheduler and MTP sources
+target batch. The [first capture](../benchmarks/correctness/gb10-mtp-observer-prefill-failure-20260920.json)
+reproduces both short controls and their full first logits, then stops at the
+long-case observer's history guard. The pinned source uses the last known
+prompt token as a backup for discarded partial-prefill samples. Those inputs
+now receive a separate prompt-bound provenance check; rejected decode padding
+still cannot qualify as accepted history. Nine CPU identity checks pass.
+Long-case qualification remains unverified, and the failure record is retained.
+The original scheduler and MTP sources
 were read from the same completed reference container before implementing this
 observer. No draft arithmetic or scheduling rule is replaced.
 

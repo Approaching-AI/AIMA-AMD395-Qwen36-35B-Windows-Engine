@@ -290,7 +290,12 @@ def execute(args, cases, oracles):
             qualify_runtime_capture(worker, case["prompt_token_ids"], tokens)
         if args.mtp_boundaries:
             from capture_gb10_mtp_boundaries import qualify_mtp_capture
-            qualify_mtp_capture(worker, case["prompt_token_ids"], tokens)
+            try:
+                qualify_mtp_capture(worker, case["prompt_token_ids"], tokens)
+            except ValueError as error:
+                record["qualification_error"] = str(error)
+                write_json(args.output_dir / (case["name"] + "-rejected.json"), record)
+                raise
         write_json(args.output_dir / (case["name"] + ".json"), record)
         results.append(record)
         print(json.dumps(dict(case=case["name"], first_token=tokens[0], raw_logit=worker["raw_logit"],

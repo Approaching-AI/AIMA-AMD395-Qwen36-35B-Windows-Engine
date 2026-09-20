@@ -39,19 +39,38 @@ def qualify_mtp_capture(worker, prompt_token_ids, output_token_ids):
     targets = worker['runtime_boundaries']['transactions']
     history = prompt_token_ids + output_token_ids
     qualified = 0
+    backup_rows = 0
     for proposal in capture['transactions']:
         target = targets[proposal['target_transaction']]
         if (proposal['original_max_seq_len'] + 1 > 262144 or
                 proposal['first_position'] != target['first_position'] or
-                proposal['token_count'] != target['token_count']):
+                proposal['token_count'] != target['token_count'] or
+                proposal['discarded_target'] != target['discarded']):
             raise ValueError("MTP proposal does not follow the original target extent")
+        if proposal['discarded_target']:
+            # The pinned padded drafter uses the request's last known token as
+            # backup during partial prefill, rather than the next chunk token.
+            if (proposal['prefill_backup_position'] != len(prompt_token_ids) - 1 or
+                    proposal['prefill_backup_token_id'] != prompt_token_ids[-1] or
+                    proposal['next_token_ids'] != [proposal['prefill_backup_token_id']]):
+                raise ValueError("discarded prefill MTP backup differs from the original prompt")
         for row in proposal['rows']:
             position = row['position'] + 1
+            sampled = row['row'] in proposal['sampled_rows']
+            if (sampled != row['selected_for_sampling'] or
+                    row['at_or_before_sample'] != (row['row'] <= proposal['sampled_rows'][0]) or
+                    sampled and row['input_token_id'] != proposal['next_token_ids'][0]):
+                raise ValueError("MTP row does not follow the original sample selection")
             row['input_matches_generated_history'] = (
                 row['input_token_id'] == history[position] if position < len(history) else None)
-            if row['at_or_before_sample'] and row['input_matches_generated_history'] is False:
-                raise ValueError("accepted MTP input differs from original generated history")
-            qualified += row['at_or_before_sample'] and row['input_matches_generated_history'] is True
+            backup = proposal['discarded_target'] and sampled
+            row['input_provenance'] = ('discarded_prefill_backup' if backup else
+                'accepted_history' if row['at_or_before_sample'] else 'rejected_padding')
+            if row['at_or_before_sample'] and not backup:
+                if row['input_matches_generated_history'] is False:
+                    raise ValueError("accepted MTP input differs from original generated history")
+                qualified += row['input_matches_generated_history'] is True
+            backup_rows += backup
         next_index = proposal['target_transaction'] + 1
         proposal['next_target_draft_check'] = None
         if not proposal['discarded_target'] and next_index < len(targets):
@@ -67,6 +86,7 @@ def qualify_mtp_capture(worker, prompt_token_ids, output_token_ids):
     if not qualified:
         raise ValueError("MTP capture lacks original generated-history rows")
     capture['qualified_original_input_rows'] = qualified
+    capture['qualified_prefill_backup_rows'] = backup_rows
     capture['original_history_qualified'] = True
 
 
@@ -221,6 +241,10 @@ class MtpBoundaryCapture(RuntimeBoundaryCapture):
                 target_token_count=target['token_count'], original_max_seq_len=metadata.max_seq_len,
                 original_num_rejected_tokens=None if rejected is None else rejected.detach().cpu().tolist(),
                 next_token_ids=kwargs['next_token_ids'].detach().cpu().tolist())
+            if target['discarded']:
+                transaction.update(
+                    prefill_backup_position=int(runner.input_batch.num_tokens_no_spec[0]) - 1,
+                    prefill_backup_token_id=int(drafter.backup_next_token_ids.np[0]))
             self._qrt_mtp_transactions.append(transaction)
             self._qrt_mtp_active = transaction
             try:
