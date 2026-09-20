@@ -170,7 +170,7 @@ int main(int argc, char** argv) try {
         << ",\"untouched_compared_elements\":" << (262144u - tokens) * 1024u
         << ",\"untouched_mismatches\":" << untouched_mismatches << ",\"retained_tokens\":" << cache.retained_tokens()
         << ",\"cache_owner_bytes\":" << cache.allocated_bytes() << ",\"projection_workspace_bytes\":0"
-        << ",\"completed_with_observations_ms\":" << completed_ms << ",\"pass\":" << (pass ? "true" : "false")
+        << ",\"completed_with_observations_ms\":" << completed_ms << ",\"passed\":" << (pass ? "true" : "false")
         << ",\"native_inference_acceptance\":false,\"performance_acceptance\":false}\n";
     return pass ? 0 : 1;
 } catch (const std::exception& error) {
