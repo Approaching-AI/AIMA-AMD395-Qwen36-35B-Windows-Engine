@@ -70,6 +70,7 @@ public:
     }
     size_t tokens() const { return saved_ ? saved_->state.inputs.size() : 0u; }
     size_t allocated_bytes() const { return saved_ ? saved_->cache.allocated_bytes() : 0u; }
+    size_t model_pack_bytes() const { return saved_ ? saved_->state.binding.allocated_bytes() : 0u; }
 private:
     friend class Request;
     std::shared_ptr<const mtp_request_detail::Saved> saved_;
@@ -256,6 +257,28 @@ public:
     size_t committed_tokens() const { return live_ ? live_->state.inputs.size() : 0u; }
     size_t retained_tokens() const { return live_ ? live_->drafter.retained_tokens() : 0u; }
     bool pending() const { return pending_.active; }
+
+    // Read-only diagnostics over the completed published branch. Observers
+    // must quarantine this owner if their asynchronous borrow cannot finish.
+    DraftStep proposal(uint64_t epoch) const {
+        return ready() && !pending_.active && live_->state.binding.valid(epoch) &&
+            live_->state.proposal_ready() ? live_->state.proposal : DraftStep{};
+    }
+    DrafterObservation observation(uint64_t epoch) const {
+        return ready() && !pending_.active ? live_->drafter.observation(epoch) : DrafterObservation{};
+    }
+    const uint16_t* cache_data() const {
+        return ready() && !pending_.active ? live_->drafter.cache_data() : nullptr;
+    }
+    size_t allocated_bytes() const { return live_ ? live_->drafter.allocated_bytes() : 0u; }
+    size_t input_allocated_bytes() const { return live_ ? live_->inputs.allocated_bytes() : 0u; }
+    bool quarantine_borrower(hipError_t status) {
+        if (status == hipSuccess || !live_) return false;
+        (void)live_->drafter.quarantine_borrower(status);
+        terminal_ = status;
+        completion_unknown_ = true;
+        return true;
+    }
 
 private:
     struct Live {

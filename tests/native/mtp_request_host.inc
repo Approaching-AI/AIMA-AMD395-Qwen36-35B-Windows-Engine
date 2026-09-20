@@ -181,7 +181,7 @@ static void test_request() {
     }assert(allocations.empty());
     // Unknown upload, append and proposal completion retains all borrowed
     // storage after destroying the request, reference views and model owner.
-    for(unsigned fence=1u;fence<=3u;++fence){
+    for(unsigned fence=1u;fence<=4u;++fence){
         reset();{
             RequestFixture fixture;auto plan=fixture.begin();reset();fail_sync=fence;
             AcceptedTarget output{1u,{555u,556u},false};
@@ -220,5 +220,43 @@ static void test_request() {
             }
         }
         late_completion();assert(allocations.empty());
+    }
+}
+
+static void test_prefill_request_probe(const std::string& directory) {
+    using namespace qrt_sm121_mtp;
+    using namespace qrt_sm121_mtp_runtime;
+    for(unsigned rows:{7169u,8192u}){
+        reset();expected_stream=nullptr;{
+            auto batch=target_batch(rows);auto source=std::make_shared<LeasedWeights>();
+            std::vector<uint32_t> ids(rows);for(unsigned i=0;i<rows;++i)ids[i]=100u+i;
+            const TargetFrontier actual{source.get(),17u,10u,ids.data(),rows,999u};
+            RequestCheckpoint saved;std::string stage,failure;
+            const std::string prefix=directory+"/request-"+std::to_string(rows);
+            assert(probe_prefill_request(*batch,source,actual,rows+32u,prefix,&saved,stage,failure));
+            assert(saved.matches(actual)&&saved.tokens()==rows&&saved.allocated_bytes()==size_t(rows)*2048u);
+            assert(saved.model_pack_bytes()==8388608u);
+            assert(allocations.size()==2u&&queued.empty());
+            assert(!probe_prefill_request(*batch,source,actual,rows+32u,prefix,&saved,stage,failure));
+            assert(stage=="mtp_request_probe_contract"&&saved.matches(actual));
+            Request restored;assert(restored.restore(saved,actual,rows+32u).status==hipSuccess);
+            assert(restored.proposal(10u).tokens[0]==200u&&!restored.observation(10u).rows);
+            TargetBatch plan;assert(restored.begin(actual,32u,&plan)&&plan.first_position==rows&&plan.inputs[0]==999u&&plan.inputs[1]==200u);
+            assert(!restored.proposal(10u).rows&&!restored.cache_data()&&restored.abort(10u));
+        }assert(allocations.empty());expected_stream=reinterpret_cast<void*>(0x1234);
+    }
+    for(unsigned fence:{6u,7u}){
+        reset();expected_stream=nullptr;{
+            auto batch=target_batch(7169u);auto source=std::make_shared<LeasedWeights>();
+            std::vector<uint32_t> ids(7169u);for(unsigned i=0;i<ids.size();++i)ids[i]=100u+i;
+            const TargetFrontier actual{source.get(),17u,10u,ids.data(),ids.size(),999u};
+            RequestCheckpoint saved;std::string stage,failure;
+            const std::string prefix=directory+"/request-unknown-"+std::to_string(fence);
+            fail_sync=fence;
+            assert(!probe_prefill_request(*batch,source,actual,7201u,prefix,&saved,stage,failure));
+            assert(stage==(fence==6u?"mtp_prefill_capture_completion":"cache_checkpoint_completion"));
+            assert(!saved.tokens()&&!std::filesystem::exists(prefix+".request.json"));
+        }
+        late_completion();assert(allocations.empty());expected_stream=reinterpret_cast<void*>(0x1234);
     }
 }

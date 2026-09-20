@@ -70,6 +70,11 @@ struct Qwen36ResidentDecodeActivationWorkspace {
  void* q1_moe_priority_stream=nullptr; void* device_allocation=nullptr;size_t layout_bytes=0;
  Qwen36ResidentDecodeActivationWorkspacePhase phase=Qwen36ResidentDecodeActivationWorkspacePhase::kIdle;
 };
+namespace qrt_sm121_mtp {
+// The actual immutable owner is exercised by test_mtp_drafter; this fixture
+// observes session copying, partial-prefix clearing and rollback identity.
+struct RequestCheckpoint {std::shared_ptr<const int> retained;};
+}
 ''' + structs + r'''
 Qwen36ResidentSessionState g_qwen36_resident_root_session;
 #define g_qwen36_resident_session g_qwen36_resident_root_session
@@ -98,6 +103,8 @@ void setup(bool contiguous){
  auto& s=g_qwen36_resident_session;s={};s.valid=s.provider_completed=true;s.prefix_tokens=129;
  s.owner_engine=reinterpret_cast<const qrt_engine_t*>(uintptr_t(0x1234));s.generation=17;
  s.current_token_id=77;s.current_token_valid=true;
+ s.native_mtp_checkpoint.retained=std::make_shared<const int>(19);
+ s.native_mtp_processed_inputs.assign(129,42);
  s.prefix_checkpoints=std::make_shared<Qwen36ResidentPrefixCheckpointStore>();
  auto& store=*s.prefix_checkpoints;store.owner_tokens.assign(129,42);store.owner_engine=s.owner_engine;
  store.owner_generation=s.generation;store.owner_digest=qrt_fnv1a64_bytes(store.owner_tokens.data(),129*4);
@@ -182,6 +189,7 @@ int main(){
    {ScopedQwen36ResidentSessionShadowTransaction tx(17,digest,&stage,&error,prefix,input.data());
     assert(tx.ready()&&s.prefix_tokens==prefix&&s.prompt_token_ids_fnv1a64==digest&&!s.current_token_valid);
     assert(tx.base_committed_decode_token_count()==committed&&s.committed_decode_token_count==0u);
+    assert(!s.native_mtp_checkpoint.retained&&s.native_mtp_processed_inputs.empty());
     for(unsigned l=0;l<40;++l)if(l%4!=3){auto& v=s.linear_layers[l];
      assert(v.prefix_tokens==prefix&&((unsigned char*)v.device_allocation)[0]==(prefix==64?10:20)+l);
      assert(v.device_allocation!=original.linear_layers[l].device_allocation);std::memset(v.device_allocation,222,96);
@@ -192,6 +200,8 @@ int main(){
     assert(!tx.commit(&stage,&error));assert(tx.rollback("test"));assert(s.prefix_tokens==129&&s.current_token_id==77&&s.committed_decode_token_count==committed);
    }
    assert(allocations.size()==base_count);
+   assert(s.native_mtp_checkpoint.retained==original.native_mtp_checkpoint.retained&&
+          s.native_mtp_processed_inputs==original.native_mtp_processed_inputs);
    // Every allocation failure restores owner metadata and pointers.
    for(unsigned at=1;at<=40;++at){fail_alloc=alloc_calls+at;
     {ScopedQwen36ResidentSessionShadowTransaction tx(17,digest,&stage,&error,prefix,input.data());assert(!tx.ready());}

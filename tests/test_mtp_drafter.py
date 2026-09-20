@@ -26,6 +26,7 @@ class MtpDrafterTests(unittest.TestCase):
             probe = (ROOT / 'native/providers/sm121_mtp_prefill_probe.h').read_text()
             probe = probe.replace('#include "sm121_mtp_runtime_tables.h"', '')
             probe = probe.replace('#include "gdn/sm121_mtp_target_inputs.h"', '')
+            probe = probe.replace('#include "gdn/sm121_mtp_request.h"', '')
             probe = probe.replace('#include "mtp_target_rows_trace.h"',
                 '#include "native/providers/mtp_target_rows_trace.h"')
             (directory / 'sm121_mtp_prefill_probe.h').write_text(probe)
@@ -61,6 +62,25 @@ class MtpDrafterTests(unittest.TestCase):
                 self.assertEqual(actual_total, record['capture_bytes'])
                 self.assertEqual(Path(str(prefix)+'.target.hidden.bf16.bin').stat().st_size, rows*4096)
                 self.assertEqual(Path(str(prefix)+'.target.shifted.u32.bin').stat().st_size, rows*4)
+                prefix = directory / f'request-{rows}'
+                seed = json.loads(Path(str(prefix)+'.request.json').read_text())
+                self.assertEqual(seed['schema'], 'qrt-mtp-native-request-seed-v1')
+                self.assertEqual(seed['model_epoch'], 10)
+                self.assertEqual(seed['target_generation'], 17)
+                self.assertEqual(seed['processed_tokens'], rows)
+                self.assertEqual(seed['target_current_token'], 999)
+                self.assertEqual(seed['next_draft_token'], 200)
+                self.assertEqual(seed['next_draft_logit'], 12.5)
+                self.assertEqual(seed['checkpoint_bytes'], rows*2048)
+                self.assertTrue(seed['actual_target_frontier_matched'])
+                self.assertEqual(seed['accepted_target_blocks'], 0)
+                self.assertFalse(seed['mtp_acceptance_enabled'])
+                self.assertFalse(seed['reference_data_used_by_compute'])
+                self.assertFalse(seed['numerical_acceptance_claimed'])
+                capture = json.loads(prefix.with_suffix('.json').read_text())
+                self.assertEqual(capture['retained_tokens'], rows)
+                self.assertEqual(capture['draft_position'], rows-1)
+                self.assertEqual(len(capture['tensors']), 25)
 
 
 if __name__ == '__main__':

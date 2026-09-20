@@ -12,6 +12,7 @@
 #include <string>
 #include "sm121_mtp_runtime_tables.h"
 #include "gdn/sm121_mtp_target_inputs.h"
+#include "gdn/sm121_mtp_request.h"
 #include "mtp_target_rows_trace.h"
 
 namespace qrt_sm121_mtp_runtime {
@@ -64,7 +65,8 @@ inline bool write(const std::string& path, const void* data, size_t bytes) {
 
 // Download only completed real device outputs. A failed observer fence must
 // retain both its pinned destinations and every borrowed drafter allocation.
-inline bool capture(qrt_sm121_mtp::Drafter& drafter, const qrt_sm121_mtp::DraftStep& proposal,
+template<class Owner>
+inline bool capture(Owner& drafter, const qrt_sm121_mtp::DraftStep& proposal,
     uint64_t epoch, const qrt_mtp_target_rows::PrefillRows& batch, const std::string& prefix,
     size_t model_pack_bytes, size_t input_bytes, uint64_t elapsed_ns,
     std::string& failure_stage, std::string& failure, hipStream_t stream = nullptr) {
@@ -181,6 +183,71 @@ inline bool probe_prefill(const qrt_mtp_target_rows::PrefillRows& batch,
             binding.allocated_bytes(), inputs.allocated_bytes(), static_cast<uint64_t>(elapsed), failure_stage, failure);
     } catch (const std::exception& error) {
         failure_stage = "mtp_prefill_probe_exception"; failure = error.what(); return false;
+    }
+}
+
+// Opt-in real-session seed. The caller supplies the actual committed target
+// frontier under its session lock and publishes this checkpoint only if the
+// enclosing prefill, native computation, copies and trace writes all succeed.
+inline bool probe_prefill_request(const qrt_mtp_target_rows::PrefillRows& batch,
+    std::shared_ptr<const qrt_sm121_mtp::ModelWeightSource> source,
+    const qrt_sm121_mtp::TargetFrontier& actual, unsigned capacity, const std::string& prefix,
+    qrt_sm121_mtp::RequestCheckpoint* output, std::string& failure_stage, std::string& failure) {
+    using namespace qrt_sm121_mtp;
+    const auto start = std::chrono::steady_clock::now();
+    const auto fail = [&](const char* stage, hipError_t status) {
+        failure_stage = stage; failure = "native MTP request seed status " + std::to_string(status); return false;
+    };
+    if (!output || !source || actual.model_epoch != source->epoch() ||
+        !actual.owner || !actual.generation || actual.processed_count != batch.rows() ||
+        actual.current_token != batch.sampled_token() ||
+        !batch.matches_input(actual.processed_inputs, actual.processed_count) ||
+        capacity < batch.rows() || capacity > 262144u ||
+        !batch.published() || batch.first_position() || batch.discarded_prefill() ||
+        (batch.rows() != 7169u && batch.rows() != 8192u) || prefix.empty() ||
+        !prefill_probe_detail::fresh(prefix+".request.json"))
+        return fail("mtp_request_probe_contract", hipErrorInvalidValue);
+    try {
+        ModelWeights model;
+        const auto prepared = model.prepare(std::move(source), actual.model_epoch);
+        if (prepared.status != hipSuccess) return fail(prepared.stage, prepared.status);
+        DrafterTables tables;
+        const hipError_t status = prepare(&tables, capacity-1u);
+        if (status != hipSuccess) return fail("mtp_request_probe_tables", status);
+        const auto binding = model.binding(actual.model_epoch);
+        Request request;
+        const auto seeded = request.seed(batch, actual, binding, tables, capacity);
+        if (seeded.status != hipSuccess) return fail(seeded.stage, seeded.status);
+        const auto proposal = request.proposal(actual.model_epoch);
+        const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::steady_clock::now()-start).count();
+        if (!prefill_probe_detail::capture(request, proposal, actual.model_epoch, batch, prefix,
+            binding.allocated_bytes(), request.input_allocated_bytes(), static_cast<uint64_t>(elapsed),
+            failure_stage, failure)) return false;
+        RequestCheckpoint checkpoint;
+        const auto saved = request.save(&checkpoint, actual);
+        if (saved.status != hipSuccess) return fail(saved.stage, saved.status);
+        std::ostringstream metadata;
+        metadata.imbue(std::locale::classic());
+        metadata << std::setprecision(9)
+            << "{\n  \"schema\": \"qrt-mtp-native-request-seed-v1\",\n"
+            << "  \"model_epoch\": " << actual.model_epoch
+            << ",\n  \"target_generation\": " << actual.generation
+            << ",\n  \"processed_tokens\": " << checkpoint.tokens()
+            << ",\n  \"target_current_token\": " << actual.current_token
+            << ",\n  \"next_draft_token\": " << proposal.tokens[0]
+            << ",\n  \"next_draft_logit\": " << proposal.logits[0]
+            << ",\n  \"checkpoint_bytes\": " << checkpoint.allocated_bytes()
+            << ",\n  \"actual_target_frontier_matched\": true,\n"
+            << "  \"accepted_target_blocks\": 0,\n  \"mtp_acceptance_enabled\": false,\n"
+            << "  \"reference_data_used_by_compute\": false,\n  \"numerical_acceptance_claimed\": false\n}\n";
+        const std::string serialized = metadata.str();
+        if (!prefill_probe_detail::write(prefix+".request.json", serialized.data(), serialized.size()))
+            return fail("mtp_request_probe_metadata", hipErrorInvalidValue);
+        *output = std::move(checkpoint);
+        return true;
+    } catch (const std::exception& error) {
+        failure_stage = "mtp_request_probe_exception"; failure = error.what(); return false;
     }
 }
 } // namespace qrt_sm121_mtp_runtime

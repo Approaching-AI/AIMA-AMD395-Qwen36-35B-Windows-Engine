@@ -41072,11 +41072,12 @@ private:
         if (line.rfind("BATCH_MARK ", 0u) != 0u) {
             return true;
         }
-        static constexpr std::array<const char *, 108> kRequiredMarkers = {{
+        static constexpr std::array<const char *, 109> kRequiredMarkers = {{
             "BATCH_MARK final_query_liveness",
             "BATCH_MARK final_query_output_liveness",
             "BATCH_MARK qwen36_mtp_target_rows",
             "BATCH_MARK qwen36_mtp_native_prefill_probe",
+            "BATCH_MARK qwen36_mtp_native_request_seed",
             "BATCH_MARK full_attention_ck_compact_bf16",
             "BATCH_MARK full_attention_ck_q1_dynamic",
             "BATCH_MARK full_attention_ck_q1_kv8192",
@@ -59707,6 +59708,10 @@ struct Qwen36ResidentSessionState {
     > full_attention_layers{};
     Qwen36ResidentDecodeActivationWorkspace activation_workspace;
     std::shared_ptr<Qwen36ResidentPrefixCheckpointStore> prefix_checkpoints;
+    // Immutable native MTP state belongs to this exact target session. A
+    // shorter saved target prefix must seed its own matching MTP history.
+    qrt_sm121_mtp::RequestCheckpoint native_mtp_checkpoint;
+    std::vector<uint32_t> native_mtp_processed_inputs;
     size_t prefix_tokens = 0u;
     const qrt_engine_t *owner_engine = nullptr;
     std::string model_dir;
@@ -63462,6 +63467,8 @@ uint64_t qwen36_resident_session_owned_bytes_locked() {
     return (g_qwen36_resident_session.prefix_checkpoints != nullptr
             ? g_qwen36_resident_session.prefix_checkpoints->owned_bytes()
             : UINT64_C(0)) +
+        static_cast<uint64_t>(g_qwen36_resident_session.native_mtp_checkpoint.allocated_bytes()) +
+        static_cast<uint64_t>(g_qwen36_resident_session.native_mtp_checkpoint.model_pack_bytes()) +
         g_qwen36_resident_session.linear_recurrent_state_bytes +
         g_qwen36_resident_session.linear_qkv_ring_bytes +
         g_qwen36_resident_session.full_attention_kv_bytes +
@@ -66514,6 +66521,9 @@ public:
         g_qwen36_resident_session.committed_decode_token_count = expected_count;
         g_qwen36_resident_session.current_token_id = next_token_id;
         g_qwen36_resident_session.current_token_valid = true;
+        // Ordinary q1 completion did not append the paired native MTP state.
+        g_qwen36_resident_session.native_mtp_checkpoint = {};
+        g_qwen36_resident_session.native_mtp_processed_inputs.clear();
         ++workspace.guarded_token_commit_count;
         const uint64_t guarded_commit_count =
             workspace.guarded_token_commit_count;
@@ -68756,6 +68766,8 @@ public:
             session.committed_decode_token_count = 0u;
             session.current_token_id = 0u;
             session.current_token_valid = false;
+            session.native_mtp_checkpoint = {};
+            session.native_mtp_processed_inputs.clear();
             session.last_decode_top2_valid = false;
             session.last_decode_top2_position =
                 (std::numeric_limits<size_t>::max)();
@@ -160255,6 +160267,13 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
     const bool mtp_target_trace_requested = mtp_target_trace_prefix && mtp_target_trace_prefix[0];
     const char *mtp_native_probe_prefix = std::getenv("QRT_QWEN36_MTP_NATIVE_PREFILL_PROBE_PREFIX");
     const bool mtp_native_probe_requested = mtp_native_probe_prefix && mtp_native_probe_prefix[0];
+    const bool mtp_native_request_seed = env_flag_enabled("QRT_QWEN36_MTP_NATIVE_REQUEST_SEED");
+    if (mtp_native_request_seed && (!mtp_native_probe_requested || !request->resident_engine ||
+            !request->output_token_capacity)) {
+        qrt_qwen36_whole_provider_set_failure(out_result, "mtp_native_request_seed_request",
+            "native MTP request seeding requires the native prefill diagnostic and a resident target engine", start_ns);
+        return 0;
+    }
     if (mtp_native_probe_requested &&
         ((request->input_token_count != 7169u && request->input_token_count != 8192u) ||
          ScopedQwen36PrefixBatchSuffix::active || g_qwen36_chunked_prefill_total_tokens ||
@@ -161267,11 +161286,39 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
             return 0;
         }
         std::string trace_failure;
+        qrt_sm121_mtp::RequestCheckpoint native_mtp_checkpoint;
+        std::vector<uint32_t> native_mtp_processed_inputs;
+        std::unique_lock<std::recursive_mutex> native_mtp_seed_lock(
+            g_qwen36_resident_session_mutex, std::defer_lock);
         if (mtp_native_probe_requested) {
             std::string probe_stage;
             const auto source = acquire_qwen36_mtp_model_weight_source(request->model_dir, &probe_stage, &trace_failure);
-            if (!source || !qrt_sm121_mtp_runtime::probe_prefill(*batch, source,
-                    mtp_native_probe_prefix, probe_stage, trace_failure)) {
+            bool probe_ok = false;
+            if (source && mtp_native_request_seed) {
+                native_mtp_seed_lock.lock();
+                const auto& session = g_qwen36_resident_session;
+                if (!session.valid || !session.provider_completed || !session.current_token_valid ||
+                    session.owner_engine != request->resident_engine || !session.generation ||
+                    session.model_dir != request->model_dir || session.prefix_tokens != batch->rows() ||
+                    session.committed_decode_token_count || session.current_token_id != batch->sampled_token()) {
+                    qrt_qwen36_whole_provider_set_failure(out_result, "mtp_native_request_seed_frontier",
+                        "native MTP seed requires the exact completed resident target prefill frontier", start_ns);
+                    return 0;
+                }
+                native_mtp_processed_inputs.assign(request->input_tokens,
+                    request->input_tokens+request->input_token_count);
+                const qrt_sm121_mtp::TargetFrontier actual{session.owner_engine, session.generation,
+                    source->epoch(), native_mtp_processed_inputs.data(), native_mtp_processed_inputs.size(),
+                    session.current_token_id};
+                const unsigned capacity = static_cast<unsigned>((std::min)(size_t(262144u),
+                    batch->rows()+request->output_token_capacity));
+                probe_ok = qrt_sm121_mtp_runtime::probe_prefill_request(*batch, source, actual, capacity,
+                    mtp_native_probe_prefix, &native_mtp_checkpoint, probe_stage, trace_failure);
+            } else if (source) {
+                probe_ok = qrt_sm121_mtp_runtime::probe_prefill(*batch, source,
+                    mtp_native_probe_prefix, probe_stage, trace_failure);
+            }
+            if (!probe_ok) {
                 qrt_qwen36_whole_provider_set_failure(out_result, probe_stage, trace_failure, start_ns);
                 return 0;
             }
@@ -161283,6 +161330,15 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
             !qrt_mtp_target_rows::write_trace(*batch, mtp_target_trace_prefix, &trace_failure)) {
             qrt_qwen36_whole_provider_set_failure(out_result, "mtp_target_rows_trace", trace_failure, start_ns);
             return 0;
+        }
+        if (mtp_native_request_seed) {
+            g_qwen36_resident_session.native_mtp_checkpoint = std::move(native_mtp_checkpoint);
+            g_qwen36_resident_session.native_mtp_processed_inputs.swap(native_mtp_processed_inputs);
+            std::cerr << "BATCH_MARK qwen36_mtp_native_request_seed"
+                      << " generation=" << g_qwen36_resident_session.generation
+                      << " processed_tokens=" << g_qwen36_resident_session.native_mtp_processed_inputs.size()
+                      << " exact_target_frontier=1 immutable_checkpoint=1"
+                      << " mtp_acceptance_enabled=0 numerical_correctness_claimed=0" << std::endl;
         }
         std::cerr << "BATCH_MARK qwen36_mtp_target_rows first_position=" << batch->first_position()
                   << " rows=" << batch->rows() << " prompt_tokens=" << batch->prompt_tokens()

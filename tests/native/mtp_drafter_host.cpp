@@ -150,7 +150,7 @@ static hipError_t launch_head(const uint16_t*,const uint16_t* in,uint16_t* logit
 namespace qrt_sm121_mtp_runtime {
 static bool fail_tables=false;
 static hipError_t prepare(qrt_sm121_mtp::DrafterTables* out,unsigned last) {
-    assert(last==7168u||last==8191u);if(fail_tables)return injected;
+    assert(last==7168u||last==8191u||last==7200u||last==8223u);if(fail_tables)return injected;
     const auto* p=reinterpret_cast<const uint16_t*>(0x60000);
     const auto* t=reinterpret_cast<const unsigned char*>(0x70000);
     *out={t,p,262144u,t,t,{p,p,reinterpret_cast<const uint32_t*>(0x80000)}};return hipSuccess;
@@ -409,6 +409,7 @@ int main(int argc,char** argv){
     test_prefill_probe(argv[1]);
     test_checkpoints();
     test_request();
+    test_prefill_request_probe(argv[1]);
     for(unsigned fail=1;fail<=25u;++fail){
         reset();{Drafter d;assert(d.reserve(8,2)==hipSuccess&&allocations.size()==25u);auto* old=d.cache_data();
             reset();fail_allocation=fail;assert(d.reserve(16,4)==hipErrorOutOfMemory);

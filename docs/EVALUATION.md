@@ -662,6 +662,25 @@ or q2 executor; complete-prompt seeding is bounded to 8192 rows. Native numerica
 validation, chunked prefill, partial prefix recovery and streaming remain open.
 The earlier frozen Windows build and product plans do not qualify this change.
 
+The [actual resident request seed candidate](../benchmarks/correctness/mtp-actual-resident-request-seed-local-20260920.json)
+connects that owner to completed q7169/q8192 prefill behind
+`QRT_QWEN36_MTP_NATIVE_REQUEST_SEED=1`. Under the resident session lock it
+requires the matching engine/model/generation, full prompt extent and actual
+first sample. The complete native proposal is captured, an immutable request
+checkpoint is saved, and the exact target inputs and checkpoint are published
+to the copyable session only after all diagnostic writes succeed. A new
+`native.request.json` records this pairing. Resident memory accounting includes
+the KV checkpoint and original-weight pack. Guarded ordinary q1 commits and
+shorter prefix restores clear incompatible native state; shadow rollback
+restores the original checkpoint.
+
+All 53 local regressions pass in 34.486 seconds. Full7169/full8192 seed,
+capture, save/restore, unknown observer/copy completion, ten target-session
+mismatch cases, later trace failure and actual prefix rollback are covered
+using queued HIP/kernel doubles. Speculative target verification remains
+disabled. Native build/model qualification, target executor integration, long
+chunked seeding, partial prefix support and streaming remain open.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
