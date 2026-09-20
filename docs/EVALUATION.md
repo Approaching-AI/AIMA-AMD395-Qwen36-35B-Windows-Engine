@@ -162,6 +162,16 @@ input values from 322 qualified rows across six cases. GPU launches and the
 embedding gather still require Windows verification; the kernels are not wired
 into model inference and do not qualify a complete drafter.
 
+The [MTP prompt-KV arithmetic check](../benchmarks/correctness/gb10-mtp-prompt-kv-arithmetic-20260920.json)
+also validates K normalization and single-round BF16 RoPE at all 322 original
+target positions. All 164864 normalized K values, 164864 rotated K values and
+164864 V values match their original transactions. The separate HIP cache
+writer accepts bounded chunks and writes token-major K512/V512 BF16 storage.
+A complete 262144-token cache occupies 512 MiB, supplied by its eventual caller.
+Two new Windows probes cover these operations, actual embedding indices,
+invalid-token rejection and untouched cache/output cells. Their builds and
+runs are pending; the existing 256k product task retains exclusive GPU use.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a

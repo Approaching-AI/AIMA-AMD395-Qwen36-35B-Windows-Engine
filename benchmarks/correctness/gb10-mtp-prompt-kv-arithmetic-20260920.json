@@ -1,0 +1,857 @@
+{
+  "kind": "shared_native_mtp_prompt_kv_cpu_arithmetic",
+  "utc": "2026-09-20T01:09:38.594692+00:00",
+  "reference_host": "aitopatom-66c4",
+  "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+  "reference_source_commit": "fcedf19a5397a03d1f1f01d16848d30a09720205",
+  "reference_command": [
+    "docker",
+    "run",
+    "--name",
+    "qrt-gb10-mtp-limit-boundary-20260920-r2",
+    "--hostname",
+    "aitopatom-66c4",
+    "--gpus",
+    "all",
+    "--network",
+    "none",
+    "--memory",
+    "108g",
+    "--shm-size",
+    "8g",
+    "--cpus",
+    "8",
+    "-e",
+    "PYTHONPATH=/work/scripts",
+    "-e",
+    "QRT_GB10_OBSERVE_FLASHINFER_AUTOTUNER=1",
+    "-e",
+    "VLLM_ALLOW_LONG_MAX_MODEL_LEN=1",
+    "-e",
+    "VLLM_WORKER_MULTIPROC_METHOD=spawn",
+    "-v",
+    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2:/work",
+    "-v",
+    "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
+    "-e",
+    "QRT_GB10_CASE_BOUNDARY_OFFSETS={\"draft-limit-q262140-out16\":[2,3,4],\"draft-limit-q262142-out16\":[0,1,2],\"draft-limit-q262143-out16\":[0,1,2]}",
+    "-w",
+    "/work",
+    "--entrypoint",
+    "timeout",
+    "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+    "--signal=TERM",
+    "--kill-after=10",
+    "1830",
+    "python3",
+    "scripts/capture_gb10_token_matrix.py",
+    "--runtime-boundaries",
+    "--mtp-boundaries",
+    "--source-commit",
+    "fcedf19a5397a03d1f1f01d16848d30a09720205",
+    "--oracle-q7169",
+    "contracts/arbitrary_q7169_gb10_oracle.json",
+    "--oracle-q8192",
+    "contracts/hprefill_q8192_gb10_oracle.json",
+    "--additional-cases",
+    "additional-cases.json",
+    "--maximum-prompt-tokens",
+    "262144",
+    "--output-dir",
+    "capture",
+    "--expected-host",
+    "aitopatom-66c4",
+    "--timeout-seconds",
+    "1800",
+    "--execute"
+  ],
+  "reference_command_file_sha256": "16891d0cac7e464f798e4e42de3eabafeedbe68c4536c3f697a8984e3d052155",
+  "reference_dispatch_sha256": "5eb10747ec587bfdd55bb30ddc7d17bb7d26a6dbbf8279585e1a6902ef00fd03",
+  "original_capture_evidence": "gb10-mtp-limit-frontiers-20260920.json",
+  "original_capture_evidence_sha256": "f79b0e85ecdd911bada10da4f79e4f166d169eff39f796cc7ba47aa69063fe09",
+  "source_binding": {
+    "host": "Jiawei-MacminideMac-mini.local",
+    "command": [
+      "c++",
+      "-std=c++17",
+      "-O2",
+      "-ffp-contract=off",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/providers/gdn/sm121_mtp_kv_cpu_probe.cpp",
+      "-o",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/mtp-kv-cpu"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "",
+    "working_sources": {
+      "native/providers/gdn/sm121_mtp_kv.h": {
+        "bytes": 2764,
+        "sha256": "ff2c7cb575c063384cf48bc6aeaf296ff095db86ef38c8bf02183475697d470a"
+      },
+      "native/providers/gdn/sm121_mtp_kv_math.h": {
+        "bytes": 1317,
+        "sha256": "b4cd662fe69172accc1b24c0e724462f822704835ac1d6d4cfa10c55f0caca72"
+      },
+      "native/providers/gdn/sm121_bf16_fma.h": {
+        "bytes": 5013,
+        "sha256": "2c1e66061c5a36f231c4e35eadc23ca86b0e647b57ab70c5e9adc51048dbd1ad"
+      },
+      "native/providers/gdn/sm121_mtp_math.h": {
+        "bytes": 1614,
+        "sha256": "cad4eff89ecc6e461a576ea99842cd6e19d9f6ae329d4731013673583e53ff88"
+      },
+      "native/providers/gdn/sm121_q1_math.h": {
+        "bytes": 6456,
+        "sha256": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb"
+      },
+      "native/providers/gdn/sm121_attention_rcp.h": {
+        "bytes": 3034,
+        "sha256": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6"
+      },
+      "native/providers/gdn/sm121_sqrt_table.h": {
+        "bytes": 2377,
+        "sha256": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1"
+      },
+      "native/providers/gdn/sm121_exp2_table.h": {
+        "bytes": 3753,
+        "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142"
+      },
+      "native/providers/gdn/sm121_rsqrt_table.h": {
+        "bytes": 3034,
+        "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f"
+      },
+      "native/providers/gdn/sm121_mtp_kv_cpu_probe.cpp": {
+        "bytes": 4182,
+        "sha256": "bb7852af7a938e1ad151f86f06bbe6a86e547ed0a1c07483738c62471421d0e3"
+      }
+    },
+    "gpu_header_compiled": false,
+    "base_commit": "86818b77178d2232ea50287048146d1169d95624",
+    "executable_sha256": "0f9962c0d779cf68ffadcd90b69c907a79eee2996bcbdd84b73d2ad62d4075f8"
+  },
+  "build_sha256": "52eae4f5d161845f9c37f00691a3bb030f5dd35db7a3cd705bc13696a923701c",
+  "detailed_analysis": {
+    "file": "mtp-kv-shared-cpu-r1/comparison.json",
+    "sha256": "0cd528a04f20be7b0841887744832165d35ec3725a20efcde4fef3195e683790",
+    "observer": {
+      "file": "check_shared_mtp_kv_cpu_r1.py",
+      "sha256": "ec19d827129a31e4e65a499d148fc38a7d99b82b74b5a51fb382b90236abfa44"
+    }
+  },
+  "tables": {
+    "rsqrt_sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850",
+    "rope_sha256": "ba12ce218327d4cf23aac7dfacd8e9efbc99fd207611a8466227089838ef0e80"
+  },
+  "cases": [
+    {
+      "name": "q7169-out32",
+      "case_sha256": "8aa5c0ffd6c8582e09e0fa514dadf96a36682e426d98618f2411d799f1723e19",
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/mtp-kv-cpu",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/q7169-out32/kv.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r2/capture/mtp-original-weights/key-norm.bf16.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/q7169-out32/expected-norm.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/q7169-out32/expected-kv.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/q7169-out32/positions.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
+      ],
+      "report": {
+        "rows": 33,
+        "norm_elements": 16896,
+        "key_elements": 16896,
+        "value_elements": 16896,
+        "norm_bf16_mismatches": 0,
+        "key_bf16_mismatches": 0,
+        "value_bf16_mismatches": 0,
+        "inference_acceptance": false
+      },
+      "inputs": {
+        "kv.bin": {
+          "bytes": 67584,
+          "sha256": "ec1125633c27f4460fe8cae6161bd836ecf3188ceedd77ef0bde2a338dfa63f7"
+        },
+        "expected-norm.bin": {
+          "bytes": 33792,
+          "sha256": "608758d7223a03bdf7b24ae576c21836e74c496594d22c727047ee22fe8d1a96"
+        },
+        "expected-kv.bin": {
+          "bytes": 67584,
+          "sha256": "4d0b458dc2fb685c2fa79ba98a353a79cf7e5ecb644942f40f657a30baa84a66"
+        },
+        "positions.bin": {
+          "bytes": 132,
+          "sha256": "a51953bf0fb4ea691b75b1be879c5c5f288fae6ecec955c98352ce9b51e81df4"
+        }
+      },
+      "weight": {
+        "file": "key-norm.bf16.bin",
+        "dtype": "torch.bfloat16",
+        "shape": [
+          256
+        ],
+        "bytes": 512,
+        "sha256": "6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938",
+        "local_file": "qrt-gb10-mtp-limit-boundary-20260920-r2/capture/mtp-original-weights/key-norm.bf16.bin"
+      },
+      "accepted_history_rows": 33,
+      "verified_prefill_backup_rows": 0,
+      "original_positions": [
+        0,
+        7168,
+        7169,
+        7170,
+        7171,
+        7172,
+        7173,
+        7174,
+        7175,
+        7176,
+        7177,
+        7178,
+        7179,
+        7180,
+        7181,
+        7182,
+        7183,
+        7184,
+        7185,
+        7186,
+        7187,
+        7188,
+        7189,
+        7190,
+        7191,
+        7192,
+        7193,
+        7194,
+        7195,
+        7196,
+        7197,
+        7198,
+        7199
+      ]
+    },
+    {
+      "name": "q8192-out32",
+      "case_sha256": "593420bd8b1ef8b2ce68f6caedec1e729e4890f34c35a25e332e87a0cffc8dc5",
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/mtp-kv-cpu",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/q8192-out32/kv.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r2/capture/mtp-original-weights/key-norm.bf16.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/q8192-out32/expected-norm.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/q8192-out32/expected-kv.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/q8192-out32/positions.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
+      ],
+      "report": {
+        "rows": 33,
+        "norm_elements": 16896,
+        "key_elements": 16896,
+        "value_elements": 16896,
+        "norm_bf16_mismatches": 0,
+        "key_bf16_mismatches": 0,
+        "value_bf16_mismatches": 0,
+        "inference_acceptance": false
+      },
+      "inputs": {
+        "kv.bin": {
+          "bytes": 67584,
+          "sha256": "7fcd920b4be16b2c6e6683afbae19a84d7cfa25f8f6232a4cccb214c345f673b"
+        },
+        "expected-norm.bin": {
+          "bytes": 33792,
+          "sha256": "01a4d148cb037c819502beff2c0fa22101d34998a0c9de1a248cf69b7165d5ee"
+        },
+        "expected-kv.bin": {
+          "bytes": 67584,
+          "sha256": "b1ee715e56f31cae36e3e72236df9d46d31e5ca85e5219fb16d90eddd9954b15"
+        },
+        "positions.bin": {
+          "bytes": 132,
+          "sha256": "d9482a246422df44bbff9132dd5cdb25277563040915c3dc5e91d16c6fbe2125"
+        }
+      },
+      "weight": {
+        "file": "key-norm.bf16.bin",
+        "dtype": "torch.bfloat16",
+        "shape": [
+          256
+        ],
+        "bytes": 512,
+        "sha256": "6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938",
+        "local_file": "qrt-gb10-mtp-limit-boundary-20260920-r2/capture/mtp-original-weights/key-norm.bf16.bin"
+      },
+      "accepted_history_rows": 33,
+      "verified_prefill_backup_rows": 0,
+      "original_positions": [
+        0,
+        8191,
+        8192,
+        8193,
+        8194,
+        8195,
+        8196,
+        8197,
+        8198,
+        8199,
+        8200,
+        8201,
+        8202,
+        8203,
+        8204,
+        8205,
+        8206,
+        8207,
+        8208,
+        8209,
+        8210,
+        8211,
+        8212,
+        8213,
+        8214,
+        8215,
+        8216,
+        8217,
+        8218,
+        8219,
+        8220,
+        8221,
+        8222
+      ]
+    },
+    {
+      "name": "long-prefix262144-owner-out32",
+      "case_sha256": "0abca79dd8a7e5e7912f1847d0909ab13c5e740fd0cf2ec27b1744fea1875a00",
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/mtp-kv-cpu",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/long-prefix262144-owner-out32/kv.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r2/capture/mtp-original-weights/key-norm.bf16.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/long-prefix262144-owner-out32/expected-norm.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/long-prefix262144-owner-out32/expected-kv.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/long-prefix262144-owner-out32/positions.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
+      ],
+      "report": {
+        "rows": 62,
+        "norm_elements": 31744,
+        "key_elements": 31744,
+        "value_elements": 31744,
+        "norm_bf16_mismatches": 0,
+        "key_bf16_mismatches": 0,
+        "value_bf16_mismatches": 0,
+        "inference_acceptance": false
+      },
+      "inputs": {
+        "kv.bin": {
+          "bytes": 126976,
+          "sha256": "14eea811c0032d6f95396c34043b30e3f46d8d61e570fc530cd009078cc059d6"
+        },
+        "expected-norm.bin": {
+          "bytes": 63488,
+          "sha256": "6bd0846b3f5ac12c44aa953bddb440bac3df1edbd6a3b3114ecebfb5564c0737"
+        },
+        "expected-kv.bin": {
+          "bytes": 126976,
+          "sha256": "1acbd9915099beaf53d3f4fe20b252a2338a0c7cde59a4fb61a05363f270f0ca"
+        },
+        "positions.bin": {
+          "bytes": 248,
+          "sha256": "19973b3d7920750e98e75acca0a9f3aca92f9638c8a78192efbc2cffad04f91b"
+        }
+      },
+      "weight": {
+        "file": "key-norm.bf16.bin",
+        "dtype": "torch.bfloat16",
+        "shape": [
+          256
+        ],
+        "bytes": 512,
+        "sha256": "6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938",
+        "local_file": "qrt-gb10-mtp-limit-boundary-20260920-r2/capture/mtp-original-weights/key-norm.bf16.bin"
+      },
+      "accepted_history_rows": 31,
+      "verified_prefill_backup_rows": 31,
+      "original_positions": [
+        0,
+        8191,
+        8192,
+        16383,
+        16384,
+        24575,
+        24576,
+        32767,
+        32768,
+        40959,
+        40960,
+        49151,
+        49152,
+        57343,
+        57344,
+        65535,
+        65536,
+        73727,
+        73728,
+        81919,
+        81920,
+        90111,
+        90112,
+        98303,
+        98304,
+        106495,
+        106496,
+        114687,
+        114688,
+        122879,
+        122880,
+        131071,
+        131072,
+        139263,
+        139264,
+        147455,
+        147456,
+        155647,
+        155648,
+        163839,
+        163840,
+        172031,
+        172032,
+        180223,
+        180224,
+        188415,
+        188416,
+        196607,
+        196608,
+        204799,
+        204800,
+        212991,
+        212992,
+        221183,
+        221184,
+        229375,
+        229376,
+        237567,
+        237568,
+        245759,
+        245760,
+        253951
+      ]
+    },
+    {
+      "name": "draft-limit-q262140-out16",
+      "case_sha256": "3c5ba6382872034f13e4f15f4e9cd92a9668526f76632772f45a69e1f1d02872",
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/mtp-kv-cpu",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/draft-limit-q262140-out16/kv.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r2/capture/mtp-original-weights/key-norm.bf16.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/draft-limit-q262140-out16/expected-norm.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/draft-limit-q262140-out16/expected-kv.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/draft-limit-q262140-out16/positions.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
+      ],
+      "report": {
+        "rows": 66,
+        "norm_elements": 33792,
+        "key_elements": 33792,
+        "value_elements": 33792,
+        "norm_bf16_mismatches": 0,
+        "key_bf16_mismatches": 0,
+        "value_bf16_mismatches": 0,
+        "inference_acceptance": false
+      },
+      "inputs": {
+        "kv.bin": {
+          "bytes": 135168,
+          "sha256": "388cbc163432b4f33e846cdd7ff1a576348122b4714ec73976701af9e636dc26"
+        },
+        "expected-norm.bin": {
+          "bytes": 67584,
+          "sha256": "46aa23a95d4ea02c28d908c91c6353e45dc034281f4e0612befdd911437b3e66"
+        },
+        "expected-kv.bin": {
+          "bytes": 135168,
+          "sha256": "b8d2eec54838bd986b80e3b16abff438eab333afe772bc2de6228e8ce45f7cc3"
+        },
+        "positions.bin": {
+          "bytes": 264,
+          "sha256": "9b17158a2404eb77771179a263eb8e9cd42447fd0b0d31e0deb79cbde49b7564"
+        }
+      },
+      "weight": {
+        "file": "key-norm.bf16.bin",
+        "dtype": "torch.bfloat16",
+        "shape": [
+          256
+        ],
+        "bytes": 512,
+        "sha256": "6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938",
+        "local_file": "qrt-gb10-mtp-limit-boundary-20260920-r2/capture/mtp-original-weights/key-norm.bf16.bin"
+      },
+      "accepted_history_rows": 35,
+      "verified_prefill_backup_rows": 31,
+      "original_positions": [
+        0,
+        8191,
+        8192,
+        16383,
+        16384,
+        24575,
+        24576,
+        32767,
+        32768,
+        40959,
+        40960,
+        49151,
+        49152,
+        57343,
+        57344,
+        65535,
+        65536,
+        73727,
+        73728,
+        81919,
+        81920,
+        90111,
+        90112,
+        98303,
+        98304,
+        106495,
+        106496,
+        114687,
+        114688,
+        122879,
+        122880,
+        131071,
+        131072,
+        139263,
+        139264,
+        147455,
+        147456,
+        155647,
+        155648,
+        163839,
+        163840,
+        172031,
+        172032,
+        180223,
+        180224,
+        188415,
+        188416,
+        196607,
+        196608,
+        204799,
+        204800,
+        212991,
+        212992,
+        221183,
+        221184,
+        229375,
+        229376,
+        237567,
+        237568,
+        245759,
+        245760,
+        253951,
+        253952,
+        262139,
+        262140,
+        262141
+      ]
+    },
+    {
+      "name": "draft-limit-q262142-out16",
+      "case_sha256": "ab07c73ab4b8b884112d9dd8f56a720698fd02dbaff1674bbcf831288ac6e791",
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/mtp-kv-cpu",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/draft-limit-q262142-out16/kv.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r2/capture/mtp-original-weights/key-norm.bf16.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/draft-limit-q262142-out16/expected-norm.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/draft-limit-q262142-out16/expected-kv.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/draft-limit-q262142-out16/positions.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
+      ],
+      "report": {
+        "rows": 64,
+        "norm_elements": 32768,
+        "key_elements": 32768,
+        "value_elements": 32768,
+        "norm_bf16_mismatches": 0,
+        "key_bf16_mismatches": 0,
+        "value_bf16_mismatches": 0,
+        "inference_acceptance": false
+      },
+      "inputs": {
+        "kv.bin": {
+          "bytes": 131072,
+          "sha256": "bdf9ea00e4ee45b3c94452d9898e8541424fedc98d877e506fb206f0c2d66d8f"
+        },
+        "expected-norm.bin": {
+          "bytes": 65536,
+          "sha256": "5e90341434f6efd8fb05f05bacb5c786c9fc09096bf5abf6e33e6964986bd17b"
+        },
+        "expected-kv.bin": {
+          "bytes": 131072,
+          "sha256": "10e2a1e9751618db6b90f39928deb1e00cf512421dd4c37cf03566e58ce96861"
+        },
+        "positions.bin": {
+          "bytes": 256,
+          "sha256": "a807b58076951e7f7e085624b01c1da198f50d7460e3404e1b76bfbb6bec766b"
+        }
+      },
+      "weight": {
+        "file": "key-norm.bf16.bin",
+        "dtype": "torch.bfloat16",
+        "shape": [
+          256
+        ],
+        "bytes": 512,
+        "sha256": "6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938",
+        "local_file": "qrt-gb10-mtp-limit-boundary-20260920-r2/capture/mtp-original-weights/key-norm.bf16.bin"
+      },
+      "accepted_history_rows": 33,
+      "verified_prefill_backup_rows": 31,
+      "original_positions": [
+        0,
+        8191,
+        8192,
+        16383,
+        16384,
+        24575,
+        24576,
+        32767,
+        32768,
+        40959,
+        40960,
+        49151,
+        49152,
+        57343,
+        57344,
+        65535,
+        65536,
+        73727,
+        73728,
+        81919,
+        81920,
+        90111,
+        90112,
+        98303,
+        98304,
+        106495,
+        106496,
+        114687,
+        114688,
+        122879,
+        122880,
+        131071,
+        131072,
+        139263,
+        139264,
+        147455,
+        147456,
+        155647,
+        155648,
+        163839,
+        163840,
+        172031,
+        172032,
+        180223,
+        180224,
+        188415,
+        188416,
+        196607,
+        196608,
+        204799,
+        204800,
+        212991,
+        212992,
+        221183,
+        221184,
+        229375,
+        229376,
+        237567,
+        237568,
+        245759,
+        245760,
+        253951,
+        253952,
+        262141
+      ]
+    },
+    {
+      "name": "draft-limit-q262143-out16",
+      "case_sha256": "2e7f7ea541705d105a38021f47beabc3bd7beff3aae0229d4073523084c8bbd1",
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/mtp-kv-cpu",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/draft-limit-q262143-out16/kv.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r2/capture/mtp-original-weights/key-norm.bf16.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/draft-limit-q262143-out16/expected-norm.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/draft-limit-q262143-out16/expected-kv.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-kv-shared-cpu-r1/draft-limit-q262143-out16/positions.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
+      ],
+      "report": {
+        "rows": 64,
+        "norm_elements": 32768,
+        "key_elements": 32768,
+        "value_elements": 32768,
+        "norm_bf16_mismatches": 0,
+        "key_bf16_mismatches": 0,
+        "value_bf16_mismatches": 0,
+        "inference_acceptance": false
+      },
+      "inputs": {
+        "kv.bin": {
+          "bytes": 131072,
+          "sha256": "9758c09bbae3f2b6d0bcba8c646c9961119a119f26cf20eab8fb29caeb25fe35"
+        },
+        "expected-norm.bin": {
+          "bytes": 65536,
+          "sha256": "0740785b404a93d3059f4dc797cb5a6862d868f0a5586b3905fed6b6d4fcfb09"
+        },
+        "expected-kv.bin": {
+          "bytes": 131072,
+          "sha256": "5adbc81a3020fea026d9d3d9435650f64034b8d891b8dc2805bcbf8d984f806d"
+        },
+        "positions.bin": {
+          "bytes": 256,
+          "sha256": "70eda6a8c8ce1c6ee28cb7070b98c29cf6654f57240ec5a0d67883ea6b4f6475"
+        }
+      },
+      "weight": {
+        "file": "key-norm.bf16.bin",
+        "dtype": "torch.bfloat16",
+        "shape": [
+          256
+        ],
+        "bytes": 512,
+        "sha256": "6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938",
+        "local_file": "qrt-gb10-mtp-limit-boundary-20260920-r2/capture/mtp-original-weights/key-norm.bf16.bin"
+      },
+      "accepted_history_rows": 33,
+      "verified_prefill_backup_rows": 31,
+      "original_positions": [
+        0,
+        8191,
+        8192,
+        16383,
+        16384,
+        24575,
+        24576,
+        32767,
+        32768,
+        40959,
+        40960,
+        49151,
+        49152,
+        57343,
+        57344,
+        65535,
+        65536,
+        73727,
+        73728,
+        81919,
+        81920,
+        90111,
+        90112,
+        98303,
+        98304,
+        106495,
+        106496,
+        114687,
+        114688,
+        122879,
+        122880,
+        131071,
+        131072,
+        139263,
+        139264,
+        147455,
+        147456,
+        155647,
+        155648,
+        163839,
+        163840,
+        172031,
+        172032,
+        180223,
+        180224,
+        188415,
+        188416,
+        196607,
+        196608,
+        204799,
+        204800,
+        212991,
+        212992,
+        221183,
+        221184,
+        229375,
+        229376,
+        237567,
+        237568,
+        245759,
+        245760,
+        253951,
+        253952,
+        262142
+      ]
+    }
+  ],
+  "qualified_original_rows": 322,
+  "norm_bf16_elements": 164864,
+  "rotated_key_bf16_elements": 164864,
+  "passthrough_value_bf16_elements": 164864,
+  "all_bit_exact": true,
+  "proposed_gpu_cache": {
+    "tokens": 262144,
+    "bytes": 536870912,
+    "layout": "token-major K512 BF16 followed by V512 BF16",
+    "allocated_by_this_cpu_check": false
+  },
+  "gpu_probes": {
+    "tools/mtp_frontier_hip_probe.cpp": {
+      "bytes": 8502,
+      "sha256": "0b3c0173df98054b81c7bea697f025bf9c1d9a3e78121b454d6df4a30c1a8561",
+      "compiled": false,
+      "run": false
+    },
+    "tools/mtp_kv_hip_probe.cpp": {
+      "bytes": 6296,
+      "sha256": "c3687b30a5fd7e0438c3ad7a574799155d42a5c0ed215d37804fe9bc6c6126c5",
+      "compiled": false,
+      "run": false
+    }
+  },
+  "native_inference_acceptance": false,
+  "performance_acceptance": false,
+  "native_drafter_not_integrated": true,
+  "scope": "Every qualified original K/V projection row enters the shared K-norm and BF16 RoPE helpers. Original absolute target positions select model-derived rotary coefficients. Outputs are compared to the same original transaction; no native model state or reference draft decisions seed inference. The proposed HIP kernel writes caller-owned prompt KV storage at those absolute positions. Its launches, cache addressing and memory guards are pending Windows component checks.",
+  "recorder": {
+    "file": "record_shared_mtp_kv_cpu_r1.py",
+    "sha256": "ba3659f5bbf89792aad184ccf060b2c67ff0e32792d51ee42e6d1dc51b30dd9c"
+  }
+}

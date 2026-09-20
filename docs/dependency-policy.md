@@ -62,6 +62,12 @@ matching the selected original stride-512 norm reduction and fusion order on
 all 322 qualified reference rows. Windows launches and complete native MTP
 integration remain unmeasured. A future full prompt KV route must account for
 its own cache and selectively loaded MTP weights; these kernels allocate neither.
+The separate K normalization/RoPE writer also reuses the existing model-derived
+BF16 rotary table and single-round BF16 FMA helper. Its proposed token-major
+K512/V512 cache requires 536870912 bytes at 262144 tokens. This cache is caller
+owned and not yet allocated by inference. The offline GPU probe deliberately
+allocates the full cache plus two host images to check every untouched cell;
+that diagnostic host storage is not a proposed runtime dependency.
 
 # Optional caller-side document checker
 
