@@ -221,15 +221,16 @@ forward declarations instead of definitions; the corrected extraction and
 failure record are retained. Whole-provider Windows build, load time and model
 qualification for this optional scope remain unrun.
 
-The [expanded GPU component batch](../benchmarks/correctness/mtp-expanded-native-frontier-preparation-20260920.json)
-is frozen at source `7a0c3d9`, with 20 bound source inputs, 133 selected-input
-blobs, two existing tables and a 34897856-byte archive. Its three programs
-cover 48 cases and are expected to emit 66 comparison reports. This supersedes
-the preserved, unrun 30-case preparation at `9bd6dd7`. Both the local dispatcher
-and Windows wrapper require completed cleanup of the active original 256k run.
-Archive operations have 60-second bounds, individual probes have 30/60-second
-bounds and the transport has a 2400-second bound. Preparation performs no
-remote run; PowerShell parsing and native compilation/execution remain unrun.
+The [complete GPU component batch](../benchmarks/correctness/mtp-complete-native-frontier-preparation-20260920.json)
+is frozen at source `5f75d7d`, with30 bound source inputs,157 input files,
+two existing tables and a401974892-byte archive. Its four programs cover50
+cases and should emit68 comparison reports, including both complete original
+prompt-cache owners with real K16 projections. This supersedes the preserved,
+unrun30-case and48-case preparations. Both the local dispatcher and Windows
+wrapper require completed cleanup of the active original256k run. Archive
+operations have120-second bounds; component probes have30/60-second bounds,
+full prompt-cache probes180 seconds, and transport3300 seconds. Preparation
+performs no remote run; PowerShell parsing and native builds/runs are unrun.
 
 The [prompt-cache host preparation](../benchmarks/correctness/mtp-prompt-cache-host-preparation-20260920.json)
 adds a bounded prompt-shift helper and request-owned cache orchestration. All
