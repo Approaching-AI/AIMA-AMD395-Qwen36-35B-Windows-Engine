@@ -1,0 +1,2873 @@
+{
+  "kind": "expanded_original_mtp_native_frontier_preparation",
+  "utc": "2026-09-20T02:22:35.293189+00:00",
+  "manifest_file": "mtp-native-frontiers-source-r2.json",
+  "manifest_sha256": "6fa7abce35e0c74bd10f02c09727a72b74091a75f46165ed96c0064fe207a4d1",
+  "preparation": {
+    "source_commit": "7a0c3d97857a26d7bc396587bdbc6f5b090b71ed",
+    "repo": "D:/projects/AIMA-public-mtp-native-frontiers-20260920-r2",
+    "seed": "D:/projects/AIMA-public-packed-q1-recurrence-20260920-r1",
+    "data": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2",
+    "source_sha256": {
+      "tools/mtp_frontier_hip_probe.cpp": "a14f8cbb1b7679530e7013609ef6ba938dcfd86bb670e5b67e9c28c3ca789613",
+      "native/providers/gdn/sm121_mtp_prompt_cache.h": "e4592998798e4252ecba9b333a0b25b933aaf162262830de63ea9e9742de992b",
+      "native/providers/gdn/sm121_mtp_frontier.h": "8b8770782b96f85a1a127ec0264463d8c1a6092ff932cd2db29f0179d084239d",
+      "native/providers/gdn/sm121_mtp_math.h": "cad4eff89ecc6e461a576ea99842cd6e19d9f6ae329d4731013673583e53ff88",
+      "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+      "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+      "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+      "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+      "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+      "native/providers/gdn/sm121_mtp_kv.h": "ff2c7cb575c063384cf48bc6aeaf296ff095db86ef38c8bf02183475697d470a",
+      "native/providers/gdn/sm121_mtp_kv_math.h": "b4cd662fe69172accc1b24c0e724462f822704835ac1d6d4cfa10c55f0caca72",
+      "native/providers/gdn/sm121_bf16_fma.h": "2c1e66061c5a36f231c4e35eadc23ca86b0e647b57ab70c5e9adc51048dbd1ad",
+      "native/providers/gdn/sm121_mtp_residual.h": "135dadcfe48e69232e2254380f55a0891cbd0ce72e3c4ea296167ec6af51273f",
+      "native/providers/gdn/sm121_mtp_residual_math.h": "778b44d6f983e682409dc64aa50d1548d9dffc047d50012204c2ab135b69ac48",
+      "tools/mtp_kv_hip_probe.cpp": "c3687b30a5fd7e0438c3ad7a574799155d42a5c0ed215d37804fe9bc6c6126c5",
+      "tools/mtp_query_hip_probe.cpp": "44df50394a85b319ae04440b016e15817a19907eeca82e8b6408dc2ec9a77872",
+      "native/providers/gdn/sm121_mtp_query.h": "1e66f7eb11d9c2f00b9a3b9a856fff403aeaf57f804b1bac399b3f4461c1b918",
+      "native/providers/gdn/sm121_mtp_query_math.h": "83e9e334131e3c335ab3795865f4f4013f27f963b839c260d44aaa5fa20631f9",
+      "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+      "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca"
+    },
+    "programs": [
+      {
+        "name": "qrt-mtp-frontier",
+        "source": "tools/mtp_frontier_hip_probe.cpp"
+      },
+      {
+        "name": "qrt-mtp-kv",
+        "source": "tools/mtp_kv_hip_probe.cpp"
+      },
+      {
+        "name": "qrt-mtp-query",
+        "source": "tools/mtp_query_hip_probe.cpp"
+      }
+    ],
+    "bundle": "mtp-native-frontiers-7a0c3d9.bundle",
+    "bundle_sha256": "e6d136f10ac682d87c3d8dcb3ebea92730b7aad8c135684b0460862e58d86439",
+    "archive": "qrt-mtp-native-frontiers-inputs-20260920-r2.tar.gz",
+    "archive_sha256": "0a638684ebc3d605e79011cf94a7eb96006bcfb11119e13b2eaa92be8dd3664d",
+    "archive_bytes": 34897856,
+    "script": "run-mtp-native-frontiers-r2.ps1",
+    "script_sha256": "c60cbc17924a562b9c874b237b46da5596f046ec8c110ef7cb46e554aaa6a5c0",
+    "dispatcher": "dispatch_mtp_native_frontiers_r2.py",
+    "dispatcher_sha256": "092fc713b7266b613508efacdb9ed9ab1a412ceb57d7406a48c4faffe398737d",
+    "evidence_archive": "mtp-native-frontiers-r2-evidence.tar.gz",
+    "compile_timeout_seconds": 120,
+    "transport_timeout_seconds": 2400,
+    "reference_host": "aitopatom-66c4",
+    "reference_model": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "reference_source_commit": "fcedf19a5397a03d1f1f01d16848d30a09720205",
+    "reference_dispatch_sha256": "5eb10747ec587bfdd55bb30ddc7d17bb7d26a6dbbf8279585e1a6902ef00fd03",
+    "cpu_math_analysis_sha256": "056940e83be7514e0c5b9b959a776054a9204ed9e0e441976711c9925ea8521e",
+    "cpu_kv_analysis_sha256": "0cd528a04f20be7b0841887744832165d35ec3725a20efcde4fef3195e683790",
+    "cpu_query_analysis_sha256": "72e2299f67805a378549fa4487c43af5cc648623a72bf09bccf0b226f09c3411",
+    "cpu_residual_analysis_sha256": "11d6e4712e4dc867a1cc3b584bfa6894b839ee1e65935c615691f99709e5d820",
+    "active_run_must_finish_before_dispatch": "packed-q1-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+    "active_run_remote_directory": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/packed-q1-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+    "active_launch_sha256": "76ee246d20fbbbbac904a0c9c7fb0a8a9412eac2c6408d5128f3f97378d87af3",
+    "active_run_cleanup_required": true,
+    "active_run_model_success_required": false,
+    "replaces_unrun_plan": {
+      "file": "mtp-native-frontiers-source-r1.json",
+      "sha256": "13b3e8ed7532b035799bfd8bcc6e1212e5062f2f51520f56521ebcbb412fcf40",
+      "native_dispatched": false
+    },
+    "archive_operation_timeout_seconds": 60,
+    "evidence_entry_bound": 1024,
+    "evidence_uncompressed_byte_bound": 134217728
+  },
+  "source_inputs": 20,
+  "compiled_inputs": 18,
+  "files": [
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/003b074ef6ed91e42325355600ee8513dee5b30b771191bcfaed55d7db1c2aff.bin",
+      "archive_path": "blobs/003b074ef6ed91e42325355600ee8513dee5b30b771191bcfaed55d7db1c2aff.bin",
+      "bytes": 135168,
+      "sha256": "003b074ef6ed91e42325355600ee8513dee5b30b771191bcfaed55d7db1c2aff",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/003b074ef6ed91e42325355600ee8513dee5b30b771191bcfaed55d7db1c2aff.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484.bin",
+      "archive_path": "blobs/84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484.bin",
+      "bytes": 4096,
+      "sha256": "84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484.bin",
+      "roles": [
+        "original_model_weight"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e5154e564ec51ed3a4da039b7ae28ce6e5236f675f74b41af4133ef78b737918.bin",
+      "archive_path": "blobs/e5154e564ec51ed3a4da039b7ae28ce6e5236f675f74b41af4133ef78b737918.bin",
+      "bytes": 135168,
+      "sha256": "e5154e564ec51ed3a4da039b7ae28ce6e5236f675f74b41af4133ef78b737918",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/e5154e564ec51ed3a4da039b7ae28ce6e5236f675f74b41af4133ef78b737918.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/a71ca75618254ab38fe437fb3f2043dd85d6fd13523171eae0676b42e35190a6.bin",
+      "archive_path": "blobs/a71ca75618254ab38fe437fb3f2043dd85d6fd13523171eae0676b42e35190a6.bin",
+      "bytes": 135168,
+      "sha256": "a71ca75618254ab38fe437fb3f2043dd85d6fd13523171eae0676b42e35190a6",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/a71ca75618254ab38fe437fb3f2043dd85d6fd13523171eae0676b42e35190a6.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18.bin",
+      "archive_path": "blobs/cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18.bin",
+      "bytes": 4096,
+      "sha256": "cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18.bin",
+      "roles": [
+        "original_model_weight"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/0e9c09a5963b7663cef6fcc1c9fc709ccf83fa096512e6380dd135c15a9e8dce.bin",
+      "archive_path": "blobs/0e9c09a5963b7663cef6fcc1c9fc709ccf83fa096512e6380dd135c15a9e8dce.bin",
+      "bytes": 135168,
+      "sha256": "0e9c09a5963b7663cef6fcc1c9fc709ccf83fa096512e6380dd135c15a9e8dce",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/0e9c09a5963b7663cef6fcc1c9fc709ccf83fa096512e6380dd135c15a9e8dce.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/8ece63e8b5bb08fc86b8a86033656e787a92402516752a46aa50752aed0506a2.bin",
+      "archive_path": "blobs/8ece63e8b5bb08fc86b8a86033656e787a92402516752a46aa50752aed0506a2.bin",
+      "bytes": 135168,
+      "sha256": "8ece63e8b5bb08fc86b8a86033656e787a92402516752a46aa50752aed0506a2",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/8ece63e8b5bb08fc86b8a86033656e787a92402516752a46aa50752aed0506a2.bin",
+      "roles": [
+        "captured_operator_input",
+        "captured_or_independently_formed_original_residual"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/99fc176e7b890192ed0403677fa775eabc9a44d70b67592195909bc26be586bb.bin",
+      "archive_path": "blobs/99fc176e7b890192ed0403677fa775eabc9a44d70b67592195909bc26be586bb.bin",
+      "bytes": 4096,
+      "sha256": "99fc176e7b890192ed0403677fa775eabc9a44d70b67592195909bc26be586bb",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/99fc176e7b890192ed0403677fa775eabc9a44d70b67592195909bc26be586bb.bin",
+      "roles": [
+        "original_model_weight"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ed66fd3ea14b7c7a8c9cfbd7cbcf833e5e9e8129a3be139d730ef5eb9c8d24dd.bin",
+      "archive_path": "blobs/ed66fd3ea14b7c7a8c9cfbd7cbcf833e5e9e8129a3be139d730ef5eb9c8d24dd.bin",
+      "bytes": 135168,
+      "sha256": "ed66fd3ea14b7c7a8c9cfbd7cbcf833e5e9e8129a3be139d730ef5eb9c8d24dd",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/ed66fd3ea14b7c7a8c9cfbd7cbcf833e5e9e8129a3be139d730ef5eb9c8d24dd.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e73adf8429581531867020c361ad4a8f0378bb741e2b41831ad40cd11841e55f.bin",
+      "archive_path": "blobs/e73adf8429581531867020c361ad4a8f0378bb741e2b41831ad40cd11841e55f.bin",
+      "bytes": 135168,
+      "sha256": "e73adf8429581531867020c361ad4a8f0378bb741e2b41831ad40cd11841e55f",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/e73adf8429581531867020c361ad4a8f0378bb741e2b41831ad40cd11841e55f.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e7e368e6f4e1339c8d9d97d192f8048977fa86e98aa326fe2c8fc185ad93ea3d.bin",
+      "archive_path": "blobs/e7e368e6f4e1339c8d9d97d192f8048977fa86e98aa326fe2c8fc185ad93ea3d.bin",
+      "bytes": 135168,
+      "sha256": "e7e368e6f4e1339c8d9d97d192f8048977fa86e98aa326fe2c8fc185ad93ea3d",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/e7e368e6f4e1339c8d9d97d192f8048977fa86e98aa326fe2c8fc185ad93ea3d.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/013edf683607b001d25184965c5f0c9c34274c2b45cdb2c175711104ebdc18c5.bin",
+      "archive_path": "blobs/013edf683607b001d25184965c5f0c9c34274c2b45cdb2c175711104ebdc18c5.bin",
+      "bytes": 135168,
+      "sha256": "013edf683607b001d25184965c5f0c9c34274c2b45cdb2c175711104ebdc18c5",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/013edf683607b001d25184965c5f0c9c34274c2b45cdb2c175711104ebdc18c5.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/c1b2df2af655f3d651b8b9c257aa9562c02f0ee5b2cecdc48da6c01c5a60e656.bin",
+      "archive_path": "blobs/c1b2df2af655f3d651b8b9c257aa9562c02f0ee5b2cecdc48da6c01c5a60e656.bin",
+      "bytes": 135168,
+      "sha256": "c1b2df2af655f3d651b8b9c257aa9562c02f0ee5b2cecdc48da6c01c5a60e656",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/c1b2df2af655f3d651b8b9c257aa9562c02f0ee5b2cecdc48da6c01c5a60e656.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e67ee4d83db7aae48334b58d3206495fc5660b25bb791236c2e00a5323e6699d.bin",
+      "archive_path": "blobs/e67ee4d83db7aae48334b58d3206495fc5660b25bb791236c2e00a5323e6699d.bin",
+      "bytes": 135168,
+      "sha256": "e67ee4d83db7aae48334b58d3206495fc5660b25bb791236c2e00a5323e6699d",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/e67ee4d83db7aae48334b58d3206495fc5660b25bb791236c2e00a5323e6699d.bin",
+      "roles": [
+        "captured_operator_input",
+        "captured_or_independently_formed_original_residual"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/5893f6dc3e7e6177c44e8c016c4b77409449d080b5d56dd2d9be4dd74b139612.bin",
+      "archive_path": "blobs/5893f6dc3e7e6177c44e8c016c4b77409449d080b5d56dd2d9be4dd74b139612.bin",
+      "bytes": 135168,
+      "sha256": "5893f6dc3e7e6177c44e8c016c4b77409449d080b5d56dd2d9be4dd74b139612",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/5893f6dc3e7e6177c44e8c016c4b77409449d080b5d56dd2d9be4dd74b139612.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/f020e97fd400de7c600d5d697c660a6c8a228d20052fba4aed0af0f1a6d151f1.bin",
+      "archive_path": "blobs/f020e97fd400de7c600d5d697c660a6c8a228d20052fba4aed0af0f1a6d151f1.bin",
+      "bytes": 253952,
+      "sha256": "f020e97fd400de7c600d5d697c660a6c8a228d20052fba4aed0af0f1a6d151f1",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/f020e97fd400de7c600d5d697c660a6c8a228d20052fba4aed0af0f1a6d151f1.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/3a9bcf2753d6a1cb2f920050980eb041009b911b76b348da8412638fea28af9f.bin",
+      "archive_path": "blobs/3a9bcf2753d6a1cb2f920050980eb041009b911b76b348da8412638fea28af9f.bin",
+      "bytes": 253952,
+      "sha256": "3a9bcf2753d6a1cb2f920050980eb041009b911b76b348da8412638fea28af9f",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/3a9bcf2753d6a1cb2f920050980eb041009b911b76b348da8412638fea28af9f.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/7f6a54811bf306674b92c23297a66889c567d36f95adfb7f08d3021936f232a6.bin",
+      "archive_path": "blobs/7f6a54811bf306674b92c23297a66889c567d36f95adfb7f08d3021936f232a6.bin",
+      "bytes": 253952,
+      "sha256": "7f6a54811bf306674b92c23297a66889c567d36f95adfb7f08d3021936f232a6",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/7f6a54811bf306674b92c23297a66889c567d36f95adfb7f08d3021936f232a6.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/40467f7dfa6c61fad2bdb00a14938c3bf5910424adbd54f9004c0fa6faabc52e.bin",
+      "archive_path": "blobs/40467f7dfa6c61fad2bdb00a14938c3bf5910424adbd54f9004c0fa6faabc52e.bin",
+      "bytes": 253952,
+      "sha256": "40467f7dfa6c61fad2bdb00a14938c3bf5910424adbd54f9004c0fa6faabc52e",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/40467f7dfa6c61fad2bdb00a14938c3bf5910424adbd54f9004c0fa6faabc52e.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b90a47bf29abb5b4003b9216c5e158aa990494a57d626f981b4dfcc1f67c280c.bin",
+      "archive_path": "blobs/b90a47bf29abb5b4003b9216c5e158aa990494a57d626f981b4dfcc1f67c280c.bin",
+      "bytes": 253952,
+      "sha256": "b90a47bf29abb5b4003b9216c5e158aa990494a57d626f981b4dfcc1f67c280c",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/b90a47bf29abb5b4003b9216c5e158aa990494a57d626f981b4dfcc1f67c280c.bin",
+      "roles": [
+        "captured_operator_input",
+        "captured_or_independently_formed_original_residual"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/61626ec1f3535ade20a5dc8b5a01b98229517eef3df5993c2e7e47b596370f00.bin",
+      "archive_path": "blobs/61626ec1f3535ade20a5dc8b5a01b98229517eef3df5993c2e7e47b596370f00.bin",
+      "bytes": 253952,
+      "sha256": "61626ec1f3535ade20a5dc8b5a01b98229517eef3df5993c2e7e47b596370f00",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/61626ec1f3535ade20a5dc8b5a01b98229517eef3df5993c2e7e47b596370f00.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/4819f71e8b5c3c448b925c9c7ea0cf35ea1eef36bb02bf0f10466911f404b750.bin",
+      "archive_path": "blobs/4819f71e8b5c3c448b925c9c7ea0cf35ea1eef36bb02bf0f10466911f404b750.bin",
+      "bytes": 270336,
+      "sha256": "4819f71e8b5c3c448b925c9c7ea0cf35ea1eef36bb02bf0f10466911f404b750",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/4819f71e8b5c3c448b925c9c7ea0cf35ea1eef36bb02bf0f10466911f404b750.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e1c7c36a1d579288dc6e322822848604c64b990c41b7c137da22e67d07184a86.bin",
+      "archive_path": "blobs/e1c7c36a1d579288dc6e322822848604c64b990c41b7c137da22e67d07184a86.bin",
+      "bytes": 270336,
+      "sha256": "e1c7c36a1d579288dc6e322822848604c64b990c41b7c137da22e67d07184a86",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/e1c7c36a1d579288dc6e322822848604c64b990c41b7c137da22e67d07184a86.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/f91412696b3465ce134b5651416bc4503ca65c47e680b002c829849fc30ec766.bin",
+      "archive_path": "blobs/f91412696b3465ce134b5651416bc4503ca65c47e680b002c829849fc30ec766.bin",
+      "bytes": 270336,
+      "sha256": "f91412696b3465ce134b5651416bc4503ca65c47e680b002c829849fc30ec766",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/f91412696b3465ce134b5651416bc4503ca65c47e680b002c829849fc30ec766.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/f2da3f74c817f6d5d3ac4fc133c75481fef65cb49b1305e15109530a945eb68f.bin",
+      "archive_path": "blobs/f2da3f74c817f6d5d3ac4fc133c75481fef65cb49b1305e15109530a945eb68f.bin",
+      "bytes": 270336,
+      "sha256": "f2da3f74c817f6d5d3ac4fc133c75481fef65cb49b1305e15109530a945eb68f",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/f2da3f74c817f6d5d3ac4fc133c75481fef65cb49b1305e15109530a945eb68f.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ce476b3d7424a7212b955b72701aa79f1fd4cfa2901ca965ac25f5e63415652e.bin",
+      "archive_path": "blobs/ce476b3d7424a7212b955b72701aa79f1fd4cfa2901ca965ac25f5e63415652e.bin",
+      "bytes": 270336,
+      "sha256": "ce476b3d7424a7212b955b72701aa79f1fd4cfa2901ca965ac25f5e63415652e",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/ce476b3d7424a7212b955b72701aa79f1fd4cfa2901ca965ac25f5e63415652e.bin",
+      "roles": [
+        "captured_operator_input",
+        "captured_or_independently_formed_original_residual"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/caa43f06d2612aab97f7048094c014557543ec3238cd4cd5444144dcb3572a08.bin",
+      "archive_path": "blobs/caa43f06d2612aab97f7048094c014557543ec3238cd4cd5444144dcb3572a08.bin",
+      "bytes": 270336,
+      "sha256": "caa43f06d2612aab97f7048094c014557543ec3238cd4cd5444144dcb3572a08",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/caa43f06d2612aab97f7048094c014557543ec3238cd4cd5444144dcb3572a08.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e7c41806916891a2fe5ff26d7b4d455995be8819d1ebd792140b0f669626e006.bin",
+      "archive_path": "blobs/e7c41806916891a2fe5ff26d7b4d455995be8819d1ebd792140b0f669626e006.bin",
+      "bytes": 262144,
+      "sha256": "e7c41806916891a2fe5ff26d7b4d455995be8819d1ebd792140b0f669626e006",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/e7c41806916891a2fe5ff26d7b4d455995be8819d1ebd792140b0f669626e006.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/843799325755844f5470ad40a89fa3ccb1ea24bfecc6562561bda3e740543d55.bin",
+      "archive_path": "blobs/843799325755844f5470ad40a89fa3ccb1ea24bfecc6562561bda3e740543d55.bin",
+      "bytes": 262144,
+      "sha256": "843799325755844f5470ad40a89fa3ccb1ea24bfecc6562561bda3e740543d55",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/843799325755844f5470ad40a89fa3ccb1ea24bfecc6562561bda3e740543d55.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/09ddc278da90cd8daa56ff1ca638986284dbe7d0b6193753343d2d87a9d644d0.bin",
+      "archive_path": "blobs/09ddc278da90cd8daa56ff1ca638986284dbe7d0b6193753343d2d87a9d644d0.bin",
+      "bytes": 262144,
+      "sha256": "09ddc278da90cd8daa56ff1ca638986284dbe7d0b6193753343d2d87a9d644d0",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/09ddc278da90cd8daa56ff1ca638986284dbe7d0b6193753343d2d87a9d644d0.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/be0171da54f5ffa0faa35c0897d212e7d1de02584e0b86ac494a158c0a067657.bin",
+      "archive_path": "blobs/be0171da54f5ffa0faa35c0897d212e7d1de02584e0b86ac494a158c0a067657.bin",
+      "bytes": 262144,
+      "sha256": "be0171da54f5ffa0faa35c0897d212e7d1de02584e0b86ac494a158c0a067657",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/be0171da54f5ffa0faa35c0897d212e7d1de02584e0b86ac494a158c0a067657.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/29a5f523f6ce417a2fd1857ff53bfd08ae283563560fd61059b708dc6cadd7df.bin",
+      "archive_path": "blobs/29a5f523f6ce417a2fd1857ff53bfd08ae283563560fd61059b708dc6cadd7df.bin",
+      "bytes": 262144,
+      "sha256": "29a5f523f6ce417a2fd1857ff53bfd08ae283563560fd61059b708dc6cadd7df",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/29a5f523f6ce417a2fd1857ff53bfd08ae283563560fd61059b708dc6cadd7df.bin",
+      "roles": [
+        "captured_operator_input",
+        "captured_or_independently_formed_original_residual"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/2532f1ceac4541d237bcddea1a01c8266f9df51246302c7bdaa4218e16f0a180.bin",
+      "archive_path": "blobs/2532f1ceac4541d237bcddea1a01c8266f9df51246302c7bdaa4218e16f0a180.bin",
+      "bytes": 262144,
+      "sha256": "2532f1ceac4541d237bcddea1a01c8266f9df51246302c7bdaa4218e16f0a180",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/2532f1ceac4541d237bcddea1a01c8266f9df51246302c7bdaa4218e16f0a180.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ee3c885c998661c329e9e3a9c710dd988253fc9461b236b6249d4915c2ff8672.bin",
+      "archive_path": "blobs/ee3c885c998661c329e9e3a9c710dd988253fc9461b236b6249d4915c2ff8672.bin",
+      "bytes": 262144,
+      "sha256": "ee3c885c998661c329e9e3a9c710dd988253fc9461b236b6249d4915c2ff8672",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/ee3c885c998661c329e9e3a9c710dd988253fc9461b236b6249d4915c2ff8672.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/8b6258a1acd74abfa2cc1562ff4c06daad2306d9a1a2d80eaf120878b4d1a601.bin",
+      "archive_path": "blobs/8b6258a1acd74abfa2cc1562ff4c06daad2306d9a1a2d80eaf120878b4d1a601.bin",
+      "bytes": 262144,
+      "sha256": "8b6258a1acd74abfa2cc1562ff4c06daad2306d9a1a2d80eaf120878b4d1a601",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/8b6258a1acd74abfa2cc1562ff4c06daad2306d9a1a2d80eaf120878b4d1a601.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/727de3decec436962be8b6f94b2152b75d520899d0b7d99423927f5b316e26e0.bin",
+      "archive_path": "blobs/727de3decec436962be8b6f94b2152b75d520899d0b7d99423927f5b316e26e0.bin",
+      "bytes": 262144,
+      "sha256": "727de3decec436962be8b6f94b2152b75d520899d0b7d99423927f5b316e26e0",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/727de3decec436962be8b6f94b2152b75d520899d0b7d99423927f5b316e26e0.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/dcdaface5803ed124f846f7f68da2a45b28076b6f285f07078e357988129d3bb.bin",
+      "archive_path": "blobs/dcdaface5803ed124f846f7f68da2a45b28076b6f285f07078e357988129d3bb.bin",
+      "bytes": 262144,
+      "sha256": "dcdaface5803ed124f846f7f68da2a45b28076b6f285f07078e357988129d3bb",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/dcdaface5803ed124f846f7f68da2a45b28076b6f285f07078e357988129d3bb.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/2bdeeb2fa0e0b53669fd62b46d0b98934f3294522f0cf553f7ef921701bfe61d.bin",
+      "archive_path": "blobs/2bdeeb2fa0e0b53669fd62b46d0b98934f3294522f0cf553f7ef921701bfe61d.bin",
+      "bytes": 262144,
+      "sha256": "2bdeeb2fa0e0b53669fd62b46d0b98934f3294522f0cf553f7ef921701bfe61d",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/2bdeeb2fa0e0b53669fd62b46d0b98934f3294522f0cf553f7ef921701bfe61d.bin",
+      "roles": [
+        "captured_operator_input",
+        "captured_or_independently_formed_original_residual"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/518375aca04780b56d1641325bbcab5ddac08a3a91a463147a47609d65c97614.bin",
+      "archive_path": "blobs/518375aca04780b56d1641325bbcab5ddac08a3a91a463147a47609d65c97614.bin",
+      "bytes": 262144,
+      "sha256": "518375aca04780b56d1641325bbcab5ddac08a3a91a463147a47609d65c97614",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/518375aca04780b56d1641325bbcab5ddac08a3a91a463147a47609d65c97614.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/d6783c3b73f3722750437c6c81de6af800def48e8378a745bc99ce07a5c3dce6.bin",
+      "archive_path": "blobs/d6783c3b73f3722750437c6c81de6af800def48e8378a745bc99ce07a5c3dce6.bin",
+      "bytes": 270336,
+      "sha256": "d6783c3b73f3722750437c6c81de6af800def48e8378a745bc99ce07a5c3dce6",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/d6783c3b73f3722750437c6c81de6af800def48e8378a745bc99ce07a5c3dce6.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/d828cfadd11d6ed1971f98f624eae681b459d41ea65a8aadab16aeab6a23c708.bin",
+      "archive_path": "blobs/d828cfadd11d6ed1971f98f624eae681b459d41ea65a8aadab16aeab6a23c708.bin",
+      "bytes": 132,
+      "sha256": "d828cfadd11d6ed1971f98f624eae681b459d41ea65a8aadab16aeab6a23c708",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/d828cfadd11d6ed1971f98f624eae681b459d41ea65a8aadab16aeab6a23c708.bin",
+      "roles": [
+        "original_request_token_ids"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e403ffe48100c31905d28aaf54d1d11747e430dd75751808b9b21b6d5906377d.bin",
+      "archive_path": "blobs/e403ffe48100c31905d28aaf54d1d11747e430dd75751808b9b21b6d5906377d.bin",
+      "bytes": 270336,
+      "sha256": "e403ffe48100c31905d28aaf54d1d11747e430dd75751808b9b21b6d5906377d",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/e403ffe48100c31905d28aaf54d1d11747e430dd75751808b9b21b6d5906377d.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/c85f22ab9d7b9a374d381d7403addeb1c0d7f5238a37e18e8386236bb2af66e9.bin",
+      "archive_path": "blobs/c85f22ab9d7b9a374d381d7403addeb1c0d7f5238a37e18e8386236bb2af66e9.bin",
+      "bytes": 132,
+      "sha256": "c85f22ab9d7b9a374d381d7403addeb1c0d7f5238a37e18e8386236bb2af66e9",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/c85f22ab9d7b9a374d381d7403addeb1c0d7f5238a37e18e8386236bb2af66e9.bin",
+      "roles": [
+        "original_request_token_ids"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/dd2cb15e1fba6f592520c5ce994f878561ced1f40de5b836cb5c41009ab131d7.bin",
+      "archive_path": "blobs/dd2cb15e1fba6f592520c5ce994f878561ced1f40de5b836cb5c41009ab131d7.bin",
+      "bytes": 507904,
+      "sha256": "dd2cb15e1fba6f592520c5ce994f878561ced1f40de5b836cb5c41009ab131d7",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/dd2cb15e1fba6f592520c5ce994f878561ced1f40de5b836cb5c41009ab131d7.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/96288127484897dd3625d3f20c5bf4a70e063a235b3f15157b0f146c5d53ed1d.bin",
+      "archive_path": "blobs/96288127484897dd3625d3f20c5bf4a70e063a235b3f15157b0f146c5d53ed1d.bin",
+      "bytes": 248,
+      "sha256": "96288127484897dd3625d3f20c5bf4a70e063a235b3f15157b0f146c5d53ed1d",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/96288127484897dd3625d3f20c5bf4a70e063a235b3f15157b0f146c5d53ed1d.bin",
+      "roles": [
+        "original_request_token_ids"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ab40747bea590eba4043f3c0505321cb3748cc1575133d18a00e280c924c95ff.bin",
+      "archive_path": "blobs/ab40747bea590eba4043f3c0505321cb3748cc1575133d18a00e280c924c95ff.bin",
+      "bytes": 540672,
+      "sha256": "ab40747bea590eba4043f3c0505321cb3748cc1575133d18a00e280c924c95ff",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/ab40747bea590eba4043f3c0505321cb3748cc1575133d18a00e280c924c95ff.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b0a2b41f83611606aef81b2aa17fbbbe2921533974583d47a94ed4a5110e53f1.bin",
+      "archive_path": "blobs/b0a2b41f83611606aef81b2aa17fbbbe2921533974583d47a94ed4a5110e53f1.bin",
+      "bytes": 264,
+      "sha256": "b0a2b41f83611606aef81b2aa17fbbbe2921533974583d47a94ed4a5110e53f1",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/b0a2b41f83611606aef81b2aa17fbbbe2921533974583d47a94ed4a5110e53f1.bin",
+      "roles": [
+        "original_request_token_ids"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/537898df22a4bb205044317eee6ac183d01b6a8d8bfe2f04f34c8fc970237228.bin",
+      "archive_path": "blobs/537898df22a4bb205044317eee6ac183d01b6a8d8bfe2f04f34c8fc970237228.bin",
+      "bytes": 524288,
+      "sha256": "537898df22a4bb205044317eee6ac183d01b6a8d8bfe2f04f34c8fc970237228",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/537898df22a4bb205044317eee6ac183d01b6a8d8bfe2f04f34c8fc970237228.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ab84c4d420c620d38dcd18ff20e1d0273ee53acb77b0ee33fc6e1ff307f3ea75.bin",
+      "archive_path": "blobs/ab84c4d420c620d38dcd18ff20e1d0273ee53acb77b0ee33fc6e1ff307f3ea75.bin",
+      "bytes": 256,
+      "sha256": "ab84c4d420c620d38dcd18ff20e1d0273ee53acb77b0ee33fc6e1ff307f3ea75",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/ab84c4d420c620d38dcd18ff20e1d0273ee53acb77b0ee33fc6e1ff307f3ea75.bin",
+      "roles": [
+        "original_request_token_ids"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/fc507db620187293055267cfb13460e4219e24e4ae0ef615002aa55ac38fa934.bin",
+      "archive_path": "blobs/fc507db620187293055267cfb13460e4219e24e4ae0ef615002aa55ac38fa934.bin",
+      "bytes": 524288,
+      "sha256": "fc507db620187293055267cfb13460e4219e24e4ae0ef615002aa55ac38fa934",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/fc507db620187293055267cfb13460e4219e24e4ae0ef615002aa55ac38fa934.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/f8216645af118eb12f7e0aa9c0f95f41988c1b7d6590b104d1de4be5a8f31664.bin",
+      "archive_path": "blobs/f8216645af118eb12f7e0aa9c0f95f41988c1b7d6590b104d1de4be5a8f31664.bin",
+      "bytes": 256,
+      "sha256": "f8216645af118eb12f7e0aa9c0f95f41988c1b7d6590b104d1de4be5a8f31664",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/f8216645af118eb12f7e0aa9c0f95f41988c1b7d6590b104d1de4be5a8f31664.bin",
+      "roles": [
+        "original_request_token_ids"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ec1125633c27f4460fe8cae6161bd836ecf3188ceedd77ef0bde2a338dfa63f7.bin",
+      "archive_path": "blobs/ec1125633c27f4460fe8cae6161bd836ecf3188ceedd77ef0bde2a338dfa63f7.bin",
+      "bytes": 67584,
+      "sha256": "ec1125633c27f4460fe8cae6161bd836ecf3188ceedd77ef0bde2a338dfa63f7",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/ec1125633c27f4460fe8cae6161bd836ecf3188ceedd77ef0bde2a338dfa63f7.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/608758d7223a03bdf7b24ae576c21836e74c496594d22c727047ee22fe8d1a96.bin",
+      "archive_path": "blobs/608758d7223a03bdf7b24ae576c21836e74c496594d22c727047ee22fe8d1a96.bin",
+      "bytes": 33792,
+      "sha256": "608758d7223a03bdf7b24ae576c21836e74c496594d22c727047ee22fe8d1a96",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/608758d7223a03bdf7b24ae576c21836e74c496594d22c727047ee22fe8d1a96.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/4d0b458dc2fb685c2fa79ba98a353a79cf7e5ecb644942f40f657a30baa84a66.bin",
+      "archive_path": "blobs/4d0b458dc2fb685c2fa79ba98a353a79cf7e5ecb644942f40f657a30baa84a66.bin",
+      "bytes": 67584,
+      "sha256": "4d0b458dc2fb685c2fa79ba98a353a79cf7e5ecb644942f40f657a30baa84a66",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/4d0b458dc2fb685c2fa79ba98a353a79cf7e5ecb644942f40f657a30baa84a66.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/a51953bf0fb4ea691b75b1be879c5c5f288fae6ecec955c98352ce9b51e81df4.bin",
+      "archive_path": "blobs/a51953bf0fb4ea691b75b1be879c5c5f288fae6ecec955c98352ce9b51e81df4.bin",
+      "bytes": 132,
+      "sha256": "a51953bf0fb4ea691b75b1be879c5c5f288fae6ecec955c98352ce9b51e81df4",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/a51953bf0fb4ea691b75b1be879c5c5f288fae6ecec955c98352ce9b51e81df4.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938.bin",
+      "archive_path": "blobs/6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938.bin",
+      "bytes": 512,
+      "sha256": "6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938.bin",
+      "roles": [
+        "original_model_weight"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/7fcd920b4be16b2c6e6683afbae19a84d7cfa25f8f6232a4cccb214c345f673b.bin",
+      "archive_path": "blobs/7fcd920b4be16b2c6e6683afbae19a84d7cfa25f8f6232a4cccb214c345f673b.bin",
+      "bytes": 67584,
+      "sha256": "7fcd920b4be16b2c6e6683afbae19a84d7cfa25f8f6232a4cccb214c345f673b",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/7fcd920b4be16b2c6e6683afbae19a84d7cfa25f8f6232a4cccb214c345f673b.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/01a4d148cb037c819502beff2c0fa22101d34998a0c9de1a248cf69b7165d5ee.bin",
+      "archive_path": "blobs/01a4d148cb037c819502beff2c0fa22101d34998a0c9de1a248cf69b7165d5ee.bin",
+      "bytes": 33792,
+      "sha256": "01a4d148cb037c819502beff2c0fa22101d34998a0c9de1a248cf69b7165d5ee",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/01a4d148cb037c819502beff2c0fa22101d34998a0c9de1a248cf69b7165d5ee.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b1ee715e56f31cae36e3e72236df9d46d31e5ca85e5219fb16d90eddd9954b15.bin",
+      "archive_path": "blobs/b1ee715e56f31cae36e3e72236df9d46d31e5ca85e5219fb16d90eddd9954b15.bin",
+      "bytes": 67584,
+      "sha256": "b1ee715e56f31cae36e3e72236df9d46d31e5ca85e5219fb16d90eddd9954b15",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/b1ee715e56f31cae36e3e72236df9d46d31e5ca85e5219fb16d90eddd9954b15.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/d9482a246422df44bbff9132dd5cdb25277563040915c3dc5e91d16c6fbe2125.bin",
+      "archive_path": "blobs/d9482a246422df44bbff9132dd5cdb25277563040915c3dc5e91d16c6fbe2125.bin",
+      "bytes": 132,
+      "sha256": "d9482a246422df44bbff9132dd5cdb25277563040915c3dc5e91d16c6fbe2125",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/d9482a246422df44bbff9132dd5cdb25277563040915c3dc5e91d16c6fbe2125.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/14eea811c0032d6f95396c34043b30e3f46d8d61e570fc530cd009078cc059d6.bin",
+      "archive_path": "blobs/14eea811c0032d6f95396c34043b30e3f46d8d61e570fc530cd009078cc059d6.bin",
+      "bytes": 126976,
+      "sha256": "14eea811c0032d6f95396c34043b30e3f46d8d61e570fc530cd009078cc059d6",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/14eea811c0032d6f95396c34043b30e3f46d8d61e570fc530cd009078cc059d6.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/6bd0846b3f5ac12c44aa953bddb440bac3df1edbd6a3b3114ecebfb5564c0737.bin",
+      "archive_path": "blobs/6bd0846b3f5ac12c44aa953bddb440bac3df1edbd6a3b3114ecebfb5564c0737.bin",
+      "bytes": 63488,
+      "sha256": "6bd0846b3f5ac12c44aa953bddb440bac3df1edbd6a3b3114ecebfb5564c0737",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/6bd0846b3f5ac12c44aa953bddb440bac3df1edbd6a3b3114ecebfb5564c0737.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/1acbd9915099beaf53d3f4fe20b252a2338a0c7cde59a4fb61a05363f270f0ca.bin",
+      "archive_path": "blobs/1acbd9915099beaf53d3f4fe20b252a2338a0c7cde59a4fb61a05363f270f0ca.bin",
+      "bytes": 126976,
+      "sha256": "1acbd9915099beaf53d3f4fe20b252a2338a0c7cde59a4fb61a05363f270f0ca",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/1acbd9915099beaf53d3f4fe20b252a2338a0c7cde59a4fb61a05363f270f0ca.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/19973b3d7920750e98e75acca0a9f3aca92f9638c8a78192efbc2cffad04f91b.bin",
+      "archive_path": "blobs/19973b3d7920750e98e75acca0a9f3aca92f9638c8a78192efbc2cffad04f91b.bin",
+      "bytes": 248,
+      "sha256": "19973b3d7920750e98e75acca0a9f3aca92f9638c8a78192efbc2cffad04f91b",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/19973b3d7920750e98e75acca0a9f3aca92f9638c8a78192efbc2cffad04f91b.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/388cbc163432b4f33e846cdd7ff1a576348122b4714ec73976701af9e636dc26.bin",
+      "archive_path": "blobs/388cbc163432b4f33e846cdd7ff1a576348122b4714ec73976701af9e636dc26.bin",
+      "bytes": 135168,
+      "sha256": "388cbc163432b4f33e846cdd7ff1a576348122b4714ec73976701af9e636dc26",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/388cbc163432b4f33e846cdd7ff1a576348122b4714ec73976701af9e636dc26.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/46aa23a95d4ea02c28d908c91c6353e45dc034281f4e0612befdd911437b3e66.bin",
+      "archive_path": "blobs/46aa23a95d4ea02c28d908c91c6353e45dc034281f4e0612befdd911437b3e66.bin",
+      "bytes": 67584,
+      "sha256": "46aa23a95d4ea02c28d908c91c6353e45dc034281f4e0612befdd911437b3e66",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/46aa23a95d4ea02c28d908c91c6353e45dc034281f4e0612befdd911437b3e66.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b8d2eec54838bd986b80e3b16abff438eab333afe772bc2de6228e8ce45f7cc3.bin",
+      "archive_path": "blobs/b8d2eec54838bd986b80e3b16abff438eab333afe772bc2de6228e8ce45f7cc3.bin",
+      "bytes": 135168,
+      "sha256": "b8d2eec54838bd986b80e3b16abff438eab333afe772bc2de6228e8ce45f7cc3",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/b8d2eec54838bd986b80e3b16abff438eab333afe772bc2de6228e8ce45f7cc3.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/9b17158a2404eb77771179a263eb8e9cd42447fd0b0d31e0deb79cbde49b7564.bin",
+      "archive_path": "blobs/9b17158a2404eb77771179a263eb8e9cd42447fd0b0d31e0deb79cbde49b7564.bin",
+      "bytes": 264,
+      "sha256": "9b17158a2404eb77771179a263eb8e9cd42447fd0b0d31e0deb79cbde49b7564",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/9b17158a2404eb77771179a263eb8e9cd42447fd0b0d31e0deb79cbde49b7564.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/bdf9ea00e4ee45b3c94452d9898e8541424fedc98d877e506fb206f0c2d66d8f.bin",
+      "archive_path": "blobs/bdf9ea00e4ee45b3c94452d9898e8541424fedc98d877e506fb206f0c2d66d8f.bin",
+      "bytes": 131072,
+      "sha256": "bdf9ea00e4ee45b3c94452d9898e8541424fedc98d877e506fb206f0c2d66d8f",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/bdf9ea00e4ee45b3c94452d9898e8541424fedc98d877e506fb206f0c2d66d8f.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/5e90341434f6efd8fb05f05bacb5c786c9fc09096bf5abf6e33e6964986bd17b.bin",
+      "archive_path": "blobs/5e90341434f6efd8fb05f05bacb5c786c9fc09096bf5abf6e33e6964986bd17b.bin",
+      "bytes": 65536,
+      "sha256": "5e90341434f6efd8fb05f05bacb5c786c9fc09096bf5abf6e33e6964986bd17b",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/5e90341434f6efd8fb05f05bacb5c786c9fc09096bf5abf6e33e6964986bd17b.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/10e2a1e9751618db6b90f39928deb1e00cf512421dd4c37cf03566e58ce96861.bin",
+      "archive_path": "blobs/10e2a1e9751618db6b90f39928deb1e00cf512421dd4c37cf03566e58ce96861.bin",
+      "bytes": 131072,
+      "sha256": "10e2a1e9751618db6b90f39928deb1e00cf512421dd4c37cf03566e58ce96861",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/10e2a1e9751618db6b90f39928deb1e00cf512421dd4c37cf03566e58ce96861.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/a807b58076951e7f7e085624b01c1da198f50d7460e3404e1b76bfbb6bec766b.bin",
+      "archive_path": "blobs/a807b58076951e7f7e085624b01c1da198f50d7460e3404e1b76bfbb6bec766b.bin",
+      "bytes": 256,
+      "sha256": "a807b58076951e7f7e085624b01c1da198f50d7460e3404e1b76bfbb6bec766b",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/a807b58076951e7f7e085624b01c1da198f50d7460e3404e1b76bfbb6bec766b.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/9758c09bbae3f2b6d0bcba8c646c9961119a119f26cf20eab8fb29caeb25fe35.bin",
+      "archive_path": "blobs/9758c09bbae3f2b6d0bcba8c646c9961119a119f26cf20eab8fb29caeb25fe35.bin",
+      "bytes": 131072,
+      "sha256": "9758c09bbae3f2b6d0bcba8c646c9961119a119f26cf20eab8fb29caeb25fe35",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/9758c09bbae3f2b6d0bcba8c646c9961119a119f26cf20eab8fb29caeb25fe35.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/0740785b404a93d3059f4dc797cb5a6862d868f0a5586b3905fed6b6d4fcfb09.bin",
+      "archive_path": "blobs/0740785b404a93d3059f4dc797cb5a6862d868f0a5586b3905fed6b6d4fcfb09.bin",
+      "bytes": 65536,
+      "sha256": "0740785b404a93d3059f4dc797cb5a6862d868f0a5586b3905fed6b6d4fcfb09",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/0740785b404a93d3059f4dc797cb5a6862d868f0a5586b3905fed6b6d4fcfb09.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/5adbc81a3020fea026d9d3d9435650f64034b8d891b8dc2805bcbf8d984f806d.bin",
+      "archive_path": "blobs/5adbc81a3020fea026d9d3d9435650f64034b8d891b8dc2805bcbf8d984f806d.bin",
+      "bytes": 131072,
+      "sha256": "5adbc81a3020fea026d9d3d9435650f64034b8d891b8dc2805bcbf8d984f806d",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/5adbc81a3020fea026d9d3d9435650f64034b8d891b8dc2805bcbf8d984f806d.bin",
+      "roles": [
+        "comparison_only_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/70eda6a8c8ce1c6ee28cb7070b98c29cf6654f57240ec5a0d67883ea6b4f6475.bin",
+      "archive_path": "blobs/70eda6a8c8ce1c6ee28cb7070b98c29cf6654f57240ec5a0d67883ea6b4f6475.bin",
+      "bytes": 256,
+      "sha256": "70eda6a8c8ce1c6ee28cb7070b98c29cf6654f57240ec5a0d67883ea6b4f6475",
+      "local_file": "mtp-native-frontiers-inputs-r1/blobs/70eda6a8c8ce1c6ee28cb7070b98c29cf6654f57240ec5a0d67883ea6b4f6475.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/c456abddbfde98220e38764fd537ab97265d18452ae02f30f9d8155456954b06.bin",
+      "archive_path": "blobs/c456abddbfde98220e38764fd537ab97265d18452ae02f30f9d8155456954b06.bin",
+      "bytes": 135168,
+      "sha256": "c456abddbfde98220e38764fd537ab97265d18452ae02f30f9d8155456954b06",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/c456abddbfde98220e38764fd537ab97265d18452ae02f30f9d8155456954b06.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a.bin",
+      "archive_path": "blobs/03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a.bin",
+      "bytes": 4096,
+      "sha256": "03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a.bin",
+      "roles": [
+        "original_model_weight"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b95e26cf3c68d7fa2d2ad73270f5408fc92ae695243768ac0061058f0eb6a675.bin",
+      "archive_path": "blobs/b95e26cf3c68d7fa2d2ad73270f5408fc92ae695243768ac0061058f0eb6a675.bin",
+      "bytes": 135168,
+      "sha256": "b95e26cf3c68d7fa2d2ad73270f5408fc92ae695243768ac0061058f0eb6a675",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/b95e26cf3c68d7fa2d2ad73270f5408fc92ae695243768ac0061058f0eb6a675.bin",
+      "roles": [
+        "comparison_only_original_expected_norm"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e31584bd0052d2ee5cace4f2f6c8c2eb6e5b94173c5658e5f5b27e14ae8a643f.bin",
+      "archive_path": "blobs/e31584bd0052d2ee5cace4f2f6c8c2eb6e5b94173c5658e5f5b27e14ae8a643f.bin",
+      "bytes": 135168,
+      "sha256": "e31584bd0052d2ee5cace4f2f6c8c2eb6e5b94173c5658e5f5b27e14ae8a643f",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/e31584bd0052d2ee5cace4f2f6c8c2eb6e5b94173c5658e5f5b27e14ae8a643f.bin",
+      "roles": [
+        "comparison_only_cpu_formula_residual_not_separately_captured",
+        "captured_or_independently_formed_original_residual"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/5410569eec50e005f18781b0360682afbce974a66d8da4f6c9833199d5e0f6f9.bin",
+      "archive_path": "blobs/5410569eec50e005f18781b0360682afbce974a66d8da4f6c9833199d5e0f6f9.bin",
+      "bytes": 135168,
+      "sha256": "5410569eec50e005f18781b0360682afbce974a66d8da4f6c9833199d5e0f6f9",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/5410569eec50e005f18781b0360682afbce974a66d8da4f6c9833199d5e0f6f9.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271.bin",
+      "archive_path": "blobs/b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271.bin",
+      "bytes": 4096,
+      "sha256": "b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271.bin",
+      "roles": [
+        "original_model_weight"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/bf495d3e04c8be08caddfc8819b569ba01ee1c4418afc85bcd82244bc343113e.bin",
+      "archive_path": "blobs/bf495d3e04c8be08caddfc8819b569ba01ee1c4418afc85bcd82244bc343113e.bin",
+      "bytes": 135168,
+      "sha256": "bf495d3e04c8be08caddfc8819b569ba01ee1c4418afc85bcd82244bc343113e",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/bf495d3e04c8be08caddfc8819b569ba01ee1c4418afc85bcd82244bc343113e.bin",
+      "roles": [
+        "comparison_only_original_expected_norm"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/0325fb74ece02e09cd9cf65ec9553698892023ee19d3b5022e1c5118748cbd92.bin",
+      "archive_path": "blobs/0325fb74ece02e09cd9cf65ec9553698892023ee19d3b5022e1c5118748cbd92.bin",
+      "bytes": 135168,
+      "sha256": "0325fb74ece02e09cd9cf65ec9553698892023ee19d3b5022e1c5118748cbd92",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/0325fb74ece02e09cd9cf65ec9553698892023ee19d3b5022e1c5118748cbd92.bin",
+      "roles": [
+        "comparison_only_cpu_formula_residual_not_separately_captured"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/4102a85aead0008c44dd33abcba95a7ce9554fc123447a0e5254da6e9705ba1b.bin",
+      "archive_path": "blobs/4102a85aead0008c44dd33abcba95a7ce9554fc123447a0e5254da6e9705ba1b.bin",
+      "bytes": 135168,
+      "sha256": "4102a85aead0008c44dd33abcba95a7ce9554fc123447a0e5254da6e9705ba1b",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/4102a85aead0008c44dd33abcba95a7ce9554fc123447a0e5254da6e9705ba1b.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/7d119cec273dd417d3937d961fd4a7ed424f2da46ff9f83a26e0ceb056485c55.bin",
+      "archive_path": "blobs/7d119cec273dd417d3937d961fd4a7ed424f2da46ff9f83a26e0ceb056485c55.bin",
+      "bytes": 135168,
+      "sha256": "7d119cec273dd417d3937d961fd4a7ed424f2da46ff9f83a26e0ceb056485c55",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/7d119cec273dd417d3937d961fd4a7ed424f2da46ff9f83a26e0ceb056485c55.bin",
+      "roles": [
+        "comparison_only_original_expected_norm"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/4f5caeea970cc1c82d47491e45eecf74edcc2a0cc5f54298b8e21b14b2fbd8a9.bin",
+      "archive_path": "blobs/4f5caeea970cc1c82d47491e45eecf74edcc2a0cc5f54298b8e21b14b2fbd8a9.bin",
+      "bytes": 135168,
+      "sha256": "4f5caeea970cc1c82d47491e45eecf74edcc2a0cc5f54298b8e21b14b2fbd8a9",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/4f5caeea970cc1c82d47491e45eecf74edcc2a0cc5f54298b8e21b14b2fbd8a9.bin",
+      "roles": [
+        "comparison_only_cpu_formula_residual_not_separately_captured",
+        "captured_or_independently_formed_original_residual"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b779bd9e7bb31b251437a00bfcca4266716ddc0ce2ea3b593d463c54aaf1e482.bin",
+      "archive_path": "blobs/b779bd9e7bb31b251437a00bfcca4266716ddc0ce2ea3b593d463c54aaf1e482.bin",
+      "bytes": 135168,
+      "sha256": "b779bd9e7bb31b251437a00bfcca4266716ddc0ce2ea3b593d463c54aaf1e482",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/b779bd9e7bb31b251437a00bfcca4266716ddc0ce2ea3b593d463c54aaf1e482.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b85842a20dfe0f69b9eb8da4db121c632be58f127ba1ce47a41368c6674286c9.bin",
+      "archive_path": "blobs/b85842a20dfe0f69b9eb8da4db121c632be58f127ba1ce47a41368c6674286c9.bin",
+      "bytes": 135168,
+      "sha256": "b85842a20dfe0f69b9eb8da4db121c632be58f127ba1ce47a41368c6674286c9",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/b85842a20dfe0f69b9eb8da4db121c632be58f127ba1ce47a41368c6674286c9.bin",
+      "roles": [
+        "comparison_only_original_expected_norm"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/1eedd7f8099c246f1ad5946904abd1c39ce857546a8c9d539f7ef5b805eac29f.bin",
+      "archive_path": "blobs/1eedd7f8099c246f1ad5946904abd1c39ce857546a8c9d539f7ef5b805eac29f.bin",
+      "bytes": 135168,
+      "sha256": "1eedd7f8099c246f1ad5946904abd1c39ce857546a8c9d539f7ef5b805eac29f",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/1eedd7f8099c246f1ad5946904abd1c39ce857546a8c9d539f7ef5b805eac29f.bin",
+      "roles": [
+        "comparison_only_cpu_formula_residual_not_separately_captured"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/1c87ac08f53b33302006c95f70ce44e315ef5d234c72ed95cade8c313690289f.bin",
+      "archive_path": "blobs/1c87ac08f53b33302006c95f70ce44e315ef5d234c72ed95cade8c313690289f.bin",
+      "bytes": 253952,
+      "sha256": "1c87ac08f53b33302006c95f70ce44e315ef5d234c72ed95cade8c313690289f",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/1c87ac08f53b33302006c95f70ce44e315ef5d234c72ed95cade8c313690289f.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/57ba4d465a039ddcbe5cf0a3d75e84e2a049d3d28747b76cc3188ff09eb16783.bin",
+      "archive_path": "blobs/57ba4d465a039ddcbe5cf0a3d75e84e2a049d3d28747b76cc3188ff09eb16783.bin",
+      "bytes": 253952,
+      "sha256": "57ba4d465a039ddcbe5cf0a3d75e84e2a049d3d28747b76cc3188ff09eb16783",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/57ba4d465a039ddcbe5cf0a3d75e84e2a049d3d28747b76cc3188ff09eb16783.bin",
+      "roles": [
+        "comparison_only_original_expected_norm"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ec416193f61d3c3c600056bfd3040e057c462f571f97bfdf23bc568b00657d4f.bin",
+      "archive_path": "blobs/ec416193f61d3c3c600056bfd3040e057c462f571f97bfdf23bc568b00657d4f.bin",
+      "bytes": 253952,
+      "sha256": "ec416193f61d3c3c600056bfd3040e057c462f571f97bfdf23bc568b00657d4f",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/ec416193f61d3c3c600056bfd3040e057c462f571f97bfdf23bc568b00657d4f.bin",
+      "roles": [
+        "comparison_only_cpu_formula_residual_not_separately_captured",
+        "captured_or_independently_formed_original_residual"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/8f4315043154d50e0c6f0b8523ff7673f167ea7f9baa523588633e3cf90e442d.bin",
+      "archive_path": "blobs/8f4315043154d50e0c6f0b8523ff7673f167ea7f9baa523588633e3cf90e442d.bin",
+      "bytes": 253952,
+      "sha256": "8f4315043154d50e0c6f0b8523ff7673f167ea7f9baa523588633e3cf90e442d",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/8f4315043154d50e0c6f0b8523ff7673f167ea7f9baa523588633e3cf90e442d.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ea8aa6b69e6c10b487e2cac692198dba8f082fefeea6aa42224c81809ce988e2.bin",
+      "archive_path": "blobs/ea8aa6b69e6c10b487e2cac692198dba8f082fefeea6aa42224c81809ce988e2.bin",
+      "bytes": 253952,
+      "sha256": "ea8aa6b69e6c10b487e2cac692198dba8f082fefeea6aa42224c81809ce988e2",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/ea8aa6b69e6c10b487e2cac692198dba8f082fefeea6aa42224c81809ce988e2.bin",
+      "roles": [
+        "comparison_only_original_expected_norm"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/463905c725ebdec622a8deb778ccab2d342161c7f71e177e30e1bbf4f7dbc62f.bin",
+      "archive_path": "blobs/463905c725ebdec622a8deb778ccab2d342161c7f71e177e30e1bbf4f7dbc62f.bin",
+      "bytes": 253952,
+      "sha256": "463905c725ebdec622a8deb778ccab2d342161c7f71e177e30e1bbf4f7dbc62f",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/463905c725ebdec622a8deb778ccab2d342161c7f71e177e30e1bbf4f7dbc62f.bin",
+      "roles": [
+        "comparison_only_cpu_formula_residual_not_separately_captured"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/1b6ebc814e42c8de5f903de484bae67c473fe1a7b0c4cea6130ed009de140012.bin",
+      "archive_path": "blobs/1b6ebc814e42c8de5f903de484bae67c473fe1a7b0c4cea6130ed009de140012.bin",
+      "bytes": 270336,
+      "sha256": "1b6ebc814e42c8de5f903de484bae67c473fe1a7b0c4cea6130ed009de140012",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/1b6ebc814e42c8de5f903de484bae67c473fe1a7b0c4cea6130ed009de140012.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/efb44af795bba3930b28d996ae6faf014bcc16e23ea966f0087bb8c6b365721b.bin",
+      "archive_path": "blobs/efb44af795bba3930b28d996ae6faf014bcc16e23ea966f0087bb8c6b365721b.bin",
+      "bytes": 270336,
+      "sha256": "efb44af795bba3930b28d996ae6faf014bcc16e23ea966f0087bb8c6b365721b",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/efb44af795bba3930b28d996ae6faf014bcc16e23ea966f0087bb8c6b365721b.bin",
+      "roles": [
+        "comparison_only_original_expected_norm"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/9cf0191895e43db6f11825043216c957e5813afc505059eec18a6ba1731c38d3.bin",
+      "archive_path": "blobs/9cf0191895e43db6f11825043216c957e5813afc505059eec18a6ba1731c38d3.bin",
+      "bytes": 270336,
+      "sha256": "9cf0191895e43db6f11825043216c957e5813afc505059eec18a6ba1731c38d3",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/9cf0191895e43db6f11825043216c957e5813afc505059eec18a6ba1731c38d3.bin",
+      "roles": [
+        "comparison_only_cpu_formula_residual_not_separately_captured",
+        "captured_or_independently_formed_original_residual"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/fe50ef2e13cd6b2d745c276ff319d82cc0b69b4b75210d0ec3a0bf83cf66d1b3.bin",
+      "archive_path": "blobs/fe50ef2e13cd6b2d745c276ff319d82cc0b69b4b75210d0ec3a0bf83cf66d1b3.bin",
+      "bytes": 270336,
+      "sha256": "fe50ef2e13cd6b2d745c276ff319d82cc0b69b4b75210d0ec3a0bf83cf66d1b3",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/fe50ef2e13cd6b2d745c276ff319d82cc0b69b4b75210d0ec3a0bf83cf66d1b3.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/3be46dbb187a78d906257f0e219bc6ce17f78f7c83b3ed65bc663c9a4c5eea52.bin",
+      "archive_path": "blobs/3be46dbb187a78d906257f0e219bc6ce17f78f7c83b3ed65bc663c9a4c5eea52.bin",
+      "bytes": 270336,
+      "sha256": "3be46dbb187a78d906257f0e219bc6ce17f78f7c83b3ed65bc663c9a4c5eea52",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/3be46dbb187a78d906257f0e219bc6ce17f78f7c83b3ed65bc663c9a4c5eea52.bin",
+      "roles": [
+        "comparison_only_original_expected_norm"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/f0850dd812550f17e91b4c6277c9fa4fe02caff19f2618c86937ca566f39ffee.bin",
+      "archive_path": "blobs/f0850dd812550f17e91b4c6277c9fa4fe02caff19f2618c86937ca566f39ffee.bin",
+      "bytes": 270336,
+      "sha256": "f0850dd812550f17e91b4c6277c9fa4fe02caff19f2618c86937ca566f39ffee",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/f0850dd812550f17e91b4c6277c9fa4fe02caff19f2618c86937ca566f39ffee.bin",
+      "roles": [
+        "comparison_only_cpu_formula_residual_not_separately_captured"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/3fcb6530c6ff217514d9a80de2f3faf1b1b5b01423e9b9029b579702a567e86f.bin",
+      "archive_path": "blobs/3fcb6530c6ff217514d9a80de2f3faf1b1b5b01423e9b9029b579702a567e86f.bin",
+      "bytes": 262144,
+      "sha256": "3fcb6530c6ff217514d9a80de2f3faf1b1b5b01423e9b9029b579702a567e86f",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/3fcb6530c6ff217514d9a80de2f3faf1b1b5b01423e9b9029b579702a567e86f.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/8ccbc56ad4d9b668630cab75914693805b22474c462d852e36c48f50c39758b4.bin",
+      "archive_path": "blobs/8ccbc56ad4d9b668630cab75914693805b22474c462d852e36c48f50c39758b4.bin",
+      "bytes": 262144,
+      "sha256": "8ccbc56ad4d9b668630cab75914693805b22474c462d852e36c48f50c39758b4",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/8ccbc56ad4d9b668630cab75914693805b22474c462d852e36c48f50c39758b4.bin",
+      "roles": [
+        "comparison_only_original_expected_norm"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/39b1d0919a265c793f93c3a6a06bdb331141078e18d00952a6309e4f2ea78230.bin",
+      "archive_path": "blobs/39b1d0919a265c793f93c3a6a06bdb331141078e18d00952a6309e4f2ea78230.bin",
+      "bytes": 262144,
+      "sha256": "39b1d0919a265c793f93c3a6a06bdb331141078e18d00952a6309e4f2ea78230",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/39b1d0919a265c793f93c3a6a06bdb331141078e18d00952a6309e4f2ea78230.bin",
+      "roles": [
+        "comparison_only_cpu_formula_residual_not_separately_captured",
+        "captured_or_independently_formed_original_residual"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/393272457ec316a168fde870dc58e3cf51255de3eb3eb70e19b99ca54f4b06ed.bin",
+      "archive_path": "blobs/393272457ec316a168fde870dc58e3cf51255de3eb3eb70e19b99ca54f4b06ed.bin",
+      "bytes": 262144,
+      "sha256": "393272457ec316a168fde870dc58e3cf51255de3eb3eb70e19b99ca54f4b06ed",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/393272457ec316a168fde870dc58e3cf51255de3eb3eb70e19b99ca54f4b06ed.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/270eacc6dff0cc02fbb2636c84fdba996bb3b592b0b9c4c89f9e433829a20497.bin",
+      "archive_path": "blobs/270eacc6dff0cc02fbb2636c84fdba996bb3b592b0b9c4c89f9e433829a20497.bin",
+      "bytes": 262144,
+      "sha256": "270eacc6dff0cc02fbb2636c84fdba996bb3b592b0b9c4c89f9e433829a20497",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/270eacc6dff0cc02fbb2636c84fdba996bb3b592b0b9c4c89f9e433829a20497.bin",
+      "roles": [
+        "comparison_only_original_expected_norm"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/f8309cdb4c49c766f1c6c507222ead597a1cc6cf157374b2208fd29d208b4a80.bin",
+      "archive_path": "blobs/f8309cdb4c49c766f1c6c507222ead597a1cc6cf157374b2208fd29d208b4a80.bin",
+      "bytes": 262144,
+      "sha256": "f8309cdb4c49c766f1c6c507222ead597a1cc6cf157374b2208fd29d208b4a80",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/f8309cdb4c49c766f1c6c507222ead597a1cc6cf157374b2208fd29d208b4a80.bin",
+      "roles": [
+        "comparison_only_cpu_formula_residual_not_separately_captured"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/8c7381efb7e4c83ae1353f06480b8cc63dcb63d6de66436e204afc7e55944b46.bin",
+      "archive_path": "blobs/8c7381efb7e4c83ae1353f06480b8cc63dcb63d6de66436e204afc7e55944b46.bin",
+      "bytes": 262144,
+      "sha256": "8c7381efb7e4c83ae1353f06480b8cc63dcb63d6de66436e204afc7e55944b46",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/8c7381efb7e4c83ae1353f06480b8cc63dcb63d6de66436e204afc7e55944b46.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/1843eb8ab6685499c0dc6fccefe5601efa221c505bb681ce1a7a12d7a7b4a297.bin",
+      "archive_path": "blobs/1843eb8ab6685499c0dc6fccefe5601efa221c505bb681ce1a7a12d7a7b4a297.bin",
+      "bytes": 262144,
+      "sha256": "1843eb8ab6685499c0dc6fccefe5601efa221c505bb681ce1a7a12d7a7b4a297",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/1843eb8ab6685499c0dc6fccefe5601efa221c505bb681ce1a7a12d7a7b4a297.bin",
+      "roles": [
+        "comparison_only_original_expected_norm"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/722595b9df881b86e57761ab79b8cf0d12f1d1d843ad4244d5d1f92f00cc7e69.bin",
+      "archive_path": "blobs/722595b9df881b86e57761ab79b8cf0d12f1d1d843ad4244d5d1f92f00cc7e69.bin",
+      "bytes": 262144,
+      "sha256": "722595b9df881b86e57761ab79b8cf0d12f1d1d843ad4244d5d1f92f00cc7e69",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/722595b9df881b86e57761ab79b8cf0d12f1d1d843ad4244d5d1f92f00cc7e69.bin",
+      "roles": [
+        "comparison_only_cpu_formula_residual_not_separately_captured",
+        "captured_or_independently_formed_original_residual"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/552f1d4ff525be78414340b03056b0020d96bda2f149850d75079ed78b20f384.bin",
+      "archive_path": "blobs/552f1d4ff525be78414340b03056b0020d96bda2f149850d75079ed78b20f384.bin",
+      "bytes": 262144,
+      "sha256": "552f1d4ff525be78414340b03056b0020d96bda2f149850d75079ed78b20f384",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/552f1d4ff525be78414340b03056b0020d96bda2f149850d75079ed78b20f384.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/18ac94ca4f7a2ecba256701ed698a9e28a9e5198d774168f80a7f90312e59b88.bin",
+      "archive_path": "blobs/18ac94ca4f7a2ecba256701ed698a9e28a9e5198d774168f80a7f90312e59b88.bin",
+      "bytes": 262144,
+      "sha256": "18ac94ca4f7a2ecba256701ed698a9e28a9e5198d774168f80a7f90312e59b88",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/18ac94ca4f7a2ecba256701ed698a9e28a9e5198d774168f80a7f90312e59b88.bin",
+      "roles": [
+        "comparison_only_original_expected_norm"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/0102cc0cc7391c4ec052cd926fe0745a93e6308416e4ac23b2fbb164db1d8cd3.bin",
+      "archive_path": "blobs/0102cc0cc7391c4ec052cd926fe0745a93e6308416e4ac23b2fbb164db1d8cd3.bin",
+      "bytes": 262144,
+      "sha256": "0102cc0cc7391c4ec052cd926fe0745a93e6308416e4ac23b2fbb164db1d8cd3",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/0102cc0cc7391c4ec052cd926fe0745a93e6308416e4ac23b2fbb164db1d8cd3.bin",
+      "roles": [
+        "comparison_only_cpu_formula_residual_not_separately_captured"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b6bb04e4d37892d1fbe8c8f09fdab9e180c1d8385a3a93c61eaef1cb8ee24cf2.bin",
+      "archive_path": "blobs/b6bb04e4d37892d1fbe8c8f09fdab9e180c1d8385a3a93c61eaef1cb8ee24cf2.bin",
+      "bytes": 540672,
+      "sha256": "b6bb04e4d37892d1fbe8c8f09fdab9e180c1d8385a3a93c61eaef1cb8ee24cf2",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/b6bb04e4d37892d1fbe8c8f09fdab9e180c1d8385a3a93c61eaef1cb8ee24cf2.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/61ff66acc95749019b6c1011869f9fd9e2e4cd326540e72beb845ae0fe2a777d.bin",
+      "archive_path": "blobs/61ff66acc95749019b6c1011869f9fd9e2e4cd326540e72beb845ae0fe2a777d.bin",
+      "bytes": 270336,
+      "sha256": "61ff66acc95749019b6c1011869f9fd9e2e4cd326540e72beb845ae0fe2a777d",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/61ff66acc95749019b6c1011869f9fd9e2e4cd326540e72beb845ae0fe2a777d.bin",
+      "roles": [
+        "comparison_only_original_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/1c27adf5a2c3a27818535f714a6c5d510f3ae89d1bac840d4b0710c9d9be19ef.bin",
+      "archive_path": "blobs/1c27adf5a2c3a27818535f714a6c5d510f3ae89d1bac840d4b0710c9d9be19ef.bin",
+      "bytes": 270336,
+      "sha256": "1c27adf5a2c3a27818535f714a6c5d510f3ae89d1bac840d4b0710c9d9be19ef",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/1c27adf5a2c3a27818535f714a6c5d510f3ae89d1bac840d4b0710c9d9be19ef.bin",
+      "roles": [
+        "comparison_only_original_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/c57bdab3a6844454085b1df4991bc46443ae2495c4a620ec22e0d1b93c27fbba.bin",
+      "archive_path": "blobs/c57bdab3a6844454085b1df4991bc46443ae2495c4a620ec22e0d1b93c27fbba.bin",
+      "bytes": 512,
+      "sha256": "c57bdab3a6844454085b1df4991bc46443ae2495c4a620ec22e0d1b93c27fbba",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/c57bdab3a6844454085b1df4991bc46443ae2495c4a620ec22e0d1b93c27fbba.bin",
+      "roles": [
+        "original_model_weight"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/924c7ea5caa422bd6da6e78b0355c48a3c4c68b3cef1642ea3f209bd996f6686.bin",
+      "archive_path": "blobs/924c7ea5caa422bd6da6e78b0355c48a3c4c68b3cef1642ea3f209bd996f6686.bin",
+      "bytes": 540672,
+      "sha256": "924c7ea5caa422bd6da6e78b0355c48a3c4c68b3cef1642ea3f209bd996f6686",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/924c7ea5caa422bd6da6e78b0355c48a3c4c68b3cef1642ea3f209bd996f6686.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b05c0d539aef611b70339712e868145bd35cff23f6a461d82c8585d75d1bedfa.bin",
+      "archive_path": "blobs/b05c0d539aef611b70339712e868145bd35cff23f6a461d82c8585d75d1bedfa.bin",
+      "bytes": 270336,
+      "sha256": "b05c0d539aef611b70339712e868145bd35cff23f6a461d82c8585d75d1bedfa",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/b05c0d539aef611b70339712e868145bd35cff23f6a461d82c8585d75d1bedfa.bin",
+      "roles": [
+        "comparison_only_original_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/95ad4dd628b52f7ff4d5ae45b3790e6069dcdbf426ab4cb15bbdce91f393225c.bin",
+      "archive_path": "blobs/95ad4dd628b52f7ff4d5ae45b3790e6069dcdbf426ab4cb15bbdce91f393225c.bin",
+      "bytes": 270336,
+      "sha256": "95ad4dd628b52f7ff4d5ae45b3790e6069dcdbf426ab4cb15bbdce91f393225c",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/95ad4dd628b52f7ff4d5ae45b3790e6069dcdbf426ab4cb15bbdce91f393225c.bin",
+      "roles": [
+        "comparison_only_original_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/0929229d2a74b1fdddec986dcbda8b4cd8228fd8428a78e70b840917ab711f2e.bin",
+      "archive_path": "blobs/0929229d2a74b1fdddec986dcbda8b4cd8228fd8428a78e70b840917ab711f2e.bin",
+      "bytes": 1015808,
+      "sha256": "0929229d2a74b1fdddec986dcbda8b4cd8228fd8428a78e70b840917ab711f2e",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/0929229d2a74b1fdddec986dcbda8b4cd8228fd8428a78e70b840917ab711f2e.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/5ce1903ee9d08727ec52bff73da132bcf9e35dd4689e86e4330838feab3dc8da.bin",
+      "archive_path": "blobs/5ce1903ee9d08727ec52bff73da132bcf9e35dd4689e86e4330838feab3dc8da.bin",
+      "bytes": 507904,
+      "sha256": "5ce1903ee9d08727ec52bff73da132bcf9e35dd4689e86e4330838feab3dc8da",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/5ce1903ee9d08727ec52bff73da132bcf9e35dd4689e86e4330838feab3dc8da.bin",
+      "roles": [
+        "comparison_only_original_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/def9ef254c609a8f859084e641cc3d7141f53852de096139c65f7902f6fd87ab.bin",
+      "archive_path": "blobs/def9ef254c609a8f859084e641cc3d7141f53852de096139c65f7902f6fd87ab.bin",
+      "bytes": 507904,
+      "sha256": "def9ef254c609a8f859084e641cc3d7141f53852de096139c65f7902f6fd87ab",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/def9ef254c609a8f859084e641cc3d7141f53852de096139c65f7902f6fd87ab.bin",
+      "roles": [
+        "comparison_only_original_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b06161d4cedc9480e81ccecf824c9a8617da40447066cd7bd814a3f270da509c.bin",
+      "archive_path": "blobs/b06161d4cedc9480e81ccecf824c9a8617da40447066cd7bd814a3f270da509c.bin",
+      "bytes": 1081344,
+      "sha256": "b06161d4cedc9480e81ccecf824c9a8617da40447066cd7bd814a3f270da509c",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/b06161d4cedc9480e81ccecf824c9a8617da40447066cd7bd814a3f270da509c.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/1d6220646353b2f779b6de3436d020e82471621508fbd0a6ed4e92038a239863.bin",
+      "archive_path": "blobs/1d6220646353b2f779b6de3436d020e82471621508fbd0a6ed4e92038a239863.bin",
+      "bytes": 540672,
+      "sha256": "1d6220646353b2f779b6de3436d020e82471621508fbd0a6ed4e92038a239863",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/1d6220646353b2f779b6de3436d020e82471621508fbd0a6ed4e92038a239863.bin",
+      "roles": [
+        "comparison_only_original_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/08a5706456f2e83359f4cdae21f1e7aef561fc28e4e7e53049d2635d051d6667.bin",
+      "archive_path": "blobs/08a5706456f2e83359f4cdae21f1e7aef561fc28e4e7e53049d2635d051d6667.bin",
+      "bytes": 540672,
+      "sha256": "08a5706456f2e83359f4cdae21f1e7aef561fc28e4e7e53049d2635d051d6667",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/08a5706456f2e83359f4cdae21f1e7aef561fc28e4e7e53049d2635d051d6667.bin",
+      "roles": [
+        "comparison_only_original_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/bf57f9eb581f861ff3510c7054050dde510c4b34f3ba3c40da7a0fb4bd8f0063.bin",
+      "archive_path": "blobs/bf57f9eb581f861ff3510c7054050dde510c4b34f3ba3c40da7a0fb4bd8f0063.bin",
+      "bytes": 1048576,
+      "sha256": "bf57f9eb581f861ff3510c7054050dde510c4b34f3ba3c40da7a0fb4bd8f0063",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/bf57f9eb581f861ff3510c7054050dde510c4b34f3ba3c40da7a0fb4bd8f0063.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/28ac5a236074daed34c3f136ee347a1a11e5af350a2d948400192d1ed96014bf.bin",
+      "archive_path": "blobs/28ac5a236074daed34c3f136ee347a1a11e5af350a2d948400192d1ed96014bf.bin",
+      "bytes": 524288,
+      "sha256": "28ac5a236074daed34c3f136ee347a1a11e5af350a2d948400192d1ed96014bf",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/28ac5a236074daed34c3f136ee347a1a11e5af350a2d948400192d1ed96014bf.bin",
+      "roles": [
+        "comparison_only_original_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/8103c69e4d3cee3c4f0be13442d45662a39581556cb67c4e039063b1d5491e6a.bin",
+      "archive_path": "blobs/8103c69e4d3cee3c4f0be13442d45662a39581556cb67c4e039063b1d5491e6a.bin",
+      "bytes": 524288,
+      "sha256": "8103c69e4d3cee3c4f0be13442d45662a39581556cb67c4e039063b1d5491e6a",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/8103c69e4d3cee3c4f0be13442d45662a39581556cb67c4e039063b1d5491e6a.bin",
+      "roles": [
+        "comparison_only_original_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e83a4d0dce713a5e8508b0765df84edbdaf311522de45b00e922a04af75d9419.bin",
+      "archive_path": "blobs/e83a4d0dce713a5e8508b0765df84edbdaf311522de45b00e922a04af75d9419.bin",
+      "bytes": 1048576,
+      "sha256": "e83a4d0dce713a5e8508b0765df84edbdaf311522de45b00e922a04af75d9419",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/e83a4d0dce713a5e8508b0765df84edbdaf311522de45b00e922a04af75d9419.bin",
+      "roles": [
+        "captured_operator_input"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/56f465baf9a0f9c0bfd3f7bce9fd27b14fe7f6fd1ed49987fa82b247cbfc7a10.bin",
+      "archive_path": "blobs/56f465baf9a0f9c0bfd3f7bce9fd27b14fe7f6fd1ed49987fa82b247cbfc7a10.bin",
+      "bytes": 524288,
+      "sha256": "56f465baf9a0f9c0bfd3f7bce9fd27b14fe7f6fd1ed49987fa82b247cbfc7a10",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/56f465baf9a0f9c0bfd3f7bce9fd27b14fe7f6fd1ed49987fa82b247cbfc7a10.bin",
+      "roles": [
+        "comparison_only_original_expected_output"
+      ]
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/920a99e3a0e7662ef9a43eb5228b58fe551fbe6e40b4a672733c2de47daff57f.bin",
+      "archive_path": "blobs/920a99e3a0e7662ef9a43eb5228b58fe551fbe6e40b4a672733c2de47daff57f.bin",
+      "bytes": 524288,
+      "sha256": "920a99e3a0e7662ef9a43eb5228b58fe551fbe6e40b4a672733c2de47daff57f",
+      "local_file": "mtp-native-frontiers-inputs-r2/blobs/920a99e3a0e7662ef9a43eb5228b58fe551fbe6e40b4a672733c2de47daff57f.bin",
+      "roles": [
+        "comparison_only_original_expected_output"
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+      "archive_path": "tables/rsqrt.bin",
+      "local_file": "qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+      "bytes": 17301808,
+      "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850",
+      "role": "model_independent_arithmetic"
+    },
+    {
+      "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rope.bin",
+      "archive_path": "tables/rope.bin",
+      "local_file": "qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin",
+      "bytes": 33554432,
+      "sha256": "ba12ce218327d4cf23aac7dfacd8e9efbc99fd207611a8466227089838ef0e80",
+      "role": "model_parameter_rotary_table"
+    }
+  ],
+  "cases": [
+    {
+      "name": "frontier-00",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/003b074ef6ed91e42325355600ee8513dee5b30b771191bcfaed55d7db1c2aff.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e5154e564ec51ed3a4da039b7ae28ce6e5236f675f74b41af4133ef78b737918.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin"
+      ],
+      "original_case": "q7169-out32",
+      "stage": "embedding_norm_dynamic",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "normalization",
+        "rows": 33,
+        "elements": 67584,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 33,
+      "first_selected_position": 0,
+      "last_selected_position": 7199
+    },
+    {
+      "name": "frontier-01",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/a71ca75618254ab38fe437fb3f2043dd85d6fd13523171eae0676b42e35190a6.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/0e9c09a5963b7663cef6fcc1c9fc709ccf83fa096512e6380dd135c15a9e8dce.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin"
+      ],
+      "original_case": "q7169-out32",
+      "stage": "hidden_norm_dynamic",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "normalization",
+        "rows": 33,
+        "elements": 67584,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 33,
+      "first_selected_position": 0,
+      "last_selected_position": 7199
+    },
+    {
+      "name": "frontier-02",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/8ece63e8b5bb08fc86b8a86033656e787a92402516752a46aa50752aed0506a2.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/99fc176e7b890192ed0403677fa775eabc9a44d70b67592195909bc26be586bb.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ed66fd3ea14b7c7a8c9cfbd7cbcf833e5e9e8129a3be139d730ef5eb9c8d24dd.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin"
+      ],
+      "original_case": "q7169-out32",
+      "stage": "input_norm_dynamic",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "normalization",
+        "rows": 33,
+        "elements": 67584,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 33,
+      "first_selected_position": 0,
+      "last_selected_position": 7199
+    },
+    {
+      "name": "frontier-03",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e73adf8429581531867020c361ad4a8f0378bb741e2b41831ad40cd11841e55f.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e7e368e6f4e1339c8d9d97d192f8048977fa86e98aa326fe2c8fc185ad93ea3d.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin"
+      ],
+      "original_case": "q8192-out32",
+      "stage": "embedding_norm_dynamic",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "normalization",
+        "rows": 33,
+        "elements": 67584,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 33,
+      "first_selected_position": 0,
+      "last_selected_position": 8222
+    },
+    {
+      "name": "frontier-04",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/013edf683607b001d25184965c5f0c9c34274c2b45cdb2c175711104ebdc18c5.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/c1b2df2af655f3d651b8b9c257aa9562c02f0ee5b2cecdc48da6c01c5a60e656.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin"
+      ],
+      "original_case": "q8192-out32",
+      "stage": "hidden_norm_dynamic",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "normalization",
+        "rows": 33,
+        "elements": 67584,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 33,
+      "first_selected_position": 0,
+      "last_selected_position": 8222
+    },
+    {
+      "name": "frontier-05",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e67ee4d83db7aae48334b58d3206495fc5660b25bb791236c2e00a5323e6699d.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/99fc176e7b890192ed0403677fa775eabc9a44d70b67592195909bc26be586bb.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/5893f6dc3e7e6177c44e8c016c4b77409449d080b5d56dd2d9be4dd74b139612.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin"
+      ],
+      "original_case": "q8192-out32",
+      "stage": "input_norm_dynamic",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "normalization",
+        "rows": 33,
+        "elements": 67584,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 33,
+      "first_selected_position": 0,
+      "last_selected_position": 8222
+    },
+    {
+      "name": "frontier-06",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/f020e97fd400de7c600d5d697c660a6c8a228d20052fba4aed0af0f1a6d151f1.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/3a9bcf2753d6a1cb2f920050980eb041009b911b76b348da8412638fea28af9f.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin"
+      ],
+      "original_case": "long-prefix262144-owner-out32",
+      "stage": "embedding_norm_dynamic",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "normalization",
+        "rows": 62,
+        "elements": 126976,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 62,
+      "first_selected_position": 0,
+      "last_selected_position": 253951
+    },
+    {
+      "name": "frontier-07",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/7f6a54811bf306674b92c23297a66889c567d36f95adfb7f08d3021936f232a6.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/40467f7dfa6c61fad2bdb00a14938c3bf5910424adbd54f9004c0fa6faabc52e.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin"
+      ],
+      "original_case": "long-prefix262144-owner-out32",
+      "stage": "hidden_norm_dynamic",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "normalization",
+        "rows": 62,
+        "elements": 126976,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 62,
+      "first_selected_position": 0,
+      "last_selected_position": 253951
+    },
+    {
+      "name": "frontier-08",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b90a47bf29abb5b4003b9216c5e158aa990494a57d626f981b4dfcc1f67c280c.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/99fc176e7b890192ed0403677fa775eabc9a44d70b67592195909bc26be586bb.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/61626ec1f3535ade20a5dc8b5a01b98229517eef3df5993c2e7e47b596370f00.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin"
+      ],
+      "original_case": "long-prefix262144-owner-out32",
+      "stage": "input_norm_dynamic",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "normalization",
+        "rows": 62,
+        "elements": 126976,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 62,
+      "first_selected_position": 0,
+      "last_selected_position": 253951
+    },
+    {
+      "name": "frontier-09",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/4819f71e8b5c3c448b925c9c7ea0cf35ea1eef36bb02bf0f10466911f404b750.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e1c7c36a1d579288dc6e322822848604c64b990c41b7c137da22e67d07184a86.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin"
+      ],
+      "original_case": "draft-limit-q262140-out16",
+      "stage": "embedding_norm_dynamic",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "normalization",
+        "rows": 66,
+        "elements": 135168,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 66,
+      "first_selected_position": 0,
+      "last_selected_position": 262141
+    },
+    {
+      "name": "frontier-10",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/f91412696b3465ce134b5651416bc4503ca65c47e680b002c829849fc30ec766.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/f2da3f74c817f6d5d3ac4fc133c75481fef65cb49b1305e15109530a945eb68f.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin"
+      ],
+      "original_case": "draft-limit-q262140-out16",
+      "stage": "hidden_norm_dynamic",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "normalization",
+        "rows": 66,
+        "elements": 135168,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 66,
+      "first_selected_position": 0,
+      "last_selected_position": 262141
+    },
+    {
+      "name": "frontier-11",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ce476b3d7424a7212b955b72701aa79f1fd4cfa2901ca965ac25f5e63415652e.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/99fc176e7b890192ed0403677fa775eabc9a44d70b67592195909bc26be586bb.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/caa43f06d2612aab97f7048094c014557543ec3238cd4cd5444144dcb3572a08.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin"
+      ],
+      "original_case": "draft-limit-q262140-out16",
+      "stage": "input_norm_dynamic",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "normalization",
+        "rows": 66,
+        "elements": 135168,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 66,
+      "first_selected_position": 0,
+      "last_selected_position": 262141
+    },
+    {
+      "name": "frontier-12",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e7c41806916891a2fe5ff26d7b4d455995be8819d1ebd792140b0f669626e006.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/843799325755844f5470ad40a89fa3ccb1ea24bfecc6562561bda3e740543d55.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin"
+      ],
+      "original_case": "draft-limit-q262142-out16",
+      "stage": "embedding_norm_dynamic",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "normalization",
+        "rows": 64,
+        "elements": 131072,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 64,
+      "first_selected_position": 0,
+      "last_selected_position": 262141
+    },
+    {
+      "name": "frontier-13",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/09ddc278da90cd8daa56ff1ca638986284dbe7d0b6193753343d2d87a9d644d0.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/be0171da54f5ffa0faa35c0897d212e7d1de02584e0b86ac494a158c0a067657.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin"
+      ],
+      "original_case": "draft-limit-q262142-out16",
+      "stage": "hidden_norm_dynamic",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "normalization",
+        "rows": 64,
+        "elements": 131072,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 64,
+      "first_selected_position": 0,
+      "last_selected_position": 262141
+    },
+    {
+      "name": "frontier-14",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/29a5f523f6ce417a2fd1857ff53bfd08ae283563560fd61059b708dc6cadd7df.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/99fc176e7b890192ed0403677fa775eabc9a44d70b67592195909bc26be586bb.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/2532f1ceac4541d237bcddea1a01c8266f9df51246302c7bdaa4218e16f0a180.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin"
+      ],
+      "original_case": "draft-limit-q262142-out16",
+      "stage": "input_norm_dynamic",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "normalization",
+        "rows": 64,
+        "elements": 131072,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 64,
+      "first_selected_position": 0,
+      "last_selected_position": 262141
+    },
+    {
+      "name": "frontier-15",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ee3c885c998661c329e9e3a9c710dd988253fc9461b236b6249d4915c2ff8672.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/8b6258a1acd74abfa2cc1562ff4c06daad2306d9a1a2d80eaf120878b4d1a601.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin"
+      ],
+      "original_case": "draft-limit-q262143-out16",
+      "stage": "embedding_norm_dynamic",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "normalization",
+        "rows": 64,
+        "elements": 131072,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 64,
+      "first_selected_position": 0,
+      "last_selected_position": 262142
+    },
+    {
+      "name": "frontier-16",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/727de3decec436962be8b6f94b2152b75d520899d0b7d99423927f5b316e26e0.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/dcdaface5803ed124f846f7f68da2a45b28076b6f285f07078e357988129d3bb.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin"
+      ],
+      "original_case": "draft-limit-q262143-out16",
+      "stage": "hidden_norm_dynamic",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "normalization",
+        "rows": 64,
+        "elements": 131072,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 64,
+      "first_selected_position": 0,
+      "last_selected_position": 262142
+    },
+    {
+      "name": "frontier-17",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/2bdeeb2fa0e0b53669fd62b46d0b98934f3294522f0cf553f7ef921701bfe61d.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/99fc176e7b890192ed0403677fa775eabc9a44d70b67592195909bc26be586bb.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/518375aca04780b56d1641325bbcab5ddac08a3a91a463147a47609d65c97614.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin"
+      ],
+      "original_case": "draft-limit-q262143-out16",
+      "stage": "input_norm_dynamic",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "normalization",
+        "rows": 64,
+        "elements": 131072,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 64,
+      "first_selected_position": 0,
+      "last_selected_position": 262142
+    },
+    {
+      "name": "frontier-18",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/003b074ef6ed91e42325355600ee8513dee5b30b771191bcfaed55d7db1c2aff.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/d6783c3b73f3722750437c6c81de6af800def48e8378a745bc99ce07a5c3dce6.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/a71ca75618254ab38fe437fb3f2043dd85d6fd13523171eae0676b42e35190a6.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/d828cfadd11d6ed1971f98f624eae681b459d41ea65a8aadab16aeab6a23c708.bin"
+      ],
+      "original_case": "q7169-out32",
+      "stage": "fusion_inputs",
+      "expected_reports": 2,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "fusion_inputs",
+        "rows": 33,
+        "elements": 135168,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 33,
+      "first_selected_position": 0,
+      "last_selected_position": 7199
+    },
+    {
+      "name": "frontier-19",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e73adf8429581531867020c361ad4a8f0378bb741e2b41831ad40cd11841e55f.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e403ffe48100c31905d28aaf54d1d11747e430dd75751808b9b21b6d5906377d.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/013edf683607b001d25184965c5f0c9c34274c2b45cdb2c175711104ebdc18c5.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/c85f22ab9d7b9a374d381d7403addeb1c0d7f5238a37e18e8386236bb2af66e9.bin"
+      ],
+      "original_case": "q8192-out32",
+      "stage": "fusion_inputs",
+      "expected_reports": 2,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "fusion_inputs",
+        "rows": 33,
+        "elements": 135168,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 33,
+      "first_selected_position": 0,
+      "last_selected_position": 8222
+    },
+    {
+      "name": "frontier-20",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/f020e97fd400de7c600d5d697c660a6c8a228d20052fba4aed0af0f1a6d151f1.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/dd2cb15e1fba6f592520c5ce994f878561ced1f40de5b836cb5c41009ab131d7.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/7f6a54811bf306674b92c23297a66889c567d36f95adfb7f08d3021936f232a6.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/96288127484897dd3625d3f20c5bf4a70e063a235b3f15157b0f146c5d53ed1d.bin"
+      ],
+      "original_case": "long-prefix262144-owner-out32",
+      "stage": "fusion_inputs",
+      "expected_reports": 2,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "fusion_inputs",
+        "rows": 62,
+        "elements": 253952,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 62,
+      "first_selected_position": 0,
+      "last_selected_position": 253951
+    },
+    {
+      "name": "frontier-21",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/4819f71e8b5c3c448b925c9c7ea0cf35ea1eef36bb02bf0f10466911f404b750.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ab40747bea590eba4043f3c0505321cb3748cc1575133d18a00e280c924c95ff.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/f91412696b3465ce134b5651416bc4503ca65c47e680b002c829849fc30ec766.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b0a2b41f83611606aef81b2aa17fbbbe2921533974583d47a94ed4a5110e53f1.bin"
+      ],
+      "original_case": "draft-limit-q262140-out16",
+      "stage": "fusion_inputs",
+      "expected_reports": 2,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "fusion_inputs",
+        "rows": 66,
+        "elements": 270336,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 66,
+      "first_selected_position": 0,
+      "last_selected_position": 262141
+    },
+    {
+      "name": "frontier-22",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e7c41806916891a2fe5ff26d7b4d455995be8819d1ebd792140b0f669626e006.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/537898df22a4bb205044317eee6ac183d01b6a8d8bfe2f04f34c8fc970237228.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/09ddc278da90cd8daa56ff1ca638986284dbe7d0b6193753343d2d87a9d644d0.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ab84c4d420c620d38dcd18ff20e1d0273ee53acb77b0ee33fc6e1ff307f3ea75.bin"
+      ],
+      "original_case": "draft-limit-q262142-out16",
+      "stage": "fusion_inputs",
+      "expected_reports": 2,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "fusion_inputs",
+        "rows": 64,
+        "elements": 262144,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 64,
+      "first_selected_position": 0,
+      "last_selected_position": 262141
+    },
+    {
+      "name": "frontier-23",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ee3c885c998661c329e9e3a9c710dd988253fc9461b236b6249d4915c2ff8672.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/fc507db620187293055267cfb13460e4219e24e4ae0ef615002aa55ac38fa934.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/727de3decec436962be8b6f94b2152b75d520899d0b7d99423927f5b316e26e0.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/f8216645af118eb12f7e0aa9c0f95f41988c1b7d6590b104d1de4be5a8f31664.bin"
+      ],
+      "original_case": "draft-limit-q262143-out16",
+      "stage": "fusion_inputs",
+      "expected_reports": 2,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "mode": "fusion_inputs",
+        "rows": 64,
+        "elements": 262144,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 64,
+      "first_selected_position": 0,
+      "last_selected_position": 262142
+    },
+    {
+      "name": "kv-00",
+      "program": "qrt-mtp-kv",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ec1125633c27f4460fe8cae6161bd836ecf3188ceedd77ef0bde2a338dfa63f7.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/608758d7223a03bdf7b24ae576c21836e74c496594d22c727047ee22fe8d1a96.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/4d0b458dc2fb685c2fa79ba98a353a79cf7e5ecb644942f40f657a30baa84a66.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/a51953bf0fb4ea691b75b1be879c5c5f288fae6ecec955c98352ce9b51e81df4.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rope.bin"
+      ],
+      "original_case": "q7169-out32",
+      "stage": "key_value_cache",
+      "expected_reports": 1,
+      "timeout_seconds": 60,
+      "expected_cpu_report": {
+        "rows": 33,
+        "norm_elements": 16896,
+        "key_elements": 16896,
+        "value_elements": 16896,
+        "norm_bf16_mismatches": 0,
+        "key_bf16_mismatches": 0,
+        "value_bf16_mismatches": 0,
+        "inference_acceptance": false
+      },
+      "selected_rows": 33,
+      "first_selected_position": 0,
+      "last_selected_position": 7199
+    },
+    {
+      "name": "kv-01",
+      "program": "qrt-mtp-kv",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/7fcd920b4be16b2c6e6683afbae19a84d7cfa25f8f6232a4cccb214c345f673b.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/01a4d148cb037c819502beff2c0fa22101d34998a0c9de1a248cf69b7165d5ee.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b1ee715e56f31cae36e3e72236df9d46d31e5ca85e5219fb16d90eddd9954b15.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/d9482a246422df44bbff9132dd5cdb25277563040915c3dc5e91d16c6fbe2125.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rope.bin"
+      ],
+      "original_case": "q8192-out32",
+      "stage": "key_value_cache",
+      "expected_reports": 1,
+      "timeout_seconds": 60,
+      "expected_cpu_report": {
+        "rows": 33,
+        "norm_elements": 16896,
+        "key_elements": 16896,
+        "value_elements": 16896,
+        "norm_bf16_mismatches": 0,
+        "key_bf16_mismatches": 0,
+        "value_bf16_mismatches": 0,
+        "inference_acceptance": false
+      },
+      "selected_rows": 33,
+      "first_selected_position": 0,
+      "last_selected_position": 8222
+    },
+    {
+      "name": "kv-02",
+      "program": "qrt-mtp-kv",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/14eea811c0032d6f95396c34043b30e3f46d8d61e570fc530cd009078cc059d6.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/6bd0846b3f5ac12c44aa953bddb440bac3df1edbd6a3b3114ecebfb5564c0737.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/1acbd9915099beaf53d3f4fe20b252a2338a0c7cde59a4fb61a05363f270f0ca.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/19973b3d7920750e98e75acca0a9f3aca92f9638c8a78192efbc2cffad04f91b.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rope.bin"
+      ],
+      "original_case": "long-prefix262144-owner-out32",
+      "stage": "key_value_cache",
+      "expected_reports": 1,
+      "timeout_seconds": 60,
+      "expected_cpu_report": {
+        "rows": 62,
+        "norm_elements": 31744,
+        "key_elements": 31744,
+        "value_elements": 31744,
+        "norm_bf16_mismatches": 0,
+        "key_bf16_mismatches": 0,
+        "value_bf16_mismatches": 0,
+        "inference_acceptance": false
+      },
+      "selected_rows": 62,
+      "first_selected_position": 0,
+      "last_selected_position": 253951
+    },
+    {
+      "name": "kv-03",
+      "program": "qrt-mtp-kv",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/388cbc163432b4f33e846cdd7ff1a576348122b4714ec73976701af9e636dc26.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/46aa23a95d4ea02c28d908c91c6353e45dc034281f4e0612befdd911437b3e66.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b8d2eec54838bd986b80e3b16abff438eab333afe772bc2de6228e8ce45f7cc3.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/9b17158a2404eb77771179a263eb8e9cd42447fd0b0d31e0deb79cbde49b7564.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rope.bin"
+      ],
+      "original_case": "draft-limit-q262140-out16",
+      "stage": "key_value_cache",
+      "expected_reports": 1,
+      "timeout_seconds": 60,
+      "expected_cpu_report": {
+        "rows": 66,
+        "norm_elements": 33792,
+        "key_elements": 33792,
+        "value_elements": 33792,
+        "norm_bf16_mismatches": 0,
+        "key_bf16_mismatches": 0,
+        "value_bf16_mismatches": 0,
+        "inference_acceptance": false
+      },
+      "selected_rows": 66,
+      "first_selected_position": 0,
+      "last_selected_position": 262141
+    },
+    {
+      "name": "kv-04",
+      "program": "qrt-mtp-kv",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/bdf9ea00e4ee45b3c94452d9898e8541424fedc98d877e506fb206f0c2d66d8f.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/5e90341434f6efd8fb05f05bacb5c786c9fc09096bf5abf6e33e6964986bd17b.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/10e2a1e9751618db6b90f39928deb1e00cf512421dd4c37cf03566e58ce96861.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/a807b58076951e7f7e085624b01c1da198f50d7460e3404e1b76bfbb6bec766b.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rope.bin"
+      ],
+      "original_case": "draft-limit-q262142-out16",
+      "stage": "key_value_cache",
+      "expected_reports": 1,
+      "timeout_seconds": 60,
+      "expected_cpu_report": {
+        "rows": 64,
+        "norm_elements": 32768,
+        "key_elements": 32768,
+        "value_elements": 32768,
+        "norm_bf16_mismatches": 0,
+        "key_bf16_mismatches": 0,
+        "value_bf16_mismatches": 0,
+        "inference_acceptance": false
+      },
+      "selected_rows": 64,
+      "first_selected_position": 0,
+      "last_selected_position": 262141
+    },
+    {
+      "name": "kv-05",
+      "program": "qrt-mtp-kv",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/9758c09bbae3f2b6d0bcba8c646c9961119a119f26cf20eab8fb29caeb25fe35.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/0740785b404a93d3059f4dc797cb5a6862d868f0a5586b3905fed6b6d4fcfb09.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/5adbc81a3020fea026d9d3d9435650f64034b8d891b8dc2805bcbf8d984f806d.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/70eda6a8c8ce1c6ee28cb7070b98c29cf6654f57240ec5a0d67883ea6b4f6475.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rope.bin"
+      ],
+      "original_case": "draft-limit-q262143-out16",
+      "stage": "key_value_cache",
+      "expected_reports": 1,
+      "timeout_seconds": 60,
+      "expected_cpu_report": {
+        "rows": 64,
+        "norm_elements": 32768,
+        "key_elements": 32768,
+        "value_elements": 32768,
+        "norm_bf16_mismatches": 0,
+        "key_bf16_mismatches": 0,
+        "value_bf16_mismatches": 0,
+        "inference_acceptance": false
+      },
+      "selected_rows": 64,
+      "first_selected_position": 0,
+      "last_selected_position": 262142
+    },
+    {
+      "name": "residual-00-post_attention",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/c456abddbfde98220e38764fd537ab97265d18452ae02f30f9d8155456954b06.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b95e26cf3c68d7fa2d2ad73270f5408fc92ae695243768ac0061058f0eb6a675.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/8ece63e8b5bb08fc86b8a86033656e787a92402516752a46aa50752aed0506a2.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e31584bd0052d2ee5cace4f2f6c8c2eb6e5b94173c5658e5f5b27e14ae8a643f.bin"
+      ],
+      "original_case": "q7169-out32",
+      "stage": "post_attention_residual_norm",
+      "expected_reports": 2,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "rows": 33,
+        "elements": 67584,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 33,
+      "first_selected_position": 0,
+      "last_selected_position": 7199
+    },
+    {
+      "name": "residual-00-final",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/5410569eec50e005f18781b0360682afbce974a66d8da4f6c9833199d5e0f6f9.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/bf495d3e04c8be08caddfc8819b569ba01ee1c4418afc85bcd82244bc343113e.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e31584bd0052d2ee5cace4f2f6c8c2eb6e5b94173c5658e5f5b27e14ae8a643f.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/0325fb74ece02e09cd9cf65ec9553698892023ee19d3b5022e1c5118748cbd92.bin"
+      ],
+      "original_case": "q7169-out32",
+      "stage": "final_residual_norm",
+      "expected_reports": 2,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "rows": 33,
+        "elements": 67584,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 33,
+      "first_selected_position": 0,
+      "last_selected_position": 7199
+    },
+    {
+      "name": "residual-01-post_attention",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/4102a85aead0008c44dd33abcba95a7ce9554fc123447a0e5254da6e9705ba1b.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/7d119cec273dd417d3937d961fd4a7ed424f2da46ff9f83a26e0ceb056485c55.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e67ee4d83db7aae48334b58d3206495fc5660b25bb791236c2e00a5323e6699d.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/4f5caeea970cc1c82d47491e45eecf74edcc2a0cc5f54298b8e21b14b2fbd8a9.bin"
+      ],
+      "original_case": "q8192-out32",
+      "stage": "post_attention_residual_norm",
+      "expected_reports": 2,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "rows": 33,
+        "elements": 67584,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 33,
+      "first_selected_position": 0,
+      "last_selected_position": 8222
+    },
+    {
+      "name": "residual-01-final",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b779bd9e7bb31b251437a00bfcca4266716ddc0ce2ea3b593d463c54aaf1e482.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b85842a20dfe0f69b9eb8da4db121c632be58f127ba1ce47a41368c6674286c9.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/4f5caeea970cc1c82d47491e45eecf74edcc2a0cc5f54298b8e21b14b2fbd8a9.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/1eedd7f8099c246f1ad5946904abd1c39ce857546a8c9d539f7ef5b805eac29f.bin"
+      ],
+      "original_case": "q8192-out32",
+      "stage": "final_residual_norm",
+      "expected_reports": 2,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "rows": 33,
+        "elements": 67584,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 33,
+      "first_selected_position": 0,
+      "last_selected_position": 8222
+    },
+    {
+      "name": "residual-02-post_attention",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/1c87ac08f53b33302006c95f70ce44e315ef5d234c72ed95cade8c313690289f.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/57ba4d465a039ddcbe5cf0a3d75e84e2a049d3d28747b76cc3188ff09eb16783.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b90a47bf29abb5b4003b9216c5e158aa990494a57d626f981b4dfcc1f67c280c.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ec416193f61d3c3c600056bfd3040e057c462f571f97bfdf23bc568b00657d4f.bin"
+      ],
+      "original_case": "long-prefix262144-owner-out32",
+      "stage": "post_attention_residual_norm",
+      "expected_reports": 2,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "rows": 62,
+        "elements": 126976,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 62,
+      "first_selected_position": 0,
+      "last_selected_position": 253951
+    },
+    {
+      "name": "residual-02-final",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/8f4315043154d50e0c6f0b8523ff7673f167ea7f9baa523588633e3cf90e442d.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ea8aa6b69e6c10b487e2cac692198dba8f082fefeea6aa42224c81809ce988e2.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ec416193f61d3c3c600056bfd3040e057c462f571f97bfdf23bc568b00657d4f.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/463905c725ebdec622a8deb778ccab2d342161c7f71e177e30e1bbf4f7dbc62f.bin"
+      ],
+      "original_case": "long-prefix262144-owner-out32",
+      "stage": "final_residual_norm",
+      "expected_reports": 2,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "rows": 62,
+        "elements": 126976,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 62,
+      "first_selected_position": 0,
+      "last_selected_position": 253951
+    },
+    {
+      "name": "residual-03-post_attention",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/1b6ebc814e42c8de5f903de484bae67c473fe1a7b0c4cea6130ed009de140012.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/efb44af795bba3930b28d996ae6faf014bcc16e23ea966f0087bb8c6b365721b.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/ce476b3d7424a7212b955b72701aa79f1fd4cfa2901ca965ac25f5e63415652e.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/9cf0191895e43db6f11825043216c957e5813afc505059eec18a6ba1731c38d3.bin"
+      ],
+      "original_case": "draft-limit-q262140-out16",
+      "stage": "post_attention_residual_norm",
+      "expected_reports": 2,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "rows": 66,
+        "elements": 135168,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 66,
+      "first_selected_position": 0,
+      "last_selected_position": 262141
+    },
+    {
+      "name": "residual-03-final",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/fe50ef2e13cd6b2d745c276ff319d82cc0b69b4b75210d0ec3a0bf83cf66d1b3.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/3be46dbb187a78d906257f0e219bc6ce17f78f7c83b3ed65bc663c9a4c5eea52.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/9cf0191895e43db6f11825043216c957e5813afc505059eec18a6ba1731c38d3.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/f0850dd812550f17e91b4c6277c9fa4fe02caff19f2618c86937ca566f39ffee.bin"
+      ],
+      "original_case": "draft-limit-q262140-out16",
+      "stage": "final_residual_norm",
+      "expected_reports": 2,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "rows": 66,
+        "elements": 135168,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 66,
+      "first_selected_position": 0,
+      "last_selected_position": 262141
+    },
+    {
+      "name": "residual-04-post_attention",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/3fcb6530c6ff217514d9a80de2f3faf1b1b5b01423e9b9029b579702a567e86f.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/8ccbc56ad4d9b668630cab75914693805b22474c462d852e36c48f50c39758b4.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/29a5f523f6ce417a2fd1857ff53bfd08ae283563560fd61059b708dc6cadd7df.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/39b1d0919a265c793f93c3a6a06bdb331141078e18d00952a6309e4f2ea78230.bin"
+      ],
+      "original_case": "draft-limit-q262142-out16",
+      "stage": "post_attention_residual_norm",
+      "expected_reports": 2,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "rows": 64,
+        "elements": 131072,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 64,
+      "first_selected_position": 0,
+      "last_selected_position": 262141
+    },
+    {
+      "name": "residual-04-final",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/393272457ec316a168fde870dc58e3cf51255de3eb3eb70e19b99ca54f4b06ed.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/270eacc6dff0cc02fbb2636c84fdba996bb3b592b0b9c4c89f9e433829a20497.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/39b1d0919a265c793f93c3a6a06bdb331141078e18d00952a6309e4f2ea78230.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/f8309cdb4c49c766f1c6c507222ead597a1cc6cf157374b2208fd29d208b4a80.bin"
+      ],
+      "original_case": "draft-limit-q262142-out16",
+      "stage": "final_residual_norm",
+      "expected_reports": 2,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "rows": 64,
+        "elements": 131072,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 64,
+      "first_selected_position": 0,
+      "last_selected_position": 262141
+    },
+    {
+      "name": "residual-05-post_attention",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/8c7381efb7e4c83ae1353f06480b8cc63dcb63d6de66436e204afc7e55944b46.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/1843eb8ab6685499c0dc6fccefe5601efa221c505bb681ce1a7a12d7a7b4a297.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/2bdeeb2fa0e0b53669fd62b46d0b98934f3294522f0cf553f7ef921701bfe61d.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/722595b9df881b86e57761ab79b8cf0d12f1d1d843ad4244d5d1f92f00cc7e69.bin"
+      ],
+      "original_case": "draft-limit-q262143-out16",
+      "stage": "post_attention_residual_norm",
+      "expected_reports": 2,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "rows": 64,
+        "elements": 131072,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 64,
+      "first_selected_position": 0,
+      "last_selected_position": 262142
+    },
+    {
+      "name": "residual-05-final",
+      "program": "qrt-mtp-frontier",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/552f1d4ff525be78414340b03056b0020d96bda2f149850d75079ed78b20f384.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/18ac94ca4f7a2ecba256701ed698a9e28a9e5198d774168f80a7f90312e59b88.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/722595b9df881b86e57761ab79b8cf0d12f1d1d843ad4244d5d1f92f00cc7e69.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/0102cc0cc7391c4ec052cd926fe0745a93e6308416e4ac23b2fbb164db1d8cd3.bin"
+      ],
+      "original_case": "draft-limit-q262143-out16",
+      "stage": "final_residual_norm",
+      "expected_reports": 2,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "rows": 64,
+        "elements": 131072,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 64,
+      "first_selected_position": 0,
+      "last_selected_position": 262142
+    },
+    {
+      "name": "query-00",
+      "program": "qrt-mtp-query",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b6bb04e4d37892d1fbe8c8f09fdab9e180c1d8385a3a93c61eaef1cb8ee24cf2.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/c57bdab3a6844454085b1df4991bc46443ae2495c4a620ec22e0d1b93c27fbba.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/61ff66acc95749019b6c1011869f9fd9e2e4cd326540e72beb845ae0fe2a777d.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/1c27adf5a2c3a27818535f714a6c5d510f3ae89d1bac840d4b0710c9d9be19ef.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/a51953bf0fb4ea691b75b1be879c5c5f288fae6ecec955c98352ce9b51e81df4.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rope.bin"
+      ],
+      "original_case": "q7169-out32",
+      "stage": "query_frontier",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "rows": 33,
+        "elements_per_boundary": 135168,
+        "norm_bf16_mismatches": 0,
+        "rope_bf16_mismatches": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 33,
+      "first_selected_position": 0,
+      "last_selected_position": 7199
+    },
+    {
+      "name": "query-01",
+      "program": "qrt-mtp-query",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/924c7ea5caa422bd6da6e78b0355c48a3c4c68b3cef1642ea3f209bd996f6686.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/c57bdab3a6844454085b1df4991bc46443ae2495c4a620ec22e0d1b93c27fbba.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b05c0d539aef611b70339712e868145bd35cff23f6a461d82c8585d75d1bedfa.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/95ad4dd628b52f7ff4d5ae45b3790e6069dcdbf426ab4cb15bbdce91f393225c.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/d9482a246422df44bbff9132dd5cdb25277563040915c3dc5e91d16c6fbe2125.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rope.bin"
+      ],
+      "original_case": "q8192-out32",
+      "stage": "query_frontier",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "rows": 33,
+        "elements_per_boundary": 135168,
+        "norm_bf16_mismatches": 0,
+        "rope_bf16_mismatches": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 33,
+      "first_selected_position": 0,
+      "last_selected_position": 8222
+    },
+    {
+      "name": "query-02",
+      "program": "qrt-mtp-query",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/0929229d2a74b1fdddec986dcbda8b4cd8228fd8428a78e70b840917ab711f2e.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/c57bdab3a6844454085b1df4991bc46443ae2495c4a620ec22e0d1b93c27fbba.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/5ce1903ee9d08727ec52bff73da132bcf9e35dd4689e86e4330838feab3dc8da.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/def9ef254c609a8f859084e641cc3d7141f53852de096139c65f7902f6fd87ab.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/19973b3d7920750e98e75acca0a9f3aca92f9638c8a78192efbc2cffad04f91b.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rope.bin"
+      ],
+      "original_case": "long-prefix262144-owner-out32",
+      "stage": "query_frontier",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "rows": 62,
+        "elements_per_boundary": 253952,
+        "norm_bf16_mismatches": 0,
+        "rope_bf16_mismatches": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 62,
+      "first_selected_position": 0,
+      "last_selected_position": 253951
+    },
+    {
+      "name": "query-03",
+      "program": "qrt-mtp-query",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/b06161d4cedc9480e81ccecf824c9a8617da40447066cd7bd814a3f270da509c.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/c57bdab3a6844454085b1df4991bc46443ae2495c4a620ec22e0d1b93c27fbba.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/1d6220646353b2f779b6de3436d020e82471621508fbd0a6ed4e92038a239863.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/08a5706456f2e83359f4cdae21f1e7aef561fc28e4e7e53049d2635d051d6667.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/9b17158a2404eb77771179a263eb8e9cd42447fd0b0d31e0deb79cbde49b7564.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rope.bin"
+      ],
+      "original_case": "draft-limit-q262140-out16",
+      "stage": "query_frontier",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "rows": 66,
+        "elements_per_boundary": 270336,
+        "norm_bf16_mismatches": 0,
+        "rope_bf16_mismatches": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 66,
+      "first_selected_position": 0,
+      "last_selected_position": 262141
+    },
+    {
+      "name": "query-04",
+      "program": "qrt-mtp-query",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/bf57f9eb581f861ff3510c7054050dde510c4b34f3ba3c40da7a0fb4bd8f0063.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/c57bdab3a6844454085b1df4991bc46443ae2495c4a620ec22e0d1b93c27fbba.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/28ac5a236074daed34c3f136ee347a1a11e5af350a2d948400192d1ed96014bf.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/8103c69e4d3cee3c4f0be13442d45662a39581556cb67c4e039063b1d5491e6a.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/a807b58076951e7f7e085624b01c1da198f50d7460e3404e1b76bfbb6bec766b.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rope.bin"
+      ],
+      "original_case": "draft-limit-q262142-out16",
+      "stage": "query_frontier",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "rows": 64,
+        "elements_per_boundary": 262144,
+        "norm_bf16_mismatches": 0,
+        "rope_bf16_mismatches": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 64,
+      "first_selected_position": 0,
+      "last_selected_position": 262141
+    },
+    {
+      "name": "query-05",
+      "program": "qrt-mtp-query",
+      "arguments": [
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/e83a4d0dce713a5e8508b0765df84edbdaf311522de45b00e922a04af75d9419.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/c57bdab3a6844454085b1df4991bc46443ae2495c4a620ec22e0d1b93c27fbba.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/56f465baf9a0f9c0bfd3f7bce9fd27b14fe7f6fd1ed49987fa82b247cbfc7a10.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/920a99e3a0e7662ef9a43eb5228b58fe551fbe6e40b4a672733c2de47daff57f.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/blobs/70eda6a8c8ce1c6ee28cb7070b98c29cf6654f57240ec5a0d67883ea6b4f6475.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rsqrt.bin",
+        "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r2/tables/rope.bin"
+      ],
+      "original_case": "draft-limit-q262143-out16",
+      "stage": "query_frontier",
+      "expected_reports": 1,
+      "timeout_seconds": 30,
+      "expected_cpu_report": {
+        "rows": 64,
+        "elements_per_boundary": 262144,
+        "norm_bf16_mismatches": 0,
+        "rope_bf16_mismatches": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "selected_rows": 64,
+      "first_selected_position": 0,
+      "last_selected_position": 262142
+    }
+  ],
+  "case_count": 48,
+  "expected_reports": 66,
+  "residual_formula_checks": [
+    {
+      "case": "q7169-out32",
+      "stage": "post_attention",
+      "elements": 67584,
+      "independent_sha256": "e31584bd0052d2ee5cace4f2f6c8c2eb6e5b94173c5658e5f5b27e14ae8a643f",
+      "matches_cpu": true,
+      "original_residual_not_separately_captured": true
+    },
+    {
+      "case": "q7169-out32",
+      "stage": "final",
+      "elements": 67584,
+      "independent_sha256": "0325fb74ece02e09cd9cf65ec9553698892023ee19d3b5022e1c5118748cbd92",
+      "matches_cpu": true,
+      "original_residual_not_separately_captured": true
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "post_attention",
+      "elements": 67584,
+      "independent_sha256": "4f5caeea970cc1c82d47491e45eecf74edcc2a0cc5f54298b8e21b14b2fbd8a9",
+      "matches_cpu": true,
+      "original_residual_not_separately_captured": true
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "final",
+      "elements": 67584,
+      "independent_sha256": "1eedd7f8099c246f1ad5946904abd1c39ce857546a8c9d539f7ef5b805eac29f",
+      "matches_cpu": true,
+      "original_residual_not_separately_captured": true
+    },
+    {
+      "case": "long-prefix262144-owner-out32",
+      "stage": "post_attention",
+      "elements": 126976,
+      "independent_sha256": "ec416193f61d3c3c600056bfd3040e057c462f571f97bfdf23bc568b00657d4f",
+      "matches_cpu": true,
+      "original_residual_not_separately_captured": true
+    },
+    {
+      "case": "long-prefix262144-owner-out32",
+      "stage": "final",
+      "elements": 126976,
+      "independent_sha256": "463905c725ebdec622a8deb778ccab2d342161c7f71e177e30e1bbf4f7dbc62f",
+      "matches_cpu": true,
+      "original_residual_not_separately_captured": true
+    },
+    {
+      "case": "draft-limit-q262140-out16",
+      "stage": "post_attention",
+      "elements": 135168,
+      "independent_sha256": "9cf0191895e43db6f11825043216c957e5813afc505059eec18a6ba1731c38d3",
+      "matches_cpu": true,
+      "original_residual_not_separately_captured": true
+    },
+    {
+      "case": "draft-limit-q262140-out16",
+      "stage": "final",
+      "elements": 135168,
+      "independent_sha256": "f0850dd812550f17e91b4c6277c9fa4fe02caff19f2618c86937ca566f39ffee",
+      "matches_cpu": true,
+      "original_residual_not_separately_captured": true
+    },
+    {
+      "case": "draft-limit-q262142-out16",
+      "stage": "post_attention",
+      "elements": 131072,
+      "independent_sha256": "39b1d0919a265c793f93c3a6a06bdb331141078e18d00952a6309e4f2ea78230",
+      "matches_cpu": true,
+      "original_residual_not_separately_captured": true
+    },
+    {
+      "case": "draft-limit-q262142-out16",
+      "stage": "final",
+      "elements": 131072,
+      "independent_sha256": "f8309cdb4c49c766f1c6c507222ead597a1cc6cf157374b2208fd29d208b4a80",
+      "matches_cpu": true,
+      "original_residual_not_separately_captured": true
+    },
+    {
+      "case": "draft-limit-q262143-out16",
+      "stage": "post_attention",
+      "elements": 131072,
+      "independent_sha256": "722595b9df881b86e57761ab79b8cf0d12f1d1d843ad4244d5d1f92f00cc7e69",
+      "matches_cpu": true,
+      "original_residual_not_separately_captured": true
+    },
+    {
+      "case": "draft-limit-q262143-out16",
+      "stage": "final",
+      "elements": 131072,
+      "independent_sha256": "0102cc0cc7391c4ec052cd926fe0745a93e6308416e4ac23b2fbb164db1d8cd3",
+      "matches_cpu": true,
+      "original_residual_not_separately_captured": true
+    }
+  ],
+  "local_python_syntax_pass": true,
+  "windows_powershell_parse_unrun": true,
+  "native_dispatched": false,
+  "model_loaded": false,
+  "native_inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "scope": "R2 supersedes the unrun R1 preparation without changing its files. It combines ordinary norms, actual-token fusion inputs, prompt K/V, Q/RoPE and both residual norm output modes. Expected norm/rotary values are original GB10 observations. Rounded residual expectations are independent CPU formulas over captured operands, not separately captured buffers. The prompt-cache owner is compiled through the probe include closure, but its HIP projection callback and complete inference are not exercised. Dispatch requires the active full256k process to have completed and passed final cleanup checks.",
+  "recorder": {
+    "file": "record_mtp_native_frontiers_preparation_r2.py",
+    "sha256": "40a09b1e8d5edbf1be97b1ca87eebbdfdea2ae8f6068ba6df0f8b1a7853157ab"
+  }
+}

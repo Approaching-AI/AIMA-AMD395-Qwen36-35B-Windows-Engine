@@ -185,11 +185,15 @@ forward declarations instead of definitions; the corrected extraction and
 failure record are retained. Whole-provider Windows build, load time and model
 qualification for this optional scope remain unrun.
 
-The separate 30-case GPU component batch is frozen at source `9bd6dd7`, with
-14 bound source inputs, 76 selected-input blobs, two existing tables and a
-20165527-byte archive. Its two programs are expected to emit 36 comparison
-reports. Both the local dispatcher and Windows wrapper require completed
-cleanup of the active original 256k run. Preparation performs no remote run.
+The [expanded GPU component batch](../benchmarks/correctness/mtp-expanded-native-frontier-preparation-20260920.json)
+is frozen at source `7a0c3d9`, with 20 bound source inputs, 133 selected-input
+blobs, two existing tables and a 34897856-byte archive. Its three programs
+cover 48 cases and are expected to emit 66 comparison reports. This supersedes
+the preserved, unrun 30-case preparation at `9bd6dd7`. Both the local dispatcher
+and Windows wrapper require completed cleanup of the active original 256k run.
+Archive operations have 60-second bounds, individual probes have 30/60-second
+bounds and the transport has a 2400-second bound. Preparation performs no
+remote run; PowerShell parsing and native compilation/execution remain unrun.
 
 The [prompt-cache host preparation](../benchmarks/correctness/mtp-prompt-cache-host-preparation-20260920.json)
 adds a bounded prompt-shift helper and request-owned cache orchestration. All
