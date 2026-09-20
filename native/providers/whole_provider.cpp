@@ -42,6 +42,8 @@
 #include "sm121_q1_full_runtime.h"
 #include "sm121_q1_attention_runtime.h"
 #include "sm121_q1_packed_runtime.h"
+#include "mtp_target_rows.h"
+#include "mtp_target_rows_trace.h"
 #include "q1_trace_policy.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "moe_accumulator/sm121_wave16.h"
@@ -42600,6 +42602,7 @@ bool qwen36_final_layer_full_prefix_requested(unsigned int prefill_tokens) {
     // Keep this explicit replay within their existing single q8192 allocation.
     return prefill_tokens > 1u && prefill_tokens <= kRetainedPrefillTokens &&
         (env_flag_enabled("QRT_QWEN36_FINAL_LAYER_FULL_PREFIX") ||
+         qrt_mtp_target_rows::Scope::requested(prefill_tokens) ||
          qwen36_chunk_prefill_continuation_active());
 }
 
@@ -110920,6 +110923,40 @@ cleanup:
     return run->failure_stage.empty() && run->correctness_pass;
 }
 
+bool select_qwen36_mtp_lm_head_input(
+    const Layer1InputRmsnormRun &source,
+    const std::vector<unsigned int> &positions,
+    Layer1InputRmsnormRun *selected,
+    std::string *failure_stage, std::string *failure
+) {
+    if (!selected || !failure_stage || !failure) return false;
+    if (selected == &source) {
+        *failure_stage = "mtp_target_lm_head_rows";
+        *failure = "MTP LM-head selection requires an output object distinct from its complete source";
+        return false;
+    }
+    *selected = Layer1InputRmsnormRun{};
+    if (!source.correctness_pass || source.selected_token_count != source.selected_token_ids.size() ||
+        source.output_elements != source.gpu_output.size() ||
+        source.output_bytes != source.output_elements * sizeof(float) ||
+        !qrt_mtp_target_rows::select_head_rows(source.selected_token_ids, source.gpu_output,
+            positions, &selected->gpu_output)) {
+        *failure_stage = "mtp_target_lm_head_rows";
+        *failure = "MTP target handoff requires complete normalized rows and the original sampling positions";
+        return false;
+    }
+    selected->name = "mtp_target_lm_head_input";
+    selected->stage = "actual_final_norm_row_selection";
+    selected->selected_token_ids = positions;
+    selected->selected_token_count = positions.size();
+    selected->output_elements = selected->gpu_output.size();
+    selected->output_bytes = selected->output_elements * sizeof(float);
+    selected->selected_token_ids_hash = qrt_fnv1a64_bytes(positions.data(), positions.size() * sizeof(positions[0]));
+    selected->gpu_output_hash = qrt_fnv1a64_f32(selected->gpu_output.data(), selected->gpu_output.size());
+    selected->correctness_pass = true;
+    return true;
+}
+
 bool run_lm_head(
     const Layer1InputRmsnormRun &final_norm_run,
     const std::string &model_dir,
@@ -141613,6 +141650,9 @@ bool run_prefill_linear_attention_descriptor_batch_probe(
 
     if (kDescriptorBatchFinalLayer + 1u >= QRT_QWEN36_LAYER_COUNT) {
         const uint64_t post_stack_start_ns = qrt_now_ns();
+        const bool mtp_target_rows_requested = qrt_mtp_target_rows::Scope::requested(prefill_tokens);
+        const auto &final_norm_target_tokens = mtp_target_rows_requested
+            ? qrt_mtp_target_rows::Scope::active->local_rows() : repeated_target_tokens;
         OutputResidualRun final_output_residual;
         double final_output_residual_materialization_avg_ms = 0.0;
         run->next_unclosed_boundary = "final_norm";
@@ -141620,10 +141660,10 @@ bool run_prefill_linear_attention_descriptor_batch_probe(
         std::cerr
             << "BATCH_MARK post_stack_stage_start stage=final_output_residual_materialization"
             << " layer=" << kDescriptorBatchFinalLayer
-            << " target_tokens=" << repeated_target_tokens.size() << std::endl;
+            << " target_tokens=" << final_norm_target_tokens.size() << std::endl;
         if (!materialize_cached_output_residual(
                 kDescriptorBatchFinalLayer,
-                repeated_target_tokens,
+                final_norm_target_tokens,
                 &final_output_residual,
                 &final_output_residual_materialization_avg_ms
             )) {
@@ -141648,14 +141688,15 @@ bool run_prefill_linear_attention_descriptor_batch_probe(
         const uint64_t final_norm_start_ns = qrt_now_ns();
         std::cerr << "BATCH_MARK post_stack_stage_start stage=final_norm"
                   << std::endl;
-        if (ScopedQwen36PrefixBatchSuffix::active && final_output_residual.gpu_output.empty()) {
+        if ((ScopedQwen36PrefixBatchSuffix::active || mtp_target_rows_requested) &&
+            final_output_residual.gpu_output.empty()) {
             // An exact cache-key hit preserves the GPU-only carrier. The
             // ordinary terminal corridor accepts one such row; suffix teacher
             // predictions require the actual complete set of normalized rows.
             OutputResidualRun materialized;
             if (!materialize_device_output_residual_rows_for_tokens(
                     kDescriptorBatchFinalLayer, prefill_tokens, final_output_residual,
-                    repeated_target_tokens, "prefix_batch_final_output", "prefix_batch_final_output_copy",
+                    final_norm_target_tokens, "prefix_batch_final_output", "prefix_batch_final_output_copy",
                     &materialized, &run->failure_stage, &run->failure)) {
                 run->next_unclosed_boundary = "final_norm_input_residual";
                 return false;
@@ -141688,6 +141729,15 @@ bool run_prefill_linear_attention_descriptor_batch_probe(
                   << qrt_elapsed_ns(final_norm_start_ns, qrt_now_ns())
                   << std::endl;
         run->output_boundary = "final_norm";
+        Layer1InputRmsnormRun mtp_lm_head_input;
+        if (mtp_target_rows_requested &&
+            !select_qwen36_mtp_lm_head_input(run->final_norm, repeated_target_tokens,
+                &mtp_lm_head_input, &run->failure_stage, &run->failure)) {
+            run->next_unclosed_boundary = "lm_head";
+            return false;
+        }
+        const Layer1InputRmsnormRun &lm_head_input = mtp_target_rows_requested
+            ? mtp_lm_head_input : run->final_norm;
         run->next_unclosed_boundary = "lm_head";
         run->lm_head_attempted = true;
         const uint64_t lm_head_start_ns = qrt_now_ns();
@@ -141715,7 +141765,7 @@ bool run_prefill_linear_attention_descriptor_batch_probe(
         std::cerr << "BATCH_MARK post_stack_stage_start stage=lm_head"
                   << std::endl;
         if (!run_lm_head(
-                run->final_norm,
+                lm_head_input,
                 model_dir,
                 prefill_tokens,
                 &run->lm_head,
@@ -141742,7 +141792,7 @@ bool run_prefill_linear_attention_descriptor_batch_probe(
                   << " status=ok elapsed_ns="
                   << qrt_elapsed_ns(lm_head_start_ns, qrt_now_ns())
                   << std::endl;
-        if (!capture_qwen36_prefix_batch_terminal(run->final_norm, model_dir, prefill_tokens,
+        if (!capture_qwen36_prefix_batch_terminal(lm_head_input, model_dir, prefill_tokens,
                 &run->failure_stage, &run->failure)) {
             run->next_unclosed_boundary = "lm_head";
             return false;
@@ -142158,6 +142208,21 @@ bool run_prefill_linear_attention_descriptor_batch_probe(
         run->next_unclosed_boundary =
             "qwen36_mtp_prefill_target_hidden_capture";
         return false;
+    }
+    if (auto *batch = qrt_mtp_target_rows::Scope::active) {
+        const auto &token = run->token_loop_validation;
+        if (!run->final_norm_attempted || !run->final_norm.correctness_pass ||
+            !run->token_loop_validation_attempted || !token.correctness_pass ||
+            !token.first_generated_token_valid || !token.final_prefill_position_valid ||
+            token.final_prefill_position + 1u != prefill_tokens ||
+            !std::isfinite(token.gpu_first_generated_logit) || batch->rows() != prefill_tokens ||
+            !batch->stage(run->final_norm.selected_token_ids, run->final_norm.gpu_output,
+                token.gpu_first_generated_token_id)) {
+            run->failure_stage = "mtp_target_prefill_rows";
+            run->failure = "MTP target rows require the complete actual normalized batch and its terminal sample";
+            run->next_unclosed_boundary = "mtp_target_prefill_rows";
+            return false;
+        }
     }
     run->correctness_pass = true;
     run->wall_clock_ns = qrt_elapsed_ns(batch_start_ns, qrt_now_ns());
@@ -160027,6 +160092,36 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
         return 0;
     }
 
+    const char *mtp_target_trace_prefix = std::getenv("QRT_QWEN36_MTP_TARGET_ROWS_DUMP_PREFIX");
+    const bool mtp_target_trace_requested = mtp_target_trace_prefix && mtp_target_trace_prefix[0];
+    std::unique_ptr<qrt_mtp_target_rows::PrefillRows> mtp_probe_rows;
+    std::unique_ptr<qrt_mtp_target_rows::Scope> mtp_probe_scope;
+    if (mtp_target_trace_requested && !qrt_mtp_target_rows::Scope::active) {
+        if (request->input_token_count > qrt_mtp_target_rows::maximum_batch_rows ||
+            ScopedQwen36PrefixBatchSuffix::active || g_qwen36_chunked_prefill_total_tokens) {
+            qrt_qwen36_whole_provider_set_failure(out_result, "mtp_target_trace_request",
+                "standalone MTP target-row tracing requires one complete prompt of at most 8192 tokens", start_ns);
+            return 0;
+        }
+        mtp_probe_rows = std::make_unique<qrt_mtp_target_rows::PrefillRows>(
+            request->input_tokens, request->input_token_count, 0u, request->input_token_count);
+        mtp_probe_scope = std::make_unique<qrt_mtp_target_rows::Scope>(mtp_probe_rows.get());
+    }
+    if (auto *batch = qrt_mtp_target_rows::Scope::active) {
+        const size_t target_first_position = ScopedQwen36PrefixBatchSuffix::active
+            ? ScopedQwen36PrefixBatchSuffix::active->prefix : 0u;
+        if (!qrt_mtp_target_rows::Scope::requested(request->input_token_count) ||
+            !batch->matches_input(request->input_tokens, request->input_token_count) ||
+            batch->first_position() != target_first_position ||
+            !direct_provider_orchestration || !fused_layer_stack_provider ||
+            !env_flag_enabled("QRT_PREFILL_DESCRIPTOR_BATCH_ENABLE_RESIDENT_HISTORY_CARRIER")) {
+            qrt_qwen36_whole_provider_set_failure(out_result, "mtp_target_rows_request",
+                "MTP target rows require a fresh matching batch at the actual target position and the complete fused history carrier", start_ns);
+            return 0;
+        }
+    }
+    qrt_mtp_target_rows::Publication mtp_rows_publication(qrt_mtp_target_rows::Scope::active);
+
     qrt_qwen36_prefill_descriptor_batch_timing_t preload_timing{};
     char preload_failure_stage[64] = "";
     char preload_failure[QRT_LOAD_ERROR_CAPACITY] = "";
@@ -160995,6 +161090,28 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
         );
         return 0;
     }
+    if (auto *batch = qrt_mtp_target_rows::Scope::active) {
+        if (!out_result->completed || !out_result->output_token_count ||
+            !batch->publish(out_result->output_tokens[0])) {
+            qrt_qwen36_whole_provider_set_failure(out_result, "mtp_target_rows_publication",
+                "completed target request did not return the sample paired with its complete hidden rows", start_ns);
+            return 0;
+        }
+        std::string trace_failure;
+        if (mtp_target_trace_requested &&
+            !qrt_mtp_target_rows::write_trace(*batch, mtp_target_trace_prefix, &trace_failure)) {
+            qrt_qwen36_whole_provider_set_failure(out_result, "mtp_target_rows_trace", trace_failure, start_ns);
+            return 0;
+        }
+        std::cerr << "BATCH_MARK qwen36_mtp_target_rows first_position=" << batch->first_position()
+                  << " rows=" << batch->rows() << " prompt_tokens=" << batch->prompt_tokens()
+                  << " sampled_token=" << batch->sampled_token()
+                  << " discarded_prefill=" << batch->discarded_prefill()
+                  << " hidden_bytes=" << batch->hidden().size() * sizeof(uint16_t)
+                  << " shifted_token_bytes=" << batch->shifted_tokens().size() * sizeof(uint32_t)
+                  << " mtp_active=0 numerical_correctness_claimed=0" << std::endl;
+    }
+    mtp_rows_publication.complete();
     return 1;
 }
 

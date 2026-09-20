@@ -499,6 +499,27 @@ work. Limits are 60 seconds per weight group, 120 per build, 300 per case and
 4200 for transport. Both native compilation and all numerical cases remain
 unrun; reference scheduling is restricted to the component probe.
 
+The [actual target-row handoff](../benchmarks/correctness/mtp-target-prefill-row-handoff-local-20260920.json)
+now retains all final-normalized hidden rows of a scoped target prefill batch,
+up to 8192 rows, while projecting only the original caller-selected LM-head
+rows. Complete input IDs and the absolute batch position are checked before
+execution. The actual normalized values and sampled token are staged privately;
+only successful completion of the enclosing provider call makes them available
+to its caller. Failed requests and exceptions discard the batch. Original
+discarded-chunk versus final-chunk token shifting is preserved. A reused
+LM-head output object is cleared on failure, and source/output aliasing is
+rejected before mutation.
+
+All 41 local MTP and prefix checks pass, including ASan/UBSan execution of the
+new owner and actual row-selector/prefix-terminal function bodies. This is host
+validation, not whole-provider HIP compilation. The optional
+`QRT_QWEN36_MTP_TARGET_ROWS_DUMP_PREFIX` probe writes complete actual hidden and
+shifted-token files for a single prompt of at most 8192 tokens; it requires a
+fresh path prefix and does not enable MTP inference. Windows compilation,
+q7169/q8192 output regressions, original hidden comparison and production
+drafter acceptance integration remain pending. Hidden comparisons are
+diagnostic; original output-token and logit gates remain the authority.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
