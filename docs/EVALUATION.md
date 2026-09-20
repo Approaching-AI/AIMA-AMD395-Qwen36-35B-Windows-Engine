@@ -204,6 +204,18 @@ weights and projection workspace. Full target post-final-norm rows, the qualifie
 projection callback and complete model inference remain unwired; Windows
 compilation and GPU pipeline execution are unrun.
 
+The [Q and residual-norm comparison](../benchmarks/correctness/gb10-mtp-query-residual-arithmetic-20260920.json)
+adds the two-warp Q normalization layout, original-position Q RoPE and the
+eight-warp residual normalization used after attention and at the MTP output.
+Across the same 322 qualified original rows, 1318912 Q norm values, 1318912
+rotated Q values and 1318912 residual-norm values match exactly in sanitized
+CPU execution. Residual variance uses the unrounded FP32 sum; normalization
+uses its BF16 endpoint. The rounded residual itself was not separately captured:
+the attention residual is independently constructed from the captured operands.
+HIP probes now include both residual output modes, Q/gate extraction, invalid
+extents and untouched buffers. Their Windows compilation/execution is pending,
+as is complete native MTP inference.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a

@@ -88,6 +88,13 @@ projection workspace are additional. Failed completion permanently disables
 the request and retains potentially live allocations until process teardown.
 This owner is host-tested but is not yet used by native model inference.
 
+The additional MTP Q/RoPE and residual-normalization kernels reuse these same
+HIP/math/table components and add no dependency or runtime data artifact. Q/gate
+outputs require 16384 bytes per row; a residual norm has two 4096-byte outputs
+per row and supports corresponding input replacement. Its full-pipeline memory
+reuse is not yet wired or measured. CPU arithmetic checks cover the original
+322 rows; the expanded HIP probes remain uncompiled and unrun.
+
 # Optional caller-side document checker
 
 `scripts/check-agent-documents.py` uses only Python 3.10+ standard-library

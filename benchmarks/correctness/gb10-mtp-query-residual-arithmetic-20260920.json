@@ -1,0 +1,4661 @@
+{
+  "kind": "original_mtp_query_and_residual_norm_cpu_boundaries",
+  "utc": "2026-09-20T02:15:48.783347+00:00",
+  "reference": {
+    "reference_host": "aitopatom-66c4",
+    "reference_model": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "reference_source_commit": "fcedf19a5397a03d1f1f01d16848d30a09720205",
+    "reference_command": [
+      "docker",
+      "run",
+      "--name",
+      "qrt-gb10-mtp-limit-boundary-20260920-r2",
+      "--hostname",
+      "aitopatom-66c4",
+      "--gpus",
+      "all",
+      "--network",
+      "none",
+      "--memory",
+      "108g",
+      "--shm-size",
+      "8g",
+      "--cpus",
+      "8",
+      "-e",
+      "PYTHONPATH=/work/scripts",
+      "-e",
+      "QRT_GB10_OBSERVE_FLASHINFER_AUTOTUNER=1",
+      "-e",
+      "VLLM_ALLOW_LONG_MAX_MODEL_LEN=1",
+      "-e",
+      "VLLM_WORKER_MULTIPROC_METHOD=spawn",
+      "-v",
+      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2:/work",
+      "-v",
+      "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+      "-v",
+      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
+      "-v",
+      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
+      "-v",
+      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
+      "-v",
+      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
+      "-v",
+      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
+      "-v",
+      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
+      "-v",
+      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
+      "-v",
+      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
+      "-e",
+      "QRT_GB10_CASE_BOUNDARY_OFFSETS={\"draft-limit-q262140-out16\":[2,3,4],\"draft-limit-q262142-out16\":[0,1,2],\"draft-limit-q262143-out16\":[0,1,2]}",
+      "-w",
+      "/work",
+      "--entrypoint",
+      "timeout",
+      "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+      "--signal=TERM",
+      "--kill-after=10",
+      "1830",
+      "python3",
+      "scripts/capture_gb10_token_matrix.py",
+      "--runtime-boundaries",
+      "--mtp-boundaries",
+      "--source-commit",
+      "fcedf19a5397a03d1f1f01d16848d30a09720205",
+      "--oracle-q7169",
+      "contracts/arbitrary_q7169_gb10_oracle.json",
+      "--oracle-q8192",
+      "contracts/hprefill_q8192_gb10_oracle.json",
+      "--additional-cases",
+      "additional-cases.json",
+      "--maximum-prompt-tokens",
+      "262144",
+      "--output-dir",
+      "capture",
+      "--expected-host",
+      "aitopatom-66c4",
+      "--timeout-seconds",
+      "1800",
+      "--execute"
+    ],
+    "reference_command_file": "/home/qujing/run-qrt-gb10-mtp-limit-boundary-20260920-r2.py",
+    "reference_command_file_sha256": "16891d0cac7e464f798e4e42de3eabafeedbe68c4536c3f697a8984e3d052155",
+    "reference_dispatch_sha256": "5eb10747ec587bfdd55bb30ddc7d17bb7d26a6dbbf8279585e1a6902ef00fd03"
+  },
+  "original_launcher_evidence": {
+    "file": "benchmarks/correctness/gb10-mtp-launcher-schedule-native-math-20260920.json",
+    "sha256": "111892e482162bc491df9f79c320f95d2876849a92f4b8ee9b399918b92a435d",
+    "residual_kernel_ptx_sha256": "7a0d727bac6f25ec1b8f4e2e644896cc41466c81398341317d102c2d73be09d7"
+  },
+  "query_build": {
+    "command": [
+      "c++",
+      "-std=c++17",
+      "-O2",
+      "-ffp-contract=off",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/providers/gdn/sm121_mtp_query_cpu_probe.cpp",
+      "-o",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "",
+    "base_commit": "4919c907587820b3bfca04837c323820796de356",
+    "source_closure": {
+      "native/providers/gdn/sm121_mtp_query_cpu_probe.cpp": "596f52d0207a7445c1729ec8233c9c934a55f53477c1df2f74013ee21115f9a2",
+      "native/providers/gdn/sm121_mtp_query_math.h": "83e9e334131e3c335ab3795865f4f4013f27f963b839c260d44aaa5fa20631f9",
+      "native/providers/gdn/sm121_mtp_kv_math.h": "b4cd662fe69172accc1b24c0e724462f822704835ac1d6d4cfa10c55f0caca72",
+      "native/providers/gdn/sm121_mtp_math.h": "cad4eff89ecc6e461a576ea99842cd6e19d9f6ae329d4731013673583e53ff88",
+      "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+      "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+      "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+      "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+      "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+      "native/providers/gdn/sm121_bf16_fma.h": "2c1e66061c5a36f231c4e35eadc23ca86b0e647b57ab70c5e9adc51048dbd1ad"
+    },
+    "gpu_header_uncompiled": {
+      "file": "native/providers/gdn/sm121_mtp_query.h",
+      "sha256": "1e66f7eb11d9c2f00b9a3b9a856fff403aeaf57f804b1bac399b3f4461c1b918"
+    }
+  },
+  "query_build_sha256": "9d86fea78c130853c4756a9b049dbace46b67328782c8db9751683dd1bd195a1",
+  "query_executable_sha256": "caf3fd717fcd798f6d0924c35ecff8dc9a00d1cdd19dab34069288e2cb33b297",
+  "query_comparison_sha256": "72e2299f67805a378549fa4487c43af5cc648623a72bf09bccf0b226f09c3411",
+  "residual_build": {
+    "command": [
+      "c++",
+      "-std=c++17",
+      "-O2",
+      "-ffp-contract=off",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/providers/gdn/sm121_mtp_residual_cpu_probe.cpp",
+      "-o",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "",
+    "base_commit": "4919c907587820b3bfca04837c323820796de356",
+    "working_sources": {
+      "native/providers/gdn/sm121_mtp_residual_cpu_probe.cpp": "26b621a4a420715430f33b4ae0483907e489f5c380ed76e3f30f969b5e3bfad7",
+      "native/providers/gdn/sm121_mtp_residual_math.h": "778b44d6f983e682409dc64aa50d1548d9dffc047d50012204c2ab135b69ac48",
+      "native/providers/gdn/sm121_mtp_math.h": "cad4eff89ecc6e461a576ea99842cd6e19d9f6ae329d4731013673583e53ff88",
+      "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+      "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+      "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+      "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6"
+    },
+    "gpu_source_uncompiled": {
+      "file": "native/providers/gdn/sm121_mtp_residual.h",
+      "sha256": "135dadcfe48e69232e2254380f55a0891cbd0ce72e3c4ea296167ec6af51273f"
+    }
+  },
+  "residual_build_sha256": "b54c5fc69ca67fae526274be333818777156169936374cd046623d606f00c90a",
+  "residual_executable_sha256": "7947f494b14c35dcd6234de96f4294d2607ce55a0a765dc093d6a68301faae83",
+  "residual_comparison_sha256": "11d6e4712e4dc867a1cc3b584bfa6894b839ee1e65935c615691f99709e5d820",
+  "weight_inventory_sha256": "cf0a94ea992bc01de20fdc3d84db05cf09b4efb0cbb7a4e0c86d757147f01d3e",
+  "weight_transport": {
+    "command": [
+      "ssh",
+      "-o",
+      "BatchMode=yes",
+      "-o",
+      "ConnectTimeout=10",
+      "gb10-4t",
+      "timeout --signal=TERM --kill-after=5 30 python3 -c 'import base64;exec(base64.b64decode('\"'\"'CmZyb20gcGF0aGxpYiBpbXBvcnQgUGF0aAppbXBvcnQgYmFzZTY0LCBoYXNobGliLCBqc29uLCBzb2NrZXQsIHN0cnVjdAptb2RlbCA9IFBhdGgoJy9tbnQvZGF0YS9tb2RlbHMvUXdlbjMuNi0zNUItQTNCJykKYXNzZXJ0IHNvY2tldC5nZXRob3N0bmFtZSgpLnNwbGl0KCcuJylbMF0ubG93ZXIoKSA9PSAnYWl0b3BhdG9tLTY2YzQnCmluZGV4X3BhdGggPSBtb2RlbCAvICdtb2RlbC5zYWZldGVuc29ycy5pbmRleC5qc29uJwppbmRleF9ieXRlcyA9IGluZGV4X3BhdGgucmVhZF9ieXRlcygpCmFzc2VydCBsZW4oaW5kZXhfYnl0ZXMpIDw9IDY0ICogMTAyNCAqIDEwMjQKaW5kZXggPSBqc29uLmxvYWRzKGluZGV4X2J5dGVzKQpuYW1lcyA9IHtrOiB2IGZvciBrLCB2IGluIGluZGV4Wyd3ZWlnaHRfbWFwJ10uaXRlbXMoKSBpZiBrLnN0YXJ0c3dpdGgoJ210cC4nKX0KYXNzZXJ0IDAgPCBsZW4obmFtZXMpIDw9IDEyOApoZWFkZXJzID0ge30KaW52ZW50b3J5ID0gW10KcGF5bG9hZHMgPSB7fQpmb3IgbmFtZSwgc2hhcmQgaW4gc29ydGVkKG5hbWVzLml0ZW1zKCkpOgogICAgcGF0aCA9IChtb2RlbCAvIHNoYXJkKS5yZXNvbHZlKCkKICAgIGFzc2VydCBwYXRoLmlzX3JlbGF0aXZlX3RvKG1vZGVsKSBhbmQgcGF0aC5pc19maWxlKCkKICAgIGlmIHNoYXJkIG5vdCBpbiBoZWFkZXJzOgogICAgICAgIHdpdGggcGF0aC5vcGVuKCdyYicpIGFzIGZpbGU6CiAgICAgICAgICAgIHNpemUgPSBzdHJ1Y3QudW5wYWNrKCc8UScsIGZpbGUucmVhZCg4KSlbMF0KICAgICAgICAgICAgYXNzZXJ0IDAgPCBzaXplIDw9IDY0ICogMTAyNCAqIDEwMjQKICAgICAgICAgICAgaGVhZGVyID0gZmlsZS5yZWFkKHNpemUpCiAgICAgICAgICAgIGFzc2VydCBsZW4oaGVhZGVyKSA9PSBzaXplCiAgICAgICAgaGVhZGVyc1tzaGFyZF0gPSAoc2l6ZSwganNvbi5sb2FkcyhoZWFkZXIpLCBoYXNobGliLnNoYTI1NihoZWFkZXIpLmhleGRpZ2VzdCgpKQogICAgc2l6ZSwgaGVhZGVyLCBkaWdlc3QgPSBoZWFkZXJzW3NoYXJkXQogICAgdGVuc29yID0gaGVhZGVyW25hbWVdCiAgICBiZWdpbiwgZW5kID0gdGVuc29yWydkYXRhX29mZnNldHMnXQogICAgYXNzZXJ0IDAgPD0gYmVnaW4gPCBlbmQgYW5kIDggKyBzaXplICsgZW5kIDw9IHBhdGguc3RhdCgpLnN0X3NpemUKICAgIGl0ZW0gPSBkaWN0KG5hbWU9bmFtZSwgc2hhcmQ9c2hhcmQsIHNoYXBlPXRlbnNvclsnc2hhcGUnXSwgZHR5cGU9dGVuc29yWydkdHlwZSddLAogICAgICAgIGRhdGFfb2Zmc2V0cz10ZW5zb3JbJ2RhdGFfb2Zmc2V0cyddLCBhYnNvbHV0ZV9iZWdpbj04ICsgc2l6ZSArIGJlZ2luLAogICAgICAgIGJ5dGVzPWVuZC1iZWdpbiwgaGVhZGVyX3NoYTI1Nj1kaWdlc3QsIHNoYXJkX2ZpbGVfYnl0ZXM9cGF0aC5zdGF0KCkuc3Rfc2l6ZSkKICAgIGlmIG5hbWUuZW5kc3dpdGgoJ25vcm0ud2VpZ2h0Jykgb3IgbmFtZS5lbmRzd2l0aCgnbGF5ZXJub3JtLndlaWdodCcpOgogICAgICAgIGFzc2VydCB0ZW5zb3JbJ2R0eXBlJ10gPT0gJ0JGMTYnIGFuZCBlbmQgLSBiZWdpbiA8PSA0MDk2CiAgICAgICAgd2l0aCBwYXRoLm9wZW4oJ3JiJykgYXMgZmlsZToKICAgICAgICAgICAgZmlsZS5zZWVrKDggKyBzaXplICsgYmVnaW4pOyBkYXRhID0gZmlsZS5yZWFkKGVuZCAtIGJlZ2luKQogICAgICAgIGFzc2VydCBsZW4oZGF0YSkgPT0gZW5kIC0gYmVnaW4KICAgICAgICBpdGVtWydzaGEyNTYnXSA9IGhhc2hsaWIuc2hhMjU2KGRhdGEpLmhleGRpZ2VzdCgpCiAgICAgICAgcGF5bG9hZHNbbmFtZV0gPSBiYXNlNjQuYjY0ZW5jb2RlKGRhdGEpLmRlY29kZSgpCiAgICBpbnZlbnRvcnkuYXBwZW5kKGl0ZW0pCnByaW50KGpzb24uZHVtcHMoZGljdChob3N0PXNvY2tldC5nZXRob3N0bmFtZSgpLCBtb2RlbD1zdHIobW9kZWwpLAogICAgaW5kZXhfc2hhMjU2PWhhc2hsaWIuc2hhMjU2KGluZGV4X2J5dGVzKS5oZXhkaWdlc3QoKSwgbXRwX3RlbnNvcl9jb3VudD1sZW4oaW52ZW50b3J5KSwKICAgIG10cF90ZW5zb3JfYnl0ZXM9c3VtKHhbJ2J5dGVzJ10gZm9yIHggaW4gaW52ZW50b3J5KSwgaW52ZW50b3J5PWludmVudG9yeSwgcGF5bG9hZHM9cGF5bG9hZHMsCiAgICBtb2RlbF9sb2FkZWQ9RmFsc2UsIGdwdV91c2VkPUZhbHNlKSkpCg=='\"'\"'))'"
+    ],
+    "returncode": 0,
+    "stdout": "{\"host\": \"aitopatom-66c4\", \"model\": \"/mnt/data/models/Qwen3.6-35B-A3B\", \"index_sha256\": \"41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83\", \"mtp_tensor_count\": 19, \"mtp_tensor_bytes\": 1689281536, \"inventory\": [{\"name\": \"mtp.fc.weight\", \"shard\": \"model-00026-of-00026.safetensors\", \"shape\": [2048, 4096], \"dtype\": \"BF16\", \"data_offsets\": [1615873024, 1632650240], \"absolute_begin\": 1615877136, \"bytes\": 16777216, \"header_sha256\": \"6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec\", \"shard_file_bytes\": 2231416848}, {\"name\": \"mtp.layers.0.input_layernorm.weight\", \"shard\": \"model-00026-of-00026.safetensors\", \"shape\": [2048], \"dtype\": \"BF16\", \"data_offsets\": [1632650240, 1632654336], \"absolute_begin\": 1632654352, \"bytes\": 4096, \"header_sha256\": \"6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec\", \"shard_file_bytes\": 2231416848, \"sha256\": \"99fc176e7b890192ed0403677fa775eabc9a44d70b67592195909bc26be586bb\"}, {\"name\": \"mtp.layers.0.mlp.experts.down_proj\", \"shard\": \"model-00026-of-00026.safetensors\", \"shape\": [256, 2048, 512], \"dtype\": \"BF16\", \"data_offsets\": [1632654336, 2169525248], \"absolute_begin\": 1632658448, \"bytes\": 536870912, \"header_sha256\": \"6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec\", \"shard_file_bytes\": 2231416848}, {\"name\": \"mtp.layers.0.mlp.experts.gate_up_proj\", \"shard\": \"model-00025-of-00026.safetensors\", \"shape\": [256, 1024, 2048], \"dtype\": \"BF16\", \"data_offsets\": [2759143808, 3832885632], \"absolute_begin\": 2759146432, \"bytes\": 1073741824, \"header_sha256\": \"a1213b03752357c4ef03c1fb806bc445f5230de6e4c70fe252328ad707322d39\", \"shard_file_bytes\": 3832888256}, {\"name\": \"mtp.layers.0.mlp.gate.weight\", \"shard\": \"model-00026-of-00026.safetensors\", \"shape\": [256, 2048], \"dtype\": \"BF16\", \"data_offsets\": [2169525248, 2170573824], \"absolute_begin\": 2169529360, \"bytes\": 1048576, \"header_sha256\": \"6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec\", \"shard_file_bytes\": 2231416848}, {\"name\": \"mtp.layers.0.mlp.shared_expert.down_proj.weight\", \"shard\": \"model-00026-of-00026.safetensors\", \"shape\": [2048, 512], \"dtype\": \"BF16\", \"data_offsets\": [2170573824, 2172670976], \"absolute_begin\": 2170577936, \"bytes\": 2097152, \"header_sha256\": \"6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec\", \"shard_file_bytes\": 2231416848}, {\"name\": \"mtp.layers.0.mlp.shared_expert.gate_proj.weight\", \"shard\": \"model-00026-of-00026.safetensors\", \"shape\": [512, 2048], \"dtype\": \"BF16\", \"data_offsets\": [2172670976, 2174768128], \"absolute_begin\": 2172675088, \"bytes\": 2097152, \"header_sha256\": \"6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec\", \"shard_file_bytes\": 2231416848}, {\"name\": \"mtp.layers.0.mlp.shared_expert.up_proj.weight\", \"shard\": \"model-00026-of-00026.safetensors\", \"shape\": [512, 2048], \"dtype\": \"BF16\", \"data_offsets\": [2174768128, 2176865280], \"absolute_begin\": 2174772240, \"bytes\": 2097152, \"header_sha256\": \"6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec\", \"shard_file_bytes\": 2231416848}, {\"name\": \"mtp.layers.0.mlp.shared_expert_gate.weight\", \"shard\": \"model-00026-of-00026.safetensors\", \"shape\": [1, 2048], \"dtype\": \"BF16\", \"data_offsets\": [2176865280, 2176869376], \"absolute_begin\": 2176869392, \"bytes\": 4096, \"header_sha256\": \"6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec\", \"shard_file_bytes\": 2231416848}, {\"name\": \"mtp.layers.0.post_attention_layernorm.weight\", \"shard\": \"model-00026-of-00026.safetensors\", \"shape\": [2048], \"dtype\": \"BF16\", \"data_offsets\": [2176869376, 2176873472], \"absolute_begin\": 2176873488, \"bytes\": 4096, \"header_sha256\": \"6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec\", \"shard_file_bytes\": 2231416848, \"sha256\": \"03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a\"}, {\"name\": \"mtp.layers.0.self_attn.k_norm.weight\", \"shard\": \"model-00026-of-00026.safetensors\", \"shape\": [256], \"dtype\": \"BF16\", \"data_offsets\": [2176873472, 2176873984], \"absolute_begin\": 2176877584, \"bytes\": 512, \"header_sha256\": \"6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec\", \"shard_file_bytes\": 2231416848, \"sha256\": \"6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938\"}, {\"name\": \"mtp.layers.0.self_attn.k_proj.weight\", \"shard\": \"model-00026-of-00026.safetensors\", \"shape\": [512, 2048], \"dtype\": \"BF16\", \"data_offsets\": [2176873984, 2178971136], \"absolute_begin\": 2176878096, \"bytes\": 2097152, \"header_sha256\": \"6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec\", \"shard_file_bytes\": 2231416848}, {\"name\": \"mtp.layers.0.self_attn.o_proj.weight\", \"shard\": \"model-00026-of-00026.safetensors\", \"shape\": [2048, 4096], \"dtype\": \"BF16\", \"data_offsets\": [2178971136, 2195748352], \"absolute_begin\": 2178975248, \"bytes\": 16777216, \"header_sha256\": \"6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec\", \"shard_file_bytes\": 2231416848}, {\"name\": \"mtp.layers.0.self_attn.q_norm.weight\", \"shard\": \"model-00026-of-00026.safetensors\", \"shape\": [256], \"dtype\": \"BF16\", \"data_offsets\": [2195748352, 2195748864], \"absolute_begin\": 2195752464, \"bytes\": 512, \"header_sha256\": \"6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec\", \"shard_file_bytes\": 2231416848, \"sha256\": \"c57bdab3a6844454085b1df4991bc46443ae2495c4a620ec22e0d1b93c27fbba\"}, {\"name\": \"mtp.layers.0.self_attn.q_proj.weight\", \"shard\": \"model-00026-of-00026.safetensors\", \"shape\": [8192, 2048], \"dtype\": \"BF16\", \"data_offsets\": [2195748864, 2229303296], \"absolute_begin\": 2195752976, \"bytes\": 33554432, \"header_sha256\": \"6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec\", \"shard_file_bytes\": 2231416848}, {\"name\": \"mtp.layers.0.self_attn.v_proj.weight\", \"shard\": \"model-00026-of-00026.safetensors\", \"shape\": [512, 2048], \"dtype\": \"BF16\", \"data_offsets\": [2229303296, 2231400448], \"absolute_begin\": 2229307408, \"bytes\": 2097152, \"header_sha256\": \"6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec\", \"shard_file_bytes\": 2231416848}, {\"name\": \"mtp.norm.weight\", \"shard\": \"model-00026-of-00026.safetensors\", \"shape\": [2048], \"dtype\": \"BF16\", \"data_offsets\": [2231400448, 2231404544], \"absolute_begin\": 2231404560, \"bytes\": 4096, \"header_sha256\": \"6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec\", \"shard_file_bytes\": 2231416848, \"sha256\": \"b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271\"}, {\"name\": \"mtp.pre_fc_norm_embedding.weight\", \"shard\": \"model-00026-of-00026.safetensors\", \"shape\": [2048], \"dtype\": \"BF16\", \"data_offsets\": [2231404544, 2231408640], \"absolute_begin\": 2231408656, \"bytes\": 4096, \"header_sha256\": \"6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec\", \"shard_file_bytes\": 2231416848}, {\"name\": \"mtp.pre_fc_norm_hidden.weight\", \"shard\": \"model-00026-of-00026.safetensors\", \"shape\": [2048], \"dtype\": \"BF16\", \"data_offsets\": [2231408640, 2231412736], \"absolute_begin\": 2231412752, \"bytes\": 4096, \"header_sha256\": \"6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec\", \"shard_file_bytes\": 2231416848}], \"payloads\": {\"mtp.layers.0.input_layernorm.weight\": \"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\", \"mtp.layers.0.post_attention_layernorm.weight\": \"fT9RP1E/Vz9UP0E/bD9TP0Q/Wj89P0E/aD9JP18/PD+MPyE/gT9ZP1Q/Lz9cP58/Jj9PP1Y/VT9TPzs/jT9fP4k/WT9KP04/OD9bP5E/Vz8/P3o/WD/NP0A/RD9dP14/Wj9QP1k/Tz+FP1o/Yj9XPx8/Rz8kP40/BT8sPyQ/ZD95P0g/aT9eP1o/XD9WP00/Vj9nP1s/XD9AP30/MT9jP3A/SD9HP18/LT9GP2c/YD/LP3c/MT90P0g/Lz9bP7c/bD8xPz8/hD9+P1Q/Rj+QPzg/XT9XP3E/PT9PP3c/uz6JP0g/qz9VP0c/WD9JP14/Hj9cP38/aj9CP1Y/Zj9mP6k/QD9UPy8/az+aP34/Zz9SP1M/VT83P1A/Hz9UP2M/az80P1s/UT9CP4E/jT+tPjo/TD9PP2I/aj9SP10/Rj9vPzs/VD9nP0M/2z5HP0A/Wj94P0s/Yj+bPx0/XT8YP0Q/fT9LP2U/cj/NPzk/ST9oP2I/PD+mPz0/WD9aPzU/aD9FP2k/Sj9KP9g/ST9eP0o/QD9XPyU/Xj92Py4/sD95P0o/kT9OPz0/TT9vP1Q/Pz9RP1U/Oj9AP/E/YT9XP1U/xT9PP2c/aj9tP1E/Zz9PP8s/wD9eP6Y/Sz+EP0M/cD+CP1g/ez9mP1A/WD9NPzc/QD/fP0M/yj+IPyQ/gz9iPzw/ZT9OP1A/OD9LP1c/Pj8/P0E/WT+vP2k/aT9RP/M+QT9uP0M/Xj8xP0A/WD/MP0g/0z9RP3A/QD9FPzI/TT9jP1Q/TT91P4E/Sz95P0A/Yj9gP0A/Hj9cP5U/ST9tP1A/XD9OP08/tj+xP0M/ST9GPy0/UD+CP4w/dD9QP04/TD9BP1A/XT8PPxk/jT8pP1E/TD9AP4Q/Zj/dPzk/Sz9gP+w+ND+mPzw/gz9fP1w/Wj8uP7Y/Xj9nP24/ST9kP30/LT99P3Y/XT86P10/Yz9YP0s/Tj8tP3E/ST9WP2U/RT9IP4Q/Vz87P0Q/nD9DP88/bT9gP5Y/Uj+CP2U/YT+FP8Q/gj9kPz8/rj9vP2E/RT9NP0k/jD9RP8E/dj8/P5E/Rz9YP28/xj9oP2c/Tj9GPyk/Wz9nP0o/Uj9ZP1I/dj9PP2w/RT9bP0Y/Uj9SP00/Sj9dP1s/Wz9rP4o/RD9cPxs/VD9JP1E/VT+eP1A/Uj9jP0E/7D5NP3M/Mj9TP1M/2T9GP0w/Sj9aP04/iD9yP1E/WD89P0A/OT89P4Y/dD/jP1g/UD9BPzg/LT98P2c/Yj+UP20/ez8+P08/PD96Pzk/TD9KP1E/Pz9OP08/Rj9mPyo/ST9TP18/Tz89P2A/Pj88P1k/Zz9hP1s/ZT9IP1Q/Zz8yP0U/VT9DP1U/WD9MPyo/ID9iP1Y/rT/RPtY+TT9LP1w/Sz9LP30/Zj+APzU/NT9KP2A/kT9LP2A/aT9kP1E/uD/XP+M/UD9aP0w/Uj93P2o/bT9DP2c/gj8wP1Y/Iz9ZP2k/uz9CP18/Vj9VP2Y/NT/WP8Q/7z49Pzo/Rj9aP2A/PD+FP04/QT9DP1k/FT9JP2M/YD9JP08/ej9MP04/gz9JP1A/dz9HP18/Tz9NP0k/Iz9GP00/Mz/CP24/QD9UP3w/XD9SP1s/GT9xPy8/Vz8hP2U/XT9bP1A/dT84P2E/SD9kPzc/PT9QP0o/WT97P1I/ID8wP40/aD+GP1s/gT9wP3A/Tj9qP2A/Pz+OP3E/WT9IP6A/Rz9oP1o/Qz/bPmk/Sz9iP2s/Nz9BP08/RD9dP4E/jT9qP5A+PT8hP1c/WT87Pz4/fT9XP1k/Wz9dP2A/Nj9XP+I+Yz/KP2g/mT90P1E/vT9HP0Y/UD9OPy8/Uz9VP2c/eT9HP4c/IT9aP5w/UT89P0M/az9QP3E/WT+HPxI/wj+QP1k/ZT9wP3E/aD+AP0w/Hj8gPzk/RT9dP1Q/aT9UP5M/Yj9wPw4/TT8OP3I/ND9XPyk/xT9pP14/Vz9APz8/QT9wP14/az9kP1E/iT+oP0Q/Sz9oP2Y/1j+JP7A/Uz9yP5c/PD9TP3o/Zj9PP1w/Nj9kPzg/Uz8zP2E/bT95P8A+Rj9NP1g/PD+AP7A/TT9vP58/Wj97P8E/UD9UP1w/Pj+ZPzQ/Rz87Pzo/Vj9HP0k/gz+MP/M+UD9fP0Y/Oj98P1c/RD8MP20/RD/fPjk/hD9dP0Q/8D9jP2o/YD9EP9Q+Wz9jP38/NT9cP1E/rD9vP0E/cT90P58/VT9gP1g/Yj9YP2Q/RD9pP4E/Wz9eP2o/Vz9iP04/MT9lP0c/Oj8cPzg//D4KP4k/Tz9FP0Q/eT9SP2A/Uj9fP24/TD9rP0s/YT9UP4A/TD9iP04/Pz9aP1g/Tz+oP2A/kz9TP4s/Yj+NPzo/oz+4PyY/Vz9fP/A/dz8sP1U/UT9aP2I/bj+8P4E/ZT8QP0Y/lD9sP0c/VD/DP0w/fT9OPzs/Rj8/P0Q/bz94P1s/fD9kPx4/Nz9aP7Y/Sj9dP3U/VD+LPys/Qj9kP1Y/Sz9KP0k/Vj9ZP1M/VT94P0g/YT8+P0M/Nz+IP2k/ej/UP0c/Qj9WP2I/fj8qPzQ/Yj9KP1k/Lj9gP1M/vj+DPz4/jz9WP0o/ID+yP1c/Xz9oP1I/ST9XP1M/Qj9OP0U/bj9hP24/Uz9qP04/QT9bPyQ/VT86P1U/UT+VP5Q/Sz8+P2E/fT8/P0Y/OD9fPzU/WD9OP0k/Yj8sP1g/XT9MP2g/aT9jP1A/UT8JP40/Mj8mP18/UT9OP/E+LD9PPwc/WD9bP2o/Qz9gP1A/VD9APzU/kz9wP2Q/NT8vP2U/9D6EPz4/MD9cP1w/Uj9ZP1M/Sj9JPzw/Sj9vP0w/WT9FPyg/RD98P2U/Zj+QP1Q/az9uP0E/RT+fPzE/ST+VP9k/XD86P1A/Rz9jP0o/RD9kP1k/tj+yP2w/iT9HP+g/QT9UP0M/Xz9BP14/XT/KP0Y/YT+BP5g/XT88P1c/Pz9PP0k/2D9hP1Y/TT8rP1E/ij9BPz8/bj9HP9A9eD9KP0c/PD9OPzE/Wz9uPy8/ST9fP5A+wD9IP0g/Wz9LPz4/bT9gP1o/Rz+bP+A+fj9UP1I/ST9XP00/jj85P0s/Pj9EP1o/WD9QP1Y/nj9OP1c/ST9bP4c/Tz9LPy8/Yz9gP1A/ST9aP9c+QT+SP1I/ST86P2U/Xz+IPx8/qD9GP5E/Rj9fP0s/Tz5TPxw/Uj9IP2E/+T5aP1g/Jj9WP0Q/Tz8DQEE/QT9oP30/Wj+NP4M/Wj80Pz8/Iz9CP1M/aD+SP4E/vT8yP60/eD9qP0U/hj/BP0w/Zz83P0c/Xz5uP1A/ZT9VP2g/ST8rP0w/kz9WP0Y/YD9bP34/yz9pP1E/vz8+P1s/Vz9mPkY/gT8/P4s/Rj9YP2w/EL6EPz4/cT9fP3k/Pz9dP1g/rT9TP0s/Rj9fP1M/Yz9hPzI/MT9rP2M/PD9rP24/Pz/MPlY/jj9SP14/0T+2PlE/4j9bP/E/vT9JP58+Tz9vP0M/Uj+2P1A/Wz9qP2w/Qj88P1M/pj9QP1s/bz+TP18/LD9cPyg/Xj9FP1o/Vz9WP0k/Zj9eP0c/bD9RP1c/WT9hP2I/Tz91P1g/aj9iP2M/Pj9ZP1U/VT8+P1A/cT9jPyc/Uj9YP1k/Tj9YP08/Vz9VPzY/sT9NPxc/bz9cP4A/XT86P1Y/Nj9eP3A/mz93P1g/Dz9gP2o/XD9YP2M/PT/0Pj8/PD98P0c/Nj9vP0k/Sz9VP2k/AD9QP0c/RT9wP1Q/ST+xPzk/WD8+P0g/az9nP1w/Lj9QP3Q/Sj+KPzc/cD9ZP1g/Tj9KP20/yz5MPzg/Tj86P4o/Lj9QP1A/aj9BP00/XD9dP1g/VT9qP1w/XT+uP0M/Rj+PP0k//j5gP2I/Sz9GPzc/WT8rP1A/aD9wP2M/ST9aP2Q/TT9UP8Q/Nz9ZP1g/XT8mP2A/fT8gP70/TT9eP3Q/OD9VP1w/VT9XP0Y/QT8fP0U/FT9RP00/Vj9lP5k+Uz9MP5U/Uz+kP0U/dT9WP2A/xT+BP0I/tT9FP0w/UT8/P2E/dz+pP1I/Bz+eP3A/Qz9AP1c/tj5QP0Y/Wz5XP18/mz5cPz8/TD9zP28/0T9EPyI/aD9VP1A/LD9QP4A/Rj9GP2Y/WD9ZP2o/bD9YP6c/ST+pPzM/yj8zP2A/tD9jP0s/Hj+9P0E/bT8bP2Q/eT9fP1k/bj+KP88/dD9PPxs/Oz9cP3c/vz9fP8o/dD+OP1A/SD9hP1M/ZT88Pzc/Rj92P1g/RT9VPzM/Rj9hP5s/Pz+jP34/QT9tP2U/UD99Pz8/mz8mP0E/Uz/2PqA/mz9JP6E/jz9iP3E/Sz9YP1U/ez9UP3s/Tz8cPxk/ST9NP1M/Tj9lP4w/bz9JPzE/1T9LP2s/QT9jP0Q/Gz8xPys/az9OP1M/XT9DP0w/Tz9AP18/XT9JP1o/LT9lP0s/kj9rP0Q/Mz9IP3M/ST9WPz8/Pj9JP4Y/aT9iP0o/zz8+P2A/Vz9dP1E/ZD9uP2E/WD9ZP0g/Dj9yP0s/OD8eP2U/UT9aPy8/Rz9dP1A/aD8qP0s/Qj9jPyc/2T42P2s/cT/mPkU/TD9mP8M/VD9PP0k/gz9OPzM/ST9FP2Q/FT8OPyw/Rj9iP0s/bz9cPrw/bT+CP1I/QT9DP0c/RT9MP1Q/TT85P1U/bz9NP1A/eT9YPws/cz9yP1s/KD96P0A/ID8wPwc/Uj89P2U/XD9cP2Q/YT/eP2I/aj+8P1Y/YT9HP1w/ST+gP5w/pD9HP18/XD9YPzU/Nz9KPzo/Qz9JPyk/PT8wP3k/Pj9ePzw/iT8hP0w/TT9fPyk/ND9QP/g+Zj+XPjI/Uj82P1E/Sz8pP0I/xD9YP20/fT9QPyQ/ND9hP1U/zT+KP14/YT9eP08/Xz9AP1M/9z9JP9Q/Qz8+P2s/Wj9VP20/JD9dP8o/TD9lPzk/Oj9RP0k/eT+8P14/bz9YP1M/SD9SPyY/ZT9APzo/ID9OP10/fD9UP2E/LT9dP60/Qj+CP0A/iT9LPzo/Wj9iP1Q/aT9bP08/jT+yP0E/VT89P4M/sT9ePzk/cj96P2s/RT8vP2E/wD9VP54/fz9UP2o/WD9MP1I/UT8rP4I/GT9sPzM/LT9iP2U/cT9TPwY/SD8TP2o/SD+IP6M/XT9kP1Y/Xz9cPzs/ZT9BPk4/Qj9BP2I/fD+YP2Q/dj8eP2M/Lz/9PmM/Ij9hP0I/Mj8fP2I/Rz9LPzg/VT9kP0c/ZT9FP70/Nj9aP0w/yj+eP1M/Vz9LP0g/MT9TP18/Wj9KPzk/bT9PP7U/Qj9hP1s/sT5PP0A/TT9VP08/Sz9EPyc/bj9TP1A/PD9IP5I/cT9kP28/MT9HP1A/Qz9PP0E/Yj9tP6U/cD9oP0c/MD9hP1Q/HT/ZP7Y/Vz9eP1U/bj9EP1E/gT9BP1E/Vz8sP0k/sj9XP10/Xz+uP2M/Zj9RP2c/KT9zP4Y/WD8+Pw==\", \"mtp.layers.0.self_attn.k_norm.weight\": \"hz59vxo/BT8aP/A+8z6KPyM/HD+MP0g/kj8tPwg/nD/JP0o+0j9gPtM/uj+EPvc+nD2DPy4+aD92P7k/kz9BP/4+PT5JPwc/zD5LPxQ/CD9VPxc//D4CPxw/tj6FP38+RD/KP6k+wT8JP6g+Vr4JP7E/TT13P+k/NT8xP6c/Dj8dP+Y+Zj+NP3s/hj8yP0o/Pj94Pww/sj8jPxU/Fz9HPyU/ID9RPz0/Hj8uPyQ/Sj8oP2w/Ez84P2o/QD9mP2Q/YT9EP4E/LD+KPys/LD8bP2c/lT8tPwI/Zj+OP1w/GT9KPyg/UT8HPxY/Lz8qPx0/Mj86Py0/ID8oPzw/Mj9aPzQ/Ej+KP2k/QT8/PzY/Yz84Pyk/eD9NP5U/2D3/PkM/hD87PyE/bj80P5k/Oz8wPyg/Ej9dP5Q/WT9WP48/aT7zPk4/jD+DP3g/Kj8IPyo/LT8wP1k/Pj80P6k/Wz8+P0I/RT+pPww/fD9JPzo/Oj8LPwI/jj8oPx8/PT8kPzE/Uz+DPwc/jj8dPzc/Bz8yPyM/MD+GPzI/cT8GP48/Oz+OPys/hz9PP+8+Kz+CP/U+Mz8fPzA/7D0rPw0/KD9KPzs/UD/xPQY/Iz8vPyw/Pz8iP40/Pj+9PyA/bD8uP/s+Mj93P0U/gD+rPTI/0T4WPzg/3j4fPzc/Nj8rP0U/aD8=\", \"mtp.layers.0.self_attn.q_norm.weight\": \"2D6BvxY/Gj88Pxo/QT+PP1Q/Xz9TPyo/dj/oPpY/xD6YP70/zD7NPzs/LD8Nvg5AyT8cPsQ/4z9GP7k/aT8VP4w+PT5SP94+tD48P+I+AD8IP/A+Tz+EP4I/cj8ZP5E/sD8wP94/Jj//PwZAqT4SvyE/pT8XP0Q/qj8ZP5c/dD8cP+U+Zj+MP3o/hT8yP0o/PT92Pws/sT8iPxY/Fz9HPyQ/ID9QPz0/HT8tPyI/Rz8nP2o/Ej83P2k/QD9lP2M/YT9CP34/LD+JPys/Kj8bP2Y/lT8sPwE/ZT+OP1s/GD9KPyY/UD8HPxY/Lz8pPxw/MT86Py0/Hz8mPzs/MT9aPzQ/Ej+CP2g/QT8+PzY/Yj83Pyk/dz9NP5A/2D3/PkM/hD84PyI/bT80P5g/Oz8wPyc/ET9dP5U/WD9UP44/aT7vPk0/iD+DP3c/KT8IPyo/LD8wP1Y/Pj80P6Y/Wj8+P0E/RD+nPww/ez9JPzk/OT8LPwI/jT8nPx4/PD8kPzA/Uz+DPwc/jD8dPzc/Bj8xPyM/Lz+GPzE/cT8FP44/Oj+NPyk/hz9NP+0+Kz+BP/Q+Mj8ePy8/7T0rPw4/Jj9HPzk/Tz/xPQU/Iz8uPyw/Pz8hP40/Pj+8Pxs/aj8tP/s+MT9wP0Y/gD+rPTI/0D4VPzg/3D4fPzY/NT8rP0U/aD8=\", \"mtp.norm.weight\": \"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\"}, \"model_loaded\": false, \"gpu_used\": false}\n",
+    "stderr": "",
+    "seconds": 0.5751348743215203,
+    "inspector_sha256": "bd97d8e2fbde2b5e7b67438068893dc8047ff76533dd1593bf48006747b8a152"
+  },
+  "weight_transport_sha256": "602caf69c17d48d3d5b4b69e8c93e4509f90b445f999cdf6868f9fa502ebae54",
+  "rsqrt_table_sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850",
+  "rope_table_sha256": "ba12ce218327d4cf23aac7dfacd8e9efbc99fd207611a8466227089838ef0e80",
+  "query_weight_file": "original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
+  "query_weight_sha256": "c57bdab3a6844454085b1df4991bc46443ae2495c4a620ec22e0d1b93c27fbba",
+  "rows": 322,
+  "query_norm_elements": 1318912,
+  "query_rope_elements": 1318912,
+  "residual_norm_elements": 1318912,
+  "total_bf16_elements": 3956736,
+  "bf16_mismatches": 0,
+  "cases": [
+    {
+      "name": "q7169-out32",
+      "prompt": {
+        "token_count": 7169,
+        "seed": 50536152,
+        "first_token_id": 30199,
+        "u32le_sha256": "b4ba753492f994e7c64ca7805c1b48523993ff24f6e75b44fa5705067d1de87d",
+        "u32le_fnv1a64": "c900c18703532d6a"
+      },
+      "original_case_sha256": "8aa5c0ffd6c8582e09e0fa514dadf96a36682e426d98618f2411d799f1723e19",
+      "output_token_ids": [
+        82,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220
+      ],
+      "first_token_raw_logit": 9.25,
+      "full_first_logits_sha256": "719813bb031f041544c91840b0092fd43a0e3ef96ccbb9ac44cd2f713a5763c9",
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 95,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 7169,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 7168,
+          "input_token_id": 82,
+          "transaction_row": 7168,
+          "sampled": true,
+          "original_batch_tokens": 7169,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 7169,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 0,
+          "target_position": 7170,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 0,
+          "target_position": 7171,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 0,
+          "target_position": 7172,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 1,
+          "target_position": 7173,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 0,
+          "target_position": 7174,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 0,
+          "target_position": 7175,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 1,
+          "target_position": 7176,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 0,
+          "target_position": 7177,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 1,
+          "target_position": 7178,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 0,
+          "target_position": 7179,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 1,
+          "target_position": 7180,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 0,
+          "target_position": 7181,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 1,
+          "target_position": 7182,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 0,
+          "target_position": 7183,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 1,
+          "target_position": 7184,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 0,
+          "target_position": 7185,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 1,
+          "target_position": 7186,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 0,
+          "target_position": 7187,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 1,
+          "target_position": 7188,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 0,
+          "target_position": 7189,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 1,
+          "target_position": 7190,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 0,
+          "target_position": 7191,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 1,
+          "target_position": 7192,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 0,
+          "target_position": 7193,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 1,
+          "target_position": 7194,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 0,
+          "target_position": 7195,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 1,
+          "target_position": 7196,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 7197,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 7198,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 7199,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        }
+      ],
+      "query": {
+        "command": [
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q7169-out32/qkv.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q7169-out32/q-norm.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q7169-out32/q-rope.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q7169-out32/positions.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
+        ],
+        "returncode": 0,
+        "report": {
+          "rows": 33,
+          "elements_per_boundary": 135168,
+          "norm_bf16_mismatches": 0,
+          "rope_bf16_mismatches": 0,
+          "first_difference": null,
+          "native_inference_acceptance": false
+        },
+        "files": {
+          "qkv": {
+            "file": "qkv.bin",
+            "bytes": 540672,
+            "sha256": "b6bb04e4d37892d1fbe8c8f09fdab9e180c1d8385a3a93c61eaef1cb8ee24cf2"
+          },
+          "q-norm": {
+            "file": "q-norm.bin",
+            "bytes": 270336,
+            "sha256": "61ff66acc95749019b6c1011869f9fd9e2e4cd326540e72beb845ae0fe2a777d"
+          },
+          "q-rope": {
+            "file": "q-rope.bin",
+            "bytes": 270336,
+            "sha256": "1c27adf5a2c3a27818535f714a6c5d510f3ae89d1bac840d4b0710c9d9be19ef"
+          },
+          "positions": {
+            "file": "positions.bin",
+            "bytes": 132,
+            "sha256": "a51953bf0fb4ea691b75b1be879c5c5f288fae6ecec955c98352ce9b51e81df4"
+          }
+        },
+        "local_original_sources_bound_by_comparison_sha256": "72e2299f67805a378549fa4487c43af5cc648623a72bf09bccf0b226f09c3411"
+      },
+      "residual_norms": [
+        {
+          "stage": "post_attention",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/attention-output.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/fusion.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/post-attention-norm.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/post_attention-residual.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "rows": 33,
+            "elements": 67584,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.post_attention_layernorm.weight",
+            "shard": "model-00026-of-00026.safetensors",
+            "shape": [
+              2048
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              2176869376,
+              2176873472
+            ],
+            "absolute_begin": 2176873488,
+            "bytes": 4096,
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "shard_file_bytes": 2231416848,
+            "sha256": "03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a",
+            "file": "original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin"
+          },
+          "output_sha256": "e31584bd0052d2ee5cace4f2f6c8c2eb6e5b94173c5658e5f5b27e14ae8a643f"
+        },
+        {
+          "stage": "final",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/moe-output.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/independent-attention-residual.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.norm.weight.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/final-norm.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/final-residual.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "rows": 33,
+            "elements": 67584,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.norm.weight",
+            "shard": "model-00026-of-00026.safetensors",
+            "shape": [
+              2048
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              2231400448,
+              2231404544
+            ],
+            "absolute_begin": 2231404560,
+            "bytes": 4096,
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "shard_file_bytes": 2231416848,
+            "sha256": "b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271",
+            "file": "original-mtp-model-layout-r1/mtp.norm.weight.bin"
+          },
+          "output_sha256": "0325fb74ece02e09cd9cf65ec9553698892023ee19d3b5022e1c5118748cbd92"
+        }
+      ],
+      "residual_norm_original_files": {
+        "fusion": {
+          "file": "fusion.bin",
+          "sha256": "8ece63e8b5bb08fc86b8a86033656e787a92402516752a46aa50752aed0506a2"
+        },
+        "attention-output": {
+          "file": "attention-output.bin",
+          "sha256": "c456abddbfde98220e38764fd537ab97265d18452ae02f30f9d8155456954b06"
+        },
+        "post-attention-norm": {
+          "file": "post-attention-norm.bin",
+          "sha256": "b95e26cf3c68d7fa2d2ad73270f5408fc92ae695243768ac0061058f0eb6a675"
+        },
+        "moe-output": {
+          "file": "moe-output.bin",
+          "sha256": "5410569eec50e005f18781b0360682afbce974a66d8da4f6c9833199d5e0f6f9"
+        },
+        "final-norm": {
+          "file": "final-norm.bin",
+          "sha256": "bf495d3e04c8be08caddfc8819b569ba01ee1c4418afc85bcd82244bc343113e"
+        }
+      },
+      "local_original_residual_sources_bound_by_comparison_sha256": "11d6e4712e4dc867a1cc3b584bfa6894b839ee1e65935c615691f99709e5d820",
+      "original_residual_not_separately_captured": true,
+      "independent_bf16_attention_residual_sha256": "e31584bd0052d2ee5cace4f2f6c8c2eb6e5b94173c5658e5f5b27e14ae8a643f",
+      "independent_bf16_attention_residual_matches_cpu": true
+    },
+    {
+      "name": "q8192-out32",
+      "prompt": {
+        "token_count": 8192,
+        "seed": 395518,
+        "first_token_id": 84411,
+        "u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+        "u32le_fnv1a64": "1584e34d56e5d78b"
+      },
+      "original_case_sha256": "593420bd8b1ef8b2ce68f6caedec1e729e4890f34c35a25e332e87a0cffc8dc5",
+      "output_token_ids": [
+        144,
+        255,
+        82,
+        57,
+        79,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196
+      ],
+      "first_token_raw_logit": 10.375,
+      "full_first_logits_sha256": "145adfd0d14158d649b4c57f1dbb5151466d73f9183821e7da24e831d74112c0",
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 140,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 8191,
+          "input_token_id": 144,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 8192,
+          "input_token_id": 255,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 1,
+          "target_position": 8193,
+          "input_token_id": 82,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 0,
+          "target_position": 8194,
+          "input_token_id": 57,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 0,
+          "target_position": 8195,
+          "input_token_id": 79,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 0,
+          "target_position": 8196,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 0,
+          "target_position": 8197,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 0,
+          "target_position": 8198,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 0,
+          "target_position": 8199,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 0,
+          "target_position": 8200,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 1,
+          "target_position": 8201,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 0,
+          "target_position": 8202,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 1,
+          "target_position": 8203,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 0,
+          "target_position": 8204,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 1,
+          "target_position": 8205,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 0,
+          "target_position": 8206,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 1,
+          "target_position": 8207,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 0,
+          "target_position": 8208,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 1,
+          "target_position": 8209,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 0,
+          "target_position": 8210,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 1,
+          "target_position": 8211,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 0,
+          "target_position": 8212,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 1,
+          "target_position": 8213,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 0,
+          "target_position": 8214,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 1,
+          "target_position": 8215,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 0,
+          "target_position": 8216,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 1,
+          "target_position": 8217,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 8218,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 8219,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 8220,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 1,
+          "target_position": 8221,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 19,
+          "saved_index": 0,
+          "target_position": 8222,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        }
+      ],
+      "query": {
+        "command": [
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q8192-out32/qkv.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q8192-out32/q-norm.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q8192-out32/q-rope.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q8192-out32/positions.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
+        ],
+        "returncode": 0,
+        "report": {
+          "rows": 33,
+          "elements_per_boundary": 135168,
+          "norm_bf16_mismatches": 0,
+          "rope_bf16_mismatches": 0,
+          "first_difference": null,
+          "native_inference_acceptance": false
+        },
+        "files": {
+          "qkv": {
+            "file": "qkv.bin",
+            "bytes": 540672,
+            "sha256": "924c7ea5caa422bd6da6e78b0355c48a3c4c68b3cef1642ea3f209bd996f6686"
+          },
+          "q-norm": {
+            "file": "q-norm.bin",
+            "bytes": 270336,
+            "sha256": "b05c0d539aef611b70339712e868145bd35cff23f6a461d82c8585d75d1bedfa"
+          },
+          "q-rope": {
+            "file": "q-rope.bin",
+            "bytes": 270336,
+            "sha256": "95ad4dd628b52f7ff4d5ae45b3790e6069dcdbf426ab4cb15bbdce91f393225c"
+          },
+          "positions": {
+            "file": "positions.bin",
+            "bytes": 132,
+            "sha256": "d9482a246422df44bbff9132dd5cdb25277563040915c3dc5e91d16c6fbe2125"
+          }
+        },
+        "local_original_sources_bound_by_comparison_sha256": "72e2299f67805a378549fa4487c43af5cc648623a72bf09bccf0b226f09c3411"
+      },
+      "residual_norms": [
+        {
+          "stage": "post_attention",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/attention-output.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/fusion.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/post-attention-norm.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/post_attention-residual.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "rows": 33,
+            "elements": 67584,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.post_attention_layernorm.weight",
+            "shard": "model-00026-of-00026.safetensors",
+            "shape": [
+              2048
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              2176869376,
+              2176873472
+            ],
+            "absolute_begin": 2176873488,
+            "bytes": 4096,
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "shard_file_bytes": 2231416848,
+            "sha256": "03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a",
+            "file": "original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin"
+          },
+          "output_sha256": "4f5caeea970cc1c82d47491e45eecf74edcc2a0cc5f54298b8e21b14b2fbd8a9"
+        },
+        {
+          "stage": "final",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/moe-output.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/independent-attention-residual.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.norm.weight.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/final-norm.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/final-residual.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "rows": 33,
+            "elements": 67584,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.norm.weight",
+            "shard": "model-00026-of-00026.safetensors",
+            "shape": [
+              2048
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              2231400448,
+              2231404544
+            ],
+            "absolute_begin": 2231404560,
+            "bytes": 4096,
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "shard_file_bytes": 2231416848,
+            "sha256": "b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271",
+            "file": "original-mtp-model-layout-r1/mtp.norm.weight.bin"
+          },
+          "output_sha256": "1eedd7f8099c246f1ad5946904abd1c39ce857546a8c9d539f7ef5b805eac29f"
+        }
+      ],
+      "residual_norm_original_files": {
+        "fusion": {
+          "file": "fusion.bin",
+          "sha256": "e67ee4d83db7aae48334b58d3206495fc5660b25bb791236c2e00a5323e6699d"
+        },
+        "attention-output": {
+          "file": "attention-output.bin",
+          "sha256": "4102a85aead0008c44dd33abcba95a7ce9554fc123447a0e5254da6e9705ba1b"
+        },
+        "post-attention-norm": {
+          "file": "post-attention-norm.bin",
+          "sha256": "7d119cec273dd417d3937d961fd4a7ed424f2da46ff9f83a26e0ceb056485c55"
+        },
+        "moe-output": {
+          "file": "moe-output.bin",
+          "sha256": "b779bd9e7bb31b251437a00bfcca4266716ddc0ce2ea3b593d463c54aaf1e482"
+        },
+        "final-norm": {
+          "file": "final-norm.bin",
+          "sha256": "b85842a20dfe0f69b9eb8da4db121c632be58f127ba1ce47a41368c6674286c9"
+        }
+      },
+      "local_original_residual_sources_bound_by_comparison_sha256": "11d6e4712e4dc867a1cc3b584bfa6894b839ee1e65935c615691f99709e5d820",
+      "original_residual_not_separately_captured": true,
+      "independent_bf16_attention_residual_sha256": "4f5caeea970cc1c82d47491e45eecf74edcc2a0cc5f54298b8e21b14b2fbd8a9",
+      "independent_bf16_attention_residual_matches_cpu": true
+    },
+    {
+      "name": "long-prefix262144-owner-out32",
+      "prompt": {
+        "token_count": 262144,
+        "generator": "explicit_actual_tokens",
+        "u32le_sha256": "bda1b648ef9365c40f9233228cd646c4addf9ec8c0f1cf7aeaad56aaf0f712e2",
+        "u32le_fnv1a64": "55ac49bb839b4fe8"
+      },
+      "original_case_sha256": "0abca79dd8a7e5e7912f1847d0909ab13c5e740fd0cf2ec27b1744fea1875a00",
+      "output_token_ids": [
+        16,
+        15,
+        15,
+        220,
+        16,
+        15,
+        16,
+        220,
+        16,
+        15,
+        17,
+        220,
+        16,
+        15,
+        18,
+        220,
+        16,
+        15,
+        19,
+        220,
+        16,
+        15,
+        20,
+        220,
+        16,
+        15,
+        21,
+        220,
+        16,
+        15,
+        22,
+        220
+      ],
+      "first_token_raw_logit": 24.375,
+      "full_first_logits_sha256": "a29f8caade68a34ae1201e9f3d9b5b8849e8ec3548235c46c99679fb23042cfe",
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 846,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 8191,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 8192,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 1,
+          "target_position": 16383,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 0,
+          "target_position": 16384,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 1,
+          "target_position": 24575,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 0,
+          "target_position": 24576,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 1,
+          "target_position": 32767,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 0,
+          "target_position": 32768,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 1,
+          "target_position": 40959,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 0,
+          "target_position": 40960,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 1,
+          "target_position": 49151,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 0,
+          "target_position": 49152,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 1,
+          "target_position": 57343,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 0,
+          "target_position": 57344,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 1,
+          "target_position": 65535,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 0,
+          "target_position": 65536,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 1,
+          "target_position": 73727,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 0,
+          "target_position": 73728,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 1,
+          "target_position": 81919,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 0,
+          "target_position": 81920,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 1,
+          "target_position": 90111,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 0,
+          "target_position": 90112,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 1,
+          "target_position": 98303,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 0,
+          "target_position": 98304,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 1,
+          "target_position": 106495,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 0,
+          "target_position": 106496,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 1,
+          "target_position": 114687,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 0,
+          "target_position": 114688,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 1,
+          "target_position": 122879,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 0,
+          "target_position": 122880,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 1,
+          "target_position": 131071,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 0,
+          "target_position": 131072,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 1,
+          "target_position": 139263,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 139264,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 147455,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 147456,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 1,
+          "target_position": 155647,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 19,
+          "saved_index": 0,
+          "target_position": 155648,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 19,
+          "saved_index": 1,
+          "target_position": 163839,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 20,
+          "saved_index": 0,
+          "target_position": 163840,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 20,
+          "saved_index": 1,
+          "target_position": 172031,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 21,
+          "saved_index": 0,
+          "target_position": 172032,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 21,
+          "saved_index": 1,
+          "target_position": 180223,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 22,
+          "saved_index": 0,
+          "target_position": 180224,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 22,
+          "saved_index": 1,
+          "target_position": 188415,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 23,
+          "saved_index": 0,
+          "target_position": 188416,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 23,
+          "saved_index": 1,
+          "target_position": 196607,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 24,
+          "saved_index": 0,
+          "target_position": 196608,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 24,
+          "saved_index": 1,
+          "target_position": 204799,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 25,
+          "saved_index": 0,
+          "target_position": 204800,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 25,
+          "saved_index": 1,
+          "target_position": 212991,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 26,
+          "saved_index": 0,
+          "target_position": 212992,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 26,
+          "saved_index": 1,
+          "target_position": 221183,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 27,
+          "saved_index": 0,
+          "target_position": 221184,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 27,
+          "saved_index": 1,
+          "target_position": 229375,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 28,
+          "saved_index": 0,
+          "target_position": 229376,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 28,
+          "saved_index": 1,
+          "target_position": 237567,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 29,
+          "saved_index": 0,
+          "target_position": 237568,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 29,
+          "saved_index": 1,
+          "target_position": 245759,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 30,
+          "saved_index": 0,
+          "target_position": 245760,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 30,
+          "saved_index": 1,
+          "target_position": 253951,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        }
+      ],
+      "query": {
+        "command": [
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/long-prefix262144-owner-out32/qkv.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/long-prefix262144-owner-out32/q-norm.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/long-prefix262144-owner-out32/q-rope.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/long-prefix262144-owner-out32/positions.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
+        ],
+        "returncode": 0,
+        "report": {
+          "rows": 62,
+          "elements_per_boundary": 253952,
+          "norm_bf16_mismatches": 0,
+          "rope_bf16_mismatches": 0,
+          "first_difference": null,
+          "native_inference_acceptance": false
+        },
+        "files": {
+          "qkv": {
+            "file": "qkv.bin",
+            "bytes": 1015808,
+            "sha256": "0929229d2a74b1fdddec986dcbda8b4cd8228fd8428a78e70b840917ab711f2e"
+          },
+          "q-norm": {
+            "file": "q-norm.bin",
+            "bytes": 507904,
+            "sha256": "5ce1903ee9d08727ec52bff73da132bcf9e35dd4689e86e4330838feab3dc8da"
+          },
+          "q-rope": {
+            "file": "q-rope.bin",
+            "bytes": 507904,
+            "sha256": "def9ef254c609a8f859084e641cc3d7141f53852de096139c65f7902f6fd87ab"
+          },
+          "positions": {
+            "file": "positions.bin",
+            "bytes": 248,
+            "sha256": "19973b3d7920750e98e75acca0a9f3aca92f9638c8a78192efbc2cffad04f91b"
+          }
+        },
+        "local_original_sources_bound_by_comparison_sha256": "72e2299f67805a378549fa4487c43af5cc648623a72bf09bccf0b226f09c3411"
+      },
+      "residual_norms": [
+        {
+          "stage": "post_attention",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/attention-output.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/fusion.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/post-attention-norm.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/post_attention-residual.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "rows": 62,
+            "elements": 126976,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.post_attention_layernorm.weight",
+            "shard": "model-00026-of-00026.safetensors",
+            "shape": [
+              2048
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              2176869376,
+              2176873472
+            ],
+            "absolute_begin": 2176873488,
+            "bytes": 4096,
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "shard_file_bytes": 2231416848,
+            "sha256": "03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a",
+            "file": "original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin"
+          },
+          "output_sha256": "ec416193f61d3c3c600056bfd3040e057c462f571f97bfdf23bc568b00657d4f"
+        },
+        {
+          "stage": "final",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/moe-output.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/independent-attention-residual.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.norm.weight.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/final-norm.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/final-residual.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "rows": 62,
+            "elements": 126976,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.norm.weight",
+            "shard": "model-00026-of-00026.safetensors",
+            "shape": [
+              2048
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              2231400448,
+              2231404544
+            ],
+            "absolute_begin": 2231404560,
+            "bytes": 4096,
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "shard_file_bytes": 2231416848,
+            "sha256": "b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271",
+            "file": "original-mtp-model-layout-r1/mtp.norm.weight.bin"
+          },
+          "output_sha256": "463905c725ebdec622a8deb778ccab2d342161c7f71e177e30e1bbf4f7dbc62f"
+        }
+      ],
+      "residual_norm_original_files": {
+        "fusion": {
+          "file": "fusion.bin",
+          "sha256": "b90a47bf29abb5b4003b9216c5e158aa990494a57d626f981b4dfcc1f67c280c"
+        },
+        "attention-output": {
+          "file": "attention-output.bin",
+          "sha256": "1c87ac08f53b33302006c95f70ce44e315ef5d234c72ed95cade8c313690289f"
+        },
+        "post-attention-norm": {
+          "file": "post-attention-norm.bin",
+          "sha256": "57ba4d465a039ddcbe5cf0a3d75e84e2a049d3d28747b76cc3188ff09eb16783"
+        },
+        "moe-output": {
+          "file": "moe-output.bin",
+          "sha256": "8f4315043154d50e0c6f0b8523ff7673f167ea7f9baa523588633e3cf90e442d"
+        },
+        "final-norm": {
+          "file": "final-norm.bin",
+          "sha256": "ea8aa6b69e6c10b487e2cac692198dba8f082fefeea6aa42224c81809ce988e2"
+        }
+      },
+      "local_original_residual_sources_bound_by_comparison_sha256": "11d6e4712e4dc867a1cc3b584bfa6894b839ee1e65935c615691f99709e5d820",
+      "original_residual_not_separately_captured": true,
+      "independent_bf16_attention_residual_sha256": "ec416193f61d3c3c600056bfd3040e057c462f571f97bfdf23bc568b00657d4f",
+      "independent_bf16_attention_residual_matches_cpu": true
+    },
+    {
+      "name": "draft-limit-q262140-out16",
+      "prompt": {
+        "token_count": 262140,
+        "generator": "explicit_actual_tokens",
+        "u32le_sha256": "2e5e3e8b0ba6c2e9d10041062fbbc2a5b2ea920dd3aab408936c6b5c8b0c0bd2",
+        "u32le_fnv1a64": "e253e00629d629a1"
+      },
+      "original_case_sha256": "3c5ba6382872034f13e4f15f4e9cd92a9668526f76632772f45a69e1f1d02872",
+      "output_token_ids": [
+        248068,
+        271,
+        248069,
+        271,
+        16,
+        15,
+        15,
+        220,
+        16,
+        15,
+        16,
+        220,
+        16,
+        15,
+        17,
+        220
+      ],
+      "first_token_raw_logit": 27.625,
+      "full_first_logits_sha256": "f33d3e1e26ce601d5e3f988ef71481111a7c3b825bc264242ccc869181611e8c",
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 846,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 8191,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 8192,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 1,
+          "target_position": 16383,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 0,
+          "target_position": 16384,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 1,
+          "target_position": 24575,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 0,
+          "target_position": 24576,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 1,
+          "target_position": 32767,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 0,
+          "target_position": 32768,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 1,
+          "target_position": 40959,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 0,
+          "target_position": 40960,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 1,
+          "target_position": 49151,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 0,
+          "target_position": 49152,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 1,
+          "target_position": 57343,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 0,
+          "target_position": 57344,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 1,
+          "target_position": 65535,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 0,
+          "target_position": 65536,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 1,
+          "target_position": 73727,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 0,
+          "target_position": 73728,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 1,
+          "target_position": 81919,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 0,
+          "target_position": 81920,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 1,
+          "target_position": 90111,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 0,
+          "target_position": 90112,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 1,
+          "target_position": 98303,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 0,
+          "target_position": 98304,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 1,
+          "target_position": 106495,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 0,
+          "target_position": 106496,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 1,
+          "target_position": 114687,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 0,
+          "target_position": 114688,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 1,
+          "target_position": 122879,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 0,
+          "target_position": 122880,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 1,
+          "target_position": 131071,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 0,
+          "target_position": 131072,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 1,
+          "target_position": 139263,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 139264,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 147455,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 147456,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 1,
+          "target_position": 155647,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 19,
+          "saved_index": 0,
+          "target_position": 155648,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 19,
+          "saved_index": 1,
+          "target_position": 163839,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 20,
+          "saved_index": 0,
+          "target_position": 163840,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 20,
+          "saved_index": 1,
+          "target_position": 172031,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 21,
+          "saved_index": 0,
+          "target_position": 172032,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 21,
+          "saved_index": 1,
+          "target_position": 180223,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 22,
+          "saved_index": 0,
+          "target_position": 180224,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 22,
+          "saved_index": 1,
+          "target_position": 188415,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 23,
+          "saved_index": 0,
+          "target_position": 188416,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 23,
+          "saved_index": 1,
+          "target_position": 196607,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 24,
+          "saved_index": 0,
+          "target_position": 196608,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 24,
+          "saved_index": 1,
+          "target_position": 204799,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 25,
+          "saved_index": 0,
+          "target_position": 204800,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 25,
+          "saved_index": 1,
+          "target_position": 212991,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 26,
+          "saved_index": 0,
+          "target_position": 212992,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 26,
+          "saved_index": 1,
+          "target_position": 221183,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 27,
+          "saved_index": 0,
+          "target_position": 221184,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 27,
+          "saved_index": 1,
+          "target_position": 229375,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 28,
+          "saved_index": 0,
+          "target_position": 229376,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 28,
+          "saved_index": 1,
+          "target_position": 237567,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 29,
+          "saved_index": 0,
+          "target_position": 237568,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 29,
+          "saved_index": 1,
+          "target_position": 245759,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 30,
+          "saved_index": 0,
+          "target_position": 245760,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 30,
+          "saved_index": 1,
+          "target_position": 253951,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 31,
+          "saved_index": 0,
+          "target_position": 253952,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8188,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 31,
+          "saved_index": 1,
+          "target_position": 262139,
+          "input_token_id": 248068,
+          "transaction_row": 8187,
+          "sampled": true,
+          "original_batch_tokens": 8188,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 32,
+          "saved_index": 0,
+          "target_position": 262140,
+          "input_token_id": 271,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 32,
+          "saved_index": 1,
+          "target_position": 262141,
+          "input_token_id": 248069,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        }
+      ],
+      "query": {
+        "command": [
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262140-out16/qkv.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262140-out16/q-norm.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262140-out16/q-rope.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262140-out16/positions.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
+        ],
+        "returncode": 0,
+        "report": {
+          "rows": 66,
+          "elements_per_boundary": 270336,
+          "norm_bf16_mismatches": 0,
+          "rope_bf16_mismatches": 0,
+          "first_difference": null,
+          "native_inference_acceptance": false
+        },
+        "files": {
+          "qkv": {
+            "file": "qkv.bin",
+            "bytes": 1081344,
+            "sha256": "b06161d4cedc9480e81ccecf824c9a8617da40447066cd7bd814a3f270da509c"
+          },
+          "q-norm": {
+            "file": "q-norm.bin",
+            "bytes": 540672,
+            "sha256": "1d6220646353b2f779b6de3436d020e82471621508fbd0a6ed4e92038a239863"
+          },
+          "q-rope": {
+            "file": "q-rope.bin",
+            "bytes": 540672,
+            "sha256": "08a5706456f2e83359f4cdae21f1e7aef561fc28e4e7e53049d2635d051d6667"
+          },
+          "positions": {
+            "file": "positions.bin",
+            "bytes": 264,
+            "sha256": "9b17158a2404eb77771179a263eb8e9cd42447fd0b0d31e0deb79cbde49b7564"
+          }
+        },
+        "local_original_sources_bound_by_comparison_sha256": "72e2299f67805a378549fa4487c43af5cc648623a72bf09bccf0b226f09c3411"
+      },
+      "residual_norms": [
+        {
+          "stage": "post_attention",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/attention-output.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/fusion.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/post-attention-norm.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/post_attention-residual.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "rows": 66,
+            "elements": 135168,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.post_attention_layernorm.weight",
+            "shard": "model-00026-of-00026.safetensors",
+            "shape": [
+              2048
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              2176869376,
+              2176873472
+            ],
+            "absolute_begin": 2176873488,
+            "bytes": 4096,
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "shard_file_bytes": 2231416848,
+            "sha256": "03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a",
+            "file": "original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin"
+          },
+          "output_sha256": "9cf0191895e43db6f11825043216c957e5813afc505059eec18a6ba1731c38d3"
+        },
+        {
+          "stage": "final",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/moe-output.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/independent-attention-residual.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.norm.weight.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/final-norm.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/final-residual.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "rows": 66,
+            "elements": 135168,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.norm.weight",
+            "shard": "model-00026-of-00026.safetensors",
+            "shape": [
+              2048
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              2231400448,
+              2231404544
+            ],
+            "absolute_begin": 2231404560,
+            "bytes": 4096,
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "shard_file_bytes": 2231416848,
+            "sha256": "b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271",
+            "file": "original-mtp-model-layout-r1/mtp.norm.weight.bin"
+          },
+          "output_sha256": "f0850dd812550f17e91b4c6277c9fa4fe02caff19f2618c86937ca566f39ffee"
+        }
+      ],
+      "residual_norm_original_files": {
+        "fusion": {
+          "file": "fusion.bin",
+          "sha256": "ce476b3d7424a7212b955b72701aa79f1fd4cfa2901ca965ac25f5e63415652e"
+        },
+        "attention-output": {
+          "file": "attention-output.bin",
+          "sha256": "1b6ebc814e42c8de5f903de484bae67c473fe1a7b0c4cea6130ed009de140012"
+        },
+        "post-attention-norm": {
+          "file": "post-attention-norm.bin",
+          "sha256": "efb44af795bba3930b28d996ae6faf014bcc16e23ea966f0087bb8c6b365721b"
+        },
+        "moe-output": {
+          "file": "moe-output.bin",
+          "sha256": "fe50ef2e13cd6b2d745c276ff319d82cc0b69b4b75210d0ec3a0bf83cf66d1b3"
+        },
+        "final-norm": {
+          "file": "final-norm.bin",
+          "sha256": "3be46dbb187a78d906257f0e219bc6ce17f78f7c83b3ed65bc663c9a4c5eea52"
+        }
+      },
+      "local_original_residual_sources_bound_by_comparison_sha256": "11d6e4712e4dc867a1cc3b584bfa6894b839ee1e65935c615691f99709e5d820",
+      "original_residual_not_separately_captured": true,
+      "independent_bf16_attention_residual_sha256": "9cf0191895e43db6f11825043216c957e5813afc505059eec18a6ba1731c38d3",
+      "independent_bf16_attention_residual_matches_cpu": true
+    },
+    {
+      "name": "draft-limit-q262142-out16",
+      "prompt": {
+        "token_count": 262142,
+        "generator": "explicit_actual_tokens",
+        "u32le_sha256": "f248b698441fa8332ef5babfac1d7814b117d5eb33d77716094d6d11d5eb40db",
+        "u32le_fnv1a64": "73d96cad48876011"
+      },
+      "original_case_sha256": "ab07c73ab4b8b884112d9dd8f56a720698fd02dbaff1674bbcf831288ac6e791",
+      "output_token_ids": [
+        248069,
+        271,
+        16,
+        15,
+        15,
+        220,
+        16,
+        15,
+        16,
+        220,
+        16,
+        15,
+        17,
+        220,
+        16,
+        15
+      ],
+      "first_token_raw_logit": 28.25,
+      "full_first_logits_sha256": "55c83a9add3bd3d95db6e215f9073b274992643418b43c89cab8e4420fd3167d",
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 846,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 8191,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 8192,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 1,
+          "target_position": 16383,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 0,
+          "target_position": 16384,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 1,
+          "target_position": 24575,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 0,
+          "target_position": 24576,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 1,
+          "target_position": 32767,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 0,
+          "target_position": 32768,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 1,
+          "target_position": 40959,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 0,
+          "target_position": 40960,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 1,
+          "target_position": 49151,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 0,
+          "target_position": 49152,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 1,
+          "target_position": 57343,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 0,
+          "target_position": 57344,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 1,
+          "target_position": 65535,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 0,
+          "target_position": 65536,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 1,
+          "target_position": 73727,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 0,
+          "target_position": 73728,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 1,
+          "target_position": 81919,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 0,
+          "target_position": 81920,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 1,
+          "target_position": 90111,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 0,
+          "target_position": 90112,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 1,
+          "target_position": 98303,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 0,
+          "target_position": 98304,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 1,
+          "target_position": 106495,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 0,
+          "target_position": 106496,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 1,
+          "target_position": 114687,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 0,
+          "target_position": 114688,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 1,
+          "target_position": 122879,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 0,
+          "target_position": 122880,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 1,
+          "target_position": 131071,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 0,
+          "target_position": 131072,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 1,
+          "target_position": 139263,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 139264,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 147455,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 147456,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 1,
+          "target_position": 155647,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 19,
+          "saved_index": 0,
+          "target_position": 155648,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 19,
+          "saved_index": 1,
+          "target_position": 163839,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 20,
+          "saved_index": 0,
+          "target_position": 163840,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 20,
+          "saved_index": 1,
+          "target_position": 172031,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 21,
+          "saved_index": 0,
+          "target_position": 172032,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 21,
+          "saved_index": 1,
+          "target_position": 180223,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 22,
+          "saved_index": 0,
+          "target_position": 180224,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 22,
+          "saved_index": 1,
+          "target_position": 188415,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 23,
+          "saved_index": 0,
+          "target_position": 188416,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 23,
+          "saved_index": 1,
+          "target_position": 196607,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 24,
+          "saved_index": 0,
+          "target_position": 196608,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 24,
+          "saved_index": 1,
+          "target_position": 204799,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 25,
+          "saved_index": 0,
+          "target_position": 204800,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 25,
+          "saved_index": 1,
+          "target_position": 212991,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 26,
+          "saved_index": 0,
+          "target_position": 212992,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 26,
+          "saved_index": 1,
+          "target_position": 221183,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 27,
+          "saved_index": 0,
+          "target_position": 221184,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 27,
+          "saved_index": 1,
+          "target_position": 229375,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 28,
+          "saved_index": 0,
+          "target_position": 229376,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 28,
+          "saved_index": 1,
+          "target_position": 237567,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 29,
+          "saved_index": 0,
+          "target_position": 237568,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 29,
+          "saved_index": 1,
+          "target_position": 245759,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 30,
+          "saved_index": 0,
+          "target_position": 245760,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 30,
+          "saved_index": 1,
+          "target_position": 253951,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 31,
+          "saved_index": 0,
+          "target_position": 253952,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8190,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 31,
+          "saved_index": 1,
+          "target_position": 262141,
+          "input_token_id": 248069,
+          "transaction_row": 8189,
+          "sampled": true,
+          "original_batch_tokens": 8190,
+          "input_provenance": "accepted_history"
+        }
+      ],
+      "query": {
+        "command": [
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262142-out16/qkv.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262142-out16/q-norm.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262142-out16/q-rope.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262142-out16/positions.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
+        ],
+        "returncode": 0,
+        "report": {
+          "rows": 64,
+          "elements_per_boundary": 262144,
+          "norm_bf16_mismatches": 0,
+          "rope_bf16_mismatches": 0,
+          "first_difference": null,
+          "native_inference_acceptance": false
+        },
+        "files": {
+          "qkv": {
+            "file": "qkv.bin",
+            "bytes": 1048576,
+            "sha256": "bf57f9eb581f861ff3510c7054050dde510c4b34f3ba3c40da7a0fb4bd8f0063"
+          },
+          "q-norm": {
+            "file": "q-norm.bin",
+            "bytes": 524288,
+            "sha256": "28ac5a236074daed34c3f136ee347a1a11e5af350a2d948400192d1ed96014bf"
+          },
+          "q-rope": {
+            "file": "q-rope.bin",
+            "bytes": 524288,
+            "sha256": "8103c69e4d3cee3c4f0be13442d45662a39581556cb67c4e039063b1d5491e6a"
+          },
+          "positions": {
+            "file": "positions.bin",
+            "bytes": 256,
+            "sha256": "a807b58076951e7f7e085624b01c1da198f50d7460e3404e1b76bfbb6bec766b"
+          }
+        },
+        "local_original_sources_bound_by_comparison_sha256": "72e2299f67805a378549fa4487c43af5cc648623a72bf09bccf0b226f09c3411"
+      },
+      "residual_norms": [
+        {
+          "stage": "post_attention",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/attention-output.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/fusion.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/post-attention-norm.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/post_attention-residual.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "rows": 64,
+            "elements": 131072,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.post_attention_layernorm.weight",
+            "shard": "model-00026-of-00026.safetensors",
+            "shape": [
+              2048
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              2176869376,
+              2176873472
+            ],
+            "absolute_begin": 2176873488,
+            "bytes": 4096,
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "shard_file_bytes": 2231416848,
+            "sha256": "03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a",
+            "file": "original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin"
+          },
+          "output_sha256": "39b1d0919a265c793f93c3a6a06bdb331141078e18d00952a6309e4f2ea78230"
+        },
+        {
+          "stage": "final",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/moe-output.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/independent-attention-residual.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.norm.weight.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/final-norm.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/final-residual.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "rows": 64,
+            "elements": 131072,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.norm.weight",
+            "shard": "model-00026-of-00026.safetensors",
+            "shape": [
+              2048
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              2231400448,
+              2231404544
+            ],
+            "absolute_begin": 2231404560,
+            "bytes": 4096,
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "shard_file_bytes": 2231416848,
+            "sha256": "b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271",
+            "file": "original-mtp-model-layout-r1/mtp.norm.weight.bin"
+          },
+          "output_sha256": "f8309cdb4c49c766f1c6c507222ead597a1cc6cf157374b2208fd29d208b4a80"
+        }
+      ],
+      "residual_norm_original_files": {
+        "fusion": {
+          "file": "fusion.bin",
+          "sha256": "29a5f523f6ce417a2fd1857ff53bfd08ae283563560fd61059b708dc6cadd7df"
+        },
+        "attention-output": {
+          "file": "attention-output.bin",
+          "sha256": "3fcb6530c6ff217514d9a80de2f3faf1b1b5b01423e9b9029b579702a567e86f"
+        },
+        "post-attention-norm": {
+          "file": "post-attention-norm.bin",
+          "sha256": "8ccbc56ad4d9b668630cab75914693805b22474c462d852e36c48f50c39758b4"
+        },
+        "moe-output": {
+          "file": "moe-output.bin",
+          "sha256": "393272457ec316a168fde870dc58e3cf51255de3eb3eb70e19b99ca54f4b06ed"
+        },
+        "final-norm": {
+          "file": "final-norm.bin",
+          "sha256": "270eacc6dff0cc02fbb2636c84fdba996bb3b592b0b9c4c89f9e433829a20497"
+        }
+      },
+      "local_original_residual_sources_bound_by_comparison_sha256": "11d6e4712e4dc867a1cc3b584bfa6894b839ee1e65935c615691f99709e5d820",
+      "original_residual_not_separately_captured": true,
+      "independent_bf16_attention_residual_sha256": "39b1d0919a265c793f93c3a6a06bdb331141078e18d00952a6309e4f2ea78230",
+      "independent_bf16_attention_residual_matches_cpu": true
+    },
+    {
+      "name": "draft-limit-q262143-out16",
+      "prompt": {
+        "token_count": 262143,
+        "generator": "explicit_actual_tokens",
+        "u32le_sha256": "c00e2415c7287f77bbf0672bb04535d79000d2c6ae339d0f0aba703228184747",
+        "u32le_fnv1a64": "bcbaef534b007aec"
+      },
+      "original_case_sha256": "2e7f7ea541705d105a38021f47beabc3bd7beff3aae0229d4073523084c8bbd1",
+      "output_token_ids": [
+        271,
+        16,
+        15,
+        220,
+        15,
+        220,
+        15,
+        220,
+        15,
+        220,
+        15,
+        220,
+        15,
+        220,
+        15,
+        220
+      ],
+      "first_token_raw_logit": 34.5,
+      "full_first_logits_sha256": "cb34c979b724220725733f6dcb2f88c6243ceb775373ec7aff29aac77668e1c5",
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 846,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 8191,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 8192,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 1,
+          "target_position": 16383,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 0,
+          "target_position": 16384,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 1,
+          "target_position": 24575,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 0,
+          "target_position": 24576,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 1,
+          "target_position": 32767,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 0,
+          "target_position": 32768,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 1,
+          "target_position": 40959,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 0,
+          "target_position": 40960,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 1,
+          "target_position": 49151,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 0,
+          "target_position": 49152,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 1,
+          "target_position": 57343,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 0,
+          "target_position": 57344,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 1,
+          "target_position": 65535,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 0,
+          "target_position": 65536,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 1,
+          "target_position": 73727,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 0,
+          "target_position": 73728,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 1,
+          "target_position": 81919,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 0,
+          "target_position": 81920,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 1,
+          "target_position": 90111,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 0,
+          "target_position": 90112,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 1,
+          "target_position": 98303,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 0,
+          "target_position": 98304,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 1,
+          "target_position": 106495,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 0,
+          "target_position": 106496,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 1,
+          "target_position": 114687,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 0,
+          "target_position": 114688,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 1,
+          "target_position": 122879,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 0,
+          "target_position": 122880,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 1,
+          "target_position": 131071,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 0,
+          "target_position": 131072,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 1,
+          "target_position": 139263,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 139264,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 147455,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 147456,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 1,
+          "target_position": 155647,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 19,
+          "saved_index": 0,
+          "target_position": 155648,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 19,
+          "saved_index": 1,
+          "target_position": 163839,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 20,
+          "saved_index": 0,
+          "target_position": 163840,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 20,
+          "saved_index": 1,
+          "target_position": 172031,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 21,
+          "saved_index": 0,
+          "target_position": 172032,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 21,
+          "saved_index": 1,
+          "target_position": 180223,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 22,
+          "saved_index": 0,
+          "target_position": 180224,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 22,
+          "saved_index": 1,
+          "target_position": 188415,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 23,
+          "saved_index": 0,
+          "target_position": 188416,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 23,
+          "saved_index": 1,
+          "target_position": 196607,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 24,
+          "saved_index": 0,
+          "target_position": 196608,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 24,
+          "saved_index": 1,
+          "target_position": 204799,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 25,
+          "saved_index": 0,
+          "target_position": 204800,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 25,
+          "saved_index": 1,
+          "target_position": 212991,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 26,
+          "saved_index": 0,
+          "target_position": 212992,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 26,
+          "saved_index": 1,
+          "target_position": 221183,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 27,
+          "saved_index": 0,
+          "target_position": 221184,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 27,
+          "saved_index": 1,
+          "target_position": 229375,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 28,
+          "saved_index": 0,
+          "target_position": 229376,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 28,
+          "saved_index": 1,
+          "target_position": 237567,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 29,
+          "saved_index": 0,
+          "target_position": 237568,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 29,
+          "saved_index": 1,
+          "target_position": 245759,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 30,
+          "saved_index": 0,
+          "target_position": 245760,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 30,
+          "saved_index": 1,
+          "target_position": 253951,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 31,
+          "saved_index": 0,
+          "target_position": 253952,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8191,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 31,
+          "saved_index": 1,
+          "target_position": 262142,
+          "input_token_id": 271,
+          "transaction_row": 8190,
+          "sampled": true,
+          "original_batch_tokens": 8191,
+          "input_provenance": "accepted_history"
+        }
+      ],
+      "query": {
+        "command": [
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262143-out16/qkv.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262143-out16/q-norm.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262143-out16/q-rope.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262143-out16/positions.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
+        ],
+        "returncode": 0,
+        "report": {
+          "rows": 64,
+          "elements_per_boundary": 262144,
+          "norm_bf16_mismatches": 0,
+          "rope_bf16_mismatches": 0,
+          "first_difference": null,
+          "native_inference_acceptance": false
+        },
+        "files": {
+          "qkv": {
+            "file": "qkv.bin",
+            "bytes": 1048576,
+            "sha256": "e83a4d0dce713a5e8508b0765df84edbdaf311522de45b00e922a04af75d9419"
+          },
+          "q-norm": {
+            "file": "q-norm.bin",
+            "bytes": 524288,
+            "sha256": "56f465baf9a0f9c0bfd3f7bce9fd27b14fe7f6fd1ed49987fa82b247cbfc7a10"
+          },
+          "q-rope": {
+            "file": "q-rope.bin",
+            "bytes": 524288,
+            "sha256": "920a99e3a0e7662ef9a43eb5228b58fe551fbe6e40b4a672733c2de47daff57f"
+          },
+          "positions": {
+            "file": "positions.bin",
+            "bytes": 256,
+            "sha256": "70eda6a8c8ce1c6ee28cb7070b98c29cf6654f57240ec5a0d67883ea6b4f6475"
+          }
+        },
+        "local_original_sources_bound_by_comparison_sha256": "72e2299f67805a378549fa4487c43af5cc648623a72bf09bccf0b226f09c3411"
+      },
+      "residual_norms": [
+        {
+          "stage": "post_attention",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/attention-output.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/fusion.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/post-attention-norm.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/post_attention-residual.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "rows": 64,
+            "elements": 131072,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.post_attention_layernorm.weight",
+            "shard": "model-00026-of-00026.safetensors",
+            "shape": [
+              2048
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              2176869376,
+              2176873472
+            ],
+            "absolute_begin": 2176873488,
+            "bytes": 4096,
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "shard_file_bytes": 2231416848,
+            "sha256": "03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a",
+            "file": "original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin"
+          },
+          "output_sha256": "722595b9df881b86e57761ab79b8cf0d12f1d1d843ad4244d5d1f92f00cc7e69"
+        },
+        {
+          "stage": "final",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/moe-output.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/independent-attention-residual.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.norm.weight.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/final-norm.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/final-residual.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "rows": 64,
+            "elements": 131072,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.norm.weight",
+            "shard": "model-00026-of-00026.safetensors",
+            "shape": [
+              2048
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              2231400448,
+              2231404544
+            ],
+            "absolute_begin": 2231404560,
+            "bytes": 4096,
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "shard_file_bytes": 2231416848,
+            "sha256": "b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271",
+            "file": "original-mtp-model-layout-r1/mtp.norm.weight.bin"
+          },
+          "output_sha256": "0102cc0cc7391c4ec052cd926fe0745a93e6308416e4ac23b2fbb164db1d8cd3"
+        }
+      ],
+      "residual_norm_original_files": {
+        "fusion": {
+          "file": "fusion.bin",
+          "sha256": "2bdeeb2fa0e0b53669fd62b46d0b98934f3294522f0cf553f7ef921701bfe61d"
+        },
+        "attention-output": {
+          "file": "attention-output.bin",
+          "sha256": "8c7381efb7e4c83ae1353f06480b8cc63dcb63d6de66436e204afc7e55944b46"
+        },
+        "post-attention-norm": {
+          "file": "post-attention-norm.bin",
+          "sha256": "1843eb8ab6685499c0dc6fccefe5601efa221c505bb681ce1a7a12d7a7b4a297"
+        },
+        "moe-output": {
+          "file": "moe-output.bin",
+          "sha256": "552f1d4ff525be78414340b03056b0020d96bda2f149850d75079ed78b20f384"
+        },
+        "final-norm": {
+          "file": "final-norm.bin",
+          "sha256": "18ac94ca4f7a2ecba256701ed698a9e28a9e5198d774168f80a7f90312e59b88"
+        }
+      },
+      "local_original_residual_sources_bound_by_comparison_sha256": "11d6e4712e4dc867a1cc3b584bfa6894b839ee1e65935c615691f99709e5d820",
+      "original_residual_not_separately_captured": true,
+      "independent_bf16_attention_residual_sha256": "722595b9df881b86e57761ab79b8cf0d12f1d1d843ad4244d5d1f92f00cc7e69",
+      "independent_bf16_attention_residual_matches_cpu": true
+    }
+  ],
+  "asan_ubsan_pass": true,
+  "hip_probe_source_closure": {
+    "tools/mtp_frontier_hip_probe.cpp": {
+      "bytes": 12830,
+      "sha256": "a14f8cbb1b7679530e7013609ef6ba938dcfd86bb670e5b67e9c28c3ca789613"
+    },
+    "native/providers/gdn/sm121_mtp_prompt_cache.h": {
+      "bytes": 8907,
+      "sha256": "e4592998798e4252ecba9b333a0b25b933aaf162262830de63ea9e9742de992b"
+    },
+    "native/providers/gdn/sm121_mtp_frontier.h": {
+      "bytes": 4172,
+      "sha256": "8b8770782b96f85a1a127ec0264463d8c1a6092ff932cd2db29f0179d084239d"
+    },
+    "native/providers/gdn/sm121_mtp_math.h": {
+      "bytes": 1614,
+      "sha256": "cad4eff89ecc6e461a576ea99842cd6e19d9f6ae329d4731013673583e53ff88"
+    },
+    "native/providers/gdn/sm121_q1_math.h": {
+      "bytes": 6456,
+      "sha256": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb"
+    },
+    "native/providers/gdn/sm121_rsqrt_table.h": {
+      "bytes": 3034,
+      "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f"
+    },
+    "native/providers/gdn/sm121_exp2_table.h": {
+      "bytes": 3753,
+      "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142"
+    },
+    "native/providers/gdn/sm121_sqrt_table.h": {
+      "bytes": 2377,
+      "sha256": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1"
+    },
+    "native/providers/gdn/sm121_attention_rcp.h": {
+      "bytes": 3034,
+      "sha256": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6"
+    },
+    "native/providers/gdn/sm121_mtp_kv.h": {
+      "bytes": 2764,
+      "sha256": "ff2c7cb575c063384cf48bc6aeaf296ff095db86ef38c8bf02183475697d470a"
+    },
+    "native/providers/gdn/sm121_mtp_kv_math.h": {
+      "bytes": 1317,
+      "sha256": "b4cd662fe69172accc1b24c0e724462f822704835ac1d6d4cfa10c55f0caca72"
+    },
+    "native/providers/gdn/sm121_bf16_fma.h": {
+      "bytes": 5013,
+      "sha256": "2c1e66061c5a36f231c4e35eadc23ca86b0e647b57ab70c5e9adc51048dbd1ad"
+    },
+    "native/providers/gdn/sm121_mtp_residual.h": {
+      "bytes": 2055,
+      "sha256": "135dadcfe48e69232e2254380f55a0891cbd0ce72e3c4ea296167ec6af51273f"
+    },
+    "native/providers/gdn/sm121_mtp_residual_math.h": {
+      "bytes": 1786,
+      "sha256": "778b44d6f983e682409dc64aa50d1548d9dffc047d50012204c2ab135b69ac48"
+    },
+    "tools/mtp_query_hip_probe.cpp": {
+      "bytes": 5907,
+      "sha256": "44df50394a85b319ae04440b016e15817a19907eeca82e8b6408dc2ec9a77872"
+    },
+    "native/providers/gdn/sm121_mtp_query.h": {
+      "bytes": 2841,
+      "sha256": "1e66f7eb11d9c2f00b9a3b9a856fff403aeaf57f804b1bac399b3f4461c1b918"
+    },
+    "native/providers/gdn/sm121_mtp_query_math.h": {
+      "bytes": 542,
+      "sha256": "83e9e334131e3c335ab3795865f4f4013f27f963b839c260d44aaa5fa20631f9"
+    }
+  },
+  "hip_probes_uncompiled_unrun": true,
+  "prompt_cache_owner_header_now_in_hip_probe_compile_closure": true,
+  "new_gpu_checks": [
+    "Q normalization and original-position RoPE",
+    "Q gate passthrough and immutable inputs",
+    "post-attention and final residual normalization",
+    "out-of-place and in-place outputs",
+    "output redzones, invalid shapes and invalid position extents"
+  ],
+  "native_inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "scope": "CPU helpers use original captured operands. Q/gate extraction follows each projected head. Residual variance uses the unrounded FP32 sum, while its numerator uses the BF16 endpoint. The original observer did not separately capture the rounded residual; its attention residual is independently constructed from the two captured operands and checked against the CPU output. No captured operand or expected output is connected to native inference.",
+  "recorder": {
+    "file": "record_mtp_query_residual_r1.py",
+    "sha256": "04232adeeb8cfe75147c61c970593ca0afa033388b242e77e37d7978e93ba1e9"
+  }
+}
