@@ -1,0 +1,905 @@
+{
+  "kind": "original_q2_connected_linear_native_comparison",
+  "host": "baiying",
+  "source_commit": "88181bdddf90ac51846f2533cfa73b3a23417ba0",
+  "model_reference": "/mnt/data/models/Qwen3.6-35B-A3B",
+  "reference_host": "gb10-4t",
+  "manifest_sha256": "73c55e4432c761ec8f0808656809966b49ebcffafabf226319cb93cbd120b13d",
+  "dispatch_sha256": "c3204cbf09fad658ab3249acf2f27fe239c2659c6d025c61b483799cbbb1131e",
+  "command_file": "run-q2-linear-native-r3.ps1",
+  "command_file_sha256": "5a83ea079fdf64879f6c259e9507c635f0313d07ca86c3db5a7f59b6237a46ea",
+  "dispatch_binding_sha256": "1cb03d0af060143a958fb27ac23c30a5b963e85c83be9ebbc40a9ce96ff4c36a",
+  "reference_dispatch_sha256": "98901baaa6010e4d0604707e446f21ba96ce0293c0555ff19dec1190ae7ebd6b",
+  "evidence_archive": {
+    "evidence_archive": "D:\\projects\\q2-linear-native-r3-evidence.tar.gz",
+    "sha256": "84075491bb652648bbeeeb619775a0b0e807bcf5c0b196e32fb4745584e78677",
+    "bytes": 640288
+  },
+  "downloaded_manifest_sha256": "dcea84b04045f21aac8d2bd1d908cff6a9d00cff198f9e924fa2c71861b21e3f",
+  "comparisons": [
+    {
+      "case": "q7169-out32-txn1-layer0",
+      "run_sha256": "3c5e28b9b382041578bddf4c00e829c542fdf20a8459ddc2722125fd227cee2a",
+      "report": {
+        "kind": "original_q2_recurrence",
+        "layouts": [
+          "value_key",
+          "key_value"
+        ],
+        "native_execution": true,
+        "connected_convolution": true,
+        "configurations": 4,
+        "convolution_bf16_mismatches": 0,
+        "staged_ring_mismatches": 0,
+        "ring_element_configurations": [
+          "f32",
+          "bf16"
+        ],
+        "state_elements": 4194304,
+        "core_elements": 32768,
+        "state_f32_bit_mismatches_by_row": [
+          0,
+          0
+        ],
+        "core_bf16_mismatches_by_row": [
+          0,
+          0
+        ],
+        "accepted_state_selection_errors": 0,
+        "immutable_input_errors": 0,
+        "guard_errors": 0,
+        "rejected_aliases": 12,
+        "passed": true,
+        "resident_cache_published": false,
+        "inference_acceptance": false
+      }
+    },
+    {
+      "case": "q7169-out32-txn1-layer1",
+      "run_sha256": "952d4cba6cab27a58697482e3ed358e05bb0a775bc2676c8842ca5f2c3b7b9ac",
+      "report": {
+        "kind": "original_q2_recurrence",
+        "layouts": [
+          "value_key",
+          "key_value"
+        ],
+        "native_execution": true,
+        "connected_convolution": true,
+        "configurations": 4,
+        "convolution_bf16_mismatches": 0,
+        "staged_ring_mismatches": 0,
+        "ring_element_configurations": [
+          "f32",
+          "bf16"
+        ],
+        "state_elements": 4194304,
+        "core_elements": 32768,
+        "state_f32_bit_mismatches_by_row": [
+          0,
+          0
+        ],
+        "core_bf16_mismatches_by_row": [
+          0,
+          0
+        ],
+        "accepted_state_selection_errors": 0,
+        "immutable_input_errors": 0,
+        "guard_errors": 0,
+        "rejected_aliases": 12,
+        "passed": true,
+        "resident_cache_published": false,
+        "inference_acceptance": false
+      }
+    },
+    {
+      "case": "q7169-out32-txn1-layer2",
+      "run_sha256": "245e79b8c4f48ccd6d560368374c64d093181606da24f67009c37b323787a8c7",
+      "report": {
+        "kind": "original_q2_recurrence",
+        "layouts": [
+          "value_key",
+          "key_value"
+        ],
+        "native_execution": true,
+        "connected_convolution": true,
+        "configurations": 4,
+        "convolution_bf16_mismatches": 0,
+        "staged_ring_mismatches": 0,
+        "ring_element_configurations": [
+          "f32",
+          "bf16"
+        ],
+        "state_elements": 4194304,
+        "core_elements": 32768,
+        "state_f32_bit_mismatches_by_row": [
+          0,
+          0
+        ],
+        "core_bf16_mismatches_by_row": [
+          0,
+          0
+        ],
+        "accepted_state_selection_errors": 0,
+        "immutable_input_errors": 0,
+        "guard_errors": 0,
+        "rejected_aliases": 12,
+        "passed": true,
+        "resident_cache_published": false,
+        "inference_acceptance": false
+      }
+    },
+    {
+      "case": "q7169-out32-txn2-layer0",
+      "run_sha256": "4de85bfea86ebc888655aad2f5cd921ccd38cc1984f6785bf33b25180a7051f1",
+      "report": {
+        "kind": "original_q2_recurrence",
+        "layouts": [
+          "value_key",
+          "key_value"
+        ],
+        "native_execution": true,
+        "connected_convolution": true,
+        "configurations": 4,
+        "convolution_bf16_mismatches": 0,
+        "staged_ring_mismatches": 0,
+        "ring_element_configurations": [
+          "f32",
+          "bf16"
+        ],
+        "state_elements": 4194304,
+        "core_elements": 32768,
+        "state_f32_bit_mismatches_by_row": [
+          0,
+          0
+        ],
+        "core_bf16_mismatches_by_row": [
+          0,
+          0
+        ],
+        "accepted_state_selection_errors": 0,
+        "immutable_input_errors": 0,
+        "guard_errors": 0,
+        "rejected_aliases": 12,
+        "passed": true,
+        "resident_cache_published": false,
+        "inference_acceptance": false
+      }
+    },
+    {
+      "case": "q7169-out32-txn2-layer1",
+      "run_sha256": "85def064a719bcb6844fa0aad69345e7c3d5dac477a3f6e97f3bf67cf02d4542",
+      "report": {
+        "kind": "original_q2_recurrence",
+        "layouts": [
+          "value_key",
+          "key_value"
+        ],
+        "native_execution": true,
+        "connected_convolution": true,
+        "configurations": 4,
+        "convolution_bf16_mismatches": 0,
+        "staged_ring_mismatches": 0,
+        "ring_element_configurations": [
+          "f32",
+          "bf16"
+        ],
+        "state_elements": 4194304,
+        "core_elements": 32768,
+        "state_f32_bit_mismatches_by_row": [
+          0,
+          0
+        ],
+        "core_bf16_mismatches_by_row": [
+          0,
+          0
+        ],
+        "accepted_state_selection_errors": 0,
+        "immutable_input_errors": 0,
+        "guard_errors": 0,
+        "rejected_aliases": 12,
+        "passed": true,
+        "resident_cache_published": false,
+        "inference_acceptance": false
+      }
+    },
+    {
+      "case": "q7169-out32-txn2-layer2",
+      "run_sha256": "8a57700b3bee1ca58c1fa826ba4ca99ef609d4662544ea7cafe76e121941c25f",
+      "report": {
+        "kind": "original_q2_recurrence",
+        "layouts": [
+          "value_key",
+          "key_value"
+        ],
+        "native_execution": true,
+        "connected_convolution": true,
+        "configurations": 4,
+        "convolution_bf16_mismatches": 0,
+        "staged_ring_mismatches": 0,
+        "ring_element_configurations": [
+          "f32",
+          "bf16"
+        ],
+        "state_elements": 4194304,
+        "core_elements": 32768,
+        "state_f32_bit_mismatches_by_row": [
+          0,
+          0
+        ],
+        "core_bf16_mismatches_by_row": [
+          0,
+          0
+        ],
+        "accepted_state_selection_errors": 0,
+        "immutable_input_errors": 0,
+        "guard_errors": 0,
+        "rejected_aliases": 12,
+        "passed": true,
+        "resident_cache_published": false,
+        "inference_acceptance": false
+      }
+    },
+    {
+      "case": "q7169-out32-txn3-layer0",
+      "run_sha256": "767205eab8e691279bac52225355ff7f9c550244968f9ba8ad90e204eebb2cad",
+      "report": {
+        "kind": "original_q2_recurrence",
+        "layouts": [
+          "value_key",
+          "key_value"
+        ],
+        "native_execution": true,
+        "connected_convolution": true,
+        "configurations": 4,
+        "convolution_bf16_mismatches": 0,
+        "staged_ring_mismatches": 0,
+        "ring_element_configurations": [
+          "f32",
+          "bf16"
+        ],
+        "state_elements": 4194304,
+        "core_elements": 32768,
+        "state_f32_bit_mismatches_by_row": [
+          0,
+          0
+        ],
+        "core_bf16_mismatches_by_row": [
+          0,
+          0
+        ],
+        "accepted_state_selection_errors": 0,
+        "immutable_input_errors": 0,
+        "guard_errors": 0,
+        "rejected_aliases": 12,
+        "passed": true,
+        "resident_cache_published": false,
+        "inference_acceptance": false
+      }
+    },
+    {
+      "case": "q7169-out32-txn3-layer1",
+      "run_sha256": "0d95387db72d352f599df6e36f01a02590753392169ed86add6ffd987c81cf8a",
+      "report": {
+        "kind": "original_q2_recurrence",
+        "layouts": [
+          "value_key",
+          "key_value"
+        ],
+        "native_execution": true,
+        "connected_convolution": true,
+        "configurations": 4,
+        "convolution_bf16_mismatches": 0,
+        "staged_ring_mismatches": 0,
+        "ring_element_configurations": [
+          "f32",
+          "bf16"
+        ],
+        "state_elements": 4194304,
+        "core_elements": 32768,
+        "state_f32_bit_mismatches_by_row": [
+          0,
+          0
+        ],
+        "core_bf16_mismatches_by_row": [
+          0,
+          0
+        ],
+        "accepted_state_selection_errors": 0,
+        "immutable_input_errors": 0,
+        "guard_errors": 0,
+        "rejected_aliases": 12,
+        "passed": true,
+        "resident_cache_published": false,
+        "inference_acceptance": false
+      }
+    },
+    {
+      "case": "q7169-out32-txn3-layer2",
+      "run_sha256": "3f7873d61eb14821485ad0daef41b20e541fc8ff03ab7b537794ed0f8bf8e635",
+      "report": {
+        "kind": "original_q2_recurrence",
+        "layouts": [
+          "value_key",
+          "key_value"
+        ],
+        "native_execution": true,
+        "connected_convolution": true,
+        "configurations": 4,
+        "convolution_bf16_mismatches": 0,
+        "staged_ring_mismatches": 0,
+        "ring_element_configurations": [
+          "f32",
+          "bf16"
+        ],
+        "state_elements": 4194304,
+        "core_elements": 32768,
+        "state_f32_bit_mismatches_by_row": [
+          0,
+          0
+        ],
+        "core_bf16_mismatches_by_row": [
+          0,
+          0
+        ],
+        "accepted_state_selection_errors": 0,
+        "immutable_input_errors": 0,
+        "guard_errors": 0,
+        "rejected_aliases": 12,
+        "passed": true,
+        "resident_cache_published": false,
+        "inference_acceptance": false
+      }
+    },
+    {
+      "case": "q8192-out32-txn1-layer0",
+      "run_sha256": "8fab7b6dce28fe72249376b2faca020fb466e1a201650d3ce44a7543d11dd90c",
+      "report": {
+        "kind": "original_q2_recurrence",
+        "layouts": [
+          "value_key",
+          "key_value"
+        ],
+        "native_execution": true,
+        "connected_convolution": true,
+        "configurations": 4,
+        "convolution_bf16_mismatches": 0,
+        "staged_ring_mismatches": 0,
+        "ring_element_configurations": [
+          "f32",
+          "bf16"
+        ],
+        "state_elements": 4194304,
+        "core_elements": 32768,
+        "state_f32_bit_mismatches_by_row": [
+          0,
+          0
+        ],
+        "core_bf16_mismatches_by_row": [
+          0,
+          0
+        ],
+        "accepted_state_selection_errors": 0,
+        "immutable_input_errors": 0,
+        "guard_errors": 0,
+        "rejected_aliases": 12,
+        "passed": true,
+        "resident_cache_published": false,
+        "inference_acceptance": false
+      }
+    },
+    {
+      "case": "q8192-out32-txn1-layer1",
+      "run_sha256": "ddf3ce34acd8118588ff4249880e91d23ad8a75d7ea2c07eb0c9b24cdf2d0019",
+      "report": {
+        "kind": "original_q2_recurrence",
+        "layouts": [
+          "value_key",
+          "key_value"
+        ],
+        "native_execution": true,
+        "connected_convolution": true,
+        "configurations": 4,
+        "convolution_bf16_mismatches": 0,
+        "staged_ring_mismatches": 0,
+        "ring_element_configurations": [
+          "f32",
+          "bf16"
+        ],
+        "state_elements": 4194304,
+        "core_elements": 32768,
+        "state_f32_bit_mismatches_by_row": [
+          0,
+          0
+        ],
+        "core_bf16_mismatches_by_row": [
+          0,
+          0
+        ],
+        "accepted_state_selection_errors": 0,
+        "immutable_input_errors": 0,
+        "guard_errors": 0,
+        "rejected_aliases": 12,
+        "passed": true,
+        "resident_cache_published": false,
+        "inference_acceptance": false
+      }
+    },
+    {
+      "case": "q8192-out32-txn1-layer2",
+      "run_sha256": "afd17c0903cb0fb4bf78005dd77a3b679eff4b91455365e87b677d012e37fa28",
+      "report": {
+        "kind": "original_q2_recurrence",
+        "layouts": [
+          "value_key",
+          "key_value"
+        ],
+        "native_execution": true,
+        "connected_convolution": true,
+        "configurations": 4,
+        "convolution_bf16_mismatches": 0,
+        "staged_ring_mismatches": 0,
+        "ring_element_configurations": [
+          "f32",
+          "bf16"
+        ],
+        "state_elements": 4194304,
+        "core_elements": 32768,
+        "state_f32_bit_mismatches_by_row": [
+          0,
+          0
+        ],
+        "core_bf16_mismatches_by_row": [
+          0,
+          0
+        ],
+        "accepted_state_selection_errors": 0,
+        "immutable_input_errors": 0,
+        "guard_errors": 0,
+        "rejected_aliases": 12,
+        "passed": true,
+        "resident_cache_published": false,
+        "inference_acceptance": false
+      }
+    },
+    {
+      "case": "q8192-out32-txn2-layer0",
+      "run_sha256": "d238152ab036fb811b16dfa47d1895bc6afbdcb1f8d3e60787895e8e214b36f3",
+      "report": {
+        "kind": "original_q2_recurrence",
+        "layouts": [
+          "value_key",
+          "key_value"
+        ],
+        "native_execution": true,
+        "connected_convolution": true,
+        "configurations": 4,
+        "convolution_bf16_mismatches": 0,
+        "staged_ring_mismatches": 0,
+        "ring_element_configurations": [
+          "f32",
+          "bf16"
+        ],
+        "state_elements": 4194304,
+        "core_elements": 32768,
+        "state_f32_bit_mismatches_by_row": [
+          0,
+          0
+        ],
+        "core_bf16_mismatches_by_row": [
+          0,
+          0
+        ],
+        "accepted_state_selection_errors": 0,
+        "immutable_input_errors": 0,
+        "guard_errors": 0,
+        "rejected_aliases": 12,
+        "passed": true,
+        "resident_cache_published": false,
+        "inference_acceptance": false
+      }
+    },
+    {
+      "case": "q8192-out32-txn2-layer1",
+      "run_sha256": "a093b00bfb0b89fb9e20f0959e915e4987cd1396d619f0e2bd3a97341db2c3e9",
+      "report": {
+        "kind": "original_q2_recurrence",
+        "layouts": [
+          "value_key",
+          "key_value"
+        ],
+        "native_execution": true,
+        "connected_convolution": true,
+        "configurations": 4,
+        "convolution_bf16_mismatches": 0,
+        "staged_ring_mismatches": 0,
+        "ring_element_configurations": [
+          "f32",
+          "bf16"
+        ],
+        "state_elements": 4194304,
+        "core_elements": 32768,
+        "state_f32_bit_mismatches_by_row": [
+          0,
+          0
+        ],
+        "core_bf16_mismatches_by_row": [
+          0,
+          0
+        ],
+        "accepted_state_selection_errors": 0,
+        "immutable_input_errors": 0,
+        "guard_errors": 0,
+        "rejected_aliases": 12,
+        "passed": true,
+        "resident_cache_published": false,
+        "inference_acceptance": false
+      }
+    },
+    {
+      "case": "q8192-out32-txn2-layer2",
+      "run_sha256": "25d7e9d733f564f3a0fd6575e28d3e9dd6b581d94631ce508ac8866920518f87",
+      "report": {
+        "kind": "original_q2_recurrence",
+        "layouts": [
+          "value_key",
+          "key_value"
+        ],
+        "native_execution": true,
+        "connected_convolution": true,
+        "configurations": 4,
+        "convolution_bf16_mismatches": 0,
+        "staged_ring_mismatches": 0,
+        "ring_element_configurations": [
+          "f32",
+          "bf16"
+        ],
+        "state_elements": 4194304,
+        "core_elements": 32768,
+        "state_f32_bit_mismatches_by_row": [
+          0,
+          0
+        ],
+        "core_bf16_mismatches_by_row": [
+          0,
+          0
+        ],
+        "accepted_state_selection_errors": 0,
+        "immutable_input_errors": 0,
+        "guard_errors": 0,
+        "rejected_aliases": 12,
+        "passed": true,
+        "resident_cache_published": false,
+        "inference_acceptance": false
+      }
+    }
+  ],
+  "all_bit_exact": true,
+  "all_host_guards_pass": true,
+  "model_loaded": false,
+  "target_runtime_integration": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "native_runs": [
+    {
+      "name": "q7169-out32-txn1-layer0",
+      "wall_ms": 670.283,
+      "run_record": {
+        "file": "q2-linear-native-r3/q7169-out32-txn1-layer0/run-record.json",
+        "bytes": 329969,
+        "sha256": "3c5e28b9b382041578bddf4c00e829c542fdf20a8459ddc2722125fd227cee2a"
+      },
+      "host": "BAIYING",
+      "source_commit": "88181bdddf90ac51846f2533cfa73b3a23417ba0",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "q7169-out32-txn1-layer1",
+      "wall_ms": 407.359,
+      "run_record": {
+        "file": "q2-linear-native-r3/q7169-out32-txn1-layer1/run-record.json",
+        "bytes": 329969,
+        "sha256": "952d4cba6cab27a58697482e3ed358e05bb0a775bc2676c8842ca5f2c3b7b9ac"
+      },
+      "host": "BAIYING",
+      "source_commit": "88181bdddf90ac51846f2533cfa73b3a23417ba0",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "q7169-out32-txn1-layer2",
+      "wall_ms": 381.467,
+      "run_record": {
+        "file": "q2-linear-native-r3/q7169-out32-txn1-layer2/run-record.json",
+        "bytes": 329969,
+        "sha256": "245e79b8c4f48ccd6d560368374c64d093181606da24f67009c37b323787a8c7"
+      },
+      "host": "BAIYING",
+      "source_commit": "88181bdddf90ac51846f2533cfa73b3a23417ba0",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "q7169-out32-txn2-layer0",
+      "wall_ms": 386.531,
+      "run_record": {
+        "file": "q2-linear-native-r3/q7169-out32-txn2-layer0/run-record.json",
+        "bytes": 329973,
+        "sha256": "4de85bfea86ebc888655aad2f5cd921ccd38cc1984f6785bf33b25180a7051f1"
+      },
+      "host": "BAIYING",
+      "source_commit": "88181bdddf90ac51846f2533cfa73b3a23417ba0",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "q7169-out32-txn2-layer1",
+      "wall_ms": 382.441,
+      "run_record": {
+        "file": "q2-linear-native-r3/q7169-out32-txn2-layer1/run-record.json",
+        "bytes": 329973,
+        "sha256": "85def064a719bcb6844fa0aad69345e7c3d5dac477a3f6e97f3bf67cf02d4542"
+      },
+      "host": "BAIYING",
+      "source_commit": "88181bdddf90ac51846f2533cfa73b3a23417ba0",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "q7169-out32-txn2-layer2",
+      "wall_ms": 382.642,
+      "run_record": {
+        "file": "q2-linear-native-r3/q7169-out32-txn2-layer2/run-record.json",
+        "bytes": 329973,
+        "sha256": "8a57700b3bee1ca58c1fa826ba4ca99ef609d4662544ea7cafe76e121941c25f"
+      },
+      "host": "BAIYING",
+      "source_commit": "88181bdddf90ac51846f2533cfa73b3a23417ba0",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "q7169-out32-txn3-layer0",
+      "wall_ms": 379.643,
+      "run_record": {
+        "file": "q2-linear-native-r3/q7169-out32-txn3-layer0/run-record.json",
+        "bytes": 329973,
+        "sha256": "767205eab8e691279bac52225355ff7f9c550244968f9ba8ad90e204eebb2cad"
+      },
+      "host": "BAIYING",
+      "source_commit": "88181bdddf90ac51846f2533cfa73b3a23417ba0",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "q7169-out32-txn3-layer1",
+      "wall_ms": 385.522,
+      "run_record": {
+        "file": "q2-linear-native-r3/q7169-out32-txn3-layer1/run-record.json",
+        "bytes": 329973,
+        "sha256": "0d95387db72d352f599df6e36f01a02590753392169ed86add6ffd987c81cf8a"
+      },
+      "host": "BAIYING",
+      "source_commit": "88181bdddf90ac51846f2533cfa73b3a23417ba0",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "q7169-out32-txn3-layer2",
+      "wall_ms": 388.703,
+      "run_record": {
+        "file": "q2-linear-native-r3/q7169-out32-txn3-layer2/run-record.json",
+        "bytes": 329973,
+        "sha256": "3f7873d61eb14821485ad0daef41b20e541fc8ff03ab7b537794ed0f8bf8e635"
+      },
+      "host": "BAIYING",
+      "source_commit": "88181bdddf90ac51846f2533cfa73b3a23417ba0",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "q8192-out32-txn1-layer0",
+      "wall_ms": 379.321,
+      "run_record": {
+        "file": "q2-linear-native-r3/q8192-out32-txn1-layer0/run-record.json",
+        "bytes": 329971,
+        "sha256": "8fab7b6dce28fe72249376b2faca020fb466e1a201650d3ce44a7543d11dd90c"
+      },
+      "host": "BAIYING",
+      "source_commit": "88181bdddf90ac51846f2533cfa73b3a23417ba0",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "q8192-out32-txn1-layer1",
+      "wall_ms": 376.78,
+      "run_record": {
+        "file": "q2-linear-native-r3/q8192-out32-txn1-layer1/run-record.json",
+        "bytes": 329970,
+        "sha256": "ddf3ce34acd8118588ff4249880e91d23ad8a75d7ea2c07eb0c9b24cdf2d0019"
+      },
+      "host": "BAIYING",
+      "source_commit": "88181bdddf90ac51846f2533cfa73b3a23417ba0",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "q8192-out32-txn1-layer2",
+      "wall_ms": 384.079,
+      "run_record": {
+        "file": "q2-linear-native-r3/q8192-out32-txn1-layer2/run-record.json",
+        "bytes": 329971,
+        "sha256": "afd17c0903cb0fb4bf78005dd77a3b679eff4b91455365e87b677d012e37fa28"
+      },
+      "host": "BAIYING",
+      "source_commit": "88181bdddf90ac51846f2533cfa73b3a23417ba0",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "q8192-out32-txn2-layer0",
+      "wall_ms": 382.226,
+      "run_record": {
+        "file": "q2-linear-native-r3/q8192-out32-txn2-layer0/run-record.json",
+        "bytes": 329969,
+        "sha256": "d238152ab036fb811b16dfa47d1895bc6afbdcb1f8d3e60787895e8e214b36f3"
+      },
+      "host": "BAIYING",
+      "source_commit": "88181bdddf90ac51846f2533cfa73b3a23417ba0",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "q8192-out32-txn2-layer1",
+      "wall_ms": 383.83,
+      "run_record": {
+        "file": "q2-linear-native-r3/q8192-out32-txn2-layer1/run-record.json",
+        "bytes": 329968,
+        "sha256": "a093b00bfb0b89fb9e20f0959e915e4987cd1396d619f0e2bd3a97341db2c3e9"
+      },
+      "host": "BAIYING",
+      "source_commit": "88181bdddf90ac51846f2533cfa73b3a23417ba0",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "q8192-out32-txn2-layer2",
+      "wall_ms": 378.697,
+      "run_record": {
+        "file": "q2-linear-native-r3/q8192-out32-txn2-layer2/run-record.json",
+        "bytes": 329969,
+        "sha256": "25d7e9d733f564f3a0fd6575e28d3e9dd6b581d94631ce508ac8866920518f87"
+      },
+      "host": "BAIYING",
+      "source_commit": "88181bdddf90ac51846f2533cfa73b3a23417ba0",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "qrt-q2-linear-build",
+      "wall_ms": 2515.956,
+      "run_record": {
+        "file": "q2-linear-native-r3/qrt-q2-linear-build/run-record.json",
+        "bytes": 13586,
+        "sha256": "34c2de0a31db06115ba5129e85181c18da2612ac25b57f167f3cc5872a5da460"
+      },
+      "host": "BAIYING",
+      "source_commit": "88181bdddf90ac51846f2533cfa73b3a23417ba0",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    }
+  ],
+  "comparison_record": {
+    "file": "q2-linear-native-r3/comparison.json",
+    "bytes": 16691,
+    "sha256": "9ef2761d8d498ee653405cc5c5f55e57000c0602a15ad345037a0cc73cacb96b"
+  },
+  "preceding_probe_failures": [
+    {
+      "record": {
+        "file": "q2-linear-native-r1/q7169-out32-txn1-layer0/run-record.json",
+        "bytes": 329969,
+        "sha256": "0073a0eed886ac09b82d8c5018768bf4f0238c55bbdafa3e2b119d5a6857c178"
+      },
+      "stderr": "invalid argument\n",
+      "root_cause": "Probe attempted an immutability readback from its null captured-convolution pointer after connected computation; fixed without changing arithmetic."
+    },
+    {
+      "record": {
+        "file": "q2-linear-native-r2/q7169-out32-txn1-layer0/run-record.json",
+        "bytes": 329969,
+        "sha256": "35fdcd4900d4031115879a8c55472fc92933e3d53582c5c9dbd62ab36f70072d"
+      },
+      "stderr": "{\"kind\":\"q2_kernel_resources\",\"kernel\":\"recurrence\",\"maximum_threads\":1024,\"registers\":192,\"local_bytes\":352,\"shared_bytes\":1032}\n{\"kind\":\"q2_kernel_resources\",\"kernel\":\"convolution_f32\",\"maximum_threads\":1024,\"registers\":27,\"local_bytes\":0,\"shared_bytes\":0}\n{\"kind\":\"q2_kernel_resources\",\"kernel\":\"convolution_bf16\",\"maximum_threads\":1024,\"registers\":21,\"local_bytes\":0,\"shared_bytes\":0}\nphase=copy_results configuration=3 error=invalid argument\n",
+      "root_cause": "Probe attempted an immutability readback from its null captured-convolution pointer after connected computation; fixed without changing arithmetic."
+    }
+  ],
+  "recorded_utc": "2026-09-20T13:14:33.413179+00:00",
+  "recorder_host": "Jiawei-MacminideMac-mini.local",
+  "generator": {
+    "file": "publish_native_and_projection_evidence_r1.py",
+    "bytes": 7606,
+    "sha256": "48375ee7c58a156f082183001980ebb1869da81be3adc2cfb2a4cc9e113f244f"
+  }
+}

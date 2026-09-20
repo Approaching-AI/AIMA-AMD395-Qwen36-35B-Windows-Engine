@@ -1,0 +1,1317 @@
+{
+  "kind": "original_complete_mtp_native_component_comparison",
+  "host": "baiying",
+  "source_commit": "9b9f8bb2a621516bdca813d4ff41e5f6b9b2a3ff",
+  "model": "D:/models/Qwen3.6-35B-A3B",
+  "model_reference": "/mnt/data/models/Qwen3.6-35B-A3B",
+  "manifest_sha256": "b67d39a0fd0d02511686766889dd11a7c7cb2ad337360b0e3ad63a48dd0f5aa1",
+  "dispatch_sha256": "3c1a54016e7e2eec43c162216fe7299e34702d964e08addec77ba4dc15da5004",
+  "command_file": "run-mtp-native-drafter-r1.ps1",
+  "command_file_sha256": "5fd67c822ec7657737fd7d638bd857788c052093da17e36d50c3089f2beb144a",
+  "dispatch_binding_sha256": "19c0e1261bb42f463ce711c938d1436993cc55a24fb474817ccff1a4774631a1",
+  "reference_dispatch_sha256": "87595fd468ce45dc57bd1bbde21d18091e466d3a94068723bdd5378388dd8981",
+  "evidence_archive": {
+    "evidence_archive": "D:\\projects\\mtp-native-drafter-r1-evidence.tar.gz",
+    "sha256": "b122427d31f9a8bdaf6826e57b53e3448fed34f3f26d37ce685ce0e46537cb15",
+    "bytes": 367681
+  },
+  "downloaded_manifest_sha256": "ac193bab543b25a9a16ea0d37fb6dc019b7714185151bfa1535378053ef77bfc",
+  "model_weight_bindings": [
+    {
+      "spans": [
+        {
+          "name": "mtp.pre_fc_norm_embedding.weight",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            2048
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            2231404544,
+            2231408640
+          ],
+          "absolute_begin": 2231408656,
+          "bytes": 4096,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484",
+      "bytes": 4096,
+      "label": "embedding-norm",
+      "read_seconds": 0.0600304,
+      "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/embedding-norm.bin"
+    },
+    {
+      "spans": [
+        {
+          "name": "mtp.pre_fc_norm_hidden.weight",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            2048
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            2231408640,
+            2231412736
+          ],
+          "absolute_begin": 2231412752,
+          "bytes": 4096,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18",
+      "bytes": 4096,
+      "label": "hidden-norm",
+      "read_seconds": 0.0052921999999999995,
+      "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/hidden-norm.bin"
+    },
+    {
+      "spans": [
+        {
+          "name": "mtp.fc.weight",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            2048,
+            4096
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            1615873024,
+            1632650240
+          ],
+          "absolute_begin": 1615877136,
+          "bytes": 16777216,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "5015bb3b80ffa82d5c9fb353e776f2351d2ce5361a02230111b4d15f447aa024",
+      "bytes": 16777216,
+      "label": "fusion",
+      "read_seconds": 0.046855999999999995,
+      "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/fusion.bin"
+    },
+    {
+      "spans": [
+        {
+          "name": "mtp.layers.0.input_layernorm.weight",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            2048
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            1632650240,
+            1632654336
+          ],
+          "absolute_begin": 1632654352,
+          "bytes": 4096,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "99fc176e7b890192ed0403677fa775eabc9a44d70b67592195909bc26be586bb",
+      "bytes": 4096,
+      "label": "input-norm",
+      "read_seconds": 0.006269299999999999,
+      "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/input-norm.bin"
+    },
+    {
+      "spans": [
+        {
+          "name": "mtp.layers.0.self_attn.k_proj.weight",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            512,
+            2048
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            2176873984,
+            2178971136
+          ],
+          "absolute_begin": 2176878096,
+          "bytes": 2097152,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        },
+        {
+          "name": "mtp.layers.0.self_attn.v_proj.weight",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            512,
+            2048
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            2229303296,
+            2231400448
+          ],
+          "absolute_begin": 2229307408,
+          "bytes": 2097152,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "1269d6164080d77ccccd1c27da312aa3cae79208c308f904fd29daaf04a5e4fb",
+      "bytes": 4194304,
+      "label": "kv-projection",
+      "read_seconds": 0.0218205,
+      "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/kv-projection.bin"
+    },
+    {
+      "spans": [
+        {
+          "name": "mtp.layers.0.self_attn.k_norm.weight",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            256
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            2176873472,
+            2176873984
+          ],
+          "absolute_begin": 2176877584,
+          "bytes": 512,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938",
+      "bytes": 512,
+      "label": "key-norm",
+      "read_seconds": 0.0108186,
+      "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/key-norm.bin"
+    },
+    {
+      "spans": [
+        {
+          "name": "mtp.layers.0.self_attn.q_norm.weight",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            256
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            2195748352,
+            2195748864
+          ],
+          "absolute_begin": 2195752464,
+          "bytes": 512,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "c57bdab3a6844454085b1df4991bc46443ae2495c4a620ec22e0d1b93c27fbba",
+      "bytes": 512,
+      "label": "query-norm",
+      "read_seconds": 0.005748,
+      "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/query-norm.bin"
+    },
+    {
+      "spans": [
+        {
+          "name": "mtp.layers.0.post_attention_layernorm.weight",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            2048
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            2176869376,
+            2176873472
+          ],
+          "absolute_begin": 2176873488,
+          "bytes": 4096,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a",
+      "bytes": 4096,
+      "label": "post-attention-norm",
+      "read_seconds": 0.013320799999999999,
+      "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/post-attention-norm.bin"
+    },
+    {
+      "spans": [
+        {
+          "name": "mtp.norm.weight",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            2048
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            2231400448,
+            2231404544
+          ],
+          "absolute_begin": 2231404560,
+          "bytes": 4096,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271",
+      "bytes": 4096,
+      "label": "final-norm",
+      "read_seconds": 0.0056984,
+      "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/final-norm.bin"
+    },
+    {
+      "spans": [
+        {
+          "name": "mtp.layers.0.self_attn.q_proj.weight",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            8192,
+            2048
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            2195748864,
+            2229303296
+          ],
+          "absolute_begin": 2195752976,
+          "bytes": 33554432,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "e6863a8871e0fed92e5d4821d2a77a110b9906136417ac16b9c5196928beb163",
+      "bytes": 33554432,
+      "label": "query",
+      "read_seconds": 0.07066259999999999,
+      "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/query.bin"
+    },
+    {
+      "spans": [
+        {
+          "name": "mtp.layers.0.self_attn.o_proj.weight",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            2048,
+            4096
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            2178971136,
+            2195748352
+          ],
+          "absolute_begin": 2178975248,
+          "bytes": 16777216,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "98be07d123f23cd309c507f2f484091942ed90392b673303c9436abdf8204380",
+      "bytes": 16777216,
+      "label": "output",
+      "read_seconds": 0.044827,
+      "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/output.bin"
+    },
+    {
+      "spans": [
+        {
+          "name": "mtp.layers.0.mlp.gate.weight",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            256,
+            2048
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            2169525248,
+            2170573824
+          ],
+          "absolute_begin": 2169529360,
+          "bytes": 1048576,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "ed592b6a2138228dc40dacc96179ce0c657ebd5c55c92476938c4eb0ede9108c",
+      "bytes": 1048576,
+      "label": "router",
+      "read_seconds": 0.0160555,
+      "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/router.bin"
+    },
+    {
+      "spans": [
+        {
+          "name": "mtp.layers.0.mlp.shared_expert_gate.weight",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            1,
+            2048
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            2176865280,
+            2176869376
+          ],
+          "absolute_begin": 2176869392,
+          "bytes": 4096,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "6cf70655851eae34334fc252072d3d872d908b6ea2479ac45676e667ded61c2e",
+      "bytes": 4096,
+      "label": "shared-gate",
+      "read_seconds": 0.0060563,
+      "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/shared-gate.bin"
+    },
+    {
+      "spans": [
+        {
+          "name": "mtp.layers.0.mlp.shared_expert.gate_proj.weight",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            512,
+            2048
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            2172670976,
+            2174768128
+          ],
+          "absolute_begin": 2172675088,
+          "bytes": 2097152,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        },
+        {
+          "name": "mtp.layers.0.mlp.shared_expert.up_proj.weight",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            512,
+            2048
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            2174768128,
+            2176865280
+          ],
+          "absolute_begin": 2174772240,
+          "bytes": 2097152,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "b06769a745ea0ddc660ce3168e34cdb0a085e0b6335505d945e2ec79c293ada7",
+      "bytes": 4194304,
+      "label": "shared-gate-up",
+      "read_seconds": 0.0226547,
+      "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/shared-gate-up.bin"
+    },
+    {
+      "spans": [
+        {
+          "name": "mtp.layers.0.mlp.shared_expert.down_proj.weight",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            2048,
+            512
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            2170573824,
+            2172670976
+          ],
+          "absolute_begin": 2170577936,
+          "bytes": 2097152,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "e1ac113656bcf5bcac1ebbc46c61f6b40d7cc480aeef6e58dada17073f18458e",
+      "bytes": 2097152,
+      "label": "shared-down",
+      "read_seconds": 0.015456699999999999,
+      "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/shared-down.bin"
+    },
+    {
+      "spans": [
+        {
+          "name": "mtp.layers.0.mlp.experts.down_proj",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            256,
+            2048,
+            512
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            1632654336,
+            2169525248
+          ],
+          "absolute_begin": 1632658448,
+          "bytes": 536870912,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "671f3f8436a859d11582489d78ef3122f392e3d2f7f2635ad7778b6e52d27e9f",
+      "bytes": 536870912,
+      "label": "routed-down",
+      "read_seconds": 0.24501309999999998,
+      "export_path": null
+    },
+    {
+      "spans": [
+        {
+          "name": "mtp.layers.0.mlp.experts.gate_up_proj",
+          "shard": "model-00025-of-00026.safetensors",
+          "shape": [
+            256,
+            1024,
+            2048
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            2759143808,
+            3832885632
+          ],
+          "absolute_begin": 2759146432,
+          "bytes": 1073741824,
+          "header_sha256": "a1213b03752357c4ef03c1fb806bc445f5230de6e4c70fe252328ad707322d39",
+          "shard_file_bytes": 3832888256
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "149557e68804517a9f161ede0e39cf287d70e847c9970eb5e80e0cd386e97e9a",
+      "bytes": 1073741824,
+      "label": "routed-gate-up",
+      "read_seconds": 0.4988376,
+      "export_path": null
+    },
+    {
+      "spans": [
+        {
+          "name": "model.language_model.embed_tokens.weight",
+          "shard": "model-00001-of-00026.safetensors",
+          "shape": [
+            248320,
+            2048
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            0,
+            1017118720
+          ],
+          "absolute_begin": 2848,
+          "bytes": 1017118720,
+          "header_sha256": "69c3b8c645af1e7abc1cd7b02224c7e68571e10e2c15d3b638173d42aa407995",
+          "shard_file_bytes": 3996199712
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "fa0611f12cdb3827ce18c6e008645584fcd16156579011f6c63be499d2443b0f",
+      "bytes": 1017118720,
+      "label": "embeddings",
+      "read_seconds": 0.4749981,
+      "export_path": null
+    },
+    {
+      "spans": [
+        {
+          "name": "lm_head.weight",
+          "shard": "model-00026-of-00026.safetensors",
+          "shape": [
+            248320,
+            2048
+          ],
+          "dtype": "BF16",
+          "data_offsets": [
+            0,
+            1017118720
+          ],
+          "absolute_begin": 4112,
+          "bytes": 1017118720,
+          "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+          "shard_file_bytes": 2231416848
+        }
+      ],
+      "read_timeout_seconds": 60,
+      "pass": true,
+      "sha256": "394297e7d76ec7239250841017960a62ea6b4fa3af44a9f08ea6e6b743a94661",
+      "bytes": 1017118720,
+      "label": "lm-head",
+      "read_seconds": 0.47572929999999997,
+      "export_path": null
+    }
+  ],
+  "model_weight_bindings_sha256": "6f392c337a2df2ffc523b04502dd4aed74d0950dfa0f6de221e312758e81634c",
+  "operand_manifest_sha256": "51b4c09710fabe53e4a5c88f4d22889adc427d14713395c047578eedde2a887c",
+  "comparisons": [
+    {
+      "case": "moe-0",
+      "stage": "complete_moe",
+      "run_sha256": "8901226d2ceab3073a23686a3595582ca1e6f106ccbcf0617396c09c763c105f",
+      "report": {
+        "kind": "original_mtp_moe_native_chain",
+        "rows": 33,
+        "row_batch_configurations": [
+          1,
+          2
+        ],
+        "maximum_blocks": [
+          7,
+          1024
+        ],
+        "configurations": 4,
+        "calls": 100,
+        "workspace_bytes": 155648,
+        "checks": {
+          "expert-part-1": {
+            "elements": 270336,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "moe-output": {
+            "elements": 270336,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "routed-activated": {
+            "elements": 540672,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "routed-gate-up": {
+            "elements": 1081344,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "routed-weighted": {
+            "elements": 2162688,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "router": {
+            "elements": 33792,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared": {
+            "elements": 270336,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared-activated": {
+            "elements": 67584,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared-down": {
+            "elements": 270336,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared-gate": {
+            "elements": 132,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared-gate-up": {
+            "elements": 135168,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "topk-ids": {
+            "elements": 1056,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "topk-weights": {
+            "elements": 1056,
+            "mismatches": 0,
+            "first_difference": null
+          }
+        },
+        "guard_mismatches": 0,
+        "padding_mismatches": 0,
+        "invalid_device_flags": 0,
+        "immutable_input_byte_mismatches": 0,
+        "invalid_launch_cases": 9,
+        "passed": true,
+        "inference_acceptance": false,
+        "performance_acceptance": false
+      }
+    },
+    {
+      "case": "head-0",
+      "stage": "output_head",
+      "run_sha256": "1e8dee582d2f9a8277f9e665c25b1ddc83bbd8f2f8c76d03e0e9f0b71bdcdd08",
+      "report": {
+        "kind": "original_mtp_head_native",
+        "rows": 19,
+        "calls": 58,
+        "configurations": 4,
+        "row_batch_configurations": [
+          1,
+          2
+        ],
+        "maximum_blocks": [
+          7,
+          1024
+        ],
+        "projection_elements": 18872320,
+        "projection_mismatches": 0,
+        "first_projection_difference": null,
+        "selected_id_mismatches": 0,
+        "selected_logit_mismatches": 0,
+        "selected_rows_compared": 76,
+        "guard_and_unused_mismatches": 0,
+        "invalid_device_flags": 0,
+        "immutable_input_byte_mismatches": 0,
+        "rejected_launch_cases": 9,
+        "passed": true,
+        "inference_acceptance": false,
+        "performance_acceptance": false
+      }
+    },
+    {
+      "case": "drafter-0",
+      "stage": "complete_drafter",
+      "run_sha256": "ddc971a356afc6d3cb0080c10fb2f4fc109fdf1bd4d104f9ce3a56573b89fc14",
+      "report": {
+        "kind": "original_complete_mtp_drafter_component_replay",
+        "transactions": 19,
+        "original_prompt_rows": 7169,
+        "accepted_query_rows": 33,
+        "history_rows": 7201,
+        "proposal_batch_configurations": [
+          1,
+          2
+        ],
+        "configurations": 2,
+        "proposal_calls": 52,
+        "cache_truncations": 38,
+        "maximum_owner_bytes": 149135412,
+        "rejected_contracts": 4,
+        "checks": {
+          "attention-output": {
+            "elements": 135168,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "attention-residual": {
+            "elements": 135168,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "context": {
+            "elements": 270336,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "expert-part-1": {
+            "elements": 135168,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "final-norm": {
+            "elements": 135168,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "gated": {
+            "elements": 270336,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "gates": {
+            "elements": 270336,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "moe-output": {
+            "elements": 135168,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "post-attention-norm": {
+            "elements": 135168,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "queries": {
+            "elements": 270336,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "query-projection": {
+            "elements": 540672,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "routed-activated": {
+            "elements": 270336,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "routed-gate-up": {
+            "elements": 540672,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "routed-weighted": {
+            "elements": 1081344,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "router": {
+            "elements": 16896,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared": {
+            "elements": 135168,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared-activated": {
+            "elements": 33792,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared-down": {
+            "elements": 135168,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared-gate": {
+            "elements": 66,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared-gate-up": {
+            "elements": 67584,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "topk-ids": {
+            "elements": 528,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "topk-weights": {
+            "elements": 528,
+            "mismatches": 0,
+            "first_difference": null
+          }
+        },
+        "vocabulary_elements": 9436160,
+        "vocabulary_mismatches": 0,
+        "sampled_tokens_compared": 38,
+        "sampled_token_mismatches": 0,
+        "sampled_logit_mismatches": 0,
+        "cache_elements": 14747648,
+        "cache_mismatches": 0,
+        "immutable_input_byte_mismatches": 0,
+        "passed": true,
+        "original_schedule_drives_probe_only": true,
+        "expected_frontiers_are_compute_input": false,
+        "model_inference": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false
+      }
+    },
+    {
+      "case": "moe-1",
+      "stage": "complete_moe",
+      "run_sha256": "69941b79298c9224dd79c3445066f5f3ab6900a46684f442e50bd4af63caa20c",
+      "report": {
+        "kind": "original_mtp_moe_native_chain",
+        "rows": 33,
+        "row_batch_configurations": [
+          1,
+          2
+        ],
+        "maximum_blocks": [
+          7,
+          1024
+        ],
+        "configurations": 4,
+        "calls": 100,
+        "workspace_bytes": 155648,
+        "checks": {
+          "expert-part-1": {
+            "elements": 270336,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "moe-output": {
+            "elements": 270336,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "routed-activated": {
+            "elements": 540672,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "routed-gate-up": {
+            "elements": 1081344,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "routed-weighted": {
+            "elements": 2162688,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "router": {
+            "elements": 33792,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared": {
+            "elements": 270336,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared-activated": {
+            "elements": 67584,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared-down": {
+            "elements": 270336,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared-gate": {
+            "elements": 132,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared-gate-up": {
+            "elements": 135168,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "topk-ids": {
+            "elements": 1056,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "topk-weights": {
+            "elements": 1056,
+            "mismatches": 0,
+            "first_difference": null
+          }
+        },
+        "guard_mismatches": 0,
+        "padding_mismatches": 0,
+        "invalid_device_flags": 0,
+        "immutable_input_byte_mismatches": 0,
+        "invalid_launch_cases": 9,
+        "passed": true,
+        "inference_acceptance": false,
+        "performance_acceptance": false
+      }
+    },
+    {
+      "case": "head-1",
+      "stage": "output_head",
+      "run_sha256": "cffb12d28ee2f5e0d69280955cdce5eb9458c39bd446309baa1e818a5d672776",
+      "report": {
+        "kind": "original_mtp_head_native",
+        "rows": 20,
+        "calls": 60,
+        "configurations": 4,
+        "row_batch_configurations": [
+          1,
+          2
+        ],
+        "maximum_blocks": [
+          7,
+          1024
+        ],
+        "projection_elements": 19865600,
+        "projection_mismatches": 0,
+        "first_projection_difference": null,
+        "selected_id_mismatches": 0,
+        "selected_logit_mismatches": 0,
+        "selected_rows_compared": 80,
+        "guard_and_unused_mismatches": 0,
+        "invalid_device_flags": 0,
+        "immutable_input_byte_mismatches": 0,
+        "rejected_launch_cases": 9,
+        "passed": true,
+        "inference_acceptance": false,
+        "performance_acceptance": false
+      }
+    },
+    {
+      "case": "drafter-1",
+      "stage": "complete_drafter",
+      "run_sha256": "074685adbba0cb5ba3653935785437a4f574ca0f04c995939870624f73b7b269",
+      "report": {
+        "kind": "original_complete_mtp_drafter_component_replay",
+        "transactions": 20,
+        "original_prompt_rows": 8192,
+        "accepted_query_rows": 33,
+        "history_rows": 8224,
+        "proposal_batch_configurations": [
+          1,
+          2
+        ],
+        "configurations": 2,
+        "proposal_calls": 53,
+        "cache_truncations": 40,
+        "maximum_owner_bytes": 170217524,
+        "rejected_contracts": 4,
+        "checks": {
+          "attention-output": {
+            "elements": 135168,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "attention-residual": {
+            "elements": 135168,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "context": {
+            "elements": 270336,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "expert-part-1": {
+            "elements": 135168,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "final-norm": {
+            "elements": 135168,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "gated": {
+            "elements": 270336,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "gates": {
+            "elements": 270336,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "moe-output": {
+            "elements": 135168,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "post-attention-norm": {
+            "elements": 135168,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "queries": {
+            "elements": 270336,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "query-projection": {
+            "elements": 540672,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "routed-activated": {
+            "elements": 270336,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "routed-gate-up": {
+            "elements": 540672,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "routed-weighted": {
+            "elements": 1081344,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "router": {
+            "elements": 16896,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared": {
+            "elements": 135168,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared-activated": {
+            "elements": 33792,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared-down": {
+            "elements": 135168,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared-gate": {
+            "elements": 66,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "shared-gate-up": {
+            "elements": 67584,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "topk-ids": {
+            "elements": 528,
+            "mismatches": 0,
+            "first_difference": null
+          },
+          "topk-weights": {
+            "elements": 528,
+            "mismatches": 0,
+            "first_difference": null
+          }
+        },
+        "vocabulary_elements": 9932800,
+        "vocabulary_mismatches": 0,
+        "sampled_tokens_compared": 40,
+        "sampled_token_mismatches": 0,
+        "sampled_logit_mismatches": 0,
+        "cache_elements": 16842752,
+        "cache_mismatches": 0,
+        "immutable_input_byte_mismatches": 0,
+        "passed": true,
+        "original_schedule_drives_probe_only": true,
+        "expected_frontiers_are_compute_input": false,
+        "model_inference": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false
+      }
+    }
+  ],
+  "all_bit_exact": true,
+  "all_host_guards_pass": true,
+  "model_loaded": false,
+  "original_schedule_drives_probe_only": true,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "native_runs": [
+    {
+      "name": "drafter-0",
+      "wall_ms": 10430.583,
+      "run_record": {
+        "file": "mtp-native-drafter-r1/drafter-0/run-record.json",
+        "bytes": 503629,
+        "sha256": "ddc971a356afc6d3cb0080c10fb2f4fc109fdf1bd4d104f9ce3a56573b89fc14"
+      },
+      "host": "BAIYING",
+      "source_commit": "9b9f8bb2a621516bdca813d4ff41e5f6b9b2a3ff",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "drafter-1",
+      "wall_ms": 10456.4,
+      "run_record": {
+        "file": "mtp-native-drafter-r1/drafter-1/run-record.json",
+        "bytes": 505853,
+        "sha256": "074685adbba0cb5ba3653935785437a4f574ca0f04c995939870624f73b7b269"
+      },
+      "host": "BAIYING",
+      "source_commit": "9b9f8bb2a621516bdca813d4ff41e5f6b9b2a3ff",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "head-0",
+      "wall_ms": 5303.604,
+      "run_record": {
+        "file": "mtp-native-drafter-r1/head-0/run-record.json",
+        "bytes": 414578,
+        "sha256": "1e8dee582d2f9a8277f9e665c25b1ddc83bbd8f2f8c76d03e0e9f0b71bdcdd08"
+      },
+      "host": "BAIYING",
+      "source_commit": "9b9f8bb2a621516bdca813d4ff41e5f6b9b2a3ff",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "head-1",
+      "wall_ms": 5296.48,
+      "run_record": {
+        "file": "mtp-native-drafter-r1/head-1/run-record.json",
+        "bytes": 414577,
+        "sha256": "cffb12d28ee2f5e0d69280955cdce5eb9458c39bd446309baa1e818a5d672776"
+      },
+      "host": "BAIYING",
+      "source_commit": "9b9f8bb2a621516bdca813d4ff41e5f6b9b2a3ff",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "moe-0",
+      "wall_ms": 3875.633,
+      "run_record": {
+        "file": "mtp-native-drafter-r1/moe-0/run-record.json",
+        "bytes": 418940,
+        "sha256": "8901226d2ceab3073a23686a3595582ca1e6f106ccbcf0617396c09c763c105f"
+      },
+      "host": "BAIYING",
+      "source_commit": "9b9f8bb2a621516bdca813d4ff41e5f6b9b2a3ff",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "moe-1",
+      "wall_ms": 3524.009,
+      "run_record": {
+        "file": "mtp-native-drafter-r1/moe-1/run-record.json",
+        "bytes": 418940,
+        "sha256": "69941b79298c9224dd79c3445066f5f3ab6900a46684f442e50bd4af63caa20c"
+      },
+      "host": "BAIYING",
+      "source_commit": "9b9f8bb2a621516bdca813d4ff41e5f6b9b2a3ff",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "qrt-mtp-drafter-build",
+      "wall_ms": 14634.939,
+      "run_record": {
+        "file": "mtp-native-drafter-r1/qrt-mtp-drafter-build/run-record.json",
+        "bytes": 28157,
+        "sha256": "9fc44a8296627944b405ef65d845eecf3c3105ee2ef9cbe91827b504d7054669"
+      },
+      "host": "BAIYING",
+      "source_commit": "9b9f8bb2a621516bdca813d4ff41e5f6b9b2a3ff",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "qrt-mtp-head-build",
+      "wall_ms": 2039.594,
+      "run_record": {
+        "file": "mtp-native-drafter-r1/qrt-mtp-head-build/run-record.json",
+        "bytes": 28144,
+        "sha256": "cd02d1d116ea859a44f8fc88f44ee09a39907183efac86d63d0a6c70a8e539a6"
+      },
+      "host": "BAIYING",
+      "source_commit": "9b9f8bb2a621516bdca813d4ff41e5f6b9b2a3ff",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    },
+    {
+      "name": "qrt-mtp-moe-build",
+      "wall_ms": 3023.841,
+      "run_record": {
+        "file": "mtp-native-drafter-r1/qrt-mtp-moe-build/run-record.json",
+        "bytes": 28140,
+        "sha256": "4c3e94e8973357dc656bc64b92717be79dfaf5923c6c959b706569099e7a5c41"
+      },
+      "host": "BAIYING",
+      "source_commit": "9b9f8bb2a621516bdca813d4ff41e5f6b9b2a3ff",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      }
+    }
+  ],
+  "comparison_record": {
+    "file": "mtp-native-drafter-r1/comparison.json",
+    "bytes": 34635,
+    "sha256": "da171c9f62b091db6a6a96f2ac041efd772b0dc7b36527e531583feddec71253"
+  },
+  "recorded_utc": "2026-09-20T13:14:33.391539+00:00",
+  "recorder_host": "Jiawei-MacminideMac-mini.local",
+  "generator": {
+    "file": "publish_native_and_projection_evidence_r1.py",
+    "bytes": 7606,
+    "sha256": "48375ee7c58a156f082183001980ebb1869da81be3adc2cfb2a4cc9e113f244f"
+  }
+}

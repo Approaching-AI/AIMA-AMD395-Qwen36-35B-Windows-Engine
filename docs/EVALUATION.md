@@ -127,13 +127,30 @@ reproduces every one of 31457280 FP32 state values and 245760 BF16 core outputs
 across all 60 selected rows. This checks the recurrence on original operands;
 the actual Windows operands and other operators still require comparison.
 
-`run-all-q1-prefix256k-r2.ps1` started the complete original 256k diagnostic on
-baiying at 2026-09-20T06:13:16Z, PID 2552, with a 28800-second native timeout.
-It uses whole `1a9743a`, CK370/FLA1d/MoE923/CLI6d and the unchanged real model.
-At 06:14:53Z, two owner chunks had completed, with no generated output and
-21810253824 bytes of available physical memory. The original 8/20GiB guards
-remain active. The run will observe both selected inputs across all 40 layers;
-its final correctness, cleanup and performance are not yet established.
+The [completed all-Q1 full256k diagnosis](../benchmarks/correctness/full256k-dense-projection-root-cause-20260920.json)
+uses whole `1a9743a`, CK370/FLA1d/MoE923/CLI6d on baiying. All32 owner chunks
+complete; the first suffix again diverges at output189 (2468 instead of8240),
+with314 differing positions. Native wall is22831908.65ms. Every final host and
+cleanup check passes; all1559 files/275048448 bytes are downloaded and verified.
+Owner continuation and the timed second suffix remain unexecuted after failure.
+
+All30 recurrent states before decode input263168 match the original exactly.
+The first difference is layer0 QKV, despite identical norm input, convolution
+history and a/b projections. There are6 differing QKV BF16 values at263168 and13
+at263356. Replaying all60 recurrence steps on the actual Windows operands
+matches every state and core bit, locating this failure before recurrence.
+
+Independent original-weight CPU replay across all30 linear layers reproduces
+864000 BF16 projection values with16 strided FP32 FMA partials followed by
+8/4/2/1 reduction. Current K16 arithmetic differs at1044 values. The two short
+speculative controls require K16. Original attention projections and shared
+gate/up also reproduce the single-row GEMV order. Shared-down uses a distinct
+32-lane GEMV with16 adjacent products per lane and16/8/4/2/1 reduction; all four
+packed shared-down controls match that order. An unchanged CUDA linear replay
+reproduces all eight packed/speculative controls and records the actual GEMV
+versus WMMA kernels; the installed GEMV machine code supports the chunk order.
+These are diagnostic component results. Native projection repair and a new
+correctness-attached full256k run remain required.
 
 The separate [draft-limit transition reference](../benchmarks/correctness/gb10-draft-limit-transition-20260920.json)
 completes six requests and 144 outputs on the unchanged GB10 reference. Both
@@ -493,11 +510,13 @@ groups covering 21 tensors, including complete embeddings, output head and
 routed expert tensors. Five already qualified table artifacts are reused with
 fresh hash checks. All 163 members of the 113665112-byte archive verify.
 
-The PowerShell runner parses on baiying but has not executed. It requires the
-running all-Q1 256k diagnostic's recorded cleanup before model reads or native
-work. Limits are 60 seconds per weight group, 120 per build, 300 per case and
-4200 for transport. Both native compilation and all numerical cases remain
-unrun; reference scheduling is restricted to the component probe.
+The [completed native batch](../benchmarks/correctness/mtp-native-complete-drafter-20260920.json)
+passes all three builds and six cases on baiying at `9b9f8bb`. MoE, vocabulary
+logits, proposal IDs and every compared drafter boundary are bit exact, including
+full7169/full8192 prompt K/V, subsequent accepted rows and cache truncation.
+All memory, immutable-input and host/cleanup checks pass. Reference scheduling
+drives this component probe only; it does not establish a live speculative
+target executor.
 
 The [actual target-row handoff](../benchmarks/correctness/mtp-target-prefill-row-handoff-local-20260920.json)
 now retains all final-normalized hidden rows of a scoped target prefill batch,
@@ -691,10 +710,27 @@ seed publication marker must agree. Thirteen corrupted seed fields per case
 are rejected by the offline comparator; reference bytes used as fixtures do
 not establish native computation.
 
-Both scripts pass PowerShell parsing on baiying without executing a build or
-loading a model. Dispatch still requires the active full256k job's completed
-cleanup record. The original complete native component batch from `9b9f8bb`
-remains queued first; the new whole build and product runs remain unexecuted.
+The [completed actual request-seed qualification](../benchmarks/correctness/mtp-actual-request-seed-windows-20260920.json)
+uses whole `88181bd`, DLL SHA256
+`27edea4563c6baea4bf3b26b17a9bce5e9edb9656bac16a3803fdafc22ff0138`.
+The first build exposed a fixed marker-array extent; the first model attempt
+exposed rejection of the verified264736-row target RoPE allocation. The repair
+borrows its prefix through the unchanged262144-row MTP limit. All53 local
+regressions and the100050.028-ms Windows rebuild pass.
+
+Real q7169/out32 and q8192/out512 reproduce every original token, callback and
+first logit (82/9.25 and144/10.375). Complete target hidden, shifted IDs, native
+first-proposal boundaries, vocabulary and full K/V are bit exact. Native draft
+IDs/logits are144/11.3125 and255/18.625. Both immutable request seeds bind the
+actual target identity; reference values never enter compute. All30 artifacts
+per case and final host/cleanup checks pass. The offline analyzer was corrected
+to retain seven explicitly disabled profile entries; original run records and
+the earlier analyzer failure remain bound in the evidence.
+
+Loads are21476.5201/21430.2985ms and diagnostic TTFTs25736.0741/24749.0625ms.
+The load gate passes; TTFT and retained-performance goals remain unmet. Native
+saved-seed restoration, accepted target transactions, general draft-limit
+crossing, chunked MTP seeding and speculative streaming remain open.
 
 The [original two-row target capture and staged recurrence candidate](../benchmarks/correctness/gb10-q2-target-recurrence-and-native-preparation-20260920.json)
 reproduce all64 original short-control outputs and both complete first-logit
@@ -736,12 +772,15 @@ four combinations of state/ring layouts:62914560 FP32 state values,491520 BF16
 core values,983040 convolution values and3932160 staged ring values are exact.
 Three local regressions and an original-input ASan/UBSan case pass in5.799s.
 
-The connected native plan supersedes the unrun recurrence-only plan. It binds
-13 compilation inputs/15 source and guard files, one build and15 cases. Its
-93962311-byte archive contains134 verified members/123253348 raw bytes; the
-two completed arithmetic tables remain bound by hash. PowerShell parsing on
-baiying and the local active-run dispatch guard pass. Windows GPU execution,
-live target integration and accepted-cache publication remain unrun.
+The [completed connected Windows core](../benchmarks/correctness/q2-connected-linear-core-windows-20260920.json)
+at `88181bd` passes all15 cases and four state/ring layouts with the same exact
+62914560 state,491520 core,983040 convolution and3932160 ring values. Guards,
+input immutability, accepted-state selection and host cleanup pass. The first
+two attempts completed the kernels but the probe then tried to read a null
+captured-convolution device pointer; connected execution deliberately computes
+that intermediate. The repair checks only actual uploaded operands. Arithmetic
+is unchanged. Live target integration and accepted-cache publication remain
+open; these component checks do not qualify model inference.
 
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
