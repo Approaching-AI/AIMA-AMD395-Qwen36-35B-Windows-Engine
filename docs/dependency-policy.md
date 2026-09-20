@@ -50,6 +50,11 @@ copies at most 32 kernel identities per request with a 256 KiB limit per
 PTX/IR/metadata file, and records original tensor layouts without extra tensor
 payloads. This adds no installed package or native runtime dependency.
 
+The isolated MTP draft-limit state machine and its offline schedule probe use
+only standard C++17. They add no runtime dependency and do not load model data.
+The helper requires actual acceptance counts from its eventual caller; reference
+counts used by its diagnostic probe must never feed native generation.
+
 # Optional caller-side document checker
 
 `scripts/check-agent-documents.py` uses only Python 3.10+ standard-library

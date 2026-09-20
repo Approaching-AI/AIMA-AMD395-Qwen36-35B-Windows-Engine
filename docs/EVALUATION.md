@@ -113,7 +113,7 @@ long-case observer's history guard. The pinned source uses the last known
 prompt token as a backup for discarded partial-prefill samples. Those inputs
 now receive a separate prompt-bound provenance check; rejected decode padding
 still cannot qualify as accepted history. Nine CPU identity checks pass.
-Long-case qualification remains unverified, and the failure record is retained.
+That failed batch remains unqualified, and its failure record is retained.
 The original scheduler and MTP sources
 were read from the same completed reference container before implementing this
 observer. No draft arithmetic or scheduling rule is replaced.
@@ -132,6 +132,25 @@ outputs. All 13 fusion/KV projection representatives, their key norms and
 the selected V pass-through values match independently. Fourteen original
 PTX files match the previously inspected cache bytes. Actual launcher selection
 and long-case qualification remain separate checks; no native route changes.
+
+The [completed MTP frontier capture](../benchmarks/correctness/gb10-mtp-limit-frontiers-20260920.json)
+at source `fcedf19a5397a03d1f1f01d16848d30a09720205` reproduces all six original
+requests, 144 output IDs and all full first-logit buffers. All 7292 downloaded
+manifest entries pass; reference wall is 1493.242538 seconds, container exit 0,
+host guards pass and no GPU process remains. The corrected observer binds 198
+accepted-history rows and 124 original partial-prefill backup rows. The dynamic
+norm reduction matches all 1978368 selected outputs; the static reduction
+differs at 12 cells. All 39 fusion/KV projection representatives and their key
+norms match independently. Actual launcher selection is being captured on the
+two short controls and q262143 at source `fedfaa85ccf4efa127b1222901c2293ae634b088`.
+
+`native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
+rule as a separate state machine. It waits until the current batch completes
+before choosing the next operator, using the scheduled extent even when a
+draft is rejected. Six CPU boundary regressions pass, including the original
+q262140/q262142/q262143 transitions and a rejected final draft. This helper is
+not wired into inference; integration still requires actual native proposals
+and the complete original MTP prompt KV history.
 
 The [portable-profile preparation](../benchmarks/correctness/packed-q1-portable-preparation-20260920.json)
 normalizes all 535 options of the active full256k environment into 34 relative
