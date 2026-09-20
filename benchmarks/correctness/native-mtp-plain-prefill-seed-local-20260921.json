@@ -1,0 +1,65 @@
+{
+  "kind": "native_mtp_normal_prefill_seed_local_checks",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "source_parent": "1f432a11e382ab70f7cb0cf2e7f905892877f0ca",
+  "source_sha256": {
+    "native/providers/whole_provider.cpp": "1dbcad04f46e09c0474922dfb73e0a3783b9510621f4633813e8aa42766b3c3b",
+    "native/providers/sm121_mtp_request_seed.h": "8833181aa73b21e45236e039acbb310f80f1206bd49e1de2a4ff2f72b6d3df6e",
+    "native/providers/gdn/sm121_mtp_request.h": "b1363f546e1de19f8bb6dd90d3bc2f27514385c4f1df203ddff8bf33b11fda06",
+    "native/providers/sm121_mtp_runtime_tables.h": "acf7f7537c3996a65620df8b235685fc8c1bd7b882c5888124331d12222ae199",
+    "native/providers/gdn/sm121_mtp_drafter.h": "24d49700498c0b2edb241379907582e25f2d84c079e77f026866027c2e11cd73",
+    "native/providers/gdn/sm121_mtp_target_inputs.h": "917ce15be46e7065651dff2079af17d0c86c4e45f6b431d87a8566d985ed85e2",
+    "native/providers/gdn/sm121_mtp_cache_snapshot.h": "a17077d41b0bfbf715095f43fd2138dd4389bc5f4508820c3a5bcba2b3b7968a",
+    "native/providers/mtp_target_rows.h": "d87a5cdd33a8c89f871515408c1cce8552c5617962de761621f8b065ed3797a4",
+    "tests/test_mtp_drafter.py": "858ecc2272c475ae789b379f3313f4689b1f3104bcc2c5bf73e565ca1aad0821",
+    "tests/native/mtp_drafter_host.cpp": "975132072064ad7e6c23355ff256581643362e941a025effcb0e72f2cd4bcec4",
+    "tests/native/mtp_request_host.inc": "e252e5e9d63d64a6c010d42e000e59c110cfb81f3c7ce85771d5b6bd68e7949a",
+    "tests/test_mtp_native_prefill_integration.py": "98cf529487a3d3f69ec5cfe4151072bb47f31897ca91d2f377c923e66398d53b",
+    "tests/test_native_mtp_decode.py": "5787883cb86f606ec3db598c664a851748814f910d040b17f38db499f0db0bb8",
+    "tests/native/native_mtp_decode_host.cpp": "b9d769978a6aa0c1fac009ab11544da4b995a8d4412c0febe21367433a21f440",
+    "native/src/qrt.c": "851904c79ea9ff3230423f86a4d92bae27734df30bb6dd51632ffb219397c076",
+    "native/src/qrt.h": "c7af4d946b863eccbd98a540ffa0a034e1230685b5409514da05bfff9659bc4c"
+  },
+  "command": [
+    "python3.12",
+    "-m",
+    "unittest",
+    "tests.test_mtp_drafter",
+    "tests.test_mtp_native_prefill_integration",
+    "tests.test_native_mtp_decode"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "...\n----------------------------------------------------------------------\nRan 3 tests in 9.608s\n\nOK\n",
+  "wall_seconds": 9.652511874213815,
+  "checks": 3,
+  "scope": "Actual seed helper, request and checkpoint; actual whole-provider admission/publication and C decode result validator with host protocol doubles and deferred queues. No Windows HIP execution or actual model request.",
+  "prompt_sizes": [
+    1,
+    7,
+    256,
+    7169,
+    8192
+  ],
+  "completion_failures": 6,
+  "invalid_seed_contracts": 8,
+  "actual_c_result_validator": true,
+  "normal_seed_writes_diagnostic_files": false,
+  "original_weights_included_by_native_decode_flag": true,
+  "retirement_and_partial_prefix_seed_implemented": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "raw_check": {
+    "file": "native-mtp-plain-seed-local-r2.json",
+    "sha256": "5b27073fb99985708ddc006dea4bb64c78a0f393424b91175f56f07b7563c97a"
+  },
+  "prior_harness_compile_failure": {
+    "file": "native-mtp-plain-seed-local-r1.json",
+    "sha256": "1e06a97777cb2e5277ba99c9e9ec43f2335f0e60a123398477bc3ed53c9ae30a",
+    "cause": "The new host assertion summary required an explicit iostream include in the test harness; no native Windows run occurred."
+  },
+  "native_decode_default_enabled": false,
+  "diagnostic_seed_path_preserved": true,
+  "native_numerical_kernel_changes": false
+}

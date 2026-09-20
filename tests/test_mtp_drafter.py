@@ -30,6 +30,9 @@ class MtpDrafterTests(unittest.TestCase):
             probe = probe.replace('#include "mtp_target_rows_trace.h"',
                 '#include "native/providers/mtp_target_rows_trace.h"')
             (directory / 'sm121_mtp_prefill_probe.h').write_text(probe)
+            seed = (ROOT / 'native/providers/sm121_mtp_request_seed.h').read_text()
+            seed = '\n'.join(line for line in seed.splitlines() if not line.startswith('#include "')) + '\n'
+            (directory / 'sm121_mtp_request_seed.h').write_text(seed)
             exe = directory / 'test'
             build = subprocess.run(['c++', '-std=c++17', '-O1', '-Wall', '-Wextra', '-Werror',
                 '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-I', str(directory),
@@ -38,6 +41,7 @@ class MtpDrafterTests(unittest.TestCase):
             self.assertEqual(build.returncode, 0, build.stderr)
             run = subprocess.run([str(exe), str(directory)], capture_output=True, text=True, timeout=30)
             self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+            self.assertIn('native MTP plain seed cases=5 completion_fences=6 pass', run.stdout)
             for rows in (7169, 8192):
                 prefix = directory / f'prefill-{rows}'
                 record = json.loads(prefix.with_suffix('.json').read_text())

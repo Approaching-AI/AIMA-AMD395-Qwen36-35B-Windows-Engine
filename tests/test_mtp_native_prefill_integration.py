@@ -19,6 +19,9 @@ class MtpNativePrefillIntegrationTests(unittest.TestCase):
         start = whole.index('        g_qwen36_resident_session.committed_decode_token_count = expected_count;')
         end = whole.index('        ++workspace.guarded_token_commit_count;', start)
         ordinary_commit = whole[start:end]
+        start = whole.index('    const bool include_mtp = env_flag_enabled(')
+        end = whole.index('    const bool ordered_fixed =', start)
+        weight_admission = whole[start:end]
         source = r'''
 #include <cassert>
 #include <cstdlib>
@@ -38,7 +41,7 @@ struct TargetFrontier {const void* owner;uint64_t generation,model_epoch;const u
 struct RequestCheckpoint {std::shared_ptr<int> retained;};
 }
 struct Session {
- bool valid=true,provider_completed=true,current_token_valid=true;
+ bool valid=true,provider_completed=true,current_token_valid=true,route_active=true;
  const void* owner_engine=reinterpret_cast<void*>(0x1234);
  uint64_t generation=7u;std::string model_dir="actual-model";size_t prefix_tokens=8192u,committed_decode_token_count=0u;
  uint32_t current_token_id=82u;qrt_sm121_mtp::RequestCheckpoint native_mtp_checkpoint;
@@ -50,11 +53,19 @@ size_t g_qwen36_chunked_prefill_total_tokens=0;
 bool direct_provider_orchestration=true,fused_layer_stack_provider=true,history=true,weights=true;
 bool source_ok=true,probe_ok=true,target_ok=true;unsigned acquired=0,probes=0;
 bool request_seed=false,seed_ok=true;unsigned seeds=0;
+bool native_decode=false,native_seed_ok=true,native_seed_unknown=false;
+bool g_qwen36_resident_completion_unknown=false;unsigned native_seeds=0;
+constexpr int hipSuccess=0;
 constexpr uint64_t start_ns=0;
 bool env_flag_enabled(const char* name){
+ if(!std::strcmp(name,"QRT_QWEN36_MTP_NATIVE_DECODE"))return native_decode;
  if(!std::strcmp(name,"QRT_QWEN36_MTP_NATIVE_REQUEST_SEED"))return request_seed;
  if(!std::strcmp(name,"QRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_MTP"))return weights;
  assert(!std::strcmp(name,"QRT_PREFILL_DESCRIPTOR_BATCH_ENABLE_RESIDENT_HISTORY_CARRIER"));return history;
+}
+bool model_includes_mtp(){
+''' + weight_admission + r'''
+ return include_mtp;
 }
 void qrt_qwen36_whole_provider_set_failure(Result* out,const std::string& stage,const std::string&,uint64_t){
  out->completed=false;out->stage=stage;
@@ -66,6 +77,16 @@ std::shared_ptr<Source> acquire_qwen36_mtp_model_weight_source(const char* model
  return std::make_shared<Source>();
 }
 namespace qrt_sm121_mtp_runtime {
+struct SeedResult{int status=0;const char* stage="actual_seed_without_trace";bool completion_unknown=false;};
+SeedResult seed_prefill_request(const qrt_mtp_target_rows::PrefillRows& batch,std::shared_ptr<Source> source,
+ const qrt_sm121_mtp::TargetFrontier& actual,unsigned capacity,qrt_sm121_mtp::RequestCheckpoint* output){
+ ++native_seeds;assert(source&&actual.owner==g_qwen36_resident_session.owner_engine);
+ assert(actual.generation==7u&&actual.model_epoch==10u&&actual.current_token==82u);
+ assert(actual.processed_count==batch.rows()&&capacity==batch.rows()+32u&&batch.published());
+ assert(batch.matches_input(actual.processed_inputs,actual.processed_count));
+ if(!native_seed_ok)return {1,"actual_seed_without_trace",native_seed_unknown};
+ output->retained=std::make_shared<int>(98);return {};
+}
 bool probe_prefill(const qrt_mtp_target_rows::PrefillRows& batch,std::shared_ptr<Source> source,
  const char* prefix,std::string& stage,std::string& failure){
  assert(source&&source->value==21&&!std::strcmp(prefix,"native-prefix"));++probes;
@@ -164,6 +185,33 @@ int main(){
 ''' + ordinary_commit + r'''
  assert(!session.native_mtp_checkpoint.retained&&session.native_mtp_processed_inputs.empty());
  assert(session.committed_decode_token_count==1u&&session.current_token_id==83u);
+ // Native decode alone includes the original MTP weights and seeds the
+ // actual target checkpoint, with no trace filename or explicit seed flag.
+ assert(!unsetenv("QRT_QWEN36_MTP_NATIVE_PREFILL_PROBE_PREFIX"));
+ native_decode=true;request_seed=false;weights=false;
+ assert(model_includes_mtp());const auto diagnostic_probes=probes;
+ for(unsigned count:{1u,7u,256u,7169u,8192u}){
+  session={};session.prefix_tokens=count;request.input_token_count=count;
+  assert(invoke(&request,&result)==1&&result.completed);
+  assert(session.native_mtp_checkpoint.retained&&*session.native_mtp_checkpoint.retained==98);
+  assert(session.native_mtp_processed_inputs==std::vector<uint32_t>(prompt.begin(),prompt.begin()+count));
+ }
+ assert(native_seeds==5u&&probes==diagnostic_probes&&!qrt_mtp_target_rows::Scope::active);
+ for(unsigned count:{0u,8193u,16384u}){
+  request.input_token_count=count;assert(!invoke(&request,&result));
+  assert(result.stage=="mtp_native_prefill_request"&&native_seeds==5u);
+ }
+ request.input_token_count=8192u;session={};
+ g_qwen36_chunked_prefill_total_tokens=16384u;assert(!invoke(&request,&result));
+ assert(result.stage=="mtp_native_prefill_request");g_qwen36_chunked_prefill_total_tokens=0u;
+ ScopedQwen36PrefixBatchSuffix::active=&suffix;assert(!invoke(&request,&result));
+ assert(result.stage=="mtp_native_prefill_request");ScopedQwen36PrefixBatchSuffix::active=nullptr;
+ native_seed_ok=false;assert(!invoke(&request,&result)&&result.stage=="actual_seed_without_trace");
+ assert(!session.native_mtp_checkpoint.retained&&session.native_mtp_processed_inputs.empty());
+ assert(!g_qwen36_resident_completion_unknown&&session.valid);
+ native_seed_unknown=true;assert(!invoke(&request,&result));
+ assert(g_qwen36_resident_completion_unknown&&!session.valid&&!session.route_active);
+ native_decode=false;assert(!model_includes_mtp());weights=true;assert(model_includes_mtp());
 }
 '''
         with tempfile.TemporaryDirectory() as temporary:

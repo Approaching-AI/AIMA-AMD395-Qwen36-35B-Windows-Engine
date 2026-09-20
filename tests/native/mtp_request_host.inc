@@ -260,3 +260,63 @@ static void test_prefill_request_probe(const std::string& directory) {
         late_completion();assert(allocations.empty());expected_stream=reinterpret_cast<void*>(0x1234);
     }
 }
+
+static void test_prefill_request_seed() {
+    using namespace qrt_sm121_mtp;
+    using namespace qrt_sm121_mtp_runtime;
+    unsigned completion_fences=0;
+    for(unsigned rows:{1u,7u,256u,7169u,8192u}){
+        reset();expected_stream=nullptr;{
+            auto batch=target_batch(rows);auto source=std::make_shared<LeasedWeights>();
+            std::vector<uint32_t> ids(rows);for(unsigned i=0;i<rows;++i)ids[i]=100u+i;
+            const TargetFrontier actual{source.get(),17u,10u,ids.data(),rows,999u};
+            RequestCheckpoint saved;
+            const auto result=seed_prefill_request(*batch,source,actual,rows+32u,&saved);
+            assert(result.status==hipSuccess&&!result.completion_unknown&&saved.matches(actual));
+            assert(saved.tokens()==rows&&saved.allocated_bytes()==size_t(rows)*2048u);
+            completion_fences=sync_call;
+            Request restored;assert(restored.restore(saved,actual,rows+32u).status==hipSuccess);
+            TargetBatch next;assert(restored.begin(actual,32u,&next));
+            assert(next.first_position==rows&&next.inputs[0]==999u&&next.inputs[1]==200u);
+            assert(restored.abort(10u));
+        }
+        assert(allocations.empty()&&queued.empty());
+    }
+    // Every completion failure must leave the caller's output unpublished
+    // and preserve queued producer, input and original model lifetimes.
+    for(unsigned fence=1u;fence<=completion_fences;++fence){
+        reset();expected_stream=nullptr;{
+            auto batch=target_batch(7u);auto source=std::make_shared<LeasedWeights>();
+            const std::vector<uint32_t> ids{100u,101u,102u,103u,104u,105u,106u};
+            const TargetFrontier actual{source.get(),17u,10u,ids.data(),ids.size(),999u};
+            RequestCheckpoint saved;fail_sync=fence;
+            const auto result=seed_prefill_request(*batch,source,actual,39u,&saved);
+            assert(result.status!=hipSuccess&&result.completion_unknown&&!saved.tokens());
+        }
+        late_completion();assert(allocations.empty());
+    }
+    reset();expected_stream=nullptr;{
+        auto batch=target_batch(7u);auto source=std::make_shared<LeasedWeights>();
+        std::vector<uint32_t> ids{100u,101u,102u,103u,104u,105u,106u};
+        const TargetFrontier actual{source.get(),17u,10u,ids.data(),ids.size(),999u};
+        RequestCheckpoint saved;
+        assert(seed_prefill_request(*batch,source,actual,39u,&saved).status==hipSuccess);
+        const auto calls=allocation_call;
+        for(unsigned invalid=0;invalid<8u;++invalid){
+            auto frontier=actual;unsigned capacity=39u;auto model=source;
+            switch(invalid){
+                case 0:frontier.owner=nullptr;break;case 1:frontier.generation=0u;break;
+                case 2:frontier.model_epoch++;break;case 3:frontier.current_token++;break;
+                case 4:frontier.processed_count--;break;case 5:capacity=6u;break;
+                case 6:capacity=262145u;break;case 7:model.reset();break;
+            }
+            assert(seed_prefill_request(*batch,model,frontier,capacity,&saved).status!=hipSuccess);
+            assert(allocation_call==calls&&saved.matches(actual));
+        }
+        fail_tables=true;
+        assert(seed_prefill_request(*batch,source,actual,39u,&saved).status!=hipSuccess);
+        assert(saved.matches(actual));fail_tables=false;
+    }
+    assert(allocations.empty()&&queued.empty());expected_stream=reinterpret_cast<void*>(0x1234);
+    std::cout<<"native MTP plain seed cases=5 completion_fences="<<completion_fences<<" pass\n";
+}

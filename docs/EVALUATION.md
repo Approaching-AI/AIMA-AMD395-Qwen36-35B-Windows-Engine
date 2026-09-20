@@ -121,6 +121,18 @@ C validator pass the host regression, including callbacks, cancellation and
 failure recovery; the old pair timing is explicitly rejected. This is local
 ordering and ABI evidence, pending a new Windows build and real MTP outputs.
 
+The [normal MTP prefill seed](../benchmarks/correctness/native-mtp-plain-prefill-seed-local-20260921.json)
+now uses QRT_QWEN36_MTP_NATIVE_DECODE to include original MTP weights and build
+the actual paired checkpoint without a diagnostic output directory or separate
+seed flag. The numerical table inputs remain required. The current cold-prompt
+admission is1–8192 tokens; chunked prefill, prefix suffixes and retirement remain
+open. Three local regressions pass in9.608s, including five prompt sizes, every
+one of six GPU completion boundaries, eight invalid seed contracts, actual
+provider admission/publication and the C decode result validator. Known failures
+preserve the prior output; unresolved seed completion quarantines the resident
+session. The existing diagnostic seed path remains available for comparison.
+Native Windows execution and original model continuation are still pending.
+
 The native cache-publication probe is prepared in
 tools/q2_cache_publication_hip_probe.cpp. It evaluates the complete original
 q8192 target pair, then checks accepted1/2 rows with BF16/FP32 tails and both
