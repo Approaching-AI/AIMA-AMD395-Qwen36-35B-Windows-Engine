@@ -721,6 +721,28 @@ before remote action. Windows GPU compilation/execution, target-stack
 integration and accepted-cache publication remain unrun. These component
 results do not qualify inference, performance or release.
 
+The [connected two-row linear core](../benchmarks/correctness/q2-connected-linear-core-local-and-windows-preparation-20260920.json)
+at `fac81e6` extends this candidate with the original convolution and ring
+updates. The recurrence consumes its computed convolution output. Both rows
+write private state/ring outcomes, and the caller can select the accepted
+extent without modifying the resident input. All cross-stage aliases are
+checked before either kernel is submitted. The ring supports the existing
+FP32 layers0/1 and BF16 later layers, in absolute-position modulo order.
+
+The three original convolution weights were read directly from the GB10 model
+shards and bound to their tensor metadata and hashes; that read used no GPU.
+All15 qualified original row pairs pass the connected CPU production math in
+four combinations of state/ring layouts:62914560 FP32 state values,491520 BF16
+core values,983040 convolution values and3932160 staged ring values are exact.
+Three local regressions and an original-input ASan/UBSan case pass in5.799s.
+
+The connected native plan supersedes the unrun recurrence-only plan. It binds
+13 compilation inputs/15 source and guard files, one build and15 cases. Its
+93962311-byte archive contains134 verified members/123253348 raw bytes; the
+two completed arithmetic tables remain bound by hash. PowerShell parsing on
+baiying and the local active-run dispatch guard pass. Windows GPU execution,
+live target integration and accepted-cache publication remain unrun.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
