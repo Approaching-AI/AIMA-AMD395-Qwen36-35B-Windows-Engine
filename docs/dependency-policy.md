@@ -80,6 +80,14 @@ Windows memory use and native MTP inference are unmeasured for this option.
 Borrowed MTP views now use a storage epoch so reloading the same model with a
 different resident scope cannot publish aliases from the previous allocation.
 
+The separate prompt-cache owner uses the existing HIP runtime and tables, with
+no added package dependency. At 262144 cached tokens and 8192 scratch rows it
+owns 536870912 cache bytes, 150994944 scratch bytes, a four-byte device flag and
+a four-byte pinned host flag: 687865864 bytes total. Weights and the caller's
+projection workspace are additional. Failed completion permanently disables
+the request and retains potentially live allocations until process teardown.
+This owner is host-tested but is not yet used by native model inference.
+
 # Optional caller-side document checker
 
 `scripts/check-agent-documents.py` uses only Python 3.10+ standard-library

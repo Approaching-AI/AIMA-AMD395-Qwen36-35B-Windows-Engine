@@ -191,6 +191,19 @@ The separate 30-case GPU component batch is frozen at source `9bd6dd7`, with
 reports. Both the local dispatcher and Windows wrapper require completed
 cleanup of the active original 256k run. Preparation performs no remote run.
 
+The [prompt-cache host preparation](../benchmarks/correctness/mtp-prompt-cache-host-preparation-20260920.json)
+adds a bounded prompt-shift helper and request-owned cache orchestration. All
+258 captured input IDs from 129 original prefill batches match the helper;
+1055609 interior shifted IDs also match the actual request, with the 129 batch
+tails following the observed backup/sampled-token rule. Full original interior
+buffers were not captured. Two ASan/UBSan host tests pass allocation rollback,
+publication after completion, invalid IDs, partial launch failures and terminal
+quarantine when completion cannot be established. The HIP calls in the ownership
+test are queued host mocks. Maximum owned storage is 687865864 bytes, excluding
+weights and projection workspace. Full target post-final-norm rows, the qualified
+projection callback and complete model inference remain unwired; Windows
+compilation and GPU pipeline execution are unrun.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
