@@ -421,6 +421,18 @@ every stage under one/two-row batching and 7/1024-block bounds, plus all borrowe
 input bytes, guards and unused padding. Its Windows build and GPU execution
 remain pending. Complete native MTP is still unwired and unqualified.
 
+The [frozen MoE native plan](../benchmarks/correctness/mtp-native-moe-preparation-20260920.json)
+binds source `c93aeeb`, 20 compilation inputs, two original 33-row cases and a
+15355718-byte operand/table archive. Model reads verify the Windows index,
+safetensors headers, tensor shapes/offsets and all six weight hashes against
+the original reference. Four small weights are exported from the real Windows
+model; both large routed tensors are read directly from their original shards.
+The revision2 PowerShell runner parses on baiying. Build and GPU execution
+wait for the running 256k diagnostic's recorded cleanup; neither has run.
+Bounds are 60 seconds per weight read, 120 for compilation, 300 per case and
+1200 for transport. R1 preparation remains unrun; R2 only renames a PowerShell
+automatic variable and reuses its unchanged source bundle and data archive.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a

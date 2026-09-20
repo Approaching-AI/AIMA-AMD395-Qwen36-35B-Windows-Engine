@@ -1,0 +1,1107 @@
+{
+  "source_manifest": {
+    "kind": "original_mtp_native_complete_moe_chain_plan",
+    "source_commit": "c93aeeb3a535716b6da547640b33a6c2545e97eb",
+    "repo": "D:/projects/AIMA-public-mtp-native-moe-20260920-r1",
+    "seed": "D:/projects/AIMA-public-all-q1-divergence-20260920-r1",
+    "data": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1",
+    "programs": [
+      {
+        "name": "qrt-mtp-moe",
+        "source": "tools/mtp_moe_hip_probe.cpp"
+      }
+    ],
+    "files": [
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q7169-out32/input.bin",
+        "archive_path": "q7169-out32/input.bin",
+        "local_file": "mtp-moe-cpu-r3/q7169-out32/input.bin",
+        "bytes": 135168,
+        "sha256": "b95e26cf3c68d7fa2d2ad73270f5408fc92ae695243768ac0061058f0eb6a675",
+        "role": "original_operator_input"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q7169-out32/router.bin",
+        "archive_path": "q7169-out32/router.bin",
+        "local_file": "mtp-moe-cpu-r3/q7169-out32/router.bin",
+        "bytes": 16896,
+        "sha256": "b6aa4ef07b769f6d94fdacd99c811d3882bed3a463ba80b26f931cd7f32bb90b",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q7169-out32/shared-gate.bin",
+        "archive_path": "q7169-out32/shared-gate.bin",
+        "local_file": "mtp-moe-cpu-r3/q7169-out32/shared-gate.bin",
+        "bytes": 66,
+        "sha256": "642630fc205f924f9c433bc73db33b62ddc13ccff911e875c32d6872d610676a",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q7169-out32/shared-gate-up.bin",
+        "archive_path": "q7169-out32/shared-gate-up.bin",
+        "local_file": "mtp-moe-cpu-r3/q7169-out32/shared-gate-up.bin",
+        "bytes": 67584,
+        "sha256": "4fdd9e84253f9f813e565fea9928e24f53bf750453deb2f176fbda99777bcd4b",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q7169-out32/shared-activated.bin",
+        "archive_path": "q7169-out32/shared-activated.bin",
+        "local_file": "mtp-moe-cpu-r3/q7169-out32/shared-activated.bin",
+        "bytes": 33792,
+        "sha256": "0094d238e64bc3ecc57293cdb81733c244f49475767186085a171dd5aab5c198",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q7169-out32/shared-down.bin",
+        "archive_path": "q7169-out32/shared-down.bin",
+        "local_file": "mtp-moe-cpu-r3/q7169-out32/shared-down.bin",
+        "bytes": 135168,
+        "sha256": "5864ae6d5830cf8da0d18be31a70978a96340bc6925b925ae9b8345252c12f50",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q7169-out32/shared.bin",
+        "archive_path": "q7169-out32/shared.bin",
+        "local_file": "mtp-moe-cpu-r3/q7169-out32/shared.bin",
+        "bytes": 135168,
+        "sha256": "6e8d40aa748aa22f0ccfa579fd07801c10d72f6f2222fec2a45e9bc5d45d51e3",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q7169-out32/routed-gate-up.bin",
+        "archive_path": "q7169-out32/routed-gate-up.bin",
+        "local_file": "mtp-moe-cpu-r3/q7169-out32/routed-gate-up.bin",
+        "bytes": 540672,
+        "sha256": "b10c2fb360c5924e43e269670e57ed91cb886228a6abb693252c53b5e7b1e420",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q7169-out32/routed-activated.bin",
+        "archive_path": "q7169-out32/routed-activated.bin",
+        "local_file": "mtp-moe-cpu-r3/q7169-out32/routed-activated.bin",
+        "bytes": 270336,
+        "sha256": "ee54c21e4465fbfdf5dd2c4f4719f240d0ec5c0fa6b5a6f567e880654edbfb71",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q7169-out32/routed-weighted.bin",
+        "archive_path": "q7169-out32/routed-weighted.bin",
+        "local_file": "mtp-moe-cpu-r3/q7169-out32/routed-weighted.bin",
+        "bytes": 1081344,
+        "sha256": "ba6e5a792300392d330074f4d4da732ab08b88a084c47ac414594319780a2f0d",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q7169-out32/expert-part-1.bin",
+        "archive_path": "q7169-out32/expert-part-1.bin",
+        "local_file": "mtp-moe-cpu-r3/q7169-out32/expert-part-1.bin",
+        "bytes": 135168,
+        "sha256": "27df9db4c8943e871ceb3fefd675c17430d1c952ba94c856794a6edc0b15a568",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q7169-out32/moe-output.bin",
+        "archive_path": "q7169-out32/moe-output.bin",
+        "local_file": "mtp-moe-cpu-r3/q7169-out32/moe-output.bin",
+        "bytes": 135168,
+        "sha256": "5410569eec50e005f18781b0360682afbce974a66d8da4f6c9833199d5e0f6f9",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q7169-out32/topk-ids.bin",
+        "archive_path": "q7169-out32/topk-ids.bin",
+        "local_file": "mtp-moe-cpu-r3/q7169-out32/topk-ids.bin",
+        "bytes": 1056,
+        "sha256": "2e1649628fc689f27b02f749f5f7a13cc2251eb740f9359b47f4636114a9c7b2",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q7169-out32/topk-weights.bin",
+        "archive_path": "q7169-out32/topk-weights.bin",
+        "local_file": "mtp-moe-cpu-r3/q7169-out32/topk-weights.bin",
+        "bytes": 1056,
+        "sha256": "32286252506edb4e68899e928d7059ea9ee0bda92032c4cf83d516f942cb5fa6",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q8192-out32/input.bin",
+        "archive_path": "q8192-out32/input.bin",
+        "local_file": "mtp-moe-cpu-r3/q8192-out32/input.bin",
+        "bytes": 135168,
+        "sha256": "7d119cec273dd417d3937d961fd4a7ed424f2da46ff9f83a26e0ceb056485c55",
+        "role": "original_operator_input"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q8192-out32/router.bin",
+        "archive_path": "q8192-out32/router.bin",
+        "local_file": "mtp-moe-cpu-r3/q8192-out32/router.bin",
+        "bytes": 16896,
+        "sha256": "01a4d5de5059fcf4348fce03ee409bb960023627dda0297f669ce9045e5640a4",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q8192-out32/shared-gate.bin",
+        "archive_path": "q8192-out32/shared-gate.bin",
+        "local_file": "mtp-moe-cpu-r3/q8192-out32/shared-gate.bin",
+        "bytes": 66,
+        "sha256": "7b8b0e41aa1b199c1214a2c651cb4bb8cb71494088bd3fa0055ddfb51e2a352a",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q8192-out32/shared-gate-up.bin",
+        "archive_path": "q8192-out32/shared-gate-up.bin",
+        "local_file": "mtp-moe-cpu-r3/q8192-out32/shared-gate-up.bin",
+        "bytes": 67584,
+        "sha256": "1b2913db7f2d801c36d334d00540fb6c25bf9e74ae15ff40cc5b36ee0c4abb28",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q8192-out32/shared-activated.bin",
+        "archive_path": "q8192-out32/shared-activated.bin",
+        "local_file": "mtp-moe-cpu-r3/q8192-out32/shared-activated.bin",
+        "bytes": 33792,
+        "sha256": "2ca62ad6837c03aa95501d8c7e7a9e4279ff70dfe920423efd63d37285e8b09d",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q8192-out32/shared-down.bin",
+        "archive_path": "q8192-out32/shared-down.bin",
+        "local_file": "mtp-moe-cpu-r3/q8192-out32/shared-down.bin",
+        "bytes": 135168,
+        "sha256": "d21952a7039a0291731015285aeb2a9a929f6575145a4f1872623c4eafd8ba3e",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q8192-out32/shared.bin",
+        "archive_path": "q8192-out32/shared.bin",
+        "local_file": "mtp-moe-cpu-r3/q8192-out32/shared.bin",
+        "bytes": 135168,
+        "sha256": "aec675a46ee9b77f4e4ef40f44ef6bad64439ca508fdb4fc37d40d1eb45d0049",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q8192-out32/routed-gate-up.bin",
+        "archive_path": "q8192-out32/routed-gate-up.bin",
+        "local_file": "mtp-moe-cpu-r3/q8192-out32/routed-gate-up.bin",
+        "bytes": 540672,
+        "sha256": "ec8ba0223abf186fc554c7a46f4bdd242ad25e5fc68853a6bab5938cef6b8961",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q8192-out32/routed-activated.bin",
+        "archive_path": "q8192-out32/routed-activated.bin",
+        "local_file": "mtp-moe-cpu-r3/q8192-out32/routed-activated.bin",
+        "bytes": 270336,
+        "sha256": "b53124ea70ba1e1b4824e4663226ced35bdd0fa20205e7032188f3d434f5575e",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q8192-out32/routed-weighted.bin",
+        "archive_path": "q8192-out32/routed-weighted.bin",
+        "local_file": "mtp-moe-cpu-r3/q8192-out32/routed-weighted.bin",
+        "bytes": 1081344,
+        "sha256": "5ddd750457f500d1ee23627cbe5d73c42337f81a872ff5c086a5d9a293f4b428",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q8192-out32/expert-part-1.bin",
+        "archive_path": "q8192-out32/expert-part-1.bin",
+        "local_file": "mtp-moe-cpu-r3/q8192-out32/expert-part-1.bin",
+        "bytes": 135168,
+        "sha256": "a5ba147de13f0dec217e63556bf5b0e3f7b6d88bb496026fb5c7ce2e1e2a4300",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q8192-out32/moe-output.bin",
+        "archive_path": "q8192-out32/moe-output.bin",
+        "local_file": "mtp-moe-cpu-r3/q8192-out32/moe-output.bin",
+        "bytes": 135168,
+        "sha256": "b779bd9e7bb31b251437a00bfcca4266716ddc0ce2ea3b593d463c54aaf1e482",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q8192-out32/topk-ids.bin",
+        "archive_path": "q8192-out32/topk-ids.bin",
+        "local_file": "mtp-moe-cpu-r3/q8192-out32/topk-ids.bin",
+        "bytes": 1056,
+        "sha256": "63dae444eb6b74bc9cdbacb44abef5865a27db74a472de280accc214aa68008f",
+        "role": "comparison_only_original_output"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q8192-out32/topk-weights.bin",
+        "archive_path": "q8192-out32/topk-weights.bin",
+        "local_file": "mtp-moe-cpu-r3/q8192-out32/topk-weights.bin",
+        "bytes": 1056,
+        "sha256": "f4d1d6fbfebc6f28e5c08e115af3927b6a3cb816779dffb06430367b8f0bb8d5",
+        "role": "comparison_only_original_output"
+      }
+    ],
+    "tables": [
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/tables/cuda-vllm-silu-bf16-domain.bin",
+        "archive_path": "tables/cuda-vllm-silu-bf16-domain.bin",
+        "local_file": "qrt-moe-tables-20260910-r1/cuda-vllm-silu-bf16-domain.bin",
+        "bytes": 131096,
+        "sha256": "97a2a729266bb0681983aa5b2c6ddffafeaab1bab99c7658a0524b09331a11ac",
+        "role": "original_model_independent_arithmetic_table"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/tables/sigmoid-beta-bf16.bin",
+        "archive_path": "tables/sigmoid-beta-bf16.bin",
+        "local_file": "qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin",
+        "bytes": 131072,
+        "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97",
+        "role": "original_model_independent_arithmetic_table"
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/tables/cuda-router-ex2-fraction-f32.bin",
+        "archive_path": "tables/cuda-router-ex2-fraction-f32.bin",
+        "local_file": "qrt-moe-tables-20260910-r1/cuda-router-ex2-fraction-f32.bin",
+        "bytes": 33554432,
+        "sha256": "b2a42c4a626469c986e33e43f16f41bde9d84de94347cd9ceaa1bd68d36bcdf0",
+        "role": "original_model_independent_arithmetic_table"
+      }
+    ],
+    "cases": [
+      {
+        "name": "q7169-out32",
+        "program": "qrt-mtp-moe",
+        "original_case": "q7169-out32",
+        "stage": "complete_moe",
+        "arguments": [
+          "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q7169-out32",
+          "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/model-weights/router.bf16.bin",
+          "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/model-weights/shared-gate.bf16.bin",
+          "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/model-weights/shared-gate-up.bf16.bin",
+          "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/model-weights/shared-down.bf16.bin",
+          "D:/models/Qwen3.6-35B-A3B/model-00025-of-00026.safetensors",
+          "2759146432",
+          "D:/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
+          "1632658448",
+          "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/tables/cuda-vllm-silu-bf16-domain.bin",
+          "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/tables/sigmoid-beta-bf16.bin",
+          "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/tables/cuda-router-ex2-fraction-f32.bin"
+        ],
+        "selected_rows": [
+          {
+            "transaction": 0,
+            "saved_index": 0,
+            "position": 0,
+            "input_token_id": 95,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 0,
+            "saved_index": 1,
+            "position": 7168,
+            "input_token_id": 82,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 1,
+            "saved_index": 0,
+            "position": 7169,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 2,
+            "saved_index": 0,
+            "position": 7170,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 3,
+            "saved_index": 0,
+            "position": 7171,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 4,
+            "saved_index": 0,
+            "position": 7172,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 4,
+            "saved_index": 1,
+            "position": 7173,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 5,
+            "saved_index": 0,
+            "position": 7174,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 6,
+            "saved_index": 0,
+            "position": 7175,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 6,
+            "saved_index": 1,
+            "position": 7176,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 7,
+            "saved_index": 0,
+            "position": 7177,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 7,
+            "saved_index": 1,
+            "position": 7178,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 8,
+            "saved_index": 0,
+            "position": 7179,
+            "input_token_id": 196,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 8,
+            "saved_index": 1,
+            "position": 7180,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 9,
+            "saved_index": 0,
+            "position": 7181,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 9,
+            "saved_index": 1,
+            "position": 7182,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 10,
+            "saved_index": 0,
+            "position": 7183,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 10,
+            "saved_index": 1,
+            "position": 7184,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 11,
+            "saved_index": 0,
+            "position": 7185,
+            "input_token_id": 196,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 11,
+            "saved_index": 1,
+            "position": 7186,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 12,
+            "saved_index": 0,
+            "position": 7187,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 12,
+            "saved_index": 1,
+            "position": 7188,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 13,
+            "saved_index": 0,
+            "position": 7189,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 13,
+            "saved_index": 1,
+            "position": 7190,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 14,
+            "saved_index": 0,
+            "position": 7191,
+            "input_token_id": 196,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 14,
+            "saved_index": 1,
+            "position": 7192,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 15,
+            "saved_index": 0,
+            "position": 7193,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 15,
+            "saved_index": 1,
+            "position": 7194,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 16,
+            "saved_index": 0,
+            "position": 7195,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 16,
+            "saved_index": 1,
+            "position": 7196,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 17,
+            "saved_index": 0,
+            "position": 7197,
+            "input_token_id": 196,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 17,
+            "saved_index": 1,
+            "position": 7198,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 18,
+            "saved_index": 0,
+            "position": 7199,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          }
+        ],
+        "expected_reports": 1,
+        "expected_cpu_report": {
+          "rows": 33
+        },
+        "timeout_seconds": 300
+      },
+      {
+        "name": "q8192-out32",
+        "program": "qrt-mtp-moe",
+        "original_case": "q8192-out32",
+        "stage": "complete_moe",
+        "arguments": [
+          "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/q8192-out32",
+          "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/model-weights/router.bf16.bin",
+          "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/model-weights/shared-gate.bf16.bin",
+          "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/model-weights/shared-gate-up.bf16.bin",
+          "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/model-weights/shared-down.bf16.bin",
+          "D:/models/Qwen3.6-35B-A3B/model-00025-of-00026.safetensors",
+          "2759146432",
+          "D:/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
+          "1632658448",
+          "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/tables/cuda-vllm-silu-bf16-domain.bin",
+          "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/tables/sigmoid-beta-bf16.bin",
+          "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/tables/cuda-router-ex2-fraction-f32.bin"
+        ],
+        "selected_rows": [
+          {
+            "transaction": 0,
+            "saved_index": 0,
+            "position": 0,
+            "input_token_id": 140,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 0,
+            "saved_index": 1,
+            "position": 8191,
+            "input_token_id": 144,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 1,
+            "saved_index": 0,
+            "position": 8192,
+            "input_token_id": 255,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 1,
+            "saved_index": 1,
+            "position": 8193,
+            "input_token_id": 82,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 2,
+            "saved_index": 0,
+            "position": 8194,
+            "input_token_id": 57,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 3,
+            "saved_index": 0,
+            "position": 8195,
+            "input_token_id": 79,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 4,
+            "saved_index": 0,
+            "position": 8196,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 5,
+            "saved_index": 0,
+            "position": 8197,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 6,
+            "saved_index": 0,
+            "position": 8198,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 7,
+            "saved_index": 0,
+            "position": 8199,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 8,
+            "saved_index": 0,
+            "position": 8200,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 8,
+            "saved_index": 1,
+            "position": 8201,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 9,
+            "saved_index": 0,
+            "position": 8202,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 9,
+            "saved_index": 1,
+            "position": 8203,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 10,
+            "saved_index": 0,
+            "position": 8204,
+            "input_token_id": 196,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 10,
+            "saved_index": 1,
+            "position": 8205,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 11,
+            "saved_index": 0,
+            "position": 8206,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 11,
+            "saved_index": 1,
+            "position": 8207,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 12,
+            "saved_index": 0,
+            "position": 8208,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 12,
+            "saved_index": 1,
+            "position": 8209,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 13,
+            "saved_index": 0,
+            "position": 8210,
+            "input_token_id": 196,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 13,
+            "saved_index": 1,
+            "position": 8211,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 14,
+            "saved_index": 0,
+            "position": 8212,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 14,
+            "saved_index": 1,
+            "position": 8213,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 15,
+            "saved_index": 0,
+            "position": 8214,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 15,
+            "saved_index": 1,
+            "position": 8215,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 16,
+            "saved_index": 0,
+            "position": 8216,
+            "input_token_id": 196,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 16,
+            "saved_index": 1,
+            "position": 8217,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 17,
+            "saved_index": 0,
+            "position": 8218,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 17,
+            "saved_index": 1,
+            "position": 8219,
+            "input_token_id": 196,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 18,
+            "saved_index": 0,
+            "position": 8220,
+            "input_token_id": 220,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 18,
+            "saved_index": 1,
+            "position": 8221,
+            "input_token_id": 220,
+            "selected_for_sampling": true,
+            "provenance": "accepted_history"
+          },
+          {
+            "transaction": 19,
+            "saved_index": 0,
+            "position": 8222,
+            "input_token_id": 196,
+            "selected_for_sampling": false,
+            "provenance": "accepted_history"
+          }
+        ],
+        "expected_reports": 1,
+        "expected_cpu_report": {
+          "rows": 33
+        },
+        "timeout_seconds": 300
+      }
+    ],
+    "model": "D:/models/Qwen3.6-35B-A3B",
+    "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+    "model_weights": [
+      {
+        "label": "router",
+        "spans": [
+          {
+            "name": "mtp.layers.0.mlp.gate.weight",
+            "shard": "model-00026-of-00026.safetensors",
+            "shape": [
+              256,
+              2048
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              2169525248,
+              2170573824
+            ],
+            "absolute_begin": 2169529360,
+            "bytes": 1048576,
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "shard_file_bytes": 2231416848
+          }
+        ],
+        "sha256": "ed592b6a2138228dc40dacc96179ce0c657ebd5c55c92476938c4eb0ede9108c",
+        "bytes": 1048576,
+        "export_path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/model-weights/router.bf16.bin"
+      },
+      {
+        "label": "shared-gate",
+        "spans": [
+          {
+            "name": "mtp.layers.0.mlp.shared_expert_gate.weight",
+            "shard": "model-00026-of-00026.safetensors",
+            "shape": [
+              1,
+              2048
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              2176865280,
+              2176869376
+            ],
+            "absolute_begin": 2176869392,
+            "bytes": 4096,
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "shard_file_bytes": 2231416848
+          }
+        ],
+        "sha256": "6cf70655851eae34334fc252072d3d872d908b6ea2479ac45676e667ded61c2e",
+        "bytes": 4096,
+        "export_path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/model-weights/shared-gate.bf16.bin"
+      },
+      {
+        "label": "shared-gate-up",
+        "spans": [
+          {
+            "name": "mtp.layers.0.mlp.shared_expert.gate_proj.weight",
+            "shard": "model-00026-of-00026.safetensors",
+            "shape": [
+              512,
+              2048
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              2172670976,
+              2174768128
+            ],
+            "absolute_begin": 2172675088,
+            "bytes": 2097152,
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "shard_file_bytes": 2231416848
+          },
+          {
+            "name": "mtp.layers.0.mlp.shared_expert.up_proj.weight",
+            "shard": "model-00026-of-00026.safetensors",
+            "shape": [
+              512,
+              2048
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              2174768128,
+              2176865280
+            ],
+            "absolute_begin": 2174772240,
+            "bytes": 2097152,
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "shard_file_bytes": 2231416848
+          }
+        ],
+        "sha256": "b06769a745ea0ddc660ce3168e34cdb0a085e0b6335505d945e2ec79c293ada7",
+        "bytes": 4194304,
+        "export_path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/model-weights/shared-gate-up.bf16.bin"
+      },
+      {
+        "label": "shared-down",
+        "spans": [
+          {
+            "name": "mtp.layers.0.mlp.shared_expert.down_proj.weight",
+            "shard": "model-00026-of-00026.safetensors",
+            "shape": [
+              2048,
+              512
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              2170573824,
+              2172670976
+            ],
+            "absolute_begin": 2170577936,
+            "bytes": 2097152,
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "shard_file_bytes": 2231416848
+          }
+        ],
+        "sha256": "e1ac113656bcf5bcac1ebbc46c61f6b40d7cc480aeef6e58dada17073f18458e",
+        "bytes": 2097152,
+        "export_path": "D:/projects/qrt-mtp-native-moe-inputs-20260920-r1/model-weights/shared-down.bf16.bin"
+      },
+      {
+        "label": "routed-down",
+        "spans": [
+          {
+            "name": "mtp.layers.0.mlp.experts.down_proj",
+            "shard": "model-00026-of-00026.safetensors",
+            "shape": [
+              256,
+              2048,
+              512
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              1632654336,
+              2169525248
+            ],
+            "absolute_begin": 1632658448,
+            "bytes": 536870912,
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "shard_file_bytes": 2231416848
+          }
+        ],
+        "sha256": "671f3f8436a859d11582489d78ef3122f392e3d2f7f2635ad7778b6e52d27e9f",
+        "bytes": 536870912,
+        "export_path": null
+      },
+      {
+        "label": "routed-gate-up",
+        "spans": [
+          {
+            "name": "mtp.layers.0.mlp.experts.gate_up_proj",
+            "shard": "model-00025-of-00026.safetensors",
+            "shape": [
+              256,
+              1024,
+              2048
+            ],
+            "dtype": "BF16",
+            "data_offsets": [
+              2759143808,
+              3832885632
+            ],
+            "absolute_begin": 2759146432,
+            "bytes": 1073741824,
+            "header_sha256": "a1213b03752357c4ef03c1fb806bc445f5230de6e4c70fe252328ad707322d39",
+            "shard_file_bytes": 3832888256
+          }
+        ],
+        "sha256": "149557e68804517a9f161ede0e39cf287d70e847c9970eb5e80e0cd386e97e9a",
+        "bytes": 1073741824,
+        "export_path": null
+      }
+    ],
+    "original_inventory_sha256": "cf0a94ea992bc01de20fdc3d84db05cf09b4efb0cbb7a4e0c86d757147f01d3e",
+    "routed_cpu_comparison_sha256": "3cb7c243ae6d3af8b284648313cabdb722f7dc17d2c8ac31a3f1f0248a9fea45",
+    "active_run_must_finish_before_dispatch": "all-q1-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+    "active_run_remote_directory": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/all-q1-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+    "active_launch_sha256": "d19255fb648043f2811ef8579d84a85016a3c1c02ab57a31618a0d1c10c2c85c",
+    "active_run_model_success_required": false,
+    "active_run_cleanup_required": true,
+    "reference_host": "gb10-4t",
+    "reference_model": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "reference_source_commit": "e034919575af8a56c56a8e49447294455dc2db7a",
+    "reference_dispatch_sha256": "87595fd468ce45dc57bd1bbde21d18091e466d3a94068723bdd5378388dd8981",
+    "cpu_math_analysis_sha256": "beb4f35e903e9fe8eb6d22318f94a552d872ec6c1447f2337837beec59144be5",
+    "local_validation_sha256": "c608cc639c2dbcb4ce454320c52c6670c27f8299d3e244e14f8f2f184b847cdf",
+    "compile_timeout_seconds": 120,
+    "transport_timeout_seconds": 1200,
+    "model_tensor_read_timeout_seconds": 60,
+    "archive_operation_timeout_seconds": 120,
+    "native_dispatched": false,
+    "model_loaded": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false,
+    "compiled_inputs": 20,
+    "source_sha256": {
+      "tools/mtp_moe_hip_probe.cpp": "863c68a5b47f11290a94dd2263422f5e0f779c0551bfe7da53b7ec979e34c8c9",
+      "native/providers/gdn/sm121_mtp_moe.h": "df38e91dae5bc127961813be746da1d5bd8ce8dc0e2fb01782f3aeac896cb52d",
+      "native/providers/gdn/sm121_mtp_projection.h": "ffae24eed114ae3c4e53b6d59087fc54570bea49a9de9ffc0f997be71ef8bcf0",
+      "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+      "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+      "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+      "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+      "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+      "native/providers/moe_accumulator/sm121_subgroup.h": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+      "native/providers/moe_accumulator/sm121_wave16.h": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+      "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+      "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+      "native/providers/moe_accumulator/sm121_lane_reduce.h": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+      "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+      "native/providers/moe_accumulator/sm121_paired_products.h": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+      "native/providers/moe_accumulator/sm121_dot_certificate.h": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+      "native/providers/gdn/sm121_mtp_moe_math.h": "1bca67f5dd6a672d0f0d79f90bf0d3a992c6908dea235b3b028efa29900fb349",
+      "native/providers/moe_accumulator/sm121_router_exp.h": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+      "native/providers/moe_accumulator/sm121_shared_gate.h": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+      "native/providers/gdn/sm121_mtp_moe_layout.h": "aa25ff78b71bd698db2745b2e7a84cfebd565b9d143a81bc4f7e7a302617ff1f",
+      "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+      "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca"
+    },
+    "script": "run-mtp-native-moe-r2.ps1",
+    "dispatcher": "dispatch_mtp_native_moe_r2.py",
+    "archive": "qrt-mtp-native-moe-inputs-20260920-r1.tar.gz",
+    "archive_bytes": 15355718,
+    "bundle": "mtp-native-moe-c93aeeb.bundle",
+    "script_sha256": "cb7705921b8db900453f8388f41e8f303141274c66da4ada8f76c0af4159564c",
+    "dispatcher_sha256": "3e6731a3d9e7790a69c1c85be72025d91d695f6ce7827b42550d027cee703559",
+    "archive_sha256": "0ff94aeb46aa6a3c9e067e8a46250822f2e471432ed71d324e1de30e3a3edc51",
+    "bundle_sha256": "e5a291737764f537fb550f53f5b7104a0b50b9825eb85fa6f8ce18622fad6dac",
+    "evidence_archive": "mtp-native-moe-r1-evidence.tar.gz",
+    "generator": "prepare_mtp_native_moe_r2.py",
+    "generator_sha256": "bd479e7d89b9db1c3dd14d06dbc9532bcfe76a77efe99f8fa67ce772c1c795bb",
+    "model_binding_source_sha256": "c970992bcaadd478448c398d7a890fd9e188e35d569cf3a9219b8692a057cc31",
+    "dispatcher_tail_source_sha256": "d1bd3d3b6fa22075d6fac3e7d946b4bd02885fa98f98dba2b97ea094e4ad7991",
+    "replaces_unrun_plan": {
+      "file": "mtp-native-moe-source-r1.json",
+      "sha256": "81f83643dbaba59e0e158e86c5d4ec7598bbaf6b0e8a398f88fa2b948c1f2e09"
+    },
+    "preparation_correction": "Use tensorStream instead of PowerShell automatic input variable; reuse unchanged data archive and source bundle."
+  },
+  "manifest_sha256": "aeed1ae3c1873f7ac37f8600934fea2826eff557859e7a18b67144dcb6b6b81b",
+  "windows_script_parse": {
+    "sha256": "0ebe10f077489ff40b5036fb58aa01573c8240626a5faf2d37560c51cf78b3c7",
+    "returncode": 0,
+    "executed": false
+  },
+  "script_text": "$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$sourcePath='D:\\projects\\mtp-native-moe-source-r2.json'\n$m=[IO.File]::ReadAllText($sourcePath)|ConvertFrom-Json\nfunction Verify-File([string]$Path,[string]$Sha){if((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Sha){throw ('Changed input: '+$Path)}}\nfunction Check-Run([string]$Path){\n $r=[IO.File]::ReadAllText($Path)|ConvertFrom-Json\n if($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass -or @($r.after_processes).Count -ne 0){throw ('Unqualified run: '+$Path)}\n foreach($check in $r.host_checks.PSObject.Properties){if(-not $check.Value){throw 'Failed host check'}}\n}\nfunction Run-Git([string[]]$GitArguments){\n $psi=New-Object Diagnostics.ProcessStartInfo\n $psi.FileName='git.exe';$psi.UseShellExecute=$false;$psi.RedirectStandardOutput=$true;$psi.RedirectStandardError=$true\n $psi.Arguments=($GitArguments|ForEach-Object {'\"'+$_.Replace('\"','\\\"')+'\"'}) -join ' '\n $p=New-Object Diagnostics.Process;$p.StartInfo=$psi\n if(-not $p.Start()){throw 'Git did not start'}\n $outTask=$p.StandardOutput.ReadToEndAsync();$errTask=$p.StandardError.ReadToEndAsync()\n if(-not $p.WaitForExit(30000)){try{$p.Kill()}catch{};throw 'Git timeout'}\n $stdout=$outTask.GetAwaiter().GetResult();$stderr=$errTask.GetAwaiter().GetResult()\n if($p.ExitCode -ne 0){throw ('Git failed: '+$stderr)}\n return $stdout.Trim()\n}\nfunction Run-Tar([string[]]$TarArguments){\n $psi=New-Object Diagnostics.ProcessStartInfo\n $psi.FileName='tar.exe';$psi.UseShellExecute=$false;$psi.RedirectStandardOutput=$true;$psi.RedirectStandardError=$true\n $psi.Arguments=($TarArguments|ForEach-Object {'\"'+$_.Replace('\"','\\\"')+'\"'}) -join ' '\n $p=New-Object Diagnostics.Process;$p.StartInfo=$psi\n if(-not $p.Start()){throw 'Tar did not start'}\n $outTask=$p.StandardOutput.ReadToEndAsync();$errTask=$p.StandardError.ReadToEndAsync()\n if(-not $p.WaitForExit(120000)){try{$p.Kill()}catch{};throw 'Tar timeout'}\n $stdout=$outTask.GetAwaiter().GetResult();$stderr=$errTask.GetAwaiter().GetResult()\n if($p.ExitCode -ne 0){throw ('Tar failed: '+$stderr)}\n return $stdout.Trim()\n}\nVerify-File $PSCommandPath $m.script_sha256\n$binding=[IO.File]::ReadAllText('D:\\projects\\mtp-native-moe-dispatch-binding-r2.json')|ConvertFrom-Json\nVerify-File $sourcePath $binding.source_manifest_sha256\n$activePath=Join-Path $m.active_run_remote_directory 'run-record.json'\nVerify-File $activePath $binding.completed_active_run_sha256\n$active=[IO.File]::ReadAllText($activePath)|ConvertFrom-Json\nif(-not $active.host_checks_pass -or @($active.after_processes).Count -ne 0 -or\n   -not $active.host.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Prior long run cleanup or host checks failed'}\nforeach($check in $active.host_checks.PSObject.Properties){if(-not $check.Value){throw 'Prior host check failed'}}\nVerify-File (Join-Path $m.active_run_remote_directory 'launch.json') $m.active_launch_sha256\n$repo=$m.repo.Replace('/','\\');$seed=$m.seed.Replace('/','\\');$sha=$m.source_commit\n$bundle=Join-Path 'D:\\projects' $m.bundle;Verify-File $bundle $m.bundle_sha256\nif(Test-Path $repo){throw 'Native probe checkout already exists'}\n$null=Run-Git -GitArguments @('-C',$seed,'fetch',$bundle,'HEAD')\n$null=Run-Git -GitArguments @('-C',$seed,'worktree','add','--detach',$repo,$sha)\nif((Run-Git -GitArguments @('-C',$repo,'rev-parse','HEAD')) -ne $sha -or (Run-Git -GitArguments @('-C',$repo,'status','--porcelain'))){throw 'Source mismatch'}\nforeach($item in $m.source_sha256.PSObject.Properties){Verify-File (Join-Path $repo $item.Name) $item.Value}\n$data=$m.data.Replace('/','\\');$archive=Join-Path 'D:\\projects' $m.archive\nVerify-File $archive $m.archive_sha256\nif(Test-Path $data){throw 'Native probe data already exists'}\n$null=New-Item -ItemType Directory -Path $data\n$null=Run-Tar -TarArguments @('-xf',$archive,'-C',$data)\nforeach($f in @($m.files)+@($m.tables)){\n if((Get-Item -LiteralPath $f.path).Length -ne $f.bytes){throw ('Input size changed: '+$f.path)}\n Verify-File $f.path $f.sha256\n}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n$out=Join-Path $repo 'build\\mtp-native-moe-r1'\n$null=New-Item -ItemType Directory -Path $out\n$guard=Join-Path $repo 'scripts\\baiying_guarded_inference.ps1'\n$failed=$false\ntry{\nVerify-File (Join-Path $m.model 'model.safetensors.index.json') $m.model_index_sha256\n$weightDirectory=Join-Path $m.data 'model-weights'\nif(Test-Path $weightDirectory){throw 'Derived model weights already exist'}\n$null=New-Item -ItemType Directory -Path $weightDirectory\n$modelWeightRecords=@()\nforeach($weight in $m.model_weights){\n $timer=[Diagnostics.Stopwatch]::StartNew()\n $hasher=[Security.Cryptography.SHA256]::Create();$output=$null;$total=0L\n try{\n  if($weight.export_path){$output=[IO.File]::Open($weight.export_path,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None)}\n  foreach($span in $weight.spans){\n   $path=Join-Path $m.model $span.shard\n   $tensorStream=[IO.File]::Open($path,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read)\n   try{\n    if($tensorStream.Length -ne $span.shard_file_bytes){throw 'Original shard size changed'}\n    $reader=[IO.BinaryReader]::new($tensorStream,[Text.Encoding]::UTF8,$true)\n    try{\n     $headerLength=$reader.ReadUInt64()\n     if($headerLength -gt 16777216 -or $headerLength -gt $tensorStream.Length-8){throw 'Model header bound'}\n     $headerBytes=$reader.ReadBytes([int]$headerLength)\n     if($headerBytes.Length -ne $headerLength){throw 'Short model header'}\n    }finally{$reader.Dispose()}\n    $headerHasher=[Security.Cryptography.SHA256]::Create()\n    try{$headerSha=[BitConverter]::ToString($headerHasher.ComputeHash($headerBytes)).Replace('-','').ToLowerInvariant()}\n    finally{$headerHasher.Dispose()}\n    if($headerSha -ne $span.header_sha256){throw 'Original model header changed'}\n    $header=[Text.Encoding]::UTF8.GetString($headerBytes)|ConvertFrom-Json\n    $property=$header.PSObject.Properties[$span.name]\n    if(-not $property){throw 'Original tensor missing'}\n    $tensor=$property.Value\n    if($tensor.dtype -ne $span.dtype -or ($tensor.shape -join ',') -ne ($span.shape -join ',') -or\n       ($tensor.data_offsets -join ',') -ne ($span.data_offsets -join ',') -or\n       8L+$headerLength+[long]$tensor.data_offsets[0] -ne $span.absolute_begin -or\n       [long]$tensor.data_offsets[1]-[long]$tensor.data_offsets[0] -ne $span.bytes){throw 'Original tensor layout changed'}\n    $null=$tensorStream.Seek([long]$span.absolute_begin,[IO.SeekOrigin]::Begin)\n    $remaining=[long]$span.bytes;$buffer=New-Object byte[] 4194304\n    while($remaining -gt 0){\n     if($timer.Elapsed.TotalSeconds -gt $m.model_tensor_read_timeout_seconds){throw 'Original model tensor read timeout'}\n     $count=$tensorStream.Read($buffer,0,[int][Math]::Min($remaining,$buffer.Length))\n     if($count -le 0){throw 'Short original tensor read'}\n     $null=$hasher.TransformBlock($buffer,0,$count,$buffer,0)\n     if($output){$output.Write($buffer,0,$count)}\n     $remaining-=$count;$total+=$count\n    }\n   }finally{$tensorStream.Dispose()}\n  }\n  $null=$hasher.TransformFinalBlock([byte[]]@(),0,0)\n  $digest=[BitConverter]::ToString($hasher.Hash).Replace('-','').ToLowerInvariant()\n }finally{if($output){$output.Dispose()};$hasher.Dispose()}\n if($total -ne $weight.bytes -or $digest -ne $weight.sha256){throw 'Original weight content differs from qualified reference'}\n if($weight.export_path){Verify-File $weight.export_path $weight.sha256}\n $modelWeightRecords+=@{label=$weight.label;bytes=$total;sha256=$digest;spans=$weight.spans;\n  export_path=$weight.export_path;read_seconds=$timer.Elapsed.TotalSeconds;read_timeout_seconds=$m.model_tensor_read_timeout_seconds;pass=$true}\n}\n[IO.File]::WriteAllText((Join-Path $out 'model-weight-bindings.json'),($modelWeightRecords|ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false))\n\n foreach($program in $m.programs){\n  $exe=Join-Path $out ($program.name+'.exe')\n  $spec=[ordered]@{\n   executable='C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe'\n   arguments=@('-std=c++17','-O2','-fno-fast-math','-fno-reciprocal-math','-ffp-contract=off','--offload-arch=gfx1151','-I',$repo,(Join-Path $repo $program.source),'-o',$exe)\n   working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=$m.script_sha256\n   model='none; compile original MTP component comparison';model_loaded=$false;inference_acceptance=$false\n   source_manifest_sha256=$binding.source_manifest_sha256;source_inputs=$m.source_sha256\n  }\n  $specPath=Join-Path $out ($program.name+'-build-spec.json')\n  [IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false))\n  & $guard -SpecPath $specPath -OutDir (Join-Path $out ($program.name+'-build')) -TimeoutSeconds $m.compile_timeout_seconds|Out-Null\n  Check-Run (Join-Path $out ($program.name+'-build\\run-record.json'))\n }\n foreach($case in $m.cases){\n  $exe=Join-Path $out ($case.program+'.exe')\n  $spec=[ordered]@{\n   executable=$exe;executable_sha256=(Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()\n   arguments=@($case.arguments);working_directory=$repo;repo_commit=$sha\n   command_file=$PSCommandPath;command_file_sha256=$m.script_sha256;source_manifest_sha256=$binding.source_manifest_sha256\n   input_artifacts=@($m.files)+@($m.tables);case=$case;model_tensor_bindings=$modelWeightRecords\n   model='D:\\models\\Qwen3.6-35B-A3B; original gb10-4t MTP operands and comparison outputs'\n   reference_host=$m.reference_host;reference_model=$m.reference_model\n   model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false\n  }\n  $specPath=Join-Path $out ($case.name+'-spec.json');$runOut=Join-Path $out $case.name\n  [IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 18),[Text.UTF8Encoding]::new($false))\n  & $guard -SpecPath $specPath -OutDir $runOut -TimeoutSeconds $case.timeout_seconds|Out-Null\n  Check-Run (Join-Path $runOut 'run-record.json')\n  $rows=@(Get-Content -LiteralPath (Join-Path $runOut 'product.stdout.jsonl')|ForEach-Object {$_|ConvertFrom-Json})\n  if($rows.Count -ne $case.expected_reports){throw 'Missing component reports'}\n  foreach($row in $rows){if(-not $row.passed){throw 'Numerical or memory-boundary mismatch'}}\n  [ordered]@{case=$case.name;reports=$rows}|ConvertTo-Json -Depth 7 -Compress\n }\n}catch{$failed=$true;[Console]::Error.WriteLine($_.ToString())}\nfinally{\n $compact=Join-Path 'D:\\projects' $m.evidence_archive\n if(Test-Path $compact){throw 'Evidence archive exists'}\n $null=Run-Tar -TarArguments @('-czf',$compact,'--exclude=*.exe','-C',$out,'.')\n [ordered]@{evidence_archive=$compact;sha256=(Get-FileHash $compact -Algorithm SHA256).Hash.ToLowerInvariant();bytes=(Get-Item $compact).Length}|ConvertTo-Json -Compress\n}\nif($failed){exit 1}\n",
+  "local_validation": {
+    "file": "benchmarks/correctness/mtp-moe-native-chain-local-20260920.json",
+    "bytes": 12420,
+    "sha256": "61441fd38e34a0cca63f5bd9b75fd106a06b1e49d348919148316d4d65b78dc4"
+  },
+  "native_build": false,
+  "native_execution": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}
