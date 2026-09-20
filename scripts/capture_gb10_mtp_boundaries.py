@@ -158,6 +158,9 @@ class MtpBoundaryCapture(RuntimeBoundaryCapture):
             if value.numel() != transaction['token_count'] * width:
                 raise ValueError("MTP boundary shape changed: " + label)
             value = value.reshape(transaction['token_count'], width)
+            full_observer = getattr(self, 'qrt_observe_mtp_full_frontier', None)
+            if full_observer is not None:
+                full_observer(label, value, width)
             selected = torch.cat([value[row['row']:row['row'] + 1].detach().cpu()
                                   for row in transaction['rows']])
             size = selected.numel() * selected.element_size()

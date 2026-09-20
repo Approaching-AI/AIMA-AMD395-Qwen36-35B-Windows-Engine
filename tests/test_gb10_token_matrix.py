@@ -138,6 +138,34 @@ class Gb10TokenMatrixTests(unittest.TestCase):
                         self.assertIn("invalid deadline", result.stderr)
                         self.assertFalse(output.exists())
 
+    def test_full_mtp_frontiers_only_select_immutable_controls(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            common = [sys.executable, str(ROOT / 'scripts/capture_gb10_token_matrix.py'),
+                '--oracle-q7169', str(ORACLES[7169]), '--oracle-q8192', str(ORACLES[8192]),
+                '--source-commit', '0' * 40, '--runtime-boundaries', '--mtp-boundaries',
+                '--mtp-full-prefill-frontiers']
+            for index, (extra, succeeds) in enumerate((
+                    (['--mtp-kernel-launches'], True), ([], False),
+                    (['--mtp-kernel-launches', '--additional-cases', str(root / 'unused.json')], False))):
+                with self.subTest(extra=extra):
+                    output = root / str(index)
+                    result = subprocess.run(common + extra + ['--output-dir', str(output)],
+                        capture_output=True, text=True, timeout=10)
+                    self.assertEqual(result.returncode == 0, succeeds, result.stderr)
+                    if succeeds:
+                        record = json.loads((output / 'capture.json').read_text())
+                        self.assertEqual([case['name'] for case in record['fixtures']],
+                                         ['q7169-out32', 'q8192-out32'])
+                        self.assertTrue(all(case['control'] for case in record['fixtures']))
+                        self.assertTrue(record['mtp_full_prefill_frontiers'])
+                        self.assertFalse(record['completed'])
+                        self.assertFalse(record['windows_acceptance'])
+                        self.assertEqual(record['maximum_timeout_seconds'], 600)
+                    else:
+                        self.assertIn('requires --mtp-kernel-launches', result.stderr)
+                        self.assertFalse(output.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

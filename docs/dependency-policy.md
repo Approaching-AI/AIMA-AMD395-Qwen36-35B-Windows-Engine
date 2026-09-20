@@ -50,6 +50,13 @@ copies at most 32 kernel identities per request with a 256 KiB limit per
 PTX/IR/metadata file, and records original tensor layouts without extra tensor
 payloads. This adds no installed package or native runtime dependency.
 
+The optional complete-prefill observer adds a separate 320 MiB copied-data
+ceiling per request, restricted to the first complete batch of at most8192
+tokens. q8192 uses310411264 bytes, including the actual shifted input IDs.
+It reuses Torch and standard-library file/hash operations, preserving the
+existing selected-row and shared-weight ceilings. These offline artifacts
+support whole prompt-cache validation and are not packaged with the runtime.
+
 The isolated MTP draft-limit state machine and its offline schedule probe use
 only standard C++17. They add no runtime dependency and do not load model data.
 The helper requires actual acceptance counts from its eventual caller; reference

@@ -124,6 +124,16 @@ and its PTX/IR hashes for all seven MTP norms. It calls the original launcher
 once and returns its result unchanged. The installed launcher source is pinned;
 missing call identities fail qualification. Native integration remains pending.
 
+The optional `--mtp-full-prefill-frontiers` mode selects only the immutable
+q7169/out32 and q8192/out32 controls. It copies all first-prefill target hidden
+rows, actual shifted IDs and eleven frontend boundaries through K RoPE/V.
+Qualification checks every shifted ID against the actual prompt and first
+sample, and compares the full copies with all existing selected observations,
+including the KV slice within the original QKV projection. This supplements
+selected-row operator evidence for a future complete prompt-cache check.
+Fifteen local identity/CLI tests pass; the new full capture and Windows
+prompt-cache orchestration remain unrun. This mode does not qualify timing.
+
 The [short MTP arithmetic check](../benchmarks/correctness/gb10-mtp-short-frontier-arithmetic-20260920.json)
 uses 66 accepted-history rows from the two completed controls. The existing
 eight-adjacent-value norm reduction differs at four BF16 input-norm cells;

@@ -233,7 +233,9 @@ def execute(args, cases, oracles):
               async_scheduling=False, enable_prefix_caching=False,
               attention_config={"backend": "TRITON_ATTN"}, mm_encoder_attn_backend="TORCH_SDPA",
               speculative_config={"method": "mtp", "num_speculative_tokens": 1},
-              worker_extension_cls=("capture_gb10_mtp_launchers.MtpKernelBoundaryCapture"
+              worker_extension_cls=("capture_gb10_mtp_full_prefill.MtpFullPrefillBoundaryCapture"
+                                    if args.mtp_full_prefill_frontiers else
+                                    "capture_gb10_mtp_launchers.MtpKernelBoundaryCapture"
                                     if args.mtp_kernel_launches else
                                     "capture_gb10_mtp_boundaries.MtpBoundaryCapture"
                                     if args.mtp_boundaries else
@@ -294,6 +296,10 @@ def execute(args, cases, oracles):
             from capture_gb10_mtp_boundaries import qualify_mtp_capture
             try:
                 qualify_mtp_capture(worker, case["prompt_token_ids"], tokens)
+                if args.mtp_full_prefill_frontiers:
+                    from capture_gb10_mtp_full_prefill import qualify_full_prefill_capture
+                    qualify_full_prefill_capture(worker, case["prompt_token_ids"], tokens,
+                        args.output_dir / case["name"])
             except ValueError as error:
                 record["qualification_error"] = str(error)
                 write_json(args.output_dir / (case["name"] + "-rejected.json"), record)
@@ -324,6 +330,8 @@ def main():
                         help="also copy original MTP inputs and outputs; requires --runtime-boundaries")
     parser.add_argument("--mtp-kernel-launches", action="store_true",
                         help="bind original MTP norms to unchanged selected launchers; requires --mtp-boundaries")
+    parser.add_argument("--mtp-full-prefill-frontiers", action="store_true",
+                        help="copy complete MTP cache frontends for both immutable short controls; requires --mtp-kernel-launches")
     parser.add_argument("--oracle-q7169", type=Path, required=True)
     parser.add_argument("--oracle-q8192", type=Path, required=True)
     parser.add_argument("--model-root", type=Path, default=Path("/models"))
@@ -346,9 +354,13 @@ def main():
         parser.error("--mtp-boundaries requires --runtime-boundaries")
     if args.mtp_kernel_launches and not args.mtp_boundaries:
         parser.error("--mtp-kernel-launches requires --mtp-boundaries")
+    if args.mtp_full_prefill_frontiers and (not args.mtp_kernel_launches or args.additional_cases is not None):
+        parser.error("--mtp-full-prefill-frontiers requires --mtp-kernel-launches and uses only the two immutable controls")
     if not 1 <= args.maximum_prompt_tokens <= MAX_REFERENCE_PROMPT_TOKENS:
         raise ValueError("invalid explicit prompt-token bound")
     cases, oracles = fixtures({7169: args.oracle_q7169, 8192: args.oracle_q8192})
+    if args.mtp_full_prefill_frontiers:
+        cases = cases[:2]
     if args.additional_cases is not None:
         cases = explicit_cases(args.additional_cases, cases, args.maximum_prompt_tokens)
         if args.runtime_boundaries and any(case["output_count"] < 2 for case in cases):
@@ -379,6 +391,7 @@ def main():
                   prefix_caching=False, native_tensor_inputs=False,
                   runtime_boundaries=args.runtime_boundaries, mtp_boundaries=args.mtp_boundaries,
                   mtp_kernel_launches=args.mtp_kernel_launches,
+                  mtp_full_prefill_frontiers=args.mtp_full_prefill_frontiers,
                   timeout_seconds=args.timeout_seconds, maximum_timeout_seconds=timeout_limit,
                   maximum_additional_prompt_tokens=args.maximum_prompt_tokens)
     if args.additional_cases is not None:
