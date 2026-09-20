@@ -531,6 +531,24 @@ and prefix checks pass. The initial Windows build plan was superseded before
 execution. Complete actual hidden and model correctness still need native
 measurement; neither host tests nor retained tensor extents establish them.
 
+The [complete-hidden Windows preparation](../benchmarks/correctness/mtp-target-complete-hidden-native-preparation-20260920.json)
+binds source `e87100d`, 111 compilation inputs and 113 build inputs. Its revised
+whole-provider build and separate q7169/out32 and q8192/out512 model runners
+parse on baiying; compilation and model execution remain unrun. Both configured
+terminal-only optimizations stay enabled so the actual scoped consumer must
+suppress them. The model tests require original prompt IDs, every output and
+actual callback, first-logit error at most 0.125, and publication of every
+actual normalized hidden row. Hidden bit differences remain diagnostics.
+
+Both original reference hidden tensors and shifted IDs have been verified
+locally. The dispatcher first requires completed cleanup of the active 256k
+run, then binds the newly compiled DLL and its original compiler options.
+Build bounds are 240 seconds for compilation and 300 for its native guard;
+each product case has a 300-second native bound and 390-second transport bound.
+Even a token failure downloads its available raw observations before analysis.
+Production MTP weight binding and actual proposal/acceptance integration remain
+open; these preparations establish no inference or performance result.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
