@@ -843,6 +843,19 @@ private rejected-row computation without treating rejected rows as accepted
 history. New target-layer GPU integration, completion checks, cache publication
 and inference acceptance remain pending.
 
+The [complete private linear-layer candidate](../benchmarks/correctness/q2-complete-linear-layer-local-20260921.json)
+now connects input residual normalization, the complete linear block,
+post-attention residual normalization and MoE. All cache inputs and weights
+remain borrowed and readonly; both recurrent outcomes, normalized carriers,
+residuals and MoE outputs stay private. The whole graph rejects overlapping
+storage before submitting its first producer. Six sanitizer regressions pass,
+including actual stage pointer routing and failure propagation through all
+four component boundaries. Their component suites retain the internal partial
+submission checks. The Windows probe compares 23 original stages in four
+state/ring configurations, reads embedding rows and weights from the original
+model and checks MoE padding and validity. Its native compilation/execution and
+integration with actual target acceptance remain pending.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
