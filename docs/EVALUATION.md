@@ -807,6 +807,24 @@ that intermediate. The repair checks only actual uploaded operands. Arithmetic
 is unchanged. Live target integration and accepted-cache publication remain
 open; these component checks do not qualify model inference.
 
+The [complete two-row linear block](../benchmarks/correctness/q2-complete-linear-block-cpu-20260920.json)
+connects the four input projections, convolution, recurrence, gated RMSNorm
+and output projection in private storage. Its CPU replay starts from the
+original normalized input, initial ring/state and model weights, and computes
+every intermediate. All 15 original pairs match at all ten observed stages,
+including 15,728,640 FP32 state values and 61,440 BF16 final output values.
+The original gated normalization separately matches all 122,880 values.
+
+Three local sanitizer regressions pass. The actual block submission helper is
+checked for both ring types and state layouts, pointer offsets, cross-stage
+aliases and all 13 partial-launch failure positions. Successful submission
+does not establish device completion or authorize cache publication. The
+enclosing transaction must retain or quarantine borrowed storage until
+completion, then select the outcome from actual target acceptance. The new
+Windows probe compares all ten stages in four configurations using original
+model shard slices and readonly reference outputs; its compilation and GPU
+execution remain pending while the full256k product run occupies baiying.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
