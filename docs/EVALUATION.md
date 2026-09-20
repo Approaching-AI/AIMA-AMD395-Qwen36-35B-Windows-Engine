@@ -221,15 +221,15 @@ forward declarations instead of definitions; the corrected extraction and
 failure record are retained. Whole-provider Windows build, load time and model
 qualification for this optional scope remain unrun.
 
-The [complete GPU component batch](../benchmarks/correctness/mtp-complete-native-frontier-preparation-20260920.json)
-is frozen at source `5f75d7d`, with30 bound source inputs,157 input files,
-two existing tables and a401974892-byte archive. Its four programs cover50
-cases and should emit68 comparison reports, including both complete original
-prompt-cache owners with real K16 projections. This supersedes the preserved,
-unrun30-case and48-case preparations. Both the local dispatcher and Windows
+The [current GPU component batch](../benchmarks/correctness/mtp-qo-gate-native-frontier-preparation-20260920.json)
+is frozen at source `13a9b3a`, with33 bound source inputs,171 input files,
+three existing tables and a446406500-byte archive. Its five programs cover62
+cases and should emit80 comparison reports, including both complete original
+prompt-cache owners, Q/O projections and context gating. This supersedes the
+preserved, unrun30-case,48-case and50-case preparations. Both the local dispatcher and Windows
 wrapper require completed cleanup of the active original256k run. Archive
 operations have120-second bounds; component probes have30/60-second bounds,
-full prompt-cache probes180 seconds, and transport3300 seconds. Preparation
+Q/O probes120 seconds, full prompt-cache probes180 seconds, and transport4800 seconds. Preparation
 performs no remote run; PowerShell parsing and native builds/runs are unrun.
 
 The [prompt-cache host preparation](../benchmarks/correctness/mtp-prompt-cache-host-preparation-20260920.json)
@@ -271,8 +271,8 @@ checks both 7-block and 1024-block launch segmentation, immutable inputs/weights
 output redzones and invalid extents/aliases. The query probe additionally checks
 gating from its computed gate vector, both output modes and table immutability.
 These native probes remain uncompiled and unrun; complete-prefill Q/O outputs
-and complete native MTP inference remain unqualified. The existing prepared
-Windows batch still binds its earlier source until a replacement is frozen.
+and complete native MTP inference remain unqualified. The current62-case
+Windows batch includes these source-bound probes and original operands.
 
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
