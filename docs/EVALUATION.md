@@ -681,6 +681,21 @@ using queued HIP/kernel doubles. Speculative target verification remains
 disabled. Native build/model qualification, target executor integration, long
 chunked seeding, partial prefix support and streaming remain open.
 
+The [request-seed Windows preparation](../benchmarks/correctness/mtp-actual-request-seed-windows-preparation-20260920.json)
+now supersedes the unrun `e743a72` whole build and product plans with source
+`fb3b0b5`. It binds 138 compilation inputs/140 source and script files. The
+q7169/out32 and q8192/out512 runs retain the original target token/logit/callback
+gates, add request seeding to the native first-proposal diagnostic and collect
+30 files within 55000000 bytes. Native metadata, saved identity and the actual
+seed publication marker must agree. Thirteen corrupted seed fields per case
+are rejected by the offline comparator; reference bytes used as fixtures do
+not establish native computation.
+
+Both scripts pass PowerShell parsing on baiying without executing a build or
+loading a model. Dispatch still requires the active full256k job's completed
+cleanup record. The original complete native component batch from `9b9f8bb`
+remains queued first; the new whole build and product runs remain unexecuted.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
