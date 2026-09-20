@@ -696,6 +696,31 @@ loading a model. Dispatch still requires the active full256k job's completed
 cleanup record. The original complete native component batch from `9b9f8bb`
 remains queued first; the new whole build and product runs remain unexecuted.
 
+The [original two-row target capture and staged recurrence candidate](../benchmarks/correctness/gb10-q2-target-recurrence-and-native-preparation-20260920.json)
+reproduce all64 original short-control outputs and both complete first-logit
+buffers on GB10. Entry point `e034919` and observer `e226c47` retain original
+compute and autotuning. Both scheduled rows are observed around the first four
+decode positions, including rejected drafts, with all40 carriers and detailed
+linear/MoE layers0/1/2. The4118 verified files total247172850 bytes. All15
+cross-transaction recurrent-state links select the actual accepted outcome.
+
+CPU replay of36 observed linear rows reproduces18874368 FP32 state values and
+147456 BF16 core outputs exactly. Row one consumes the computed first state.
+Source `a98ceb1` implements an asynchronous two-row recurrence that writes both
+outcomes to separate staging buffers and leaves the resident input untouched.
+It supports both resident state layouts and rejects overlapping output/input
+ranges before launch. Its shared production math passes15 original pairs in
+both layouts:31457280 state values and245760 outputs, with zero differences.
+Two local regressions and one original-input sanitizer case pass.
+
+The native plan binds9 compilation inputs/11 source and guard files, one build
+and15 cases. Its92020101-byte archive has94 verified members; completed exp2
+and rsqrt artifacts are reused by hash. The PowerShell runner parses on
+baiying without execution, and dispatch rejects the still-active256k job
+before remote action. Windows GPU compilation/execution, target-stack
+integration and accepted-cache publication remain unrun. These component
+results do not qualify inference, performance or release.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
