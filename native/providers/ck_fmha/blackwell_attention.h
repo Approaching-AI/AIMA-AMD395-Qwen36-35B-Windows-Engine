@@ -569,7 +569,7 @@ __global__ void blackwell_strided_scores_kernel(
 // prefix replay share the same Blackwell QK and fused-C PV arithmetic.
 template <bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false,
           bool NativeProducts = false, bool StridedValue = false, bool WarpSoftmax = false,
-          bool PreparedValue = false>
+          bool PreparedValue = false, bool MtpCache = false>
 __global__ void blackwell_exact_attention_kernel(
     const uint16_t *__restrict__ query,
     const uint16_t *__restrict__ key,
@@ -594,6 +594,9 @@ __global__ void blackwell_exact_attention_kernel(
                   "warp softmax requires the bounded scalar PV layout");
     static_assert(!PreparedValue || (SerialValue && PrecomputedScores && !SplitDecodeValue && !StridedValue && !NativeProducts && !WarpSoftmax),
                   "prepared values require the original scalar softmax/PV layout");
+    static_assert(!MtpCache || (SerialValue && PrecomputedScores && !SplitDecodeValue &&
+                  !StridedValue && !NativeProducts && !WarpSoftmax && !PreparedValue),
+                  "MTP interleaved cache requires the scalar precomputed-score baseline");
     // This internal auxiliary slot holds either a BF16 decode tail or the
     // lossless uint32 V encoding. The template modes are mutually exclusive.
     const auto* prepared_value = reinterpret_cast<const uint32_t*>(auxiliary_value);
@@ -820,7 +823,9 @@ __global__ void blackwell_exact_attention_kernel(
                                 const bool in_tail = SplitDecodeValue && key_token >= decode_prefix_tokens;
                                 const uint16_t *source = in_tail ? auxiliary_value : value;
                                 const unsigned int source_token = in_tail ? key_token - decode_prefix_tokens : key_token;
-                                values[part] = source[(static_cast<size_t>(source_token) * kKvHeads + kv_head) * kHeadDim + thread];
+                                // MTP passes cache+512 and retains token-major K512/V512.
+                                const size_t token_stride = MtpCache ? 1024u : kKvHeads * kHeadDim;
+                                values[part] = source[static_cast<size_t>(source_token) * token_stride + kv_head * kHeadDim + thread];
                             }
                         }
                         if constexpr (kPairedProducts && !NativeProducts) {
@@ -898,7 +903,10 @@ __global__ void blackwell_exact_attention_kernel(
             }
         }
         if (thread == 0u) {
-            running_sum = running_sum * alpha + sum_scratch[0];
+            // Original MTP PTX c6b80aba uses FMA here. Preserve its single
+            // rounding even when the caller compiles with contraction off.
+            if constexpr (MtpCache) running_sum = fmaf(running_sum, alpha, sum_scratch[0]);
+            else running_sum = running_sum * alpha + sum_scratch[0];
             running_max = tile_max;
         }
         __syncthreads();

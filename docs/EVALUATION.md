@@ -274,6 +274,30 @@ These native probes remain uncompiled and unrun; complete-prefill Q/O outputs
 and complete native MTP inference remain unqualified. The current62-case
 Windows batch includes these source-bound probes and original operands.
 
+The [complete causal-history attention comparison](../benchmarks/correctness/gb10-mtp-causal-attention-arithmetic-20260920.json)
+uses both full original short-prompt K/V caches and31 accepted decode rows per
+case. Rejected padding never enters the retained history. An initial CPU replay
+matches both prompt endpoints, then finds one BF16 difference among270336
+values across all66 qualified rows: q8192 position8196/channel1782 gives3f0c
+instead of3f0d. Making the softmax denominator update explicitly fused removes
+that difference; every original context now matches under ASan/UBSan.
+
+The completed MTP container contains the same original attention PTX/IR as the
+earlier Q1 capture. PTX c6b80aba uses FMA for the denominator update. Cache
+presence is verified, while an MTP-specific attention-launcher identity was
+not recorded. The portable CPU source is identical to the executed source.
+The new HIP consumer reads token-major K512/V512 directly, uses the existing
+K16/K32 arithmetic with explicit denominator FMA, and publishes BF16 context.
+Its maximum two-query scratch is33587200 bytes; it copies no complete history
+and adds no library. Existing attention template defaults remain unchanged.
+
+Two sanitized host tests pass launch bounds, original cache-pointer forwarding
+and stopping after each failed submission. A separate GPU probe checks all66
+contexts under one/two-row batching, causal masks, unused scratch, immutable
+operands/tables and redzones. Its Windows build/run is pending and is not in
+the frozen62-case batch. Complete MTP inference and long MTP histories remain
+unqualified; these operator observations do not establish a token failure.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
