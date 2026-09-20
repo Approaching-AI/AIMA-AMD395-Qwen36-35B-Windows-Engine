@@ -1,0 +1,118 @@
+{
+  "kind": "native_shadow_metadata_allocation_local_regression",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "source_parent": "edf67703cb43ce7905d994417ff8b0dabd34c8a7",
+  "source_sha256": {
+    "native/providers/whole_provider.cpp": "bed8a1b7d2ecd81a5bf2ea290f1e9edef0635f2ad36572ca439b7b0c71d5595a",
+    "native/providers/gdn/sm121_q2_resident_cache.h": "5a1fd21cb72f5ae4cc17b8b3025ad2796ea2228011d4cfa738ec191a6d733c3d",
+    "native/providers/gdn/sm121_q2_cache_lifetime.h": "af19d7d4d43e88e48059641294bf9fb10686751d0c94508f2990781be601c034",
+    "native/providers/sm121_mtp_request_seed.h": "8833181aa73b21e45236e039acbb310f80f1206bd49e1de2a4ff2f72b6d3df6e",
+    "native/src/qrt.c": "851904c79ea9ff3230423f86a4d92bae27734df30bb6dd51632ffb219397c076",
+    "native/src/qrt.h": "c7af4d946b863eccbd98a540ffa0a034e1230685b5409514da05bfff9659bc4c",
+    "tests/test_model_prefix_checkpoint.py": "a847453c341a2188a7e0feea4448d074d761c7dc50d842ea9cde7457992078c5",
+    "tests/test_native_mtp_decode.py": "5787883cb86f606ec3db598c664a851748814f910d040b17f38db499f0db0bb8",
+    "tests/native/native_mtp_decode_host.cpp": "b9d769978a6aa0c1fac009ab11544da4b995a8d4412c0febe21367433a21f440",
+    "tests/test_q2_resident_cache.py": "1c1bdabd6b13e600692b8e1fc3e8569d6a1bd531fa2781c0967e2ece5662f450",
+    "tests/native/q2_resident_cache_host.cpp": "a2950125dca6dbf5119e5e10671f7aa18b955d633aa59d5f8554db10f1a59cef",
+    "tests/test_mtp_native_prefill_integration.py": "98cf529487a3d3f69ec5cfe4151072bb47f31897ca91d2f377c923e66398d53b",
+    "tests/test_attention_workspace.py": "0eaf281a70aa0193e5fd266ac8e73386fd4ab4191ab058e86a353417b2bb1764"
+  },
+  "reproducer": "Copying the actual resident session host metadata throws bad_alloc before any GPU clone is submitted. The original constructor lets it escape.",
+  "change": "Catch the metadata copy failure before marking the original captured. Failure reporting accepts nonallocating string views and contains its own allocation failures.",
+  "failed_control": {
+    "file": "native-shadow-metadata-allocation-before-r1.json",
+    "sha256": "614860c83b7f5df4e64f62d34916e66acf71abbefbc68e27c29f7fb69f6541bf",
+    "result": {
+      "scope": "Actual Shadow constructor and Session declarations under one-shot host operator-new failure; local CPU queues",
+      "source_commit": "edf67703cb43ce7905d994417ff8b0dabd34c8a7",
+      "command": "python3.12 -m unittest discover -s tests -p test_model_prefix_checkpoint.py",
+      "chunk_id": "def81c",
+      "wall_time_seconds": 1.042e-06,
+      "exit_code": 1,
+      "original_token_count": 436,
+      "output": "..F\n======================================================================\nFAIL: test_saved_state_owner_coverage_and_shadow_rollback (test_model_prefix_checkpoint.ModelPrefixCheckpointTests.test_saved_state_owner_coverage_and_shadow_rollback)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tests/test_model_prefix_checkpoint.py\", line 39, in test_saved_state_owner_coverage_and_shadow_rollback\n    run_cpp(r'''\n  File \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tests/test_model_prefix_checkpoint.py\", line 22, in run_cpp\n    raise AssertionError(result.stdout + result.stderr)\nAssertionError: BATCH_MARK qwen36_prefix_checkpoint_capture prefix_tokens=64 owner_tokens=129 generation=17 linear_mask=513105426295 hidden_valid=1 complete=1 cold_replay=0 numerical_correctness_claimed=0\nBATCH_MARK qwen36_prefix_checkpoint_capture prefix_tokens=128 owner_tokens=129 generation=17 linear_mask=513105426295 hidden_valid=1 complete=1 cold_replay=0 numerical_correctness_claimed=0\nBATCH_MARK qwen36_prefix_checkpoint_capture prefix_tokens=64 owner_tokens=129 generation=17 linear_mask=513105426295 hidden_valid=1 complete=1 cold_replay=0 numerical_correctness_claimed=0\nBATCH_MARK qwen36_prefix_checkpoint_capture prefix_tokens=128 owner_tokens=129 generation=17 linear_mask=513105426295 hidden_valid=1 complete=1 cold_replay=0 numerical_correctness_claimed=0\nAssertion failed: (!escaped&&!fail_next_host_new&&stage==\"qwen36_resident_shadow_metadata\"), function main, file <stdin>, line 1288.\n\n\n----------------------------------------------------------------------\nRan 3 tests in 3.836s\n\nFAILED (failures=1)\n"
+    }
+  },
+  "repaired": {
+    "file": "native-shadow-metadata-allocation-after-r1.json",
+    "sha256": "6ff079ca368919ff08282fcfc1a06269a0a615ace681260b90c129341f7332ba",
+    "result": {
+      "kind": "native_shadow_metadata_allocation_local_checks",
+      "host": "Jiawei-MacminideMac-mini.local",
+      "source_parent": "edf67703cb43ce7905d994417ff8b0dabd34c8a7",
+      "source_sha256": {
+        "native/providers/whole_provider.cpp": "bed8a1b7d2ecd81a5bf2ea290f1e9edef0635f2ad36572ca439b7b0c71d5595a",
+        "native/providers/gdn/sm121_q2_resident_cache.h": "5a1fd21cb72f5ae4cc17b8b3025ad2796ea2228011d4cfa738ec191a6d733c3d",
+        "native/providers/gdn/sm121_q2_cache_lifetime.h": "af19d7d4d43e88e48059641294bf9fb10686751d0c94508f2990781be601c034",
+        "native/providers/sm121_mtp_request_seed.h": "8833181aa73b21e45236e039acbb310f80f1206bd49e1de2a4ff2f72b6d3df6e",
+        "native/src/qrt.c": "851904c79ea9ff3230423f86a4d92bae27734df30bb6dd51632ffb219397c076",
+        "native/src/qrt.h": "c7af4d946b863eccbd98a540ffa0a034e1230685b5409514da05bfff9659bc4c",
+        "tests/test_model_prefix_checkpoint.py": "a847453c341a2188a7e0feea4448d074d761c7dc50d842ea9cde7457992078c5",
+        "tests/test_native_mtp_decode.py": "5787883cb86f606ec3db598c664a851748814f910d040b17f38db499f0db0bb8",
+        "tests/native/native_mtp_decode_host.cpp": "b9d769978a6aa0c1fac009ab11544da4b995a8d4412c0febe21367433a21f440",
+        "tests/test_q2_resident_cache.py": "1c1bdabd6b13e600692b8e1fc3e8569d6a1bd531fa2781c0967e2ece5662f450",
+        "tests/native/q2_resident_cache_host.cpp": "a2950125dca6dbf5119e5e10671f7aa18b955d633aa59d5f8554db10f1a59cef",
+        "tests/test_mtp_native_prefill_integration.py": "98cf529487a3d3f69ec5cfe4151072bb47f31897ca91d2f377c923e66398d53b",
+        "tests/test_attention_workspace.py": "0eaf281a70aa0193e5fd266ac8e73386fd4ab4191ab058e86a353417b2bb1764"
+      },
+      "command": [
+        "python3.12",
+        "-m",
+        "unittest",
+        "test_model_prefix_checkpoint",
+        "tests.test_native_mtp_decode",
+        "tests.test_q2_resident_cache",
+        "tests.test_mtp_native_prefill_integration"
+      ],
+      "command_environment": {
+        "PYTHONPATH": "tests"
+      },
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "......\n----------------------------------------------------------------------\nRan 6 tests in 10.647s\n\nOK\n",
+      "wall_seconds": 10.69519591704011,
+      "checks": 6,
+      "test_seconds": 10.647,
+      "scope": "Actual Shadow constructor and resident session, actual owner/request/seed integration under host protocol doubles and deferred queues. ASan/UBSan. No Windows HIP or real model request.",
+      "host_metadata_failures": {
+        "one_shot": true,
+        "persistent_including_failure_text": true,
+        "layouts": [
+          "separate_tail",
+          "contiguous_tail"
+        ],
+        "committed_tokens": [
+          0,
+          3
+        ],
+        "original_metadata_and_checkpoint_unchanged": true,
+        "all_original_device_pointers_unchanged": true,
+        "gpu_allocations_and_copies_unchanged": true
+      },
+      "universal_c_abi_exception_containment": false,
+      "abi_changed": false,
+      "numerical_kernels_changed": false,
+      "native_windows_built": false,
+      "actual_model_request": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "release_qualified": false
+    }
+  },
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "ec506f2779125b73e14fe28cc204e477455b1906e7e2d19b34d16a7312a4d7fa",
+    "original_json_bytes": 7913,
+    "source_revision": "edf67703cb43ce7905d994417ff8b0dabd34c8a7+working-tree",
+    "source_path": "build/recovery-20260910/native-shadow-metadata-allocation-local-20260921.raw.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 2
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}

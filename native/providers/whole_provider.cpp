@@ -92,6 +92,7 @@
 #include <optional>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <thread>
 #include <tuple>
 #include <type_traits>
@@ -68799,7 +68800,13 @@ public:
             );
             return;
         }
-        original_ = g_qwen36_resident_session;
+        try {
+            original_ = g_qwen36_resident_session;
+        } catch (const std::bad_alloc&) {
+            set_failure("qwen36_resident_shadow_metadata",
+                "resident shadow transaction could not copy its original host metadata", failure_stage, failure);
+            return;
+        }
         original_captured_ = true;
         const bool partial_requested = expected_prefix_tokens != 0u &&
             expected_prefix_tokens != original_.prefix_tokens;
@@ -69256,16 +69263,23 @@ public:
 
 private:
     static void set_failure(
-        const std::string &stage,
-        const std::string &message,
+        std::string_view stage,
+        std::string_view message,
         std::string *failure_stage,
         std::string *failure
-    ) {
-        if (failure_stage != nullptr) {
-            *failure_stage = stage;
-        }
-        if (failure != nullptr) {
-            *failure = message;
+    ) noexcept {
+        try {
+            if (failure_stage != nullptr) {
+                failure_stage->assign(stage.data(),stage.size());
+            }
+            if (failure != nullptr) {
+                failure->assign(message.data(),message.size());
+            }
+        } catch (...) {
+            // A failed diagnostic allocation must not turn an owned failure
+            // into an exception escaping the native request boundary.
+            if (failure_stage != nullptr) failure_stage->clear();
+            if (failure != nullptr) failure->clear();
         }
     }
 

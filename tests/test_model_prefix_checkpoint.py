@@ -17,7 +17,9 @@ def run_cpp(source):
             "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
             "-I", str(ROOT), "-x", "c++", "-", "-o", exe,
         ], input=source, text=True, check=True, timeout=45)
-        subprocess.run([exe], check=True, timeout=30, capture_output=True)
+        result = subprocess.run([exe], timeout=30, capture_output=True, text=True)
+        if result.returncode:
+            raise AssertionError(result.stdout + result.stderr)
 
 
 class ModelPrefixCheckpointTests(unittest.TestCase):
@@ -52,11 +54,25 @@ class ModelPrefixCheckpointTests(unittest.TestCase):
 #include <limits>
 #include <memory>
 #include <mutex>
+#include <new>
 #include <string>
+#include <string_view>
 #include <unordered_set>
 #include <vector>
 #include <tuple>
 #include <type_traits>
+static bool fail_next_host_new=false;
+static bool fail_all_host_new=false;
+void* operator new(std::size_t bytes){
+ if(fail_all_host_new)throw std::bad_alloc();
+ if(fail_next_host_new){fail_next_host_new=false;throw std::bad_alloc();}
+ if(void* value=std::malloc(bytes?bytes:1u))return value;
+ throw std::bad_alloc();
+}
+void operator delete(void* value)noexcept{std::free(value);}
+#if defined(__cpp_sized_deallocation)
+void operator delete(void* value,std::size_t)noexcept{std::free(value);}
+#endif
 using hipError_t=int;
 constexpr int hipSuccess=0,hipErrorInvalidValue=1,hipMemcpyDeviceToDevice=2;
 static unsigned alloc_calls=0,fail_alloc=0,copy_calls=0,fail_copy=0,device_syncs=0,cleanup_calls=0;
@@ -193,6 +209,43 @@ int main(){
   batch.final_norm.selected_token_ids[0]=63;capture_qwen36_prefix_checkpoint_hidden(batch,129);
   finalize_qwen36_prefix_checkpoints();
   const auto base_count=allocations.size();auto original=s;
+  // An actual metadata allocation in the session copy must not escape the
+  // transaction constructor or submit any GPU clone before it is owned.
+  {
+   const auto allocated_before=alloc_calls,copied_before=copy_calls;
+   const auto unchanged=[&]{
+    assert(alloc_calls==allocated_before&&copy_calls==copied_before&&allocations.size()==base_count);
+    assert(s.valid&&s.current_token_valid==original.current_token_valid&&s.current_token_id==original.current_token_id);
+    assert(s.generation==original.generation&&s.prefix_tokens==original.prefix_tokens&&
+           s.committed_decode_token_count==original.committed_decode_token_count&&s.prefix_checkpoints==original.prefix_checkpoints);
+    assert(s.native_mtp_checkpoint.retained==original.native_mtp_checkpoint.retained&&
+           s.native_mtp_processed_inputs==original.native_mtp_processed_inputs);
+    for(unsigned l=0;l<40;++l){
+     assert(s.linear_layers[l].device_allocation==original.linear_layers[l].device_allocation&&
+            s.linear_layers[l].device_recurrent_state==original.linear_layers[l].device_recurrent_state&&
+            s.linear_layers[l].device_qkv_ring==original.linear_layers[l].device_qkv_ring);
+     const auto& a=s.full_attention_layers[l];const auto& b=original.full_attention_layers[l];
+     assert(a.device_allocation==b.device_allocation&&a.device_decode_tail_allocation==b.device_decode_tail_allocation&&
+            a.device_k==b.device_k&&a.device_v==b.device_v&&
+            a.device_decode_tail_k==b.device_decode_tail_k&&a.device_decode_tail_v==b.device_decode_tail_v);
+    }
+   };
+   std::string stage,error;bool escaped=false;fail_next_host_new=true;
+   try{ScopedQwen36ResidentSessionShadowTransaction tx(s.generation,s.prompt_token_ids_fnv1a64,&stage,&error);
+       assert(!tx.ready());}
+   catch(const std::bad_alloc&){escaped=true;}
+   assert(!escaped&&!fail_next_host_new&&stage=="qwen36_resident_shadow_metadata");
+   unchanged();
+   stage.clear();error.clear();escaped=false;
+   // Persistent host exhaustion also includes writing the failure details.
+   std::string empty_stage,empty_error;fail_all_host_new=true;
+   try{ScopedQwen36ResidentSessionShadowTransaction tx(s.generation,s.prompt_token_ids_fnv1a64,&empty_stage,&empty_error);
+       assert(!tx.ready());}
+   catch(const std::bad_alloc&){escaped=true;}
+   fail_all_host_new=false;
+   assert(!escaped&&empty_stage.empty()&&empty_error.empty());
+   unchanged();
+  }
   std::vector<uint32_t> input(129,42);input[128]=7;
   qrt_prefix_checkpoint_query_v1_t q{};q.struct_size=sizeof(q);q.abi_version=1;q.owner_engine=s.owner_engine;
   q.owner_token_count=129;q.input_token_count=129;q.output_token_capacity=32;q.input_tokens=input.data();

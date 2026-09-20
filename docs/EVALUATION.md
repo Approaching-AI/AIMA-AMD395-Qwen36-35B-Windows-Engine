@@ -133,6 +133,17 @@ preserve the prior output; unresolved seed completion quarantines the resident
 session. The existing diagnostic seed path remains available for comparison.
 Native Windows execution and original model continuation are still pending.
 
+The [resident transaction allocation regression](../benchmarks/correctness/native-shadow-metadata-allocation-local-20260921.json)
+reproduces an exception escaping the actual Shadow constructor when copying
+resident host metadata. The constructor now returns a failed transaction before
+any GPU clone; its diagnostic setter also tolerates persistent host exhaustion.
+Six local regressions pass under ASan/UBSan in10.647s. Single and persistent
+allocation failures preserve all original device pointers, token metadata and
+paired checkpoints across separate/contiguous tails and zero/three committed
+tokens. Actual owner, request, prefill and C result checks also pass. This is a
+specific allocation boundary repair, not universal C ABI exception containment.
+It changes no numerical kernel and remains pending native Windows execution.
+
 The native cache-publication probe is prepared in
 tools/q2_cache_publication_hip_probe.cpp. It evaluates the complete original
 q8192 target pair, then checks accepted1/2 rows with BF16/FP32 tails and both
