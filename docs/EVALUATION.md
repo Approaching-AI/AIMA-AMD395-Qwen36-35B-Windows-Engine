@@ -172,6 +172,25 @@ Two new Windows probes cover these operations, actual embedding indices,
 invalid-token rejection and untouched cache/output cells. Their builds and
 runs are pending; the existing 256k product task retains exclusive GPU use.
 
+The [optional MTP storage preparation](../benchmarks/correctness/mtp-resident-storage-preparation-20260920.json)
+adds `QRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_MTP=1` to retain the model's
+19 MTP tensors alongside text-only ordinary/ordered storage. The option defaults
+off. Metadata on baiying and GB10 agrees on every MTP name, shape, offset and
+size. The actual C++ layout adds exactly 1689281536 device bytes, leaves all 611
+target fixed tensors at their original planned positions and continues to omit
+333 vision tensors. A storage epoch also rejects borrowed MTP aliases from a
+previous allocation, including aliases held by another thread. Six sanitized
+CPU layout/copy/view/cleanup tests pass. One preceding harness failure matched
+forward declarations instead of definitions; the corrected extraction and
+failure record are retained. Whole-provider Windows build, load time and model
+qualification for this optional scope remain unrun.
+
+The separate 30-case GPU component batch is frozen at source `9bd6dd7`, with
+14 bound source inputs, 76 selected-input blobs, two existing tables and a
+20165527-byte archive. Its two programs are expected to emit 36 comparison
+reports. Both the local dispatcher and Windows wrapper require completed
+cleanup of the active original 256k run. Preparation performs no remote run.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a

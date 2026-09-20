@@ -76234,6 +76234,14 @@ thread_local WholeRepeatedRoutedMatrixWeightEntry
     g_qwen36_mtp_routed_weight_alias;
 thread_local bool g_qwen36_mtp_routed_weight_alias_valid = false;
 thread_local std::string g_qwen36_mtp_weight_alias_model_dir;
+std::atomic<uint64_t> g_qwen36_mtp_weight_storage_epoch{UINT64_C(1)};
+thread_local uint64_t g_qwen36_mtp_weight_alias_epoch = UINT64_C(0);
+
+bool qwen36_mtp_weight_aliases_current() {
+    return g_qwen36_mtp_weight_alias_epoch ==
+        g_qwen36_mtp_weight_storage_epoch.load(std::memory_order_acquire);
+}
+
 struct Qwen36MtpQkNormWorkspace {
     float *device_qkv = nullptr;
     uint16_t *device_q_norm_weight = nullptr;
@@ -77921,6 +77929,7 @@ const uint16_t *find_whole_repeated_layer_fixed_weight(
             return entry.device_weights;
         }
     }
+    if (!qwen36_mtp_weight_aliases_current()) return nullptr;
     for (const WholeRepeatedLayerFixedWeightEntry &entry :
          g_qwen36_mtp_fixed_weight_aliases) {
         if (entry.tensor_name == tensor_name && entry.bytes == bytes &&
@@ -77944,6 +77953,7 @@ const uint16_t *find_whole_repeated_layer_fixed_weight_by_kind(
             return entry.device_weights;
         }
     }
+    if (!qwen36_mtp_weight_aliases_current()) return nullptr;
     for (const WholeRepeatedLayerFixedWeightEntry &entry :
          g_qwen36_mtp_fixed_weight_aliases) {
         if (entry.layer_index == layer_index &&
@@ -78712,6 +78722,7 @@ bool whole_repeated_layer_fixed_weight_contains(const void *ptr) {
             return true;
         }
     }
+    if (!qwen36_mtp_weight_aliases_current()) return false;
     for (const WholeRepeatedLayerFixedWeightEntry &entry :
          g_qwen36_mtp_fixed_weight_aliases) {
         if (entry.device_weights == ptr) {
@@ -78755,7 +78766,7 @@ find_whole_repeated_routed_matrix_weights(
             return &entry;
         }
     }
-    if (g_qwen36_mtp_routed_weight_alias_valid &&
+    if (qwen36_mtp_weight_aliases_current() && g_qwen36_mtp_routed_weight_alias_valid &&
         g_qwen36_mtp_routed_weight_alias.gate_up_tensor_name ==
             gate_up_tensor_name &&
         g_qwen36_mtp_routed_weight_alias.down_tensor_name ==
@@ -78931,6 +78942,7 @@ struct ResidentModelShardStore {
     bool ring_ready = false;
     bool single_device_arena = false;
     bool text_only = false;
+    bool include_mtp = false;
     bool ordered_fixed = false;
     bool valid = false;
 };
@@ -79939,6 +79951,7 @@ void print_resident_model_shard_store_marker(
               << " device_bytes=" << metrics.device_bytes
               << " ordinary_device_bytes=" << metrics.ordinary_device_bytes
               << " text_only=" << (store.text_only ? 1 : 0)
+              << " include_mtp=" << (store.include_mtp ? 1 : 0)
               << " ordered_fixed=" << (store.ordered_fixed ? 1 : 0)
               << " ordered_fixed_device_bytes="
               << (store.fixed_device_arena ? store.ordered_plan.fixed_bytes : UINT64_C(0))
@@ -80334,6 +80347,9 @@ struct ResidentModelShardStorePendingReadDrain {
 
 void release_resident_model_shard_store() {
     ResidentModelShardStore &store = g_resident_model_shard_store;
+    // Aliases live in thread-local sidecars. A global storage epoch retires
+    // every thread's borrowed views before any owning allocation is released.
+    g_qwen36_mtp_weight_storage_epoch.fetch_add(UINT64_C(1), std::memory_order_acq_rel);
 #ifdef _WIN32
     for (ResidentModelShardStoreIoSlot &slot : store.slots) {
         if (slot.read_pending && slot.read_file != INVALID_HANDLE_VALUE) {
@@ -80415,6 +80431,7 @@ void release_resident_model_shard_store() {
     store.ring_ready = false;
     store.single_device_arena = false;
     store.text_only = false;
+    store.include_mtp = false;
     store.ordered_fixed = false;
     store.ordered_plan = {};
     store.ordered_headers.clear();
@@ -80684,11 +80701,13 @@ bool prepare_q1_moe_w8a8_full_after_prefill(
                     }
                 }
             }
-            for (WholeRepeatedLayerFixedWeightEntry &mtp_entry :
-                 g_qwen36_mtp_fixed_weight_aliases) {
-                if (mtp_entry.device_weights == borrowed_source) {
-                    mtp_entry.device_weights = destination;
-                    mtp_entry.borrowed = true;
+            if (qwen36_mtp_weight_aliases_current()) {
+                for (WholeRepeatedLayerFixedWeightEntry &mtp_entry :
+                     g_qwen36_mtp_fixed_weight_aliases) {
+                    if (mtp_entry.device_weights == borrowed_source) {
+                        mtp_entry.device_weights = destination;
+                        mtp_entry.borrowed = true;
+                    }
                 }
             }
             fixed_offset += entry.bytes;
@@ -82907,7 +82926,7 @@ bool prepare_resident_model_ordered_storage(
     }
     if (!qrt_resident_fixed_order::complete_names(&store->ordered_fixed_names) ||
         !qrt_resident_ordered_shard::build(inputs, store->ordered_fixed_names,
-            store->text_only, &store->ordered_plan)) {
+            store->text_only, &store->ordered_plan, store->include_mtp)) {
         if (failure_stage) *failure_stage = "resident_ordered_storage_layout";
         if (failure) *failure = "original shards cannot supply disjoint ordinary and fixed tensor owners";
         return false;
@@ -83041,7 +83060,7 @@ bool load_resident_model_shard_store_shard(
         for (const auto &item : store->tensors) {
             if (item.second.shard_index == shard_index)
                 shard_tensors.push_back({item.second.absolute_begin, item.second.bytes,
-                    qrt_resident_text_shard::keep(item.first)});
+                    qrt_resident_text_shard::keep(item.first, store->include_mtp)});
         }
         if (!qrt_resident_text_shard::build(file_bytes, std::move(shard_tensors),
                 store->text_only, &resident_shard.layout)) {
@@ -83593,6 +83612,8 @@ bool ensure_resident_model_shard_store(
     ResidentModelShardStore &store = g_resident_model_shard_store;
     const bool text_only = env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_TEXT_ONLY");
+    const bool include_mtp = env_flag_enabled(
+        "QRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_MTP");
     const bool ordered_fixed = env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_ORDERED_FIXED");
     if (ordered_fixed && (!text_only || !q1_decode_order_fixed_bf16_arena_requested() ||
@@ -83641,7 +83662,7 @@ bool ensure_resident_model_shard_store(
     const uint64_t registered_host_tail_shards_requested =
         resident_model_shard_store_registered_host_tail_shards_requested();
     if (store.valid && store.model_dir == model_dir &&
-        store.text_only == text_only &&
+        store.text_only == text_only && store.include_mtp == include_mtp &&
         store.ordered_fixed == ordered_fixed &&
         store.single_device_arena == single_device_arena_requested &&
         store.managed_tail_shards == managed_tail_shards_requested &&
@@ -83672,6 +83693,7 @@ bool ensure_resident_model_shard_store(
     const uint64_t deadline_ns = start_ns + kResidentModelShardStoreTimeoutNs;
     store.model_dir = model_dir;
     store.text_only = text_only;
+    store.include_mtp = include_mtp;
     store.ordered_fixed = ordered_fixed;
     store.single_device_arena = single_device_arena_requested;
     store.managed_tail_shards = managed_tail_shards_requested;
@@ -199922,12 +199944,14 @@ bool ensure_qwen36_mtp_resident_layer_weights(
     if (model_dir.empty() || failure_stage == nullptr || failure == nullptr) {
         return false;
     }
-    if (g_qwen36_mtp_weight_alias_model_dir != model_dir) {
+    if (g_qwen36_mtp_weight_alias_model_dir != model_dir || !qwen36_mtp_weight_aliases_current()) {
         g_qwen36_mtp_fixed_weight_aliases.clear();
         g_qwen36_mtp_routed_weight_alias =
             WholeRepeatedRoutedMatrixWeightEntry{};
         g_qwen36_mtp_routed_weight_alias_valid = false;
         g_qwen36_mtp_weight_alias_model_dir = model_dir;
+        g_qwen36_mtp_weight_alias_epoch =
+            g_qwen36_mtp_weight_storage_epoch.load(std::memory_order_acquire);
     }
     ScopedQwen36MtpTensorNamespace mtp_scope(true);
     constexpr std::array<qrt_qwen36_tensor_kind_t, 13u> kFixedKinds{{

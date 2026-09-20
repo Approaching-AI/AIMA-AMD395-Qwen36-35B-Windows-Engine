@@ -16,11 +16,12 @@ struct Layout {
 };
 
 // This explicit text-only option excludes only the two named optional
-// namespaces. Unknown tensor families remain resident. Disk metadata keeps
+// namespaces, with an explicit opt-in for the model's MTP weights. Unknown
+// tensor families remain resident. Disk metadata keeps
 // its original offsets; only device storage is packed.
-inline bool keep(const std::string& name) {
+inline bool keep(const std::string& name, bool include_mtp = false) {
     return name.compare(0, 13, "model.visual.") != 0 &&
-           name.compare(0, 4, "mtp.") != 0;
+           (include_mtp || name.compare(0, 4, "mtp.") != 0);
 }
 
 inline bool build(uint64_t file_bytes, std::vector<Tensor> tensors,

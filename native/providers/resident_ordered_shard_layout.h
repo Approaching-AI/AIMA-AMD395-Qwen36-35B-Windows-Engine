@@ -37,7 +37,7 @@ inline bool add(uint64_t value, uint64_t* sum) {
 // This is a metadata plan only and performs no allocation or data transfer.
 inline bool build(const std::vector<Input>& inputs,
                   const std::vector<std::string>& fixed_order,
-                  bool text_only, Plan* output) {
+                  bool text_only, Plan* output, bool include_mtp = false) {
     if (!output || inputs.empty() || fixed_order.empty()) return false;
     struct Location { size_t shard; const Tensor* tensor; };
     std::unordered_map<std::string, Location> locations;
@@ -57,7 +57,7 @@ inline bool build(const std::vector<Input>& inputs,
     for (const auto& name : fixed_order) {
         const auto found = locations.find(name);
         if (found == locations.end() || !selected.insert(name).second ||
-            (text_only && !qrt_resident_text_shard::keep(name))) return false;
+            (text_only && !qrt_resident_text_shard::keep(name, include_mtp))) return false;
         const auto& tensor = *found->second.tensor;
         if (next.fixed_bytes > UINT64_MAX - 255u) return false;
         const uint64_t destination = (next.fixed_bytes + 255u) & ~uint64_t(255u);
@@ -74,7 +74,7 @@ inline bool build(const std::vector<Input>& inputs,
         std::vector<qrt_resident_text_shard::Tensor> ordinary;
         ordinary.reserve(inputs[i].tensors.size());
         for (const auto& tensor : inputs[i].tensors) {
-            const bool omitted = text_only && !qrt_resident_text_shard::keep(tensor.name);
+            const bool omitted = text_only && !qrt_resident_text_shard::keep(tensor.name, include_mtp);
             const bool fixed = selected.count(tensor.name) != 0;
             ordinary.push_back({tensor.begin, tensor.bytes, !omitted && !fixed});
             if (omitted) {

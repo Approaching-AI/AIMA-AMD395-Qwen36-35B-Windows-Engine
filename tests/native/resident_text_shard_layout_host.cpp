@@ -13,6 +13,8 @@ static void generated() {
     std::mt19937 random(0x3958192u);
     assert(!layout::keep("model.visual.blocks.0.attn.qkv.weight"));
     assert(!layout::keep("mtp.layers.0.mlp.experts.down_proj"));
+    assert(layout::keep("mtp.layers.0.mlp.experts.down_proj", true));
+    assert(!layout::keep("model.visual.blocks.0.attn.qkv.weight", true));
     for (const char* name : {"model.language_model.layers.0.weight", "lm_head.weight",
                             "model.visual_extra.weight", "mtp", "other.weight"})
         assert(layout::keep(name));

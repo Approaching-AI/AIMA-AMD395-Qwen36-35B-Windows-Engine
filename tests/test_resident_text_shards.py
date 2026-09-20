@@ -31,6 +31,7 @@ def runtime_host_source(extra_globals="", extra_functions="", extra_main=""):
 #include <mutex>
 #include <unordered_map>
 #include <array>
+#include <atomic>
 #include <cstdio>
 struct TensorLocation{std::string shard;uint64_t header_len=0,data_begin=0,data_end=0;};
 using hipStream_t=void*;using hipEvent_t=void*;
@@ -75,6 +76,7 @@ bool check_hip(hipError_t value,const char* stage,std::string* where,std::string
 }
 ''' + declarations + r'''
 ResidentModelShardStore g_resident_model_shard_store;
+std::atomic<uint64_t> g_qwen36_mtp_weight_storage_epoch{1};
 ''' + extra_globals + '\n' + functions + '\n' + extra_functions + r'''
 int main(){
  std::vector<unsigned char> source(8197),device(4096+128,0xa5);
@@ -151,6 +153,38 @@ int main(){
 
 
 class ResidentTextShardTests(unittest.TestCase):
+    def test_reloading_storage_invalidates_other_threads_mtp_aliases(self):
+        whole = (ROOT / 'native/providers/whole_provider.cpp').read_text()
+        current = function(whole, 'bool qwen36_mtp_weight_aliases_current()')
+        globals_ = r'''
+#include <thread>
+thread_local uint64_t g_qwen36_mtp_weight_alias_epoch=0;
+'''
+        main = r'''
+ {
+ std::atomic<unsigned> phase{0};
+ bool invalidated=false;
+ std::thread reader([&]{
+  assert(!qwen36_mtp_weight_aliases_current());
+  g_qwen36_mtp_weight_alias_epoch=g_qwen36_mtp_weight_storage_epoch.load();
+  assert(qwen36_mtp_weight_aliases_current());
+  phase.store(1);
+  while(phase.load()!=2)std::this_thread::yield();
+  invalidated=!qwen36_mtp_weight_aliases_current();
+ });
+ while(phase.load()!=1)std::this_thread::yield();
+ const auto before=g_qwen36_mtp_weight_storage_epoch.load();
+ release_resident_model_shard_store();
+ assert(g_qwen36_mtp_weight_storage_epoch.load()==before+1);
+ phase.store(2);reader.join();assert(invalidated);
+ g_qwen36_mtp_weight_alias_epoch=g_qwen36_mtp_weight_storage_epoch.load();
+ assert(qwen36_mtp_weight_aliases_current());
+ release_resident_model_shard_store();
+ assert(!qwen36_mtp_weight_aliases_current());
+ }
+'''
+        self.compile_run(runtime_host_source(globals_, current, main))
+
     def compile_run(self, source):
         with tempfile.TemporaryDirectory() as temporary:
             directory = Path(temporary)

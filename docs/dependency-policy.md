@@ -69,6 +69,17 @@ owned and not yet allocated by inference. The offline GPU probe deliberately
 allocates the full cache plus two host images to check every untouched cell;
 that diagnostic host storage is not a proposed runtime dependency.
 
+`QRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_MTP=1` optionally retains all 19
+original `mtp.*` tensors in ordinary or ordered text storage. The default is
+off. The real-model metadata plan adds exactly 1689281536 device bytes
+(about 1.57 GiB), with unchanged target fixed-weight positions and vision still
+omitted. The weights already exist in the model shards, so no package artifact
+or dependency is added. The concrete benefit is making complete MTP weights
+available to a future drafter and its prompt-cache builder. Model-load time,
+Windows memory use and native MTP inference are unmeasured for this option.
+Borrowed MTP views now use a storage epoch so reloading the same model with a
+different resident scope cannot publish aliases from the previous allocation.
+
 # Optional caller-side document checker
 
 `scripts/check-agent-documents.py` uses only Python 3.10+ standard-library

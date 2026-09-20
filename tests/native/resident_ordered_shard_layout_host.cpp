@@ -23,9 +23,10 @@ struct Buffer {
 };
 
 static void exercise(const std::vector<ordered::Input>& inputs,
-                     const std::vector<std::string>& order, bool text_only) {
+                     const std::vector<std::string>& order, bool text_only,
+                     bool include_mtp = false) {
     ordered::Plan plan;
-    assert(ordered::build(inputs, order, text_only, &plan));
+    assert(ordered::build(inputs, order, text_only, &plan, include_mtp));
     Buffer fixed(plan.fixed_bytes);
     std::vector<Buffer> ordinary;
     for (const auto& shard : plan.shards) ordinary.emplace_back(shard.ordinary.device_bytes);
@@ -63,7 +64,7 @@ static void exercise(const std::vector<ordered::Input>& inputs,
             }
         }
         for (const auto& tensor : inputs[i].tensors) {
-            const bool omitted = text_only && !text_layout::keep(tensor.name);
+            const bool omitted = text_only && !text_layout::keep(tensor.name, include_mtp);
             const bool is_fixed = selected.count(tensor.name) != 0;
             uint64_t a = UINT64_MAX, b = UINT64_MAX;
             const bool ordinary_found = text_layout::offset(plan.shards[i].ordinary, tensor.begin, tensor.bytes, &a);
@@ -176,10 +177,19 @@ int main(int argc, char** argv) {
     invalid({{1024u, {{"a", 0u, 512u}, {"b", 511u, 512u}}}}, {"a"});
     invalid({{1024u, {{"a", 1024u, 1u}}}}, {"a"});
     invalid({{1024u, {{"model.visual.a", 0u, 512u}}}}, {"model.visual.a"});
+    invalid({{1024u, {{"mtp.fc.weight", 0u, 512u}}}}, {"mtp.fc.weight"});
     invalid({{UINT64_MAX, {{"a", 0u, UINT64_MAX}}}, {1u, {{"b", 0u, 1u}}}}, {"a", "b"});
     invalid({{UINT64_MAX, {{"a", 0u, UINT64_MAX - 256u}, {"b", UINT64_MAX - 256u, 256u}}}}, {"a", "b"});
     // Global destination offsets may go backwards in original disk order.
     exercise({{1024u, {{"a", 17u, 257u}, {"b", 300u, 256u}, {"c", 700u, 255u}}}}, {"c", "a", "b"}, true);
+    const std::vector<ordered::Input> mtp_inputs = {
+        {2048u, {{"text", 16u, 256u}, {"model.visual.a", 300u, 255u},
+                 {"mtp.fc.weight", 600u, 513u}, {"unknown.retained", 1300u, 301u}}},
+        {1024u, {{"mtp.layers.0.mlp.experts.down_proj", 16u, 501u},
+                 {"model.visual.b", 700u, 255u}}}};
+    exercise(mtp_inputs, {"text"}, true);
+    exercise(mtp_inputs, {"text"}, true, true);
+    exercise(mtp_inputs, {"text", "mtp.fc.weight"}, true, true);
     std::printf("{\"kind\":\"resident_ordered_shard_layout_host\",\"generated_cases\":%llu,"
         "\"copied_bytes\":%llu,\"tensor_checks\":%llu,\"failure_checks\":%llu,"
         "\"redzones_and_padding_pass\":true,\"mismatches\":0}\n",
