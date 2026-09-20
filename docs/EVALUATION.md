@@ -48,6 +48,13 @@ uses16 segments,16-token tiles and an ordered final merge; the native packed
 decode path still calls the2D32-token-tile implementation. Native replacement
 and a correctness-attached full256k product rerun remain open.
 
+The [native ordered-merge CPU check](../benchmarks/correctness/prefix256-segmented-attention-merge-cpu-20260921.json)
+reproduces all4096 original FP32 context values from the captured segment
+accumulators, maxima and sums. It preserves the original fused denominator
+tree and the separate even/odd numerator chains. A complete native segment
+kernel and original-Q/K/V probe are prepared; their GPU execution and whole
+provider integration have not yet run.
+
 The [target cache publication boundary](../benchmarks/correctness/q2-cache-publication-local-20260921.json)
 passes eight local regressions, including all80 partial-copy failure positions.
 It selects the accepted private states/rings and KV rows, validates all writable

@@ -1,0 +1,70 @@
+{
+  "kind": "native_segment_merge_on_original_sm121_segment_results",
+  "utc": "2026-09-20T21:04:50.902906+00:00",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "source_base_commit": "a24abfbe201980cdf62c51e3d87eb7a3f46f7848",
+  "source_sha256": {
+    "native/providers/gdn/sm121_q1_segmented_attention_math.h": "8f2e9d5f9ada32bfa30c0079c70f4747d9bf843316c6b074d28ac5f6d90ea74e",
+    "native/providers/gdn/sm121_q1_segmented_attention.h": "b8eb2d30d6a01588d9b33491020afa368d7323a1ccb83e10ad3d22c66062454e",
+    "tools/q1_segmented_attention_hip_probe.cpp": "5ed91628a4d135fa7b4e52e3f30d038e4239ff767854a3645682a966d6636e2e"
+  },
+  "original_replay_sha256": "f3500f4d2d77b8830263fe82c5e3c56826a6041bebf80eee637e5de66df387f4",
+  "original_root_cause_proof": "prefix256-segmented-attention-root-cause-20260921.json",
+  "command": [
+    "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/segmented_attention_merge_cpu_r1",
+    "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix256-attention-replay-20260921-r1/3d-segment-output-f32.bin",
+    "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix256-attention-replay-20260921-r1/3d-segment-max-f32.bin",
+    "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix256-attention-replay-20260921-r1/3d-segment-sum-f32.bin",
+    "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix256-attention-replay-20260921-r1/3d-f32-context.bin",
+    "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+    "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rcp-table-20260911-r2/sm121-attention-rcp-delta-i8.bin"
+  ],
+  "command_source_sha256": "be52b4387f78cea65784c4d33ca1bcc7567801cecc7721aab9e193adc981cc9d",
+  "executable_sha256": "3ed0a1ec5eaa50aea630104ab11bacac3e4d52e2069888131b932360487b8079",
+  "compiler_flags": [
+    "-std=c++17",
+    "-O2",
+    "-ffp-contract=off"
+  ],
+  "inputs": {
+    "qrt-gb10-prefix256-attention-replay-20260921-r1/3d-segment-output-f32.bin": {
+      "bytes": 262144,
+      "sha256": "6af63454d5a86e90fc505727318874ace42dd0895fdbb378122afdd9ed33ebe0"
+    },
+    "qrt-gb10-prefix256-attention-replay-20260921-r1/3d-segment-max-f32.bin": {
+      "bytes": 1024,
+      "sha256": "942e03d99d7838f77eebae982759dca1a89a8055d22272493c239aa42a5698b0"
+    },
+    "qrt-gb10-prefix256-attention-replay-20260921-r1/3d-segment-sum-f32.bin": {
+      "bytes": 1024,
+      "sha256": "7b743e70dfb8b10f1b3ee4bcbefcd6aede7d5bfe9b83b236b57f2ccd18d8f8e0"
+    },
+    "qrt-gb10-prefix256-attention-replay-20260921-r1/3d-f32-context.bin": {
+      "bytes": 16384,
+      "sha256": "09d24eb9a15ba241d26f802a227df8eb15aac8e10a4f082d9f76aec28f5558ad"
+    },
+    "qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin": {
+      "bytes": 183174448,
+      "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
+    },
+    "qrt-rcp-table-20260911-r2/sm121-attention-rcp-delta-i8.bin": {
+      "bytes": 8388640,
+      "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39"
+    }
+  },
+  "returncode": 0,
+  "stdout": "{\"elements\":4096,\"f32_bit_mismatches\":0,\"bf16_mismatches\":0}\n",
+  "stderr": "",
+  "seconds": 0.15269829146564007,
+  "result": {
+    "elements": 4096,
+    "f32_bit_mismatches": 0,
+    "bf16_mismatches": 0
+  },
+  "native_whole_integration": false,
+  "native_segment_kernel_verified": false,
+  "windows_gpu_probe_run": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}
