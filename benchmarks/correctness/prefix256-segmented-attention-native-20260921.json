@@ -1,0 +1,1079 @@
+{
+  "kind": "original_full_shape_segmented_attention_windows_qualification",
+  "utc": "2026-09-20T21:17:12.181680+00:00",
+  "host": "baiying",
+  "model_reference": "D:\\models\\Qwen3.6-35B-A3B",
+  "source_commit": "9428e9eed89f0e38851e226a0f3220fb43acfffc",
+  "source_manifest_sha256": "6dd0a8fe19ee4b027948d689fbd338812c13d3274fb1297943360c05067c07e0",
+  "source_sha256": {
+    "native/providers/ck_fmha/blackwell_attention.h": "b8cefe638bfcc5c41ff73349624f65741395a383e4e6f72059882a7ae39a82ed",
+    "native/providers/ck_fmha/float_pv_replay.h": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+    "native/providers/ck_fmha/inplace_probability_storage.h": "71d5c98c594c813b590aa6c5b8ae96cadaf4d0edfd08d9c7894feee7fc8ad64c",
+    "native/providers/ck_fmha/long_attention_layout.h": "b94f16310020a757076e6f9bd7d97bea81f91d90567e006a419d5de4acfd1f19",
+    "native/providers/ck_fmha/packed_probability_storage.h": "5bb63c12db0afdf2e7aa86e47f50fb90b827f1936321e352afeac6577330999e",
+    "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+    "native/providers/gdn/sm121_exp2_interpolated.h": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+    "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+    "native/providers/gdn/sm121_q1_attention.h": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+    "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+    "native/providers/gdn/sm121_q1_segmented_attention.h": "b8eb2d30d6a01588d9b33491020afa368d7323a1ccb83e10ad3d22c66062454e",
+    "native/providers/gdn/sm121_q1_segmented_attention_math.h": "8f2e9d5f9ada32bfa30c0079c70f4747d9bf843316c6b074d28ac5f6d90ea74e",
+    "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+    "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+    "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+    "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+    "native/providers/moe_accumulator/sm121_dot_certificate.h": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+    "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+    "native/providers/moe_accumulator/sm121_float_subgroup.h": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+    "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+    "native/providers/moe_accumulator/sm121_integer_core.h": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+    "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+    "native/providers/moe_accumulator/sm121_lane_reduce.h": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+    "native/providers/moe_accumulator/sm121_mantissa_parts.h": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+    "native/providers/moe_accumulator/sm121_native_product.h": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+    "native/providers/moe_accumulator/sm121_paired_products.h": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+    "native/providers/moe_accumulator/sm121_prepared_bf16.h": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+    "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+    "native/providers/moe_accumulator/sm121_pv_final_bound.h": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+    "native/providers/moe_accumulator/sm121_strided_pair.h": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+    "native/providers/moe_accumulator/sm121_subgroup.h": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+    "native/providers/moe_accumulator/sm121_wave16.h": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+    "native/providers/sm121_attention_capacity.h": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+    "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+    "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+    "tools/q1_segmented_attention_hip_probe.cpp": "2c1b3d3418a102714f3cc36b495b75182a0ab24f48253dcba30b1adbe0a62672"
+  },
+  "comparison": {
+    "kind": "original_long_segmented_attention_native_comparison",
+    "host": "baiying",
+    "source_commit": "9428e9eed89f0e38851e226a0f3220fb43acfffc",
+    "reference_host": "gb10-4t",
+    "reference_model": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "model": "D:/models/Qwen3.6-35B-A3B",
+    "model_loaded": false,
+    "manifest_sha256": "6dd0a8fe19ee4b027948d689fbd338812c13d3274fb1297943360c05067c07e0",
+    "command_file": "run-segmented-attention-native-r2.ps1",
+    "command_file_sha256": "b5a87e6cacd3e6892f90969d487c658eee4f46cc8626fde5e502dc158438a0de",
+    "original_capture_sha256": "06c53a4cbf3040a463bb8a98cbe7990dae191d60f1449b148a13b6b240a7b36c",
+    "original_replay_sha256": "f3500f4d2d77b8830263fe82c5e3c56826a6041bebf80eee637e5de66df387f4",
+    "dispatch_sha256": "16c22daaf2357bc924c110284eb38f0c87860e7438f046e0b7049337dd20363f",
+    "dispatch_binding_sha256": "9ae121823d52759d01f8b82f20f09210f2d573b0ad03f202f2e546755f842559",
+    "evidence_archive": {
+      "evidence_archive": "D:\\projects\\segmented-attention-native-evidence-r2.tar.gz",
+      "sha256": "1b522757ed72b2b6decc6882fde6e9adb168ce8b4b0fea6a1cd99ba470260a2a",
+      "bytes": 11260
+    },
+    "downloaded_manifest_sha256": "1420687a8d4d5a890d32ba429e2dddb28e5c6e57c731bb92bd3b245a6746e82d",
+    "reports": [
+      {
+        "case": "prefix263168-layer3",
+        "run_sha256": "47a753828fe34be48fe6f613ef13ebf148877eaf837175c54e1c49447464bad4",
+        "report": {
+          "kind": "original_long_segmented_attention",
+          "tokens": 263169,
+          "segments": 16,
+          "tile_tokens": 16,
+          "prefix_layouts": 4,
+          "comparisons": [
+            {
+              "stage": "prefix-263168/segment_output",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "prefix-263168/segment_max",
+              "elements": 256,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "prefix-263168/segment_sum",
+              "elements": 256,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "prefix-263168/context",
+              "elements": 4096,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "prefix-262144/segment_output",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "prefix-262144/segment_max",
+              "elements": 256,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "prefix-262144/segment_sum",
+              "elements": 256,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "prefix-262144/context",
+              "elements": 4096,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "prefix-131584/segment_output",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "prefix-131584/segment_max",
+              "elements": 256,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "prefix-131584/segment_sum",
+              "elements": 256,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "prefix-131584/context",
+              "elements": 4096,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "prefix-1/segment_output",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "prefix-1/segment_max",
+              "elements": 256,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "prefix-1/segment_sum",
+              "elements": 256,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "prefix-1/context",
+              "elements": 4096,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "compared_elements": 280576,
+          "bit_mismatches": 0,
+          "guard_errors": 0,
+          "immutable_digest_errors": 0,
+          "score_padding_errors": 0,
+          "passed": true,
+          "native_execution": true,
+          "model_loaded": false,
+          "inference_acceptance": false
+        }
+      }
+    ],
+    "all_bit_exact": true,
+    "all_host_guards_pass": true,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false
+  },
+  "comparison_sha256": "49aa4583dc7b3ebfb57b7cd4ac8fab33f41231278ac76475f9996bf79d59c0a8",
+  "native_runs": {
+    "prefix263168-layer3": {
+      "file": "segmented-attention-native-r2/prefix263168-layer3/run-record.json",
+      "sha256": "47a753828fe34be48fe6f613ef13ebf148877eaf837175c54e1c49447464bad4",
+      "record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-segmented-attention-20260921-r2\\scripts\\baiying_guarded_inference.ps1",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-segmented-attention-20260921-r2\\build\\segmented-attention-native-r2\\qrt-segmented-attention.exe",
+          "executable_sha256": "d7758f48f263e9a909b11eff4cbb4e7c69ec353b134b1713654aadf4f177ea20",
+          "arguments": [
+            "D:/projects/qrt-segmented-attention-inputs-20260921-r1/plan.tsv",
+            "263169"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-segmented-attention-20260921-r2",
+          "repo_commit": "9428e9eed89f0e38851e226a0f3220fb43acfffc",
+          "command_file": "D:\\projects\\run-segmented-attention-native-r2.ps1",
+          "command_file_sha256": "b5a87e6cacd3e6892f90969d487c658eee4f46cc8626fde5e502dc158438a0de",
+          "source_manifest_sha256": "6dd0a8fe19ee4b027948d689fbd338812c13d3274fb1297943360c05067c07e0",
+          "input_artifacts": [
+            {
+              "path": "D:/projects/qrt-segmented-attention-inputs-20260921-r1/blobs/32b9ba93db1c1e87a544d3f45a6039b7e4bed04fd311ec58ea552b2a63628275.bin",
+              "archive_path": "blobs/32b9ba93db1c1e87a544d3f45a6039b7e4bed04fd311ec58ea552b2a63628275.bin",
+              "local_file": "qrt-gb10-prefix256-attention-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0033-full-03-q-rope-bf16.bin",
+              "bytes": 8192,
+              "sha256": "32b9ba93db1c1e87a544d3f45a6039b7e4bed04fd311ec58ea552b2a63628275",
+              "in_archive": true,
+              "roles": [
+                "query"
+              ]
+            },
+            {
+              "path": "D:/projects/qrt-segmented-attention-inputs-20260921-r1/blobs/31afab11a6f7a49bd1e0b0d7343a79a20448485f964b5b77570adef6091d6ec9.bin",
+              "archive_path": "blobs/31afab11a6f7a49bd1e0b0d7343a79a20448485f964b5b77570adef6091d6ec9.bin",
+              "local_file": "qrt-gb10-prefix256-attention-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0033-full-03-cache-k-bf16.bin",
+              "bytes": 269485056,
+              "sha256": "31afab11a6f7a49bd1e0b0d7343a79a20448485f964b5b77570adef6091d6ec9",
+              "in_archive": true,
+              "roles": [
+                "keys"
+              ]
+            },
+            {
+              "path": "D:/projects/qrt-segmented-attention-inputs-20260921-r1/blobs/ecfec100e1240a9b1ab3fa5b88f32c035d67216944a8bf71fbf767aa118f9677.bin",
+              "archive_path": "blobs/ecfec100e1240a9b1ab3fa5b88f32c035d67216944a8bf71fbf767aa118f9677.bin",
+              "local_file": "qrt-gb10-prefix256-attention-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0033-full-03-cache-v-bf16.bin",
+              "bytes": 269485056,
+              "sha256": "ecfec100e1240a9b1ab3fa5b88f32c035d67216944a8bf71fbf767aa118f9677",
+              "in_archive": true,
+              "roles": [
+                "values"
+              ]
+            },
+            {
+              "path": "D:/projects/qrt-segmented-attention-inputs-20260921-r1/blobs/09d24eb9a15ba241d26f802a227df8eb15aac8e10a4f082d9f76aec28f5558ad.bin",
+              "archive_path": "blobs/09d24eb9a15ba241d26f802a227df8eb15aac8e10a4f082d9f76aec28f5558ad.bin",
+              "local_file": "qrt-gb10-prefix256-attention-replay-20260921-r1/3d-f32-context.bin",
+              "bytes": 16384,
+              "sha256": "09d24eb9a15ba241d26f802a227df8eb15aac8e10a4f082d9f76aec28f5558ad",
+              "in_archive": true,
+              "roles": [
+                "expected_output"
+              ]
+            },
+            {
+              "path": "D:/projects/qrt-segmented-attention-inputs-20260921-r1/blobs/6af63454d5a86e90fc505727318874ace42dd0895fdbb378122afdd9ed33ebe0.bin",
+              "archive_path": "blobs/6af63454d5a86e90fc505727318874ace42dd0895fdbb378122afdd9ed33ebe0.bin",
+              "local_file": "qrt-gb10-prefix256-attention-replay-20260921-r1/3d-segment-output-f32.bin",
+              "bytes": 262144,
+              "sha256": "6af63454d5a86e90fc505727318874ace42dd0895fdbb378122afdd9ed33ebe0",
+              "in_archive": true,
+              "roles": [
+                "expected_segment_output"
+              ]
+            },
+            {
+              "path": "D:/projects/qrt-segmented-attention-inputs-20260921-r1/blobs/942e03d99d7838f77eebae982759dca1a89a8055d22272493c239aa42a5698b0.bin",
+              "archive_path": "blobs/942e03d99d7838f77eebae982759dca1a89a8055d22272493c239aa42a5698b0.bin",
+              "local_file": "qrt-gb10-prefix256-attention-replay-20260921-r1/3d-segment-max-f32.bin",
+              "bytes": 1024,
+              "sha256": "942e03d99d7838f77eebae982759dca1a89a8055d22272493c239aa42a5698b0",
+              "in_archive": true,
+              "roles": [
+                "expected_segment_max"
+              ]
+            },
+            {
+              "path": "D:/projects/qrt-segmented-attention-inputs-20260921-r1/blobs/7b743e70dfb8b10f1b3ee4bcbefcd6aede7d5bfe9b83b236b57f2ccd18d8f8e0.bin",
+              "archive_path": "blobs/7b743e70dfb8b10f1b3ee4bcbefcd6aede7d5bfe9b83b236b57f2ccd18d8f8e0.bin",
+              "local_file": "qrt-gb10-prefix256-attention-replay-20260921-r1/3d-segment-sum-f32.bin",
+              "bytes": 1024,
+              "sha256": "7b743e70dfb8b10f1b3ee4bcbefcd6aede7d5bfe9b83b236b57f2ccd18d8f8e0",
+              "in_archive": true,
+              "roles": [
+                "expected_segment_sum"
+              ]
+            },
+            {
+              "path": "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/tables/exp2.bin",
+              "archive_path": "blobs/f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b.bin",
+              "local_file": "qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+              "bytes": 183174448,
+              "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+              "in_archive": false,
+              "roles": [
+                "exp2"
+              ]
+            },
+            {
+              "path": "D:/projects/qrt-q2-attention-layer-inputs-20260921-r2/blobs/d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39.bin",
+              "archive_path": "blobs/d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39.bin",
+              "local_file": "qrt-rcp-table-20260911-r2/sm121-attention-rcp-delta-i8.bin",
+              "bytes": 8388640,
+              "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+              "in_archive": false,
+              "roles": [
+                "rcp"
+              ]
+            },
+            {
+              "path": "D:/projects/qrt-segmented-attention-inputs-20260921-r1/plan.tsv",
+              "archive_path": "plan.tsv",
+              "local_file": "segmented-attention-native-plan-r1.tsv",
+              "bytes": 1889,
+              "sha256": "e24418b7a0b839f02e3c63cbcd747e065fad381dfdbb6515b81a34c24ccaffbd",
+              "in_archive": true,
+              "roles": [
+                "plan"
+              ]
+            }
+          ],
+          "case": {
+            "name": "prefix263168-layer3",
+            "program": "qrt-segmented-attention",
+            "arguments": [
+              "D:/projects/qrt-segmented-attention-inputs-20260921-r1/plan.tsv",
+              "263169"
+            ],
+            "timeout_seconds": 180,
+            "expected_reports": 1,
+            "compared_elements": 280576
+          },
+          "model": "D:/models/Qwen3.6-35B-A3B",
+          "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+          "original_tensor_weights": [],
+          "reference_host": "gb10-4t",
+          "reference_model": "/mnt/data/models/Qwen3.6-35B-A3B",
+          "expected_all_target_weights_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        "preflight": {
+          "host": "BAIYING",
+          "utc": "2026-09-20T21:14:09.6516508Z",
+          "command_file": "D:\\projects\\AIMA-public-segmented-attention-20260921-r2\\scripts\\baiying_guarded_inference.ps1",
+          "command_file_sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+          "spec": {
+            "executable": "D:\\projects\\AIMA-public-segmented-attention-20260921-r2\\build\\segmented-attention-native-r2\\qrt-segmented-attention.exe",
+            "executable_sha256": "d7758f48f263e9a909b11eff4cbb4e7c69ec353b134b1713654aadf4f177ea20",
+            "arguments": [
+              "D:/projects/qrt-segmented-attention-inputs-20260921-r1/plan.tsv",
+              "263169"
+            ],
+            "working_directory": "D:\\projects\\AIMA-public-segmented-attention-20260921-r2",
+            "repo_commit": "9428e9eed89f0e38851e226a0f3220fb43acfffc",
+            "command_file": "D:\\projects\\run-segmented-attention-native-r2.ps1",
+            "command_file_sha256": "b5a87e6cacd3e6892f90969d487c658eee4f46cc8626fde5e502dc158438a0de",
+            "source_manifest_sha256": "6dd0a8fe19ee4b027948d689fbd338812c13d3274fb1297943360c05067c07e0",
+            "input_artifacts": [
+              {
+                "path": "D:/projects/qrt-segmented-attention-inputs-20260921-r1/blobs/32b9ba93db1c1e87a544d3f45a6039b7e4bed04fd311ec58ea552b2a63628275.bin",
+                "archive_path": "blobs/32b9ba93db1c1e87a544d3f45a6039b7e4bed04fd311ec58ea552b2a63628275.bin",
+                "local_file": "qrt-gb10-prefix256-attention-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0033-full-03-q-rope-bf16.bin",
+                "bytes": 8192,
+                "sha256": "32b9ba93db1c1e87a544d3f45a6039b7e4bed04fd311ec58ea552b2a63628275",
+                "in_archive": true,
+                "roles": [
+                  "query"
+                ]
+              },
+              {
+                "path": "D:/projects/qrt-segmented-attention-inputs-20260921-r1/blobs/31afab11a6f7a49bd1e0b0d7343a79a20448485f964b5b77570adef6091d6ec9.bin",
+                "archive_path": "blobs/31afab11a6f7a49bd1e0b0d7343a79a20448485f964b5b77570adef6091d6ec9.bin",
+                "local_file": "qrt-gb10-prefix256-attention-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0033-full-03-cache-k-bf16.bin",
+                "bytes": 269485056,
+                "sha256": "31afab11a6f7a49bd1e0b0d7343a79a20448485f964b5b77570adef6091d6ec9",
+                "in_archive": true,
+                "roles": [
+                  "keys"
+                ]
+              },
+              {
+                "path": "D:/projects/qrt-segmented-attention-inputs-20260921-r1/blobs/ecfec100e1240a9b1ab3fa5b88f32c035d67216944a8bf71fbf767aa118f9677.bin",
+                "archive_path": "blobs/ecfec100e1240a9b1ab3fa5b88f32c035d67216944a8bf71fbf767aa118f9677.bin",
+                "local_file": "qrt-gb10-prefix256-attention-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0033-full-03-cache-v-bf16.bin",
+                "bytes": 269485056,
+                "sha256": "ecfec100e1240a9b1ab3fa5b88f32c035d67216944a8bf71fbf767aa118f9677",
+                "in_archive": true,
+                "roles": [
+                  "values"
+                ]
+              },
+              {
+                "path": "D:/projects/qrt-segmented-attention-inputs-20260921-r1/blobs/09d24eb9a15ba241d26f802a227df8eb15aac8e10a4f082d9f76aec28f5558ad.bin",
+                "archive_path": "blobs/09d24eb9a15ba241d26f802a227df8eb15aac8e10a4f082d9f76aec28f5558ad.bin",
+                "local_file": "qrt-gb10-prefix256-attention-replay-20260921-r1/3d-f32-context.bin",
+                "bytes": 16384,
+                "sha256": "09d24eb9a15ba241d26f802a227df8eb15aac8e10a4f082d9f76aec28f5558ad",
+                "in_archive": true,
+                "roles": [
+                  "expected_output"
+                ]
+              },
+              {
+                "path": "D:/projects/qrt-segmented-attention-inputs-20260921-r1/blobs/6af63454d5a86e90fc505727318874ace42dd0895fdbb378122afdd9ed33ebe0.bin",
+                "archive_path": "blobs/6af63454d5a86e90fc505727318874ace42dd0895fdbb378122afdd9ed33ebe0.bin",
+                "local_file": "qrt-gb10-prefix256-attention-replay-20260921-r1/3d-segment-output-f32.bin",
+                "bytes": 262144,
+                "sha256": "6af63454d5a86e90fc505727318874ace42dd0895fdbb378122afdd9ed33ebe0",
+                "in_archive": true,
+                "roles": [
+                  "expected_segment_output"
+                ]
+              },
+              {
+                "path": "D:/projects/qrt-segmented-attention-inputs-20260921-r1/blobs/942e03d99d7838f77eebae982759dca1a89a8055d22272493c239aa42a5698b0.bin",
+                "archive_path": "blobs/942e03d99d7838f77eebae982759dca1a89a8055d22272493c239aa42a5698b0.bin",
+                "local_file": "qrt-gb10-prefix256-attention-replay-20260921-r1/3d-segment-max-f32.bin",
+                "bytes": 1024,
+                "sha256": "942e03d99d7838f77eebae982759dca1a89a8055d22272493c239aa42a5698b0",
+                "in_archive": true,
+                "roles": [
+                  "expected_segment_max"
+                ]
+              },
+              {
+                "path": "D:/projects/qrt-segmented-attention-inputs-20260921-r1/blobs/7b743e70dfb8b10f1b3ee4bcbefcd6aede7d5bfe9b83b236b57f2ccd18d8f8e0.bin",
+                "archive_path": "blobs/7b743e70dfb8b10f1b3ee4bcbefcd6aede7d5bfe9b83b236b57f2ccd18d8f8e0.bin",
+                "local_file": "qrt-gb10-prefix256-attention-replay-20260921-r1/3d-segment-sum-f32.bin",
+                "bytes": 1024,
+                "sha256": "7b743e70dfb8b10f1b3ee4bcbefcd6aede7d5bfe9b83b236b57f2ccd18d8f8e0",
+                "in_archive": true,
+                "roles": [
+                  "expected_segment_sum"
+                ]
+              },
+              {
+                "path": "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/tables/exp2.bin",
+                "archive_path": "blobs/f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b.bin",
+                "local_file": "qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+                "bytes": 183174448,
+                "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+                "in_archive": false,
+                "roles": [
+                  "exp2"
+                ]
+              },
+              {
+                "path": "D:/projects/qrt-q2-attention-layer-inputs-20260921-r2/blobs/d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39.bin",
+                "archive_path": "blobs/d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39.bin",
+                "local_file": "qrt-rcp-table-20260911-r2/sm121-attention-rcp-delta-i8.bin",
+                "bytes": 8388640,
+                "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+                "in_archive": false,
+                "roles": [
+                  "rcp"
+                ]
+              },
+              {
+                "path": "D:/projects/qrt-segmented-attention-inputs-20260921-r1/plan.tsv",
+                "archive_path": "plan.tsv",
+                "local_file": "segmented-attention-native-plan-r1.tsv",
+                "bytes": 1889,
+                "sha256": "e24418b7a0b839f02e3c63cbcd747e065fad381dfdbb6515b81a34c24ccaffbd",
+                "in_archive": true,
+                "roles": [
+                  "plan"
+                ]
+              }
+            ],
+            "case": {
+              "name": "prefix263168-layer3",
+              "program": "qrt-segmented-attention",
+              "arguments": [
+                "D:/projects/qrt-segmented-attention-inputs-20260921-r1/plan.tsv",
+                "263169"
+              ],
+              "timeout_seconds": 180,
+              "expected_reports": 1,
+              "compared_elements": 280576
+            },
+            "model": "D:/models/Qwen3.6-35B-A3B",
+            "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+            "original_tensor_weights": [],
+            "reference_host": "gb10-4t",
+            "reference_model": "/mnt/data/models/Qwen3.6-35B-A3B",
+            "expected_all_target_weights_loaded": false,
+            "inference_acceptance": false,
+            "performance_acceptance": false
+          },
+          "executable_sha256": "d7758f48f263e9a909b11eff4cbb4e7c69ec353b134b1713654aadf4f177ea20",
+          "input_fingerprints": {},
+          "boot": "2026-09-16T00:45:19.2304050+08:00",
+          "boot_identity": {
+            "kind": "kernel_general_boot_event",
+            "value": "124051:639250875618960311",
+            "record_id": 124051,
+            "utc": "2026-09-15T16:46:01.8960311Z",
+            "cim_boot": "2026-09-16T00:45:19.2304050+08:00"
+          },
+          "memory": {
+            "Length": 64,
+            "Load": 28,
+            "TotalPhysical": 33981009920,
+            "AvailablePhysical": 24190324736,
+            "TotalCommit": 156119142400,
+            "AvailableCommit": 146623016960,
+            "TotalVirtual": 140737488224256,
+            "AvailableVirtual": 138533462200320,
+            "AvailableExtendedVirtual": 0
+          },
+          "gpus": [
+            {
+              "Name": "AMD Radeon(TM) 8060S Graphics",
+              "Status": "OK",
+              "DriverVersion": "32.0.31036.15"
+            }
+          ],
+          "processes": [],
+          "checks": {
+            "no_engine_or_compiler": true,
+            "host_memory_reserve": true,
+            "commit_reserve": true,
+            "amd_gpu_ok": true,
+            "output_disk_reserve": true,
+            "source_commit_exact": true
+          },
+          "pass": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 2226.454,
+        "summary_present": false,
+        "cli_pass": false,
+        "summary": null,
+        "after_boot": "2026-09-16T00:45:19.2304050+08:00",
+        "after_boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "124051:639250875618960311",
+          "record_id": 124051,
+          "utc": "2026-09-15T16:46:01.8960311Z",
+          "cim_boot": "2026-09-16T00:45:19.2304050+08:00"
+        },
+        "boot_clock_text_unchanged": true,
+        "after_memory": {
+          "Length": 64,
+          "Load": 28,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24188293120,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 146616434688,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533461528576,
+          "AvailableExtendedVirtual": 0
+        },
+        "after_gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "after_processes": [],
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "numerical_acceptance_requires_external_oracle": true
+      }
+    },
+    "qrt-segmented-attention-build": {
+      "file": "segmented-attention-native-r2/qrt-segmented-attention-build/run-record.json",
+      "sha256": "1af6d11bc06197b7c46cc7c6b87a2cf6277381a4691e9c8f3c7571295db7ac37",
+      "record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-segmented-attention-20260921-r2\\scripts\\baiying_guarded_inference.ps1",
+        "spec": {
+          "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+          "arguments": [
+            "-std=c++17",
+            "-O2",
+            "-fno-fast-math",
+            "-fno-reciprocal-math",
+            "-ffp-contract=off",
+            "--offload-arch=gfx1151",
+            "-DQRT_SM121_DPP_REDUCTION=1",
+            "-DQRT_SM121_COMPACT_NORMALIZE=1",
+            "-I",
+            "D:\\projects\\AIMA-public-segmented-attention-20260921-r2",
+            "D:\\projects\\AIMA-public-segmented-attention-20260921-r2\\tools\\q1_segmented_attention_hip_probe.cpp",
+            "-o",
+            "D:\\projects\\AIMA-public-segmented-attention-20260921-r2\\build\\segmented-attention-native-r2\\qrt-segmented-attention.exe",
+            "-lbcrypt"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-segmented-attention-20260921-r2",
+          "repo_commit": "9428e9eed89f0e38851e226a0f3220fb43acfffc",
+          "command_file": "D:\\projects\\run-segmented-attention-native-r2.ps1",
+          "command_file_sha256": "b5a87e6cacd3e6892f90969d487c658eee4f46cc8626fde5e502dc158438a0de",
+          "model": "none; compile original long segmented attention",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "source_manifest_sha256": "6dd0a8fe19ee4b027948d689fbd338812c13d3274fb1297943360c05067c07e0",
+          "source_inputs": {
+            "native/providers/ck_fmha/blackwell_attention.h": "b8cefe638bfcc5c41ff73349624f65741395a383e4e6f72059882a7ae39a82ed",
+            "native/providers/ck_fmha/float_pv_replay.h": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+            "native/providers/ck_fmha/inplace_probability_storage.h": "71d5c98c594c813b590aa6c5b8ae96cadaf4d0edfd08d9c7894feee7fc8ad64c",
+            "native/providers/ck_fmha/long_attention_layout.h": "b94f16310020a757076e6f9bd7d97bea81f91d90567e006a419d5de4acfd1f19",
+            "native/providers/ck_fmha/packed_probability_storage.h": "5bb63c12db0afdf2e7aa86e47f50fb90b827f1936321e352afeac6577330999e",
+            "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+            "native/providers/gdn/sm121_exp2_interpolated.h": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+            "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "native/providers/gdn/sm121_q1_attention.h": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+            "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+            "native/providers/gdn/sm121_q1_segmented_attention.h": "b8eb2d30d6a01588d9b33491020afa368d7323a1ccb83e10ad3d22c66062454e",
+            "native/providers/gdn/sm121_q1_segmented_attention_math.h": "8f2e9d5f9ada32bfa30c0079c70f4747d9bf843316c6b074d28ac5f6d90ea74e",
+            "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+            "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+            "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+            "native/providers/moe_accumulator/sm121_dot_certificate.h": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+            "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+            "native/providers/moe_accumulator/sm121_float_subgroup.h": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+            "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "native/providers/moe_accumulator/sm121_integer_core.h": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+            "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+            "native/providers/moe_accumulator/sm121_lane_reduce.h": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+            "native/providers/moe_accumulator/sm121_mantissa_parts.h": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "native/providers/moe_accumulator/sm121_native_product.h": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "native/providers/moe_accumulator/sm121_paired_products.h": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+            "native/providers/moe_accumulator/sm121_prepared_bf16.h": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+            "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+            "native/providers/moe_accumulator/sm121_pv_final_bound.h": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+            "native/providers/moe_accumulator/sm121_strided_pair.h": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+            "native/providers/moe_accumulator/sm121_subgroup.h": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+            "native/providers/moe_accumulator/sm121_wave16.h": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+            "native/providers/sm121_attention_capacity.h": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+            "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+            "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+            "tools/q1_segmented_attention_hip_probe.cpp": "2c1b3d3418a102714f3cc36b495b75182a0ab24f48253dcba30b1adbe0a62672"
+          }
+        },
+        "preflight": {
+          "host": "BAIYING",
+          "utc": "2026-09-20T21:13:55.9973259Z",
+          "command_file": "D:\\projects\\AIMA-public-segmented-attention-20260921-r2\\scripts\\baiying_guarded_inference.ps1",
+          "command_file_sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+          "spec": {
+            "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+            "arguments": [
+              "-std=c++17",
+              "-O2",
+              "-fno-fast-math",
+              "-fno-reciprocal-math",
+              "-ffp-contract=off",
+              "--offload-arch=gfx1151",
+              "-DQRT_SM121_DPP_REDUCTION=1",
+              "-DQRT_SM121_COMPACT_NORMALIZE=1",
+              "-I",
+              "D:\\projects\\AIMA-public-segmented-attention-20260921-r2",
+              "D:\\projects\\AIMA-public-segmented-attention-20260921-r2\\tools\\q1_segmented_attention_hip_probe.cpp",
+              "-o",
+              "D:\\projects\\AIMA-public-segmented-attention-20260921-r2\\build\\segmented-attention-native-r2\\qrt-segmented-attention.exe",
+              "-lbcrypt"
+            ],
+            "working_directory": "D:\\projects\\AIMA-public-segmented-attention-20260921-r2",
+            "repo_commit": "9428e9eed89f0e38851e226a0f3220fb43acfffc",
+            "command_file": "D:\\projects\\run-segmented-attention-native-r2.ps1",
+            "command_file_sha256": "b5a87e6cacd3e6892f90969d487c658eee4f46cc8626fde5e502dc158438a0de",
+            "model": "none; compile original long segmented attention",
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "source_manifest_sha256": "6dd0a8fe19ee4b027948d689fbd338812c13d3274fb1297943360c05067c07e0",
+            "source_inputs": {
+              "native/providers/ck_fmha/blackwell_attention.h": "b8cefe638bfcc5c41ff73349624f65741395a383e4e6f72059882a7ae39a82ed",
+              "native/providers/ck_fmha/float_pv_replay.h": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+              "native/providers/ck_fmha/inplace_probability_storage.h": "71d5c98c594c813b590aa6c5b8ae96cadaf4d0edfd08d9c7894feee7fc8ad64c",
+              "native/providers/ck_fmha/long_attention_layout.h": "b94f16310020a757076e6f9bd7d97bea81f91d90567e006a419d5de4acfd1f19",
+              "native/providers/ck_fmha/packed_probability_storage.h": "5bb63c12db0afdf2e7aa86e47f50fb90b827f1936321e352afeac6577330999e",
+              "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+              "native/providers/gdn/sm121_exp2_interpolated.h": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+              "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+              "native/providers/gdn/sm121_q1_attention.h": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+              "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+              "native/providers/gdn/sm121_q1_segmented_attention.h": "b8eb2d30d6a01588d9b33491020afa368d7323a1ccb83e10ad3d22c66062454e",
+              "native/providers/gdn/sm121_q1_segmented_attention_math.h": "8f2e9d5f9ada32bfa30c0079c70f4747d9bf843316c6b074d28ac5f6d90ea74e",
+              "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+              "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+              "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+              "native/providers/moe_accumulator/sm121_dot_certificate.h": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+              "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+              "native/providers/moe_accumulator/sm121_float_subgroup.h": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+              "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "native/providers/moe_accumulator/sm121_integer_core.h": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+              "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+              "native/providers/moe_accumulator/sm121_lane_reduce.h": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+              "native/providers/moe_accumulator/sm121_mantissa_parts.h": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "native/providers/moe_accumulator/sm121_native_product.h": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "native/providers/moe_accumulator/sm121_paired_products.h": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+              "native/providers/moe_accumulator/sm121_prepared_bf16.h": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+              "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+              "native/providers/moe_accumulator/sm121_pv_final_bound.h": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+              "native/providers/moe_accumulator/sm121_strided_pair.h": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+              "native/providers/moe_accumulator/sm121_subgroup.h": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+              "native/providers/moe_accumulator/sm121_wave16.h": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+              "native/providers/sm121_attention_capacity.h": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+              "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+              "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+              "tools/q1_segmented_attention_hip_probe.cpp": "2c1b3d3418a102714f3cc36b495b75182a0ab24f48253dcba30b1adbe0a62672"
+            }
+          },
+          "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+          "input_fingerprints": {},
+          "boot": "2026-09-16T00:45:19.2304050+08:00",
+          "boot_identity": {
+            "kind": "kernel_general_boot_event",
+            "value": "124051:639250875618960311",
+            "record_id": 124051,
+            "utc": "2026-09-15T16:46:01.8960311Z",
+            "cim_boot": "2026-09-16T00:45:19.2304050+08:00"
+          },
+          "memory": {
+            "Length": 64,
+            "Load": 28,
+            "TotalPhysical": 33981009920,
+            "AvailablePhysical": 24128770048,
+            "TotalCommit": 156119142400,
+            "AvailableCommit": 146627825664,
+            "TotalVirtual": 140737488224256,
+            "AvailableVirtual": 138533470498816,
+            "AvailableExtendedVirtual": 0
+          },
+          "gpus": [
+            {
+              "Name": "AMD Radeon(TM) 8060S Graphics",
+              "Status": "OK",
+              "DriverVersion": "32.0.31036.15"
+            }
+          ],
+          "processes": [],
+          "checks": {
+            "no_engine_or_compiler": true,
+            "host_memory_reserve": true,
+            "commit_reserve": true,
+            "amd_gpu_ok": true,
+            "output_disk_reserve": true,
+            "source_commit_exact": true
+          },
+          "pass": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 13370.018,
+        "summary_present": false,
+        "cli_pass": false,
+        "summary": null,
+        "after_boot": "2026-09-16T00:45:19.2304050+08:00",
+        "after_boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "124051:639250875618960311",
+          "record_id": 124051,
+          "utc": "2026-09-15T16:46:01.8960311Z",
+          "cim_boot": "2026-09-16T00:45:19.2304050+08:00"
+        },
+        "boot_clock_text_unchanged": true,
+        "after_memory": {
+          "Length": 64,
+          "Load": 28,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24186818560,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 146625851392,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533462462464,
+          "AvailableExtendedVirtual": 0
+        },
+        "after_gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "after_processes": [],
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "numerical_acceptance_requires_external_oracle": true
+      }
+    }
+  },
+  "original_tokens": 263169,
+  "segments": 16,
+  "tile_tokens": 16,
+  "all280576_fp32_values_exact": true,
+  "nonblocking_stream": true,
+  "default_stream_initialization_completed": true,
+  "original_inputs_and_guards_unchanged": true,
+  "prior_failure": {
+    "run_sha256": "35d588cbaed438312a8f655c9a10343ea7f79f3e19d62e12c14e42f42ac065d9",
+    "report_sha256": "b227c3b298b54805823c76a70a312d1086a4e07c25efa9809ee10220fcbaf39b",
+    "report": {
+      "kind": "original_long_segmented_attention",
+      "tokens": 263169,
+      "segments": 16,
+      "tile_tokens": 16,
+      "prefix_layouts": 4,
+      "comparisons": [
+        {
+          "stage": "prefix-263168/segment_output",
+          "elements": 65536,
+          "bit_mismatches": 65536,
+          "first_difference": [
+            0,
+            2779096485,
+            3201485497
+          ]
+        },
+        {
+          "stage": "prefix-263168/segment_max",
+          "elements": 256,
+          "bit_mismatches": 256,
+          "first_difference": [
+            0,
+            2779096485,
+            1089887555
+          ]
+        },
+        {
+          "stage": "prefix-263168/segment_sum",
+          "elements": 256,
+          "bit_mismatches": 256,
+          "first_difference": [
+            0,
+            2779096485,
+            1091386953
+          ]
+        },
+        {
+          "stage": "prefix-263168/context",
+          "elements": 4096,
+          "bit_mismatches": 4096,
+          "first_difference": [
+            0,
+            2779096485,
+            1037113030
+          ]
+        },
+        {
+          "stage": "prefix-262144/segment_output",
+          "elements": 65536,
+          "bit_mismatches": 0,
+          "first_difference": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "stage": "prefix-262144/segment_max",
+          "elements": 256,
+          "bit_mismatches": 0,
+          "first_difference": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "stage": "prefix-262144/segment_sum",
+          "elements": 256,
+          "bit_mismatches": 0,
+          "first_difference": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "stage": "prefix-262144/context",
+          "elements": 4096,
+          "bit_mismatches": 0,
+          "first_difference": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "stage": "prefix-131584/segment_output",
+          "elements": 65536,
+          "bit_mismatches": 0,
+          "first_difference": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "stage": "prefix-131584/segment_max",
+          "elements": 256,
+          "bit_mismatches": 0,
+          "first_difference": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "stage": "prefix-131584/segment_sum",
+          "elements": 256,
+          "bit_mismatches": 0,
+          "first_difference": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "stage": "prefix-131584/context",
+          "elements": 4096,
+          "bit_mismatches": 0,
+          "first_difference": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "stage": "prefix-1/segment_output",
+          "elements": 65536,
+          "bit_mismatches": 0,
+          "first_difference": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "stage": "prefix-1/segment_max",
+          "elements": 256,
+          "bit_mismatches": 0,
+          "first_difference": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "stage": "prefix-1/segment_sum",
+          "elements": 256,
+          "bit_mismatches": 0,
+          "first_difference": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "stage": "prefix-1/context",
+          "elements": 4096,
+          "bit_mismatches": 0,
+          "first_difference": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "compared_elements": 280576,
+      "bit_mismatches": 70144,
+      "guard_errors": 0,
+      "immutable_digest_errors": 0,
+      "score_padding_errors": 272,
+      "passed": false,
+      "native_execution": true,
+      "model_loaded": false,
+      "inference_acceptance": false
+    },
+    "host_checks_pass": true,
+    "cleanup_pass": true,
+    "reason": "Wait for default-stream guard initialization before nonblocking probe execution. The first R1 result was overwritten by the guard pattern; all three subsequent layouts matched every original FP32 value. Numerical kernel sources are unchanged.",
+    "only_compiled_source_change": [
+      "tools/q1_segmented_attention_hip_probe.cpp"
+    ]
+  },
+  "whole_dispatch": {
+    "file": "native/providers/whole_provider.cpp",
+    "sha256": "eb64a5b3d9285224f2ead683134a5a43bd0e304be47f128ba301e72f634a703b",
+    "shared_existing_scratch": true,
+    "additional_workspace_bytes": 0,
+    "selected_for_original_non_speculative_prefix": true,
+    "local_dispatch_tests": 4,
+    "local_tests_pass": true
+  },
+  "whole_windows_build": false,
+  "real_model_rerun": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

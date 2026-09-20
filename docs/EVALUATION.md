@@ -7,6 +7,16 @@ acceptance binds real prompt token IDs, the first generated token, and the
 first-token logit within 0.125. Decode and prefix continuation are compared
 token-for-token. Engine self-hashes are diagnostic only.
 
+The latest [whole-provider build and q8192 regression](../benchmarks/correctness/segmented-attention-whole-q8192-20260921.json)
+pass on baiying at source9428e9e. All512 output IDs and callbacks match GB10,
+first144/logit10.375/error0. Load21718.0055ms passes; TTFT23554.1578ms and
+TPOT100.697048ms do not meet the performance goals. DLL SHA256 is
+`b6952c58eb18b4d7308e11ed881c8da01344618c31c447b80daa4d54731e5f7b`.
+It binds143 compilation files/145 inputs and includes the actual long-context
+segmented-attention dispatch. A full256k run started2026-09-20T21:21:04.7128176Z,
+PID7324, with the unchanged28800-second deadline. It must complete the initial
+suffix512, restored-owner32 and second suffix512 before qualification.
+
 The latest [complete Windows Q2 target verification](../benchmarks/correctness/q2-complete-target-native-20260921.json)
 passes on baiying at source `69baaaa`. Starting from real token embeddings
 144/255 and original committed q8192 caches, it computes all40 layers, final
@@ -44,16 +54,25 @@ At263168, the first three layers and layer3 QKV/norm/RoPE are exact. Replaying
 the original layer3 query and complete263169-row K/V history through its
 single-query3D operator matches all4096 captured BF16 context values. The2D
 operator reproduces all564 Windows differences exactly. The original3D path
-uses16 segments,16-token tiles and an ordered final merge; the native packed
-decode path still calls the2D32-token-tile implementation. Native replacement
-and a correctness-attached full256k product rerun remain open.
+uses16 segments,16-token tiles and an ordered final merge. The revised native
+packed decode path now selects that operator. Its correctness-attached full256k
+product rerun is active.
 
 The [native ordered-merge CPU check](../benchmarks/correctness/prefix256-segmented-attention-merge-cpu-20260921.json)
 reproduces all4096 original FP32 context values from the captured segment
 accumulators, maxima and sums. It preserves the original fused denominator
-tree and the separate even/odd numerator chains. A complete native segment
-kernel and original-Q/K/V probe are prepared; their GPU execution and whole
-provider integration have not yet run.
+tree and the separate even/odd numerator chains. The [complete Windows native
+operator](../benchmarks/correctness/prefix256-segmented-attention-native-20260921.json)
+now matches all280576 FP32 values across four prefix/tail splits, starting
+from original Q/K/V. Every segment accumulator, maximum, denominator and final
+context matches; inputs, allocation guards and score padding pass. The first
+probe preserved a default-stream initialization race: its first output was
+overwritten by guard fills while the remaining three layouts were exact.
+An explicit initialization fence fixes the probe; numerical kernel sources
+are unchanged. All build, failure, retry and final cleanup records remain.
+Whole integration reuses existing disjoint partial scratch regions with no
+additional workspace, preserves the short route and passes four dispatch/cache
+regressions. Complete product qualification still requires the active long run.
 
 The [target cache publication boundary](../benchmarks/correctness/q2-cache-publication-local-20260921.json)
 passes eight local regressions, including all80 partial-copy failure positions.
