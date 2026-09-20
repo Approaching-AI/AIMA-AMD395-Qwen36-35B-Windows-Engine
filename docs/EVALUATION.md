@@ -825,6 +825,24 @@ Windows probe compares all ten stages in four configurations using original
 model shard slices and readonly reference outputs; its compilation and GPU
 execution remain pending while the full256k product run occupies baiying.
 
+The [shared-kernel target comparisons](../benchmarks/correctness/q2-target-shared-kernels-cpu-20260920.json)
+establish CPU compatibility with the original two-row target. The complete
+MoE chain matches all 15 original pairs at 12 observed stages, including exact
+FP32 router weights and final outputs. Across five original transactions,
+all 40 input normalizations, final normalization and the first three linear
+layers' post-attention normalizations match 901,120 BF16 normalized values and
+61,440 residual values. These checks use the original model shard slices.
+
+The existing attention arithmetic matches all 40,960 BF16 context values for
+ten target rows, including four rejected speculative rows. Its original full
+prefix KV comes from a comparable golden capture: prompt IDs, complete first
+logit hash, first 32 output IDs and all eight first-row attention frontiers
+match the current capture. Subsequent K/V appends use current original target
+rows, truncating at the actual following transaction position. This checks
+private rejected-row computation without treating rejected rows as accepted
+history. New target-layer GPU integration, completion checks, cache publication
+and inference acceptance remain pending.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
