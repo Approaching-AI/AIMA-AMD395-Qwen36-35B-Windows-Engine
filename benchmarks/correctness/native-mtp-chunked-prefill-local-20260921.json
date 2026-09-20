@@ -1,0 +1,129 @@
+{
+  "kind": "native_mtp_chunked_prefill_local_regression",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "source_parent": "490370a62ec6b610bda84e7eb1bd938c042edd95",
+  "source_sha256": {
+    "native/providers/whole_provider.cpp": "ae9115607c0f839781478999e05f4329ece49ae942b5c18e99f458a7703f55db",
+    "native/providers/prefill_chunks.h": "c5b861f5d7cf09fc731c3975966c31c4988e0035ef0efface6cfe3394e66b522",
+    "native/providers/mtp_target_rows.h": "1633bc23812e7fafd3cc2f05c5e4042e7e101ecf4139a0a10c23177d7557bd86",
+    "native/providers/mtp_prompt_inputs.h": "efe6546dd434745bc351385e9a879373222423f7342c31dd19d4418161856a7b",
+    "native/providers/mtp_draft_schedule.h": "d10f10fdff0e6b8821940fedbfc8377e4c16c808e24328751d4c9f44254e0452",
+    "native/providers/sm121_mtp_request_seed.h": "72e11cb7f2a81909aab95e9a64612365a90ffe8bb032d1d42880c2ca6b33ac22",
+    "native/providers/sm121_mtp_runtime_tables.h": "acf7f7537c3996a65620df8b235685fc8c1bd7b882c5888124331d12222ae199",
+    "native/providers/gdn/sm121_mtp_request.h": "9ec851e677f250f91070b72b890a1fe257bcb8b81df011db353bda325cd7dd33",
+    "native/providers/gdn/sm121_mtp_drafter.h": "24d49700498c0b2edb241379907582e25f2d84c079e77f026866027c2e11cd73",
+    "native/providers/gdn/sm121_mtp_target_inputs.h": "917ce15be46e7065651dff2079af17d0c86c4e45f6b431d87a8566d985ed85e2",
+    "native/providers/gdn/sm121_mtp_cache_snapshot.h": "a17077d41b0bfbf715095f43fd2138dd4389bc5f4508820c3a5bcba2b3b7968a",
+    "native/providers/gdn/sm121_mtp_model_weights.h": "570bc401f4474b2200b5200ba929a8a47615542ff06537e597e02f5ee8bb692d",
+    "native/providers/gdn/sm121_mtp_prompt_cache.h": "7d7536775d1dabf1adba00d57003fb90852eb8e801471fae38f7f06ee63b073f",
+    "native/providers/gdn/sm121_q2_resident_cache.h": "5a1fd21cb72f5ae4cc17b8b3025ad2796ea2228011d4cfa738ec191a6d733c3d",
+    "native/src/qrt.c": "851904c79ea9ff3230423f86a4d92bae27734df30bb6dd51632ffb219397c076",
+    "native/src/qrt.h": "c7af4d946b863eccbd98a540ffa0a034e1230685b5409514da05bfff9659bc4c",
+    "tests/test_prefill_chunks.py": "c901e0926a04da6cd487c5281a87fb4c3aa4de9f39c298f10ce3ed7573236172",
+    "tests/test_mtp_native_prefill_integration.py": "352b5398ffc762dbf60ba3bbb6bf41fcf8f763ee07ceb0503b3a1b12c485399e",
+    "tests/test_mtp_drafter.py": "96d219f90d16d2da02b2ac0ac2ed989eee4e9f827f9e28e28d52c74e7d6fbd9a",
+    "tests/native/mtp_drafter_host.cpp": "79955905d70750da240f1631d863f6a5f5328f7058f2a164fbf59eeb72f3f02a",
+    "tests/native/mtp_request_host.inc": "e252e5e9d63d64a6c010d42e000e59c110cfb81f3c7ce85771d5b6bd68e7949a",
+    "tests/native/mtp_chunked_request_host.inc": "c2367caaf0f64ea69b6fbc8e8bb2cfacd365aa60d3ffa43a4cd281b094485753",
+    "tests/test_native_mtp_decode.py": "5787883cb86f606ec3db598c664a851748814f910d040b17f38db499f0db0bb8",
+    "tests/native/native_mtp_decode_host.cpp": "b9d769978a6aa0c1fac009ab11544da4b995a8d4412c0febe21367433a21f440",
+    "tests/test_q2_resident_cache.py": "1c1bdabd6b13e600692b8e1fc3e8569d6a1bd531fa2781c0967e2ece5662f450",
+    "tests/native/q2_resident_cache_host.cpp": "a2950125dca6dbf5119e5e10671f7aa18b955d633aa59d5f8554db10f1a59cef"
+  },
+  "validation_runs": [
+    {
+      "command": [
+        "python3.12",
+        "-m",
+        "unittest",
+        "test_prefill_chunks",
+        "tests.test_mtp_native_prefill_integration",
+        "tests.test_mtp_drafter",
+        "tests.test_native_mtp_decode",
+        "tests.test_q2_resident_cache"
+      ],
+      "command_environment": {
+        "PYTHONPATH": "tests"
+      },
+      "returncode": 0,
+      "stderr": "......\n----------------------------------------------------------------------\nRan 6 tests in 20.639s\n\nOK\n",
+      "checks": 6,
+      "seconds": 20.639,
+      "execution_session": 21854
+    },
+    {
+      "command": [
+        "python3.12",
+        "-m",
+        "unittest",
+        "test_prefill_chunks"
+      ],
+      "command_environment": {
+        "PYTHONPATH": "tests"
+      },
+      "returncode": 0,
+      "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 5.512s\n\nOK\n",
+      "checks": 2,
+      "seconds": 5.512,
+      "execution_session": 22297,
+      "reason": "The final edit added the actual first target engine/sample guard and its three fault cases. These two tests were rerun; all other implementation and test sources were unchanged."
+    }
+  ],
+  "recorded_from_completed_tool_results": true,
+  "distinct_tests": 6,
+  "description": "The actual Request consumes completed cold target chunks, checks full original prompt identity and shifted input rows, and publishes a paired checkpoint only after final completion. The actual cold coordinator controls cache promotion and its sole callback.",
+  "checks": {
+    "actual_request": true,
+    "actual_runtime_seed_helper": true,
+    "actual_prefill_admission": true,
+    "actual_cold_chunk_coordinator": true,
+    "actual_c_decode_result_validator": true,
+    "request_prompt_sizes": [
+      7,
+      9216,
+      16384,
+      17408,
+      131072
+    ],
+    "coordinator_prompt_sizes": [
+      16384,
+      17408,
+      65536,
+      131072
+    ],
+    "invalid_chunk_frontiers": 10,
+    "completed_chunk_failure_retries": 7,
+    "request_completion_failures": 7,
+    "complete_runtime_completion_failures": 9,
+    "cold_coordinator_failed_stages": 4,
+    "cold_coordinator_unknown_completion_failures": 4,
+    "first_target_identity_failures": 3,
+    "exact_full_prompt_checked": true,
+    "discarded_chunks_keep_original_shift": true,
+    "no_intermediate_draft_or_checkpoint": true,
+    "no_intermediate_callback": true,
+    "callback_after_target_and_mtp_checkpoint": true,
+    "callback_cancellation_discards_cold_owner": true,
+    "unknown_completion_retains_owners": true,
+    "late_completion_after_scope_destruction": true,
+    "unchanged_short_request_and_owner_tests_pass": true
+  },
+  "current_admission": {
+    "native_cold_chunks": true,
+    "chunk_rows": 8192,
+    "optional_final_rows": 1024,
+    "prompt_tokens_below": 262144,
+    "prefix_suffix_reseed": false,
+    "drafter_retirement_crossing": false
+  },
+  "native_execution": "CPU ASan/UBSan with actual ownership code and deferred HIP/kernel protocol doubles only",
+  "numerical_kernels_changed": false,
+  "abi_changed": false,
+  "reference_data_consumed_by_compute": false,
+  "native_windows_built": false,
+  "actual_model_request": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "native_plan": "The frozen first native publication and short-request checks remain bound to source490370a. This subsequent chunk integration requires its own Windows build and original-model comparison."
+}

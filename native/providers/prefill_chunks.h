@@ -121,6 +121,7 @@ int run_qwen36_chunked_prefill(
         return 0;
     };
     const size_t total = request.input_token_count;
+    const bool native_mtp = env_flag_enabled("QRT_QWEN36_MTP_NATIVE_DECODE");
     // The two supported transaction sizes have original-input seeded FLA
     // evidence. Other tail sizes continue to use the ordinary route when this
     // experimental mode is off; they are not padded or silently substituted.
@@ -133,6 +134,9 @@ int run_qwen36_chunked_prefill(
         !env_flag_enabled("QRT_QWEN36_WHOLE_PROVIDER_FUSED_LAYER_STACK"))
         return fail_request("qwen36_chunked_prefill_request",
             "cold chunks require an 8192-aligned prompt, optionally 1024 final inputs, and a resident fused owner without checkpoint capture");
+    if (native_mtp && total >= qrt_mtp_draft_schedule::reference_drafter_limit)
+        return fail_request("mtp_chunked_prefill_retirement",
+            "native MTP cold chunks currently require a prompt before drafter retirement");
     const uint64_t prompt_digest = qrt_fnv1a64_bytes(request.input_tokens, total * sizeof(uint32_t));
     if (request.expected_prompt_token_ids_fnv1a64 && request.expected_prompt_token_ids_fnv1a64 != prompt_digest)
         return fail_request("qwen36_chunked_prefill_prompt", "actual prompt tokens do not match the request digest");
@@ -148,6 +152,18 @@ int run_qwen36_chunked_prefill(
         return fail_request(stage, message);
     };
     try {
+        qrt_sm121_mtp_runtime::ChunkedPrefillSeed mtp_seed;
+        std::vector<uint32_t> mtp_processed_inputs;
+        if (native_mtp) mtp_processed_inputs.assign(request.input_tokens,request.input_tokens+total);
+        const auto mtp_frontier = [&](size_t processed) {
+            const auto& session=g_qwen36_resident_session;
+            return qrt_sm121_mtp::TargetFrontier{session.owner_engine,session.generation,mtp_seed.epoch(),
+                mtp_processed_inputs.data(),processed,session.current_token_id};
+        };
+        const auto mtp_failure = [&](const qrt_sm121_mtp::PromptStep& step) {
+            if (step.completion_unknown) g_qwen36_resident_completion_unknown=true;
+            return fail(step.stage,"native MTP could not complete the actual cold prefill chunks");
+        };
         qrt_qwen36_whole_provider_request_t seed = request;
         seed.input_token_count = 8192u;
         seed.output_token_capacity = 1u;
@@ -159,7 +175,14 @@ int run_qwen36_chunked_prefill(
         seed.expected_prompt_token_ids_fnv1a64 = qrt_fnv1a64_bytes(seed.input_tokens, 8192u * sizeof(uint32_t));
         seed.expected_output_token_id = UINT_MAX;
         auto chunk_result = std::make_unique<qrt_qwen36_whole_provider_result_t>();
-        if (!qrt_qwen36_whole_provider_prefill_v1(&seed, chunk_result.get()) ||
+        std::unique_ptr<qrt_mtp_target_rows::PrefillRows> first_mtp_rows;
+        if(native_mtp)first_mtp_rows=std::make_unique<qrt_mtp_target_rows::PrefillRows>(request.input_tokens,total,0u,8192u);
+        int seed_ok=0;
+        {
+            qrt_mtp_target_rows::Scope rows_scope(first_mtp_rows.get());
+            seed_ok=qrt_qwen36_whole_provider_prefill_v1(&seed,chunk_result.get());
+        }
+        if (!seed_ok ||
             !chunk_result->completed || chunk_result->output_token_count != 1u ||
             !g_qwen36_resident_session.valid || g_qwen36_resident_session.prefix_tokens != 8192u ||
             g_qwen36_resident_session.committed_decode_token_count ||
@@ -167,6 +190,19 @@ int run_qwen36_chunked_prefill(
             return fail("qwen36_chunked_prefill_seed",
                 chunk_result->failure[0] ? chunk_result->failure : "first real 8192 inputs did not create a complete resident seed");
         auto &owner = g_qwen36_resident_session;
+        if(native_mtp){
+            if(owner.owner_engine!=request.resident_engine || !owner.current_token_valid ||
+                owner.current_token_id!=chunk_result->output_tokens[0])
+                return fail("mtp_chunked_prefill_seed_frontier","first cold chunk did not preserve its actual target engine and sample");
+            std::string stage,failure;
+            const auto source=acquire_qwen36_mtp_model_weight_source(request.model_dir,&stage,&failure);
+            if(!source)return fail(stage,failure);
+            auto actual=mtp_frontier(8192u);actual.model_epoch=source->epoch();
+            const unsigned capacity=static_cast<unsigned>((std::min)(size_t(262144u),total+request.output_token_capacity));
+            const auto begun=mtp_seed.begin(*first_mtp_rows,source,actual,capacity);
+            if(begun.status!=hipSuccess)return mtp_failure(begun);
+            first_mtp_rows.reset();
+        }
         // The complete prompt size is already known. Keep one KV allocation
         // per layer throughout the cold transaction instead of repeatedly
         // allocating and copying the growing history at every chunk boundary.
@@ -211,7 +247,14 @@ int run_qwen36_chunked_prefill(
                 suffix.suffix_tokens = request.input_tokens + prefix;
                 std::string stage, failure;
                 const uint64_t chunk_start = qrt_now_ns();
-                if (!run_qwen36_resident_batch_suffix(suffix, nullptr, &stage, &failure, true, chunk_result.get()))
+                std::unique_ptr<qrt_mtp_target_rows::PrefillRows> mtp_rows;
+                if(native_mtp)mtp_rows=std::make_unique<qrt_mtp_target_rows::PrefillRows>(request.input_tokens,total,prefix,count);
+                bool suffix_ok=false;
+                {
+                    qrt_mtp_target_rows::Scope rows_scope(mtp_rows.get());
+                    suffix_ok=run_qwen36_resident_batch_suffix(suffix,nullptr,&stage,&failure,true,chunk_result.get());
+                }
+                if (!suffix_ok)
                     return fail(stage, failure);
                 bool scratch_idle = true;
                 {
@@ -247,6 +290,10 @@ int run_qwen36_chunked_prefill(
                 owner.committed_decode_token_count = 0u;
                 owner.prompt_token_ids_fnv1a64 = qrt_fnv1a64_bytes(request.input_tokens, owner.prefix_tokens * sizeof(uint32_t));
                 owner.mtp_target_hidden_valid = false;
+                if(native_mtp){
+                    const auto appended=mtp_seed.append(*mtp_rows,mtp_frontier(prefix+count));
+                    if(appended.status!=hipSuccess)return mtp_failure(appended);
+                }
                 std::cerr << "BATCH_MARK qwen36_chunked_prefill_chunk index=" << chunks++
                           << " first_position=" << prefix << " input_tokens=" << count
                           << " history_tokens=" << owner.prefix_tokens << " sampled_to_caller=0 elapsed_ms="
@@ -272,6 +319,17 @@ int run_qwen36_chunked_prefill(
             !qwen36_resident_decode_activation_workspace_layout_valid(owner.activation_workspace) ||
             owner.activation_workspace.full_attention_score_scratch_token_capacity < total + kQwen36ResidentDecodeTailCapacityTokens + 1u)
             return fail("qwen36_chunked_prefill_publication", "the completed chunk owner does not cover the requested prompt and decode workspace");
+        if(native_mtp){
+            qrt_sm121_mtp::RequestCheckpoint checkpoint;
+            const auto saved=mtp_seed.save(&checkpoint,mtp_frontier(total));
+            if(saved.status!=hipSuccess)return mtp_failure(saved);
+            owner.native_mtp_checkpoint=std::move(checkpoint);
+            owner.native_mtp_processed_inputs.swap(mtp_processed_inputs);
+            std::cerr << "BATCH_MARK qwen36_mtp_native_request_seed generation=" << owner.generation
+                      << " processed_tokens=" << owner.native_mtp_processed_inputs.size()
+                      << " exact_target_frontier=1 immutable_checkpoint=1 chunked_prefill=1"
+                      << " mtp_acceptance_enabled=0 numerical_correctness_claimed=0" << std::endl;
+        }
         *result = *chunk_result;
         result->output_token_capacity = request.output_token_capacity;
         result->preload_wall_clock_ns = preload_ns;

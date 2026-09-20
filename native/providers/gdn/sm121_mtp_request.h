@@ -90,6 +90,84 @@ public:
     Request(const Request&) = delete;
     Request& operator=(const Request&) = delete;
 
+    // Cold multi-chunk prefill owns the complete real prompt identity. Each
+    // chunk comes from the completed target, including its original discarded
+    // chunk shift. No proposal, decode or checkpoint is visible until the last
+    // chunk completes. The caller holds the actual target transaction lock.
+    PromptStep seed_prefill_chunks(const qrt_mtp_target_rows::PrefillRows& first,
+        const TargetFrontier& actual, const ModelWeightBinding& binding,
+        const DrafterTables& tables, unsigned capacity,
+        hipStream_t stream = nullptr, unsigned maximum_blocks = 1024u) {
+        if (terminal_ != hipSuccess) return unavailable();
+        if (live_ || !actual.owner || !actual.generation || !binding.valid(actual.model_epoch) ||
+            !first.published() || first.first_position() || !first.discarded_prefill() ||
+            first.prompt_tokens() >= qrt_mtp_draft_schedule::reference_drafter_limit ||
+            actual.processed_count != first.rows() || actual.current_token != first.sampled_token() ||
+            !first.matches_input(actual.processed_inputs,actual.processed_count) ||
+            capacity < first.prompt_tokens() || capacity > 262144u)
+            return invalid("request_chunk_seed_contract");
+        try {
+            auto next = std::make_unique<Live>();
+            auto prompt = first.prompt();
+            auto& state = next->state;
+            state.owner = actual.owner; state.generation = actual.generation;
+            state.epoch = actual.model_epoch; state.binding = binding;
+            state.inputs.reserve(size_t(capacity)+2u);
+            const auto reserved = next->drafter.reserve(capacity, static_cast<unsigned>(
+                (std::min)(first.prompt_tokens(),qrt_mtp_target_rows::maximum_batch_rows)));
+            if (reserved != hipSuccess) return {reserved,"request_chunk_seed_reserve"};
+            if (!next->drafter.bind(binding,tables,actual.model_epoch))
+                return invalid("request_chunk_seed_binding");
+            live_ = std::move(next);
+            prefill_prompt_.swap(prompt); prefill_pending_ = true;
+            return append_prefill_chunk(first,actual,stream,maximum_blocks);
+        } catch (...) { return {hipErrorOutOfMemory,"request_chunk_seed_owner"}; }
+    }
+
+    PromptStep append_prefill_chunk(const qrt_mtp_target_rows::PrefillRows& batch,
+        const TargetFrontier& actual, hipStream_t stream = nullptr,
+        unsigned maximum_blocks = 1024u) {
+        if (terminal_ != hipSuccess) return unavailable();
+        if (!live_ || !prefill_pending_ || pending_.active || !batch.published() ||
+            batch.prompt() != prefill_prompt_ || batch.first_position() != live_->state.inputs.size() ||
+            !actual.processed_inputs || actual.processed_count != batch.first_position()+batch.rows() ||
+            actual.processed_count > prefill_prompt_.size() || actual.current_token != batch.sampled_token() ||
+            actual.owner != live_->state.owner || actual.generation != live_->state.generation ||
+            actual.model_epoch != live_->state.epoch || !live_->state.binding.valid(actual.model_epoch) ||
+            !std::equal(prefill_prompt_.begin(),prefill_prompt_.begin()+actual.processed_count,actual.processed_inputs))
+            return invalid("request_chunk_frontier");
+        auto& state = live_->state;
+        const auto undo = [&](const PromptStep& failure) {
+            if (failure.completion_unknown) return failed(failure);
+            if (!live_->drafter.truncate(static_cast<unsigned>(state.inputs.size()),state.epoch))
+                terminal_ = failure.status;
+            return failure;
+        };
+        const auto appended = live_->inputs.append(live_->drafter,batch,true,state.epoch,stream,maximum_blocks);
+        if (appended.status != hipSuccess) return undo(appended);
+        DraftStep proposal;
+        if (!batch.discarded_prefill()) {
+            proposal = live_->drafter.propose(static_cast<unsigned>(actual.processed_count-1u),1u,
+                state.epoch,stream,maximum_blocks);
+            if (proposal.status != hipSuccess)
+                return undo({proposal.status,proposal.stage,static_cast<unsigned>(state.inputs.size()),proposal.completion_unknown});
+        }
+        if (!state.binding.valid(actual.model_epoch)) return undo(invalid("request_chunk_epoch"));
+        // The full prompt capacity was reserved before the first submission.
+        state.inputs.insert(state.inputs.end(),actual.processed_inputs+state.inputs.size(),
+            actual.processed_inputs+actual.processed_count);
+        state.current = actual.current_token;
+        if (!batch.discarded_prefill()) {
+            state.schedule.reset(actual.processed_count); state.proposal = proposal;
+            prefill_pending_ = false; prefill_prompt_.clear();
+            if (!state.matches(actual) || !state.proposal_ready()) {
+                terminal_ = hipErrorInvalidValue;
+                return invalid("request_chunk_final_frontier");
+            }
+        }
+        return complete();
+    }
+
     PromptStep seed(const qrt_mtp_target_rows::PrefillRows& batch, const TargetFrontier& actual,
         const ModelWeightBinding& binding, const DrafterTables& tables, unsigned capacity,
         hipStream_t stream = nullptr, unsigned maximum_blocks = 1024u) {
@@ -294,7 +372,7 @@ private:
         size_t remaining = 0;
         bool active = false, prepared = false;
     };
-    bool ready() const { return live_ && terminal_ == hipSuccess; }
+    bool ready() const { return live_ && !prefill_pending_ && terminal_ == hipSuccess; }
     PromptStep invalid(const char* stage) const {
         return {hipErrorInvalidValue, stage, static_cast<unsigned>(committed_tokens())};
     }
@@ -315,6 +393,8 @@ private:
         return failure;
     }
     std::unique_ptr<Live> live_;
+    std::vector<uint32_t> prefill_prompt_;
+    bool prefill_pending_ = false;
     Pending pending_;
     hipError_t terminal_ = hipSuccess;
     bool completion_unknown_ = false;

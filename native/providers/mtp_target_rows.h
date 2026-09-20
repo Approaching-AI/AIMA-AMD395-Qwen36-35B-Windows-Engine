@@ -40,6 +40,7 @@ public:
     size_t rows() const { return local_rows_.size(); }
     size_t first_position() const { return first_position_; }
     size_t prompt_tokens() const { return prompt_.size(); }
+    const std::vector<uint32_t> &prompt() const { return prompt_; }
     bool discarded_prefill() const { return first_position_ + rows() < prompt_.size(); }
     uint32_t sampled_token() const { return published_ ? sampled_token_ : UINT32_MAX; }
     const std::vector<unsigned int> &local_rows() const { return local_rows_; }

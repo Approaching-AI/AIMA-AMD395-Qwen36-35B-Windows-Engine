@@ -57,6 +57,8 @@ bool native_decode=false,native_seed_ok=true,native_seed_unknown=false;
 bool g_qwen36_resident_completion_unknown=false;unsigned native_seeds=0;
 constexpr int hipSuccess=0;
 constexpr uint64_t start_ns=0;
+bool chunked_mode=false;
+bool raw_env_flag_enabled(const char* name){assert(!std::strcmp(name,"QRT_QWEN36_CHUNKED_PREFILL"));return chunked_mode;}
 bool env_flag_enabled(const char* name){
  if(!std::strcmp(name,"QRT_QWEN36_MTP_NATIVE_DECODE"))return native_decode;
  if(!std::strcmp(name,"QRT_QWEN36_MTP_NATIVE_REQUEST_SEED"))return request_seed;
@@ -211,6 +213,27 @@ int main(){
  assert(!g_qwen36_resident_completion_unknown&&session.valid);
  native_seed_unknown=true;assert(!invoke(&request,&result));
  assert(g_qwen36_resident_completion_unknown&&!session.valid&&!session.route_active);
+ // The cold coordinator owns long seeding. Its outer call captures nothing;
+ // each scoped inner call publishes real rows without a short-prompt seed.
+ native_seed_ok=true;native_seed_unknown=false;g_qwen36_resident_completion_unknown=false;session={};
+ chunked_mode=true;std::vector<uint32_t> long_prompt(17408u);
+ for(unsigned i=0;i<long_prompt.size();++i)long_prompt[i]=100u+i;
+ request.input_tokens=long_prompt.data();request.input_token_count=long_prompt.size();
+ const auto before_native=native_seeds;
+ assert(invoke(&request,&result)&&native_seeds==before_native&&!session.native_mtp_checkpoint.retained);
+ g_qwen36_chunked_prefill_total_tokens=long_prompt.size();
+ for(unsigned first:{0u,8192u,16384u}){
+  const unsigned count=std::min(8192u,static_cast<unsigned>(long_prompt.size())-first);
+  qrt_mtp_target_rows::PrefillRows batch(long_prompt.data(),long_prompt.size(),first,count);
+  qrt_mtp_target_rows::Scope scope(&batch);
+  request.input_tokens=long_prompt.data()+first;request.input_token_count=count;
+  if(first){suffix.prefix=first;ScopedQwen36PrefixBatchSuffix::active=&suffix;}
+  assert(invoke(&request,&result)&&batch.published()&&batch.hidden().size()==size_t(count)*2048u);
+  assert(native_seeds==before_native&&!session.native_mtp_checkpoint.retained&&session.native_mtp_processed_inputs.empty());
+  assert(batch.shifted_tokens().back()==(first+count<long_prompt.size()?long_prompt.back():82u));
+  ScopedQwen36PrefixBatchSuffix::active=nullptr;
+ }
+ g_qwen36_chunked_prefill_total_tokens=0;chunked_mode=false;
  native_decode=false;assert(!model_includes_mtp());weights=true;assert(model_includes_mtp());
 }
 '''

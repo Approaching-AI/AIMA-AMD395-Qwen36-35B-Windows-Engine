@@ -160545,7 +160545,13 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
     const char *mtp_native_probe_prefix = std::getenv("QRT_QWEN36_MTP_NATIVE_PREFILL_PROBE_PREFIX");
     const bool mtp_native_probe_requested = mtp_native_probe_prefix && mtp_native_probe_prefix[0];
     const bool mtp_native_decode_requested = env_flag_enabled("QRT_QWEN36_MTP_NATIVE_DECODE");
-    const bool mtp_native_request_seed = mtp_native_decode_requested ||
+    const bool mtp_chunked_outer = mtp_native_decode_requested && request->input_token_count > 8192u &&
+        raw_env_flag_enabled("QRT_QWEN36_CHUNKED_PREFILL") && !g_qwen36_chunked_prefill_total_tokens &&
+        !ScopedQwen36PrefixBatchSuffix::active;
+    const bool mtp_chunked_inner = mtp_native_decode_requested && g_qwen36_chunked_prefill_total_tokens &&
+        g_qwen36_chunked_prefill_total_tokens < qrt_mtp_draft_schedule::reference_drafter_limit &&
+        qrt_mtp_target_rows::Scope::active;
+    const bool mtp_native_request_seed = (mtp_native_decode_requested && !mtp_chunked_outer && !mtp_chunked_inner) ||
         env_flag_enabled("QRT_QWEN36_MTP_NATIVE_REQUEST_SEED");
     if (mtp_native_request_seed && ((!mtp_native_decode_requested && !mtp_native_probe_requested) || !request->resident_engine ||
             !request->output_token_capacity)) {
@@ -160561,7 +160567,7 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
             "native MTP prefill diagnostics require one complete q7169/q8192 prompt and original resident MTP weights", start_ns);
         return 0;
     }
-    if (mtp_native_decode_requested &&
+    if (mtp_native_decode_requested && !mtp_chunked_outer && !mtp_chunked_inner &&
         (!request->input_token_count || request->input_token_count > qrt_mtp_target_rows::maximum_batch_rows ||
          ScopedQwen36PrefixBatchSuffix::active || g_qwen36_chunked_prefill_total_tokens)) {
         qrt_qwen36_whole_provider_set_failure(out_result,"mtp_native_prefill_request",

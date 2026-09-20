@@ -124,9 +124,8 @@ ordering and ABI evidence, pending a new Windows build and real MTP outputs.
 The [normal MTP prefill seed](../benchmarks/correctness/native-mtp-plain-prefill-seed-local-20260921.json)
 now uses QRT_QWEN36_MTP_NATIVE_DECODE to include original MTP weights and build
 the actual paired checkpoint without a diagnostic output directory or separate
-seed flag. The numerical table inputs remain required. The current cold-prompt
-admission is1–8192 tokens; chunked prefill, prefix suffixes and retirement remain
-open. Three local regressions pass in9.608s, including five prompt sizes, every
+seed flag. The numerical table inputs remain required. This initial cold-prompt
+path supports1–8192 tokens. Three local regressions pass in9.608s, including five prompt sizes, every
 one of six GPU completion boundaries, eight invalid seed contracts, actual
 provider admission/publication and the C decode result validator. Known failures
 preserve the prior output; unresolved seed completion quarantines the resident
@@ -143,6 +142,22 @@ paired checkpoints across separate/contiguous tails and zero/three committed
 tokens. Actual owner, request, prefill and C result checks also pass. This is a
 specific allocation boundary repair, not universal C ABI exception containment.
 It changes no numerical kernel and remains pending native Windows execution.
+
+The [cold chunk MTP integration](../benchmarks/correctness/native-mtp-chunked-prefill-local-20260921.json)
+now consumes the target's actual complete hidden rows for each8192-token chunk
+and optional1024-token tail. Every chunk matches the complete original prompt,
+including the original discarded-chunk shift. Intermediate chunks expose no
+draft or checkpoint; the final immutable checkpoint precedes the sole prefill
+callback. Six focused local regressions pass in20.639s, followed by two chunk
+checks in5.512s after adding the first-engine/sample guard. Actual Request cases
+cover up to131072 tokens, ten invalid frontiers, seven completed-failure retries
+and seven completion failures. The complete runtime helper covers all nine
+completion failures; the actual cold coordinator covers four failed stages,
+unknown completion and callback cancellation. ASan/UBSan uses host protocol
+doubles, not Windows kernels. Cold admission remains below262144; retirement
+crossing and prefix-suffix reseeding remain open. The frozen first native MTP
+build stays at490370a; this subsequent integration needs a separate Windows
+build and original-model comparison before correctness or release acceptance.
 
 The native cache-publication probe is prepared in
 tools/q2_cache_publication_hip_probe.cpp. It evaluates the complete original

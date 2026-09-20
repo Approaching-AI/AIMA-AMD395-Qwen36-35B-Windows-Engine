@@ -39,9 +39,11 @@ class MtpDrafterTests(unittest.TestCase):
                 '-I', str(ROOT), str(ROOT / 'tests/native/mtp_drafter_host.cpp'), '-o', str(exe)],
                 capture_output=True, text=True, timeout=60)
             self.assertEqual(build.returncode, 0, build.stderr)
-            run = subprocess.run([str(exe), str(directory)], capture_output=True, text=True, timeout=30)
+            run = subprocess.run([str(exe), str(directory)], capture_output=True, text=True, timeout=60)
             self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
             self.assertIn('native MTP plain seed cases=5 completion_fences=6 pass', run.stdout)
+            self.assertIn('native MTP chunked seed cases=5 invalid_frontiers=10 retry_failures=7 completion_fences=7 pass', run.stdout)
+            self.assertIn('native MTP chunked runtime completion_fences=9 pass', run.stdout)
             for rows in (7169, 8192):
                 prefix = directory / f'prefill-{rows}'
                 record = json.loads(prefix.with_suffix('.json').read_text())

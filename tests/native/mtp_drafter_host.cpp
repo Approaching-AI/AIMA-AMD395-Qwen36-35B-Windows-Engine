@@ -404,6 +404,7 @@ static void test_checkpoints() {
     }
 }
 #include "mtp_request_host.inc"
+#include "mtp_chunked_request_host.inc"
 int main(int argc,char** argv){
     assert(argc==2);
     using qrt_sm121_mtp::Drafter;
@@ -412,6 +413,8 @@ int main(int argc,char** argv){
     test_checkpoints();
     test_request();
     test_prefill_request_seed();
+    test_chunked_request();
+    test_chunked_seed_runtime();
     test_prefill_request_probe(argv[1]);
     for(unsigned fail=1;fail<=25u;++fail){
         reset();{Drafter d;assert(d.reserve(8,2)==hipSuccess&&allocations.size()==25u);auto* old=d.cache_data();

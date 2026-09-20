@@ -46,6 +46,7 @@ DescriptorDeviceAllocationPoolStats g_descriptor_device_allocation_pool_stats;
 #include <string>
 #include <vector>
 #include "native/src/qrt.h"
+#include "native/providers/mtp_target_rows.h"
 ''' + attention_capacity() + r'''
 enum hipError_t{hipSuccess,hipErrorInvalidValue,hipErrorOutOfMemory};
 const char* hipGetErrorString(hipError_t){return "injected";}
@@ -66,11 +67,18 @@ struct Attention{
  size_t prefill_reserved_tokens=0,history_tokens=8192,k_bytes=8192*1024,v_bytes=8192*1024;
 };
 struct Workspace{size_t full_attention_score_scratch_token_capacity=0;};
+namespace qrt_sm121_mtp {
+struct TargetFrontier{const void* owner;uint64_t generation,model_epoch;const uint32_t* processed_inputs;size_t processed_count;uint32_t current_token;};
+struct RequestCheckpoint{std::shared_ptr<int> retained;};
+struct PromptStep{hipError_t status;const char* stage;unsigned retained_tokens;bool completion_unknown;};
+}
 struct Session{
  bool valid=false,current_token_valid=false,last_decode_top2_valid=false,mtp_target_hidden_valid=false;
  size_t prefix_tokens=0,committed_decode_token_count=0,last_decode_top2_position=0;
  uint64_t prompt_token_ids_fnv1a64=0,generation=99,full_attention_decode_tail_bytes=10*1536*2048;
  uint64_t full_attention_kv_bytes=10*8192*2048;
+ const void* owner_engine=nullptr;uint32_t current_token_id=0;
+ qrt_sm121_mtp::RequestCheckpoint native_mtp_checkpoint;std::vector<uint32_t> native_mtp_processed_inputs;
  std::array<Linear,40> linear_layers{};std::array<Attention,40> full_attention_layers{};Workspace activation_workspace;
 } g_qwen36_resident_session;
 std::recursive_mutex g_qwen36_resident_session_mutex;
@@ -86,12 +94,56 @@ uint64_t qrt_fnv1a64_bytes(const void* p,size_t n){
 }
 uint64_t qrt_fnv1a64_update_bytes(uint64_t h,const void* p,size_t n){return h^qrt_fnv1a64_bytes(p,n);}
 bool raw_env_flag_enabled(const char*){return false;}
-bool env_flag_enabled(const char*){return true;}
+bool native_mtp=false,g_qwen36_resident_completion_unknown=false;
+bool env_flag_enabled(const char* name){return std::strcmp(name,"QRT_QWEN36_MTP_NATIVE_DECODE")||native_mtp;}
 bool qwen36_resident_decode_activation_workspace_layout_valid(const Workspace&){return true;}
 unsigned seeds=0,suffixes=0,callbacks=0,releases=0,fail_suffix=0,reservations=0,fail_reservation=0;
 bool fail_seed=false,cancel=false,bad_counter=false,bad_handoff=false;
+unsigned bad_seed_identity=0;
 unsigned throw_suffix=0;
 const uint32_t* actual_prompt=nullptr;size_t requested_total=0;
+unsigned mtp_calls=0,fail_mtp_at=0;bool unknown_mtp=false,mtp_source_ok=true;
+struct MtpSource{uint64_t epoch()const{return 5u;}};
+std::shared_ptr<MtpSource> acquire_qwen36_mtp_model_weight_source(const char*,std::string* stage,std::string* failure){
+ if(!mtp_source_ok){*stage="injected_mtp_source";*failure="failed";return {};}
+ return std::make_shared<MtpSource>();
+}
+namespace qrt_sm121_mtp_runtime {
+class ChunkedPrefillSeed{
+ unsigned processed_=0;uint64_t epoch_=0;
+ qrt_sm121_mtp::PromptStep step(){
+  if(++mtp_calls==fail_mtp_at)return {hipErrorInvalidValue,"injected_mtp_seed",processed_,unknown_mtp};
+  return {hipSuccess,"complete",processed_,false};
+ }
+public:
+ uint64_t epoch()const{return epoch_;}
+ qrt_sm121_mtp::PromptStep begin(const qrt_mtp_target_rows::PrefillRows& batch,std::shared_ptr<MtpSource> source,
+  const qrt_sm121_mtp::TargetFrontier& actual,unsigned capacity){
+  assert(!processed_&&source&&actual.model_epoch==5u&&capacity==requested_total+512u);
+  epoch_=5u;return append(batch,actual);
+ }
+ qrt_sm121_mtp::PromptStep append(const qrt_mtp_target_rows::PrefillRows& batch,const qrt_sm121_mtp::TargetFrontier& actual){
+  assert(batch.published()&&batch.first_position()==processed_&&batch.prompt_tokens()==requested_total);
+  assert(actual.owner==g_qwen36_resident_session.owner_engine&&actual.generation==99u&&actual.model_epoch==epoch_);
+  assert(actual.processed_count==processed_+batch.rows()&&actual.processed_count==g_qwen36_resident_session.prefix_tokens);
+  assert(std::equal(actual_prompt,actual_prompt+actual.processed_count,actual.processed_inputs));
+  assert(actual.current_token==batch.sampled_token()&&batch.hidden().size()==batch.rows()*2048u);
+  assert(batch.shifted_tokens().back()==(batch.discarded_prefill()?actual_prompt[requested_total-1u]:42u));
+  assert(!g_qwen36_resident_session.native_mtp_checkpoint.retained&&g_qwen36_resident_session.native_mtp_processed_inputs.empty());
+  processed_+=batch.rows();return step();
+ }
+ qrt_sm121_mtp::PromptStep save(qrt_sm121_mtp::RequestCheckpoint* output,const qrt_sm121_mtp::TargetFrontier& actual){
+  assert(processed_==requested_total&&actual.processed_count==requested_total&&actual.current_token==42u);
+  auto result=step();if(result.status==hipSuccess)output->retained=std::make_shared<int>(42);return result;
+ }
+};
+}
+void capture_mtp_chunk(uint32_t sample){
+ auto* batch=qrt_mtp_target_rows::Scope::active;
+ assert(bool(batch)==native_mtp);
+ if(batch){std::vector<float> hidden(batch->rows()*2048u,1.25f);
+  assert(batch->stage(batch->local_rows(),hidden,sample)&&batch->publish(sample));}
+}
 void qrt_qwen36_whole_provider_set_failure(qrt_qwen36_whole_provider_result_t* r,const std::string& stage,const std::string&,uint64_t start){
  r->completed=0;std::strncpy(r->failure_stage,stage.c_str(),sizeof(r->failure_stage)-1);r->wall_clock_ns=qrt_elapsed_ns(start,qrt_now_ns());
 }
@@ -101,9 +153,14 @@ int qrt_qwen36_whole_provider_prefill_v1(const qrt_qwen36_whole_provider_request
  ++seeds;assert(r->input_tokens==actual_prompt&&r->input_token_count==8192&&r->output_token_capacity==1);
  assert(!r->prefill_emit_callback&&(r->flags&QRT_QWEN36_WHOLE_PROVIDER_FLAG_PREFIX_SEED_CAPTURE));
  auto& s=g_qwen36_resident_session;s=Session{};s.valid=true;s.prefix_tokens=8192;
+ s.owner_engine=r->resident_engine;s.current_token_id=999u;s.current_token_valid=true;
+ if(bad_seed_identity==1u)s.owner_engine=nullptr;
+ if(bad_seed_identity==2u)s.current_token_valid=false;
+ if(bad_seed_identity==3u)s.current_token_id++;
  s.prompt_token_ids_fnv1a64=r->expected_prompt_token_ids_fnv1a64;
  s.activation_workspace.full_attention_score_scratch_token_capacity=g_qwen36_chunked_prefill_total_tokens+1537;
  out->completed=1;out->output_token_count=1;out->output_tokens[0]=999;
+ if(!fail_seed)capture_mtp_chunk(999u);
  return !fail_seed;
 }
 hipError_t resize_qwen36_prefill_chunk_tail(Attention& a,size_t count){
@@ -147,6 +204,7 @@ bool run_qwen36_resident_batch_suffix(const qrt_qwen36_whole_provider_prefix_req
  for(unsigned i=0;i<40;++i)if(i%4!=3){auto& l=s.linear_layers[i];l.decode_qkv_token_count=l.decode_recurrent_token_count=r.suffix_token_count;}
  if(bad_counter)++s.linear_layers[12].decode_qkv_token_count;
  s.committed_decode_token_count=r.suffix_token_count;s.current_token_valid=s.last_decode_top2_valid=true;
+ s.current_token_id=42u;capture_mtp_chunk(42u);
  s.last_decode_top2_position=s.prefix_tokens+r.suffix_token_count-1;
  out->completed=1;out->output_token_count=1;out->output_tokens[0]=42;out->continuation.output_token_emitted=1;
  out->continuation.output_token_id=42;out->continuation.output_logit=5.5;out->output_tokens_fnv1a64=234;
@@ -155,6 +213,9 @@ bool run_qwen36_resident_batch_suffix(const qrt_qwen36_whole_provider_prefix_req
 int QRT_CDECL emit(void*,uint32_t token,uint64_t elapsed){
  assert(!g_descriptor_product_reuse_device_allocations&&allocations.empty());
  ++callbacks;assert(token==42&&elapsed>1&&g_qwen36_resident_session.prefix_tokens==requested_total);
+ if(native_mtp){assert(g_qwen36_resident_session.native_mtp_checkpoint.retained);
+  assert(g_qwen36_resident_session.native_mtp_processed_inputs.size()==requested_total&&
+   std::equal(actual_prompt,actual_prompt+requested_total,g_qwen36_resident_session.native_mtp_processed_inputs.begin()));}
  assert(!g_qwen36_resident_session.committed_decode_token_count);return !cancel;
 }
 ''' + coordinator + r'''
@@ -164,10 +225,12 @@ int main(){
  actual_prompt=prompt.data();auto result=std::make_unique<qrt_qwen36_whole_provider_result_t>();
  auto run=[&](size_t total){
  requested_total=total;seeds=suffixes=callbacks=releases=reservations=0;*result={};result->preload_wall_clock_ns=789;
+ mtp_calls=0;g_qwen36_resident_completion_unknown=false;
   assert(!g_descriptor_product_reuse_device_allocations&&allocations.empty()&&g_descriptor_device_allocation_pool.empty());
   allocation_attempts=allocation_count=free_count=0;
   qrt_qwen36_whole_provider_request_t r{};r.resident_engine=reinterpret_cast<qrt_engine_t*>(uintptr_t(16));
   r.input_tokens=prompt.data();r.input_token_count=total;r.output_token_capacity=512;r.prefill_emit_callback=emit;
+  r.model_dir="actual-model";
   r.expected_prompt_token_ids_fnv1a64=qrt_fnv1a64_bytes(prompt.data(),total*4);
   const int ok=run_qwen36_chunked_prefill(r,result.get(),qrt_now_ns());
   assert(!g_qwen36_chunked_prefill_total_tokens&&!g_descriptor_product_reuse_device_allocations);
@@ -216,6 +279,26 @@ int main(){
  assert(!run(16385)&&!seeds&&!callbacks&&!releases);
  assert(!run(qrt_sm121_attention_capacity::kTokens+1024u)&&!seeds&&!callbacks&&!releases);
  assert(run(16384)&&callbacks==1&&result->completed);
+ native_mtp=true;
+ for(size_t total:{16384u,17408u,65536u,131072u}){
+  assert(run(total)&&callbacks==1&&mtp_calls==(total+8191u)/8192u+1u);
+  assert(g_qwen36_resident_session.native_mtp_checkpoint.retained&&result->resident_session_valid);
+ }
+ for(unsigned at:{1u,2u,3u,4u})for(bool unknown:{false,true}){
+  fail_mtp_at=at;unknown_mtp=unknown;
+  assert(!run(17408u)&&mtp_calls==at&&!callbacks&&releases==1&&!result->resident_session_valid);
+  assert(g_qwen36_resident_completion_unknown==unknown);
+ }
+ fail_mtp_at=0;unknown_mtp=false;mtp_source_ok=false;
+ assert(!run(16384u)&&!mtp_calls&&!callbacks&&releases==1);mtp_source_ok=true;
+ for(unsigned invalid:{1u,2u,3u}){
+  bad_seed_identity=invalid;assert(!run(16384u)&&!mtp_calls&&!callbacks&&releases==1);
+  assert(!std::strcmp(result->failure_stage,"mtp_chunked_prefill_seed_frontier"));
+ }
+ bad_seed_identity=0;
+ cancel=true;assert(!run(17408u)&&callbacks==1&&releases==1);cancel=false;
+ assert(!run(262144u)&&!seeds&&!mtp_calls&&!callbacks&&!releases);
+ assert(run(16384u)&&callbacks==1&&result->completed);
 }
 '''
         with tempfile.TemporaryDirectory() as tmp:
