@@ -257,6 +257,23 @@ HIP probes now include both residual output modes, Q/gate extraction, invalid
 extents and untouched buffers. Their Windows compilation/execution is pending,
 as is complete native MTP inference.
 
+The [Q/O projection and gate comparison](../benchmarks/correctness/gb10-mtp-qo-gate-arithmetic-20260920.json)
+checks every one of those 322 qualified rows with the original Q/O weights.
+The frozen K16 CPU accumulator matches all 3297280 projection outputs; the
+shared gating helper matches 1318912 more BF16 outputs under ASan/UBSan.
+An independent run in the pinned original CUDA/Torch image enumerates all
+65536 BF16 sigmoid inputs. Every output byte matches the existing 131072-byte
+sigmoid table, including infinities and NaN encodings. No extra runtime table
+is required. Torch rounds sigmoid to BF16 before multiplying the BF16 context.
+
+The independent HIP projection baseline now admits Q and O shapes. A new probe
+checks both 7-block and 1024-block launch segmentation, immutable inputs/weights,
+output redzones and invalid extents/aliases. The query probe additionally checks
+gating from its computed gate vector, both output modes and table immutability.
+These native probes remain uncompiled and unrun; complete-prefill Q/O outputs
+and complete native MTP inference remain unqualified. The existing prepared
+Windows batch still binds its earlier source until a replacement is frozen.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a

@@ -1,0 +1,5243 @@
+{
+  "kind": "original_mtp_qo_projection_and_gate_cpu_boundaries",
+  "utc": "2026-09-20T03:35:46.676640+00:00",
+  "working_source_base_commit": "646f2f792d2bba013411e4effa67fcb93a7aabf5",
+  "reference": {
+    "reference_host": "aitopatom-66c4",
+    "reference_model": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "reference_source_commit": "fcedf19a5397a03d1f1f01d16848d30a09720205",
+    "reference_command": [
+      "docker",
+      "run",
+      "--name",
+      "qrt-gb10-mtp-limit-boundary-20260920-r2",
+      "--hostname",
+      "aitopatom-66c4",
+      "--gpus",
+      "all",
+      "--network",
+      "none",
+      "--memory",
+      "108g",
+      "--shm-size",
+      "8g",
+      "--cpus",
+      "8",
+      "-e",
+      "PYTHONPATH=/work/scripts",
+      "-e",
+      "QRT_GB10_OBSERVE_FLASHINFER_AUTOTUNER=1",
+      "-e",
+      "VLLM_ALLOW_LONG_MAX_MODEL_LEN=1",
+      "-e",
+      "VLLM_WORKER_MULTIPROC_METHOD=spawn",
+      "-v",
+      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2:/work",
+      "-v",
+      "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+      "-v",
+      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
+      "-v",
+      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
+      "-v",
+      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
+      "-v",
+      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
+      "-v",
+      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
+      "-v",
+      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
+      "-v",
+      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
+      "-v",
+      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
+      "-e",
+      "QRT_GB10_CASE_BOUNDARY_OFFSETS={\"draft-limit-q262140-out16\":[2,3,4],\"draft-limit-q262142-out16\":[0,1,2],\"draft-limit-q262143-out16\":[0,1,2]}",
+      "-w",
+      "/work",
+      "--entrypoint",
+      "timeout",
+      "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+      "--signal=TERM",
+      "--kill-after=10",
+      "1830",
+      "python3",
+      "scripts/capture_gb10_token_matrix.py",
+      "--runtime-boundaries",
+      "--mtp-boundaries",
+      "--source-commit",
+      "fcedf19a5397a03d1f1f01d16848d30a09720205",
+      "--oracle-q7169",
+      "contracts/arbitrary_q7169_gb10_oracle.json",
+      "--oracle-q8192",
+      "contracts/hprefill_q8192_gb10_oracle.json",
+      "--additional-cases",
+      "additional-cases.json",
+      "--maximum-prompt-tokens",
+      "262144",
+      "--output-dir",
+      "capture",
+      "--expected-host",
+      "aitopatom-66c4",
+      "--timeout-seconds",
+      "1800",
+      "--execute"
+    ],
+    "reference_command_file": "/home/qujing/run-qrt-gb10-mtp-limit-boundary-20260920-r2.py",
+    "reference_command_file_sha256": "16891d0cac7e464f798e4e42de3eabafeedbe68c4536c3f697a8984e3d052155",
+    "reference_dispatch_sha256": "5eb10747ec587bfdd55bb30ddc7d17bb7d26a6dbbf8279585e1a6902ef00fd03"
+  },
+  "local_evidence": {
+    "projection": {
+      "file": "mtp-all-qo-projection-cpu-r1/comparison.json",
+      "sha256": "3aca66c98b3642b1ad40f83df69ea0ccd2945027213215f2eb42c25afdb758f3"
+    },
+    "gate": {
+      "file": "mtp-gate-cpu-r1/comparison.json",
+      "sha256": "9c36c84e315aeb52d6e9b753f8ad51793b2c4337aab7ea124b18320d5b279892"
+    },
+    "sigmoid": {
+      "file": "original-torch-sigmoid-r1/comparison.json",
+      "sha256": "ac63a9c0266dcdd7f98e072a4e2e6b6c9913a75837b1dd924f2ccf8c8683bca9"
+    },
+    "weights": {
+      "file": "original-mtp-qo-weights-r1/inventory.json",
+      "sha256": "beca6a358b233643656dd838d54b71413b25e091a2686ba018cb4954814b327c"
+    }
+  },
+  "original_weights": {
+    "host": "aitopatom-66c4",
+    "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+    "tensors": [
+      {
+        "name": "mtp.layers.0.self_attn.q_proj.weight",
+        "shape": [
+          8192,
+          2048
+        ],
+        "dtype": "BF16",
+        "shard": "model-00026-of-00026.safetensors",
+        "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+        "absolute_begin": 2195752976,
+        "data_offsets": [
+          2195748864,
+          2229303296
+        ],
+        "bytes": 33554432,
+        "sha256": "e6863a8871e0fed92e5d4821d2a77a110b9906136417ac16b9c5196928beb163",
+        "file": "q_proj.bf16.bin"
+      },
+      {
+        "name": "mtp.layers.0.self_attn.o_proj.weight",
+        "shape": [
+          2048,
+          4096
+        ],
+        "dtype": "BF16",
+        "shard": "model-00026-of-00026.safetensors",
+        "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+        "absolute_begin": 2178975248,
+        "data_offsets": [
+          2178971136,
+          2195748352
+        ],
+        "bytes": 16777216,
+        "sha256": "98be07d123f23cd309c507f2f484091942ed90392b673303c9436abdf8204380",
+        "file": "o_proj.bf16.bin"
+      }
+    ],
+    "model_loaded": false,
+    "gpu_used": false,
+    "transport_sha256": "0f22d16c3f238678b8ad6b812ebe8a726f0c019e987e25ff711a1cfea54cee40"
+  },
+  "projection_cpu_source": {
+    "source_sha256": "8cda4d98c5b91f9029b2efb02e7859fa0ebd9fdf7b788e6551b272a4f01b90b2",
+    "executable_sha256": "8af87ccd70d5c4e055d9d707f21d9097c4c4c87ad5345122bc7fcc87f4dd5401",
+    "build_sha256": "fca3404d5e2a66e291c0ef84babe417446611380454399f2431f6006bde4679c",
+    "source_commit": "fcedf19a5397a03d1f1f01d16848d30a09720205",
+    "command": [
+      "c++",
+      "-std=c++17",
+      "-O2",
+      "-ffp-contract=off",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp_reference_frontier_cpu_r2.cpp",
+      "-o",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu"
+    ],
+    "source_headers": {
+      "native/providers/gdn/sm121_q1_math.h": {
+        "bytes": 6456,
+        "sha256": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb"
+      },
+      "native/providers/gdn/sm121_rsqrt_table.h": {
+        "bytes": 3034,
+        "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f"
+      },
+      "native/providers/gdn/sm121_exp2_table.h": {
+        "bytes": 3753,
+        "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142"
+      },
+      "native/providers/gdn/sm121_sqrt_table.h": {
+        "bytes": 2377,
+        "sha256": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1"
+      },
+      "native/providers/gdn/sm121_attention_rcp.h": {
+        "bytes": 3034,
+        "sha256": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6"
+      },
+      "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": {
+        "bytes": 12459,
+        "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a"
+      }
+    },
+    "diagnostic_only": true,
+    "executed": false
+  },
+  "projection_cpu_source_binding_sha256": "24eb9db1582b39326da3df409e1816d33aec2d5f0f1633a6ac8472d2603ac2da",
+  "gate_cpu_source": {
+    "command": [
+      "c++",
+      "-std=c++17",
+      "-O2",
+      "-ffp-contract=off",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/providers/gdn/sm121_mtp_gate_cpu_probe.cpp",
+      "-o",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "",
+    "source_closure": {
+      "native/providers/gdn/sm121_mtp_gate_cpu_probe.cpp": "4d1284c3944c52566ffde0a0751c1358ea5a8e964b3b83da2ee73281a27f0355",
+      "native/providers/gdn/sm121_mtp_gate_math.h": "95c79544165c6aefbc99f47e25625b20f009789f566e27ebe1bdbfe1486a9111",
+      "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+      "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+      "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+      "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+      "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6"
+    }
+  },
+  "gate_cpu_build_sha256": "98f4002a7fd84708a26d655bc29cf6a4dcbc337e2a171f72d7bf4470f31668c1",
+  "gate_cpu_executable_sha256": "c5828e10b98300d474e9e536cd74a627f534e2abe1fed0078486fa8c93413fb6",
+  "original_torch_sigmoid_domain": {
+    "capture": {
+      "torch_version": "2.10.0a0+a36e1d39eb.nv26.01.42222806",
+      "device": [
+        12,
+        1
+      ],
+      "inputs": 65536,
+      "bytes": 131072,
+      "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97",
+      "maximum_allocated_bytes": 262144,
+      "model_loaded": false,
+      "inference_acceptance": false
+    },
+    "dispatch": {
+      "host": "aitopatom-66c4",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "qrt-original-torch-sigmoid-20260920-r1",
+        "--gpus",
+        "all",
+        "--network",
+        "none",
+        "--memory",
+        "8g",
+        "--cpus",
+        "2",
+        "-v",
+        "/home/qujing/qrt-original-torch-sigmoid-20260920-r1:/work",
+        "--entrypoint",
+        "timeout",
+        "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+        "--signal=TERM",
+        "--kill-after=5",
+        "90",
+        "python3",
+        "-c",
+        "\nfrom pathlib import Path\nimport hashlib,json,torch\nassert torch.version.hip is None and torch.cuda.device_count()==1\nassert torch.cuda.get_device_capability(0)==(12,1)\nassert torch.cuda.mem_get_info()[0]>1<<30\ntorch.set_num_threads(2)\nx=torch.arange(65536,dtype=torch.int32).to(torch.int16).view(torch.bfloat16).cuda()\ny=torch.sigmoid(x)\ntorch.cuda.synchronize()\ndata=y.cpu().view(torch.uint8).numpy().tobytes()\nassert len(data)==131072 and torch.cuda.max_memory_allocated()<64<<20\nwith Path('/work/torch-sigmoid-bf16.bin').open('xb') as f:f.write(data)\nreport=dict(torch_version=torch.__version__,device=list(torch.cuda.get_device_capability(0)),inputs=65536,bytes=len(data),sha256=hashlib.sha256(data).hexdigest(),maximum_allocated_bytes=torch.cuda.max_memory_allocated(),model_loaded=False,inference_acceptance=False)\nwith Path('/work/capture.json').open('x') as f:json.dump(report,f,indent=2);f.write('\\n')\nprint(json.dumps(report))\n"
+      ],
+      "returncode": 0,
+      "stdout": "{\"torch_version\": \"2.10.0a0+a36e1d39eb.nv26.01.42222806\", \"device\": [12, 1], \"inputs\": 65536, \"bytes\": 131072, \"sha256\": \"32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97\", \"maximum_allocated_bytes\": 262144, \"model_loaded\": false, \"inference_acceptance\": false}\n",
+      "stderr": "",
+      "wall_seconds": 2.650931479060091,
+      "container_status": "false 0",
+      "gpu_processes_after": "",
+      "model_loaded": false
+    },
+    "capture_sha256": "22d03744206591d0289b34ecc86f6ab6037a41df3a26c4956d841f233145d05d",
+    "dispatch_sha256": "9be093cd37d75ca64edc0eba01d4a19c6ebb294e2d7089fc381e945752fc026c",
+    "existing_table_sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97",
+    "finite_input_encodings": 65280,
+    "finite_bf16_mismatches": 0,
+    "first_finite_differences": [],
+    "all_encoding_byte_mismatches": 0,
+    "infinity_outputs_match": true,
+    "original_torch_table_sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97",
+    "all_finite_inputs_exact": true,
+    "model_loaded": false,
+    "inference_acceptance": false,
+    "observer": {
+      "file": "capture_original_torch_sigmoid_r1.py",
+      "sha256": "d756bca276d490039e1aafd406b6f4401ebb2d8eb4bf73b22ba83f69f926a577"
+    }
+  },
+  "cases": [
+    {
+      "name": "q7169-out32",
+      "original_case_sha256": "8aa5c0ffd6c8582e09e0fa514dadf96a36682e426d98618f2411d799f1723e19",
+      "prompt": {
+        "token_count": 7169,
+        "seed": 50536152,
+        "first_token_id": 30199,
+        "u32le_sha256": "b4ba753492f994e7c64ca7805c1b48523993ff24f6e75b44fa5705067d1de87d",
+        "u32le_fnv1a64": "c900c18703532d6a"
+      },
+      "output_token_ids": [
+        82,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220
+      ],
+      "first_token_raw_logit": 9.25,
+      "full_first_logits_sha256": "719813bb031f041544c91840b0092fd43a0e3ef96ccbb9ac44cd2f713a5763c9",
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 95,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 7169,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 7168,
+          "input_token_id": 82,
+          "transaction_row": 7168,
+          "sampled": true,
+          "original_batch_tokens": 7169,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 7169,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 0,
+          "target_position": 7170,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 0,
+          "target_position": 7171,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 0,
+          "target_position": 7172,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 1,
+          "target_position": 7173,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 0,
+          "target_position": 7174,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 0,
+          "target_position": 7175,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 1,
+          "target_position": 7176,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 0,
+          "target_position": 7177,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 1,
+          "target_position": 7178,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 0,
+          "target_position": 7179,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 1,
+          "target_position": 7180,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 0,
+          "target_position": 7181,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 1,
+          "target_position": 7182,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 0,
+          "target_position": 7183,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 1,
+          "target_position": 7184,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 0,
+          "target_position": 7185,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 1,
+          "target_position": 7186,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 0,
+          "target_position": 7187,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 1,
+          "target_position": 7188,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 0,
+          "target_position": 7189,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 1,
+          "target_position": 7190,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 0,
+          "target_position": 7191,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 1,
+          "target_position": 7192,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 0,
+          "target_position": 7193,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 1,
+          "target_position": 7194,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 0,
+          "target_position": 7195,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 1,
+          "target_position": 7196,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 7197,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 7198,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 7199,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        }
+      ],
+      "projections": [
+        {
+          "stage": "q",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-q-0/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-q-0/expected.bin",
+            "2048",
+            "8192",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 32,
+            "elements": 262144,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.q_proj.weight",
+            "shape": [
+              8192,
+              2048
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2195752976,
+            "data_offsets": [
+              2195748864,
+              2229303296
+            ],
+            "bytes": 33554432,
+            "sha256": "e6863a8871e0fed92e5d4821d2a77a110b9906136417ac16b9c5196928beb163",
+            "file": "q_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/q_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "q",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-q-32/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-q-32/expected.bin",
+            "2048",
+            "8192",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 1,
+            "elements": 8192,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.q_proj.weight",
+            "shape": [
+              8192,
+              2048
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2195752976,
+            "data_offsets": [
+              2195748864,
+              2229303296
+            ],
+            "bytes": 33554432,
+            "sha256": "e6863a8871e0fed92e5d4821d2a77a110b9906136417ac16b9c5196928beb163",
+            "file": "q_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/q_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "o",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-o-0/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-o-0/expected.bin",
+            "4096",
+            "2048",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 32,
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.o_proj.weight",
+            "shape": [
+              2048,
+              4096
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2178975248,
+            "data_offsets": [
+              2178971136,
+              2195748352
+            ],
+            "bytes": 16777216,
+            "sha256": "98be07d123f23cd309c507f2f484091942ed90392b673303c9436abdf8204380",
+            "file": "o_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/o_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "o",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-o-32/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-o-32/expected.bin",
+            "4096",
+            "2048",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 1,
+            "elements": 2048,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.o_proj.weight",
+            "shape": [
+              2048,
+              4096
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2178975248,
+            "data_offsets": [
+              2178971136,
+              2195748352
+            ],
+            "bytes": 16777216,
+            "sha256": "98be07d123f23cd309c507f2f484091942ed90392b673303c9436abdf8204380",
+            "file": "o_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/o_proj.bf16.bin"
+          }
+        }
+      ],
+      "gate": {
+        "command": [
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q7169-out32/qkv.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/q7169-out32/context.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/q7169-out32/gated.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin"
+        ],
+        "returncode": 0,
+        "report": {
+          "rows": 33,
+          "elements": 135168,
+          "bf16_mismatches": 0,
+          "first_difference": null,
+          "inference_acceptance": false
+        }
+      },
+      "gate_operands": {
+        "q_projection": {
+          "file": "mtp-query-shared-cpu-r1/q7169-out32/qkv.bin",
+          "bytes": 540672,
+          "sha256": "b6bb04e4d37892d1fbe8c8f09fdab9e180c1d8385a3a93c61eaef1cb8ee24cf2"
+        },
+        "context": {
+          "file": "mtp-gate-cpu-r1/q7169-out32/context.bin",
+          "bytes": 270336,
+          "sha256": "d084ef000cae91c700c10ee648c21faf729910d11ca280ccd08ff4cc14f7905e"
+        },
+        "expected_gated": {
+          "file": "mtp-gate-cpu-r1/q7169-out32/gated.bin",
+          "bytes": 270336,
+          "sha256": "e731486400081096967bd4fdd8027307d7ac28e45fe24d1ff03c99fce075905b"
+        },
+        "sigmoid_table": {
+          "file": "qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin",
+          "bytes": 131072,
+          "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97"
+        }
+      },
+      "original_operand_provenance_bound_by": [
+        "3aca66c98b3642b1ad40f83df69ea0ccd2945027213215f2eb42c25afdb758f3",
+        "9c36c84e315aeb52d6e9b753f8ad51793b2c4337aab7ea124b18320d5b279892"
+      ]
+    },
+    {
+      "name": "q8192-out32",
+      "original_case_sha256": "593420bd8b1ef8b2ce68f6caedec1e729e4890f34c35a25e332e87a0cffc8dc5",
+      "prompt": {
+        "token_count": 8192,
+        "seed": 395518,
+        "first_token_id": 84411,
+        "u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+        "u32le_fnv1a64": "1584e34d56e5d78b"
+      },
+      "output_token_ids": [
+        144,
+        255,
+        82,
+        57,
+        79,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196
+      ],
+      "first_token_raw_logit": 10.375,
+      "full_first_logits_sha256": "145adfd0d14158d649b4c57f1dbb5151466d73f9183821e7da24e831d74112c0",
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 140,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 8191,
+          "input_token_id": 144,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 8192,
+          "input_token_id": 255,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 1,
+          "target_position": 8193,
+          "input_token_id": 82,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 0,
+          "target_position": 8194,
+          "input_token_id": 57,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 0,
+          "target_position": 8195,
+          "input_token_id": 79,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 0,
+          "target_position": 8196,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 0,
+          "target_position": 8197,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 0,
+          "target_position": 8198,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 0,
+          "target_position": 8199,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 0,
+          "target_position": 8200,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 1,
+          "target_position": 8201,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 0,
+          "target_position": 8202,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 1,
+          "target_position": 8203,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 0,
+          "target_position": 8204,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 1,
+          "target_position": 8205,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 0,
+          "target_position": 8206,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 1,
+          "target_position": 8207,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 0,
+          "target_position": 8208,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 1,
+          "target_position": 8209,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 0,
+          "target_position": 8210,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 1,
+          "target_position": 8211,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 0,
+          "target_position": 8212,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 1,
+          "target_position": 8213,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 0,
+          "target_position": 8214,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 1,
+          "target_position": 8215,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 0,
+          "target_position": 8216,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 1,
+          "target_position": 8217,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 8218,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 8219,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 8220,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 1,
+          "target_position": 8221,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 19,
+          "saved_index": 0,
+          "target_position": 8222,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        }
+      ],
+      "projections": [
+        {
+          "stage": "q",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-q-0/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-q-0/expected.bin",
+            "2048",
+            "8192",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 32,
+            "elements": 262144,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.q_proj.weight",
+            "shape": [
+              8192,
+              2048
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2195752976,
+            "data_offsets": [
+              2195748864,
+              2229303296
+            ],
+            "bytes": 33554432,
+            "sha256": "e6863a8871e0fed92e5d4821d2a77a110b9906136417ac16b9c5196928beb163",
+            "file": "q_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/q_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "q",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-q-32/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-q-32/expected.bin",
+            "2048",
+            "8192",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 1,
+            "elements": 8192,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.q_proj.weight",
+            "shape": [
+              8192,
+              2048
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2195752976,
+            "data_offsets": [
+              2195748864,
+              2229303296
+            ],
+            "bytes": 33554432,
+            "sha256": "e6863a8871e0fed92e5d4821d2a77a110b9906136417ac16b9c5196928beb163",
+            "file": "q_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/q_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "o",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-o-0/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-o-0/expected.bin",
+            "4096",
+            "2048",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 32,
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.o_proj.weight",
+            "shape": [
+              2048,
+              4096
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2178975248,
+            "data_offsets": [
+              2178971136,
+              2195748352
+            ],
+            "bytes": 16777216,
+            "sha256": "98be07d123f23cd309c507f2f484091942ed90392b673303c9436abdf8204380",
+            "file": "o_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/o_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "o",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-o-32/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-o-32/expected.bin",
+            "4096",
+            "2048",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 1,
+            "elements": 2048,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.o_proj.weight",
+            "shape": [
+              2048,
+              4096
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2178975248,
+            "data_offsets": [
+              2178971136,
+              2195748352
+            ],
+            "bytes": 16777216,
+            "sha256": "98be07d123f23cd309c507f2f484091942ed90392b673303c9436abdf8204380",
+            "file": "o_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/o_proj.bf16.bin"
+          }
+        }
+      ],
+      "gate": {
+        "command": [
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q8192-out32/qkv.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/q8192-out32/context.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/q8192-out32/gated.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin"
+        ],
+        "returncode": 0,
+        "report": {
+          "rows": 33,
+          "elements": 135168,
+          "bf16_mismatches": 0,
+          "first_difference": null,
+          "inference_acceptance": false
+        }
+      },
+      "gate_operands": {
+        "q_projection": {
+          "file": "mtp-query-shared-cpu-r1/q8192-out32/qkv.bin",
+          "bytes": 540672,
+          "sha256": "924c7ea5caa422bd6da6e78b0355c48a3c4c68b3cef1642ea3f209bd996f6686"
+        },
+        "context": {
+          "file": "mtp-gate-cpu-r1/q8192-out32/context.bin",
+          "bytes": 270336,
+          "sha256": "86606b0b88a7f81155aa0e7987fbc8be0ed5730dfbd84b3b20f5b3c4b994ffc4"
+        },
+        "expected_gated": {
+          "file": "mtp-gate-cpu-r1/q8192-out32/gated.bin",
+          "bytes": 270336,
+          "sha256": "33a808d6a5bb581c202c2550e7e3ad17e729d9dd913b22189601874a63394158"
+        },
+        "sigmoid_table": {
+          "file": "qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin",
+          "bytes": 131072,
+          "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97"
+        }
+      },
+      "original_operand_provenance_bound_by": [
+        "3aca66c98b3642b1ad40f83df69ea0ccd2945027213215f2eb42c25afdb758f3",
+        "9c36c84e315aeb52d6e9b753f8ad51793b2c4337aab7ea124b18320d5b279892"
+      ]
+    },
+    {
+      "name": "long-prefix262144-owner-out32",
+      "original_case_sha256": "0abca79dd8a7e5e7912f1847d0909ab13c5e740fd0cf2ec27b1744fea1875a00",
+      "prompt": {
+        "token_count": 262144,
+        "generator": "explicit_actual_tokens",
+        "u32le_sha256": "bda1b648ef9365c40f9233228cd646c4addf9ec8c0f1cf7aeaad56aaf0f712e2",
+        "u32le_fnv1a64": "55ac49bb839b4fe8"
+      },
+      "output_token_ids": [
+        16,
+        15,
+        15,
+        220,
+        16,
+        15,
+        16,
+        220,
+        16,
+        15,
+        17,
+        220,
+        16,
+        15,
+        18,
+        220,
+        16,
+        15,
+        19,
+        220,
+        16,
+        15,
+        20,
+        220,
+        16,
+        15,
+        21,
+        220,
+        16,
+        15,
+        22,
+        220
+      ],
+      "first_token_raw_logit": 24.375,
+      "full_first_logits_sha256": "a29f8caade68a34ae1201e9f3d9b5b8849e8ec3548235c46c99679fb23042cfe",
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 846,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 8191,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 8192,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 1,
+          "target_position": 16383,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 0,
+          "target_position": 16384,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 1,
+          "target_position": 24575,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 0,
+          "target_position": 24576,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 1,
+          "target_position": 32767,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 0,
+          "target_position": 32768,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 1,
+          "target_position": 40959,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 0,
+          "target_position": 40960,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 1,
+          "target_position": 49151,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 0,
+          "target_position": 49152,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 1,
+          "target_position": 57343,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 0,
+          "target_position": 57344,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 1,
+          "target_position": 65535,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 0,
+          "target_position": 65536,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 1,
+          "target_position": 73727,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 0,
+          "target_position": 73728,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 1,
+          "target_position": 81919,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 0,
+          "target_position": 81920,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 1,
+          "target_position": 90111,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 0,
+          "target_position": 90112,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 1,
+          "target_position": 98303,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 0,
+          "target_position": 98304,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 1,
+          "target_position": 106495,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 0,
+          "target_position": 106496,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 1,
+          "target_position": 114687,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 0,
+          "target_position": 114688,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 1,
+          "target_position": 122879,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 0,
+          "target_position": 122880,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 1,
+          "target_position": 131071,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 0,
+          "target_position": 131072,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 1,
+          "target_position": 139263,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 139264,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 147455,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 147456,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 1,
+          "target_position": 155647,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 19,
+          "saved_index": 0,
+          "target_position": 155648,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 19,
+          "saved_index": 1,
+          "target_position": 163839,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 20,
+          "saved_index": 0,
+          "target_position": 163840,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 20,
+          "saved_index": 1,
+          "target_position": 172031,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 21,
+          "saved_index": 0,
+          "target_position": 172032,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 21,
+          "saved_index": 1,
+          "target_position": 180223,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 22,
+          "saved_index": 0,
+          "target_position": 180224,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 22,
+          "saved_index": 1,
+          "target_position": 188415,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 23,
+          "saved_index": 0,
+          "target_position": 188416,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 23,
+          "saved_index": 1,
+          "target_position": 196607,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 24,
+          "saved_index": 0,
+          "target_position": 196608,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 24,
+          "saved_index": 1,
+          "target_position": 204799,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 25,
+          "saved_index": 0,
+          "target_position": 204800,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 25,
+          "saved_index": 1,
+          "target_position": 212991,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 26,
+          "saved_index": 0,
+          "target_position": 212992,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 26,
+          "saved_index": 1,
+          "target_position": 221183,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 27,
+          "saved_index": 0,
+          "target_position": 221184,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 27,
+          "saved_index": 1,
+          "target_position": 229375,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 28,
+          "saved_index": 0,
+          "target_position": 229376,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 28,
+          "saved_index": 1,
+          "target_position": 237567,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 29,
+          "saved_index": 0,
+          "target_position": 237568,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 29,
+          "saved_index": 1,
+          "target_position": 245759,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 30,
+          "saved_index": 0,
+          "target_position": 245760,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 30,
+          "saved_index": 1,
+          "target_position": 253951,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        }
+      ],
+      "projections": [
+        {
+          "stage": "q",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-q-0/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-q-0/expected.bin",
+            "2048",
+            "8192",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 32,
+            "elements": 262144,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.q_proj.weight",
+            "shape": [
+              8192,
+              2048
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2195752976,
+            "data_offsets": [
+              2195748864,
+              2229303296
+            ],
+            "bytes": 33554432,
+            "sha256": "e6863a8871e0fed92e5d4821d2a77a110b9906136417ac16b9c5196928beb163",
+            "file": "q_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/q_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "q",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-q-32/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-q-32/expected.bin",
+            "2048",
+            "8192",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 30,
+            "elements": 245760,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.q_proj.weight",
+            "shape": [
+              8192,
+              2048
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2195752976,
+            "data_offsets": [
+              2195748864,
+              2229303296
+            ],
+            "bytes": 33554432,
+            "sha256": "e6863a8871e0fed92e5d4821d2a77a110b9906136417ac16b9c5196928beb163",
+            "file": "q_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/q_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "o",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-o-0/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-o-0/expected.bin",
+            "4096",
+            "2048",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 32,
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.o_proj.weight",
+            "shape": [
+              2048,
+              4096
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2178975248,
+            "data_offsets": [
+              2178971136,
+              2195748352
+            ],
+            "bytes": 16777216,
+            "sha256": "98be07d123f23cd309c507f2f484091942ed90392b673303c9436abdf8204380",
+            "file": "o_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/o_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "o",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-o-32/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-o-32/expected.bin",
+            "4096",
+            "2048",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 30,
+            "elements": 61440,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.o_proj.weight",
+            "shape": [
+              2048,
+              4096
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2178975248,
+            "data_offsets": [
+              2178971136,
+              2195748352
+            ],
+            "bytes": 16777216,
+            "sha256": "98be07d123f23cd309c507f2f484091942ed90392b673303c9436abdf8204380",
+            "file": "o_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/o_proj.bf16.bin"
+          }
+        }
+      ],
+      "gate": {
+        "command": [
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/long-prefix262144-owner-out32/qkv.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/long-prefix262144-owner-out32/context.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/long-prefix262144-owner-out32/gated.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin"
+        ],
+        "returncode": 0,
+        "report": {
+          "rows": 62,
+          "elements": 253952,
+          "bf16_mismatches": 0,
+          "first_difference": null,
+          "inference_acceptance": false
+        }
+      },
+      "gate_operands": {
+        "q_projection": {
+          "file": "mtp-query-shared-cpu-r1/long-prefix262144-owner-out32/qkv.bin",
+          "bytes": 1015808,
+          "sha256": "0929229d2a74b1fdddec986dcbda8b4cd8228fd8428a78e70b840917ab711f2e"
+        },
+        "context": {
+          "file": "mtp-gate-cpu-r1/long-prefix262144-owner-out32/context.bin",
+          "bytes": 507904,
+          "sha256": "e10b28b22627eda14dbde22a662574a63f808b935d59905fd1b907c5cbcc232e"
+        },
+        "expected_gated": {
+          "file": "mtp-gate-cpu-r1/long-prefix262144-owner-out32/gated.bin",
+          "bytes": 507904,
+          "sha256": "3d3728e994fd27991ef22bcf3f1385c58b158500af27e0862724c4558b16edc0"
+        },
+        "sigmoid_table": {
+          "file": "qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin",
+          "bytes": 131072,
+          "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97"
+        }
+      },
+      "original_operand_provenance_bound_by": [
+        "3aca66c98b3642b1ad40f83df69ea0ccd2945027213215f2eb42c25afdb758f3",
+        "9c36c84e315aeb52d6e9b753f8ad51793b2c4337aab7ea124b18320d5b279892"
+      ]
+    },
+    {
+      "name": "draft-limit-q262140-out16",
+      "original_case_sha256": "3c5ba6382872034f13e4f15f4e9cd92a9668526f76632772f45a69e1f1d02872",
+      "prompt": {
+        "token_count": 262140,
+        "generator": "explicit_actual_tokens",
+        "u32le_sha256": "2e5e3e8b0ba6c2e9d10041062fbbc2a5b2ea920dd3aab408936c6b5c8b0c0bd2",
+        "u32le_fnv1a64": "e253e00629d629a1"
+      },
+      "output_token_ids": [
+        248068,
+        271,
+        248069,
+        271,
+        16,
+        15,
+        15,
+        220,
+        16,
+        15,
+        16,
+        220,
+        16,
+        15,
+        17,
+        220
+      ],
+      "first_token_raw_logit": 27.625,
+      "full_first_logits_sha256": "f33d3e1e26ce601d5e3f988ef71481111a7c3b825bc264242ccc869181611e8c",
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 846,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 8191,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 8192,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 1,
+          "target_position": 16383,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 0,
+          "target_position": 16384,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 1,
+          "target_position": 24575,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 0,
+          "target_position": 24576,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 1,
+          "target_position": 32767,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 0,
+          "target_position": 32768,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 1,
+          "target_position": 40959,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 0,
+          "target_position": 40960,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 1,
+          "target_position": 49151,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 0,
+          "target_position": 49152,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 1,
+          "target_position": 57343,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 0,
+          "target_position": 57344,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 1,
+          "target_position": 65535,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 0,
+          "target_position": 65536,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 1,
+          "target_position": 73727,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 0,
+          "target_position": 73728,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 1,
+          "target_position": 81919,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 0,
+          "target_position": 81920,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 1,
+          "target_position": 90111,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 0,
+          "target_position": 90112,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 1,
+          "target_position": 98303,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 0,
+          "target_position": 98304,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 1,
+          "target_position": 106495,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 0,
+          "target_position": 106496,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 1,
+          "target_position": 114687,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 0,
+          "target_position": 114688,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 1,
+          "target_position": 122879,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 0,
+          "target_position": 122880,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 1,
+          "target_position": 131071,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 0,
+          "target_position": 131072,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 1,
+          "target_position": 139263,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 139264,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 147455,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 147456,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 1,
+          "target_position": 155647,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 19,
+          "saved_index": 0,
+          "target_position": 155648,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 19,
+          "saved_index": 1,
+          "target_position": 163839,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 20,
+          "saved_index": 0,
+          "target_position": 163840,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 20,
+          "saved_index": 1,
+          "target_position": 172031,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 21,
+          "saved_index": 0,
+          "target_position": 172032,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 21,
+          "saved_index": 1,
+          "target_position": 180223,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 22,
+          "saved_index": 0,
+          "target_position": 180224,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 22,
+          "saved_index": 1,
+          "target_position": 188415,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 23,
+          "saved_index": 0,
+          "target_position": 188416,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 23,
+          "saved_index": 1,
+          "target_position": 196607,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 24,
+          "saved_index": 0,
+          "target_position": 196608,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 24,
+          "saved_index": 1,
+          "target_position": 204799,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 25,
+          "saved_index": 0,
+          "target_position": 204800,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 25,
+          "saved_index": 1,
+          "target_position": 212991,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 26,
+          "saved_index": 0,
+          "target_position": 212992,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 26,
+          "saved_index": 1,
+          "target_position": 221183,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 27,
+          "saved_index": 0,
+          "target_position": 221184,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 27,
+          "saved_index": 1,
+          "target_position": 229375,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 28,
+          "saved_index": 0,
+          "target_position": 229376,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 28,
+          "saved_index": 1,
+          "target_position": 237567,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 29,
+          "saved_index": 0,
+          "target_position": 237568,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 29,
+          "saved_index": 1,
+          "target_position": 245759,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 30,
+          "saved_index": 0,
+          "target_position": 245760,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 30,
+          "saved_index": 1,
+          "target_position": 253951,
+          "input_token_id": 198,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 31,
+          "saved_index": 0,
+          "target_position": 253952,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8188,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 31,
+          "saved_index": 1,
+          "target_position": 262139,
+          "input_token_id": 248068,
+          "transaction_row": 8187,
+          "sampled": true,
+          "original_batch_tokens": 8188,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 32,
+          "saved_index": 0,
+          "target_position": 262140,
+          "input_token_id": 271,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 32,
+          "saved_index": 1,
+          "target_position": 262141,
+          "input_token_id": 248069,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2,
+          "input_provenance": "accepted_history"
+        }
+      ],
+      "projections": [
+        {
+          "stage": "q",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-q-0/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-q-0/expected.bin",
+            "2048",
+            "8192",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 32,
+            "elements": 262144,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.q_proj.weight",
+            "shape": [
+              8192,
+              2048
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2195752976,
+            "data_offsets": [
+              2195748864,
+              2229303296
+            ],
+            "bytes": 33554432,
+            "sha256": "e6863a8871e0fed92e5d4821d2a77a110b9906136417ac16b9c5196928beb163",
+            "file": "q_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/q_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "q",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-q-32/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-q-32/expected.bin",
+            "2048",
+            "8192",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 32,
+            "elements": 262144,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.q_proj.weight",
+            "shape": [
+              8192,
+              2048
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2195752976,
+            "data_offsets": [
+              2195748864,
+              2229303296
+            ],
+            "bytes": 33554432,
+            "sha256": "e6863a8871e0fed92e5d4821d2a77a110b9906136417ac16b9c5196928beb163",
+            "file": "q_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/q_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "q",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-q-64/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-q-64/expected.bin",
+            "2048",
+            "8192",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 2,
+            "elements": 16384,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.q_proj.weight",
+            "shape": [
+              8192,
+              2048
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2195752976,
+            "data_offsets": [
+              2195748864,
+              2229303296
+            ],
+            "bytes": 33554432,
+            "sha256": "e6863a8871e0fed92e5d4821d2a77a110b9906136417ac16b9c5196928beb163",
+            "file": "q_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/q_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "o",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-o-0/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-o-0/expected.bin",
+            "4096",
+            "2048",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 32,
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.o_proj.weight",
+            "shape": [
+              2048,
+              4096
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2178975248,
+            "data_offsets": [
+              2178971136,
+              2195748352
+            ],
+            "bytes": 16777216,
+            "sha256": "98be07d123f23cd309c507f2f484091942ed90392b673303c9436abdf8204380",
+            "file": "o_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/o_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "o",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-o-32/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-o-32/expected.bin",
+            "4096",
+            "2048",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 32,
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.o_proj.weight",
+            "shape": [
+              2048,
+              4096
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2178975248,
+            "data_offsets": [
+              2178971136,
+              2195748352
+            ],
+            "bytes": 16777216,
+            "sha256": "98be07d123f23cd309c507f2f484091942ed90392b673303c9436abdf8204380",
+            "file": "o_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/o_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "o",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-o-64/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-o-64/expected.bin",
+            "4096",
+            "2048",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 2,
+            "elements": 4096,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.o_proj.weight",
+            "shape": [
+              2048,
+              4096
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2178975248,
+            "data_offsets": [
+              2178971136,
+              2195748352
+            ],
+            "bytes": 16777216,
+            "sha256": "98be07d123f23cd309c507f2f484091942ed90392b673303c9436abdf8204380",
+            "file": "o_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/o_proj.bf16.bin"
+          }
+        }
+      ],
+      "gate": {
+        "command": [
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262140-out16/qkv.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/draft-limit-q262140-out16/context.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/draft-limit-q262140-out16/gated.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin"
+        ],
+        "returncode": 0,
+        "report": {
+          "rows": 66,
+          "elements": 270336,
+          "bf16_mismatches": 0,
+          "first_difference": null,
+          "inference_acceptance": false
+        }
+      },
+      "gate_operands": {
+        "q_projection": {
+          "file": "mtp-query-shared-cpu-r1/draft-limit-q262140-out16/qkv.bin",
+          "bytes": 1081344,
+          "sha256": "b06161d4cedc9480e81ccecf824c9a8617da40447066cd7bd814a3f270da509c"
+        },
+        "context": {
+          "file": "mtp-gate-cpu-r1/draft-limit-q262140-out16/context.bin",
+          "bytes": 540672,
+          "sha256": "28073c45f6108aebb04ecff1fe2a9e085d9c4c20bbf953d287a9239dd0eda0a8"
+        },
+        "expected_gated": {
+          "file": "mtp-gate-cpu-r1/draft-limit-q262140-out16/gated.bin",
+          "bytes": 540672,
+          "sha256": "017a31a45595569928e3635f083e69b2832ae43bd0c92414e139605e4e928144"
+        },
+        "sigmoid_table": {
+          "file": "qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin",
+          "bytes": 131072,
+          "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97"
+        }
+      },
+      "original_operand_provenance_bound_by": [
+        "3aca66c98b3642b1ad40f83df69ea0ccd2945027213215f2eb42c25afdb758f3",
+        "9c36c84e315aeb52d6e9b753f8ad51793b2c4337aab7ea124b18320d5b279892"
+      ]
+    },
+    {
+      "name": "draft-limit-q262142-out16",
+      "original_case_sha256": "ab07c73ab4b8b884112d9dd8f56a720698fd02dbaff1674bbcf831288ac6e791",
+      "prompt": {
+        "token_count": 262142,
+        "generator": "explicit_actual_tokens",
+        "u32le_sha256": "f248b698441fa8332ef5babfac1d7814b117d5eb33d77716094d6d11d5eb40db",
+        "u32le_fnv1a64": "73d96cad48876011"
+      },
+      "output_token_ids": [
+        248069,
+        271,
+        16,
+        15,
+        15,
+        220,
+        16,
+        15,
+        16,
+        220,
+        16,
+        15,
+        17,
+        220,
+        16,
+        15
+      ],
+      "first_token_raw_logit": 28.25,
+      "full_first_logits_sha256": "55c83a9add3bd3d95db6e215f9073b274992643418b43c89cab8e4420fd3167d",
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 846,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 8191,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 8192,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 1,
+          "target_position": 16383,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 0,
+          "target_position": 16384,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 1,
+          "target_position": 24575,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 0,
+          "target_position": 24576,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 1,
+          "target_position": 32767,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 0,
+          "target_position": 32768,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 1,
+          "target_position": 40959,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 0,
+          "target_position": 40960,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 1,
+          "target_position": 49151,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 0,
+          "target_position": 49152,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 1,
+          "target_position": 57343,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 0,
+          "target_position": 57344,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 1,
+          "target_position": 65535,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 0,
+          "target_position": 65536,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 1,
+          "target_position": 73727,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 0,
+          "target_position": 73728,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 1,
+          "target_position": 81919,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 0,
+          "target_position": 81920,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 1,
+          "target_position": 90111,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 0,
+          "target_position": 90112,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 1,
+          "target_position": 98303,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 0,
+          "target_position": 98304,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 1,
+          "target_position": 106495,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 0,
+          "target_position": 106496,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 1,
+          "target_position": 114687,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 0,
+          "target_position": 114688,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 1,
+          "target_position": 122879,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 0,
+          "target_position": 122880,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 1,
+          "target_position": 131071,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 0,
+          "target_position": 131072,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 1,
+          "target_position": 139263,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 139264,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 147455,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 147456,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 1,
+          "target_position": 155647,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 19,
+          "saved_index": 0,
+          "target_position": 155648,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 19,
+          "saved_index": 1,
+          "target_position": 163839,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 20,
+          "saved_index": 0,
+          "target_position": 163840,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 20,
+          "saved_index": 1,
+          "target_position": 172031,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 21,
+          "saved_index": 0,
+          "target_position": 172032,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 21,
+          "saved_index": 1,
+          "target_position": 180223,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 22,
+          "saved_index": 0,
+          "target_position": 180224,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 22,
+          "saved_index": 1,
+          "target_position": 188415,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 23,
+          "saved_index": 0,
+          "target_position": 188416,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 23,
+          "saved_index": 1,
+          "target_position": 196607,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 24,
+          "saved_index": 0,
+          "target_position": 196608,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 24,
+          "saved_index": 1,
+          "target_position": 204799,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 25,
+          "saved_index": 0,
+          "target_position": 204800,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 25,
+          "saved_index": 1,
+          "target_position": 212991,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 26,
+          "saved_index": 0,
+          "target_position": 212992,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 26,
+          "saved_index": 1,
+          "target_position": 221183,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 27,
+          "saved_index": 0,
+          "target_position": 221184,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 27,
+          "saved_index": 1,
+          "target_position": 229375,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 28,
+          "saved_index": 0,
+          "target_position": 229376,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 28,
+          "saved_index": 1,
+          "target_position": 237567,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 29,
+          "saved_index": 0,
+          "target_position": 237568,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 29,
+          "saved_index": 1,
+          "target_position": 245759,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 30,
+          "saved_index": 0,
+          "target_position": 245760,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 30,
+          "saved_index": 1,
+          "target_position": 253951,
+          "input_token_id": 271,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 31,
+          "saved_index": 0,
+          "target_position": 253952,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8190,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 31,
+          "saved_index": 1,
+          "target_position": 262141,
+          "input_token_id": 248069,
+          "transaction_row": 8189,
+          "sampled": true,
+          "original_batch_tokens": 8190,
+          "input_provenance": "accepted_history"
+        }
+      ],
+      "projections": [
+        {
+          "stage": "q",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-q-0/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-q-0/expected.bin",
+            "2048",
+            "8192",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 32,
+            "elements": 262144,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.q_proj.weight",
+            "shape": [
+              8192,
+              2048
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2195752976,
+            "data_offsets": [
+              2195748864,
+              2229303296
+            ],
+            "bytes": 33554432,
+            "sha256": "e6863a8871e0fed92e5d4821d2a77a110b9906136417ac16b9c5196928beb163",
+            "file": "q_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/q_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "q",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-q-32/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-q-32/expected.bin",
+            "2048",
+            "8192",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 32,
+            "elements": 262144,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.q_proj.weight",
+            "shape": [
+              8192,
+              2048
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2195752976,
+            "data_offsets": [
+              2195748864,
+              2229303296
+            ],
+            "bytes": 33554432,
+            "sha256": "e6863a8871e0fed92e5d4821d2a77a110b9906136417ac16b9c5196928beb163",
+            "file": "q_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/q_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "o",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-o-0/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-o-0/expected.bin",
+            "4096",
+            "2048",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 32,
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.o_proj.weight",
+            "shape": [
+              2048,
+              4096
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2178975248,
+            "data_offsets": [
+              2178971136,
+              2195748352
+            ],
+            "bytes": 16777216,
+            "sha256": "98be07d123f23cd309c507f2f484091942ed90392b673303c9436abdf8204380",
+            "file": "o_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/o_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "o",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-o-32/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-o-32/expected.bin",
+            "4096",
+            "2048",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 32,
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.o_proj.weight",
+            "shape": [
+              2048,
+              4096
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2178975248,
+            "data_offsets": [
+              2178971136,
+              2195748352
+            ],
+            "bytes": 16777216,
+            "sha256": "98be07d123f23cd309c507f2f484091942ed90392b673303c9436abdf8204380",
+            "file": "o_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/o_proj.bf16.bin"
+          }
+        }
+      ],
+      "gate": {
+        "command": [
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262142-out16/qkv.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/draft-limit-q262142-out16/context.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/draft-limit-q262142-out16/gated.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin"
+        ],
+        "returncode": 0,
+        "report": {
+          "rows": 64,
+          "elements": 262144,
+          "bf16_mismatches": 0,
+          "first_difference": null,
+          "inference_acceptance": false
+        }
+      },
+      "gate_operands": {
+        "q_projection": {
+          "file": "mtp-query-shared-cpu-r1/draft-limit-q262142-out16/qkv.bin",
+          "bytes": 1048576,
+          "sha256": "bf57f9eb581f861ff3510c7054050dde510c4b34f3ba3c40da7a0fb4bd8f0063"
+        },
+        "context": {
+          "file": "mtp-gate-cpu-r1/draft-limit-q262142-out16/context.bin",
+          "bytes": 524288,
+          "sha256": "425edfe1722db66abc419d338d9217db31cdc3b3f90b18d85d3905c53ed792a8"
+        },
+        "expected_gated": {
+          "file": "mtp-gate-cpu-r1/draft-limit-q262142-out16/gated.bin",
+          "bytes": 524288,
+          "sha256": "32a55ccbc6e023b37812cf99114847e6c61c7530ceba74d7b03edb81a30f415a"
+        },
+        "sigmoid_table": {
+          "file": "qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin",
+          "bytes": 131072,
+          "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97"
+        }
+      },
+      "original_operand_provenance_bound_by": [
+        "3aca66c98b3642b1ad40f83df69ea0ccd2945027213215f2eb42c25afdb758f3",
+        "9c36c84e315aeb52d6e9b753f8ad51793b2c4337aab7ea124b18320d5b279892"
+      ]
+    },
+    {
+      "name": "draft-limit-q262143-out16",
+      "original_case_sha256": "2e7f7ea541705d105a38021f47beabc3bd7beff3aae0229d4073523084c8bbd1",
+      "prompt": {
+        "token_count": 262143,
+        "generator": "explicit_actual_tokens",
+        "u32le_sha256": "c00e2415c7287f77bbf0672bb04535d79000d2c6ae339d0f0aba703228184747",
+        "u32le_fnv1a64": "bcbaef534b007aec"
+      },
+      "output_token_ids": [
+        271,
+        16,
+        15,
+        220,
+        15,
+        220,
+        15,
+        220,
+        15,
+        220,
+        15,
+        220,
+        15,
+        220,
+        15,
+        220
+      ],
+      "first_token_raw_logit": 34.5,
+      "full_first_logits_sha256": "cb34c979b724220725733f6dcb2f88c6243ceb775373ec7aff29aac77668e1c5",
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 846,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 8191,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 8192,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 1,
+          "saved_index": 1,
+          "target_position": 16383,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 0,
+          "target_position": 16384,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 2,
+          "saved_index": 1,
+          "target_position": 24575,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 0,
+          "target_position": 24576,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 3,
+          "saved_index": 1,
+          "target_position": 32767,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 0,
+          "target_position": 32768,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 4,
+          "saved_index": 1,
+          "target_position": 40959,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 0,
+          "target_position": 40960,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 5,
+          "saved_index": 1,
+          "target_position": 49151,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 0,
+          "target_position": 49152,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 6,
+          "saved_index": 1,
+          "target_position": 57343,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 0,
+          "target_position": 57344,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 7,
+          "saved_index": 1,
+          "target_position": 65535,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 0,
+          "target_position": 65536,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 8,
+          "saved_index": 1,
+          "target_position": 73727,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 0,
+          "target_position": 73728,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 9,
+          "saved_index": 1,
+          "target_position": 81919,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 0,
+          "target_position": 81920,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 10,
+          "saved_index": 1,
+          "target_position": 90111,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 0,
+          "target_position": 90112,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 11,
+          "saved_index": 1,
+          "target_position": 98303,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 0,
+          "target_position": 98304,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 12,
+          "saved_index": 1,
+          "target_position": 106495,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 0,
+          "target_position": 106496,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 13,
+          "saved_index": 1,
+          "target_position": 114687,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 0,
+          "target_position": 114688,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 14,
+          "saved_index": 1,
+          "target_position": 122879,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 0,
+          "target_position": 122880,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 15,
+          "saved_index": 1,
+          "target_position": 131071,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 0,
+          "target_position": 131072,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 16,
+          "saved_index": 1,
+          "target_position": 139263,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 139264,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 147455,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 147456,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 18,
+          "saved_index": 1,
+          "target_position": 155647,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 19,
+          "saved_index": 0,
+          "target_position": 155648,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 19,
+          "saved_index": 1,
+          "target_position": 163839,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 20,
+          "saved_index": 0,
+          "target_position": 163840,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 20,
+          "saved_index": 1,
+          "target_position": 172031,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 21,
+          "saved_index": 0,
+          "target_position": 172032,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 21,
+          "saved_index": 1,
+          "target_position": 180223,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 22,
+          "saved_index": 0,
+          "target_position": 180224,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 22,
+          "saved_index": 1,
+          "target_position": 188415,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 23,
+          "saved_index": 0,
+          "target_position": 188416,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 23,
+          "saved_index": 1,
+          "target_position": 196607,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 24,
+          "saved_index": 0,
+          "target_position": 196608,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 24,
+          "saved_index": 1,
+          "target_position": 204799,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 25,
+          "saved_index": 0,
+          "target_position": 204800,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 25,
+          "saved_index": 1,
+          "target_position": 212991,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 26,
+          "saved_index": 0,
+          "target_position": 212992,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 26,
+          "saved_index": 1,
+          "target_position": 221183,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 27,
+          "saved_index": 0,
+          "target_position": 221184,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 27,
+          "saved_index": 1,
+          "target_position": 229375,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 28,
+          "saved_index": 0,
+          "target_position": 229376,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 28,
+          "saved_index": 1,
+          "target_position": 237567,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 29,
+          "saved_index": 0,
+          "target_position": 237568,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 29,
+          "saved_index": 1,
+          "target_position": 245759,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 30,
+          "saved_index": 0,
+          "target_position": 245760,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 30,
+          "saved_index": 1,
+          "target_position": 253951,
+          "input_token_id": 248069,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192,
+          "input_provenance": "discarded_prefill_backup"
+        },
+        {
+          "transaction": 31,
+          "saved_index": 0,
+          "target_position": 253952,
+          "input_token_id": 16602,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8191,
+          "input_provenance": "accepted_history"
+        },
+        {
+          "transaction": 31,
+          "saved_index": 1,
+          "target_position": 262142,
+          "input_token_id": 271,
+          "transaction_row": 8190,
+          "sampled": true,
+          "original_batch_tokens": 8191,
+          "input_provenance": "accepted_history"
+        }
+      ],
+      "projections": [
+        {
+          "stage": "q",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-q-0/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-q-0/expected.bin",
+            "2048",
+            "8192",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 32,
+            "elements": 262144,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.q_proj.weight",
+            "shape": [
+              8192,
+              2048
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2195752976,
+            "data_offsets": [
+              2195748864,
+              2229303296
+            ],
+            "bytes": 33554432,
+            "sha256": "e6863a8871e0fed92e5d4821d2a77a110b9906136417ac16b9c5196928beb163",
+            "file": "q_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/q_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "q",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-q-32/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-q-32/expected.bin",
+            "2048",
+            "8192",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 32,
+            "elements": 262144,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.q_proj.weight",
+            "shape": [
+              8192,
+              2048
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2195752976,
+            "data_offsets": [
+              2195748864,
+              2229303296
+            ],
+            "bytes": 33554432,
+            "sha256": "e6863a8871e0fed92e5d4821d2a77a110b9906136417ac16b9c5196928beb163",
+            "file": "q_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/q_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "o",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-o-0/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-o-0/expected.bin",
+            "4096",
+            "2048",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 32,
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.o_proj.weight",
+            "shape": [
+              2048,
+              4096
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2178975248,
+            "data_offsets": [
+              2178971136,
+              2195748352
+            ],
+            "bytes": 16777216,
+            "sha256": "98be07d123f23cd309c507f2f484091942ed90392b673303c9436abdf8204380",
+            "file": "o_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/o_proj.bf16.bin"
+          }
+        },
+        {
+          "stage": "o",
+          "command": [
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "linear",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-o-32/input.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-o-32/expected.bin",
+            "4096",
+            "2048",
+            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          ],
+          "returncode": 0,
+          "report": {
+            "mode": "linear",
+            "rows": 32,
+            "elements": 65536,
+            "bf16_mismatches": 0,
+            "maximum_absolute_error": 0,
+            "first_difference": null,
+            "native_inference_acceptance": false
+          },
+          "weight": {
+            "name": "mtp.layers.0.self_attn.o_proj.weight",
+            "shape": [
+              2048,
+              4096
+            ],
+            "dtype": "BF16",
+            "shard": "model-00026-of-00026.safetensors",
+            "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+            "absolute_begin": 2178975248,
+            "data_offsets": [
+              2178971136,
+              2195748352
+            ],
+            "bytes": 16777216,
+            "sha256": "98be07d123f23cd309c507f2f484091942ed90392b673303c9436abdf8204380",
+            "file": "o_proj.bf16.bin",
+            "path": "original-mtp-qo-weights-r1/o_proj.bf16.bin"
+          }
+        }
+      ],
+      "gate": {
+        "command": [
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262143-out16/qkv.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/draft-limit-q262143-out16/context.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/draft-limit-q262143-out16/gated.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin"
+        ],
+        "returncode": 0,
+        "report": {
+          "rows": 64,
+          "elements": 262144,
+          "bf16_mismatches": 0,
+          "first_difference": null,
+          "inference_acceptance": false
+        }
+      },
+      "gate_operands": {
+        "q_projection": {
+          "file": "mtp-query-shared-cpu-r1/draft-limit-q262143-out16/qkv.bin",
+          "bytes": 1048576,
+          "sha256": "e83a4d0dce713a5e8508b0765df84edbdaf311522de45b00e922a04af75d9419"
+        },
+        "context": {
+          "file": "mtp-gate-cpu-r1/draft-limit-q262143-out16/context.bin",
+          "bytes": 524288,
+          "sha256": "5327d9db0caa3c2ddcc1c4fc34b57ce3b92d8d472859e62c7f0926687289dbe9"
+        },
+        "expected_gated": {
+          "file": "mtp-gate-cpu-r1/draft-limit-q262143-out16/gated.bin",
+          "bytes": 524288,
+          "sha256": "64a975692e71b76303d90364780bcd8dcf0feac9dc83183e1141fc56d839723a"
+        },
+        "sigmoid_table": {
+          "file": "qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin",
+          "bytes": 131072,
+          "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97"
+        }
+      },
+      "original_operand_provenance_bound_by": [
+        "3aca66c98b3642b1ad40f83df69ea0ccd2945027213215f2eb42c25afdb758f3",
+        "9c36c84e315aeb52d6e9b753f8ad51793b2c4337aab7ea124b18320d5b279892"
+      ]
+    }
+  ],
+  "rows_per_projection": 322,
+  "projection_bf16_elements": 3297280,
+  "gate_bf16_elements": 1318912,
+  "total_bf16_elements": 4616192,
+  "bf16_mismatches": 0,
+  "original_sigmoid_encodings": 65536,
+  "original_sigmoid_byte_mismatches": 0,
+  "sigmoid_table_bytes": 131072,
+  "additional_runtime_table_bytes": 0,
+  "gate_asan_ubsan_pass": true,
+  "hip_probe_source_closure": {
+    "tools/mtp_projection_hip_probe.cpp": {
+      "bytes": 6483,
+      "sha256": "77ba0a60d5185517e0fe137c4ecd97dfc5f070ba7af9a017addd87347ff47ac3"
+    },
+    "native/providers/gdn/sm121_mtp_projection.h": {
+      "bytes": 2585,
+      "sha256": "ffae24eed114ae3c4e53b6d59087fc54570bea49a9de9ffc0f997be71ef8bcf0"
+    },
+    "native/providers/gdn/sm121_q1_math.h": {
+      "bytes": 6456,
+      "sha256": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb"
+    },
+    "native/providers/gdn/sm121_rsqrt_table.h": {
+      "bytes": 3034,
+      "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f"
+    },
+    "native/providers/gdn/sm121_exp2_table.h": {
+      "bytes": 3753,
+      "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142"
+    },
+    "native/providers/gdn/sm121_sqrt_table.h": {
+      "bytes": 2377,
+      "sha256": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1"
+    },
+    "native/providers/gdn/sm121_attention_rcp.h": {
+      "bytes": 3034,
+      "sha256": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6"
+    },
+    "native/providers/moe_accumulator/sm121_subgroup.h": {
+      "bytes": 7812,
+      "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5"
+    },
+    "native/providers/moe_accumulator/sm121_wave16.h": {
+      "bytes": 5204,
+      "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56"
+    },
+    "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": {
+      "bytes": 12459,
+      "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a"
+    },
+    "native/providers/moe_accumulator/sm121_group16_modulo.h": {
+      "bytes": 4771,
+      "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9"
+    },
+    "native/providers/moe_accumulator/sm121_lane_reduce.h": {
+      "bytes": 2510,
+      "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22"
+    },
+    "native/providers/moe_accumulator/sm121_canonical_normalize.h": {
+      "bytes": 1536,
+      "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91"
+    },
+    "native/providers/moe_accumulator/sm121_paired_products.h": {
+      "bytes": 2173,
+      "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13"
+    },
+    "native/providers/moe_accumulator/sm121_dot_certificate.h": {
+      "bytes": 1474,
+      "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658"
+    },
+    "tools/mtp_query_hip_probe.cpp": {
+      "bytes": 9355,
+      "sha256": "221af099bba3f9ef5bca3285734418885747da8db944e1cad4cd44b86850e6c9"
+    },
+    "native/providers/gdn/sm121_mtp_query.h": {
+      "bytes": 2841,
+      "sha256": "1e66f7eb11d9c2f00b9a3b9a856fff403aeaf57f804b1bac399b3f4461c1b918"
+    },
+    "native/providers/gdn/sm121_mtp_query_math.h": {
+      "bytes": 542,
+      "sha256": "83e9e334131e3c335ab3795865f4f4013f27f963b839c260d44aaa5fa20631f9"
+    },
+    "native/providers/gdn/sm121_mtp_kv_math.h": {
+      "bytes": 1317,
+      "sha256": "b4cd662fe69172accc1b24c0e724462f822704835ac1d6d4cfa10c55f0caca72"
+    },
+    "native/providers/gdn/sm121_mtp_math.h": {
+      "bytes": 2181,
+      "sha256": "0e58296175341d4ded1b69c5318808246721623b25b15404d00b6074d74ebddf"
+    },
+    "native/providers/gdn/sm121_bf16_fma.h": {
+      "bytes": 5013,
+      "sha256": "2c1e66061c5a36f231c4e35eadc23ca86b0e647b57ab70c5e9adc51048dbd1ad"
+    },
+    "native/providers/gdn/sm121_mtp_gate.h": {
+      "bytes": 1132,
+      "sha256": "41e052dc237375567a8a11b95d41b4eb8cfa75ac6b984c9bcd7735be7e02da9f"
+    },
+    "native/providers/gdn/sm121_mtp_gate_math.h": {
+      "bytes": 682,
+      "sha256": "95c79544165c6aefbc99f47e25625b20f009789f566e27ebe1bdbfe1486a9111"
+    }
+  },
+  "hip_probes_uncompiled_unrun": true,
+  "new_gpu_checks": [
+    "original Q and O projections with 7 and 1024 blocks per launch",
+    "out-of-place and in-place context gating from the computed query gate vector",
+    "invalid extents and aliases, output redzones, immutable operands and sigmoid table"
+  ],
+  "full_prefill_qo_rows_checked": false,
+  "complete_native_mtp_integrated": false,
+  "native_inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "scope": "CPU checks use all 322 qualified selected rows across six original model requests. The independent CUDA sigmoid run enumerates all BF16 input encodings and matches the existing table byte-for-byte. Projection CPU source remains the frozen K16 26-bit accumulator; native launchers still require gfx1151 execution. No captured operand or expected output is connected to native model inference.",
+  "recorder": {
+    "file": "record_mtp_qo_gate_r1.py",
+    "sha256": "5e5501ca2c6832b8ce89c23134ae61efafce0400155faae36091d5b7fd493ef3"
+  }
+}

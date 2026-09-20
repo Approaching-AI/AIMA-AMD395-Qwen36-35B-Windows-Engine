@@ -4,7 +4,7 @@
 #include "../moe_accumulator/sm121_subgroup.h"
 
 namespace qrt_sm121_mtp {
-// Exact K16 baseline for the original FC and KV frontiers. This independent
+// Exact K16 baseline for the original FC, Q, KV and O frontiers. This independent
 // producer allocates no workspace and does not borrow a target-layer GEMM
 // heuristic merely because its dimensions match. Complete MTP integration
 // must qualify the original projection schedule for every admitted shape.
@@ -26,6 +26,7 @@ inline hipError_t launch_projection(const uint16_t* weights, const uint16_t* inp
     uint16_t* output, unsigned int output_features, unsigned int input_features,
     unsigned int tokens, unsigned int maximum_blocks = 1024u, hipStream_t stream = nullptr) {
     const bool shape = (output_features == 2048u && input_features == 4096u) ||
+                       (output_features == 8192u && input_features == 2048u) ||
                        (output_features == 1024u && input_features == 2048u);
     if (!weights || !input || !output || output == input || output == weights || !shape ||
         !tokens || tokens > 8192u || !maximum_blocks || maximum_blocks > 4096u)
