@@ -42,6 +42,7 @@
 #include "sm121_q1_full_runtime.h"
 #include "sm121_q1_attention_runtime.h"
 #include "sm121_q1_packed_runtime.h"
+#include "moe_accumulator/sm121_packed_dense.h"
 #include "mtp_target_rows.h"
 #include "mtp_target_rows_trace.h"
 #include "gdn/sm121_mtp_resident_weights.h"
@@ -163463,6 +163464,8 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
          q1_decode_early_layer_bf16_projection_layer_selected);
     const bool q1_sm121_gdn_requested = env_flag_enabled("QRT_QWEN36_Q1_SM121_GDN");
     const bool q1_sm121_output_requested = env_flag_enabled("QRT_QWEN36_Q1_SM121_OUTPUT");
+    const bool q1_sm121_packed_dense = qrt_sm121_q1_packed_runtime::applies_to_prefix(
+        g_qwen36_resident_session.prefix_tokens);
     if (q1_sm121_output_requested && !q1_sm121_gdn_requested) {
         return fail("qwen36_q1_sm121_output_dependency", "SM121 Q1 output requires the exact GDN device chain");
     }
@@ -164521,7 +164524,15 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
                                  unsigned int rows,
                                  const char *stage) -> bool {
         if (q1_sm121_gdn_requested) {
-            if (projection_input_bf16) {
+            if (q1_sm121_packed_dense && projection_input_bf16) {
+                hipLaunchKernelGGL((qrt_sm121_packed_dense::projection<2048u,uint16_t,float>),
+                    dim3((rows + 15u) / 16u), dim3(256u), 0, q1_decode_layer_stack_stream,
+                    device_norm_bf16, weights, output, rows, 1u);
+            } else if (q1_sm121_packed_dense) {
+                hipLaunchKernelGGL((qrt_sm121_packed_dense::projection<2048u,float,float>),
+                    dim3((rows + 15u) / 16u), dim3(256u), 0, q1_decode_layer_stack_stream,
+                    device_norm_f32, weights, output, rows, 1u);
+            } else if (projection_input_bf16) {
                 hipLaunchKernelGGL(selected_q1_bf16_projection_sm121_kernel,
                     dim3((rows + 15u) / 16u), dim3(256u), 0, q1_decode_layer_stack_stream,
                     weights, device_norm_bf16, output, rows);
@@ -165693,10 +165704,17 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
             // The callback published residual and BF16 postnorm endpoints for
             // both private states in one exact shared-weight launch.
         } else if (q1_sm121_output_requested) {
-            hipLaunchKernelGGL(q1_linear_output_sm121_kernel,
-                dim3((kOutProjectionRows + 15u) / 16u), dim3(256u), 0,
-                q1_decode_layer_stack_stream, out_weights, device_gated_bf16,
-                device_update_bf16);
+            if (q1_sm121_packed_dense) {
+                hipLaunchKernelGGL((qrt_sm121_packed_dense::projection<4096u,uint16_t,uint16_t>),
+                    dim3((kOutProjectionRows + 15u) / 16u), dim3(256u), 0,
+                    q1_decode_layer_stack_stream, device_gated_bf16, out_weights,
+                    device_update_bf16, kOutProjectionRows, 1u);
+            } else {
+                hipLaunchKernelGGL(q1_linear_output_sm121_kernel,
+                    dim3((kOutProjectionRows + 15u) / 16u), dim3(256u), 0,
+                    q1_decode_layer_stack_stream, out_weights, device_gated_bf16,
+                    device_update_bf16);
+            }
             ++kernel_launches;
             if (!check_launch("qwen36_resident_decode_linear_sm121_output")) return false;
             emit_q1024_q1_linear_stage_digest("output_projection_bf16",
@@ -167753,6 +167771,8 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
         q1_decode_early_layer_bf16_moe_requested &&
         q1_decode_early_layer_bf16_moe_layer_selected;
     const bool q1_sm121_moe_requested = env_flag_enabled("QRT_QWEN36_Q1_SM121_MOE");
+    const bool q1_sm121_packed_dense = qrt_sm121_q1_packed_runtime::applies_to_prefix(
+        g_qwen36_resident_session.prefix_tokens);
     qrt_sm121_q1_moe_runtime::Tables q1_sm121_moe_tables;
     const bool legacy_early_f32 =
         !q1_sm121_moe_requested && q1_decode_early_layer_bf16_moe_layer &&
@@ -169111,8 +169131,15 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
             !record_q1_moe_router_profile_boundary(
                 Q1LayerProfileBoundary::kMoeRouterInputEnd,
                 "qwen36_resident_decode_q1_moe_profile_router_input_end")) return false;
-        hipLaunchKernelGGL((qrt_sm121_q1_moe::projection<2048u>), dim3(16u), dim3(256u), 0, q1_moe_router_stream,
-            device_input_bf16, router_weights_row_major, device_router_logits_bf16, QRT_QWEN36_EXPERT_COUNT);
+        if (q1_sm121_packed_dense) {
+            hipLaunchKernelGGL((qrt_sm121_packed_dense::projection<2048u,uint16_t,uint16_t>),
+                dim3(16u), dim3(256u), 0, q1_moe_router_stream,
+                device_input_bf16, router_weights_row_major, device_router_logits_bf16,
+                QRT_QWEN36_EXPERT_COUNT, 1u);
+        } else {
+            hipLaunchKernelGGL((qrt_sm121_q1_moe::projection<2048u>), dim3(16u), dim3(256u), 0, q1_moe_router_stream,
+                device_input_bf16, router_weights_row_major, device_router_logits_bf16, QRT_QWEN36_EXPERT_COUNT);
+        }
         if (!check_launch("qwen36_q1_sm121_moe_router_projection") ||
             !record_q1_moe_router_profile_boundary(
                 Q1LayerProfileBoundary::kMoeRouterProjectionEnd,
@@ -172688,16 +172715,30 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
 
     const uint64_t shared_start_ns = qrt_now_ns();
     if (q1_sm121_moe_requested) {
-        hipLaunchKernelGGL(qrt_sm121_q1_moe::shared_activation, dim3(32u), dim3(256u), 0, q1_moe_post_router_stream,
-            device_input_bf16, shared_gate_projection_weights, shared_up_projection_weights,
-            q1_sm121_moe_tables.silu, device_rocblas_shared_activated);
+        if (q1_sm121_packed_dense) {
+            hipLaunchKernelGGL(qrt_sm121_packed_dense::shared_activation,
+                dim3(32u), dim3(256u), 0, q1_moe_post_router_stream,
+                device_input_bf16, shared_gate_projection_weights, shared_up_projection_weights,
+                q1_sm121_moe_tables.silu, device_rocblas_shared_activated);
+        } else {
+            hipLaunchKernelGGL(qrt_sm121_q1_moe::shared_activation, dim3(32u), dim3(256u), 0, q1_moe_post_router_stream,
+                device_input_bf16, shared_gate_projection_weights, shared_up_projection_weights,
+                q1_sm121_moe_tables.silu, device_rocblas_shared_activated);
+        }
         hipLaunchKernelGGL(qrt_sm121_q1_moe::shared_gate, dim3(1u), dim3(16u), 0, q1_moe_post_router_stream,
             device_input_bf16, shared_gate_weights, device_rocblas_shared_gate_logit_bf16);
         if (!check_launch("qwen36_q1_sm121_moe_shared_activation")) return false;
         emit_q1024_q1_moe_stage_digest("shared_activated_bf16", device_rocblas_shared_activated,
             QRT_QWEN36_MOE_EXPERT_INTERMEDIATE * sizeof(uint16_t));
-        hipLaunchKernelGGL((qrt_sm121_q1_moe::projection<512u>), dim3(128u), dim3(256u), 0, q1_moe_post_router_stream,
-            device_rocblas_shared_activated, shared_down_weights, device_rocblas_shared_down_output, QRT_QWEN36_HIDDEN_SIZE);
+        if (q1_sm121_packed_dense) {
+            hipLaunchKernelGGL((qrt_sm121_packed_dense::projection<512u,uint16_t,uint16_t>),
+                dim3(256u), dim3(256u), 0, q1_moe_post_router_stream,
+                device_rocblas_shared_activated, shared_down_weights, device_rocblas_shared_down_output,
+                QRT_QWEN36_HIDDEN_SIZE, 1u);
+        } else {
+            hipLaunchKernelGGL((qrt_sm121_q1_moe::projection<512u>), dim3(128u), dim3(256u), 0, q1_moe_post_router_stream,
+                device_rocblas_shared_activated, shared_down_weights, device_rocblas_shared_down_output, QRT_QWEN36_HIDDEN_SIZE);
+        }
         kernel_launches += 3u; matrix_calls += 4u;
         if (!check_launch("qwen36_q1_sm121_moe_shared_down") ||
             !launch_q1_moe_shared_final_output(device_rocblas_shared_down_output,
@@ -183375,6 +183416,8 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
     };
     const bool q1_sm121_full_requested = env_flag_enabled("QRT_QWEN36_Q1_SM121_FULL");
     qrt_sm121_q1_full_runtime::Tables q1_full_tables;
+    const bool q1_sm121_packed_dense = qrt_sm121_q1_packed_runtime::applies_to_prefix(
+        g_qwen36_resident_session.prefix_tokens);
     const uint8_t *q1_full_rsqrt_correction = nullptr;
     if (q1_sm121_full_requested &&
         (!env_flag_enabled("QRT_QWEN36_Q1_SM121_MOE") ||
@@ -184833,10 +184876,17 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
         const unsigned int rows[] = {8192u, 512u, 512u};
         const unsigned int offsets[] = {0u, 8192u, 8704u};
         for (unsigned int part = 0u; part < 3u; ++part) {
-            hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_sm121_q1_moe::projection<2048u>),
-                dim3((rows[part] + 15u) / 16u), dim3(256u), 0,
-                q1_decode_layer_stack_stream, device_norm_bf16, weights[part],
-                result + offsets[part], rows[part]);
+            if (q1_sm121_packed_dense) {
+                hipLaunchKernelGGL((qrt_sm121_packed_dense::projection<2048u,uint16_t,uint16_t>),
+                    dim3((rows[part] + 15u) / 16u), dim3(256u), 0,
+                    q1_decode_layer_stack_stream, device_norm_bf16, weights[part],
+                    result + offsets[part], rows[part], 1u);
+            } else {
+                hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_sm121_q1_moe::projection<2048u>),
+                    dim3((rows[part] + 15u) / 16u), dim3(256u), 0,
+                    q1_decode_layer_stack_stream, device_norm_bf16, weights[part],
+                    result + offsets[part], rows[part]);
+            }
             ++kernel_launches; ++matrix_calls;
             if (!check_launch("qwen36_q1_sm121_full_qkv")) return false;
         }
@@ -185917,9 +185967,16 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
             ++kernel_launches;
         }
         if (q1_sm121_full_requested) {
-            hipLaunchKernelGGL(q1_linear_output_sm121_kernel,
-                dim3((kOutProjectionRows + 15u) / 16u), dim3(256u), 0,
-                q1_decode_layer_stack_stream, output_weights, device_context_bf16, device_update_bf16);
+            if (q1_sm121_packed_dense) {
+                hipLaunchKernelGGL((qrt_sm121_packed_dense::projection<4096u,uint16_t,uint16_t>),
+                    dim3((kOutProjectionRows + 15u) / 16u), dim3(256u), 0,
+                    q1_decode_layer_stack_stream, device_context_bf16, output_weights,
+                    device_update_bf16, kOutProjectionRows, 1u);
+            } else {
+                hipLaunchKernelGGL(q1_linear_output_sm121_kernel,
+                    dim3((kOutProjectionRows + 15u) / 16u), dim3(256u), 0,
+                    q1_decode_layer_stack_stream, output_weights, device_context_bf16, device_update_bf16);
+            }
             ++kernel_launches;
             if (!check_launch("qwen36_q1_sm121_full_output")) return false;
             emit_q1024_q1_full_stage_digest("output_projection_bf16", device_update_bf16,

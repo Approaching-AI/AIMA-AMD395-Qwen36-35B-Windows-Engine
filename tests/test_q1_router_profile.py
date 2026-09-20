@@ -65,6 +65,9 @@ namespace qrt_sm121_q1_moe {
 template<unsigned int> constexpr unsigned int projection = 102;
 constexpr unsigned int router = 103;
 }
+namespace qrt_sm121_packed_dense {
+template<unsigned int, class, class> constexpr unsigned int projection = 104;
+}
 template<class... Args>
 void launch(unsigned int kernel, dim3, dim3, int, hipStream_t stream, Args...) {
     assert(stream == expected_stream);
@@ -74,7 +77,8 @@ void launch(unsigned int kernel, dim3, dim3, int, hipStream_t stream, Args...) {
 #define hipLaunchKernelGGL(...) launch(__VA_ARGS__)
 bool check_launch(const char *) { return launches != fail_launch; }
 ''' + enum + helper + r'''
-bool run(Qwen36ResidentDecodeActivationWorkspace *workspace, unsigned int layer, Lease *lease) {
+bool run(Qwen36ResidentDecodeActivationWorkspace *workspace, unsigned int layer, Lease *lease,
+         bool q1_sm121_packed_dense) {
     struct { unsigned int layer_index; } descriptor{layer};
     std::string stage, error;
     std::string *failure_stage = &stage, *failure = &error;
@@ -92,6 +96,7 @@ bool run(Qwen36ResidentDecodeActivationWorkspace *workspace, unsigned int layer,
 }
 int main() {
     for (bool cache : {false, true}) for (bool profile : {false, true})
+    for (bool packed : {false, true})
     for (unsigned int layer : {0u, 1u, 2u, 39u})
     for (unsigned int fault : {0u, 1u, 2u, 17u, 18u}) {
         cached = cache; profiling = profile;
@@ -106,7 +111,7 @@ int main() {
             workspace.q1_layer_profile_events[18][layer - 2] = &projection;
         }
         Lease lease;
-        bool result = run(&workspace, layer, &lease);
+        bool result = run(&workspace, layer, &lease, packed);
         bool event_fault = events_active && fault > 2;
         assert(result == (fault == 0 || (fault > 2 && !events_active)));
         assert(lease.invalid == event_fault);
@@ -114,7 +119,7 @@ int main() {
         if (fault != 1) {
             if (events_active) expected.push_back(17);
             if (!(events_active && fault == 17)) {
-                expected.push_back(102);
+                expected.push_back(packed ? 104 : 102);
                 if (fault != 2) {
                     if (events_active) expected.push_back(18);
                     if (!(events_active && fault == 18)) expected.push_back(103);

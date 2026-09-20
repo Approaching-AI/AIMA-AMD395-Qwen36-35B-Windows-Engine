@@ -127,6 +127,22 @@ reproduces every one of 31457280 FP32 state values and 245760 BF16 core outputs
 across all 60 selected rows. This checks the recurrence on original operands;
 the actual Windows operands and other operators still require comparison.
 
+The [packed dense production candidate](../benchmarks/correctness/packed-dense-production-cpu-20260920.json)
+now applies the original one-row projection order to linear, full-attention,
+router and shared-expert projections for requests starting at262144 tokens or
+beyond. The actual production header matches all328 original packed cases and
+899844 BF16 outputs on CPU. The28 short two-row controls match all71688 outputs
+with the existing K16 path; using the packed order for those controls produces
+64 differences. The shared-down512 reduction uses32 contiguous16-element
+chains; widths2048/4096 use16 strided chains.
+
+All60 existing Q1, MTP and prefix-owner regression tests pass, including both
+router submission branches and their failure/event ordering. The Windows
+probe checks original local model-weight hashes, BF16/F32 carriers, uneven
+launch tails, shared activation, readonly inputs and allocation guards.
+Native GPU replay and whole-model acceptance remain pending. This change does
+not implement the general scheduled transition across the draft-context limit.
+
 The [completed all-Q1 full256k diagnosis](../benchmarks/correctness/full256k-dense-projection-root-cause-20260920.json)
 uses whole `1a9743a`, CK370/FLA1d/MoE923/CLI6d on baiying. All32 owner chunks
 complete; the first suffix again diverges at output189 (2468 instead of8240),
