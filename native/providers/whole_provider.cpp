@@ -46,6 +46,7 @@
 #include "mtp_target_rows.h"
 #include "mtp_target_rows_trace.h"
 #include "gdn/sm121_mtp_resident_weights.h"
+#include "gdn/sm121_q2_resident_weights.h"
 #include "sm121_mtp_prefill_probe.h"
 #include "q1_trace_policy.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
@@ -80157,7 +80158,9 @@ bool parse_resident_model_shard_header(
             tensor.absolute_begin = absolute_begin;
             tensor.bytes = end - begin;
             if (std::strncmp(tensor_name, "mtp.", 4u) == 0 ||
+                std::strncmp(tensor_name, "model.language_model.layers.", 28u) == 0 ||
                 std::strcmp(tensor_name, "model.language_model.embed_tokens.weight") == 0 ||
+                std::strcmp(tensor_name, "model.language_model.norm.weight") == 0 ||
                 std::strcmp(tensor_name, "lm_head.weight") == 0) {
                 tensor.mtp_metadata_json.assign(value_start, value_end);
             }
@@ -81993,6 +81996,60 @@ std::shared_ptr<const qrt_sm121_mtp::ModelWeightSource> acquire_qwen36_mtp_model
             &g_qwen36_mtp_weight_storage_epoch, epoch, views);
     } catch (const std::bad_alloc&) {
         return fail("mtp_model_source_host_allocation", "native MTP model lease host allocation failed");
+    }
+}
+
+std::shared_ptr<const qrt_sm121_mtp::ModelWeightSource> acquire_qwen36_target_model_weight_source(
+    const std::string& model_dir, std::string* failure_stage, std::string* failure
+) {
+    // Reuse the established model-allocation adoption. The returned MTP source
+    // pins the store while this target view is resolved under the same epoch.
+    auto lease = acquire_qwen36_mtp_model_weight_source(model_dir, failure_stage, failure);
+    if (!lease) return {};
+    using qrt_sm121_q2::ResidentTargetWeightSource;
+    const auto fail = [&](const char* stage, const char* message)
+        -> std::shared_ptr<const qrt_sm121_mtp::ModelWeightSource> {
+        if (failure_stage) *failure_stage = stage;
+        if (failure) *failure = message;
+        return {};
+    };
+    auto& store = g_resident_model_shard_store;
+    std::lock_guard<std::mutex> lock(store.lookup_mutex);
+    const uint64_t epoch = lease->epoch();
+    qrt_sm121_mtp::ModelTensorView anchor;
+    if (!epoch || !store.valid || store.model_dir != model_dir || !store.mtp_weight_storage ||
+        !lease->tensor("model.language_model.embed_tokens.weight", &anchor) || anchor.epoch != epoch)
+        return fail("target_model_source_epoch", "original target model lease is unavailable");
+    try {
+        ResidentTargetWeightSource::Views views{};
+        const auto& specs = qrt_sm121_q2::target_weight_specs();
+        for (size_t i = 0; i < specs.size(); ++i) {
+            const auto& expected = specs[i];
+            const auto found = store.tensors.find(expected.name);
+            if (found == store.tensors.end() || found->second.bytes != expected.bytes() ||
+                found->second.shard_index >= store.shards.size())
+                return fail("target_model_source_tensor", "original target tensor is absent or has invalid byte extent");
+            const auto& tensor = found->second;
+            auto& view = views[i];
+            view.name = expected.name.c_str(); view.bytes = tensor.bytes; view.epoch = epoch;
+            if (!parse_qwen36_mtp_tensor_shape(tensor.mtp_metadata_json, &view) ||
+                view.rank != expected.rank || view.shape != expected.shape)
+                return fail("target_model_source_shape", "original target tensor shape or dtype differs");
+            const void* base = nullptr;
+            uint64_t offset = 0;
+            if (!resident_model_shard_device_location(store.shards[tensor.shard_index],
+                    tensor.absolute_begin, tensor.bytes, &base, &offset))
+                return fail("target_model_source_view", "original target tensor has no complete resident view");
+            view.device = reinterpret_cast<const uint16_t*>(static_cast<const unsigned char*>(base) + offset);
+            if (!store.mtp_weight_storage->contains(view.device, view.bytes))
+                return fail("target_model_source_allocation", "original target tensor is outside its owning allocation");
+        }
+        if (lease->epoch() != epoch)
+            return fail("target_model_source_epoch", "original target model epoch changed during lookup");
+        return std::make_shared<ResidentTargetWeightSource>(store.mtp_weight_storage,
+            &g_qwen36_mtp_weight_storage_epoch, epoch, std::move(views));
+    } catch (const std::bad_alloc&) {
+        return fail("target_model_source_host_allocation", "target model lease host allocation failed");
     }
 }
 

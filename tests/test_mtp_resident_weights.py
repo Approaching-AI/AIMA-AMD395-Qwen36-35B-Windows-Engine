@@ -36,6 +36,7 @@ class MtpResidentWeightTests(unittest.TestCase):
             'bool resident_model_shard_device_location(', 'bool parse_resident_model_shard_header(',
             'bool parse_qwen36_mtp_tensor_shape(',
             'std::shared_ptr<const qrt_sm121_mtp::ModelWeightSource> acquire_qwen36_mtp_model_weight_source(',
+            'std::shared_ptr<const qrt_sm121_mtp::ModelWeightSource> acquire_qwen36_target_model_weight_source(',
             'void release_resident_model_shard_store() {'))
         source = r'''
 #include <algorithm>
@@ -66,6 +67,7 @@ static int VirtualFree(void*,size_t,int){assert(false);return 0;}
 constexpr unsigned QRT_LOAD_JSON_STRING_CAPACITY=512;
 #include "native/providers/resident_ordered_shard_layout.h"
 #include "sm121_mtp_resident_weights.h"
+#include "sm121_q2_resident_weights.h"
 ''' + core_functions + '\n' + structs + r'''
 ResidentModelShardStore g_resident_model_shard_store;
 std::atomic<uint64_t> g_qwen36_mtp_weight_storage_epoch{1};
@@ -76,22 +78,27 @@ static std::string metadata(const ModelTensorSpec& spec,size_t first){
     for(unsigned i=0;i<spec.rank;++i)out<<(i?", ":"")<<spec.shape[i];
     out<<" ] , \"data_offsets\": ["<<first<<", "<<first+spec.bytes()<<"]}";return out.str();
 }
-static void initialize(){
+static void initialize(bool target=false){
     auto& store=g_resident_model_shard_store;
     assert(!store.valid&&!store.mtp_weight_storage&&store.shards.empty());
-    const uintptr_t base=UINT64_C(0x100000000)* (1+4*g_qwen36_mtp_weight_storage_epoch.load());
+    const uintptr_t base=(target?UINT64_C(0x10000000000):UINT64_C(0x100000000))* (1+4*g_qwen36_mtp_weight_storage_epoch.load());
+    std::vector<ModelTensorSpec> specs(model_weight_specs.begin(),model_weight_specs.end());
+    if(target)for(const auto& s:qrt_sm121_q2::target_weight_specs()){
+        if(std::none_of(specs.begin(),specs.end(),[&](const auto& old){return s.name==old.name;}))
+            specs.push_back({s.name.c_str(),s.rank,s.shape});
+    }
     size_t total=0;std::ostringstream json;json<<'{';
-    for(size_t i=0;i<model_weight_specs.size();++i){
-        const auto& spec=model_weight_specs[i];
+    for(size_t i=0;i<specs.size();++i){
+        const auto& spec=specs[i];
         json<<(i?",":"")<<'"'<<spec.name<<"\":"<<metadata(spec,total);total+=spec.bytes();
-    }json<<'}';const auto header=json.str();
+    }json<<'}';auto header=json.str();while(header.size()%8u)header+=' ';
     uint64_t bytes=0,count=0;std::string failure;
     assert(parse_resident_model_shard_header(header,"original-shard",header.size(),8+header.size()+total,0,
         &store.tensors,&bytes,&count,&failure));
-    assert(count==21&&bytes==total);
-    const size_t fixed=model_weight_specs.back().bytes(),ordinary=total-fixed;
+    assert(count==specs.size()&&count==(target?652u:21u)&&bytes==total);
+    const size_t fixed=specs.back().bytes(),ordinary=total-fixed;
     ResidentModelShardStoreShard shard;shard.device_base=reinterpret_cast<void*>(base);
-    shard.fixed_device_base=reinterpret_cast<void*>(base+UINT64_C(0x200000000));
+    shard.fixed_device_base=reinterpret_cast<void*>(base+(target?UINT64_C(0x2000000000):UINT64_C(0x200000000)));
     shard.layout.file_bytes=shard.fixed_layout.file_bytes=8+header.size()+total;
     shard.layout.device_bytes=ordinary;shard.fixed_layout.device_bytes=fixed;
     shard.layout.spans.push_back({8+header.size(),0,ordinary});
@@ -167,6 +174,29 @@ int main(){
     // The default, unleased release still frees each original allocation once.
     initialize();assert(!store.mtp_weight_storage);release_resident_model_shard_store();
     assert(allocations.empty());
+    // Resolve all real target identities from the same metadata parser and
+    // ordinary/fixed allocation maps used by the product acquisition code.
+    initialize(true);
+    const auto target_acquire=[&](){std::string stage,failure;
+        return acquire_qwen36_target_model_weight_source("original-model",&stage,&failure);};
+    for(const auto& spec:qrt_sm121_q2::target_weight_specs()){
+        auto& tensor=store.tensors.at(spec.name);const auto original=tensor.mtp_metadata_json;
+        assert(!original.empty());tensor.mtp_metadata_json="{\"dtype\":\"BF16\",\"shape\":[1]}";
+        assert(!target_acquire()&&allocations.size()==2);tensor.mtp_metadata_json=original;
+    }
+    auto target=target_acquire();assert(target&&store.mtp_weight_storage);
+    auto mtp=acquire();assert(mtp&&store.mtp_weight_storage->allocations()==2);
+    for(const auto& spec:qrt_sm121_q2::target_weight_specs()){
+        assert(target->tensor(spec.name.c_str(),&view)&&view.shape==spec.shape&&view.bytes==spec.bytes());
+        assert(store.mtp_weight_storage->contains(view.device,view.bytes));
+    }
+    auto& tensor=store.tensors.at(qrt_sm121_q2::target_weight_specs().back().name);
+    const auto shard=tensor.shard_index;tensor.shard_index=store.shards.size();
+    assert(!target_acquire()&&allocations.size()==2);tensor.shard_index=shard;
+    old_owner=store.mtp_weight_storage;release_resident_model_shard_store();
+    assert(!old_owner.expired()&&allocations.size()==2);
+    assert(!target->tensor("model.language_model.norm.weight",&view)&&!view.device);
+    target.reset();assert(allocations.size()==2);mtp.reset();assert(allocations.empty()&&old_owner.expired());
     // Snapshot names survive original map/header destruction even without
     // changing the global epoch (the source owns canonical immutable names).
     auto storage=std::make_shared<ResidentWeightStorage>();
@@ -182,7 +212,8 @@ int main(){
 '''
         with tempfile.TemporaryDirectory() as temporary:
             directory = Path(temporary)
-            for name in ('sm121_mtp_model_weights.h','sm121_mtp_resident_weights.h'):
+            for name in ('sm121_mtp_model_weights.h','sm121_mtp_resident_weights.h',
+                         'sm121_q2_model_weights.h','sm121_q2_resident_weights.h'):
                 header = (ROOT/'native/providers/gdn'/name).read_text().replace('#include <hip/hip_runtime.h>', '')
                 (directory/name).write_text(header)
             path = directory/'test.cpp'; path.write_text(source)
