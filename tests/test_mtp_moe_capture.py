@@ -7,11 +7,56 @@ import struct
 import subprocess
 import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
-from capture_gb10_mtp_moe import FRONTIERS, WEIGHTS, qualify_moe_capture  # noqa: E402
+from capture_gb10_mtp_moe import (  # noqa: E402
+    FRONTIERS, WEIGHTS, observe_original_moe_routed, qualify_moe_capture)
+
+
+class MtpRoutedCallTests(unittest.TestCase):
+    def test_original_calls_and_objects_are_preserved_and_restored(self):
+        for tokens in (1, 2, 7169, 8192):
+            with self.subTest(tokens=tokens):
+                calls, copies = [], []
+                original_result, projection_result = object(), object()
+                def dispatch(*args, **kwargs):
+                    calls.append((args, kwargs))
+                    return projection_result
+                module = SimpleNamespace(invoke_fused_moe_triton_kernel=dispatch)
+                gate = SimpleNamespace(shape=(tokens, 8, 1024))
+                activated = SimpleNamespace(shape=(tokens * 8, 512))
+                weighted = SimpleNamespace(shape=(tokens, 8, 2048))
+                def forward(argument, *, marker):
+                    self.assertEqual((argument, marker), ('original', 13))
+                    self.assertIs(module.invoke_fused_moe_triton_kernel('input', 'weights', gate, mode=4), projection_result)
+                    self.assertIs(module.invoke_fused_moe_triton_kernel(activated, 'down', weighted, mode=5), projection_result)
+                    return original_result
+                result = observe_original_moe_routed(forward, module, lambda *args: copies.append(args),
+                                                     tokens, 'original', marker=13)
+                self.assertIs(result, original_result)
+                self.assertIs(module.invoke_fused_moe_triton_kernel, dispatch)
+                self.assertEqual(len(calls), 2)
+                self.assertEqual(calls[0], (('input', 'weights', gate), {'mode': 4}))
+                self.assertEqual(copies, [('routed-gate-up', gate, 8192),
+                    ('routed-activated', activated, 4096), ('routed-weighted', weighted, 16384)])
+
+    def test_copy_error_restores_original_dispatcher_and_prevents_second_call(self):
+        calls = []
+        def dispatch(*args):
+            calls.append(args)
+        module = SimpleNamespace(invoke_fused_moe_triton_kernel=dispatch)
+        def forward():
+            module.invoke_fused_moe_triton_kernel(None, None, SimpleNamespace(shape=(2, 8, 1024)))
+            self.fail('second projection must not run after a failed observation')
+        def fail(*args):
+            raise RuntimeError('copy failed')
+        with self.assertRaisesRegex(RuntimeError, 'copy failed'):
+            observe_original_moe_routed(forward, module, fail, 2)
+        self.assertIs(module.invoke_fused_moe_triton_kernel, dispatch)
+        self.assertEqual(len(calls), 1)
 
 
 class MtpMoeCaptureTests(unittest.TestCase):

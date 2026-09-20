@@ -9,7 +9,6 @@ import struct
 import time
 
 from capture_gb10_mtp_launchers import MtpKernelBoundaryCapture
-from capture_gb10_runtime_boundaries import observe_original_moe_routed
 from capture_sm121_exp2_table import file_sha
 
 
@@ -27,6 +26,43 @@ FRONTIERS = {
 }
 WEIGHTS = {'router': (256, 2048), 'shared-gate': (1, 2048),
            'shared-gate-up': (1024, 2048), 'shared-down': (2048, 512), 'final-norm': (2048,)}
+
+
+def observe_original_moe_routed(forward, module, observe, tokens, *args, **kwargs):
+    """Keep the separately pinned target observer unchanged during MTP capture.
+
+    This uses the same two-call observation as the qualified target-MoE
+    observer, including restoration when an original call or copy fails.
+    """
+    if type(tokens) is not int or not 1 <= tokens <= 8192:
+        raise ValueError('routed MoE observation chunk extent changed')
+    original_dispatch = module.invoke_fused_moe_triton_kernel
+    dispatch_count = 0
+
+    def dispatch(*pos, **kw):
+        nonlocal dispatch_count
+        if dispatch_count >= 2 or len(pos) < 3:
+            raise ValueError('original routed MoE projection call changed')
+        width = 1024 if dispatch_count == 0 else 2048
+        if tuple(pos[2].shape) != (tokens, 8, width):
+            raise ValueError('original routed MoE projection shape changed')
+        if dispatch_count == 1:
+            if tuple(pos[0].shape) != (tokens * 8, 512):
+                raise ValueError('original routed MoE activation shape changed')
+            observe('routed-activated', pos[0], 8 * 512)
+        result = original_dispatch(*pos, **kw)
+        observe('routed-gate-up' if dispatch_count == 0 else 'routed-weighted', pos[2], 8 * width)
+        dispatch_count += 1
+        return result
+
+    module.invoke_fused_moe_triton_kernel = dispatch
+    try:
+        result = forward(*args, **kwargs)
+        if dispatch_count != 2:
+            raise ValueError('incomplete original routed MoE observations')
+        return result
+    finally:
+        module.invoke_fused_moe_triton_kernel = original_dispatch
 
 
 def qualify_moe_capture(worker, directory):
