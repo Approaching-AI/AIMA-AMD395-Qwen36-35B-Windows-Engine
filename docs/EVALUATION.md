@@ -520,6 +520,17 @@ q7169/q8192 output regressions, original hidden comparison and production
 drafter acceptance integration remain pending. Hidden comparisons are
 diagnostic; original output-token and logit gates remain the authority.
 
+Before native dispatch, an [actual liveness-policy regression](../benchmarks/correctness/mtp-target-prefill-liveness-repair-local-20260920.json)
+exposed a missing consumer declaration in the initial handoff candidate
+`f3edb1b`: its last-query optimization intentionally zeroed earlier attention
+and output-projection rows despite retaining a complete tensor shape. The
+scoped target-row consumer now disables that optimization, so every required
+query/output row is computed. The ordinary terminal-only policy is unchanged.
+The test fails on the initial source and passes with the fix; all 42 local MTP
+and prefix checks pass. The initial Windows build plan was superseded before
+execution. Complete actual hidden and model correctness still need native
+measurement; neither host tests nor retained tensor extents establish them.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a

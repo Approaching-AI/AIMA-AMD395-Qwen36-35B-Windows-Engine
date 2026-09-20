@@ -41073,6 +41073,7 @@ private:
         static constexpr std::array<const char *, 108> kRequiredMarkers = {{
             "BATCH_MARK final_query_liveness",
             "BATCH_MARK final_query_output_liveness",
+            "BATCH_MARK qwen36_mtp_target_rows",
             "BATCH_MARK full_attention_ck_compact_bf16",
             "BATCH_MARK full_attention_ck_q1_dynamic",
             "BATCH_MARK full_attention_ck_q1_kv8192",
@@ -141474,6 +141475,7 @@ bool run_prefill_linear_attention_descriptor_batch_probe(
                 !ScopedQwen36PrefixBatchSuffix::active &&
                 !g_qwen36_chunked_prefill_total_tokens &&
                 !raw_env_flag_enabled("QRT_QWEN36_PREFIX_CHECKPOINTS") &&
+                !qrt_mtp_target_rows::Scope::active &&
                 !g_qwen36_mtp_tensor_namespace_active);
             const bool full_attention_ok = run_full_attention_layer(
                     segment.full_attention_layer,

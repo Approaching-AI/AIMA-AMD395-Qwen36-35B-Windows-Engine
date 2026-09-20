@@ -116,6 +116,56 @@ int main(){
             path.write_text(source)
             self.compile_run(path, directory)
 
+    def test_actual_last_layer_liveness_keeps_all_mtp_consumers(self):
+        whole = (ROOT / 'native/providers/whole_provider.cpp').read_text()
+        header = (ROOT / 'native/providers/final_query_liveness.h').read_text()
+        begin = whole.index('            const qrt_final_query_liveness::Scope final_query_scope(')
+        statement = whole[begin:whole.index(';', begin) + 1]
+        scope = function(header, 'struct Scope {') + ';'
+        source = r'''
+#include "mtp_target_rows.h"
+#include <cassert>
+#include <cstring>
+namespace qrt_final_query_liveness {inline thread_local bool active=false;
+''' + scope + r'''
+}
+bool enabled=true,checkpoints=false,g_qwen36_mtp_tensor_namespace_active=false;
+size_t g_qwen36_chunked_prefill_total_tokens=0;
+bool env_flag_enabled(const char* name){assert(!std::strcmp(name,"QRT_QWEN36_FINAL_QUERY_LIVENESS"));return enabled;}
+bool raw_env_flag_enabled(const char* name){assert(!std::strcmp(name,"QRT_QWEN36_PREFIX_CHECKPOINTS"));return checkpoints;}
+struct ScopedQwen36PrefixBatchSuffix {inline static void* active=nullptr;};
+constexpr unsigned kRetainedPrefillTokens=8192,kDescriptorBatchFinalLayer=39;
+bool choose(unsigned layer,unsigned prefill_tokens,bool explicit_final_targets_are_q1=true,bool final_full_prefix_attention=true){
+ struct {unsigned full_attention_layer;} segment{layer};
+''' + statement + r'''
+ return qrt_final_query_liveness::active;
+}
+int main(){
+ assert(choose(39,8192));assert(!qrt_final_query_liveness::active);
+ assert(!choose(35,8192)&&!choose(39,7169)&&!choose(39,8192,false)&&!choose(39,8192,true,false));
+ std::vector<uint32_t> prompt(8192,23);
+ qrt_mtp_target_rows::PrefillRows batch(prompt.data(),prompt.size(),0,prompt.size());
+ {
+  qrt_mtp_target_rows::Scope mtp(&batch);
+  // Every prompt row is now a real MTP consumer, including rows before 8191.
+  assert(!choose(39,8192));
+  {qrt_mtp_target_rows::Scope suspended(nullptr);assert(choose(39,8192));}
+  assert(!choose(39,8192));
+ }
+ assert(choose(39,8192));
+ checkpoints=true;assert(!choose(39,8192));checkpoints=false;
+ g_qwen36_chunked_prefill_total_tokens=16384;assert(!choose(39,8192));g_qwen36_chunked_prefill_total_tokens=0;
+ ScopedQwen36PrefixBatchSuffix::active=&batch;assert(!choose(39,8192));ScopedQwen36PrefixBatchSuffix::active=nullptr;
+ g_qwen36_mtp_tensor_namespace_active=true;assert(!choose(39,8192));g_qwen36_mtp_tensor_namespace_active=false;
+ enabled=false;assert(!choose(39,8192));
+}
+'''
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            path = directory / 'liveness.cpp'
+            path.write_text(source)
+            self.compile_run(path, directory)
+
 
 if __name__ == '__main__':
     unittest.main()

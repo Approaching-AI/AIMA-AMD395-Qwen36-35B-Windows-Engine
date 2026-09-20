@@ -1,0 +1,115 @@
+{
+  "kind": "complete_target_hidden_consumers_disable_terminal_liveness",
+  "base_source_commit": "f3edb1b3bc07a659871373a9f6b94c193410f5e7",
+  "candidate_source_sha256": {
+    "native/providers/whole_provider.cpp": "3af6e02be0fae0c8fed3da6a15d5ce923349b061f96910e565ad254e2897f65c",
+    "native/providers/mtp_target_rows.h": "d87a5cdd33a8c89f871515408c1cce8552c5617962de761621f8b065ed3797a4",
+    "native/providers/mtp_target_rows_trace.h": "73bea7c4050dfd99704de4efe8fa5b7fe8879abfc5d78e551d53b99454e6b495",
+    "native/providers/mtp_prompt_inputs.h": "efe6546dd434745bc351385e9a879373222423f7342c31dd19d4418161856a7b",
+    "native/providers/mtp_draft_schedule.h": "b01ca4c6cc09430d842d61eceff23fc3ce1345a0712cba8e2c2d0fa3b3d59ef7",
+    "tests/native/mtp_target_rows_host.cpp": "af7c5e4045c5b965133dacf4bb22d20727859c67d26a5b219526087d35530f40",
+    "tests/test_mtp_target_rows.py": "28f2edc3d90dce1ecf542e7e68f062066f6a746cd88964934025c93cc07b7853",
+    "tests/test_prefix_batch_suffix.py": "ad82802abd59457548789546372202ecaee7f8aee6ea3cce3eb1da96206f2dcd",
+    "tests/test_model_prefix_checkpoint.py": "55a2a3e995fd621be8a25159dbff186966fc7deb7f277b3cf8fa50f026135e5d",
+    "native/providers/final_query_liveness.h": "f7df422413398f445e02be25fc3de3839f7f3075b9fedcdcaeba7482598be0d6"
+  },
+  "regression_before_fix": {
+    "record": {
+      "source_commit": "f3edb1b3bc07a659871373a9f6b94c193410f5e7",
+      "source_sha256": "34681419ad5168a6937ec79ffc54b49a4caa9c601a2068cb5a40eb2e43d016e9",
+      "test_sha256": "28f2edc3d90dce1ecf542e7e68f062066f6a746cd88964934025c93cc07b7853",
+      "command": [
+        "python3.12",
+        "-m",
+        "unittest",
+        "test_mtp_target_rows.MtpTargetRowsTests.test_actual_last_layer_liveness_keeps_all_mtp_consumers",
+        "-v"
+      ],
+      "returncode": 1,
+      "expected_failure": true,
+      "reason": "Complete target hidden capture still entered last-query liveness and would zero earlier attention/output rows.",
+      "stderr_sha256": "966f4d902e4eb5562cddde4b72d7bcadc360a8af485f1b36f73ab1bd468d98f9",
+      "native_executed": false
+    },
+    "record_sha256": "38e3b5d212767bc6d825282d400aeb9f1fc61352c2fb525973bd5cff3c45c51d",
+    "stderr": "test_actual_last_layer_liveness_keeps_all_mtp_consumers (test_mtp_target_rows.MtpTargetRowsTests.test_actual_last_layer_liveness_keeps_all_mtp_consumers) ... FAIL\n\n======================================================================\nFAIL: test_actual_last_layer_liveness_keeps_all_mtp_consumers (test_mtp_target_rows.MtpTargetRowsTests.test_actual_last_layer_liveness_keeps_all_mtp_consumers)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tests/test_mtp_target_rows.py\", line 167, in test_actual_last_layer_liveness_keeps_all_mtp_consumers\n    self.compile_run(path, directory)\n  File \"/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tests/test_mtp_target_rows.py\", line 24, in compile_run\n    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)\nAssertionError: -6 != 0 : Assertion failed: (!choose(39,8192)), function main, file liveness.cpp, line 41.\n\n\n----------------------------------------------------------------------\nRan 1 test in 1.322s\n\nFAILED (failures=1)\n"
+  },
+  "local_validation": {
+    "record": {
+      "kind": "complete_target_hidden_liveness_regression",
+      "utc": "2026-09-20T08:25:23.674942+00:00",
+      "host": "Jiawei-MacminideMac-mini.local",
+      "base_source_commit": "f3edb1b3bc07a659871373a9f6b94c193410f5e7",
+      "sources": {
+        "native/providers/whole_provider.cpp": "3af6e02be0fae0c8fed3da6a15d5ce923349b061f96910e565ad254e2897f65c",
+        "native/providers/mtp_target_rows.h": "d87a5cdd33a8c89f871515408c1cce8552c5617962de761621f8b065ed3797a4",
+        "native/providers/mtp_target_rows_trace.h": "73bea7c4050dfd99704de4efe8fa5b7fe8879abfc5d78e551d53b99454e6b495",
+        "native/providers/mtp_prompt_inputs.h": "efe6546dd434745bc351385e9a879373222423f7342c31dd19d4418161856a7b",
+        "native/providers/mtp_draft_schedule.h": "b01ca4c6cc09430d842d61eceff23fc3ce1345a0712cba8e2c2d0fa3b3d59ef7",
+        "tests/native/mtp_target_rows_host.cpp": "af7c5e4045c5b965133dacf4bb22d20727859c67d26a5b219526087d35530f40",
+        "tests/test_mtp_target_rows.py": "28f2edc3d90dce1ecf542e7e68f062066f6a746cd88964934025c93cc07b7853",
+        "tests/test_prefix_batch_suffix.py": "ad82802abd59457548789546372202ecaee7f8aee6ea3cce3eb1da96206f2dcd",
+        "tests/test_model_prefix_checkpoint.py": "55a2a3e995fd621be8a25159dbff186966fc7deb7f277b3cf8fa50f026135e5d",
+        "native/providers/final_query_liveness.h": "f7df422413398f445e02be25fc3de3839f7f3075b9fedcdcaeba7482598be0d6"
+      },
+      "command": [
+        "python3.12",
+        "-m",
+        "unittest",
+        "test_mtp_attention_launch",
+        "test_mtp_drafter",
+        "test_mtp_full_prefill_capture",
+        "test_mtp_head",
+        "test_mtp_moe_capture",
+        "test_mtp_moe_launch",
+        "test_mtp_prompt_cache",
+        "test_mtp_prompt_inputs",
+        "test_mtp_target_rows",
+        "test_mtp_weight_alias_epoch",
+        "test_prefix_batch_suffix",
+        "test_model_prefix_checkpoint",
+        "-v"
+      ],
+      "environment": {
+        "PYTHONPATH": "tests"
+      },
+      "returncode": 0,
+      "wall_seconds": 14.447039416991174,
+      "all_pass": true,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "651a2e12dd6e4ca9c7bb945d81d3c569daa5a5b0ee598c3983c9cce8ee8388de",
+      "preceding_validation": "mtp-target-rows-local-r2/validation.json",
+      "preceding_validation_sha256": "54e6aedb05e5ca846e9318244b56d41a9c942ced4190023820798696245931b2",
+      "regression_before_fix": {
+        "file": "mtp-target-rows-liveness-regression-r1/regression.json",
+        "sha256": "38e3b5d212767bc6d825282d400aeb9f1fc61352c2fb525973bd5cff3c45c51d"
+      },
+      "change": "Complete target hidden capture disables terminal-only Q and OUT liveness; ordinary no-consumer requests retain existing behavior.",
+      "sanitizers": [
+        "address",
+        "undefined"
+      ],
+      "whole_provider_cpp_compiled": false,
+      "native_hip_device_compilation": false,
+      "native_model_execution": false
+    },
+    "record_sha256": "e321d364a7674e7c049ae13c3e09d6ceecc87730c17b416314775ba2b97296f6",
+    "tests": 42,
+    "stderr": "test_original_cache_view_and_failed_stage_stop (test_mtp_attention_launch.MtpAttentionLaunchTests.test_original_cache_view_and_failed_stage_stop) ... ok\ntest_publication_epoch_and_quarantine (test_mtp_drafter.MtpDrafterTests.test_publication_epoch_and_quarantine) ... ok\ntest_complete_input_shift_and_all_selected_frontiers_match (test_mtp_full_prefill_capture.MtpFullPrefillCaptureTests.test_complete_input_shift_and_all_selected_frontiers_match) ... ok\ntest_complete_tensor_hash_detects_unsampled_corruption (test_mtp_full_prefill_capture.MtpFullPrefillCaptureTests.test_complete_tensor_hash_detects_unsampled_corruption) ... ok\ntest_kv_slice_is_compared_with_original_qkv_offset (test_mtp_full_prefill_capture.MtpFullPrefillCaptureTests.test_kv_slice_is_compared_with_original_qkv_offset) ... ok\ntest_middle_shifted_id_is_checked_against_actual_prompt (test_mtp_full_prefill_capture.MtpFullPrefillCaptureTests.test_middle_shifted_id_is_checked_against_actual_prompt) ... ok\ntest_missing_frontier_cannot_qualify (test_mtp_full_prefill_capture.MtpFullPrefillCaptureTests.test_missing_frontier_cannot_qualify) ... ok\ntest_rejected_selected_row_extent (test_mtp_full_prefill_capture.MtpFullPrefillCaptureTests.test_rejected_selected_row_extent) ... ok\ntest_selected_tensor_size_is_not_inferred_from_metadata_shape (test_mtp_full_prefill_capture.MtpFullPrefillCaptureTests.test_selected_tensor_size_is_not_inferred_from_metadata_shape) ... ok\ntest_single_prefill_extent_and_byte_bound (test_mtp_full_prefill_capture.MtpFullPrefillCaptureTests.test_single_prefill_extent_and_byte_bound) ... ok\ntest_bounded_launches_aliases_and_partial_failure (test_mtp_head.MtpHeadTests.test_bounded_launches_aliases_and_partial_failure) ... ok\ntest_finite_sampling_and_lower_id_ties (test_mtp_head.MtpHeadTests.test_finite_sampling_and_lower_id_ties) ... ok\ntest_changed_actual_draft_token_is_rejected (test_mtp_moe_capture.MtpMoeCaptureTests.test_changed_actual_draft_token_is_rejected) ... ok\ntest_duplicate_expert_and_broken_renormalization_rejected (test_mtp_moe_capture.MtpMoeCaptureTests.test_duplicate_expert_and_broken_renormalization_rejected) ... ok\ntest_file_traversal_is_rejected (test_mtp_moe_capture.MtpMoeCaptureTests.test_file_traversal_is_rejected) ... ok\ntest_final_norm_input_is_bound_to_actual_moe_output (test_mtp_moe_capture.MtpMoeCaptureTests.test_final_norm_input_is_bound_to_actual_moe_output) ... ok\ntest_full_logit_corruption_away_from_original_argmax_is_detected (test_mtp_moe_capture.MtpMoeCaptureTests.test_full_logit_corruption_away_from_original_argmax_is_detected) ... ok\ntest_non_finite_original_logits_rejected (test_mtp_moe_capture.MtpMoeCaptureTests.test_non_finite_original_logits_rejected) ... ok\ntest_original_bf16_tie_uses_the_lower_token_id (test_mtp_moe_capture.MtpMoeCaptureTests.test_original_bf16_tie_uses_the_lower_token_id) ... ok\ntest_original_logits_dtype_is_not_silently_converted (test_mtp_moe_capture.MtpMoeCaptureTests.test_original_logits_dtype_is_not_silently_converted) ... ok\ntest_original_sampling_selects_accepted_row_and_preserves_padding_identity (test_mtp_moe_capture.MtpMoeCaptureTests.test_original_sampling_selects_accepted_row_and_preserves_padding_identity) ... ok\ntest_rejected_padding_cannot_supply_lm_head_hidden (test_mtp_moe_capture.MtpMoeCaptureTests.test_rejected_padding_cannot_supply_lm_head_hidden) ... ok\ntest_shared_and_routed_tuple_order_is_checked (test_mtp_moe_capture.MtpMoeCaptureTests.test_shared_and_routed_tuple_order_is_checked) ... ok\ntest_unaccounted_bytes_cannot_qualify (test_mtp_moe_capture.MtpMoeCaptureTests.test_unaccounted_bytes_cannot_qualify) ... ok\ntest_dependent_flags_and_case_scope_are_required_before_capture (test_mtp_moe_capture.MtpMoeCliTests.test_dependent_flags_and_case_scope_are_required_before_capture) ... ok\ntest_optional_capture_uses_only_both_original_short_controls (test_mtp_moe_capture.MtpMoeCliTests.test_optional_capture_uses_only_both_original_short_controls) ... ok\ntest_foreign_router_module_or_distributed_configuration_is_rejected (test_mtp_moe_capture.MtpMoeConfigurationTests.test_foreign_router_module_or_distributed_configuration_is_rejected) ... ok\ntest_pinned_shared_overlap_and_original_internal_router_are_accepted (test_mtp_moe_capture.MtpMoeConfigurationTests.test_pinned_shared_overlap_and_original_internal_router_are_accepted) ... ok\ntest_copy_error_restores_original_dispatcher_and_prevents_second_call (test_mtp_moe_capture.MtpRoutedCallTests.test_copy_error_restores_original_dispatcher_and_prevents_second_call) ... ok\ntest_original_calls_and_objects_are_preserved_and_restored (test_mtp_moe_capture.MtpRoutedCallTests.test_original_calls_and_objects_are_preserved_and_restored) ... ok\ntest_disjoint_workspace_and_rejected_extents (test_mtp_moe_launch.MtpMoeLaunchTests.test_disjoint_workspace_and_rejected_extents) ... ok\ntest_launch_contract_and_partial_submission_stop (test_mtp_moe_launch.MtpMoeLaunchTests.test_launch_contract_and_partial_submission_stop) ... ok\ntest_order_publication_and_quarantine (test_mtp_prompt_cache.MtpPromptCacheTests.test_order_publication_and_quarantine) ... ok\ntest_chunk_tails_and_invalid_inputs (test_mtp_prompt_inputs.MtpPromptInputsTests.test_chunk_tails_and_invalid_inputs) ... ok\ntest_actual_last_layer_liveness_keeps_all_mtp_consumers (test_mtp_target_rows.MtpTargetRowsTests.test_actual_last_layer_liveness_keeps_all_mtp_consumers) ... ok\ntest_actual_provider_selection_and_prefix_terminal_consumer (test_mtp_target_rows.MtpTargetRowsTests.test_actual_provider_selection_and_prefix_terminal_consumer) ... ok\ntest_owner_failure_lifetime_bounds_rounding_and_trace (test_mtp_target_rows.MtpTargetRowsTests.test_owner_failure_lifetime_bounds_rounding_and_trace) ... ok\ntest_stale_aliases_are_never_returned_by_runtime_lookups (test_mtp_weight_alias_epoch.MtpWeightAliasEpochTests.test_stale_aliases_are_never_returned_by_runtime_lookups) ... ok\ntest_bf16_export_without_legacy_f32_prepare_and_submit_failures (test_prefix_batch_suffix.PrefixBatchSuffixTests.test_bf16_export_without_legacy_f32_prepare_and_submit_failures) ... ok\ntest_original_ring_layouts_and_canonical_state (test_prefix_batch_suffix.PrefixBatchSuffixTests.test_original_ring_layouts_and_canonical_state) ... ok\ntest_core_query_rejects_malformed_provider_results_without_mutation (test_model_prefix_checkpoint.ModelPrefixCheckpointTests.test_core_query_rejects_malformed_provider_results_without_mutation) ... ok\ntest_saved_state_owner_coverage_and_shadow_rollback (test_model_prefix_checkpoint.ModelPrefixCheckpointTests.test_saved_state_owner_coverage_and_shadow_rollback) ... ok\n\n----------------------------------------------------------------------\nRan 42 tests in 14.389s\n\nOK\n"
+  },
+  "cause": "The existing terminal-only query and output projection paths preserve full tensor extents but intentionally zero nonterminal rows. The new target hidden consumer needs every row.",
+  "repair": "The actual layer39 liveness scope is disabled whenever a complete target-row capture scope is attached. Existing ordinary terminal-only requests retain their previous policy.",
+  "frozen_build_superseded_before_execution": {
+    "file": "mtp-target-rows-native-source-r1.json",
+    "sha256": "f992f1141d4de9b08c7c592e71c27899f88276f972781033a8f827157eb62577",
+    "source_commit": "f3edb1b3bc07a659871373a9f6b94c193410f5e7",
+    "native_dispatched": false
+  },
+  "whole_provider_cpp_compiled": false,
+  "native_hip_device_compilation": false,
+  "native_model_execution": false,
+  "mtp_inference_enabled": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_acceptance": false
+}
