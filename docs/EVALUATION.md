@@ -856,6 +856,29 @@ state/ring configurations, reads embedding rows and weights from the original
 model and checks MoE padding and validity. Its native compilation/execution and
 integration with actual target acceptance remain pending.
 
+The [complete private attention-layer candidate](../benchmarks/correctness/q2-complete-attention-layer-cpu-20260921.json)
+connects input residual normalization, Q/K/V projections, original Q/K norms
+and RoPE, causal attention, sigmoid gating, output projection, post-attention
+residual normalization and MoE. Five original layer-3 transactions match all
+12 observed stages /368640 BF16 values on CPU, including four rejected rows.
+The computation reads15 original model weights, retains only committed original
+history, and recomputes both current K/V rows. The separate attention-block
+composition also matches all286720 values across its eight observed stages.
+These CPU comparisons exercise shared arithmetic; they do not execute the
+new HIP composite. A generated CPU helper's empty-body compilation failure is
+preserved; the corrected helper compiles and produces the qualified comparison.
+
+The native layer keeps both candidate K/V rows separate from readonly history.
+Its scalar PV kernel can combine split-tail addressing with interleaved K/V,
+without changing the existing template modes. The complete graph validates
+cross-component aliases before any submission. Six sanitizer regressions pass,
+including all14 attention submissions and four layer component failure points,
+private row selection and positions0/7169/262143/263678. The Windows probe
+compares13 original or original-derived stages with both NaN and finite poison
+in unused historical tail rows, checks masks, all guards and MoE validity,
+and requires unchanged history. Its compilation, execution and integration
+with actual target acceptance remain pending.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a

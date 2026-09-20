@@ -594,7 +594,7 @@ __global__ void blackwell_exact_attention_kernel(
                   "warp softmax requires the bounded scalar PV layout");
     static_assert(!PreparedValue || (SerialValue && PrecomputedScores && !SplitDecodeValue && !StridedValue && !NativeProducts && !WarpSoftmax),
                   "prepared values require the original scalar softmax/PV layout");
-    static_assert(!MtpCache || (SerialValue && PrecomputedScores && !SplitDecodeValue &&
+    static_assert(!MtpCache || (SerialValue && PrecomputedScores &&
                   !StridedValue && !NativeProducts && !WarpSoftmax && !PreparedValue),
                   "MTP interleaved cache requires the scalar precomputed-score baseline");
     // This internal auxiliary slot holds either a BF16 decode tail or the
@@ -823,7 +823,8 @@ __global__ void blackwell_exact_attention_kernel(
                                 const bool in_tail = SplitDecodeValue && key_token >= decode_prefix_tokens;
                                 const uint16_t *source = in_tail ? auxiliary_value : value;
                                 const unsigned int source_token = in_tail ? key_token - decode_prefix_tokens : key_token;
-                                // MTP passes cache+512 and retains token-major K512/V512.
+                                // Interleaved caches pass cache+512. A private two-row
+                                // target tail uses the same stride without publishing it.
                                 const size_t token_stride = MtpCache ? 1024u : kKvHeads * kHeadDim;
                                 values[part] = source[static_cast<size_t>(source_token) * token_stride + kv_head * kHeadDim + thread];
                             }
