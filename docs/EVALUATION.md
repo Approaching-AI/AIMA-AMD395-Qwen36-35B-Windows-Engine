@@ -137,11 +137,20 @@ with the existing K16 path; using the packed order for those controls produces
 chains; widths2048/4096 use16 strided chains.
 
 All60 existing Q1, MTP and prefix-owner regression tests pass, including both
-router submission branches and their failure/event ordering. The Windows
-probe checks original local model-weight hashes, BF16/F32 carriers, uneven
-launch tails, shared activation, readonly inputs and allocation guards.
-Native GPU replay and whole-model acceptance remain pending. This change does
-not implement the general scheduled transition across the draft-context limit.
+router submission branches and their failure/event ordering. The [Windows
+replay and whole-model regression](../benchmarks/correctness/packed-dense-native-regressions-20260920.json)
+qualify source `f93b6c8`: all364 original-weight component cases and7348236
+output comparisons match, including BF16/F32 carriers, uneven launch tails,
+shared activation, readonly inputs and allocation guards. All host checks pass.
+The whole build binds139 compilation files/141 inputs and completes in96913.551ms.
+Its DLL SHA256 is `03cfe110fc636ab356c18f08bab29d5449b165daf582837ebfafeddfad5688a8`.
+
+The real q8192/out512 case matches every original ID and callback, with first
+144/logit10.375 and zero logit error. Load is21454.9876ms, TTFT23302.0471ms and
+TPOT100.810921ms. The10000-ms TTFT gate remains unmet. Full256k started at
+2026-09-20T13:44:59.1981697Z under a28800-second native deadline; final owner,
+suffix and restored-prefix boundaries remain pending. The general scheduled
+transition across the draft-context limit is not implemented by this change.
 
 The [completed all-Q1 full256k diagnosis](../benchmarks/correctness/full256k-dense-projection-root-cause-20260920.json)
 uses whole `1a9743a`, CK370/FLA1d/MoE923/CLI6d on baiying. All32 owner chunks
