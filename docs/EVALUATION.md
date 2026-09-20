@@ -274,6 +274,17 @@ These native probes remain uncompiled and unrun; complete-prefill Q/O outputs
 and complete native MTP inference remain unqualified. The current62-case
 Windows batch includes these source-bound probes and original operands.
 
+The optional `--mtp-moe-frontiers` reference observer now copies the original
+MTP router, shared expert, routed projection/activation/weighted output, final
+normalization operands and actual sampled draft logits. It uses only the two
+immutable short controls and requires the original norm launcher observer.
+Original calls return their objects unchanged; all capture data is diagnostic.
+Qualification checks each sampled hidden row against the original final norm,
+each draft token against its complete248320-value original logits, and retains
+the accepted/rejected input provenance. The capture has separate64MiB per-case
+and16MiB shared-weight limits. Real-model validation of this observer remains
+unrun; this does not qualify a native MoE or a complete MTP drafter.
+
 The [complete causal-history attention comparison](../benchmarks/correctness/gb10-mtp-causal-attention-arithmetic-20260920.json)
 uses both full original short-prompt K/V caches and31 accepted decode rows per
 case. Rejected padding never enters the retained history. An initial CPU replay

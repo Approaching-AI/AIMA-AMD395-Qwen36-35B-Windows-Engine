@@ -233,7 +233,9 @@ def execute(args, cases, oracles):
               async_scheduling=False, enable_prefix_caching=False,
               attention_config={"backend": "TRITON_ATTN"}, mm_encoder_attn_backend="TORCH_SDPA",
               speculative_config={"method": "mtp", "num_speculative_tokens": 1},
-              worker_extension_cls=("capture_gb10_mtp_full_prefill.MtpFullPrefillBoundaryCapture"
+              worker_extension_cls=("capture_gb10_mtp_moe.MtpMoeBoundaryCapture"
+                                    if args.mtp_moe_frontiers else
+                                    "capture_gb10_mtp_full_prefill.MtpFullPrefillBoundaryCapture"
                                     if args.mtp_full_prefill_frontiers else
                                     "capture_gb10_mtp_launchers.MtpKernelBoundaryCapture"
                                     if args.mtp_kernel_launches else
@@ -296,6 +298,9 @@ def execute(args, cases, oracles):
             from capture_gb10_mtp_boundaries import qualify_mtp_capture
             try:
                 qualify_mtp_capture(worker, case["prompt_token_ids"], tokens)
+                if args.mtp_moe_frontiers:
+                    from capture_gb10_mtp_moe import qualify_moe_capture
+                    qualify_moe_capture(worker, args.output_dir / case["name"])
                 if args.mtp_full_prefill_frontiers:
                     from capture_gb10_mtp_full_prefill import qualify_full_prefill_capture
                     qualify_full_prefill_capture(worker, case["prompt_token_ids"], tokens,
@@ -332,6 +337,8 @@ def main():
                         help="bind original MTP norms to unchanged selected launchers; requires --mtp-boundaries")
     parser.add_argument("--mtp-full-prefill-frontiers", action="store_true",
                         help="copy complete MTP cache frontends for both immutable short controls; requires --mtp-kernel-launches")
+    parser.add_argument("--mtp-moe-frontiers", action="store_true",
+                        help="copy original MTP MoE and sampled draft logits for both short controls; requires --mtp-kernel-launches")
     parser.add_argument("--oracle-q7169", type=Path, required=True)
     parser.add_argument("--oracle-q8192", type=Path, required=True)
     parser.add_argument("--model-root", type=Path, default=Path("/models"))
@@ -356,10 +363,12 @@ def main():
         parser.error("--mtp-kernel-launches requires --mtp-boundaries")
     if args.mtp_full_prefill_frontiers and (not args.mtp_kernel_launches or args.additional_cases is not None):
         parser.error("--mtp-full-prefill-frontiers requires --mtp-kernel-launches and uses only the two immutable controls")
+    if args.mtp_moe_frontiers and (not args.mtp_kernel_launches or args.additional_cases is not None or args.mtp_full_prefill_frontiers):
+        parser.error("--mtp-moe-frontiers requires --mtp-kernel-launches and uses only the two immutable controls without --mtp-full-prefill-frontiers")
     if not 1 <= args.maximum_prompt_tokens <= MAX_REFERENCE_PROMPT_TOKENS:
         raise ValueError("invalid explicit prompt-token bound")
     cases, oracles = fixtures({7169: args.oracle_q7169, 8192: args.oracle_q8192})
-    if args.mtp_full_prefill_frontiers:
+    if args.mtp_full_prefill_frontiers or args.mtp_moe_frontiers:
         cases = cases[:2]
     if args.additional_cases is not None:
         cases = explicit_cases(args.additional_cases, cases, args.maximum_prompt_tokens)
@@ -392,6 +401,7 @@ def main():
                   runtime_boundaries=args.runtime_boundaries, mtp_boundaries=args.mtp_boundaries,
                   mtp_kernel_launches=args.mtp_kernel_launches,
                   mtp_full_prefill_frontiers=args.mtp_full_prefill_frontiers,
+                  mtp_moe_frontiers=args.mtp_moe_frontiers,
                   timeout_seconds=args.timeout_seconds, maximum_timeout_seconds=timeout_limit,
                   maximum_additional_prompt_tokens=args.maximum_prompt_tokens)
     if args.additional_cases is not None:
