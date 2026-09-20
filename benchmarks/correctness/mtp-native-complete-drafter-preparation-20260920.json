@@ -1,0 +1,3329 @@
+{
+  "kind": "frozen_complete_mtp_native_component_batch",
+  "manifest": {
+    "file": "mtp-native-drafter-source-r1.json",
+    "bytes": 133069,
+    "sha256": "b67d39a0fd0d02511686766889dd11a7c7cb2ad337360b0e3ad63a48dd0f5aa1",
+    "record": {
+      "kind": "complete_original_mtp_native_component_plan",
+      "source_commit": "9b9f8bb2a621516bdca813d4ff41e5f6b9b2a3ff",
+      "repo": "D:/projects/AIMA-public-mtp-native-drafter-20260920-r1",
+      "seed": "D:/projects/AIMA-public-all-q1-divergence-20260920-r1",
+      "data": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1",
+      "programs": [
+        {
+          "name": "qrt-mtp-moe",
+          "source": "tools/mtp_moe_hip_probe.cpp"
+        },
+        {
+          "name": "qrt-mtp-head",
+          "source": "tools/mtp_head_hip_probe.cpp"
+        },
+        {
+          "name": "qrt-mtp-drafter",
+          "source": "tools/mtp_drafter_hip_probe.cpp"
+        }
+      ],
+      "files": [
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0000-hidden.bin",
+          "archive_path": "q7169-out32/t0000-hidden.bin",
+          "local_file": "qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-target-hidden.bin",
+          "bytes": 29364224,
+          "sha256": "266b9862248923f671ea81e2f84617aff4286c8bbb6cdd9f04c636e32c4b238e",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0000-ids.bin",
+          "archive_path": "q7169-out32/t0000-ids.bin",
+          "local_file": "qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-shifted-input-ids.bin",
+          "bytes": 28676,
+          "sha256": "30c020db1b9cf8ad79b6bac7adab02aa96dc9e06c9529c525d9272fe16fe0341",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0001-hidden.bin",
+          "archive_path": "q7169-out32/t0001-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0001-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "cbca115e8ff8a3d2206eaf463c658aad5bb1020f4b4248d687bba48ea8e20d0e",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0001-ids.bin",
+          "archive_path": "q7169-out32/t0001-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/t0001-ids.bin",
+          "bytes": 8,
+          "sha256": "50d4e695387a094b1cbd590bb42ff9ce411ce09ef302495ffc116bcf68e6deb0",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0002-hidden.bin",
+          "archive_path": "q7169-out32/t0002-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0002-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "b0f44855bfc65791268768ca3d753a4c74b9fb1bdd1fc144f9df1b610ba6bbe5",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0002-ids.bin",
+          "archive_path": "q7169-out32/t0002-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/t0002-ids.bin",
+          "bytes": 8,
+          "sha256": "8bb3a73ab29790de5d922435ebd663b5501af010cf4ff9fe30c1b2bad077baa9",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0003-hidden.bin",
+          "archive_path": "q7169-out32/t0003-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0003-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "0af9ea8b5760a4004f59c3e10d71974fd66374f6143ba95677f23a3a637b086d",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0003-ids.bin",
+          "archive_path": "q7169-out32/t0003-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/t0003-ids.bin",
+          "bytes": 8,
+          "sha256": "50d4e695387a094b1cbd590bb42ff9ce411ce09ef302495ffc116bcf68e6deb0",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0004-hidden.bin",
+          "archive_path": "q7169-out32/t0004-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0004-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "9209f358d763c1d7195a82e7f679956b01d86878b788bd17b90c1fbe2a75477a",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0004-ids.bin",
+          "archive_path": "q7169-out32/t0004-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/t0004-ids.bin",
+          "bytes": 8,
+          "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0005-hidden.bin",
+          "archive_path": "q7169-out32/t0005-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0005-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "30970def74c237b19a37de6dad09a825603d240fffd26b0406ed9c93623ce2aa",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0005-ids.bin",
+          "archive_path": "q7169-out32/t0005-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/t0005-ids.bin",
+          "bytes": 8,
+          "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0006-hidden.bin",
+          "archive_path": "q7169-out32/t0006-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0006-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "bd171394b3267b7db291f1db124848c391a297dda6fe8c090d9b0057a5e2f2b8",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0006-ids.bin",
+          "archive_path": "q7169-out32/t0006-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/t0006-ids.bin",
+          "bytes": 8,
+          "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0007-hidden.bin",
+          "archive_path": "q7169-out32/t0007-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0007-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "57639f19f6f4dc531ad033f8b6b8a2a0430050287f36a6b4bc2fde7c723632e2",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0007-ids.bin",
+          "archive_path": "q7169-out32/t0007-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/t0007-ids.bin",
+          "bytes": 8,
+          "sha256": "1894d04d8fc1b29a06bb097de81c0c0a95d93c108e710109fe0b2a80eef7b9f3",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0008-hidden.bin",
+          "archive_path": "q7169-out32/t0008-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0008-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "b1c4fe467bc161d58161efd62d68c7ee9c599376e70572475969a6443a4faca8",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0008-ids.bin",
+          "archive_path": "q7169-out32/t0008-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/t0008-ids.bin",
+          "bytes": 8,
+          "sha256": "68b5c2afdcebf179a3ab9085bf218128cadb3c983b833af00b6f47558b474075",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0009-hidden.bin",
+          "archive_path": "q7169-out32/t0009-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0009-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "4c13c16cf4ad6e206f81aa11befe9afa569963a91131a752598510d9f365331b",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0009-ids.bin",
+          "archive_path": "q7169-out32/t0009-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/t0009-ids.bin",
+          "bytes": 8,
+          "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0010-hidden.bin",
+          "archive_path": "q7169-out32/t0010-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0010-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "5ef7ac990fac09084dde5156147ad8b95f745b072ffadb4db6b4991924b6184a",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0010-ids.bin",
+          "archive_path": "q7169-out32/t0010-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/t0010-ids.bin",
+          "bytes": 8,
+          "sha256": "1894d04d8fc1b29a06bb097de81c0c0a95d93c108e710109fe0b2a80eef7b9f3",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0011-hidden.bin",
+          "archive_path": "q7169-out32/t0011-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0011-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "e8fa8a0b03a104ef2a011aa25584aca5f5a6770e7ac6135f9f1cb5f63abc3083",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0011-ids.bin",
+          "archive_path": "q7169-out32/t0011-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/t0011-ids.bin",
+          "bytes": 8,
+          "sha256": "68b5c2afdcebf179a3ab9085bf218128cadb3c983b833af00b6f47558b474075",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0012-hidden.bin",
+          "archive_path": "q7169-out32/t0012-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0012-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "4ce1b7e8d5913bba143600c97416920d49950991dc30e101e223993b34d0563d",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0012-ids.bin",
+          "archive_path": "q7169-out32/t0012-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/t0012-ids.bin",
+          "bytes": 8,
+          "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0013-hidden.bin",
+          "archive_path": "q7169-out32/t0013-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0013-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "b7760ed8e600b356ae3f86696440b47522a061a558fd250a824a675bb13a91db",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0013-ids.bin",
+          "archive_path": "q7169-out32/t0013-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/t0013-ids.bin",
+          "bytes": 8,
+          "sha256": "1894d04d8fc1b29a06bb097de81c0c0a95d93c108e710109fe0b2a80eef7b9f3",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0014-hidden.bin",
+          "archive_path": "q7169-out32/t0014-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0014-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "3ff31b06a98beadcabe2c8cf8638ee1307d3f0bf781112f43ac8116d1d0ea3b9",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0014-ids.bin",
+          "archive_path": "q7169-out32/t0014-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/t0014-ids.bin",
+          "bytes": 8,
+          "sha256": "68b5c2afdcebf179a3ab9085bf218128cadb3c983b833af00b6f47558b474075",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0015-hidden.bin",
+          "archive_path": "q7169-out32/t0015-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0015-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "518bea36dde3fa88bf2418071cc68a9aed66b4c2eb3cd561e915103af0ec7b02",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0015-ids.bin",
+          "archive_path": "q7169-out32/t0015-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/t0015-ids.bin",
+          "bytes": 8,
+          "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0016-hidden.bin",
+          "archive_path": "q7169-out32/t0016-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0016-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "aa22fb62b55e7fc08204fb1d6dcf2a5f68bce76a65efc5ed9abf22be19861512",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0016-ids.bin",
+          "archive_path": "q7169-out32/t0016-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/t0016-ids.bin",
+          "bytes": 8,
+          "sha256": "1894d04d8fc1b29a06bb097de81c0c0a95d93c108e710109fe0b2a80eef7b9f3",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0017-hidden.bin",
+          "archive_path": "q7169-out32/t0017-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0017-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "1abba983776bb8daada37c9d10f4e7a399532808c1dc84f1dffb98db2c914740",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0017-ids.bin",
+          "archive_path": "q7169-out32/t0017-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/t0017-ids.bin",
+          "bytes": 8,
+          "sha256": "68b5c2afdcebf179a3ab9085bf218128cadb3c983b833af00b6f47558b474075",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0018-hidden.bin",
+          "archive_path": "q7169-out32/t0018-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q7169-out32/mtp0018-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "db466a4571693e8d124d77a1daf928119f6c3963364d21575391f446c3ec5295",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/t0018-ids.bin",
+          "archive_path": "q7169-out32/t0018-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/t0018-ids.bin",
+          "bytes": 8,
+          "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/query-projection.bin",
+          "archive_path": "q7169-out32/query-projection.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/query-projection.bin",
+          "bytes": 540672,
+          "sha256": "10bc3730ecfe38948df80c5bfe6af1bfc718823f71dab76bfc0cfb22920e7959",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/gates.bin",
+          "archive_path": "q7169-out32/gates.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/gates.bin",
+          "bytes": 270336,
+          "sha256": "51ca3c0e14915a2cc2ec3c35d784416c5e34a619fa2dc054df124a59defa448a",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/queries.bin",
+          "archive_path": "q7169-out32/queries.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/queries.bin",
+          "bytes": 270336,
+          "sha256": "452e04b591e61d4ddbd615554bf5e11f2f002ce75d0d379baf8df936f1986567",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/context.bin",
+          "archive_path": "q7169-out32/context.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/context.bin",
+          "bytes": 270336,
+          "sha256": "25e8a60559edadc33ea683530935e1341f4f643a477126513845113324109d24",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/gated.bin",
+          "archive_path": "q7169-out32/gated.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/gated.bin",
+          "bytes": 270336,
+          "sha256": "b80863ce0bb96340ca48d828980dc0347f09704590ca7d43cb28180066ea848c",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/attention-output.bin",
+          "archive_path": "q7169-out32/attention-output.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/attention-output.bin",
+          "bytes": 135168,
+          "sha256": "695f32a34f840b21052c86542026838bf363ec7712ffb9eb8d67ffe75495168e",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/post-attention-norm.bin",
+          "archive_path": "q7169-out32/post-attention-norm.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/post-attention-norm.bin",
+          "bytes": 135168,
+          "sha256": "5d5fe66d2c77acdc5d0b877f46b480c05ccbd3a5da103bf10302549ebc4ff8dc",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/final-norm.bin",
+          "archive_path": "q7169-out32/final-norm.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/final-norm.bin",
+          "bytes": 135168,
+          "sha256": "6d053547c313561384081a5a3fc1b09fd861848fc0924314501a54bcad1a5ccb",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/moe-output.bin",
+          "archive_path": "q7169-out32/moe-output.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/moe-output.bin",
+          "bytes": 135168,
+          "sha256": "46c2d0a60f83e05a545dde581114a2b45e80e78cc6556fe55bfcb19d8cf02a16",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/attention-residual.bin",
+          "archive_path": "q7169-out32/attention-residual.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/attention-residual.bin",
+          "bytes": 135168,
+          "sha256": "ed915d0cf69b97ca636d598f3d1bd362bb21742ebd723491a93ffce9c10163bd",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/router.bin",
+          "archive_path": "q7169-out32/router.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/router.bin",
+          "bytes": 16896,
+          "sha256": "bf138c6634396a8f31840137d640bb228838d2d24daf2aa20a9caf89f3bbb160",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/shared-gate.bin",
+          "archive_path": "q7169-out32/shared-gate.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/shared-gate.bin",
+          "bytes": 66,
+          "sha256": "98878a26f89e32d7f31ffd8deb9c81b7d50f00006ea6c9477bc44bcffa83c8e1",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/shared-gate-up.bin",
+          "archive_path": "q7169-out32/shared-gate-up.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/shared-gate-up.bin",
+          "bytes": 67584,
+          "sha256": "2b387cd45feac59492829690d2fddec0bfa57d4808d3d63b80d80463cc559934",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/shared-activated.bin",
+          "archive_path": "q7169-out32/shared-activated.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/shared-activated.bin",
+          "bytes": 33792,
+          "sha256": "53c4d6319ea83de1b7ae6c1e7160f70ffc6ef0d4addbe179ad6c326e509f1e43",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/shared-down.bin",
+          "archive_path": "q7169-out32/shared-down.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/shared-down.bin",
+          "bytes": 135168,
+          "sha256": "27b847b06f35e9e7506a21fb8fc7750e175f1547ee1e18d13e1ae22b2a2ceafb",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/shared.bin",
+          "archive_path": "q7169-out32/shared.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/shared.bin",
+          "bytes": 135168,
+          "sha256": "414086756b95d945414b1c0d5e0e526af12f8ed36692468463668ab03ae31e66",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/routed-gate-up.bin",
+          "archive_path": "q7169-out32/routed-gate-up.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/routed-gate-up.bin",
+          "bytes": 540672,
+          "sha256": "1c589e846140c699d68142c2ce1f8ff67464775e19dbc79e9cd4e4d9b7c932e4",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/routed-activated.bin",
+          "archive_path": "q7169-out32/routed-activated.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/routed-activated.bin",
+          "bytes": 270336,
+          "sha256": "780949b91f844395fe8bcade22eedb9271db833d8cf235259f351d5e7ddf1883",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/routed-weighted.bin",
+          "archive_path": "q7169-out32/routed-weighted.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/routed-weighted.bin",
+          "bytes": 1081344,
+          "sha256": "398b92d0b90af6da7f6a3b9cd802ed54d02bd89475c9ae7b110f43e6b42af0f4",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/expert-part-1.bin",
+          "archive_path": "q7169-out32/expert-part-1.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/expert-part-1.bin",
+          "bytes": 135168,
+          "sha256": "27346f6e1642ac895202cb9bd735894c5c774ba67c2130ba157c34cadeff1eb4",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/topk-ids.bin",
+          "archive_path": "q7169-out32/topk-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/topk-ids.bin",
+          "bytes": 1056,
+          "sha256": "062c69146fb87cf6790e592982ab5da50c46bcc311b3506af4e4185bea31e0e0",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/topk-weights.bin",
+          "archive_path": "q7169-out32/topk-weights.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/topk-weights.bin",
+          "bytes": 1056,
+          "sha256": "ea7da9f42b8506352460885d97471d4dc0bcf3c1214ce2927ebb92ea1bc0e0db",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/input.bin",
+          "archive_path": "q7169-out32/input.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/input.bin",
+          "bytes": 77824,
+          "sha256": "c7825b57a9b5a7c205ba31b10411a7e1215d4c3a0247540e6341fc72ac946b24",
+          "role": "standalone_head_only_original_hidden",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/logits.bin",
+          "archive_path": "q7169-out32/logits.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/logits.bin",
+          "bytes": 9436160,
+          "sha256": "53ca8626da80ff0d6f29dfd6aac6a2d899876d9e8d2e76cccbe80f0ee9a28631",
+          "role": "comparison_only_original_full_vocabulary",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/history-k.bin",
+          "archive_path": "q7169-out32/history-k.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/history-k.bin",
+          "bytes": 7373824,
+          "sha256": "fc1b1e47b541606f57217ab8a8f008c2a9116caf5b8d7d45c72e23307ff68830",
+          "role": "comparison_only_original_history_and_observed_terminal_row",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/history-v.bin",
+          "archive_path": "q7169-out32/history-v.bin",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/history-v.bin",
+          "bytes": 7373824,
+          "sha256": "24505e6f897583b67f4fb675828d81a877bd0a42ffee15208f786be74fc4bbe8",
+          "role": "comparison_only_original_history_and_observed_terminal_row",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32/transactions.txt",
+          "archive_path": "q7169-out32/transactions.txt",
+          "local_file": "mtp-drafter-operands-r2/q7169-out32/transactions.txt",
+          "bytes": 991,
+          "sha256": "88dea46c2e9ddcf20ef51179486d5fe4bc7690217e8e06e6662aa5388736428f",
+          "role": "component_probe_original_schedule",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0000-hidden.bin",
+          "archive_path": "q8192-out32/t0000-hidden.bin",
+          "local_file": "qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-target-hidden.bin",
+          "bytes": 33554432,
+          "sha256": "d3f015bd83c4c8aec8c8dc095b7dc9d8ef173676dfe4996a42764350411064df",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0000-ids.bin",
+          "archive_path": "q8192-out32/t0000-ids.bin",
+          "local_file": "qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-shifted-input-ids.bin",
+          "bytes": 32768,
+          "sha256": "0f4192d2ecd566da3d0ea71e5454b2fd39c1aa0d87e297a9f369f19d340b5fef",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0001-hidden.bin",
+          "archive_path": "q8192-out32/t0001-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0001-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "5a66a235805383b82f4da5f2cf243abd2f5c336c61c5d278d0eb80edaae8b8d1",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0001-ids.bin",
+          "archive_path": "q8192-out32/t0001-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0001-ids.bin",
+          "bytes": 8,
+          "sha256": "1f61a0725c67655aef72e34758ad902e6eb0d3e87014e398dacc712a7c271a9b",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0002-hidden.bin",
+          "archive_path": "q8192-out32/t0002-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0002-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "f2e9c04ac2c2b276170655c189788e4a05ce260a10ccce783dd77f0322f0283e",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0002-ids.bin",
+          "archive_path": "q8192-out32/t0002-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0002-ids.bin",
+          "bytes": 8,
+          "sha256": "3ce54ad883c3ca6b5412437f495e236a27a51bd6560ceb81bd669f31f7df2b5c",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0003-hidden.bin",
+          "archive_path": "q8192-out32/t0003-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0003-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "ff5a424e4ab6cb67019bf8739ab38dfd2aed9004db96041e5ff02714e4cb0a30",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0003-ids.bin",
+          "archive_path": "q8192-out32/t0003-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0003-ids.bin",
+          "bytes": 8,
+          "sha256": "357344c2de51bad0297442b8c72f756da44384ed6f03776e545831468ebf5dfd",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0004-hidden.bin",
+          "archive_path": "q8192-out32/t0004-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0004-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "1815006b04b6f3b7178570664fff008d0e646005dcc267a5fa605aa68dcbc5d0",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0004-ids.bin",
+          "archive_path": "q8192-out32/t0004-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0004-ids.bin",
+          "bytes": 8,
+          "sha256": "a0d4a9c6554dd1823491cdb0bf87a9c5a2cae1f247bb9c46cdcd1445a1f930c4",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0005-hidden.bin",
+          "archive_path": "q8192-out32/t0005-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0005-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "4a98ac488ecef588e8ae4ff5d3bd97529d0864c86b7c133512ea96d78674f32f",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0005-ids.bin",
+          "archive_path": "q8192-out32/t0005-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0005-ids.bin",
+          "bytes": 8,
+          "sha256": "a0d4a9c6554dd1823491cdb0bf87a9c5a2cae1f247bb9c46cdcd1445a1f930c4",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0006-hidden.bin",
+          "archive_path": "q8192-out32/t0006-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0006-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "7225300b4699516f596bf85e6f756edb1bc89335be5ce1c8ef261b58ab9f7514",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0006-ids.bin",
+          "archive_path": "q8192-out32/t0006-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0006-ids.bin",
+          "bytes": 8,
+          "sha256": "c7a42ca3447b6367f9ed3c5d94c2cdb54a987960ab6951652a1a975385c8d90a",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0007-hidden.bin",
+          "archive_path": "q8192-out32/t0007-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0007-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "4c7474334a375c10bc657bb6ed73b7b98aca757b03a967e8ac13ca4d4b1029b2",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0007-ids.bin",
+          "archive_path": "q8192-out32/t0007-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0007-ids.bin",
+          "bytes": 8,
+          "sha256": "a0d4a9c6554dd1823491cdb0bf87a9c5a2cae1f247bb9c46cdcd1445a1f930c4",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0008-hidden.bin",
+          "archive_path": "q8192-out32/t0008-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0008-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "2dbe8d58a6847bfb4cabd912f4d6a4c5cb69ebc90e2ae0d3a5a931734d6bcc72",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0008-ids.bin",
+          "archive_path": "q8192-out32/t0008-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0008-ids.bin",
+          "bytes": 8,
+          "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0009-hidden.bin",
+          "archive_path": "q8192-out32/t0009-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0009-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "e706d914ac81c3a6978e04d3de5fce63dfb547aa38a308ba5338e17f7187ad3b",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0009-ids.bin",
+          "archive_path": "q8192-out32/t0009-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0009-ids.bin",
+          "bytes": 8,
+          "sha256": "1894d04d8fc1b29a06bb097de81c0c0a95d93c108e710109fe0b2a80eef7b9f3",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0010-hidden.bin",
+          "archive_path": "q8192-out32/t0010-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0010-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "e0219ddb99e38061a52e8fe3877681db7fcb2d15ed63f46a0a9940881fb6941b",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0010-ids.bin",
+          "archive_path": "q8192-out32/t0010-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0010-ids.bin",
+          "bytes": 8,
+          "sha256": "68b5c2afdcebf179a3ab9085bf218128cadb3c983b833af00b6f47558b474075",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0011-hidden.bin",
+          "archive_path": "q8192-out32/t0011-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0011-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "06b8631a126c0f748e8aa6dccd397c92b64305122ffe93dc5b02778c887207f9",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0011-ids.bin",
+          "archive_path": "q8192-out32/t0011-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0011-ids.bin",
+          "bytes": 8,
+          "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0012-hidden.bin",
+          "archive_path": "q8192-out32/t0012-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0012-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "0ba3942ea67de9ec7963d42900503f90aa20a8e9c26e2c905445271ed6771b36",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0012-ids.bin",
+          "archive_path": "q8192-out32/t0012-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0012-ids.bin",
+          "bytes": 8,
+          "sha256": "1894d04d8fc1b29a06bb097de81c0c0a95d93c108e710109fe0b2a80eef7b9f3",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0013-hidden.bin",
+          "archive_path": "q8192-out32/t0013-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0013-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "cea9cc988bc46666cc31880f52bfde0dab221462247ed2d427c9ed5541e02e85",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0013-ids.bin",
+          "archive_path": "q8192-out32/t0013-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0013-ids.bin",
+          "bytes": 8,
+          "sha256": "68b5c2afdcebf179a3ab9085bf218128cadb3c983b833af00b6f47558b474075",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0014-hidden.bin",
+          "archive_path": "q8192-out32/t0014-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0014-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "591c97de8c39b1278fc4c5f074b3363ca8786cf38159bee20228e8e0bf8851f0",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0014-ids.bin",
+          "archive_path": "q8192-out32/t0014-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0014-ids.bin",
+          "bytes": 8,
+          "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0015-hidden.bin",
+          "archive_path": "q8192-out32/t0015-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0015-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "2ea8ab60cd7da8df022f492fe656f348442726b98ab023ac3a615d30c3d86d3f",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0015-ids.bin",
+          "archive_path": "q8192-out32/t0015-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0015-ids.bin",
+          "bytes": 8,
+          "sha256": "1894d04d8fc1b29a06bb097de81c0c0a95d93c108e710109fe0b2a80eef7b9f3",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0016-hidden.bin",
+          "archive_path": "q8192-out32/t0016-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0016-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "02940b709f5d3d5329ab6a179cc365db79c44dfb3f4e27857b9c7b1d6e921d4b",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0016-ids.bin",
+          "archive_path": "q8192-out32/t0016-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0016-ids.bin",
+          "bytes": 8,
+          "sha256": "68b5c2afdcebf179a3ab9085bf218128cadb3c983b833af00b6f47558b474075",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0017-hidden.bin",
+          "archive_path": "q8192-out32/t0017-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0017-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "518924861c8fc6858c748b345f794b103d1e443a40ac6d0ee4c0c82106ebf25b",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0017-ids.bin",
+          "archive_path": "q8192-out32/t0017-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0017-ids.bin",
+          "bytes": 8,
+          "sha256": "d7eeb48eb4796b8f1ac83cf623edfa85fe16d9d9743eae38a0c8aea9ed2f4b3c",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0018-hidden.bin",
+          "archive_path": "q8192-out32/t0018-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0018-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "87d1178e0da9e2ccf064506252bd0fd731dfb3fbaff06139cd4bc4bff0b41824",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0018-ids.bin",
+          "archive_path": "q8192-out32/t0018-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0018-ids.bin",
+          "bytes": 8,
+          "sha256": "1894d04d8fc1b29a06bb097de81c0c0a95d93c108e710109fe0b2a80eef7b9f3",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0019-hidden.bin",
+          "archive_path": "q8192-out32/t0019-hidden.bin",
+          "local_file": "qrt-gb10-mtp-moe-20260920-r3/capture/q8192-out32/mtp0019-target-hidden.bin",
+          "bytes": 8192,
+          "sha256": "452a2df9b6eecfd4f96e113e902b86fa6eae85965c7433e288fb489c7cdcc601",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/t0019-ids.bin",
+          "archive_path": "q8192-out32/t0019-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/t0019-ids.bin",
+          "bytes": 8,
+          "sha256": "68b5c2afdcebf179a3ab9085bf218128cadb3c983b833af00b6f47558b474075",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/query-projection.bin",
+          "archive_path": "q8192-out32/query-projection.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/query-projection.bin",
+          "bytes": 540672,
+          "sha256": "09b7b0a287bbaca795882880bd0e4409c591810738c3f11ad99e0f4852be7367",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/gates.bin",
+          "archive_path": "q8192-out32/gates.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/gates.bin",
+          "bytes": 270336,
+          "sha256": "c4ae6bd9c75db28955e4a9ce64508c6f8ef3a6f064c713a50a6e477f61235e56",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/queries.bin",
+          "archive_path": "q8192-out32/queries.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/queries.bin",
+          "bytes": 270336,
+          "sha256": "04126fd81f557dcc6cb9f31c584530ba5dac5c792668c49ffcb91512c587df1b",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/context.bin",
+          "archive_path": "q8192-out32/context.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/context.bin",
+          "bytes": 270336,
+          "sha256": "44a959c7e4023380a8c9e72ac5eff52cb8d5855dca0039c851e83f5a053fbb55",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/gated.bin",
+          "archive_path": "q8192-out32/gated.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/gated.bin",
+          "bytes": 270336,
+          "sha256": "8d7c6c1e5de3436b99ab10827e35283b1862d5f2c9d2592fa0ffca2c04b2a875",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/attention-output.bin",
+          "archive_path": "q8192-out32/attention-output.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/attention-output.bin",
+          "bytes": 135168,
+          "sha256": "9651b8812a2974c16d94793822ce5edb8d2b196e09315bb8378f738fcbbb8571",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/post-attention-norm.bin",
+          "archive_path": "q8192-out32/post-attention-norm.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/post-attention-norm.bin",
+          "bytes": 135168,
+          "sha256": "a49bfce0c91cf36389159fbc469d88d8a6586208892742d32d1e85f793e58f3c",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/final-norm.bin",
+          "archive_path": "q8192-out32/final-norm.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/final-norm.bin",
+          "bytes": 135168,
+          "sha256": "9e2b65fe61eea6819f28c5e97dbc2fef702e8b2848d55b75a3ad85be0cf74ec2",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/moe-output.bin",
+          "archive_path": "q8192-out32/moe-output.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/moe-output.bin",
+          "bytes": 135168,
+          "sha256": "e28985db7256a293d522a169752019ba1fc0b5d00713d731a361ad76b1679609",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/attention-residual.bin",
+          "archive_path": "q8192-out32/attention-residual.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/attention-residual.bin",
+          "bytes": 135168,
+          "sha256": "bb700df0a69fdbd7ec4b78d0f15046cb4a740fa93c4318e1ac729cbef48ac192",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/router.bin",
+          "archive_path": "q8192-out32/router.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/router.bin",
+          "bytes": 16896,
+          "sha256": "c6cba747ba10dd89412717634b9c3c1065eb0e7dd226c474f3c629de9fe6907d",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/shared-gate.bin",
+          "archive_path": "q8192-out32/shared-gate.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/shared-gate.bin",
+          "bytes": 66,
+          "sha256": "c67eb062c435d29a88840144ab60a8909eb57aa0ceae7c76a7f6c1639623808d",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/shared-gate-up.bin",
+          "archive_path": "q8192-out32/shared-gate-up.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/shared-gate-up.bin",
+          "bytes": 67584,
+          "sha256": "868ebd64fe6684eaea420d447689903ccdf5af122668c83b8b7d8d33a4a5f924",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/shared-activated.bin",
+          "archive_path": "q8192-out32/shared-activated.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/shared-activated.bin",
+          "bytes": 33792,
+          "sha256": "328d511fa4736f987d617064470fd23e797498d3d5f5074057e616c082d7cc2b",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/shared-down.bin",
+          "archive_path": "q8192-out32/shared-down.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/shared-down.bin",
+          "bytes": 135168,
+          "sha256": "4c3a16b9702a726550835eac3d439a03b6f5026b7cfcefdb2ccfb8829c37c108",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/shared.bin",
+          "archive_path": "q8192-out32/shared.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/shared.bin",
+          "bytes": 135168,
+          "sha256": "c1be50098953eb2aeae9be5882cf69bf30e44a56b9fd6e001b8234e53688824d",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/routed-gate-up.bin",
+          "archive_path": "q8192-out32/routed-gate-up.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/routed-gate-up.bin",
+          "bytes": 540672,
+          "sha256": "202f6341d48b2c50b48330ff135fa6c0f68c9a0b8e9aba77c683f057c5aa810a",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/routed-activated.bin",
+          "archive_path": "q8192-out32/routed-activated.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/routed-activated.bin",
+          "bytes": 270336,
+          "sha256": "a0126a8ccb351ebf0d472d72075c797fda0bbfa02c9822ad80d3d41b0d5584c2",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/routed-weighted.bin",
+          "archive_path": "q8192-out32/routed-weighted.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/routed-weighted.bin",
+          "bytes": 1081344,
+          "sha256": "71f69b0bc42bfd93b3ff2b042ae8f21a3cd60a565c759ff785180ffa2b1f497a",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/expert-part-1.bin",
+          "archive_path": "q8192-out32/expert-part-1.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/expert-part-1.bin",
+          "bytes": 135168,
+          "sha256": "867d2df587e1af595c187cf2d08406d705085ad12ed58d79e1367ce1d7f1f802",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/topk-ids.bin",
+          "archive_path": "q8192-out32/topk-ids.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/topk-ids.bin",
+          "bytes": 1056,
+          "sha256": "5066bf6aedee4a6670d4f42fc57200b53d279bed4baf838eb236df768b17c6e4",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/topk-weights.bin",
+          "archive_path": "q8192-out32/topk-weights.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/topk-weights.bin",
+          "bytes": 1056,
+          "sha256": "fb34e8548d9783e4d0d352d2efb025251ca3c631b3b9b9a6d43d68bfe1855838",
+          "role": "comparison_only_original_frontier",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/input.bin",
+          "archive_path": "q8192-out32/input.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/input.bin",
+          "bytes": 81920,
+          "sha256": "e434362a87d4924e6bfff13f27c3a374a0231aaef2c1ce749685554a9dab1c37",
+          "role": "standalone_head_only_original_hidden",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/logits.bin",
+          "archive_path": "q8192-out32/logits.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/logits.bin",
+          "bytes": 9932800,
+          "sha256": "c29406d46a46a8185569418b8d6c3af94b540051eeb41b22a67797bf47e4f5e7",
+          "role": "comparison_only_original_full_vocabulary",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/history-k.bin",
+          "archive_path": "q8192-out32/history-k.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/history-k.bin",
+          "bytes": 8421376,
+          "sha256": "9ff884fb1f6f7cc909dc68156ea0c62f935aeb6b26661a0fdea074e275181a4d",
+          "role": "comparison_only_original_history_and_observed_terminal_row",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/history-v.bin",
+          "archive_path": "q8192-out32/history-v.bin",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/history-v.bin",
+          "bytes": 8421376,
+          "sha256": "d446049c03c8ba846810bf16f7ced2276ec8f5f7a00077772618c9885bafd282",
+          "role": "comparison_only_original_history_and_observed_terminal_row",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32/transactions.txt",
+          "archive_path": "q8192-out32/transactions.txt",
+          "local_file": "mtp-drafter-operands-r2/q8192-out32/transactions.txt",
+          "bytes": 1042,
+          "sha256": "732034241ef2857352207eb16ea56a7d80d24d9304c05f5aac66e72c8ae7597e",
+          "role": "component_probe_original_schedule",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q7169-out32/input.bin",
+          "archive_path": "moe/q7169-out32/input.bin",
+          "local_file": "mtp-moe-cpu-r3/q7169-out32/input.bin",
+          "bytes": 135168,
+          "sha256": "b95e26cf3c68d7fa2d2ad73270f5408fc92ae695243768ac0061058f0eb6a675",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q7169-out32/router.bin",
+          "archive_path": "moe/q7169-out32/router.bin",
+          "local_file": "mtp-moe-cpu-r3/q7169-out32/router.bin",
+          "bytes": 16896,
+          "sha256": "b6aa4ef07b769f6d94fdacd99c811d3882bed3a463ba80b26f931cd7f32bb90b",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q7169-out32/shared-gate.bin",
+          "archive_path": "moe/q7169-out32/shared-gate.bin",
+          "local_file": "mtp-moe-cpu-r3/q7169-out32/shared-gate.bin",
+          "bytes": 66,
+          "sha256": "642630fc205f924f9c433bc73db33b62ddc13ccff911e875c32d6872d610676a",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q7169-out32/shared-gate-up.bin",
+          "archive_path": "moe/q7169-out32/shared-gate-up.bin",
+          "local_file": "mtp-moe-cpu-r3/q7169-out32/shared-gate-up.bin",
+          "bytes": 67584,
+          "sha256": "4fdd9e84253f9f813e565fea9928e24f53bf750453deb2f176fbda99777bcd4b",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q7169-out32/shared-activated.bin",
+          "archive_path": "moe/q7169-out32/shared-activated.bin",
+          "local_file": "mtp-moe-cpu-r3/q7169-out32/shared-activated.bin",
+          "bytes": 33792,
+          "sha256": "0094d238e64bc3ecc57293cdb81733c244f49475767186085a171dd5aab5c198",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q7169-out32/shared-down.bin",
+          "archive_path": "moe/q7169-out32/shared-down.bin",
+          "local_file": "mtp-moe-cpu-r3/q7169-out32/shared-down.bin",
+          "bytes": 135168,
+          "sha256": "5864ae6d5830cf8da0d18be31a70978a96340bc6925b925ae9b8345252c12f50",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q7169-out32/shared.bin",
+          "archive_path": "moe/q7169-out32/shared.bin",
+          "local_file": "mtp-moe-cpu-r3/q7169-out32/shared.bin",
+          "bytes": 135168,
+          "sha256": "6e8d40aa748aa22f0ccfa579fd07801c10d72f6f2222fec2a45e9bc5d45d51e3",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q7169-out32/routed-gate-up.bin",
+          "archive_path": "moe/q7169-out32/routed-gate-up.bin",
+          "local_file": "mtp-moe-cpu-r3/q7169-out32/routed-gate-up.bin",
+          "bytes": 540672,
+          "sha256": "b10c2fb360c5924e43e269670e57ed91cb886228a6abb693252c53b5e7b1e420",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q7169-out32/routed-activated.bin",
+          "archive_path": "moe/q7169-out32/routed-activated.bin",
+          "local_file": "mtp-moe-cpu-r3/q7169-out32/routed-activated.bin",
+          "bytes": 270336,
+          "sha256": "ee54c21e4465fbfdf5dd2c4f4719f240d0ec5c0fa6b5a6f567e880654edbfb71",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q7169-out32/routed-weighted.bin",
+          "archive_path": "moe/q7169-out32/routed-weighted.bin",
+          "local_file": "mtp-moe-cpu-r3/q7169-out32/routed-weighted.bin",
+          "bytes": 1081344,
+          "sha256": "ba6e5a792300392d330074f4d4da732ab08b88a084c47ac414594319780a2f0d",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q7169-out32/expert-part-1.bin",
+          "archive_path": "moe/q7169-out32/expert-part-1.bin",
+          "local_file": "mtp-moe-cpu-r3/q7169-out32/expert-part-1.bin",
+          "bytes": 135168,
+          "sha256": "27df9db4c8943e871ceb3fefd675c17430d1c952ba94c856794a6edc0b15a568",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q7169-out32/moe-output.bin",
+          "archive_path": "moe/q7169-out32/moe-output.bin",
+          "local_file": "mtp-moe-cpu-r3/q7169-out32/moe-output.bin",
+          "bytes": 135168,
+          "sha256": "5410569eec50e005f18781b0360682afbce974a66d8da4f6c9833199d5e0f6f9",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q7169-out32/topk-ids.bin",
+          "archive_path": "moe/q7169-out32/topk-ids.bin",
+          "local_file": "mtp-moe-cpu-r3/q7169-out32/topk-ids.bin",
+          "bytes": 1056,
+          "sha256": "2e1649628fc689f27b02f749f5f7a13cc2251eb740f9359b47f4636114a9c7b2",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q7169-out32/topk-weights.bin",
+          "archive_path": "moe/q7169-out32/topk-weights.bin",
+          "local_file": "mtp-moe-cpu-r3/q7169-out32/topk-weights.bin",
+          "bytes": 1056,
+          "sha256": "32286252506edb4e68899e928d7059ea9ee0bda92032c4cf83d516f942cb5fa6",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q8192-out32/input.bin",
+          "archive_path": "moe/q8192-out32/input.bin",
+          "local_file": "mtp-moe-cpu-r3/q8192-out32/input.bin",
+          "bytes": 135168,
+          "sha256": "7d119cec273dd417d3937d961fd4a7ed424f2da46ff9f83a26e0ceb056485c55",
+          "role": "original_operator_input",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q8192-out32/router.bin",
+          "archive_path": "moe/q8192-out32/router.bin",
+          "local_file": "mtp-moe-cpu-r3/q8192-out32/router.bin",
+          "bytes": 16896,
+          "sha256": "01a4d5de5059fcf4348fce03ee409bb960023627dda0297f669ce9045e5640a4",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q8192-out32/shared-gate.bin",
+          "archive_path": "moe/q8192-out32/shared-gate.bin",
+          "local_file": "mtp-moe-cpu-r3/q8192-out32/shared-gate.bin",
+          "bytes": 66,
+          "sha256": "7b8b0e41aa1b199c1214a2c651cb4bb8cb71494088bd3fa0055ddfb51e2a352a",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q8192-out32/shared-gate-up.bin",
+          "archive_path": "moe/q8192-out32/shared-gate-up.bin",
+          "local_file": "mtp-moe-cpu-r3/q8192-out32/shared-gate-up.bin",
+          "bytes": 67584,
+          "sha256": "1b2913db7f2d801c36d334d00540fb6c25bf9e74ae15ff40cc5b36ee0c4abb28",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q8192-out32/shared-activated.bin",
+          "archive_path": "moe/q8192-out32/shared-activated.bin",
+          "local_file": "mtp-moe-cpu-r3/q8192-out32/shared-activated.bin",
+          "bytes": 33792,
+          "sha256": "2ca62ad6837c03aa95501d8c7e7a9e4279ff70dfe920423efd63d37285e8b09d",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q8192-out32/shared-down.bin",
+          "archive_path": "moe/q8192-out32/shared-down.bin",
+          "local_file": "mtp-moe-cpu-r3/q8192-out32/shared-down.bin",
+          "bytes": 135168,
+          "sha256": "d21952a7039a0291731015285aeb2a9a929f6575145a4f1872623c4eafd8ba3e",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q8192-out32/shared.bin",
+          "archive_path": "moe/q8192-out32/shared.bin",
+          "local_file": "mtp-moe-cpu-r3/q8192-out32/shared.bin",
+          "bytes": 135168,
+          "sha256": "aec675a46ee9b77f4e4ef40f44ef6bad64439ca508fdb4fc37d40d1eb45d0049",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q8192-out32/routed-gate-up.bin",
+          "archive_path": "moe/q8192-out32/routed-gate-up.bin",
+          "local_file": "mtp-moe-cpu-r3/q8192-out32/routed-gate-up.bin",
+          "bytes": 540672,
+          "sha256": "ec8ba0223abf186fc554c7a46f4bdd242ad25e5fc68853a6bab5938cef6b8961",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q8192-out32/routed-activated.bin",
+          "archive_path": "moe/q8192-out32/routed-activated.bin",
+          "local_file": "mtp-moe-cpu-r3/q8192-out32/routed-activated.bin",
+          "bytes": 270336,
+          "sha256": "b53124ea70ba1e1b4824e4663226ced35bdd0fa20205e7032188f3d434f5575e",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q8192-out32/routed-weighted.bin",
+          "archive_path": "moe/q8192-out32/routed-weighted.bin",
+          "local_file": "mtp-moe-cpu-r3/q8192-out32/routed-weighted.bin",
+          "bytes": 1081344,
+          "sha256": "5ddd750457f500d1ee23627cbe5d73c42337f81a872ff5c086a5d9a293f4b428",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q8192-out32/expert-part-1.bin",
+          "archive_path": "moe/q8192-out32/expert-part-1.bin",
+          "local_file": "mtp-moe-cpu-r3/q8192-out32/expert-part-1.bin",
+          "bytes": 135168,
+          "sha256": "a5ba147de13f0dec217e63556bf5b0e3f7b6d88bb496026fb5c7ce2e1e2a4300",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q8192-out32/moe-output.bin",
+          "archive_path": "moe/q8192-out32/moe-output.bin",
+          "local_file": "mtp-moe-cpu-r3/q8192-out32/moe-output.bin",
+          "bytes": 135168,
+          "sha256": "b779bd9e7bb31b251437a00bfcca4266716ddc0ce2ea3b593d463c54aaf1e482",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q8192-out32/topk-ids.bin",
+          "archive_path": "moe/q8192-out32/topk-ids.bin",
+          "local_file": "mtp-moe-cpu-r3/q8192-out32/topk-ids.bin",
+          "bytes": 1056,
+          "sha256": "63dae444eb6b74bc9cdbacb44abef5865a27db74a472de280accc214aa68008f",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q8192-out32/topk-weights.bin",
+          "archive_path": "moe/q8192-out32/topk-weights.bin",
+          "local_file": "mtp-moe-cpu-r3/q8192-out32/topk-weights.bin",
+          "bytes": 1056,
+          "sha256": "f4d1d6fbfebc6f28e5c08e115af3927b6a3cb816779dffb06430367b8f0bb8d5",
+          "role": "comparison_only_original_output",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/weights-and-tables.txt",
+          "archive_path": "weights-and-tables.txt",
+          "local_file": "mtp-drafter-operands-r2/weights-and-tables.txt",
+          "bytes": 2643,
+          "sha256": "40b92a54f279061efab87aa447db199edf59dd89db0df39b09a30883c4484476",
+          "role": "original_model_weights_and_qualified_tables_plan",
+          "in_archive": true
+        }
+      ],
+      "tables": [
+        {
+          "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r4/tables/rsqrt.bin",
+          "archive_path": "tables/rsqrt.bin",
+          "local_file": "qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+          "bytes": 17301808,
+          "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850",
+          "role": "model_independent_arithmetic",
+          "in_archive": false,
+          "reused_completed_native_artifact": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r4/tables/rope.bin",
+          "archive_path": "tables/rope.bin",
+          "local_file": "qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin",
+          "bytes": 33554432,
+          "sha256": "ba12ce218327d4cf23aac7dfacd8e9efbc99fd207611a8466227089838ef0e80",
+          "role": "model_parameter_rotary_table",
+          "in_archive": false,
+          "reused_completed_native_artifact": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r4/blobs/32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97.bin",
+          "archive_path": "blobs/32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97.bin",
+          "bytes": 131072,
+          "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97",
+          "local_file": "qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin",
+          "roles": [
+            "original_complete_bf16_sigmoid_domain"
+          ],
+          "in_archive": false,
+          "reused_completed_native_artifact": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/tables/exp2.bin",
+          "archive_path": "tables/exp2.bin",
+          "bytes": 183174448,
+          "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+          "local_file": "qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+          "roles": [
+            "original_model_independent_arithmetic_table"
+          ],
+          "in_archive": false,
+          "reused_completed_native_artifact": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/tables/rcp.bin",
+          "archive_path": "tables/rcp.bin",
+          "bytes": 8388640,
+          "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+          "local_file": "qrt-rcp-table-20260911-r2/sm121-attention-rcp-delta-i8.bin",
+          "roles": [
+            "original_model_independent_arithmetic_table"
+          ],
+          "in_archive": false,
+          "reused_completed_native_artifact": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/tables/silu.bin",
+          "archive_path": "tables/silu.bin",
+          "local_file": "qrt-moe-tables-20260910-r1/cuda-vllm-silu-bf16-domain.bin",
+          "bytes": 131096,
+          "sha256": "97a2a729266bb0681983aa5b2c6ddffafeaab1bab99c7658a0524b09331a11ac",
+          "role": "original_model_independent_arithmetic_table",
+          "in_archive": true
+        },
+        {
+          "path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/tables/router-exp.bin",
+          "archive_path": "tables/router-exp.bin",
+          "local_file": "qrt-moe-tables-20260910-r1/cuda-router-ex2-fraction-f32.bin",
+          "bytes": 33554432,
+          "sha256": "b2a42c4a626469c986e33e43f16f41bde9d84de94347cd9ceaa1bd68d36bcdf0",
+          "role": "original_model_independent_arithmetic_table",
+          "in_archive": true
+        }
+      ],
+      "cases": [
+        {
+          "name": "moe-0",
+          "stage": "complete_moe",
+          "program": "qrt-mtp-moe",
+          "original_case": "q7169-out32",
+          "arguments": [
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q7169-out32",
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/router.bin",
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/shared-gate.bin",
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/shared-gate-up.bin",
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/shared-down.bin",
+            "D:/models/Qwen3.6-35B-A3B/model-00025-of-00026.safetensors",
+            "2759146432",
+            "D:/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
+            "1632658448",
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/tables/silu.bin",
+            "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r4/blobs/32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97.bin",
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/tables/router-exp.bin"
+          ],
+          "expected_reports": 1,
+          "timeout_seconds": 300
+        },
+        {
+          "name": "head-0",
+          "stage": "output_head",
+          "program": "qrt-mtp-head",
+          "original_case": "q7169-out32",
+          "arguments": [
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32",
+            "D:/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
+            "4112"
+          ],
+          "expected": {
+            "rows": 19
+          },
+          "expected_reports": 1,
+          "timeout_seconds": 300
+        },
+        {
+          "name": "drafter-0",
+          "stage": "complete_drafter",
+          "program": "qrt-mtp-drafter",
+          "original_case": "q7169-out32",
+          "arguments": [
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q7169-out32",
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/weights-and-tables.txt"
+          ],
+          "expected": {
+            "transactions": 19,
+            "prompt_rows": 7169,
+            "history_rows": 7201,
+            "query_rows": 33
+          },
+          "expected_reports": 1,
+          "timeout_seconds": 300,
+          "source_rows": [
+            {
+              "transaction": 0,
+              "saved_index": 1,
+              "position": 7168,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 1,
+              "saved_index": 0,
+              "position": 7169,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 2,
+              "saved_index": 0,
+              "position": 7170,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 3,
+              "saved_index": 0,
+              "position": 7171,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 4,
+              "saved_index": 0,
+              "position": 7172,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 4,
+              "saved_index": 1,
+              "position": 7173,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 5,
+              "saved_index": 0,
+              "position": 7174,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 6,
+              "saved_index": 0,
+              "position": 7175,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 6,
+              "saved_index": 1,
+              "position": 7176,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 7,
+              "saved_index": 0,
+              "position": 7177,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 7,
+              "saved_index": 1,
+              "position": 7178,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 8,
+              "saved_index": 0,
+              "position": 7179,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 8,
+              "saved_index": 1,
+              "position": 7180,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 9,
+              "saved_index": 0,
+              "position": 7181,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 9,
+              "saved_index": 1,
+              "position": 7182,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 10,
+              "saved_index": 0,
+              "position": 7183,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 10,
+              "saved_index": 1,
+              "position": 7184,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 11,
+              "saved_index": 0,
+              "position": 7185,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 11,
+              "saved_index": 1,
+              "position": 7186,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 12,
+              "saved_index": 0,
+              "position": 7187,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 12,
+              "saved_index": 1,
+              "position": 7188,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 13,
+              "saved_index": 0,
+              "position": 7189,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 13,
+              "saved_index": 1,
+              "position": 7190,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 14,
+              "saved_index": 0,
+              "position": 7191,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 14,
+              "saved_index": 1,
+              "position": 7192,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 15,
+              "saved_index": 0,
+              "position": 7193,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 15,
+              "saved_index": 1,
+              "position": 7194,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 16,
+              "saved_index": 0,
+              "position": 7195,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 16,
+              "saved_index": 1,
+              "position": 7196,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 17,
+              "saved_index": 0,
+              "position": 7197,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 17,
+              "saved_index": 1,
+              "position": 7198,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 18,
+              "saved_index": 0,
+              "position": 7199,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 18,
+              "saved_index": 1,
+              "position": 7200,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": null,
+              "input_provenance": "unchanged_original_proposer_call"
+            }
+          ],
+          "original_transactions": [
+            {
+              "transaction": 0,
+              "first": 0,
+              "append_rows": 7169,
+              "query_first": 7168,
+              "query_rows": 1,
+              "expected_first": 0,
+              "hidden": "t0000-hidden.bin",
+              "ids": "t0000-ids.bin",
+              "original_sampled_row": 7168,
+              "original_draft_id": 144
+            },
+            {
+              "transaction": 1,
+              "first": 7169,
+              "append_rows": 2,
+              "query_first": 7169,
+              "query_rows": 1,
+              "expected_first": 1,
+              "hidden": "t0001-hidden.bin",
+              "ids": "t0001-ids.bin",
+              "original_sampled_row": 0,
+              "original_draft_id": 144
+            },
+            {
+              "transaction": 2,
+              "first": 7170,
+              "append_rows": 2,
+              "query_first": 7170,
+              "query_rows": 1,
+              "expected_first": 2,
+              "hidden": "t0002-hidden.bin",
+              "ids": "t0002-ids.bin",
+              "original_sampled_row": 0,
+              "original_draft_id": 196
+            },
+            {
+              "transaction": 3,
+              "first": 7171,
+              "append_rows": 2,
+              "query_first": 7171,
+              "query_rows": 1,
+              "expected_first": 3,
+              "hidden": "t0003-hidden.bin",
+              "ids": "t0003-ids.bin",
+              "original_sampled_row": 0,
+              "original_draft_id": 220
+            },
+            {
+              "transaction": 4,
+              "first": 7172,
+              "append_rows": 2,
+              "query_first": 7172,
+              "query_rows": 2,
+              "expected_first": 4,
+              "hidden": "t0004-hidden.bin",
+              "ids": "t0004-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 196
+            },
+            {
+              "transaction": 5,
+              "first": 7174,
+              "append_rows": 2,
+              "query_first": 7174,
+              "query_rows": 1,
+              "expected_first": 6,
+              "hidden": "t0005-hidden.bin",
+              "ids": "t0005-ids.bin",
+              "original_sampled_row": 0,
+              "original_draft_id": 220
+            },
+            {
+              "transaction": 6,
+              "first": 7175,
+              "append_rows": 2,
+              "query_first": 7175,
+              "query_rows": 2,
+              "expected_first": 7,
+              "hidden": "t0006-hidden.bin",
+              "ids": "t0006-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 220
+            },
+            {
+              "transaction": 7,
+              "first": 7177,
+              "append_rows": 2,
+              "query_first": 7177,
+              "query_rows": 2,
+              "expected_first": 9,
+              "hidden": "t0007-hidden.bin",
+              "ids": "t0007-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 196
+            },
+            {
+              "transaction": 8,
+              "first": 7179,
+              "append_rows": 2,
+              "query_first": 7179,
+              "query_rows": 2,
+              "expected_first": 11,
+              "hidden": "t0008-hidden.bin",
+              "ids": "t0008-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 220
+            },
+            {
+              "transaction": 9,
+              "first": 7181,
+              "append_rows": 2,
+              "query_first": 7181,
+              "query_rows": 2,
+              "expected_first": 13,
+              "hidden": "t0009-hidden.bin",
+              "ids": "t0009-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 220
+            },
+            {
+              "transaction": 10,
+              "first": 7183,
+              "append_rows": 2,
+              "query_first": 7183,
+              "query_rows": 2,
+              "expected_first": 15,
+              "hidden": "t0010-hidden.bin",
+              "ids": "t0010-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 196
+            },
+            {
+              "transaction": 11,
+              "first": 7185,
+              "append_rows": 2,
+              "query_first": 7185,
+              "query_rows": 2,
+              "expected_first": 17,
+              "hidden": "t0011-hidden.bin",
+              "ids": "t0011-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 220
+            },
+            {
+              "transaction": 12,
+              "first": 7187,
+              "append_rows": 2,
+              "query_first": 7187,
+              "query_rows": 2,
+              "expected_first": 19,
+              "hidden": "t0012-hidden.bin",
+              "ids": "t0012-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 220
+            },
+            {
+              "transaction": 13,
+              "first": 7189,
+              "append_rows": 2,
+              "query_first": 7189,
+              "query_rows": 2,
+              "expected_first": 21,
+              "hidden": "t0013-hidden.bin",
+              "ids": "t0013-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 196
+            },
+            {
+              "transaction": 14,
+              "first": 7191,
+              "append_rows": 2,
+              "query_first": 7191,
+              "query_rows": 2,
+              "expected_first": 23,
+              "hidden": "t0014-hidden.bin",
+              "ids": "t0014-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 220
+            },
+            {
+              "transaction": 15,
+              "first": 7193,
+              "append_rows": 2,
+              "query_first": 7193,
+              "query_rows": 2,
+              "expected_first": 25,
+              "hidden": "t0015-hidden.bin",
+              "ids": "t0015-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 220
+            },
+            {
+              "transaction": 16,
+              "first": 7195,
+              "append_rows": 2,
+              "query_first": 7195,
+              "query_rows": 2,
+              "expected_first": 27,
+              "hidden": "t0016-hidden.bin",
+              "ids": "t0016-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 196
+            },
+            {
+              "transaction": 17,
+              "first": 7197,
+              "append_rows": 2,
+              "query_first": 7197,
+              "query_rows": 2,
+              "expected_first": 29,
+              "hidden": "t0017-hidden.bin",
+              "ids": "t0017-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 220
+            },
+            {
+              "transaction": 18,
+              "first": 7199,
+              "append_rows": 2,
+              "query_first": 7199,
+              "query_rows": 2,
+              "expected_first": 31,
+              "hidden": "t0018-hidden.bin",
+              "ids": "t0018-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 220
+            }
+          ]
+        },
+        {
+          "name": "moe-1",
+          "stage": "complete_moe",
+          "program": "qrt-mtp-moe",
+          "original_case": "q8192-out32",
+          "arguments": [
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/moe/q8192-out32",
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/router.bin",
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/shared-gate.bin",
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/shared-gate-up.bin",
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/shared-down.bin",
+            "D:/models/Qwen3.6-35B-A3B/model-00025-of-00026.safetensors",
+            "2759146432",
+            "D:/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
+            "1632658448",
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/tables/silu.bin",
+            "D:/projects/qrt-mtp-native-frontiers-inputs-20260920-r4/blobs/32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97.bin",
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/tables/router-exp.bin"
+          ],
+          "expected_reports": 1,
+          "timeout_seconds": 300
+        },
+        {
+          "name": "head-1",
+          "stage": "output_head",
+          "program": "qrt-mtp-head",
+          "original_case": "q8192-out32",
+          "arguments": [
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32",
+            "D:/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
+            "4112"
+          ],
+          "expected": {
+            "rows": 20
+          },
+          "expected_reports": 1,
+          "timeout_seconds": 300
+        },
+        {
+          "name": "drafter-1",
+          "stage": "complete_drafter",
+          "program": "qrt-mtp-drafter",
+          "original_case": "q8192-out32",
+          "arguments": [
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/q8192-out32",
+            "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/weights-and-tables.txt"
+          ],
+          "expected": {
+            "transactions": 20,
+            "prompt_rows": 8192,
+            "history_rows": 8224,
+            "query_rows": 33
+          },
+          "expected_reports": 1,
+          "timeout_seconds": 300,
+          "source_rows": [
+            {
+              "transaction": 0,
+              "saved_index": 1,
+              "position": 8191,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 1,
+              "saved_index": 0,
+              "position": 8192,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 1,
+              "saved_index": 1,
+              "position": 8193,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 2,
+              "saved_index": 0,
+              "position": 8194,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 3,
+              "saved_index": 0,
+              "position": 8195,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 4,
+              "saved_index": 0,
+              "position": 8196,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 5,
+              "saved_index": 0,
+              "position": 8197,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 6,
+              "saved_index": 0,
+              "position": 8198,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 7,
+              "saved_index": 0,
+              "position": 8199,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 8,
+              "saved_index": 0,
+              "position": 8200,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 8,
+              "saved_index": 1,
+              "position": 8201,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 9,
+              "saved_index": 0,
+              "position": 8202,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 9,
+              "saved_index": 1,
+              "position": 8203,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 10,
+              "saved_index": 0,
+              "position": 8204,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 10,
+              "saved_index": 1,
+              "position": 8205,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 11,
+              "saved_index": 0,
+              "position": 8206,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 11,
+              "saved_index": 1,
+              "position": 8207,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 12,
+              "saved_index": 0,
+              "position": 8208,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 12,
+              "saved_index": 1,
+              "position": 8209,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 13,
+              "saved_index": 0,
+              "position": 8210,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 13,
+              "saved_index": 1,
+              "position": 8211,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 14,
+              "saved_index": 0,
+              "position": 8212,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 14,
+              "saved_index": 1,
+              "position": 8213,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 15,
+              "saved_index": 0,
+              "position": 8214,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 15,
+              "saved_index": 1,
+              "position": 8215,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 16,
+              "saved_index": 0,
+              "position": 8216,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 16,
+              "saved_index": 1,
+              "position": 8217,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 17,
+              "saved_index": 0,
+              "position": 8218,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 17,
+              "saved_index": 1,
+              "position": 8219,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 18,
+              "saved_index": 0,
+              "position": 8220,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 18,
+              "saved_index": 1,
+              "position": 8221,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 19,
+              "saved_index": 0,
+              "position": 8222,
+              "selected_for_sampling": false,
+              "input_matches_returned_history": true,
+              "input_provenance": "unchanged_original_proposer_call"
+            },
+            {
+              "transaction": 19,
+              "saved_index": 1,
+              "position": 8223,
+              "selected_for_sampling": true,
+              "input_matches_returned_history": null,
+              "input_provenance": "unchanged_original_proposer_call"
+            }
+          ],
+          "original_transactions": [
+            {
+              "transaction": 0,
+              "first": 0,
+              "append_rows": 8192,
+              "query_first": 8191,
+              "query_rows": 1,
+              "expected_first": 0,
+              "hidden": "t0000-hidden.bin",
+              "ids": "t0000-ids.bin",
+              "original_sampled_row": 8191,
+              "original_draft_id": 255
+            },
+            {
+              "transaction": 1,
+              "first": 8192,
+              "append_rows": 2,
+              "query_first": 8192,
+              "query_rows": 2,
+              "expected_first": 1,
+              "hidden": "t0001-hidden.bin",
+              "ids": "t0001-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 158
+            },
+            {
+              "transaction": 2,
+              "first": 8194,
+              "append_rows": 2,
+              "query_first": 8194,
+              "query_rows": 1,
+              "expected_first": 3,
+              "hidden": "t0002-hidden.bin",
+              "ids": "t0002-ids.bin",
+              "original_sampled_row": 0,
+              "original_draft_id": 136
+            },
+            {
+              "transaction": 3,
+              "first": 8195,
+              "append_rows": 2,
+              "query_first": 8195,
+              "query_rows": 1,
+              "expected_first": 4,
+              "hidden": "t0003-hidden.bin",
+              "ids": "t0003-ids.bin",
+              "original_sampled_row": 0,
+              "original_draft_id": 136
+            },
+            {
+              "transaction": 4,
+              "first": 8196,
+              "append_rows": 2,
+              "query_first": 8196,
+              "query_rows": 1,
+              "expected_first": 5,
+              "hidden": "t0004-hidden.bin",
+              "ids": "t0004-ids.bin",
+              "original_sampled_row": 0,
+              "original_draft_id": 144
+            },
+            {
+              "transaction": 5,
+              "first": 8197,
+              "append_rows": 2,
+              "query_first": 8197,
+              "query_rows": 1,
+              "expected_first": 6,
+              "hidden": "t0005-hidden.bin",
+              "ids": "t0005-ids.bin",
+              "original_sampled_row": 0,
+              "original_draft_id": 144
+            },
+            {
+              "transaction": 6,
+              "first": 8198,
+              "append_rows": 2,
+              "query_first": 8198,
+              "query_rows": 1,
+              "expected_first": 7,
+              "hidden": "t0006-hidden.bin",
+              "ids": "t0006-ids.bin",
+              "original_sampled_row": 0,
+              "original_draft_id": 136
+            },
+            {
+              "transaction": 7,
+              "first": 8199,
+              "append_rows": 2,
+              "query_first": 8199,
+              "query_rows": 1,
+              "expected_first": 8,
+              "hidden": "t0007-hidden.bin",
+              "ids": "t0007-ids.bin",
+              "original_sampled_row": 0,
+              "original_draft_id": 220
+            },
+            {
+              "transaction": 8,
+              "first": 8200,
+              "append_rows": 2,
+              "query_first": 8200,
+              "query_rows": 2,
+              "expected_first": 9,
+              "hidden": "t0008-hidden.bin",
+              "ids": "t0008-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 220
+            },
+            {
+              "transaction": 9,
+              "first": 8202,
+              "append_rows": 2,
+              "query_first": 8202,
+              "query_rows": 2,
+              "expected_first": 11,
+              "hidden": "t0009-hidden.bin",
+              "ids": "t0009-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 196
+            },
+            {
+              "transaction": 10,
+              "first": 8204,
+              "append_rows": 2,
+              "query_first": 8204,
+              "query_rows": 2,
+              "expected_first": 13,
+              "hidden": "t0010-hidden.bin",
+              "ids": "t0010-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 220
+            },
+            {
+              "transaction": 11,
+              "first": 8206,
+              "append_rows": 2,
+              "query_first": 8206,
+              "query_rows": 2,
+              "expected_first": 15,
+              "hidden": "t0011-hidden.bin",
+              "ids": "t0011-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 220
+            },
+            {
+              "transaction": 12,
+              "first": 8208,
+              "append_rows": 2,
+              "query_first": 8208,
+              "query_rows": 2,
+              "expected_first": 17,
+              "hidden": "t0012-hidden.bin",
+              "ids": "t0012-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 196
+            },
+            {
+              "transaction": 13,
+              "first": 8210,
+              "append_rows": 2,
+              "query_first": 8210,
+              "query_rows": 2,
+              "expected_first": 19,
+              "hidden": "t0013-hidden.bin",
+              "ids": "t0013-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 220
+            },
+            {
+              "transaction": 14,
+              "first": 8212,
+              "append_rows": 2,
+              "query_first": 8212,
+              "query_rows": 2,
+              "expected_first": 21,
+              "hidden": "t0014-hidden.bin",
+              "ids": "t0014-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 220
+            },
+            {
+              "transaction": 15,
+              "first": 8214,
+              "append_rows": 2,
+              "query_first": 8214,
+              "query_rows": 2,
+              "expected_first": 23,
+              "hidden": "t0015-hidden.bin",
+              "ids": "t0015-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 196
+            },
+            {
+              "transaction": 16,
+              "first": 8216,
+              "append_rows": 2,
+              "query_first": 8216,
+              "query_rows": 2,
+              "expected_first": 25,
+              "hidden": "t0016-hidden.bin",
+              "ids": "t0016-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 220
+            },
+            {
+              "transaction": 17,
+              "first": 8218,
+              "append_rows": 2,
+              "query_first": 8218,
+              "query_rows": 2,
+              "expected_first": 27,
+              "hidden": "t0017-hidden.bin",
+              "ids": "t0017-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 220
+            },
+            {
+              "transaction": 18,
+              "first": 8220,
+              "append_rows": 2,
+              "query_first": 8220,
+              "query_rows": 2,
+              "expected_first": 29,
+              "hidden": "t0018-hidden.bin",
+              "ids": "t0018-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 196
+            },
+            {
+              "transaction": 19,
+              "first": 8222,
+              "append_rows": 2,
+              "query_first": 8222,
+              "query_rows": 2,
+              "expected_first": 31,
+              "hidden": "t0019-hidden.bin",
+              "ids": "t0019-ids.bin",
+              "original_sampled_row": 1,
+              "original_draft_id": 220
+            }
+          ]
+        }
+      ],
+      "model": "D:/models/Qwen3.6-35B-A3B",
+      "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+      "model_weights": [
+        {
+          "label": "embedding-norm",
+          "spans": [
+            {
+              "name": "mtp.pre_fc_norm_embedding.weight",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                2048
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                2231404544,
+                2231408640
+              ],
+              "absolute_begin": 2231408656,
+              "bytes": 4096,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            }
+          ],
+          "sha256": "84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484",
+          "bytes": 4096,
+          "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/embedding-norm.bin"
+        },
+        {
+          "label": "hidden-norm",
+          "spans": [
+            {
+              "name": "mtp.pre_fc_norm_hidden.weight",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                2048
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                2231408640,
+                2231412736
+              ],
+              "absolute_begin": 2231412752,
+              "bytes": 4096,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            }
+          ],
+          "sha256": "cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18",
+          "bytes": 4096,
+          "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/hidden-norm.bin"
+        },
+        {
+          "label": "fusion",
+          "spans": [
+            {
+              "name": "mtp.fc.weight",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                2048,
+                4096
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                1615873024,
+                1632650240
+              ],
+              "absolute_begin": 1615877136,
+              "bytes": 16777216,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            }
+          ],
+          "sha256": "5015bb3b80ffa82d5c9fb353e776f2351d2ce5361a02230111b4d15f447aa024",
+          "bytes": 16777216,
+          "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/fusion.bin"
+        },
+        {
+          "label": "input-norm",
+          "spans": [
+            {
+              "name": "mtp.layers.0.input_layernorm.weight",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                2048
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                1632650240,
+                1632654336
+              ],
+              "absolute_begin": 1632654352,
+              "bytes": 4096,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            }
+          ],
+          "sha256": "99fc176e7b890192ed0403677fa775eabc9a44d70b67592195909bc26be586bb",
+          "bytes": 4096,
+          "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/input-norm.bin"
+        },
+        {
+          "label": "kv-projection",
+          "spans": [
+            {
+              "name": "mtp.layers.0.self_attn.k_proj.weight",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                512,
+                2048
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                2176873984,
+                2178971136
+              ],
+              "absolute_begin": 2176878096,
+              "bytes": 2097152,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            },
+            {
+              "name": "mtp.layers.0.self_attn.v_proj.weight",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                512,
+                2048
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                2229303296,
+                2231400448
+              ],
+              "absolute_begin": 2229307408,
+              "bytes": 2097152,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            }
+          ],
+          "sha256": "1269d6164080d77ccccd1c27da312aa3cae79208c308f904fd29daaf04a5e4fb",
+          "bytes": 4194304,
+          "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/kv-projection.bin"
+        },
+        {
+          "label": "key-norm",
+          "spans": [
+            {
+              "name": "mtp.layers.0.self_attn.k_norm.weight",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                256
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                2176873472,
+                2176873984
+              ],
+              "absolute_begin": 2176877584,
+              "bytes": 512,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            }
+          ],
+          "sha256": "6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938",
+          "bytes": 512,
+          "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/key-norm.bin"
+        },
+        {
+          "label": "query-norm",
+          "spans": [
+            {
+              "name": "mtp.layers.0.self_attn.q_norm.weight",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                256
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                2195748352,
+                2195748864
+              ],
+              "absolute_begin": 2195752464,
+              "bytes": 512,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            }
+          ],
+          "sha256": "c57bdab3a6844454085b1df4991bc46443ae2495c4a620ec22e0d1b93c27fbba",
+          "bytes": 512,
+          "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/query-norm.bin"
+        },
+        {
+          "label": "post-attention-norm",
+          "spans": [
+            {
+              "name": "mtp.layers.0.post_attention_layernorm.weight",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                2048
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                2176869376,
+                2176873472
+              ],
+              "absolute_begin": 2176873488,
+              "bytes": 4096,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            }
+          ],
+          "sha256": "03f1d8971f0e2378806ee9269f4ef91115d5d97e2ff6460fe4af3ab9ff1fd12a",
+          "bytes": 4096,
+          "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/post-attention-norm.bin"
+        },
+        {
+          "label": "final-norm",
+          "spans": [
+            {
+              "name": "mtp.norm.weight",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                2048
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                2231400448,
+                2231404544
+              ],
+              "absolute_begin": 2231404560,
+              "bytes": 4096,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            }
+          ],
+          "sha256": "b56452e89857beaee0724b4f9c1341295754c015ba6e671cb929320f6ecd5271",
+          "bytes": 4096,
+          "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/final-norm.bin"
+        },
+        {
+          "label": "query",
+          "spans": [
+            {
+              "name": "mtp.layers.0.self_attn.q_proj.weight",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                8192,
+                2048
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                2195748864,
+                2229303296
+              ],
+              "absolute_begin": 2195752976,
+              "bytes": 33554432,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            }
+          ],
+          "sha256": "e6863a8871e0fed92e5d4821d2a77a110b9906136417ac16b9c5196928beb163",
+          "bytes": 33554432,
+          "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/query.bin"
+        },
+        {
+          "label": "output",
+          "spans": [
+            {
+              "name": "mtp.layers.0.self_attn.o_proj.weight",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                2048,
+                4096
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                2178971136,
+                2195748352
+              ],
+              "absolute_begin": 2178975248,
+              "bytes": 16777216,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            }
+          ],
+          "sha256": "98be07d123f23cd309c507f2f484091942ed90392b673303c9436abdf8204380",
+          "bytes": 16777216,
+          "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/output.bin"
+        },
+        {
+          "label": "router",
+          "spans": [
+            {
+              "name": "mtp.layers.0.mlp.gate.weight",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                256,
+                2048
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                2169525248,
+                2170573824
+              ],
+              "absolute_begin": 2169529360,
+              "bytes": 1048576,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            }
+          ],
+          "sha256": "ed592b6a2138228dc40dacc96179ce0c657ebd5c55c92476938c4eb0ede9108c",
+          "bytes": 1048576,
+          "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/router.bin"
+        },
+        {
+          "label": "shared-gate",
+          "spans": [
+            {
+              "name": "mtp.layers.0.mlp.shared_expert_gate.weight",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                1,
+                2048
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                2176865280,
+                2176869376
+              ],
+              "absolute_begin": 2176869392,
+              "bytes": 4096,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            }
+          ],
+          "sha256": "6cf70655851eae34334fc252072d3d872d908b6ea2479ac45676e667ded61c2e",
+          "bytes": 4096,
+          "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/shared-gate.bin"
+        },
+        {
+          "label": "shared-gate-up",
+          "spans": [
+            {
+              "name": "mtp.layers.0.mlp.shared_expert.gate_proj.weight",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                512,
+                2048
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                2172670976,
+                2174768128
+              ],
+              "absolute_begin": 2172675088,
+              "bytes": 2097152,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            },
+            {
+              "name": "mtp.layers.0.mlp.shared_expert.up_proj.weight",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                512,
+                2048
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                2174768128,
+                2176865280
+              ],
+              "absolute_begin": 2174772240,
+              "bytes": 2097152,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            }
+          ],
+          "sha256": "b06769a745ea0ddc660ce3168e34cdb0a085e0b6335505d945e2ec79c293ada7",
+          "bytes": 4194304,
+          "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/shared-gate-up.bin"
+        },
+        {
+          "label": "shared-down",
+          "spans": [
+            {
+              "name": "mtp.layers.0.mlp.shared_expert.down_proj.weight",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                2048,
+                512
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                2170573824,
+                2172670976
+              ],
+              "absolute_begin": 2170577936,
+              "bytes": 2097152,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            }
+          ],
+          "sha256": "e1ac113656bcf5bcac1ebbc46c61f6b40d7cc480aeef6e58dada17073f18458e",
+          "bytes": 2097152,
+          "export_path": "D:/projects/qrt-mtp-native-drafter-inputs-20260920-r1/model-weights/shared-down.bin"
+        },
+        {
+          "label": "routed-down",
+          "spans": [
+            {
+              "name": "mtp.layers.0.mlp.experts.down_proj",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                256,
+                2048,
+                512
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                1632654336,
+                2169525248
+              ],
+              "absolute_begin": 1632658448,
+              "bytes": 536870912,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            }
+          ],
+          "sha256": "671f3f8436a859d11582489d78ef3122f392e3d2f7f2635ad7778b6e52d27e9f",
+          "bytes": 536870912,
+          "export_path": null
+        },
+        {
+          "label": "routed-gate-up",
+          "spans": [
+            {
+              "name": "mtp.layers.0.mlp.experts.gate_up_proj",
+              "shard": "model-00025-of-00026.safetensors",
+              "shape": [
+                256,
+                1024,
+                2048
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                2759143808,
+                3832885632
+              ],
+              "absolute_begin": 2759146432,
+              "bytes": 1073741824,
+              "header_sha256": "a1213b03752357c4ef03c1fb806bc445f5230de6e4c70fe252328ad707322d39",
+              "shard_file_bytes": 3832888256
+            }
+          ],
+          "sha256": "149557e68804517a9f161ede0e39cf287d70e847c9970eb5e80e0cd386e97e9a",
+          "bytes": 1073741824,
+          "export_path": null
+        },
+        {
+          "label": "embeddings",
+          "spans": [
+            {
+              "name": "model.language_model.embed_tokens.weight",
+              "shard": "model-00001-of-00026.safetensors",
+              "shape": [
+                248320,
+                2048
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                0,
+                1017118720
+              ],
+              "absolute_begin": 2848,
+              "bytes": 1017118720,
+              "header_sha256": "69c3b8c645af1e7abc1cd7b02224c7e68571e10e2c15d3b638173d42aa407995",
+              "shard_file_bytes": 3996199712
+            }
+          ],
+          "sha256": "fa0611f12cdb3827ce18c6e008645584fcd16156579011f6c63be499d2443b0f",
+          "bytes": 1017118720,
+          "export_path": null
+        },
+        {
+          "label": "lm-head",
+          "spans": [
+            {
+              "name": "lm_head.weight",
+              "shard": "model-00026-of-00026.safetensors",
+              "shape": [
+                248320,
+                2048
+              ],
+              "dtype": "BF16",
+              "data_offsets": [
+                0,
+                1017118720
+              ],
+              "absolute_begin": 4112,
+              "bytes": 1017118720,
+              "header_sha256": "6f2afede1820106eca9e38a4c24f8da679a79dc841a94a30d90ab32a16f402ec",
+              "shard_file_bytes": 2231416848
+            }
+          ],
+          "sha256": "394297e7d76ec7239250841017960a62ea6b4fa3af44a9f08ea6e6b743a94661",
+          "bytes": 1017118720,
+          "export_path": null
+        }
+      ],
+      "original_inventory_sha256": "cf0a94ea992bc01de20fdc3d84db05cf09b4efb0cbb7a4e0c86d757147f01d3e",
+      "routed_cpu_comparison_sha256": "3cb7c243ae6d3af8b284648313cabdb722f7dc17d2c8ac31a3f1f0248a9fea45",
+      "active_run_must_finish_before_dispatch": "all-q1-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+      "active_run_remote_directory": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/all-q1-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+      "active_launch_sha256": "d19255fb648043f2811ef8579d84a85016a3c1c02ab57a31618a0d1c10c2c85c",
+      "active_run_model_success_required": false,
+      "active_run_cleanup_required": true,
+      "reference_host": "gb10-4t",
+      "reference_model": "/mnt/data/models/Qwen3.6-35B-A3B",
+      "reference_source_commit": "e034919575af8a56c56a8e49447294455dc2db7a",
+      "reference_dispatch_sha256": "87595fd468ce45dc57bd1bbde21d18091e466d3a94068723bdd5378388dd8981",
+      "cpu_math_analysis_sha256": "beb4f35e903e9fe8eb6d22318f94a552d872ec6c1447f2337837beec59144be5",
+      "local_validation_sha256": "3d46fd31ce65c1299e4a45eb9a2b91e153b1a7aacc07eec95d75de3006e24a3d",
+      "compile_timeout_seconds": 120,
+      "transport_timeout_seconds": 4200,
+      "model_tensor_read_timeout_seconds": 60,
+      "archive_operation_timeout_seconds": 120,
+      "native_dispatched": false,
+      "model_loaded": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "release_qualified": false,
+      "compiled_inputs": 56,
+      "source_sha256": {
+        "tools/mtp_moe_hip_probe.cpp": "863c68a5b47f11290a94dd2263422f5e0f779c0551bfe7da53b7ec979e34c8c9",
+        "native/providers/gdn/sm121_mtp_moe.h": "df38e91dae5bc127961813be746da1d5bd8ce8dc0e2fb01782f3aeac896cb52d",
+        "native/providers/gdn/sm121_mtp_projection.h": "ffae24eed114ae3c4e53b6d59087fc54570bea49a9de9ffc0f997be71ef8bcf0",
+        "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+        "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+        "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+        "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+        "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+        "native/providers/moe_accumulator/sm121_subgroup.h": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+        "native/providers/moe_accumulator/sm121_wave16.h": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+        "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+        "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+        "native/providers/moe_accumulator/sm121_lane_reduce.h": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+        "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+        "native/providers/moe_accumulator/sm121_paired_products.h": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+        "native/providers/moe_accumulator/sm121_dot_certificate.h": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+        "native/providers/gdn/sm121_mtp_moe_math.h": "1bca67f5dd6a672d0f0d79f90bf0d3a992c6908dea235b3b028efa29900fb349",
+        "native/providers/moe_accumulator/sm121_router_exp.h": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+        "native/providers/moe_accumulator/sm121_shared_gate.h": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+        "native/providers/gdn/sm121_mtp_moe_layout.h": "aa25ff78b71bd698db2745b2e7a84cfebd565b9d143a81bc4f7e7a302617ff1f",
+        "tools/mtp_head_hip_probe.cpp": "6c41bb70b1705e639d0425fa24115d6439a10d8181f4e11eb731f7f72bab248e",
+        "native/providers/gdn/sm121_mtp_head.h": "dfd332895bb383467e5df5fea66fce18aa1bcf903337c4dd3c3eeab07864370c",
+        "native/providers/gdn/sm121_mtp_head_math.h": "5aa79376f2ad30440ae91cbbd22b6792eebf0273ce68df2f7fddbe8022925766",
+        "tools/mtp_drafter_hip_probe.cpp": "4ed2260175e8eca0e99a5d4f8a3100b5e1b48ef0681962c84ddccad5c544f71e",
+        "native/providers/gdn/sm121_mtp_drafter.h": "150de371896227091e8d7669f05b023116e29ff84b58707c035fd9478cf94c15",
+        "native/providers/gdn/sm121_mtp_prompt_cache.h": "deee5b8c43846406d5388f17f2394595889efd5699288a5827dc0d7d1767891f",
+        "native/providers/gdn/sm121_mtp_frontier.h": "3cfa529c7856f90541821a0faf071450474171e3b85f2c14e7c54b22623f07f5",
+        "native/providers/gdn/sm121_mtp_math.h": "0e58296175341d4ded1b69c5318808246721623b25b15404d00b6074d74ebddf",
+        "native/providers/gdn/sm121_mtp_kv.h": "ff2c7cb575c063384cf48bc6aeaf296ff095db86ef38c8bf02183475697d470a",
+        "native/providers/gdn/sm121_mtp_kv_math.h": "b4cd662fe69172accc1b24c0e724462f822704835ac1d6d4cfa10c55f0caca72",
+        "native/providers/gdn/sm121_bf16_fma.h": "2c1e66061c5a36f231c4e35eadc23ca86b0e647b57ab70c5e9adc51048dbd1ad",
+        "native/providers/gdn/sm121_mtp_query.h": "1e66f7eb11d9c2f00b9a3b9a856fff403aeaf57f804b1bac399b3f4461c1b918",
+        "native/providers/gdn/sm121_mtp_query_math.h": "83e9e334131e3c335ab3795865f4f4013f27f963b839c260d44aaa5fa20631f9",
+        "native/providers/gdn/sm121_mtp_attention.h": "472b1822f19ca1fa6fa1fa63d0e8e151e2b5ec574f1b6c0621c5ef10cab7344a",
+        "native/providers/ck_fmha/blackwell_attention.h": "868163ffc5ba38b8dd1d19a37e71497788e9b07bcd96a93e172671fef47e0adc",
+        "native/providers/sm121_attention_capacity.h": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+        "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+        "native/providers/moe_accumulator/sm121_strided_pair.h": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+        "native/providers/moe_accumulator/sm121_native_product.h": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+        "native/providers/moe_accumulator/sm121_mantissa_parts.h": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+        "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+        "native/providers/moe_accumulator/sm121_integer_core.h": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+        "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+        "native/providers/moe_accumulator/sm121_pv_final_bound.h": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+        "native/providers/moe_accumulator/sm121_prepared_bf16.h": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+        "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+        "native/providers/gdn/sm121_exp2_interpolated.h": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+        "native/providers/ck_fmha/float_pv_replay.h": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+        "native/providers/moe_accumulator/sm121_float_subgroup.h": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+        "native/providers/ck_fmha/inplace_probability_storage.h": "71d5c98c594c813b590aa6c5b8ae96cadaf4d0edfd08d9c7894feee7fc8ad64c",
+        "native/providers/ck_fmha/long_attention_layout.h": "b94f16310020a757076e6f9bd7d97bea81f91d90567e006a419d5de4acfd1f19",
+        "native/providers/ck_fmha/packed_probability_storage.h": "5bb63c12db0afdf2e7aa86e47f50fb90b827f1936321e352afeac6577330999e",
+        "native/providers/gdn/sm121_mtp_gate.h": "41e052dc237375567a8a11b95d41b4eb8cfa75ac6b984c9bcd7735be7e02da9f",
+        "native/providers/gdn/sm121_mtp_gate_math.h": "95c79544165c6aefbc99f47e25625b20f009789f566e27ebe1bdbfe1486a9111",
+        "native/providers/gdn/sm121_mtp_residual.h": "135dadcfe48e69232e2254380f55a0891cbd0ce72e3c4ea296167ec6af51273f",
+        "native/providers/gdn/sm121_mtp_residual_math.h": "778b44d6f983e682409dc64aa50d1548d9dffc047d50012204c2ab135b69ac48",
+        "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+        "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca"
+      },
+      "script": "run-mtp-native-drafter-r1.ps1",
+      "dispatcher": "dispatch_mtp_native_drafter_r1.py",
+      "archive": "qrt-mtp-native-drafter-inputs-20260920-r1.tar.gz",
+      "archive_bytes": 113665112,
+      "bundle": "mtp-native-drafter-9b9f8bb.bundle",
+      "script_sha256": "5fd67c822ec7657737fd7d638bd857788c052093da17e36d50c3089f2beb144a",
+      "dispatcher_sha256": "f99ce4ed348b4d95d0bbdf54fcd4c67c260a539a33afee34f7183e21a9e10f7a",
+      "archive_sha256": "0cd2a254cbcaa223ba8ba23a4c38a4ba82f42e8550a009be09c488c90b0624ee",
+      "bundle_sha256": "0f81c443c697972e79061fa1fa9553a02566c9f10c1e6e7ea1103b69f79c6dc1",
+      "evidence_archive": "mtp-native-drafter-r1-evidence.tar.gz",
+      "generator": "prepare_mtp_native_drafter_r1.py",
+      "generator_sha256": "55b1910e2aa644c685ab60b3f2f6b1b1ce4742f614be61708fbdd3b5b1e367f5",
+      "model_binding_source_sha256": "c970992bcaadd478448c398d7a890fd9e188e35d569cf3a9219b8692a057cc31",
+      "dispatcher_tail_source_sha256": "51e1390676bda43fed496b3bd722ee6604d2d6fa89cfe979f0efd873e2ad7d98",
+      "operand_manifest_sha256": "51b4c09710fabe53e4a5c88f4d22889adc427d14713395c047578eedde2a887c",
+      "probe_syntax_sha256": "10da17c4db913209f8ce6e81240fd0786dc323d2d0d04de094529259e5c7a4e0",
+      "cpu_head_analysis_sha256": "00448c478c82d5ce807441315de422e23d71b5312352b5ea7d7b48a4f7535d98",
+      "embedding_inventory_sha256": "238adf9333ea1050e376363f2312884b869cf9f8ba28dfbfd9919f6f85a9886c",
+      "replaces_unrun_plan": {
+        "file": "mtp-native-moe-source-r2.json",
+        "sha256": "aeed1ae3c1873f7ac37f8600934fea2826eff557859e7a18b67144dcb6b6b81b",
+        "native_dispatched": false
+      },
+      "native_compilation": false,
+      "native_execution": false,
+      "original_schedule_drives_probe_only": true,
+      "terminal_proposal_inputs_beyond_returned_control": 2,
+      "source_bound_inputs": 58,
+      "reused_completed_table_artifacts": 5
+    }
+  },
+  "original_probe_input_proof": {
+    "file": "mtp-complete-drafter-probe-inputs-20260920.json",
+    "sha256": "27f6dc499906a11d80d510bc22854dac0768fb217d673a400a1410f9049ad285"
+  },
+  "script_parse": {
+    "file": "mtp-native-drafter-script-parse-r1.json",
+    "sha256": "934fdff548c62bcd806e1301d5c60a743bd8a768d2b75045d625a199bb836a10",
+    "record": {
+      "command": [
+        "ssh",
+        "-o",
+        "BatchMode=yes",
+        "-o",
+        "ConnectTimeout=10",
+        "baiying",
+        "powershell.exe -NoProfile -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAJABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAWwBDAG8AbgBzAG8AbABlAF0AOgA6AE8AdQB0AHAAdQB0AEUAbgBjAG8AZABpAG4AZwA9AFsAVABlAHgAdAAuAFUAVABGADgARQBuAGMAbwBkAGkAbgBnAF0AOgA6AG4AZQB3ACgAJABmAGEAbABzAGUAKQA7ACQAcABhAHQAaAA9ACcARAA6AC8AcAByAG8AagBlAGMAdABzAC8AcgB1AG4ALQBtAHQAcAAtAG4AYQB0AGkAdgBlAC0AZAByAGEAZgB0AGUAcgAtAHIAMQAuAHAAcwAxACcAOwBpAGYAKAAoAEcAZQB0AC0ARgBpAGwAZQBIAGEAcwBoACAALQBMAGkAdABlAHIAYQBsAFAAYQB0AGgAIAAkAHAAYQB0AGgAIAAtAEEAbABnAG8AcgBpAHQAaABtACAAUwBIAEEAMgA1ADYAKQAuAEgAYQBzAGgALgBUAG8ATABvAHcAZQByAEkAbgB2AGEAcgBpAGEAbgB0ACgAKQAgAC0AbgBlACAAJwA1AGYAZAA2ADcAYwA4ADIAMgBlAGMANwA2ADUANwA3ADMANwBmAGQANwBkADYAMwA4AGIAZAA4ADUANwA3ADgAOABjADAANQAyADAAOQAzAGQAYQAxADcAZQAzADYAZAA1ADAAYwAzADAAOAA5AGYAMgBiAGUAYgAxADQANABhACcAKQB7AHQAaAByAG8AdwAgACcAcwBjAHIAaQBwAHQAIABoAGEAcwBoACAAYwBoAGEAbgBnAGUAZAAnAH0AOwAkAHQAPQAkAG4AdQBsAGwAOwAkAGUAPQAkAG4AdQBsAGwAOwAkAG4AdQBsAGwAPQBbAE0AYQBuAGEAZwBlAG0AZQBuAHQALgBBAHUAdABvAG0AYQB0AGkAbwBuAC4ATABhAG4AZwB1AGEAZwBlAC4AUABhAHIAcwBlAHIAXQA6ADoAUABhAHIAcwBlAEYAaQBsAGUAKAAkAHAAYQB0AGgALABbAHIAZQBmAF0AJAB0ACwAWwByAGUAZgBdACQAZQApADsAaQBmACgAJABlAC4AQwBvAHUAbgB0ACkAewB0AGgAcgBvAHcAIAAoACQAZQB8AE8AdQB0AC0AUwB0AHIAaQBuAGcAKQB9ADsAWwBvAHIAZABlAHIAZQBkAF0AQAB7AGgAbwBzAHQAPQBbAEUAbgB2AGkAcgBvAG4AbQBlAG4AdABdADoAOgBNAGEAYwBoAGkAbgBlAE4AYQBtAGUAOwBwAGEAcgBzAGUAXwBwAGEAcwBzAD0AJAB0AHIAdQBlADsAZQB4AGUAYwB1AHQAZQBkAD0AJABmAGEAbABzAGUAfQB8AEMAbwBuAHYAZQByAHQAVABvAC0ASgBzAG8AbgA="
+      ],
+      "returncode": 0,
+      "stdout": "{\n    \"host\":  \"BAIYING\",\n    \"parse_pass\":  true,\n    \"executed\":  false\n}\n",
+      "stderr": "",
+      "script_sha256": "5fd67c822ec7657737fd7d638bd857788c052093da17e36d50c3089f2beb144a",
+      "model_read": false,
+      "native_dispatched": false
+    }
+  },
+  "archive_members_verified": 163,
+  "all_archive_bytes_sha_verified": true,
+  "native_dispatched": false,
+  "native_compilation": false,
+  "native_execution": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "pending": "Wait for original all-Q1 full256k recorded cleanup, then run the three builds and six numerical cases.",
+  "original_schedule_drives_probe_only": true
+}

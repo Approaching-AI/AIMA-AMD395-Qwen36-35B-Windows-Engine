@@ -484,6 +484,21 @@ history after discarding provisional suffixes. Reference scheduling drives
 this component probe only. Host syntax passes; native compilation and GPU
 execution remain pending.
 
+The [combined native batch](../benchmarks/correctness/mtp-native-complete-drafter-preparation-20260920.json)
+is frozen at `9b9f8bb` and supersedes the unrun MoE-only plan. It builds three
+programs and runs six cases: both short controls through independent MoE,
+independent output head and the complete drafter. All 56 compilation inputs
+are bound to committed files. The Windows model reader verifies 19 weight
+groups covering 21 tensors, including complete embeddings, output head and
+routed expert tensors. Five already qualified table artifacts are reused with
+fresh hash checks. All 163 members of the 113665112-byte archive verify.
+
+The PowerShell runner parses on baiying but has not executed. It requires the
+running all-Q1 256k diagnostic's recorded cleanup before model reads or native
+work. Limits are 60 seconds per weight group, 120 per build, 300 per case and
+4200 for transport. Both native compilation and all numerical cases remain
+unrun; reference scheduling is restricted to the component probe.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
