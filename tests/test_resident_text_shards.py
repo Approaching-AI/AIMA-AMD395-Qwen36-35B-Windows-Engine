@@ -33,6 +33,10 @@ def runtime_host_source(extra_globals="", extra_functions="", extra_main=""):
 #include <array>
 #include <atomic>
 #include <cstdio>
+#include <memory>
+// These cases exercise the default unleased path. The owning implementation
+// and actual MTP acquire/release path run in test_mtp_resident_weights.
+namespace qrt_sm121_mtp { class ResidentWeightStorage; }
 struct TensorLocation{std::string shard;uint64_t header_len=0,data_begin=0,data_end=0;};
 using hipStream_t=void*;using hipEvent_t=void*;
 using HANDLE=void*;

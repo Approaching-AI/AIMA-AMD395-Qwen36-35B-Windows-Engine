@@ -44,6 +44,7 @@
 #include "sm121_q1_packed_runtime.h"
 #include "mtp_target_rows.h"
 #include "mtp_target_rows_trace.h"
+#include "gdn/sm121_mtp_resident_weights.h"
 #include "q1_trace_policy.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "moe_accumulator/sm121_wave16.h"
@@ -78903,6 +78904,8 @@ struct ResidentModelShardStoreTensor {
     size_t shard_index = 0u;
     uint64_t absolute_begin = UINT64_C(0);
     uint64_t bytes = UINT64_C(0);
+    // Only MTP and its shared embedding/head need this original shape record.
+    std::string mtp_metadata_json;
 };
 
 #ifdef _WIN32
@@ -78928,6 +78931,7 @@ struct ResidentModelShardStore {
     std::vector<ResidentModelShardStoreShard> shards;
     std::unordered_map<std::string, ResidentModelShardStoreTensor> tensors;
     std::mutex lookup_mutex;
+    std::shared_ptr<qrt_sm121_mtp::ResidentWeightStorage> mtp_weight_storage;
     void *device_arena = nullptr;
     uint64_t device_arena_bytes = UINT64_C(0);
     uint64_t device_arena_next_offset = UINT64_C(0);
@@ -80137,6 +80141,11 @@ bool parse_resident_model_shard_header(
             tensor.shard_index = shard_index;
             tensor.absolute_begin = absolute_begin;
             tensor.bytes = end - begin;
+            if (std::strncmp(tensor_name, "mtp.", 4u) == 0 ||
+                std::strcmp(tensor_name, "model.language_model.embed_tokens.weight") == 0 ||
+                std::strcmp(tensor_name, "lm_head.weight") == 0) {
+                tensor.mtp_metadata_json.assign(value_start, value_end);
+            }
             if (!tensors->emplace(tensor_name, std::move(tensor)).second) {
                 *failure = "duplicate tensor name across safetensors shards";
                 return false;
@@ -80352,9 +80361,18 @@ struct ResidentModelShardStorePendingReadDrain {
 
 void release_resident_model_shard_store() {
     ResidentModelShardStore &store = g_resident_model_shard_store;
+    std::lock_guard<std::mutex> model_lock(store.lookup_mutex);
     // Aliases live in thread-local sidecars. A global storage epoch retires
     // every thread's borrowed views before any owning allocation is released.
     g_qwen36_mtp_weight_storage_epoch.fetch_add(UINT64_C(1), std::memory_order_acq_rel);
+    // The optional native MTP source pins the original ordinary allocations.
+    // Retire aliases now, but let the last completed source release ownership.
+    // Quarantined MTP work keeps its source rooted until process teardown.
+    auto mtp_weight_storage = std::move(store.mtp_weight_storage);
+    if (mtp_weight_storage) {
+        for (auto& shard : store.shards) shard.device_base = nullptr;
+        store.fixed_device_arena = nullptr;
+    }
 #ifdef _WIN32
     for (ResidentModelShardStoreIoSlot &slot : store.slots) {
         if (slot.read_pending && slot.read_file != INVALID_HANDLE_VALUE) {
@@ -80589,6 +80607,10 @@ bool prepare_q1_moe_w8a8_full_after_prefill(
     const uint64_t start_ns = qrt_now_ns();
     {
         std::unique_lock<std::mutex> lock(store.lookup_mutex);
+        if (store.mtp_weight_storage) {
+            return fail("q1_moe_compact_mtp_weight_lease",
+                "raw shard replacement cannot mutate an active native MTP model lease");
+        }
         if (!store.valid || store.shards.empty() || store.tensors.empty() ||
             g_whole_repeated_layer_fixed_weights.empty() ||
             g_whole_repeated_routed_matrix_weights.size() !=
@@ -81824,6 +81846,139 @@ bool try_resident_model_shard_store_device_bf16_view(
     );
     ++store.metrics.device_view_hit_count;
     return true;
+}
+
+bool parse_qwen36_mtp_tensor_shape(
+    const std::string& json, qrt_sm121_mtp::ModelTensorView* output
+) {
+    if (!output) return false;
+    std::array<size_t, 3> shape{};
+    unsigned rank = 0;
+    bool has_shape = false, has_dtype = false;
+    const char* cursor = qrt_json_skip_ws(json.c_str());
+    const char* end = json.c_str() + json.size();
+    if (cursor == end || *cursor++ != '{') return false;
+    for (;;) {
+        cursor = qrt_json_skip_ws(cursor);
+        if (cursor == end) return false;
+        if (*cursor == '}') { cursor = qrt_json_skip_ws(cursor + 1); break; }
+        char key[64]{};
+        if (!qrt_json_parse_string(&cursor, key, sizeof(key))) return false;
+        cursor = qrt_json_skip_ws(cursor);
+        if (cursor == end || *cursor++ != ':') return false;
+        cursor = qrt_json_skip_ws(cursor);
+        const char* value_end = qrt_json_skip_value(cursor);
+        if (!value_end || value_end > end) return false;
+        if (!std::strcmp(key, "shape")) {
+            if (has_shape || cursor == value_end || *cursor++ != '[') return false;
+            has_shape = true;
+            for (;;) {
+                cursor = qrt_json_skip_ws(cursor);
+                if (rank == shape.size() || cursor == value_end || *cursor < '1' || *cursor > '9') return false;
+                size_t dimension = 0;
+                while (cursor < value_end && *cursor >= '0' && *cursor <= '9') {
+                    const unsigned digit = unsigned(*cursor++ - '0');
+                    if (dimension > (SIZE_MAX - digit) / 10) return false;
+                    dimension = dimension * 10 + digit;
+                }
+                shape[rank++] = dimension;
+                cursor = qrt_json_skip_ws(cursor);
+                if (cursor == value_end) return false;
+                if (*cursor == ']') { ++cursor; break; }
+                if (*cursor++ != ',') return false;
+            }
+            if (cursor != value_end) return false;
+        } else if (!std::strcmp(key, "dtype")) {
+            char dtype[32]{};
+            if (has_dtype || !qrt_json_parse_string(&cursor, dtype, sizeof(dtype)) ||
+                std::strcmp(dtype, "BF16") || cursor != value_end) return false;
+            has_dtype = true;
+        }
+        cursor = qrt_json_skip_ws(value_end);
+        if (cursor == end) return false;
+        if (*cursor == ',') {
+            cursor = qrt_json_skip_ws(cursor + 1);
+            if (cursor == end || *cursor == '}') return false;
+        } else if (*cursor != '}') return false;
+    }
+    if (cursor != end || !has_shape || !has_dtype) return false;
+    size_t bytes = sizeof(uint16_t);
+    for (unsigned i = 0; i < rank; ++i) {
+        if (shape[i] > SIZE_MAX / bytes) return false;
+        bytes *= shape[i];
+    }
+    if (bytes != output->bytes) return false;
+    output->rank = rank; output->shape = shape;
+    output->bf16 = true; output->contiguous = true;
+    return true;
+}
+
+std::shared_ptr<const qrt_sm121_mtp::ModelWeightSource> acquire_qwen36_mtp_model_weight_source(
+    const std::string& model_dir, std::string* failure_stage, std::string* failure
+) {
+    using namespace qrt_sm121_mtp;
+    auto& store = g_resident_model_shard_store;
+    std::lock_guard<std::mutex> lock(store.lookup_mutex);
+    const auto fail = [&](const char* stage, const char* message) -> std::shared_ptr<const ModelWeightSource> {
+        if (failure_stage) *failure_stage = stage;
+        if (failure) *failure = message;
+        return {};
+    };
+    if (!store.valid || model_dir.empty() || store.model_dir != model_dir ||
+        !store.text_only || !store.ordered_fixed || !store.include_mtp ||
+        store.single_device_arena || store.device_arena || store.managed_tail_shards ||
+        store.host_mapped_tail_shards || store.registered_host_tail_shards)
+        return fail("mtp_model_source_scope", "native MTP requires original ordinary ordered text storage including MTP");
+    const uint64_t epoch = g_qwen36_mtp_weight_storage_epoch.load(std::memory_order_acquire);
+    if (!epoch) return fail("mtp_model_source_epoch", "native MTP model epoch is unavailable");
+    ResidentModelWeightSource::Views views{};
+    for (size_t i = 0; i < model_weight_specs.size(); ++i) {
+        const auto& expected = model_weight_specs[i];
+        const auto found = store.tensors.find(expected.name);
+        if (found == store.tensors.end() || found->second.bytes != expected.bytes() ||
+            found->second.shard_index >= store.shards.size())
+            return fail("mtp_model_source_tensor", "original native MTP tensor is absent or has invalid byte extent");
+        const auto& tensor = found->second;
+        auto& view = views[i];
+        view.name = expected.name; view.bytes = tensor.bytes; view.epoch = epoch;
+        if (!parse_qwen36_mtp_tensor_shape(tensor.mtp_metadata_json, &view) ||
+            view.rank != expected.rank || view.shape != expected.shape)
+            return fail("mtp_model_source_shape", "original native MTP tensor shape or dtype differs");
+        const void* base = nullptr;
+        uint64_t offset = 0;
+        if (!resident_model_shard_device_location(store.shards[tensor.shard_index],
+                tensor.absolute_begin, tensor.bytes, &base, &offset))
+            return fail("mtp_model_source_view", "original native MTP tensor has no complete resident view");
+        view.device = reinterpret_cast<const uint16_t*>(static_cast<const unsigned char*>(base) + offset);
+    }
+    try {
+        auto storage = store.mtp_weight_storage;
+        if (!storage) {
+            storage = std::make_shared<ResidentWeightStorage>();
+            for (const auto& shard : store.shards) {
+                if (shard.host_base || shard.managed || shard.host_mapped || shard.registered_host)
+                    return fail("mtp_model_source_allocation", "native MTP cannot borrow non-ordinary model allocations");
+                if (shard.layout.device_bytes) {
+                    if (!storage->describe(shard.device_base, static_cast<size_t>(shard.layout.device_bytes)))
+                        return fail("mtp_model_source_allocation", "ordinary model allocations overlap or are invalid");
+                } else if (shard.device_base) {
+                    return fail("mtp_model_source_allocation", "empty ordinary shard has an unexpected allocation");
+                }
+            }
+            if (!storage->describe(store.fixed_device_arena, static_cast<size_t>(store.ordered_plan.fixed_bytes)))
+                return fail("mtp_model_source_allocation", "ordered fixed model allocation is invalid");
+            for (const auto& view : views) if (!storage->contains(view.device, view.bytes))
+                return fail("mtp_model_source_allocation", "native MTP tensor is outside the owning allocations");
+            // No throwing operation lies between adoption and the store's
+            // shared ownership. Failed candidate construction never frees the model.
+            if (!storage->adopt()) return fail("mtp_model_source_adoption", "model allocation adoption failed");
+            store.mtp_weight_storage = storage;
+        }
+        return std::make_shared<ResidentModelWeightSource>(storage,
+            &g_qwen36_mtp_weight_storage_epoch, epoch, views);
+    } catch (const std::bad_alloc&) {
+        return fail("mtp_model_source_host_allocation", "native MTP model lease host allocation failed");
+    }
 }
 
 bool preload_qwen36_resident_decode_prebound_layer_plan_locked(

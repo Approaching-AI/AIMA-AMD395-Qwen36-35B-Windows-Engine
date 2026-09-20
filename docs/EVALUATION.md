@@ -561,11 +561,27 @@ All 43 local MTP/prefix tests pass. Queued host copies exercise all 252 invalid
 tensor contracts, allocation failure, every partially submitted copy, changed
 epochs, completed replacement, and late completion after owner destruction.
 All 21 names/shapes/dtypes/byte counts match the original model inventory.
-These are ownership and layout checks with sanitizer instrumentation. The
-Windows resident storage still needs a concrete adapter that actually owns or
-pins its allocations; a bare epoch is insufficient. This candidate has not
+These are ownership and layout checks with sanitizer instrumentation. A source
+must actually own or pin its model allocations; a bare epoch is insufficient.
+The concrete resident adapter is described below. This candidate has not
 compiled HIP device code or run on GPU. Previously frozen native batches retain
 their own source identities and do not qualify these new ownership changes.
+
+The [resident-model source adapter](../benchmarks/correctness/mtp-resident-model-source-lifetime-local-20260920.json)
+now retains the original tensor shape records and acquires an owning source
+from ordinary ordered text storage including MTP. The optional shared owner
+adopts the existing shard/fixed allocations without device copies. Actual
+store release retires the epoch and metadata while outstanding sources keep
+the original allocations alive; their final owner frees each allocation once.
+Raw shard replacement rejects an adopted MTP owner.
+
+All 49 relevant local checks pass, including actual metadata parsing, source
+acquisition and release bodies, model replacement before old readers finish,
+canonical names after metadata destruction and the existing Windows IO/copy
+cleanup harness. The first full run exposed missing owner declarations in
+three existing host harnesses; the corrected harness passes with identical
+production code. No inference entry point calls the source adapter yet.
+Native compilation, table/input binding and real-model MTP remain pending.
 
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
