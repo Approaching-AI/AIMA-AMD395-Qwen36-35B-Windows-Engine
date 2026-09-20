@@ -24,8 +24,9 @@ at2026-09-19T20:23:08Z with identical binaries and output-only observations.
 It was intentionally stopped after18 completed chunks and6396949.2ms when
 independent operator evidence supported a repair candidate. It produced no
 generated tokens; native exit-1 and all final host/cleanup checks are recorded.
-The candidate now passes Windows component and q8192 model verification; its
-original full256k rerun is active. No new release is qualified.
+The candidate passes Windows component and q8192 model verification. Its
+completed full256k rerun still fails the suffix boundary, as recorded below.
+No new release is qualified.
 
 The [independent 256k diagnostic reference](../benchmarks/correctness/gb10-prefix256-all-chunk-boundaries-20260920.json)
 has now reproduced all 608 original outputs and the complete first-logit bytes
@@ -74,14 +75,23 @@ Load is21578.9114 ms, callback TTFT23198.7037 ms and TPOT101.437332 ms.
 The packed branch remains inactive on this short request. The load gate passes;
 the10000-ms TTFT gate and retained-performance target remain unmet.
 
-The original262144 owner32 and both1024-suffix out512 continuations started
-on baiying at2026-09-19T22:36:17.9969018Z, PID5520. The command
-`run-packed-q1-prefix256k-r1.ps1` retains the28800-second process deadline,
-8GiB physical/20GiB commit guards, original tokens and0.125 logit tolerance.
-The verified launch uses the new DLL and fixed-SHA square-root artifact,
-without saved model state or reference activations. At22:37:13Z one owner
-chunk had completed, with no generated output yet. Full256k correctness and
-the proposed token-divergence root cause remain unconfirmed pending this run.
+The [completed packed-Q1 full256k run](../benchmarks/correctness/packed-q1-prefix256k-token-divergence-20260920.json)
+uses whole31695/CK370/FLA1d/MoE923/CLI6d on baiying with the real model at
+`D:\models\Qwen3.6-35B-A3B`. `run-packed-q1-prefix256k-r1.ps1` completes all32
+owner chunks and the first512-token suffix, then exits6 after22664201.602ms.
+Owner first16/logit24.375 and suffix first248045/logit5.78125 remain exact.
+The first189 suffix outputs match; output189 is2468 instead of8240, and314
+positions differ overall. The former index181 now matches. Restoration and
+all host/cleanup checks pass; minimum available physical/commit memory is
+11531771904/39348809728 bytes. Owner32 continuation and the timed second
+suffix were not executed. These timings do not qualify performance.
+
+The fixed-SHA square-root table loads once. The optional packed-branch marker
+also requires a zero layer decode count, so its absence after the suffix batch
+does not establish inactive arithmetic. Actual output IDs fail the boundary.
+Native internal operands at the new decode input263356 were not captured;
+their capture and independent original comparison are the next diagnostic.
+Existing partial checkpoints are process-resident and do not provide disk replay.
 
 The separate [draft-limit transition reference](../benchmarks/correctness/gb10-draft-limit-transition-20260920.json)
 completes six requests and 144 outputs on the unchanged GB10 reference. Both
@@ -99,8 +109,8 @@ absolute-position threshold is also insufficient: q262143 processes position
 262144 as the accepted second row of its final speculative batch, then switches
 to packed at 262145. The other two crossing requests switch at 262144. The native
 general transition remains unresolved; these component observations do not
-establish a Windows output-token failure. The active full256k candidate starts
-at the limit and remains a separate, applicable verification of packed decode.
+establish a Windows output-token failure. The full256k candidate starts at the
+limit; its completed failure above remains a separate observation.
 
 `capture_gb10_token_matrix.py --runtime-boundaries --mtp-boundaries` can now
 observe the original drafter's shifted inputs, target hidden rows, projection
@@ -195,8 +205,8 @@ The separate native MTP normalization and fusion-input kernels now share their
 lane, warp, reciprocal-root and output arithmetic with a portable C++ probe.
 That probe matches all 1978368 original normalization values and 1318912 fusion
 input values from 322 qualified rows across six cases. GPU launches and the
-embedding gather still require Windows verification; the kernels are not wired
-into model inference and do not qualify a complete drafter.
+embedding gather now pass the completed component batch below; the kernels
+remain unwired in model inference.
 
 The [MTP prompt-KV arithmetic check](../benchmarks/correctness/gb10-mtp-prompt-kv-arithmetic-20260920.json)
 also validates K normalization and single-round BF16 RoPE at all 322 original
@@ -206,7 +216,7 @@ writer accepts bounded chunks and writes token-major K512/V512 BF16 storage.
 A complete 262144-token cache occupies 512 MiB, supplied by its eventual caller.
 Two new Windows probes cover these operations, actual embedding indices,
 invalid-token rejection and untouched cache/output cells. Their builds and
-runs are pending; the existing 256k product task retains exclusive GPU use.
+runs pass in the completed batch below.
 
 The [optional MTP storage preparation](../benchmarks/correctness/mtp-resident-storage-preparation-20260920.json)
 adds `QRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_MTP=1` to retain the model's
@@ -230,7 +240,8 @@ preserved, unrun30-case,48-case and50-case preparations. Both the local dispatch
 wrapper require completed cleanup of the active original256k run. Archive
 operations have120-second bounds; component probes have30/60-second bounds,
 Q/O probes120 seconds, full prompt-cache probes180 seconds, and transport4800 seconds. Preparation
-performs no remote run; PowerShell parsing and native builds/runs are unrun.
+performed no remote run. The completed batch below now binds successful
+PowerShell parsing and every native build/run.
 
 The [prompt-cache host preparation](../benchmarks/correctness/mtp-prompt-cache-host-preparation-20260920.json)
 adds a bounded prompt-shift helper and request-owned cache orchestration. All
@@ -242,8 +253,8 @@ publication after completion, invalid IDs, partial launch failures and terminal
 quarantine when completion cannot be established. The HIP calls in the ownership
 test are queued host mocks. Maximum owned storage is 687865864 bytes, excluding
 weights and projection workspace. Full target post-final-norm rows, the qualified
-projection callback and complete model inference remain unwired; Windows
-compilation and GPU pipeline execution are unrun.
+projection callback and complete model inference remain unwired. The separate
+complete prompt-cache probes now pass on Windows.
 
 The [Q and residual-norm comparison](../benchmarks/correctness/gb10-mtp-query-residual-arithmetic-20260920.json)
 adds the two-warp Q normalization layout, original-position Q RoPE and the
@@ -254,8 +265,8 @@ CPU execution. Residual variance uses the unrounded FP32 sum; normalization
 uses its BF16 endpoint. The rounded residual itself was not separately captured:
 the attention residual is independently constructed from the captured operands.
 HIP probes now include both residual output modes, Q/gate extraction, invalid
-extents and untouched buffers. Their Windows compilation/execution is pending,
-as is complete native MTP inference.
+extents and untouched buffers. Their Windows compilation/execution now passes
+in the component batch; complete native MTP inference remains open.
 
 The [Q/O projection and gate comparison](../benchmarks/correctness/gb10-mtp-qo-gate-arithmetic-20260920.json)
 checks every one of those 322 qualified rows with the original Q/O weights.
@@ -270,9 +281,8 @@ The independent HIP projection baseline now admits Q and O shapes. A new probe
 checks both 7-block and 1024-block launch segmentation, immutable inputs/weights,
 output redzones and invalid extents/aliases. The query probe additionally checks
 gating from its computed gate vector, both output modes and table immutability.
-These native probes remain uncompiled and unrun; complete-prefill Q/O outputs
-and complete native MTP inference remain unqualified. The current62-case
-Windows batch includes these source-bound probes and original operands.
+These native probes now pass in the62-case Windows batch. Complete-prefill
+Q/O outputs and complete native MTP inference remain unqualified.
 
 The optional `--mtp-moe-frontiers` reference observer now copies the original
 MTP router, shared expert, routed projection/activation/weighted output, final
@@ -296,8 +306,15 @@ The pinned LM-head/logits processor returns BF16 directly to Eagle argmax.
 The observer now saves those original BF16 bytes, checks the whole vocabulary
 and sampled token, and records each actual hidden/logit layout. All68 local
 checks pass. R2's host, frozen-autotune and cleanup checks pass; its incomplete
-case supplies no golden operands. Complete reference validation remains
-pending; this does not qualify a native MoE or a complete MTP drafter.
+case supplies no golden operands. The
+[completed R3 reference and CPU comparison](../benchmarks/correctness/gb10-mtp-moe-original-frontiers-20260920.json)
+at sourcee034919 reproduces both controls, all64 outputs and full first logits.
+All39 original BF16 draft logits agree with their sampled tokens. The66
+accepted-history rows pass CPU router/shared projections, gating, activation,
+routed summation and final residual normalization with zero differences.
+Original routed-weight projections, native MoE and the complete MTP drafter
+remain open. The reference container exits0 with all host/autotune checks
+passing and no GPU process remaining.
 
 The [complete causal-history attention comparison](../benchmarks/correctness/gb10-mtp-causal-attention-arithmetic-20260920.json)
 uses both full original short-prompt K/V caches and31 accepted decode rows per
@@ -323,9 +340,18 @@ operands/tables and redzones. Its [separate Windows batch](../benchmarks/correct
 is frozen at source7945496 with30 compiled/32 bound inputs and a62554247-byte
 archive. The two cases must compare540672 BF16 outputs across both launch
 modes. Build/probe/transport bounds are120/180/1200 seconds. Parsing, build and
-GPU execution remain unrun; dispatch requires the active256k task's cleanup.
-This supplements the frozen62-case batch. Complete MTP inference and long MTP histories remain
-unqualified; these operator observations do not establish a token failure.
+GPU execution now pass after completed256k cleanup. Complete MTP inference
+and long MTP histories remain unqualified.
+
+The [completed native component evidence](../benchmarks/correctness/mtp-native-complete-frontends-and-attention-20260920.json)
+binds both batches on baiying:6 HIP builds,64 cases and82 reports all pass.
+The62-case frontend batch at13a9b3a includes both complete7169/8192-row prompt
+KV owners, selected Q/O projections under7/1024 blocks and both context-gating
+output modes. The separate attention batch at7945496 matches540672 BF16 values
+under one/two-row batching; all masks, guards, unused scratch and immutable
+operands pass. Every native process exits0 and leaves no matching process.
+These runs load captured operands, not the complete model, and establish no
+inference or performance acceptance.
 
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
