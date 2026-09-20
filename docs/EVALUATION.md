@@ -294,8 +294,12 @@ and adds no library. Existing attention template defaults remain unchanged.
 Two sanitized host tests pass launch bounds, original cache-pointer forwarding
 and stopping after each failed submission. A separate GPU probe checks all66
 contexts under one/two-row batching, causal masks, unused scratch, immutable
-operands/tables and redzones. Its Windows build/run is pending and is not in
-the frozen62-case batch. Complete MTP inference and long MTP histories remain
+operands/tables and redzones. Its [separate Windows batch](../benchmarks/correctness/mtp-causal-attention-native-preparation-20260920.json)
+is frozen at source7945496 with30 compiled/32 bound inputs and a62554247-byte
+archive. The two cases must compare540672 BF16 outputs across both launch
+modes. Build/probe/transport bounds are120/180/1200 seconds. Parsing, build and
+GPU execution remain unrun; dispatch requires the active256k task's cleanup.
+This supplements the frozen62-case batch. Complete MTP inference and long MTP histories remain
 unqualified; these operator observations do not establish a token failure.
 
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent

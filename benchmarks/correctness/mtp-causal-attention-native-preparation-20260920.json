@@ -1,0 +1,744 @@
+{
+  "kind": "original_mtp_causal_attention_native_preparation",
+  "utc": "2026-09-20T04:11:37.772028+00:00",
+  "manifest_file": "mtp-native-attention-source-r1.json",
+  "manifest_sha256": "b943f9b87f440c095869729a7d1725ce2d56b08d7c037eed7e703469aee106d5",
+  "preparation": {
+    "seed": "D:/projects/AIMA-public-packed-q1-recurrence-20260920-r1",
+    "compile_timeout_seconds": 120,
+    "active_run_must_finish_before_dispatch": "packed-q1-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+    "active_run_remote_directory": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/packed-q1-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+    "active_launch_sha256": "76ee246d20fbbbbac904a0c9c7fb0a8a9412eac2c6408d5128f3f97378d87af3",
+    "active_run_cleanup_required": true,
+    "active_run_model_success_required": false,
+    "files": [
+      {
+        "path": "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q7169-out32/k-rope.bin",
+        "archive_path": "q7169-out32/k-rope.bin",
+        "bytes": 7372800,
+        "sha256": "e237055cac9d248df908c2eabd72fc3a9a53db8d3f5b4d11ad16b3ed534c99f7",
+        "local_file": "mtp-attention-cpu-r3/q7169-out32/k-rope.bin",
+        "roles": [
+          "original_complete_causal_kv_history"
+        ]
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q7169-out32/v.bin",
+        "archive_path": "q7169-out32/v.bin",
+        "bytes": 7372800,
+        "sha256": "9693a34a7cb5091e4d3003ea2e90e5fe63cb983542e46a83bad6207b54dbf6fd",
+        "local_file": "mtp-attention-cpu-r3/q7169-out32/v.bin",
+        "roles": [
+          "original_complete_causal_kv_history"
+        ]
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q7169-out32/q.bin",
+        "archive_path": "q7169-out32/q.bin",
+        "bytes": 270336,
+        "sha256": "1c27adf5a2c3a27818535f714a6c5d510f3ae89d1bac840d4b0710c9d9be19ef",
+        "local_file": "mtp-native-attention-inputs-r1/q7169-out32/q.bin",
+        "roles": [
+          "captured_operator_input"
+        ]
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q7169-out32/expected.bin",
+        "archive_path": "q7169-out32/expected.bin",
+        "bytes": 270336,
+        "sha256": "d084ef000cae91c700c10ee648c21faf729910d11ca280ccd08ff4cc14f7905e",
+        "local_file": "mtp-native-attention-inputs-r1/q7169-out32/expected.bin",
+        "roles": [
+          "comparison_only_original_expected_context"
+        ]
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q7169-out32/positions.bin",
+        "archive_path": "q7169-out32/positions.bin",
+        "bytes": 132,
+        "sha256": "a51953bf0fb4ea691b75b1be879c5c5f288fae6ecec955c98352ce9b51e81df4",
+        "local_file": "mtp-native-attention-inputs-r1/q7169-out32/positions.bin",
+        "roles": [
+          "original_qualified_positions"
+        ]
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q8192-out32/k-rope.bin",
+        "archive_path": "q8192-out32/k-rope.bin",
+        "bytes": 8420352,
+        "sha256": "8299278de7dcdb5b4d259a1ce9e4b20eb84ef16ddc5c80c6d4aea65fa6c6702d",
+        "local_file": "mtp-attention-cpu-r3/q8192-out32/k-rope.bin",
+        "roles": [
+          "original_complete_causal_kv_history"
+        ]
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q8192-out32/v.bin",
+        "archive_path": "q8192-out32/v.bin",
+        "bytes": 8420352,
+        "sha256": "49f05354b579fe67d3b3399dd8839a9b5c4f860e50afcd029c7ca0f8960009d6",
+        "local_file": "mtp-attention-cpu-r3/q8192-out32/v.bin",
+        "roles": [
+          "original_complete_causal_kv_history"
+        ]
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q8192-out32/q.bin",
+        "archive_path": "q8192-out32/q.bin",
+        "bytes": 270336,
+        "sha256": "95ad4dd628b52f7ff4d5ae45b3790e6069dcdbf426ab4cb15bbdce91f393225c",
+        "local_file": "mtp-native-attention-inputs-r1/q8192-out32/q.bin",
+        "roles": [
+          "captured_operator_input"
+        ]
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q8192-out32/expected.bin",
+        "archive_path": "q8192-out32/expected.bin",
+        "bytes": 270336,
+        "sha256": "86606b0b88a7f81155aa0e7987fbc8be0ed5730dfbd84b3b20f5b3c4b994ffc4",
+        "local_file": "mtp-native-attention-inputs-r1/q8192-out32/expected.bin",
+        "roles": [
+          "comparison_only_original_expected_context"
+        ]
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q8192-out32/positions.bin",
+        "archive_path": "q8192-out32/positions.bin",
+        "bytes": 132,
+        "sha256": "d9482a246422df44bbff9132dd5cdb25277563040915c3dc5e91d16c6fbe2125",
+        "local_file": "mtp-native-attention-inputs-r1/q8192-out32/positions.bin",
+        "roles": [
+          "original_qualified_positions"
+        ]
+      }
+    ],
+    "tables": [
+      {
+        "path": "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/tables/exp2.bin",
+        "archive_path": "tables/exp2.bin",
+        "bytes": 183174448,
+        "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+        "local_file": "qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+        "roles": [
+          "original_model_independent_arithmetic_table"
+        ]
+      },
+      {
+        "path": "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/tables/rcp.bin",
+        "archive_path": "tables/rcp.bin",
+        "bytes": 8388640,
+        "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+        "local_file": "qrt-rcp-table-20260911-r2/sm121-attention-rcp-delta-i8.bin",
+        "roles": [
+          "original_model_independent_arithmetic_table"
+        ]
+      }
+    ],
+    "cases": [
+      {
+        "name": "attention-00",
+        "program": "qrt-mtp-attention",
+        "arguments": [
+          "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q7169-out32/q.bin",
+          "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q7169-out32/k-rope.bin",
+          "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q7169-out32/v.bin",
+          "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q7169-out32/expected.bin",
+          "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q7169-out32/positions.bin",
+          "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/tables/exp2.bin",
+          "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/tables/rcp.bin"
+        ],
+        "original_case": "q7169-out32",
+        "stage": "causal_attention",
+        "selected_rows": [
+          {
+            "transaction": 0,
+            "saved_index": 0,
+            "position": 0,
+            "input_token_id": 95,
+            "sampled": false
+          },
+          {
+            "transaction": 0,
+            "saved_index": 1,
+            "position": 7168,
+            "input_token_id": 82,
+            "sampled": true
+          },
+          {
+            "transaction": 1,
+            "saved_index": 0,
+            "position": 7169,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 2,
+            "saved_index": 0,
+            "position": 7170,
+            "input_token_id": 196,
+            "sampled": true
+          },
+          {
+            "transaction": 3,
+            "saved_index": 0,
+            "position": 7171,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 4,
+            "saved_index": 0,
+            "position": 7172,
+            "input_token_id": 220,
+            "sampled": false
+          },
+          {
+            "transaction": 4,
+            "saved_index": 1,
+            "position": 7173,
+            "input_token_id": 196,
+            "sampled": true
+          },
+          {
+            "transaction": 5,
+            "saved_index": 0,
+            "position": 7174,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 6,
+            "saved_index": 0,
+            "position": 7175,
+            "input_token_id": 220,
+            "sampled": false
+          },
+          {
+            "transaction": 6,
+            "saved_index": 1,
+            "position": 7176,
+            "input_token_id": 196,
+            "sampled": true
+          },
+          {
+            "transaction": 7,
+            "saved_index": 0,
+            "position": 7177,
+            "input_token_id": 220,
+            "sampled": false
+          },
+          {
+            "transaction": 7,
+            "saved_index": 1,
+            "position": 7178,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 8,
+            "saved_index": 0,
+            "position": 7179,
+            "input_token_id": 196,
+            "sampled": false
+          },
+          {
+            "transaction": 8,
+            "saved_index": 1,
+            "position": 7180,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 9,
+            "saved_index": 0,
+            "position": 7181,
+            "input_token_id": 220,
+            "sampled": false
+          },
+          {
+            "transaction": 9,
+            "saved_index": 1,
+            "position": 7182,
+            "input_token_id": 196,
+            "sampled": true
+          },
+          {
+            "transaction": 10,
+            "saved_index": 0,
+            "position": 7183,
+            "input_token_id": 220,
+            "sampled": false
+          },
+          {
+            "transaction": 10,
+            "saved_index": 1,
+            "position": 7184,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 11,
+            "saved_index": 0,
+            "position": 7185,
+            "input_token_id": 196,
+            "sampled": false
+          },
+          {
+            "transaction": 11,
+            "saved_index": 1,
+            "position": 7186,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 12,
+            "saved_index": 0,
+            "position": 7187,
+            "input_token_id": 220,
+            "sampled": false
+          },
+          {
+            "transaction": 12,
+            "saved_index": 1,
+            "position": 7188,
+            "input_token_id": 196,
+            "sampled": true
+          },
+          {
+            "transaction": 13,
+            "saved_index": 0,
+            "position": 7189,
+            "input_token_id": 220,
+            "sampled": false
+          },
+          {
+            "transaction": 13,
+            "saved_index": 1,
+            "position": 7190,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 14,
+            "saved_index": 0,
+            "position": 7191,
+            "input_token_id": 196,
+            "sampled": false
+          },
+          {
+            "transaction": 14,
+            "saved_index": 1,
+            "position": 7192,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 15,
+            "saved_index": 0,
+            "position": 7193,
+            "input_token_id": 220,
+            "sampled": false
+          },
+          {
+            "transaction": 15,
+            "saved_index": 1,
+            "position": 7194,
+            "input_token_id": 196,
+            "sampled": true
+          },
+          {
+            "transaction": 16,
+            "saved_index": 0,
+            "position": 7195,
+            "input_token_id": 220,
+            "sampled": false
+          },
+          {
+            "transaction": 16,
+            "saved_index": 1,
+            "position": 7196,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 17,
+            "saved_index": 0,
+            "position": 7197,
+            "input_token_id": 196,
+            "sampled": false
+          },
+          {
+            "transaction": 17,
+            "saved_index": 1,
+            "position": 7198,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 18,
+            "saved_index": 0,
+            "position": 7199,
+            "input_token_id": 220,
+            "sampled": false
+          }
+        ],
+        "original_case_sha256": "5ed4548edea3092435ee092a20a7c6d518919d2dfb02ee38062d6fbe13319f85",
+        "expected_reports": 1,
+        "timeout_seconds": 180,
+        "expected_cpu_report": {
+          "rows": 33,
+          "cache_tokens": 7200,
+          "elements": 135168,
+          "workspace_bytes": 954368
+        }
+      },
+      {
+        "name": "attention-01",
+        "program": "qrt-mtp-attention",
+        "arguments": [
+          "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q8192-out32/q.bin",
+          "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q8192-out32/k-rope.bin",
+          "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q8192-out32/v.bin",
+          "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q8192-out32/expected.bin",
+          "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/q8192-out32/positions.bin",
+          "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/tables/exp2.bin",
+          "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1/tables/rcp.bin"
+        ],
+        "original_case": "q8192-out32",
+        "stage": "causal_attention",
+        "selected_rows": [
+          {
+            "transaction": 0,
+            "saved_index": 0,
+            "position": 0,
+            "input_token_id": 140,
+            "sampled": false
+          },
+          {
+            "transaction": 0,
+            "saved_index": 1,
+            "position": 8191,
+            "input_token_id": 144,
+            "sampled": true
+          },
+          {
+            "transaction": 1,
+            "saved_index": 0,
+            "position": 8192,
+            "input_token_id": 255,
+            "sampled": false
+          },
+          {
+            "transaction": 1,
+            "saved_index": 1,
+            "position": 8193,
+            "input_token_id": 82,
+            "sampled": true
+          },
+          {
+            "transaction": 2,
+            "saved_index": 0,
+            "position": 8194,
+            "input_token_id": 57,
+            "sampled": true
+          },
+          {
+            "transaction": 3,
+            "saved_index": 0,
+            "position": 8195,
+            "input_token_id": 79,
+            "sampled": true
+          },
+          {
+            "transaction": 4,
+            "saved_index": 0,
+            "position": 8196,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 5,
+            "saved_index": 0,
+            "position": 8197,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 6,
+            "saved_index": 0,
+            "position": 8198,
+            "input_token_id": 196,
+            "sampled": true
+          },
+          {
+            "transaction": 7,
+            "saved_index": 0,
+            "position": 8199,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 8,
+            "saved_index": 0,
+            "position": 8200,
+            "input_token_id": 220,
+            "sampled": false
+          },
+          {
+            "transaction": 8,
+            "saved_index": 1,
+            "position": 8201,
+            "input_token_id": 196,
+            "sampled": true
+          },
+          {
+            "transaction": 9,
+            "saved_index": 0,
+            "position": 8202,
+            "input_token_id": 220,
+            "sampled": false
+          },
+          {
+            "transaction": 9,
+            "saved_index": 1,
+            "position": 8203,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 10,
+            "saved_index": 0,
+            "position": 8204,
+            "input_token_id": 196,
+            "sampled": false
+          },
+          {
+            "transaction": 10,
+            "saved_index": 1,
+            "position": 8205,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 11,
+            "saved_index": 0,
+            "position": 8206,
+            "input_token_id": 220,
+            "sampled": false
+          },
+          {
+            "transaction": 11,
+            "saved_index": 1,
+            "position": 8207,
+            "input_token_id": 196,
+            "sampled": true
+          },
+          {
+            "transaction": 12,
+            "saved_index": 0,
+            "position": 8208,
+            "input_token_id": 220,
+            "sampled": false
+          },
+          {
+            "transaction": 12,
+            "saved_index": 1,
+            "position": 8209,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 13,
+            "saved_index": 0,
+            "position": 8210,
+            "input_token_id": 196,
+            "sampled": false
+          },
+          {
+            "transaction": 13,
+            "saved_index": 1,
+            "position": 8211,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 14,
+            "saved_index": 0,
+            "position": 8212,
+            "input_token_id": 220,
+            "sampled": false
+          },
+          {
+            "transaction": 14,
+            "saved_index": 1,
+            "position": 8213,
+            "input_token_id": 196,
+            "sampled": true
+          },
+          {
+            "transaction": 15,
+            "saved_index": 0,
+            "position": 8214,
+            "input_token_id": 220,
+            "sampled": false
+          },
+          {
+            "transaction": 15,
+            "saved_index": 1,
+            "position": 8215,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 16,
+            "saved_index": 0,
+            "position": 8216,
+            "input_token_id": 196,
+            "sampled": false
+          },
+          {
+            "transaction": 16,
+            "saved_index": 1,
+            "position": 8217,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 17,
+            "saved_index": 0,
+            "position": 8218,
+            "input_token_id": 220,
+            "sampled": false
+          },
+          {
+            "transaction": 17,
+            "saved_index": 1,
+            "position": 8219,
+            "input_token_id": 196,
+            "sampled": true
+          },
+          {
+            "transaction": 18,
+            "saved_index": 0,
+            "position": 8220,
+            "input_token_id": 220,
+            "sampled": false
+          },
+          {
+            "transaction": 18,
+            "saved_index": 1,
+            "position": 8221,
+            "input_token_id": 220,
+            "sampled": true
+          },
+          {
+            "transaction": 19,
+            "saved_index": 0,
+            "position": 8222,
+            "input_token_id": 196,
+            "sampled": false
+          }
+        ],
+        "original_case_sha256": "8d8370905c5efc8f122ea0cd3ebbed9b8ad938d6119ee44647d60b85538498ab",
+        "expected_reports": 1,
+        "timeout_seconds": 180,
+        "expected_cpu_report": {
+          "rows": 33,
+          "cache_tokens": 8223,
+          "elements": 135168,
+          "workspace_bytes": 1085440
+        }
+      }
+    ],
+    "programs": [
+      {
+        "name": "qrt-mtp-attention",
+        "source": "tools/mtp_attention_hip_probe.cpp"
+      }
+    ],
+    "source_commit": "79454961c5a3358b7063809e95095d6a8fb697fb",
+    "source_sha256": {
+      "tools/mtp_attention_hip_probe.cpp": "916c155cfe74472fbc1c908ce5ae7d391c74c9a1436787650333e6d8b550cac0",
+      "native/providers/gdn/sm121_mtp_attention.h": "472b1822f19ca1fa6fa1fa63d0e8e151e2b5ec574f1b6c0621c5ef10cab7344a",
+      "native/providers/ck_fmha/blackwell_attention.h": "868163ffc5ba38b8dd1d19a37e71497788e9b07bcd96a93e172671fef47e0adc",
+      "native/providers/sm121_attention_capacity.h": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+      "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+      "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+      "native/providers/moe_accumulator/sm121_wave16.h": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+      "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+      "native/providers/moe_accumulator/sm121_lane_reduce.h": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+      "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+      "native/providers/moe_accumulator/sm121_subgroup.h": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+      "native/providers/moe_accumulator/sm121_paired_products.h": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+      "native/providers/moe_accumulator/sm121_dot_certificate.h": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+      "native/providers/moe_accumulator/sm121_strided_pair.h": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+      "native/providers/moe_accumulator/sm121_native_product.h": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+      "native/providers/moe_accumulator/sm121_mantissa_parts.h": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+      "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+      "native/providers/moe_accumulator/sm121_integer_core.h": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+      "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+      "native/providers/moe_accumulator/sm121_pv_final_bound.h": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+      "native/providers/moe_accumulator/sm121_prepared_bf16.h": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+      "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+      "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+      "native/providers/gdn/sm121_exp2_interpolated.h": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+      "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+      "native/providers/ck_fmha/float_pv_replay.h": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+      "native/providers/moe_accumulator/sm121_float_subgroup.h": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+      "native/providers/ck_fmha/inplace_probability_storage.h": "71d5c98c594c813b590aa6c5b8ae96cadaf4d0edfd08d9c7894feee7fc8ad64c",
+      "native/providers/ck_fmha/long_attention_layout.h": "b94f16310020a757076e6f9bd7d97bea81f91d90567e006a419d5de4acfd1f19",
+      "native/providers/ck_fmha/packed_probability_storage.h": "5bb63c12db0afdf2e7aa86e47f50fb90b827f1936321e352afeac6577330999e",
+      "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+      "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca"
+    },
+    "repo": "D:/projects/AIMA-public-mtp-native-attention-20260920-r1",
+    "data": "D:/projects/qrt-mtp-native-attention-inputs-20260920-r1",
+    "bundle": "mtp-native-attention-7945496.bundle",
+    "bundle_sha256": "7768f1bff0102c7d3921a409c034a28aa864ddc581f5412ecff9d71830f44917",
+    "archive": "qrt-mtp-native-attention-inputs-20260920-r1.tar.gz",
+    "archive_sha256": "6ce219dd564916c9de2ee5864d61f05c7861c22c30dfa0797d06fc859db69ac1",
+    "archive_bytes": 62554247,
+    "script": "run-mtp-native-attention-r1.ps1",
+    "script_sha256": "c0bc4849823720edd313d91063985e37ec7a82156353b9482dace9f0f52ab2d9",
+    "dispatcher": "dispatch_mtp_native_attention_r1.py",
+    "dispatcher_sha256": "4254d9b45c0f22cb7ca8ac11f52edc63fbb210c5904a0ba8e1be9089a51221cb",
+    "evidence_archive": "mtp-native-attention-r1-evidence.tar.gz",
+    "transport_timeout_seconds": 1200,
+    "attention_cpu_evidence_sha256": "b73367e4a2e0f8598eab3ef8120940dd906b698162190a54ca82e057efd1bb46",
+    "compiled_inputs": 30,
+    "bound_inputs": 32,
+    "reference_host": "aitopatom-66c4",
+    "reference_model": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "reference_source_commit": "38c9f1fdd35291a02421abaa862fab0ebf1ac838",
+    "reference_dispatch_sha256": "cdfafb8d07938248ce6a3e46fb6f3878914fad957f3a3e13c6b5375f65febf26",
+    "separate_frontier_batch": {
+      "manifest": "mtp-native-frontiers-source-r4.json",
+      "sha256": "0afe426254a75ae19cd47415ebe2420460fb8384cc315c705001629ab3f9122a",
+      "remains_prepared": true
+    },
+    "archive_operation_timeout_seconds": 120,
+    "evidence_entry_bound": 1024,
+    "evidence_uncompressed_byte_bound": 134217728,
+    "local_python_syntax_pass": true,
+    "windows_powershell_parse_unrun": true,
+    "generator": "prepare_mtp_native_attention_r1.py",
+    "generator_sha256": "eeea1fa65438abd90944364827079ad579b7fbbb3bbb5bcdbbbb57658db8d8e1"
+  },
+  "case_count": 2,
+  "expected_reports": 2,
+  "original_selected_rows": 66,
+  "expected_gpu_bf16_comparisons": 540672,
+  "local_python_syntax_pass": true,
+  "windows_powershell_parse_unrun": true,
+  "native_dispatched": false,
+  "model_loaded": false,
+  "native_inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "scope": "Independent component batch following the selected frontier batch. It uses both complete original short-case causal histories and all 66 original selected contexts. One-row and two-row launch modes must match every output, causal score mask, unused scratch, guard and immutable operand/table. It loads no model. Both dispatchers require completed active full256k cleanup; this preparation performs no remote execution.",
+  "recorder": {
+    "file": "record_mtp_native_attention_preparation_r1.py",
+    "sha256": "7adfbe3fd62ed7664677731441f92af79370f012cced8f2cc6aea37576111cf3"
+  }
+}
