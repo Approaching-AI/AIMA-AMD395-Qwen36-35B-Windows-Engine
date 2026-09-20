@@ -111,6 +111,14 @@ been built or run on Windows because the9428 full256k product case is active.
 Local request mocks qualify ordering/lifetime only; they do not establish
 model correctness, performance or release acceptance.
 
+The native cache-publication probe is prepared in
+tools/q2_cache_publication_hip_probe.cpp. It evaluates the complete original
+q8192 target pair, then checks accepted1/2 rows with BF16/FP32 tails and both
+state layouts. Whole retained tail planes, five unused rows, original prefix
+allocations, model/table hashes, all states/rings and both private logit rows
+are compared. Host syntax passes against the actual layouts and publication
+API. Device compilation and execution are pending the active256k cleanup.
+
 The September20 original256k run on whole `b3af8b6`, CK `3701495`, FLA
 `1d11bf7`, MoE `9235750` and CLI `6d9602c` completes all32 owner chunks,
 then fails the first suffix continuation. Owner first16/logit24.375 and suffix
