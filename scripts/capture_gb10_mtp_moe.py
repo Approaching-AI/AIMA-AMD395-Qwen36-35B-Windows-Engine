@@ -148,7 +148,8 @@ def qualify_moe_capture(worker, directory):
         offset = sampled[0] * 4096
         if hidden != normalized[offset:offset + 4096]:
             raise ValueError('draft LM-head input differs from original sampled final norm')
-        logits = struct.unpack('<248320f', checked(draft['logits'], [1, 248320], 'torch.float32'))
+        raw_logits = struct.unpack('<248320H', checked(draft['logits'], [1, 248320], 'torch.bfloat16'))
+        logits = struct.unpack('<248320f', b''.join(struct.pack('<I', value << 16) for value in raw_logits))
         if any(not math.isfinite(value) for value in logits):
             raise ValueError('non-finite original MTP draft logits')
         token = max(range(len(logits)), key=logits.__getitem__)
@@ -184,6 +185,7 @@ class MtpMoeBoundaryCapture(MtpKernelBoundaryCapture):
                 (type(mlp.experts), 'c6b929944dfab05216164844882adbd3a5266094eec8db71d875a3a993e3b1f0'),
                 (type(mlp.experts).__mro__[1], 'b47fe17d1f760f184b95140fc474259520fc60ff2ed4d68bb558eb6e23b1328a'),
                 (type(router), '411faeb99079135084bef8734e82ff1e3d0c82c913198bb35d8140e77c41cbfa'),
+                (type(model.logits_processor), '53216955b40bafd63b27137162d04e6fa4eff6620807a44684907ddd67f57521'),
                 (routed_module, '607c0a459306a71ff7d01445772494367f3924098739bbd3b4f43020738297d4')):
             path = Path(inspect.getsourcefile(value))
             if file_sha(path) != expected:
@@ -319,10 +321,16 @@ class MtpMoeBoundaryCapture(MtpKernelBoundaryCapture):
                 return result
             hidden = args[0] if args else kwargs['hidden_states']
             key = str(transaction['ordinal'])
+            layout = dict(transaction=transaction['ordinal'], hidden_shape=list(hidden.shape),
+                hidden_dtype=str(hidden.dtype), logits_shape=list(result.shape), logits_dtype=str(result.dtype),
+                repeated_call=key in self._qrt_mtp_moe_drafts)
+            with (root / f"mtp-draft{transaction['ordinal']:04d}-layout.json").open('x') as stream:
+                json.dump(layout, stream, indent=2)
+                stream.write('\n')
             if (key in self._qrt_mtp_moe_drafts or list(hidden.shape) != [1, 2048] or
-                    hidden.dtype != torch.bfloat16 or result.dtype != torch.float32 or
+                    hidden.dtype != torch.bfloat16 or result.dtype != torch.bfloat16 or
                     list(result.shape) != [1, 248320]):
-                raise ValueError('original MTP sampled logits layout changed')
+                raise ValueError('original MTP sampled logits layout changed: ' + repr(layout))
             prefix = f"mtp-draft{transaction['ordinal']:04d}-"
             self._qrt_mtp_moe_drafts[key] = dict(transaction=transaction['ordinal'],
                 sampled_row=transaction['sampled_rows'][0], original_result_returned_unchanged=True,

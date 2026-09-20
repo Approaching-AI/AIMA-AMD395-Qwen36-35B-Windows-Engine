@@ -102,11 +102,11 @@ class MtpMoeCaptureTests(unittest.TestCase):
             'mtp0000-moe-output': self.save(self.root / 'moe.bin', b'\0' * 8192, [2, 2048], 'torch.bfloat16'),
             'mtp0000-final-norm': self.save(self.root / 'norm.bin', norms, [2, 2048], 'torch.bfloat16'),
         }
-        logits = bytearray(248320 * 4)
-        struct.pack_into('<f', logits, 14 * 4, 3.5)
+        logits = bytearray(248320 * 2)
+        struct.pack_into('<H', logits, 14 * 2, 0x4060)  # Original BF16 3.5.
         draft = dict(transaction=0, sampled_row=0, original_result_returned_unchanged=True,
             hidden=self.save(self.root / 'hidden.bin', norms[:4096], [1, 2048], 'torch.bfloat16'),
-            logits=self.save(self.root / 'logits.bin', logits, [1, 248320], 'torch.float32'))
+            logits=self.save(self.root / 'logits.bin', logits, [1, 248320], 'torch.bfloat16'))
         transaction = dict(ordinal=0, sampled_rows=[0], draft_token_ids=[[14]], rows=[
             dict(row=0, selected_for_sampling=True, input_provenance='accepted_history'),
             dict(row=1, selected_for_sampling=False, input_provenance='rejected_padding')])
@@ -141,7 +141,7 @@ class MtpMoeCaptureTests(unittest.TestCase):
         self.assertEqual(self.worker['mtp_boundaries'], before)
 
     def test_full_logit_corruption_away_from_original_argmax_is_detected(self):
-        self.change(self.moe['draft_logits']['0']['logits'], 100000 * 4, struct.pack('<f', 4.0), False)
+        self.change(self.moe['draft_logits']['0']['logits'], 100000 * 2, struct.pack('<H', 0x4080), False)
         with self.assertRaisesRegex(ValueError, 'file identity'):
             self.qualify()
 
@@ -156,13 +156,23 @@ class MtpMoeCaptureTests(unittest.TestCase):
             self.qualify()
 
     def test_non_finite_original_logits_rejected(self):
-        self.change(self.moe['draft_logits']['0']['logits'], 4, struct.pack('<f', float('nan')))
+        self.change(self.moe['draft_logits']['0']['logits'], 2, struct.pack('<H', 0x7fc0))
         with self.assertRaisesRegex(ValueError, 'non-finite'):
             self.qualify()
 
     def test_shared_and_routed_tuple_order_is_checked(self):
         self.change(self.moe['files']['mtp-moe0000-expert-part-0'], 0, b'\1\0')
         with self.assertRaisesRegex(ValueError, 'tuple ordering'):
+            self.qualify()
+
+    def test_original_bf16_tie_uses_the_lower_token_id(self):
+        self.change(self.moe['draft_logits']['0']['logits'], 15 * 2, struct.pack('<H', 0x4060))
+        self.qualify()
+        self.assertEqual(self.moe['draft_checks'][0]['draft_token_id'], 14)
+
+    def test_original_logits_dtype_is_not_silently_converted(self):
+        self.moe['draft_logits']['0']['logits']['dtype'] = 'torch.float32'
+        with self.assertRaisesRegex(ValueError, 'file identity or layout'):
             self.qualify()
 
     def test_final_norm_input_is_bound_to_actual_moe_output(self):

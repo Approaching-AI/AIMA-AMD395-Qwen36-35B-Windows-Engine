@@ -288,9 +288,16 @@ stopped during observer setup because the new guard incorrectly excluded
 shared overlap and internal routing. It produced no inference outputs; memory
 guards and GPU cleanup passed. The corrected observer follows the pinned
 original shared-overlap path, binds the original router/shared-module identities,
-and persists its configuration before qualification. All66 local checks pass.
-Real-model validation of the corrected observer remains pending; this does not
-qualify a native MoE or a complete MTP drafter.
+and persists its configuration before qualification. The
+[second run](../benchmarks/correctness/gb10-mtp-moe-observer-logits-rejection-20260920.json)
+confirmed that configuration and reached every first-proposal MoE frontier,
+then stopped because the observer incorrectly required FP32 draft logits.
+The pinned LM-head/logits processor returns BF16 directly to Eagle argmax.
+The observer now saves those original BF16 bytes, checks the whole vocabulary
+and sampled token, and records each actual hidden/logit layout. All68 local
+checks pass. R2's host, frozen-autotune and cleanup checks pass; its incomplete
+case supplies no golden operands. Complete reference validation remains
+pending; this does not qualify a native MoE or a complete MTP drafter.
 
 The [complete causal-history attention comparison](../benchmarks/correctness/gb10-mtp-causal-attention-arithmetic-20260920.json)
 uses both full original short-prompt K/V caches and31 accepted decode rows per
