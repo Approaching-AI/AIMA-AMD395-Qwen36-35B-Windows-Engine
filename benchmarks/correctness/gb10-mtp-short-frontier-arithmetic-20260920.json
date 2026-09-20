@@ -1,0 +1,3825 @@
+{
+  "kind": "original_mtp_short_control_frontier_arithmetic_diagnostic",
+  "utc": "2026-09-20T00:24:25.283419+00:00",
+  "reference_host": "aitopatom-66c4",
+  "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+  "source_commit": "91f00826a213399ebae5e6cedc4fb64e413a037e",
+  "command": [
+    "docker",
+    "run",
+    "--name",
+    "qrt-gb10-mtp-limit-boundary-20260920-r1",
+    "--hostname",
+    "aitopatom-66c4",
+    "--gpus",
+    "all",
+    "--network",
+    "none",
+    "--memory",
+    "108g",
+    "--shm-size",
+    "8g",
+    "--cpus",
+    "8",
+    "-e",
+    "PYTHONPATH=/work/scripts",
+    "-e",
+    "QRT_GB10_OBSERVE_FLASHINFER_AUTOTUNER=1",
+    "-e",
+    "VLLM_ALLOW_LONG_MAX_MODEL_LEN=1",
+    "-e",
+    "VLLM_WORKER_MULTIPROC_METHOD=spawn",
+    "-v",
+    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r1:/work",
+    "-v",
+    "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
+    "-e",
+    "QRT_GB10_CASE_BOUNDARY_OFFSETS={\"draft-limit-q262140-out16\":[2,3,4],\"draft-limit-q262142-out16\":[0,1,2],\"draft-limit-q262143-out16\":[0,1,2]}",
+    "-w",
+    "/work",
+    "--entrypoint",
+    "timeout",
+    "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+    "--signal=TERM",
+    "--kill-after=10",
+    "1830",
+    "python3",
+    "scripts/capture_gb10_token_matrix.py",
+    "--runtime-boundaries",
+    "--mtp-boundaries",
+    "--source-commit",
+    "91f00826a213399ebae5e6cedc4fb64e413a037e",
+    "--oracle-q7169",
+    "contracts/arbitrary_q7169_gb10_oracle.json",
+    "--oracle-q8192",
+    "contracts/hprefill_q8192_gb10_oracle.json",
+    "--additional-cases",
+    "additional-cases.json",
+    "--maximum-prompt-tokens",
+    "262144",
+    "--output-dir",
+    "capture",
+    "--expected-host",
+    "aitopatom-66c4",
+    "--timeout-seconds",
+    "1800",
+    "--execute"
+  ],
+  "command_file": "/home/qujing/run-qrt-gb10-mtp-limit-boundary-20260920-r1.py",
+  "command_file_sha256": "27979bdd3fb15eacb7fccf32b676343eff955f66cdc62c4faa6a6fcd05285847",
+  "dispatch_sha256": "e612a7142029d29652dff7845a311dcda60c0bb691af09227067d2d8ae3881c3",
+  "cases": [
+    {
+      "name": "q7169-out32",
+      "prompt": {
+        "token_count": 7169,
+        "seed": 50536152,
+        "first_token_id": 30199,
+        "u32le_sha256": "b4ba753492f994e7c64ca7805c1b48523993ff24f6e75b44fa5705067d1de87d",
+        "u32le_fnv1a64": "c900c18703532d6a"
+      },
+      "output_token_ids": [
+        82,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220
+      ],
+      "first_token_raw_logit": 9.25,
+      "full_first_logits_sha256": "719813bb031f041544c91840b0092fd43a0e3ef96ccbb9ac44cd2f713a5763c9",
+      "case_sha256": "9588bb67f6686f5e699200d948fbe193ef60dad3f3bdba19dc1df3775127b1bb",
+      "qualified_rows": 33,
+      "projection_rows": 6,
+      "v_passthrough_elements": 16896,
+      "v_passthrough_exact": true
+    },
+    {
+      "name": "q8192-out32",
+      "prompt": {
+        "token_count": 8192,
+        "seed": 395518,
+        "first_token_id": 84411,
+        "u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+        "u32le_fnv1a64": "1584e34d56e5d78b"
+      },
+      "output_token_ids": [
+        144,
+        255,
+        82,
+        57,
+        79,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196
+      ],
+      "first_token_raw_logit": 10.375,
+      "full_first_logits_sha256": "145adfd0d14158d649b4c57f1dbb5151466d73f9183821e7da24e831d74112c0",
+      "case_sha256": "ca5437b43c7ff120ab9405d07df831c496dd54aa545807bcf6b51f0a8094a466",
+      "qualified_rows": 33,
+      "projection_rows": 7,
+      "v_passthrough_elements": 16896,
+      "v_passthrough_exact": true
+    }
+  ],
+  "stages": [
+    {
+      "case": "q7169-out32",
+      "stage": "embedding_norm",
+      "report": {
+        "mode": "norm",
+        "rows": 33,
+        "elements": 67584,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "weight": {
+        "file": "pre-fc-embedding-norm.bf16.bin",
+        "dtype": "torch.bfloat16",
+        "shape": [
+          2048
+        ],
+        "bytes": 4096,
+        "sha256": "84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484",
+        "capture_file": "capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin"
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ],
+      "original_operands_independent": true,
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 95,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 7169
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 7168,
+          "input_token_id": 82,
+          "transaction_row": 7168,
+          "sampled": true,
+          "original_batch_tokens": 7169
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 7169,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 2,
+          "saved_index": 0,
+          "target_position": 7170,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 3,
+          "saved_index": 0,
+          "target_position": 7171,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 4,
+          "saved_index": 0,
+          "target_position": 7172,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 4,
+          "saved_index": 1,
+          "target_position": 7173,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 5,
+          "saved_index": 0,
+          "target_position": 7174,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 6,
+          "saved_index": 0,
+          "target_position": 7175,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 6,
+          "saved_index": 1,
+          "target_position": 7176,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 7,
+          "saved_index": 0,
+          "target_position": 7177,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 7,
+          "saved_index": 1,
+          "target_position": 7178,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 8,
+          "saved_index": 0,
+          "target_position": 7179,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 8,
+          "saved_index": 1,
+          "target_position": 7180,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 9,
+          "saved_index": 0,
+          "target_position": 7181,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 9,
+          "saved_index": 1,
+          "target_position": 7182,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 10,
+          "saved_index": 0,
+          "target_position": 7183,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 10,
+          "saved_index": 1,
+          "target_position": 7184,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 11,
+          "saved_index": 0,
+          "target_position": 7185,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 11,
+          "saved_index": 1,
+          "target_position": 7186,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 12,
+          "saved_index": 0,
+          "target_position": 7187,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 12,
+          "saved_index": 1,
+          "target_position": 7188,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 13,
+          "saved_index": 0,
+          "target_position": 7189,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 13,
+          "saved_index": 1,
+          "target_position": 7190,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 14,
+          "saved_index": 0,
+          "target_position": 7191,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 14,
+          "saved_index": 1,
+          "target_position": 7192,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 15,
+          "saved_index": 0,
+          "target_position": 7193,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 15,
+          "saved_index": 1,
+          "target_position": 7194,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 16,
+          "saved_index": 0,
+          "target_position": 7195,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 16,
+          "saved_index": 1,
+          "target_position": 7196,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 7197,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 7198,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 7199,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        }
+      ]
+    },
+    {
+      "case": "q7169-out32",
+      "stage": "hidden_norm",
+      "report": {
+        "mode": "norm",
+        "rows": 33,
+        "elements": 67584,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "weight": {
+        "file": "pre-fc-hidden-norm.bf16.bin",
+        "dtype": "torch.bfloat16",
+        "shape": [
+          2048
+        ],
+        "bytes": 4096,
+        "sha256": "cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18",
+        "capture_file": "capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin"
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ],
+      "original_operands_independent": true,
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 95,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 7169
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 7168,
+          "input_token_id": 82,
+          "transaction_row": 7168,
+          "sampled": true,
+          "original_batch_tokens": 7169
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 7169,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 2,
+          "saved_index": 0,
+          "target_position": 7170,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 3,
+          "saved_index": 0,
+          "target_position": 7171,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 4,
+          "saved_index": 0,
+          "target_position": 7172,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 4,
+          "saved_index": 1,
+          "target_position": 7173,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 5,
+          "saved_index": 0,
+          "target_position": 7174,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 6,
+          "saved_index": 0,
+          "target_position": 7175,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 6,
+          "saved_index": 1,
+          "target_position": 7176,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 7,
+          "saved_index": 0,
+          "target_position": 7177,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 7,
+          "saved_index": 1,
+          "target_position": 7178,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 8,
+          "saved_index": 0,
+          "target_position": 7179,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 8,
+          "saved_index": 1,
+          "target_position": 7180,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 9,
+          "saved_index": 0,
+          "target_position": 7181,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 9,
+          "saved_index": 1,
+          "target_position": 7182,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 10,
+          "saved_index": 0,
+          "target_position": 7183,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 10,
+          "saved_index": 1,
+          "target_position": 7184,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 11,
+          "saved_index": 0,
+          "target_position": 7185,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 11,
+          "saved_index": 1,
+          "target_position": 7186,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 12,
+          "saved_index": 0,
+          "target_position": 7187,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 12,
+          "saved_index": 1,
+          "target_position": 7188,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 13,
+          "saved_index": 0,
+          "target_position": 7189,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 13,
+          "saved_index": 1,
+          "target_position": 7190,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 14,
+          "saved_index": 0,
+          "target_position": 7191,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 14,
+          "saved_index": 1,
+          "target_position": 7192,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 15,
+          "saved_index": 0,
+          "target_position": 7193,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 15,
+          "saved_index": 1,
+          "target_position": 7194,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 16,
+          "saved_index": 0,
+          "target_position": 7195,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 16,
+          "saved_index": 1,
+          "target_position": 7196,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 7197,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 7198,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 7199,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        }
+      ]
+    },
+    {
+      "case": "q7169-out32",
+      "stage": "input_norm",
+      "report": {
+        "mode": "norm",
+        "rows": 33,
+        "elements": 67584,
+        "bf16_mismatches": 2,
+        "maximum_absolute_error": 0.00390625,
+        "first_difference": {
+          "index": 9943,
+          "actual_bits": 48985,
+          "expected_bits": 48984
+        },
+        "native_inference_acceptance": false
+      },
+      "weight": {
+        "file": "input-norm.bf16.bin",
+        "dtype": "torch.bfloat16",
+        "shape": [
+          2048
+        ],
+        "bytes": 4096,
+        "sha256": "99fc176e7b890192ed0403677fa775eabc9a44d70b67592195909bc26be586bb",
+        "capture_file": "capture/mtp-original-weights/input-norm.bf16.bin"
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ],
+      "original_operands_independent": true,
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 95,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 7169
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 7168,
+          "input_token_id": 82,
+          "transaction_row": 7168,
+          "sampled": true,
+          "original_batch_tokens": 7169
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 7169,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 2,
+          "saved_index": 0,
+          "target_position": 7170,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 3,
+          "saved_index": 0,
+          "target_position": 7171,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 4,
+          "saved_index": 0,
+          "target_position": 7172,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 4,
+          "saved_index": 1,
+          "target_position": 7173,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 5,
+          "saved_index": 0,
+          "target_position": 7174,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 6,
+          "saved_index": 0,
+          "target_position": 7175,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 6,
+          "saved_index": 1,
+          "target_position": 7176,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 7,
+          "saved_index": 0,
+          "target_position": 7177,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 7,
+          "saved_index": 1,
+          "target_position": 7178,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 8,
+          "saved_index": 0,
+          "target_position": 7179,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 8,
+          "saved_index": 1,
+          "target_position": 7180,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 9,
+          "saved_index": 0,
+          "target_position": 7181,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 9,
+          "saved_index": 1,
+          "target_position": 7182,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 10,
+          "saved_index": 0,
+          "target_position": 7183,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 10,
+          "saved_index": 1,
+          "target_position": 7184,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 11,
+          "saved_index": 0,
+          "target_position": 7185,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 11,
+          "saved_index": 1,
+          "target_position": 7186,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 12,
+          "saved_index": 0,
+          "target_position": 7187,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 12,
+          "saved_index": 1,
+          "target_position": 7188,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 13,
+          "saved_index": 0,
+          "target_position": 7189,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 13,
+          "saved_index": 1,
+          "target_position": 7190,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 14,
+          "saved_index": 0,
+          "target_position": 7191,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 14,
+          "saved_index": 1,
+          "target_position": 7192,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 15,
+          "saved_index": 0,
+          "target_position": 7193,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 15,
+          "saved_index": 1,
+          "target_position": 7194,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 16,
+          "saved_index": 0,
+          "target_position": 7195,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 16,
+          "saved_index": 1,
+          "target_position": 7196,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 7197,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 7198,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 7199,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        }
+      ],
+      "first_difference_original_input": {
+        "file": "capture/q7169-out32/mtp0003-fusion.bin",
+        "sha256": "225e4963f9ea241be99d6dd970cf780bc179cdb02ffa757e7b3196791f6976d1",
+        "offset": 0,
+        "bytes": 4096,
+        "selected_sha256": "b3b883fb9bf79490ac6932027de934c1247dd589c01b987344952f10aa5d42c1"
+      },
+      "first_difference_original_output": {
+        "file": "capture/q7169-out32/mtp0003-input-norm.bin",
+        "sha256": "bcee003cd883a7f3e0472d1563cecb1c2cb9f3e8d86e6a263c65a4cbcea1afc9",
+        "offset": 0,
+        "bytes": 4096,
+        "selected_sha256": "f1184e6679c3e13f6a6295f947f4920972f605f88cc5c91037c54bd9a617e75a"
+      }
+    },
+    {
+      "case": "q7169-out32",
+      "stage": "fusion_projection",
+      "report": {
+        "mode": "linear",
+        "rows": 6,
+        "elements": 12288,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "weight": {
+        "file": "fc.bf16.bin",
+        "dtype": "torch.bfloat16",
+        "shape": [
+          2048,
+          4096
+        ],
+        "bytes": 16777216,
+        "sha256": "5015bb3b80ffa82d5c9fb353e776f2351d2ce5361a02230111b4d15f447aa024",
+        "capture_file": "capture/mtp-original-weights/fc.bf16.bin"
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "linear",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/fc.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "4096",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ],
+      "original_operands_independent": true,
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 95,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 7169
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 7168,
+          "input_token_id": 82,
+          "transaction_row": 7168,
+          "sampled": true,
+          "original_batch_tokens": 7169
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 7169,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 7197,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 7198,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 7199,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        }
+      ]
+    },
+    {
+      "case": "q7169-out32",
+      "stage": "kv_projection",
+      "report": {
+        "mode": "linear",
+        "rows": 6,
+        "elements": 6144,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "weight": {
+        "file": "kv-projection.bf16.bin",
+        "dtype": "torch.bfloat16",
+        "shape": [
+          1024,
+          2048
+        ],
+        "bytes": 4194304,
+        "sha256": "1269d6164080d77ccccd1c27da312aa3cae79208c308f904fd29daaf04a5e4fb",
+        "capture_file": "capture/mtp-original-weights/kv-projection.bf16.bin"
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "linear",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/kv-projection.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "1024",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ],
+      "original_operands_independent": true,
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 95,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 7169
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 7168,
+          "input_token_id": 82,
+          "transaction_row": 7168,
+          "sampled": true,
+          "original_batch_tokens": 7169
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 7169,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 7197,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 7198,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 7199,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        }
+      ]
+    },
+    {
+      "case": "q7169-out32",
+      "stage": "key_norm",
+      "report": {
+        "mode": "key_norm",
+        "rows": 12,
+        "elements": 3072,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "weight": {
+        "file": "key-norm.bf16.bin",
+        "dtype": "torch.bfloat16",
+        "shape": [
+          256
+        ],
+        "bytes": 512,
+        "sha256": "6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938",
+        "capture_file": "capture/mtp-original-weights/key-norm.bf16.bin"
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "key_norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/key-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "256",
+        "256",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ],
+      "original_operands_independent": true,
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 95,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 7169
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 7168,
+          "input_token_id": 82,
+          "transaction_row": 7168,
+          "sampled": true,
+          "original_batch_tokens": 7169
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 7169,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 7197,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 7198,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 7199,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        }
+      ]
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "embedding_norm",
+      "report": {
+        "mode": "norm",
+        "rows": 33,
+        "elements": 67584,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "weight": {
+        "file": "pre-fc-embedding-norm.bf16.bin",
+        "dtype": "torch.bfloat16",
+        "shape": [
+          2048
+        ],
+        "bytes": 4096,
+        "sha256": "84325b14732a2089a5c20cbedcbd9ddda28ed45d58ccd79027d4afd318d51484",
+        "capture_file": "capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin"
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ],
+      "original_operands_independent": true,
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 140,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 8191,
+          "input_token_id": 144,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 8192,
+          "input_token_id": 255,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 1,
+          "saved_index": 1,
+          "target_position": 8193,
+          "input_token_id": 82,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 2,
+          "saved_index": 0,
+          "target_position": 8194,
+          "input_token_id": 57,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 3,
+          "saved_index": 0,
+          "target_position": 8195,
+          "input_token_id": 79,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 4,
+          "saved_index": 0,
+          "target_position": 8196,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 5,
+          "saved_index": 0,
+          "target_position": 8197,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 6,
+          "saved_index": 0,
+          "target_position": 8198,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 7,
+          "saved_index": 0,
+          "target_position": 8199,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 8,
+          "saved_index": 0,
+          "target_position": 8200,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 8,
+          "saved_index": 1,
+          "target_position": 8201,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 9,
+          "saved_index": 0,
+          "target_position": 8202,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 9,
+          "saved_index": 1,
+          "target_position": 8203,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 10,
+          "saved_index": 0,
+          "target_position": 8204,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 10,
+          "saved_index": 1,
+          "target_position": 8205,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 11,
+          "saved_index": 0,
+          "target_position": 8206,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 11,
+          "saved_index": 1,
+          "target_position": 8207,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 12,
+          "saved_index": 0,
+          "target_position": 8208,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 12,
+          "saved_index": 1,
+          "target_position": 8209,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 13,
+          "saved_index": 0,
+          "target_position": 8210,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 13,
+          "saved_index": 1,
+          "target_position": 8211,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 14,
+          "saved_index": 0,
+          "target_position": 8212,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 14,
+          "saved_index": 1,
+          "target_position": 8213,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 15,
+          "saved_index": 0,
+          "target_position": 8214,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 15,
+          "saved_index": 1,
+          "target_position": 8215,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 16,
+          "saved_index": 0,
+          "target_position": 8216,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 16,
+          "saved_index": 1,
+          "target_position": 8217,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 8218,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 8219,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 8220,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 18,
+          "saved_index": 1,
+          "target_position": 8221,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 19,
+          "saved_index": 0,
+          "target_position": 8222,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        }
+      ]
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "hidden_norm",
+      "report": {
+        "mode": "norm",
+        "rows": 33,
+        "elements": 67584,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "weight": {
+        "file": "pre-fc-hidden-norm.bf16.bin",
+        "dtype": "torch.bfloat16",
+        "shape": [
+          2048
+        ],
+        "bytes": 4096,
+        "sha256": "cb2ba8f2a2b9af922a7a7684ff4c1c06a1af9ff9b58e8174b7b5a174e3dd2b18",
+        "capture_file": "capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin"
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ],
+      "original_operands_independent": true,
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 140,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 8191,
+          "input_token_id": 144,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 8192,
+          "input_token_id": 255,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 1,
+          "saved_index": 1,
+          "target_position": 8193,
+          "input_token_id": 82,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 2,
+          "saved_index": 0,
+          "target_position": 8194,
+          "input_token_id": 57,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 3,
+          "saved_index": 0,
+          "target_position": 8195,
+          "input_token_id": 79,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 4,
+          "saved_index": 0,
+          "target_position": 8196,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 5,
+          "saved_index": 0,
+          "target_position": 8197,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 6,
+          "saved_index": 0,
+          "target_position": 8198,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 7,
+          "saved_index": 0,
+          "target_position": 8199,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 8,
+          "saved_index": 0,
+          "target_position": 8200,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 8,
+          "saved_index": 1,
+          "target_position": 8201,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 9,
+          "saved_index": 0,
+          "target_position": 8202,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 9,
+          "saved_index": 1,
+          "target_position": 8203,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 10,
+          "saved_index": 0,
+          "target_position": 8204,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 10,
+          "saved_index": 1,
+          "target_position": 8205,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 11,
+          "saved_index": 0,
+          "target_position": 8206,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 11,
+          "saved_index": 1,
+          "target_position": 8207,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 12,
+          "saved_index": 0,
+          "target_position": 8208,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 12,
+          "saved_index": 1,
+          "target_position": 8209,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 13,
+          "saved_index": 0,
+          "target_position": 8210,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 13,
+          "saved_index": 1,
+          "target_position": 8211,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 14,
+          "saved_index": 0,
+          "target_position": 8212,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 14,
+          "saved_index": 1,
+          "target_position": 8213,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 15,
+          "saved_index": 0,
+          "target_position": 8214,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 15,
+          "saved_index": 1,
+          "target_position": 8215,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 16,
+          "saved_index": 0,
+          "target_position": 8216,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 16,
+          "saved_index": 1,
+          "target_position": 8217,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 8218,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 8219,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 8220,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 18,
+          "saved_index": 1,
+          "target_position": 8221,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 19,
+          "saved_index": 0,
+          "target_position": 8222,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        }
+      ]
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "input_norm",
+      "report": {
+        "mode": "norm",
+        "rows": 33,
+        "elements": 67584,
+        "bf16_mismatches": 2,
+        "maximum_absolute_error": 0.00390625,
+        "first_difference": {
+          "index": 17056,
+          "actual_bits": 16224,
+          "expected_bits": 16225
+        },
+        "native_inference_acceptance": false
+      },
+      "weight": {
+        "file": "input-norm.bf16.bin",
+        "dtype": "torch.bfloat16",
+        "shape": [
+          2048
+        ],
+        "bytes": 4096,
+        "sha256": "99fc176e7b890192ed0403677fa775eabc9a44d70b67592195909bc26be586bb",
+        "capture_file": "capture/mtp-original-weights/input-norm.bf16.bin"
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ],
+      "original_operands_independent": true,
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 140,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 8191,
+          "input_token_id": 144,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 8192,
+          "input_token_id": 255,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 1,
+          "saved_index": 1,
+          "target_position": 8193,
+          "input_token_id": 82,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 2,
+          "saved_index": 0,
+          "target_position": 8194,
+          "input_token_id": 57,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 3,
+          "saved_index": 0,
+          "target_position": 8195,
+          "input_token_id": 79,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 4,
+          "saved_index": 0,
+          "target_position": 8196,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 5,
+          "saved_index": 0,
+          "target_position": 8197,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 6,
+          "saved_index": 0,
+          "target_position": 8198,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 7,
+          "saved_index": 0,
+          "target_position": 8199,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 8,
+          "saved_index": 0,
+          "target_position": 8200,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 8,
+          "saved_index": 1,
+          "target_position": 8201,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 9,
+          "saved_index": 0,
+          "target_position": 8202,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 9,
+          "saved_index": 1,
+          "target_position": 8203,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 10,
+          "saved_index": 0,
+          "target_position": 8204,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 10,
+          "saved_index": 1,
+          "target_position": 8205,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 11,
+          "saved_index": 0,
+          "target_position": 8206,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 11,
+          "saved_index": 1,
+          "target_position": 8207,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 12,
+          "saved_index": 0,
+          "target_position": 8208,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 12,
+          "saved_index": 1,
+          "target_position": 8209,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 13,
+          "saved_index": 0,
+          "target_position": 8210,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 13,
+          "saved_index": 1,
+          "target_position": 8211,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 14,
+          "saved_index": 0,
+          "target_position": 8212,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 14,
+          "saved_index": 1,
+          "target_position": 8213,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 15,
+          "saved_index": 0,
+          "target_position": 8214,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 15,
+          "saved_index": 1,
+          "target_position": 8215,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 16,
+          "saved_index": 0,
+          "target_position": 8216,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 16,
+          "saved_index": 1,
+          "target_position": 8217,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 17,
+          "saved_index": 0,
+          "target_position": 8218,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 17,
+          "saved_index": 1,
+          "target_position": 8219,
+          "input_token_id": 196,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 8220,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 18,
+          "saved_index": 1,
+          "target_position": 8221,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 19,
+          "saved_index": 0,
+          "target_position": 8222,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        }
+      ],
+      "first_difference_original_input": {
+        "file": "capture/q8192-out32/mtp0006-fusion.bin",
+        "sha256": "1e400544ca38b934fd8a58799e968228e86974c898f8f9c3c1fee4590adee198",
+        "offset": 0,
+        "bytes": 4096,
+        "selected_sha256": "6b34c1ce2c479135f6c8eaf909fff44f750d32c0f52e5781d114612977bf8b24"
+      },
+      "first_difference_original_output": {
+        "file": "capture/q8192-out32/mtp0006-input-norm.bin",
+        "sha256": "c93f5af10246d61d444f05712fb6aa591ba5b0b2991593c05329f1f2e4c83040",
+        "offset": 0,
+        "bytes": 4096,
+        "selected_sha256": "9c0aff63cfd461edfdc037e2960da33003a1c493df8e853f5d81865a93b8e056"
+      }
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "fusion_projection",
+      "report": {
+        "mode": "linear",
+        "rows": 7,
+        "elements": 14336,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "weight": {
+        "file": "fc.bf16.bin",
+        "dtype": "torch.bfloat16",
+        "shape": [
+          2048,
+          4096
+        ],
+        "bytes": 16777216,
+        "sha256": "5015bb3b80ffa82d5c9fb353e776f2351d2ce5361a02230111b4d15f447aa024",
+        "capture_file": "capture/mtp-original-weights/fc.bf16.bin"
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "linear",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/fc.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "4096",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ],
+      "original_operands_independent": true,
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 140,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 8191,
+          "input_token_id": 144,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 8192,
+          "input_token_id": 255,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 1,
+          "saved_index": 1,
+          "target_position": 8193,
+          "input_token_id": 82,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 8220,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 18,
+          "saved_index": 1,
+          "target_position": 8221,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 19,
+          "saved_index": 0,
+          "target_position": 8222,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        }
+      ]
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "kv_projection",
+      "report": {
+        "mode": "linear",
+        "rows": 7,
+        "elements": 7168,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "weight": {
+        "file": "kv-projection.bf16.bin",
+        "dtype": "torch.bfloat16",
+        "shape": [
+          1024,
+          2048
+        ],
+        "bytes": 4194304,
+        "sha256": "1269d6164080d77ccccd1c27da312aa3cae79208c308f904fd29daaf04a5e4fb",
+        "capture_file": "capture/mtp-original-weights/kv-projection.bf16.bin"
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "linear",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/kv-projection.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "1024",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ],
+      "original_operands_independent": true,
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 140,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 8191,
+          "input_token_id": 144,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 8192,
+          "input_token_id": 255,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 1,
+          "saved_index": 1,
+          "target_position": 8193,
+          "input_token_id": 82,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 8220,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 18,
+          "saved_index": 1,
+          "target_position": 8221,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 19,
+          "saved_index": 0,
+          "target_position": 8222,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        }
+      ]
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "key_norm",
+      "report": {
+        "mode": "key_norm",
+        "rows": 14,
+        "elements": 3584,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "weight": {
+        "file": "key-norm.bf16.bin",
+        "dtype": "torch.bfloat16",
+        "shape": [
+          256
+        ],
+        "bytes": 512,
+        "sha256": "6fb1be31f55e2efd79dd2d737a4a801c69ee28534e4465a6d7b39f9754087938",
+        "capture_file": "capture/mtp-original-weights/key-norm.bf16.bin"
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "key_norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/key-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "256",
+        "256",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ],
+      "original_operands_independent": true,
+      "selected_rows": [
+        {
+          "transaction": 0,
+          "saved_index": 0,
+          "target_position": 0,
+          "input_token_id": 140,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 8192
+        },
+        {
+          "transaction": 0,
+          "saved_index": 1,
+          "target_position": 8191,
+          "input_token_id": 144,
+          "transaction_row": 8191,
+          "sampled": true,
+          "original_batch_tokens": 8192
+        },
+        {
+          "transaction": 1,
+          "saved_index": 0,
+          "target_position": 8192,
+          "input_token_id": 255,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 1,
+          "saved_index": 1,
+          "target_position": 8193,
+          "input_token_id": 82,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 18,
+          "saved_index": 0,
+          "target_position": 8220,
+          "input_token_id": 220,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 18,
+          "saved_index": 1,
+          "target_position": 8221,
+          "input_token_id": 220,
+          "transaction_row": 1,
+          "sampled": true,
+          "original_batch_tokens": 2
+        },
+        {
+          "transaction": 19,
+          "saved_index": 0,
+          "target_position": 8222,
+          "input_token_id": 196,
+          "transaction_row": 0,
+          "sampled": false,
+          "original_batch_tokens": 2
+        }
+      ]
+    }
+  ],
+  "original_frontier_analysis": {
+    "file": "qrt-gb10-mtp-limit-boundary-20260920-r1/mtp-frontier-cpu-analysis-r1.json",
+    "sha256": "6970548b6c27a6dc3b1b81ffff9df8c965291c936c8040ee3ce5a725052f37fd",
+    "observer": {
+      "file": "analyze_original_mtp_frontiers_cpu_r1.py",
+      "sha256": "1816174b845db8487b0a23050155e12c2da9f42baeb4d2dc781ec40376f16ee1"
+    }
+  },
+  "original_layout_analysis": {
+    "file": "qrt-gb10-mtp-limit-boundary-20260920-r1/mtp-norm-layout-cpu-analysis-r1.json",
+    "sha256": "51733cb0a559829da2b1c7bbd808fbbe154cff464ca24ceca2bec5b9061dfce2",
+    "observer": {
+      "file": "analyze_mtp_norm_layouts_cpu_r1.py",
+      "sha256": "02544f05cba8b85d56c47330c50b0648bdae1e9f8a305f5e481e8dd302935c0d"
+    }
+  },
+  "baseline_source_binding": {
+    "source_sha256": "cb487d140dc22d82835e6730bb0847a6f2eba013148209cf41857aaed173c6ac",
+    "executable_sha256": "4b12869e496a0230869d57ef086264595dc9d2b832d1a01ad19eb8a31db273dc",
+    "build_sha256": "f1b6f505aed78bff35369f05f973e309ab0178fd2fa30a66403e7ac48d2f9822",
+    "source_commit": "91f00826a213399ebae5e6cedc4fb64e413a037e",
+    "command": [
+      "c++",
+      "-std=c++17",
+      "-MM",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp_reference_frontier_cpu_r1.cpp"
+    ],
+    "source_headers": {
+      "native/providers/gdn/sm121_q1_math.h": {
+        "bytes": 6456,
+        "sha256": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb"
+      },
+      "native/providers/gdn/sm121_rsqrt_table.h": {
+        "bytes": 3034,
+        "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f"
+      },
+      "native/providers/gdn/sm121_exp2_table.h": {
+        "bytes": 3753,
+        "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142"
+      },
+      "native/providers/gdn/sm121_sqrt_table.h": {
+        "bytes": 2377,
+        "sha256": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1"
+      },
+      "native/providers/gdn/sm121_attention_rcp.h": {
+        "bytes": 3034,
+        "sha256": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6"
+      },
+      "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": {
+        "bytes": 12459,
+        "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a"
+      }
+    },
+    "diagnostic_only": true,
+    "executed": false
+  },
+  "dynamic_source_binding": {
+    "source_sha256": "8cda4d98c5b91f9029b2efb02e7859fa0ebd9fdf7b788e6551b272a4f01b90b2",
+    "executable_sha256": "8af87ccd70d5c4e055d9d707f21d9097c4c4c87ad5345122bc7fcc87f4dd5401",
+    "build_sha256": "fca3404d5e2a66e291c0ef84babe417446611380454399f2431f6006bde4679c",
+    "source_commit": "fcedf19a5397a03d1f1f01d16848d30a09720205",
+    "command": [
+      "c++",
+      "-std=c++17",
+      "-O2",
+      "-ffp-contract=off",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp_reference_frontier_cpu_r2.cpp",
+      "-o",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu"
+    ],
+    "source_headers": {
+      "native/providers/gdn/sm121_q1_math.h": {
+        "bytes": 6456,
+        "sha256": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb"
+      },
+      "native/providers/gdn/sm121_rsqrt_table.h": {
+        "bytes": 3034,
+        "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f"
+      },
+      "native/providers/gdn/sm121_exp2_table.h": {
+        "bytes": 3753,
+        "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142"
+      },
+      "native/providers/gdn/sm121_sqrt_table.h": {
+        "bytes": 2377,
+        "sha256": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1"
+      },
+      "native/providers/gdn/sm121_attention_rcp.h": {
+        "bytes": 3034,
+        "sha256": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6"
+      },
+      "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": {
+        "bytes": 12459,
+        "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a"
+      }
+    },
+    "diagnostic_only": true,
+    "executed": false
+  },
+  "source_read_provenance": {
+    "host": "aitopatom-66c4",
+    "container": "qrt-gb10-mtp-limit-boundary-20260920-r1",
+    "image": "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+    "stopped": true,
+    "read_only": true,
+    "gpu_executed": false,
+    "files": [
+      {
+        "path": "/tmp/torchinductor_root/f5/cf57o32zl3oysrkkehrxnkx4n2mvdy6jz54dkndl52bbyflanb6i.py",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/f5/cf57o32zl3oysrkkehrxnkx4n2mvdy6jz54dkndl52bbyflanb6i.py",
+          "-"
+        ],
+        "bytes": 3789,
+        "sha256": "c254e4af80434ff5bdb457073132822e9f90bc95721db3b398b54f2d22c20f30",
+        "prior_ptx_identical": false,
+        "local_path": "original-mtp-norm-code-r1/cf57o32zl3oysrkkehrxnkx4n2mvdy6jz54dkndl52bbyflanb6i.py"
+      },
+      {
+        "path": "/tmp/torchinductor_root/triton/0/6U5GJLD6TYOUDCXO6HG4GGMDRNJVGSDCBF5JXR2NO2ASZ6Y4HMUQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/triton/0/6U5GJLD6TYOUDCXO6HG4GGMDRNJVGSDCBF5JXR2NO2ASZ6Y4HMUQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+          "-"
+        ],
+        "bytes": 33052,
+        "sha256": "48f367adccfda8f667d14e8f755df8e1162dd7c9f857af78b2c3624546783759",
+        "prior_ptx_identical": true
+      },
+      {
+        "path": "/tmp/torchinductor_root/6d/c6do6el3ac6sixc6f7xvlbmsm4z6ysg7ieais4pbegpyoquazaub.py",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/6d/c6do6el3ac6sixc6f7xvlbmsm4z6ysg7ieais4pbegpyoquazaub.py",
+          "-"
+        ],
+        "bytes": 3860,
+        "sha256": "8c290356d47dbe39f6cefda007d0e9061d2abdd31c94996eee9f46ed765270fe",
+        "prior_ptx_identical": false,
+        "local_path": "original-mtp-norm-code-r1/c6do6el3ac6sixc6f7xvlbmsm4z6ysg7ieais4pbegpyoquazaub.py"
+      },
+      {
+        "path": "/tmp/torchinductor_root/triton/0/7FTBYXBRLHORWPXHZFGMI2WYAFVP2ZX5PFTF4G7MXKU2GWS4X6EQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/triton/0/7FTBYXBRLHORWPXHZFGMI2WYAFVP2ZX5PFTF4G7MXKU2GWS4X6EQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+          "-"
+        ],
+        "bytes": 29338,
+        "sha256": "75c503719c0d35900381534ddd8d57600012c52542d9fb09b6e951bd674474f1",
+        "prior_ptx_identical": true
+      },
+      {
+        "path": "/tmp/torchinductor_root/triton/0/AB2AB66W2YS25UZLKTLHJYS75BG6QKJPKDKXSQ3VOVW2PTJAOMOQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/triton/0/AB2AB66W2YS25UZLKTLHJYS75BG6QKJPKDKXSQ3VOVW2PTJAOMOQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+          "-"
+        ],
+        "bytes": 19226,
+        "sha256": "5b5794157de25e9b15829168a44cab2abf245cafeb5a8c43f61501560499a78d",
+        "prior_ptx_identical": true
+      },
+      {
+        "path": "/tmp/torchinductor_root/triton/0/AJXYJVL3WODCHCJAWI2LIOTH65YDCXLKDLIYCH26GPUDRKDPSN2Q/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/triton/0/AJXYJVL3WODCHCJAWI2LIOTH65YDCXLKDLIYCH26GPUDRKDPSN2Q/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+          "-"
+        ],
+        "bytes": 30618,
+        "sha256": "37d18847dd91e9d5192983bcb6acebc07a0ed95a427f5bd948bccb5baf244e15",
+        "prior_ptx_identical": true
+      },
+      {
+        "path": "/tmp/torchinductor_root/triton/0/B7JBYNW3NONFDPJCKGGIIFENYRCT7KOIPNP576MB7NKEWN32O7OQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/triton/0/B7JBYNW3NONFDPJCKGGIIFENYRCT7KOIPNP576MB7NKEWN32O7OQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+          "-"
+        ],
+        "bytes": 51967,
+        "sha256": "2cf3aad6a9ea7baf1b1340baa8bdfc2f329ceaad7c5624d9e90accf0ec0abfd5",
+        "prior_ptx_identical": true
+      },
+      {
+        "path": "/tmp/torchinductor_root/g7/cg7w5yg63sae6zleixyfhhzhdf5dcleuptjzbqre23tjoj2agt73.py",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/g7/cg7w5yg63sae6zleixyfhhzhdf5dcleuptjzbqre23tjoj2agt73.py",
+          "-"
+        ],
+        "bytes": 4141,
+        "sha256": "21f91aa4df3ad87adb3d7a6ae8b6b18e8555b2eded85341e593930e58b6b353f",
+        "prior_ptx_identical": false,
+        "local_path": "original-mtp-norm-code-r1/cg7w5yg63sae6zleixyfhhzhdf5dcleuptjzbqre23tjoj2agt73.py"
+      },
+      {
+        "path": "/tmp/torchinductor_root/triton/0/FLLJDL2LPRG7LKPKTM6PCH23PSTKQSBVHG2TIDEPEA6U4O4X43CA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/triton/0/FLLJDL2LPRG7LKPKTM6PCH23PSTKQSBVHG2TIDEPEA6U4O4X43CA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+          "-"
+        ],
+        "bytes": 26334,
+        "sha256": "7a0d727bac6f25ec1b8f4e2e644896cc41466c81398341317d102c2d73be09d7",
+        "prior_ptx_identical": true
+      },
+      {
+        "path": "/tmp/torchinductor_root/vf/cvf7zmrqeb2ddo7wyt4nrhuchpky52zz2gstxfxsq3zgeteba37s.py",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/vf/cvf7zmrqeb2ddo7wyt4nrhuchpky52zz2gstxfxsq3zgeteba37s.py",
+          "-"
+        ],
+        "bytes": 3788,
+        "sha256": "d9f5e49fcabb687439af87781fbd686763b8fcb300d68aaea3a77be07ef93eee",
+        "prior_ptx_identical": false,
+        "local_path": "original-mtp-norm-code-r1/cvf7zmrqeb2ddo7wyt4nrhuchpky52zz2gstxfxsq3zgeteba37s.py"
+      },
+      {
+        "path": "/tmp/torchinductor_root/triton/0/GCEZPRCZWILG2LHXF63PRK2T7WK6OMRBRCWS5UGN5XY5SUJNRPVA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/triton/0/GCEZPRCZWILG2LHXF63PRK2T7WK6OMRBRCWS5UGN5XY5SUJNRPVA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+          "-"
+        ],
+        "bytes": 34496,
+        "sha256": "d880f540583dc4ccb3625dc5ec281126f4e8f781d3e06bfd4b7d893d92361d89",
+        "prior_ptx_identical": true
+      },
+      {
+        "path": "/tmp/torchinductor_root/pi/cpiu26jbsndsssfn4d7oqjai7xklgaaegcorkyozpebj74jkhz47.py",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/pi/cpiu26jbsndsssfn4d7oqjai7xklgaaegcorkyozpebj74jkhz47.py",
+          "-"
+        ],
+        "bytes": 3881,
+        "sha256": "12fe66fc6aba622ec8ed90ddac3e9e8531fbc82dc1d33b2f60964fc750186e79",
+        "prior_ptx_identical": false,
+        "local_path": "original-mtp-norm-code-r1/cpiu26jbsndsssfn4d7oqjai7xklgaaegcorkyozpebj74jkhz47.py"
+      },
+      {
+        "path": "/tmp/torchinductor_root/triton/0/JY4I4SOZVB4JTTBYKOIXFUGPHC3KXG72UR5LXAUNHCPL64C5YAOA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/triton/0/JY4I4SOZVB4JTTBYKOIXFUGPHC3KXG72UR5LXAUNHCPL64C5YAOA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+          "-"
+        ],
+        "bytes": 21391,
+        "sha256": "943fa2de1425bdcafd280d288537d56cb9c4fff73c6c3aff202fc826eaa59afd",
+        "prior_ptx_identical": true
+      },
+      {
+        "path": "/tmp/torchinductor_root/triton/0/L4VJKQ3PB3YG473DSNL5K2RLX4TITBHI23JZ4TDSWIAYIQOORVYA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/triton/0/L4VJKQ3PB3YG473DSNL5K2RLX4TITBHI23JZ4TDSWIAYIQOORVYA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+          "-"
+        ],
+        "bytes": 34486,
+        "sha256": "241fd458c02028bbc5c5352f46101e8bf9d5749ffe0830ef57c1d07bffc5e300",
+        "prior_ptx_identical": true
+      },
+      {
+        "path": "/tmp/torchinductor_root/triton/0/LSHIAK7J3T3LEBR5FD465WMNSH5UZCFN4DYYOM5JROUZUHTQWJ5Q/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/triton/0/LSHIAK7J3T3LEBR5FD465WMNSH5UZCFN4DYYOM5JROUZUHTQWJ5Q/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+          "-"
+        ],
+        "bytes": 30519,
+        "sha256": "069ba3983bc83f7ad2d130d82c16ec5343a918d95b0ed9fbdf112672ba4edd6c",
+        "prior_ptx_identical": true
+      },
+      {
+        "path": "/tmp/torchinductor_root/triton/0/S4L4YAUNCS4G2CEW2UZB5PJTIJRRPPOGGPWZBKA7QS6VME32TJ2Q/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/triton/0/S4L4YAUNCS4G2CEW2UZB5PJTIJRRPPOGGPWZBKA7QS6VME32TJ2Q/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+          "-"
+        ],
+        "bytes": 26975,
+        "sha256": "d248c8c4742a8dac22bc18a12ce876c921537ddae0ed8ec853c8573a75319300",
+        "prior_ptx_identical": true
+      },
+      {
+        "path": "/tmp/torchinductor_root/sh/cshkbrbb64erphz67tmmzhzdhbkuia44zih5kthglijagr6khqah.py",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/sh/cshkbrbb64erphz67tmmzhzdhbkuia44zih5kthglijagr6khqah.py",
+          "-"
+        ],
+        "bytes": 3806,
+        "sha256": "6060669317c2af214441b875c29c8c661779ef98d168d01d5379484747b83214",
+        "prior_ptx_identical": false,
+        "local_path": "original-mtp-norm-code-r1/cshkbrbb64erphz67tmmzhzdhbkuia44zih5kthglijagr6khqah.py"
+      },
+      {
+        "path": "/tmp/torchinductor_root/triton/0/ULZZPS2AHAO4S4R2ULPEW7PLOHD6MIYPZ7F4EUGKQWMA4ANTNLFQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/triton/0/ULZZPS2AHAO4S4R2ULPEW7PLOHD6MIYPZ7F4EUGKQWMA4ANTNLFQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+          "-"
+        ],
+        "bytes": 24353,
+        "sha256": "5faee5364527e8bb81883784d51097daf30a2de1a67916cbbef09d3bf1251d38",
+        "prior_ptx_identical": true
+      },
+      {
+        "path": "/tmp/torchinductor_root/mg/cmgejsan3mjopme36qhedv6b2b2gqszgpxth3wn5imiwvdllpnhb.py",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/mg/cmgejsan3mjopme36qhedv6b2b2gqszgpxth3wn5imiwvdllpnhb.py",
+          "-"
+        ],
+        "bytes": 4193,
+        "sha256": "c1404b3d482528f6f04dfdab0ca9ad94195a80b051239906c1ce1afbb13264d0",
+        "prior_ptx_identical": false,
+        "local_path": "original-mtp-norm-code-r1/cmgejsan3mjopme36qhedv6b2b2gqszgpxth3wn5imiwvdllpnhb.py"
+      },
+      {
+        "path": "/tmp/torchinductor_root/triton/0/UUO7JTZOP5DN765EIXKAFMC4CWITIU5SRKEOH3IMMX2M54SP2IMA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/triton/0/UUO7JTZOP5DN765EIXKAFMC4CWITIU5SRKEOH3IMMX2M54SP2IMA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+          "-"
+        ],
+        "bytes": 21305,
+        "sha256": "280fb8825d64d86b7bbc5f10ee1c1ecce36feea3a5db4f2504479d2ff52373ab",
+        "prior_ptx_identical": true
+      },
+      {
+        "path": "/tmp/torchinductor_root/p4/cp4tq7gvslff63nqp7d3mtoqin2ptuzpsvajmz67wxyarllrddnl.py",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/p4/cp4tq7gvslff63nqp7d3mtoqin2ptuzpsvajmz67wxyarllrddnl.py",
+          "-"
+        ],
+        "bytes": 4218,
+        "sha256": "1d61e6373a3562a8cbae871975aeb2342caafaad77c840f5e86f3caf5098fa00",
+        "prior_ptx_identical": false,
+        "local_path": "original-mtp-norm-code-r1/cp4tq7gvslff63nqp7d3mtoqin2ptuzpsvajmz67wxyarllrddnl.py"
+      },
+      {
+        "path": "/tmp/torchinductor_root/triton/0/XHZS27IIE7Z6N5YRCXEHMA3MO4X3JJQ32C6B5BWK2X5H3PVG6EUA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+        "command": [
+          "docker",
+          "cp",
+          "qrt-gb10-mtp-limit-boundary-20260920-r1:/tmp/torchinductor_root/triton/0/XHZS27IIE7Z6N5YRCXEHMA3MO4X3JJQ32C6B5BWK2X5H3PVG6EUA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+          "-"
+        ],
+        "bytes": 25872,
+        "sha256": "28179d7b21efa7aaa22cba8b58405992f11ca80070b8ebfc9b20f7a3dfccaf14",
+        "prior_ptx_identical": true
+      }
+    ],
+    "transport": {
+      "command": [
+        "ssh",
+        "-o",
+        "BatchMode=yes",
+        "-o",
+        "ConnectTimeout=10",
+        "gb10-4t",
+        "python3 -c 'import hashlib,io,json,socket,subprocess,tarfile,time\nassert socket.gethostname()=='\"'\"'aitopatom-66c4'\"'\"'\nname='\"'\"'qrt-gb10-mtp-limit-boundary-20260920-r1'\"'\"'\ninfo=json.loads(subprocess.check_output(['\"'\"'docker'\"'\"','\"'\"'inspect'\"'\"',name],text=True,timeout=5))[0]\nassert not info['\"'\"'State'\"'\"']['\"'\"'Running'\"'\"'] and info['\"'\"'State'\"'\"']['\"'\"'ExitCode'\"'\"']==1\nassert info['\"'\"'Image'\"'\"']=='\"'\"'sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d'\"'\"'\npaths={'\"'\"'/tmp/torchinductor_root/f5/cf57o32zl3oysrkkehrxnkx4n2mvdy6jz54dkndl52bbyflanb6i.py'\"'\"': None, '\"'\"'/tmp/torchinductor_root/triton/0/6U5GJLD6TYOUDCXO6HG4GGMDRNJVGSDCBF5JXR2NO2ASZ6Y4HMUQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx'\"'\"': '\"'\"'48f367adccfda8f667d14e8f755df8e1162dd7c9f857af78b2c3624546783759'\"'\"', '\"'\"'/tmp/torchinductor_root/6d/c6do6el3ac6sixc6f7xvlbmsm4z6ysg7ieais4pbegpyoquazaub.py'\"'\"': None, '\"'\"'/tmp/torchinductor_root/triton/0/7FTBYXBRLHORWPXHZFGMI2WYAFVP2ZX5PFTF4G7MXKU2GWS4X6EQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx'\"'\"': '\"'\"'75c503719c0d35900381534ddd8d57600012c52542d9fb09b6e951bd674474f1'\"'\"', '\"'\"'/tmp/torchinductor_root/triton/0/AB2AB66W2YS25UZLKTLHJYS75BG6QKJPKDKXSQ3VOVW2PTJAOMOQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx'\"'\"': '\"'\"'5b5794157de25e9b15829168a44cab2abf245cafeb5a8c43f61501560499a78d'\"'\"', '\"'\"'/tmp/torchinductor_root/triton/0/AJXYJVL3WODCHCJAWI2LIOTH65YDCXLKDLIYCH26GPUDRKDPSN2Q/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx'\"'\"': '\"'\"'37d18847dd91e9d5192983bcb6acebc07a0ed95a427f5bd948bccb5baf244e15'\"'\"', '\"'\"'/tmp/torchinductor_root/triton/0/B7JBYNW3NONFDPJCKGGIIFENYRCT7KOIPNP576MB7NKEWN32O7OQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx'\"'\"': '\"'\"'2cf3aad6a9ea7baf1b1340baa8bdfc2f329ceaad7c5624d9e90accf0ec0abfd5'\"'\"', '\"'\"'/tmp/torchinductor_root/g7/cg7w5yg63sae6zleixyfhhzhdf5dcleuptjzbqre23tjoj2agt73.py'\"'\"': None, '\"'\"'/tmp/torchinductor_root/triton/0/FLLJDL2LPRG7LKPKTM6PCH23PSTKQSBVHG2TIDEPEA6U4O4X43CA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx'\"'\"': '\"'\"'7a0d727bac6f25ec1b8f4e2e644896cc41466c81398341317d102c2d73be09d7'\"'\"', '\"'\"'/tmp/torchinductor_root/vf/cvf7zmrqeb2ddo7wyt4nrhuchpky52zz2gstxfxsq3zgeteba37s.py'\"'\"': None, '\"'\"'/tmp/torchinductor_root/triton/0/GCEZPRCZWILG2LHXF63PRK2T7WK6OMRBRCWS5UGN5XY5SUJNRPVA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx'\"'\"': '\"'\"'d880f540583dc4ccb3625dc5ec281126f4e8f781d3e06bfd4b7d893d92361d89'\"'\"', '\"'\"'/tmp/torchinductor_root/pi/cpiu26jbsndsssfn4d7oqjai7xklgaaegcorkyozpebj74jkhz47.py'\"'\"': None, '\"'\"'/tmp/torchinductor_root/triton/0/JY4I4SOZVB4JTTBYKOIXFUGPHC3KXG72UR5LXAUNHCPL64C5YAOA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx'\"'\"': '\"'\"'943fa2de1425bdcafd280d288537d56cb9c4fff73c6c3aff202fc826eaa59afd'\"'\"', '\"'\"'/tmp/torchinductor_root/triton/0/L4VJKQ3PB3YG473DSNL5K2RLX4TITBHI23JZ4TDSWIAYIQOORVYA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx'\"'\"': '\"'\"'241fd458c02028bbc5c5352f46101e8bf9d5749ffe0830ef57c1d07bffc5e300'\"'\"', '\"'\"'/tmp/torchinductor_root/triton/0/LSHIAK7J3T3LEBR5FD465WMNSH5UZCFN4DYYOM5JROUZUHTQWJ5Q/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx'\"'\"': '\"'\"'069ba3983bc83f7ad2d130d82c16ec5343a918d95b0ed9fbdf112672ba4edd6c'\"'\"', '\"'\"'/tmp/torchinductor_root/triton/0/S4L4YAUNCS4G2CEW2UZB5PJTIJRRPPOGGPWZBKA7QS6VME32TJ2Q/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx'\"'\"': '\"'\"'d248c8c4742a8dac22bc18a12ce876c921537ddae0ed8ec853c8573a75319300'\"'\"', '\"'\"'/tmp/torchinductor_root/sh/cshkbrbb64erphz67tmmzhzdhbkuia44zih5kthglijagr6khqah.py'\"'\"': None, '\"'\"'/tmp/torchinductor_root/triton/0/ULZZPS2AHAO4S4R2ULPEW7PLOHD6MIYPZ7F4EUGKQWMA4ANTNLFQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx'\"'\"': '\"'\"'5faee5364527e8bb81883784d51097daf30a2de1a67916cbbef09d3bf1251d38'\"'\"', '\"'\"'/tmp/torchinductor_root/mg/cmgejsan3mjopme36qhedv6b2b2gqszgpxth3wn5imiwvdllpnhb.py'\"'\"': None, '\"'\"'/tmp/torchinductor_root/triton/0/UUO7JTZOP5DN765EIXKAFMC4CWITIU5SRKEOH3IMMX2M54SP2IMA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx'\"'\"': '\"'\"'280fb8825d64d86b7bbc5f10ee1c1ecce36feea3a5db4f2504479d2ff52373ab'\"'\"', '\"'\"'/tmp/torchinductor_root/p4/cp4tq7gvslff63nqp7d3mtoqin2ptuzpsvajmz67wxyarllrddnl.py'\"'\"': None, '\"'\"'/tmp/torchinductor_root/triton/0/XHZS27IIE7Z6N5YRCXEHMA3MO4X3JJQ32C6B5BWK2X5H3PVG6EUA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx'\"'\"': '\"'\"'28179d7b21efa7aaa22cba8b58405992f11ca80070b8ebfc9b20f7a3dfccaf14'\"'\"'}\nrecords=[]\nstarted=time.monotonic()\nfor path,expected in paths.items():\n assert time.monotonic()-started<40\n command=['\"'\"'docker'\"'\"','\"'\"'cp'\"'\"',name+'\"'\"':'\"'\"'+path,'\"'\"'-'\"'\"']\n raw=subprocess.check_output(command,timeout=5)\n with tarfile.open(fileobj=io.BytesIO(raw)) as tar:\n  members=[m for m in tar.getmembers() if m.isfile()]\n  assert len(members)==1 and members[0].size<256*1024\n  data=tar.extractfile(members[0]).read()\n digest=hashlib.sha256(data).hexdigest()\n assert expected is None or digest==expected\n records.append(dict(path=path,command=command,bytes=len(data),sha256=digest,text=data.decode() if expected is None else None,prior_ptx_identical=expected is not None))\nprint(json.dumps(dict(host=socket.gethostname(),container=name,image=info['\"'\"'Image'\"'\"'],stopped=True,read_only=True,gpu_executed=False,files=records)))\n'"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "timeout_seconds": 50
+    },
+    "observer": {
+      "file": "inspect_original_mtp_norm_code_r1.py",
+      "sha256": "85f9296917c82740a7b21949ffbb9fb72a6433b8d627c8fb09d0eff3868ba2bb"
+    }
+  },
+  "dynamic_layout_comparisons": [
+    {
+      "case": "q7169-out32",
+      "stage": "embedding_norm",
+      "original_batch_tokens": 2,
+      "mode": "norm",
+      "report": {
+        "mode": "norm",
+        "rows": 31,
+        "elements": 63488,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q7169-out32",
+      "stage": "embedding_norm",
+      "original_batch_tokens": 2,
+      "mode": "norm_dynamic",
+      "report": {
+        "mode": "norm_dynamic",
+        "rows": 31,
+        "elements": 63488,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm_dynamic",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q7169-out32",
+      "stage": "embedding_norm",
+      "original_batch_tokens": 7169,
+      "mode": "norm",
+      "report": {
+        "mode": "norm",
+        "rows": 2,
+        "elements": 4096,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q7169-out32",
+      "stage": "embedding_norm",
+      "original_batch_tokens": 7169,
+      "mode": "norm_dynamic",
+      "report": {
+        "mode": "norm_dynamic",
+        "rows": 2,
+        "elements": 4096,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm_dynamic",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q7169-out32",
+      "stage": "hidden_norm",
+      "original_batch_tokens": 2,
+      "mode": "norm",
+      "report": {
+        "mode": "norm",
+        "rows": 31,
+        "elements": 63488,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q7169-out32",
+      "stage": "hidden_norm",
+      "original_batch_tokens": 2,
+      "mode": "norm_dynamic",
+      "report": {
+        "mode": "norm_dynamic",
+        "rows": 31,
+        "elements": 63488,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm_dynamic",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q7169-out32",
+      "stage": "hidden_norm",
+      "original_batch_tokens": 7169,
+      "mode": "norm",
+      "report": {
+        "mode": "norm",
+        "rows": 2,
+        "elements": 4096,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q7169-out32",
+      "stage": "hidden_norm",
+      "original_batch_tokens": 7169,
+      "mode": "norm_dynamic",
+      "report": {
+        "mode": "norm_dynamic",
+        "rows": 2,
+        "elements": 4096,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm_dynamic",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q7169-out32",
+      "stage": "input_norm",
+      "original_batch_tokens": 2,
+      "mode": "norm",
+      "report": {
+        "mode": "norm",
+        "rows": 31,
+        "elements": 63488,
+        "bf16_mismatches": 2,
+        "maximum_absolute_error": 0.00390625,
+        "first_difference": {
+          "index": 5847,
+          "actual_bits": 48985,
+          "expected_bits": 48984
+        },
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q7169-out32",
+      "stage": "input_norm",
+      "original_batch_tokens": 2,
+      "mode": "norm_dynamic",
+      "report": {
+        "mode": "norm_dynamic",
+        "rows": 31,
+        "elements": 63488,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm_dynamic",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q7169-out32",
+      "stage": "input_norm",
+      "original_batch_tokens": 7169,
+      "mode": "norm",
+      "report": {
+        "mode": "norm",
+        "rows": 2,
+        "elements": 4096,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q7169-out32",
+      "stage": "input_norm",
+      "original_batch_tokens": 7169,
+      "mode": "norm_dynamic",
+      "report": {
+        "mode": "norm_dynamic",
+        "rows": 2,
+        "elements": 4096,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm_dynamic",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "embedding_norm",
+      "original_batch_tokens": 2,
+      "mode": "norm",
+      "report": {
+        "mode": "norm",
+        "rows": 31,
+        "elements": 63488,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "embedding_norm",
+      "original_batch_tokens": 2,
+      "mode": "norm_dynamic",
+      "report": {
+        "mode": "norm_dynamic",
+        "rows": 31,
+        "elements": 63488,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm_dynamic",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "embedding_norm",
+      "original_batch_tokens": 8192,
+      "mode": "norm",
+      "report": {
+        "mode": "norm",
+        "rows": 2,
+        "elements": 4096,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "embedding_norm",
+      "original_batch_tokens": 8192,
+      "mode": "norm_dynamic",
+      "report": {
+        "mode": "norm_dynamic",
+        "rows": 2,
+        "elements": 4096,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm_dynamic",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "hidden_norm",
+      "original_batch_tokens": 2,
+      "mode": "norm",
+      "report": {
+        "mode": "norm",
+        "rows": 31,
+        "elements": 63488,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "hidden_norm",
+      "original_batch_tokens": 2,
+      "mode": "norm_dynamic",
+      "report": {
+        "mode": "norm_dynamic",
+        "rows": 31,
+        "elements": 63488,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm_dynamic",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "hidden_norm",
+      "original_batch_tokens": 8192,
+      "mode": "norm",
+      "report": {
+        "mode": "norm",
+        "rows": 2,
+        "elements": 4096,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "hidden_norm",
+      "original_batch_tokens": 8192,
+      "mode": "norm_dynamic",
+      "report": {
+        "mode": "norm_dynamic",
+        "rows": 2,
+        "elements": 4096,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm_dynamic",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "input_norm",
+      "original_batch_tokens": 2,
+      "mode": "norm",
+      "report": {
+        "mode": "norm",
+        "rows": 31,
+        "elements": 63488,
+        "bf16_mismatches": 2,
+        "maximum_absolute_error": 0.00390625,
+        "first_difference": {
+          "index": 12960,
+          "actual_bits": 16224,
+          "expected_bits": 16225
+        },
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "input_norm",
+      "original_batch_tokens": 2,
+      "mode": "norm_dynamic",
+      "report": {
+        "mode": "norm_dynamic",
+        "rows": 31,
+        "elements": 63488,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm_dynamic",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "input_norm",
+      "original_batch_tokens": 8192,
+      "mode": "norm",
+      "report": {
+        "mode": "norm",
+        "rows": 2,
+        "elements": 4096,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q8192-out32",
+      "stage": "input_norm",
+      "original_batch_tokens": 8192,
+      "mode": "norm_dynamic",
+      "report": {
+        "mode": "norm_dynamic",
+        "rows": 2,
+        "elements": 4096,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm_dynamic",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    }
+  ],
+  "static_reduction_bf16_mismatches": 4,
+  "dynamic_reduction_bf16_mismatches": 0,
+  "dynamic_reduction_elements": 405504,
+  "real_short_control_outputs": 64,
+  "accepted_history_rows": 66,
+  "qualified_projection_rows": 13,
+  "original_complete_batch_qualified": false,
+  "actual_runtime_norm_layout_selection_unverified": true,
+  "native_inference_acceptance": false,
+  "performance_acceptance": false,
+  "scope": "Original operands qualify only the two completed short controls. Projection representatives match independently; the alternate original norm reduction removes four BF16 differences on selected accepted-history inputs. Actual original launcher selection and complete long-case capture must still be bound before runtime integration.",
+  "recorder": {
+    "file": "record_mtp_frontier_short_controls_r1.py",
+    "sha256": "a2658573fe743b856f7f855ad0a269550d2151abfff7eb043a3be7e23e9723ec"
+  }
+}

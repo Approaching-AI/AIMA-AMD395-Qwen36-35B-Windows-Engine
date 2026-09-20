@@ -118,6 +118,21 @@ The original scheduler and MTP sources
 were read from the same completed reference container before implementing this
 observer. No draft arithmetic or scheduling rule is replaced.
 
+The optional `--mtp-kernel-launches` observer also records the original tensor
+shape, stride and storage offset, plus the selected Inductor launcher config
+and its PTX/IR hashes for all seven MTP norms. It calls the original launcher
+once and returns its result unchanged. The installed launcher source is pinned;
+missing call identities fail qualification. Native integration remains pending.
+
+The [short MTP arithmetic check](../benchmarks/correctness/gb10-mtp-short-frontier-arithmetic-20260920.json)
+uses 66 accepted-history rows from the two completed controls. The existing
+eight-adjacent-value norm reduction differs at four BF16 input-norm cells;
+the original dynamic stride-512 reduction matches all 405504 selected norm
+outputs. All 13 fusion/KV projection representatives, their key norms and
+the selected V pass-through values match independently. Fourteen original
+PTX files match the previously inspected cache bytes. Actual launcher selection
+and long-case qualification remain separate checks; no native route changes.
+
 The [portable-profile preparation](../benchmarks/correctness/packed-q1-portable-preparation-20260920.json)
 normalizes all 535 options of the active full256k environment into 34 relative
 runtime paths. Compared with R6, it adds text-only/ordered-fixed loading and

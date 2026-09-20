@@ -44,6 +44,12 @@ offline diagnostics and add no native Windows library, model tensor or package
 artifact. Removing the observer and its optional CLI flag removes this tooling
 route without changing native inference.
 
+Its optional norm-launcher observer also reads the existing Inductor launcher
+and generated cache files. It preserves the selected config and arithmetic,
+copies at most 32 kernel identities per request with a 256 KiB limit per
+PTX/IR/metadata file, and records original tensor layouts without extra tensor
+payloads. This adds no installed package or native runtime dependency.
+
 # Optional caller-side document checker
 
 `scripts/check-agent-documents.py` uses only Python 3.10+ standard-library

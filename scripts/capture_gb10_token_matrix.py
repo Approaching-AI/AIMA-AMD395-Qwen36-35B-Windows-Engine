@@ -233,7 +233,9 @@ def execute(args, cases, oracles):
               async_scheduling=False, enable_prefix_caching=False,
               attention_config={"backend": "TRITON_ATTN"}, mm_encoder_attn_backend="TORCH_SDPA",
               speculative_config={"method": "mtp", "num_speculative_tokens": 1},
-              worker_extension_cls=("capture_gb10_mtp_boundaries.MtpBoundaryCapture"
+              worker_extension_cls=("capture_gb10_mtp_launchers.MtpKernelBoundaryCapture"
+                                    if args.mtp_kernel_launches else
+                                    "capture_gb10_mtp_boundaries.MtpBoundaryCapture"
                                     if args.mtp_boundaries else
                                     "capture_gb10_runtime_boundaries.RuntimeBoundaryCapture"
                                     if args.runtime_boundaries else
@@ -320,6 +322,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mtp-boundaries", action="store_true",
                         help="also copy original MTP inputs and outputs; requires --runtime-boundaries")
+    parser.add_argument("--mtp-kernel-launches", action="store_true",
+                        help="bind original MTP norms to unchanged selected launchers; requires --mtp-boundaries")
     parser.add_argument("--oracle-q7169", type=Path, required=True)
     parser.add_argument("--oracle-q8192", type=Path, required=True)
     parser.add_argument("--model-root", type=Path, default=Path("/models"))
@@ -340,6 +344,8 @@ def main():
     args = parser.parse_args()
     if args.mtp_boundaries and not args.runtime_boundaries:
         parser.error("--mtp-boundaries requires --runtime-boundaries")
+    if args.mtp_kernel_launches and not args.mtp_boundaries:
+        parser.error("--mtp-kernel-launches requires --mtp-boundaries")
     if not 1 <= args.maximum_prompt_tokens <= MAX_REFERENCE_PROMPT_TOKENS:
         raise ValueError("invalid explicit prompt-token bound")
     cases, oracles = fixtures({7169: args.oracle_q7169, 8192: args.oracle_q8192})
@@ -372,6 +378,7 @@ def main():
                   completed=False, controls_qualified=False, windows_acceptance=False,
                   prefix_caching=False, native_tensor_inputs=False,
                   runtime_boundaries=args.runtime_boundaries, mtp_boundaries=args.mtp_boundaries,
+                  mtp_kernel_launches=args.mtp_kernel_launches,
                   timeout_seconds=args.timeout_seconds, maximum_timeout_seconds=timeout_limit,
                   maximum_additional_prompt_tokens=args.maximum_prompt_tokens)
     if args.additional_cases is not None:
