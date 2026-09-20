@@ -41072,7 +41072,7 @@ private:
         if (line.rfind("BATCH_MARK ", 0u) != 0u) {
             return true;
         }
-        static constexpr std::array<const char *, 109> kRequiredMarkers = {{
+        static constexpr const char *kRequiredMarkers[] = {
             "BATCH_MARK final_query_liveness",
             "BATCH_MARK final_query_output_liveness",
             "BATCH_MARK qwen36_mtp_target_rows",
@@ -41184,7 +41184,7 @@ private:
             "BATCH_MARK qwen36_whole_provider_endpoint_contract",
             "BATCH_MARK qwen36_whole_provider_resident_session",
             "BATCH_MARK qwen36_whole_provider_surfaces"
-        }};
+        };
         for (const char *marker : kRequiredMarkers) {
             if (starts_with_marker(line, marker)) {
                 return true;
