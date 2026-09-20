@@ -211,7 +211,7 @@
     "environment": {
       "PYTHONPATH": "tests"
     },
-    "working_directory": "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate",
+    "working_directory": "<evidence-home-1>/projects/AIMA-public-r1191-candidate",
     "exec_session_id": 79477,
     "returncode": 0,
     "unittest_reported_seconds": 5.602,
@@ -256,5 +256,18 @@
   "inference_acceptance": false,
   "performance_acceptance": false,
   "release_qualified": false,
-  "published": false
+  "published": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "e7d391830ea0ba64e35a147238a5fac9cd29405d6cdea74ffa8ac46c5a1d561f",
+    "original_json_bytes": 24958,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/resident-shadow-quarantine-local-20260921.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 1
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
 }

@@ -1,0 +1,338 @@
+{
+  "schema": "qrt-public-evidence-path-redaction-summary-v1",
+  "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+  "utc": "2026-09-20T22:09:42.274952+00:00",
+  "private_audit_sha256": "ef93de793a64a0a36d019fe4aa6a6a67c0adcb92abead8b6e0e417ac29cc6fc6",
+  "original_copy_count": 40,
+  "original_findings": 6343,
+  "original_bytes_retained": 8803260,
+  "remaining_findings": 0,
+  "numeric_and_nonpath_values_unchanged": true,
+  "all_original_artifact_hashes_unchanged": true,
+  "current_runtime_unchanged": true,
+  "transformation_tool": "tools/publish_evidence.py",
+  "transformation_tool_sha256": "e79db78876cd4adf7e25e7302e4f6f35e00b292351070f5a6647d9b6a17c6321",
+  "files": [
+    {
+      "path": "benchmarks/correctness/full256k-dense-projection-root-cause-20260920.json",
+      "original_bytes": 1009410,
+      "original_sha256": "cdc4989edb759e7a35ab14870ef676d166d43e8fa1b349035395a2f0272579ab",
+      "public_bytes": 1012069,
+      "public_sha256": "15d63a76a8deacdee8919f29a7e918a97648f4a6522e4e25529a4cb0d236f861",
+      "replacement_count": 384
+    },
+    {
+      "path": "benchmarks/correctness/gb10-draft-limit-transition-20260920.json",
+      "original_bytes": 194080,
+      "original_sha256": "d0a4b3af5cba2e68be14edf00d1a9df02bdcef300f22247e4f08b451fb9041a7",
+      "public_bytes": 194217,
+      "public_sha256": "c13d85f1a9257de1e0f4d3a4500b13b477669314f191c5dc971f225624ed7391",
+      "replacement_count": 203
+    },
+    {
+      "path": "benchmarks/correctness/gb10-mtp-causal-attention-arithmetic-20260920.json",
+      "original_bytes": 202664,
+      "original_sha256": "b73367e4a2e0f8598eab3ef8120940dd906b698162190a54ca82e057efd1bb46",
+      "public_bytes": 201359,
+      "public_sha256": "9699ded3a0f15d90e0dcbabddbcfcde5ac961a591bc07602bc9a6c7a8cb4e76e",
+      "replacement_count": 541
+    },
+    {
+      "path": "benchmarks/correctness/gb10-mtp-complete-prompt-frontends-20260920.json",
+      "original_bytes": 398923,
+      "original_sha256": "427dc85d8ca26a9dc7fc18ffd83304a3c7acca99234a61b0e183681b5d90ebd1",
+      "public_bytes": 399408,
+      "public_sha256": "5a967db70dc61174ef22718df66bdba54b024c069bde9fccb730c63b44071ca3",
+      "replacement_count": 95
+    },
+    {
+      "path": "benchmarks/correctness/gb10-mtp-launcher-schedule-native-math-20260920.json",
+      "original_bytes": 180484,
+      "original_sha256": "111892e482162bc491df9f79c320f95d2876849a92f4b8ee9b399918b92a435d",
+      "public_bytes": 181359,
+      "public_sha256": "22c53b95d156b74e369d8b9bd25835069035adb1409b329bed1b87d668e439b1",
+      "replacement_count": 39
+    },
+    {
+      "path": "benchmarks/correctness/gb10-mtp-limit-frontiers-20260920.json",
+      "original_bytes": 99166,
+      "original_sha256": "f79b0e85ecdd911bada10da4f79e4f166d169eff39f796cc7ba47aa69063fe09",
+      "public_bytes": 100012,
+      "public_sha256": "c8158c9c2fc8ae20269797604bfc165f04478813a60da78e48ae7efb41bcc5b9",
+      "replacement_count": 22
+    },
+    {
+      "path": "benchmarks/correctness/gb10-mtp-moe-observer-configuration-rejection-20260920.json",
+      "original_bytes": 9863,
+      "original_sha256": "9a6d58a3aa3e8868fc8a126f3d82eb24317d8793c8d9512dc9e7a40d070e6568",
+      "public_bytes": 10657,
+      "public_sha256": "c5c90703fa97e750e05f0495ad972bb230a502297b13aa124bf0e560ab33d3cb",
+      "replacement_count": 10
+    },
+    {
+      "path": "benchmarks/correctness/gb10-mtp-moe-observer-logits-rejection-20260920.json",
+      "original_bytes": 14516,
+      "original_sha256": "a15192b4c2385b0fe34ace79eea9a058636404f92ca2bc3095f216556791d085",
+      "public_bytes": 15309,
+      "public_sha256": "5a9c84697055da4adb3b8e0a476aa078b665a33af9f98aaf744c0137aca57038",
+      "replacement_count": 11
+    },
+    {
+      "path": "benchmarks/correctness/gb10-mtp-moe-original-frontiers-20260920.json",
+      "original_bytes": 742513,
+      "original_sha256": "77431960c7cd10eebb395c3b76e295b59885d209c95ee9ff2911122ae0589b7c",
+      "public_bytes": 742561,
+      "public_sha256": "805441b4f7aa838f2c9fb1e33b35537450aff881b15c7e3e3f9e458644704264",
+      "replacement_count": 224
+    },
+    {
+      "path": "benchmarks/correctness/gb10-mtp-observer-prefill-failure-20260920.json",
+      "original_bytes": 13866,
+      "original_sha256": "cdc936ac837da2cc2037967f751676d6449311b9c6282a4361824493552d2688",
+      "public_bytes": 14699,
+      "public_sha256": "1148026a84e0a7b119e4a32db494f1f8402569837c65793f1165d035243e5eef",
+      "replacement_count": 20
+    },
+    {
+      "path": "benchmarks/correctness/gb10-mtp-prompt-kv-arithmetic-20260920.json",
+      "original_bytes": 29682,
+      "original_sha256": "6884e9325affdfe80f6b0ac6f285025ad9e6c816b66813c99118d14675b757e0",
+      "public_bytes": 30286,
+      "public_sha256": "ebad581c046f3e1d36a0ea9076539711aa8702f35922d6b7b83dd0d78bd68628",
+      "replacement_count": 59
+    },
+    {
+      "path": "benchmarks/correctness/gb10-mtp-qo-gate-arithmetic-20260920.json",
+      "original_bytes": 183453,
+      "original_sha256": "5ee0d8073cf95b4cb1236f6f2a25d481c109359d9c9cc03a060f3945e629a672",
+      "public_bytes": 183612,
+      "public_sha256": "77418ed9bc23eae45c63ae9991e73b4fcdd537eb4c4b471387182d5887a45966",
+      "replacement_count": 175
+    },
+    {
+      "path": "benchmarks/correctness/gb10-mtp-query-residual-arithmetic-20260920.json",
+      "original_bytes": 193639,
+      "original_sha256": "5dc49257cdd4574496de568ed4bd9bab77560fa6ce6c4fcea7c3dc6b90042aac",
+      "public_bytes": 193912,
+      "public_sha256": "824885d437a0cf5151e295188d1ba01538f1450857d5a874abbb81778f39217b",
+      "replacement_count": 146
+    },
+    {
+      "path": "benchmarks/correctness/gb10-mtp-routed-projections-cpu-20260920.json",
+      "original_bytes": 145090,
+      "original_sha256": "f8ea9ff74d1d1ca18a57de105fdebf7618d4e4521ab3a0505680e3d282f4cd4c",
+      "public_bytes": 145826,
+      "public_sha256": "cab43510c719f82765b155a1ac40d3119fe96fb56df44891f8e88fcde890d43b",
+      "replacement_count": 1
+    },
+    {
+      "path": "benchmarks/correctness/gb10-mtp-short-frontier-arithmetic-20260920.json",
+      "original_bytes": 131404,
+      "original_sha256": "a6c39dd65f2174796a582f5cddeb9b56cf0c0aabebdb715cac8c25561199a043",
+      "public_bytes": 131777,
+      "public_sha256": "b4aec65030bdf11350dcaa6a45a61ecb44965a9c73dd358e3316df11e70b037c",
+      "replacement_count": 121
+    },
+    {
+      "path": "benchmarks/correctness/gb10-q2-target-recurrence-and-native-preparation-20260920.json",
+      "original_bytes": 306475,
+      "original_sha256": "7b9bb987dbdd2b77c6ea1b4515ef4c213f690c3573dba42cad6d00941344755b",
+      "public_bytes": 305692,
+      "public_sha256": "f57f1b89bdbaa2865af6c71fc2b55924ad72d35180b36c2dd7f0921ff7b50c1e",
+      "replacement_count": 436
+    },
+    {
+      "path": "benchmarks/correctness/mtp-actual-request-seed-windows-preparation-20260920.json",
+      "original_bytes": 42538,
+      "original_sha256": "515871e26bb2b771c7f87d57206f97ba3e9d8f2bbdeb33883879a17f184a3e7c",
+      "public_bytes": 43272,
+      "public_sha256": "6bee9ca36cc4adae8399f45d5b8601ae65014d9c710fa945acd7b1b0543e1169",
+      "replacement_count": 2
+    },
+    {
+      "path": "benchmarks/correctness/mtp-actual-resident-request-seed-local-20260920.json",
+      "original_bytes": 35204,
+      "original_sha256": "9f653230776efadac4b7ade4c7a0137beec86ad764759eb41b97f290a0f1948b",
+      "public_bytes": 35933,
+      "public_sha256": "61b4ce246066f261f16c2c9744cd006f3f39a44b24f00a0d5a8276ce9744603a",
+      "replacement_count": 2
+    },
+    {
+      "path": "benchmarks/correctness/mtp-actual-target-request-transaction-local-20260920.json",
+      "original_bytes": 34734,
+      "original_sha256": "ed3f19d6021369114cc20ddc20756df7f1299c07612967f08471e59253c19253",
+      "public_bytes": 35468,
+      "public_sha256": "bef710ce8e701c0b7227b106aca2284e9c45338034a0b5c210b4cdfc6e141b15",
+      "replacement_count": 2
+    },
+    {
+      "path": "benchmarks/correctness/mtp-complete-drafter-probe-inputs-20260920.json",
+      "original_bytes": 78294,
+      "original_sha256": "27f6dc499906a11d80d510bc22854dac0768fb217d673a400a1410f9049ad285",
+      "public_bytes": 79018,
+      "public_sha256": "01103878be3feeddbdefeb208c499086ad09a50a37cc7118bbbd2c187d21343a",
+      "replacement_count": 2
+    },
+    {
+      "path": "benchmarks/correctness/mtp-head-arithmetic-and-drafter-owner-20260920.json",
+      "original_bytes": 229197,
+      "original_sha256": "c635aa6bf3bea9751c1876056bef019d6dd397d47af00fefbcf98bbb3ff06aa9",
+      "public_bytes": 229967,
+      "public_sha256": "29a6608d7c618c3237d684a2c1794323f45119da6ffef8e87950fd9fb9f8f2ea",
+      "replacement_count": 6
+    },
+    {
+      "path": "benchmarks/correctness/mtp-immutable-kv-checkpoint-local-20260920.json",
+      "original_bytes": 33311,
+      "original_sha256": "202b5e7a98658b10567a18c49cf1e11df4fa252d5fb69fbd66cd80ca8e2ae352",
+      "public_bytes": 34039,
+      "public_sha256": "db5b7caf03e8e2d9e5b789cd6427d5335768950118e4e2d5921349fe9ab265f9",
+      "replacement_count": 1
+    },
+    {
+      "path": "benchmarks/correctness/mtp-native-actual-prefill-integration-local-20260920.json",
+      "original_bytes": 33181,
+      "original_sha256": "65f092068cc3935d0733d8f4b71906000c3efc54e9a783ea087794ded1096a8b",
+      "public_bytes": 33919,
+      "public_sha256": "ac5da4d82902e5b6f61d2331725b85bc24ec641210b7dece1d852259f2bc3bbb",
+      "replacement_count": 1
+    },
+    {
+      "path": "benchmarks/correctness/mtp-native-actual-prefill-windows-preparation-20260920.json",
+      "original_bytes": 43782,
+      "original_sha256": "3dd6432f711d5641c4c94aea3465465cc71af50226b6dfa2c5277d69a2d8f5e2",
+      "public_bytes": 44510,
+      "public_sha256": "519abf7dbcbecbbcdc08d603e39bc063756fb9a28c5cc190ae51420d0f7d312d",
+      "replacement_count": 4
+    },
+    {
+      "path": "benchmarks/correctness/mtp-prompt-cache-host-preparation-20260920.json",
+      "original_bytes": 131622,
+      "original_sha256": "7494776431816ce1759ce336c6ddd238a58c86346325707ec99ca523d3f8e1ec",
+      "public_bytes": 132377,
+      "public_sha256": "9019f6ab832e5031d8fb73b5aaf396e1238d90c1ad75d2c58ce0067cadc1f9c4",
+      "replacement_count": 25
+    },
+    {
+      "path": "benchmarks/correctness/mtp-resident-storage-preparation-20260920.json",
+      "original_bytes": 30753,
+      "original_sha256": "d3fd950308d8502cdb287bd01b72f9a4706e9dd71b7cf2f356786f12d7d08e84",
+      "public_bytes": 31464,
+      "public_sha256": "3571c47cc699392bac16e87c80e5812503d8080097f415a6cf40b435b32219fe",
+      "replacement_count": 5
+    },
+    {
+      "path": "benchmarks/correctness/mtp-target-prefill-liveness-repair-local-20260920.json",
+      "original_bytes": 14196,
+      "original_sha256": "b7e2d1d1898f2d587885057d71ec5e5c13f71cfdca1d274247381169d4dce14e",
+      "public_bytes": 14927,
+      "public_sha256": "36c9943f09a5091c62bef5372bab123729148bd82bd02a359dc906bfcc50eb2f",
+      "replacement_count": 2
+    },
+    {
+      "path": "benchmarks/correctness/packed-dense-prefix256k-token-divergence-20260921.json",
+      "original_bytes": 1194935,
+      "original_sha256": "1455c3e9da48afdf5e9df73096440101847c58c850853b4640da80924f946648",
+      "public_bytes": 1195737,
+      "public_sha256": "7120f87766ce8650ba7c4c1faf54987f0259f29b7a2890c728f9f9cbf4581bcf",
+      "replacement_count": 12
+    },
+    {
+      "path": "benchmarks/correctness/packed-dense-production-cpu-20260920.json",
+      "original_bytes": 225601,
+      "original_sha256": "0750d68a0bceae31ce53638c673fef106c8008ba94f9d88a21802968060878d9",
+      "public_bytes": 226348,
+      "public_sha256": "782f7f4b7832b5a693c000385349594f1f5d052f67219a76666efb20079702c6",
+      "replacement_count": 4
+    },
+    {
+      "path": "benchmarks/correctness/prefix256-segmented-attention-merge-cpu-20260921.json",
+      "original_bytes": 3710,
+      "original_sha256": "f293f9edbc68a2c304d854170e0ad0b86c26400684888b382d30d497f77a69bc",
+      "public_bytes": 4419,
+      "public_sha256": "7d286a669b8752b14169451f74f8f9b32c301eadcf51199b55b45cb95795cbc4",
+      "replacement_count": 7
+    },
+    {
+      "path": "benchmarks/correctness/prefix256-segmented-attention-root-cause-20260921.json",
+      "original_bytes": 31721,
+      "original_sha256": "2d71c754bb121235265b57a23585bd39c0ed297e82b1918bf655e8a3c6d07897",
+      "public_bytes": 32526,
+      "public_sha256": "1f725c6febd8dd9c9606a195efb82d2f8baaae046147f026506c3633bc282bad",
+      "replacement_count": 13
+    },
+    {
+      "path": "benchmarks/correctness/q2-complete-attention-layer-cpu-20260921.json",
+      "original_bytes": 198914,
+      "original_sha256": "9799f27bf37a4c0890031e089fa86518138fd4112312c36686fbfdf78e075783",
+      "public_bytes": 200814,
+      "public_sha256": "0e24749a10ddb38733cc3c26db0eba5f7178cacbb31aca55350d34fbab29f2ff",
+      "replacement_count": 231
+    },
+    {
+      "path": "benchmarks/correctness/q2-complete-linear-block-cpu-20260920.json",
+      "original_bytes": 201706,
+      "original_sha256": "1d91e4a98c2b692bc8767e5207669da4e37289b5f19ebf077a182b372e155af3",
+      "public_bytes": 204116,
+      "public_sha256": "552088055804450dce8356b20a8f4f5b821514f101baa12233e17604e27c8431",
+      "replacement_count": 339
+    },
+    {
+      "path": "benchmarks/correctness/q2-complete-target-owner-local-20260921.json",
+      "original_bytes": 26621,
+      "original_sha256": "de0e83ec48cdb4c90dbf2bb46c572a8fdc962c188a042df09246730ad62fe7e3",
+      "public_bytes": 27346,
+      "public_sha256": "b16c04e50135e7abc085e26c6d25f31599a4901437c1017fba3670449d33032b",
+      "replacement_count": 1
+    },
+    {
+      "path": "benchmarks/correctness/q2-connected-linear-core-local-and-windows-preparation-20260920.json",
+      "original_bytes": 266440,
+      "original_sha256": "827ec82e5581349a160531b4eb9610fd2e219d70d8dd239761fa345f34553e31",
+      "public_bytes": 265756,
+      "public_sha256": "e975faa798a8c702b95ada05befd6d3c9eb9c73a5900ffab04fc62a00c214803",
+      "replacement_count": 372
+    },
+    {
+      "path": "benchmarks/correctness/q2-continuous-forty-layer-cpu-20260921.json",
+      "original_bytes": 709605,
+      "original_sha256": "31b4df97fb892f11a637165c5ab42e5d4ae4f8e50676b30dd7849b2be8dbe67a",
+      "public_bytes": 716992,
+      "public_sha256": "ea44431f10e0a5112bd4e166839e8c1d8386dba4f885f0a5a59e3a0c48d4f325",
+      "replacement_count": 1331
+    },
+    {
+      "path": "benchmarks/correctness/q2-full-model-inputs-and-weight-binding-20260921.json",
+      "original_bytes": 510505,
+      "original_sha256": "a0ad8401878ce3664869c6af3b523cf8b13d24506f2b5be5762dc8d150937eb7",
+      "public_bytes": 511295,
+      "public_sha256": "0919ede93c2dc1fdf35b6d8c517ad12bbff076d8e192d682aed70ea4730f875d",
+      "replacement_count": 10
+    },
+    {
+      "path": "benchmarks/correctness/q2-target-cache-and-head-cpu-20260921.json",
+      "original_bytes": 40575,
+      "original_sha256": "458a250cc1c5554bf34a6fbdd843057a0168805d91e660bfdabc1918b51dc535",
+      "public_bytes": 41599,
+      "public_sha256": "11df6b380c03dea61f48773f14213e27c14839f1eee916cb16cc32d33e04d766",
+      "replacement_count": 55
+    },
+    {
+      "path": "benchmarks/correctness/q2-target-shared-kernels-cpu-20260920.json",
+      "original_bytes": 805929,
+      "original_sha256": "23dd363274be748b262249108eae4f71fd4a00aeec4849f0ed3594214411950a",
+      "public_bytes": 813800,
+      "public_sha256": "f0b5f4980b6144f27f605047bf021ac909ec992dc7a1a98e9e75059a818b4fe9",
+      "replacement_count": 1428
+    },
+    {
+      "path": "benchmarks/correctness/resident-shadow-quarantine-local-20260921.json",
+      "original_bytes": 24958,
+      "original_sha256": "e7d391830ea0ba64e35a147238a5fac9cd29405d6cdea74ffa8ac46c5a1d561f",
+      "public_bytes": 25685,
+      "public_sha256": "0765b6d4f497ece6aa5ee77d7e2fd5ab9d89d1fe628768270a8c496cbf3fb0bb",
+      "replacement_count": 1
+    }
+  ],
+  "scope": "Current public JSON views use home-directory aliases. Unmodified originals and their digests remain available in the recorded source revision and retained local audit. No runtime or numerical result changed."
+}

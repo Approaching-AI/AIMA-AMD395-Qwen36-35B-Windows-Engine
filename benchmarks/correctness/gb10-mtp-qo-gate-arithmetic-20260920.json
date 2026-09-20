@@ -32,25 +32,25 @@
       "-e",
       "VLLM_WORKER_MULTIPROC_METHOD=spawn",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2:/work",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2:/work",
       "-v",
       "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
       "-e",
       "QRT_GB10_CASE_BOUNDARY_OFFSETS={\"draft-limit-q262140-out16\":[2,3,4],\"draft-limit-q262142-out16\":[0,1,2],\"draft-limit-q262143-out16\":[0,1,2]}",
       "-w",
@@ -83,7 +83,7 @@
       "1800",
       "--execute"
     ],
-    "reference_command_file": "/home/qujing/run-qrt-gb10-mtp-limit-boundary-20260920-r2.py",
+    "reference_command_file": "<evidence-home-2>/run-qrt-gb10-mtp-limit-boundary-20260920-r2.py",
     "reference_command_file_sha256": "16891d0cac7e464f798e4e42de3eabafeedbe68c4536c3f697a8984e3d052155",
     "reference_dispatch_sha256": "5eb10747ec587bfdd55bb30ddc7d17bb7d26a6dbbf8279585e1a6902ef00fd03"
   },
@@ -164,9 +164,9 @@
       "-Wall",
       "-Wextra",
       "-Werror",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp_reference_frontier_cpu_r2.cpp",
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp_reference_frontier_cpu_r2.cpp",
       "-o",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu"
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu"
     ],
     "source_headers": {
       "native/providers/gdn/sm121_q1_math.h": {
@@ -209,9 +209,9 @@
       "-Werror",
       "-fsanitize=address,undefined",
       "-fno-sanitize-recover=all",
-      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/providers/gdn/sm121_mtp_gate_cpu_probe.cpp",
+      "<evidence-home-1>/projects/AIMA-public-r1191-candidate/native/providers/gdn/sm121_mtp_gate_cpu_probe.cpp",
       "-o",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu"
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu"
     ],
     "returncode": 0,
     "stdout": "",
@@ -258,7 +258,7 @@
         "--cpus",
         "2",
         "-v",
-        "/home/qujing/qrt-original-torch-sigmoid-20260920-r1:/work",
+        "<evidence-home-2>/qrt-original-torch-sigmoid-20260920-r1:/work",
         "--entrypoint",
         "timeout",
         "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
@@ -677,14 +677,14 @@
         {
           "stage": "q",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-q-0/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-q-0/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-q-0/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-q-0/expected.bin",
             "2048",
             "8192",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -719,14 +719,14 @@
         {
           "stage": "q",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-q-32/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-q-32/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-q-32/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-q-32/expected.bin",
             "2048",
             "8192",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -761,14 +761,14 @@
         {
           "stage": "o",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-o-0/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-o-0/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-o-0/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-o-0/expected.bin",
             "4096",
             "2048",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -803,14 +803,14 @@
         {
           "stage": "o",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-o-32/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-o-32/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-o-32/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q7169-out32-o-32/expected.bin",
             "4096",
             "2048",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -845,11 +845,11 @@
       ],
       "gate": {
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q7169-out32/qkv.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/q7169-out32/context.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/q7169-out32/gated.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q7169-out32/qkv.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/q7169-out32/context.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/q7169-out32/gated.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin"
         ],
         "returncode": 0,
         "report": {
@@ -1269,14 +1269,14 @@
         {
           "stage": "q",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-q-0/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-q-0/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-q-0/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-q-0/expected.bin",
             "2048",
             "8192",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -1311,14 +1311,14 @@
         {
           "stage": "q",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-q-32/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-q-32/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-q-32/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-q-32/expected.bin",
             "2048",
             "8192",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -1353,14 +1353,14 @@
         {
           "stage": "o",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-o-0/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-o-0/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-o-0/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-o-0/expected.bin",
             "4096",
             "2048",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -1395,14 +1395,14 @@
         {
           "stage": "o",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-o-32/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-o-32/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-o-32/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/q8192-out32-o-32/expected.bin",
             "4096",
             "2048",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -1437,11 +1437,11 @@
       ],
       "gate": {
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q8192-out32/qkv.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/q8192-out32/context.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/q8192-out32/gated.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q8192-out32/qkv.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/q8192-out32/context.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/q8192-out32/gated.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin"
         ],
         "returncode": 0,
         "report": {
@@ -2150,14 +2150,14 @@
         {
           "stage": "q",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-q-0/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-q-0/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-q-0/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-q-0/expected.bin",
             "2048",
             "8192",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -2192,14 +2192,14 @@
         {
           "stage": "q",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-q-32/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-q-32/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-q-32/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-q-32/expected.bin",
             "2048",
             "8192",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -2234,14 +2234,14 @@
         {
           "stage": "o",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-o-0/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-o-0/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-o-0/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-o-0/expected.bin",
             "4096",
             "2048",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -2276,14 +2276,14 @@
         {
           "stage": "o",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-o-32/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-o-32/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-o-32/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/long-prefix262144-owner-out32-o-32/expected.bin",
             "4096",
             "2048",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -2318,11 +2318,11 @@
       ],
       "gate": {
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/long-prefix262144-owner-out32/qkv.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/long-prefix262144-owner-out32/context.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/long-prefix262144-owner-out32/gated.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/long-prefix262144-owner-out32/qkv.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/long-prefix262144-owner-out32/context.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/long-prefix262144-owner-out32/gated.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin"
         ],
         "returncode": 0,
         "report": {
@@ -3055,14 +3055,14 @@
         {
           "stage": "q",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-q-0/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-q-0/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-q-0/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-q-0/expected.bin",
             "2048",
             "8192",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -3097,14 +3097,14 @@
         {
           "stage": "q",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-q-32/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-q-32/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-q-32/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-q-32/expected.bin",
             "2048",
             "8192",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -3139,14 +3139,14 @@
         {
           "stage": "q",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-q-64/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-q-64/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-q-64/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-q-64/expected.bin",
             "2048",
             "8192",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -3181,14 +3181,14 @@
         {
           "stage": "o",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-o-0/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-o-0/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-o-0/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-o-0/expected.bin",
             "4096",
             "2048",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -3223,14 +3223,14 @@
         {
           "stage": "o",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-o-32/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-o-32/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-o-32/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-o-32/expected.bin",
             "4096",
             "2048",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -3265,14 +3265,14 @@
         {
           "stage": "o",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-o-64/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-o-64/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-o-64/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262140-out16-o-64/expected.bin",
             "4096",
             "2048",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -3307,11 +3307,11 @@
       ],
       "gate": {
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262140-out16/qkv.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/draft-limit-q262140-out16/context.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/draft-limit-q262140-out16/gated.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262140-out16/qkv.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/draft-limit-q262140-out16/context.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/draft-limit-q262140-out16/gated.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin"
         ],
         "returncode": 0,
         "report": {
@@ -4024,14 +4024,14 @@
         {
           "stage": "q",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-q-0/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-q-0/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-q-0/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-q-0/expected.bin",
             "2048",
             "8192",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -4066,14 +4066,14 @@
         {
           "stage": "q",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-q-32/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-q-32/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-q-32/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-q-32/expected.bin",
             "2048",
             "8192",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -4108,14 +4108,14 @@
         {
           "stage": "o",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-o-0/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-o-0/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-o-0/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-o-0/expected.bin",
             "4096",
             "2048",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -4150,14 +4150,14 @@
         {
           "stage": "o",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-o-32/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-o-32/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-o-32/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262142-out16-o-32/expected.bin",
             "4096",
             "2048",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -4192,11 +4192,11 @@
       ],
       "gate": {
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262142-out16/qkv.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/draft-limit-q262142-out16/context.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/draft-limit-q262142-out16/gated.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262142-out16/qkv.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/draft-limit-q262142-out16/context.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/draft-limit-q262142-out16/gated.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin"
         ],
         "returncode": 0,
         "report": {
@@ -4909,14 +4909,14 @@
         {
           "stage": "q",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-q-0/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-q-0/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-q-0/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-q-0/expected.bin",
             "2048",
             "8192",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -4951,14 +4951,14 @@
         {
           "stage": "q",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-q-32/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-q-32/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-q-32/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/q_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-q-32/expected.bin",
             "2048",
             "8192",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -4993,14 +4993,14 @@
         {
           "stage": "o",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-o-0/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-o-0/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-o-0/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-o-0/expected.bin",
             "4096",
             "2048",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -5035,14 +5035,14 @@
         {
           "stage": "o",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
             "linear",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-o-32/input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-o-32/expected.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-o-32/input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-qo-weights-r1/o_proj.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-all-qo-projection-cpu-r1/draft-limit-q262143-out16-o-32/expected.bin",
             "4096",
             "2048",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -5077,11 +5077,11 @@
       ],
       "gate": {
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262143-out16/qkv.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/draft-limit-q262143-out16/context.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/draft-limit-q262143-out16/gated.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/mtp-gate-cpu",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262143-out16/qkv.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/draft-limit-q262143-out16/context.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-gate-cpu-r1/draft-limit-q262143-out16/gated.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin"
         ],
         "returncode": 0,
         "report": {
@@ -5239,5 +5239,19 @@
   "recorder": {
     "file": "record_mtp_qo_gate_r1.py",
     "sha256": "5e5501ca2c6832b8ce89c23134ae61efafce0400155faae36091d5b7fd493ef3"
+  },
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "5ee0d8073cf95b4cb1236f6f2a25d481c109359d9c9cc03a060f3945e629a672",
+    "original_json_bytes": 183453,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/gb10-mtp-qo-gate-arithmetic-20260920.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 164,
+      "<evidence-home-2>": 11
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
   }
 }

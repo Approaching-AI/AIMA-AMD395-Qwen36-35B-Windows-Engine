@@ -31,25 +31,25 @@
       "-e",
       "VLLM_WORKER_MULTIPROC_METHOD=spawn",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2:/work",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2:/work",
       "-v",
       "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
       "-e",
       "QRT_GB10_CASE_BOUNDARY_OFFSETS={\"draft-limit-q262140-out16\":[2,3,4],\"draft-limit-q262142-out16\":[0,1,2],\"draft-limit-q262143-out16\":[0,1,2]}",
       "-w",
@@ -82,7 +82,7 @@
       "1800",
       "--execute"
     ],
-    "reference_command_file": "/home/qujing/run-qrt-gb10-mtp-limit-boundary-20260920-r2.py",
+    "reference_command_file": "<evidence-home-2>/run-qrt-gb10-mtp-limit-boundary-20260920-r2.py",
     "reference_command_file_sha256": "16891d0cac7e464f798e4e42de3eabafeedbe68c4536c3f697a8984e3d052155",
     "reference_dispatch_sha256": "5eb10747ec587bfdd55bb30ddc7d17bb7d26a6dbbf8279585e1a6902ef00fd03"
   },
@@ -102,9 +102,9 @@
       "-Werror",
       "-fsanitize=address,undefined",
       "-fno-sanitize-recover=all",
-      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/providers/gdn/sm121_mtp_query_cpu_probe.cpp",
+      "<evidence-home-1>/projects/AIMA-public-r1191-candidate/native/providers/gdn/sm121_mtp_query_cpu_probe.cpp",
       "-o",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu"
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu"
     ],
     "returncode": 0,
     "stdout": "",
@@ -141,9 +141,9 @@
       "-Werror",
       "-fsanitize=address,undefined",
       "-fno-sanitize-recover=all",
-      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/providers/gdn/sm121_mtp_residual_cpu_probe.cpp",
+      "<evidence-home-1>/projects/AIMA-public-r1191-candidate/native/providers/gdn/sm121_mtp_residual_cpu_probe.cpp",
       "-o",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu"
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu"
     ],
     "returncode": 0,
     "stdout": "",
@@ -575,14 +575,14 @@
       ],
       "query": {
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q7169-out32/qkv.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q7169-out32/q-norm.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q7169-out32/q-rope.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q7169-out32/positions.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q7169-out32/qkv.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q7169-out32/q-norm.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q7169-out32/q-rope.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q7169-out32/positions.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
         ],
         "returncode": 0,
         "report": {
@@ -621,13 +621,13 @@
         {
           "stage": "post_attention",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/attention-output.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/fusion.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/post-attention-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/post_attention-residual.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/attention-output.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/fusion.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/post-attention-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/post_attention-residual.bin"
           ],
           "returncode": 0,
           "report": {
@@ -661,13 +661,13 @@
         {
           "stage": "final",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/moe-output.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/independent-attention-residual.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.norm.weight.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/final-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/final-residual.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/moe-output.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/independent-attention-residual.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.norm.weight.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/final-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q7169-out32/final-residual.bin"
           ],
           "returncode": 0,
           "report": {
@@ -1106,14 +1106,14 @@
       ],
       "query": {
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q8192-out32/qkv.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q8192-out32/q-norm.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q8192-out32/q-rope.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q8192-out32/positions.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q8192-out32/qkv.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q8192-out32/q-norm.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q8192-out32/q-rope.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/q8192-out32/positions.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
         ],
         "returncode": 0,
         "report": {
@@ -1152,13 +1152,13 @@
         {
           "stage": "post_attention",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/attention-output.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/fusion.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/post-attention-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/post_attention-residual.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/attention-output.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/fusion.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/post-attention-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/post_attention-residual.bin"
           ],
           "returncode": 0,
           "report": {
@@ -1192,13 +1192,13 @@
         {
           "stage": "final",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/moe-output.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/independent-attention-residual.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.norm.weight.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/final-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/final-residual.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/moe-output.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/independent-attention-residual.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.norm.weight.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/final-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/q8192-out32/final-residual.bin"
           ],
           "returncode": 0,
           "report": {
@@ -1926,14 +1926,14 @@
       ],
       "query": {
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/long-prefix262144-owner-out32/qkv.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/long-prefix262144-owner-out32/q-norm.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/long-prefix262144-owner-out32/q-rope.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/long-prefix262144-owner-out32/positions.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/long-prefix262144-owner-out32/qkv.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/long-prefix262144-owner-out32/q-norm.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/long-prefix262144-owner-out32/q-rope.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/long-prefix262144-owner-out32/positions.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
         ],
         "returncode": 0,
         "report": {
@@ -1972,13 +1972,13 @@
         {
           "stage": "post_attention",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/attention-output.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/fusion.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/post-attention-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/post_attention-residual.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/attention-output.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/fusion.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/post-attention-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/post_attention-residual.bin"
           ],
           "returncode": 0,
           "report": {
@@ -2012,13 +2012,13 @@
         {
           "stage": "final",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/moe-output.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/independent-attention-residual.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.norm.weight.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/final-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/final-residual.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/moe-output.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/independent-attention-residual.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.norm.weight.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/final-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/long-prefix262144-owner-out32/final-residual.bin"
           ],
           "returncode": 0,
           "report": {
@@ -2770,14 +2770,14 @@
       ],
       "query": {
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262140-out16/qkv.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262140-out16/q-norm.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262140-out16/q-rope.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262140-out16/positions.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262140-out16/qkv.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262140-out16/q-norm.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262140-out16/q-rope.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262140-out16/positions.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
         ],
         "returncode": 0,
         "report": {
@@ -2816,13 +2816,13 @@
         {
           "stage": "post_attention",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/attention-output.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/fusion.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/post-attention-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/post_attention-residual.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/attention-output.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/fusion.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/post-attention-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/post_attention-residual.bin"
           ],
           "returncode": 0,
           "report": {
@@ -2856,13 +2856,13 @@
         {
           "stage": "final",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/moe-output.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/independent-attention-residual.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.norm.weight.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/final-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/final-residual.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/moe-output.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/independent-attention-residual.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.norm.weight.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/final-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262140-out16/final-residual.bin"
           ],
           "returncode": 0,
           "report": {
@@ -3594,14 +3594,14 @@
       ],
       "query": {
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262142-out16/qkv.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262142-out16/q-norm.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262142-out16/q-rope.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262142-out16/positions.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262142-out16/qkv.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262142-out16/q-norm.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262142-out16/q-rope.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262142-out16/positions.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
         ],
         "returncode": 0,
         "report": {
@@ -3640,13 +3640,13 @@
         {
           "stage": "post_attention",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/attention-output.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/fusion.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/post-attention-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/post_attention-residual.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/attention-output.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/fusion.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/post-attention-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/post_attention-residual.bin"
           ],
           "returncode": 0,
           "report": {
@@ -3680,13 +3680,13 @@
         {
           "stage": "final",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/moe-output.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/independent-attention-residual.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.norm.weight.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/final-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/final-residual.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/moe-output.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/independent-attention-residual.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.norm.weight.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/final-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262142-out16/final-residual.bin"
           ],
           "returncode": 0,
           "report": {
@@ -4418,14 +4418,14 @@
       ],
       "query": {
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262143-out16/qkv.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262143-out16/q-norm.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262143-out16/q-rope.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262143-out16/positions.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/mtp-query-cpu",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262143-out16/qkv.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.self_attn.q_norm.weight.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262143-out16/q-norm.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262143-out16/q-rope.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-query-shared-cpu-r1/draft-limit-q262143-out16/positions.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rope-cache-20260911-r2/capture/sm121-rope-bf16.bin"
         ],
         "returncode": 0,
         "report": {
@@ -4464,13 +4464,13 @@
         {
           "stage": "post_attention",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/attention-output.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/fusion.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/post-attention-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/post_attention-residual.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/attention-output.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/fusion.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.layers.0.post_attention_layernorm.weight.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/post-attention-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/post_attention-residual.bin"
           ],
           "returncode": 0,
           "report": {
@@ -4504,13 +4504,13 @@
         {
           "stage": "final",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/moe-output.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/independent-attention-residual.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.norm.weight.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/final-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/final-residual.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/mtp-residual-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/moe-output.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/independent-attention-residual.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/original-mtp-model-layout-r1/mtp.norm.weight.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/final-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-residual-shared-cpu-r1/draft-limit-q262143-out16/final-residual.bin"
           ],
           "returncode": 0,
           "report": {
@@ -4657,5 +4657,19 @@
   "recorder": {
     "file": "record_mtp_query_residual_r1.py",
     "sha256": "04232adeeb8cfe75147c61c970593ca0afa033388b242e77e37d7978e93ba1e9"
+  },
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "5dc49257cdd4574496de568ed4bd9bab77560fa6ce6c4fcea7c3dc6b90042aac",
+    "original_json_bytes": 193639,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/gb10-mtp-query-residual-arithmetic-20260920.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 136,
+      "<evidence-home-2>": 10
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
   }
 }

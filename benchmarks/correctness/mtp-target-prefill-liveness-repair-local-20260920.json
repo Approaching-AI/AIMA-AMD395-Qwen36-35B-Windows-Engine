@@ -32,7 +32,7 @@
       "native_executed": false
     },
     "record_sha256": "38e3b5d212767bc6d825282d400aeb9f1fc61352c2fb525973bd5cff3c45c51d",
-    "stderr": "test_actual_last_layer_liveness_keeps_all_mtp_consumers (test_mtp_target_rows.MtpTargetRowsTests.test_actual_last_layer_liveness_keeps_all_mtp_consumers) ... FAIL\n\n======================================================================\nFAIL: test_actual_last_layer_liveness_keeps_all_mtp_consumers (test_mtp_target_rows.MtpTargetRowsTests.test_actual_last_layer_liveness_keeps_all_mtp_consumers)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tests/test_mtp_target_rows.py\", line 167, in test_actual_last_layer_liveness_keeps_all_mtp_consumers\n    self.compile_run(path, directory)\n  File \"/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tests/test_mtp_target_rows.py\", line 24, in compile_run\n    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)\nAssertionError: -6 != 0 : Assertion failed: (!choose(39,8192)), function main, file liveness.cpp, line 41.\n\n\n----------------------------------------------------------------------\nRan 1 test in 1.322s\n\nFAILED (failures=1)\n"
+    "stderr": "test_actual_last_layer_liveness_keeps_all_mtp_consumers (test_mtp_target_rows.MtpTargetRowsTests.test_actual_last_layer_liveness_keeps_all_mtp_consumers) ... FAIL\n\n======================================================================\nFAIL: test_actual_last_layer_liveness_keeps_all_mtp_consumers (test_mtp_target_rows.MtpTargetRowsTests.test_actual_last_layer_liveness_keeps_all_mtp_consumers)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tests/test_mtp_target_rows.py\", line 167, in test_actual_last_layer_liveness_keeps_all_mtp_consumers\n    self.compile_run(path, directory)\n  File \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tests/test_mtp_target_rows.py\", line 24, in compile_run\n    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)\nAssertionError: -6 != 0 : Assertion failed: (!choose(39,8192)), function main, file liveness.cpp, line 41.\n\n\n----------------------------------------------------------------------\nRan 1 test in 1.322s\n\nFAILED (failures=1)\n"
   },
   "local_validation": {
     "record": {
@@ -111,5 +111,18 @@
   "mtp_inference_enabled": false,
   "inference_acceptance": false,
   "performance_acceptance": false,
-  "release_acceptance": false
+  "release_acceptance": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "b7e2d1d1898f2d587885057d71ec5e5c13f71cfdca1d274247381169d4dce14e",
+    "original_json_bytes": 14196,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/mtp-target-prefill-liveness-repair-local-20260920.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 2
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
 }

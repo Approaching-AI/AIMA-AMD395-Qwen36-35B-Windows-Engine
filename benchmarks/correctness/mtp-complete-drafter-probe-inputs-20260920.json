@@ -17,8 +17,8 @@
         "-I",
         "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/tmpr8i6stj3",
         "-I",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tools/mtp_drafter_hip_probe.cpp"
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/tools/mtp_drafter_hip_probe.cpp"
       ],
       "returncode": 0,
       "stdout": "",
@@ -2034,5 +2034,18 @@
     "Reference row selection and truncation drive the probe only; production acceptance is not implemented by the probe.",
     "Each case includes one actual original terminal proposal input beyond returned control outputs. It is not a newly qualified continuation output.",
     "Host syntax uses declaration-only HIP/drafter interfaces. GPU numerical replay is pending."
-  ]
+  ],
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "27f6dc499906a11d80d510bc22854dac0768fb217d673a400a1410f9049ad285",
+    "original_json_bytes": 78294,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/mtp-complete-drafter-probe-inputs-20260920.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 2
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
 }

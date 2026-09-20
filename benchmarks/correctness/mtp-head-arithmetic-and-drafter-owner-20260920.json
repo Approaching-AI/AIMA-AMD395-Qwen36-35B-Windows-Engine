@@ -18,7 +18,7 @@
       "host": "aitopatom-66c4",
       "model": "/mnt/data/models/Qwen3.6-35B-A3B",
       "source_commit": "41f7ee98079640e22d1dd58b94abedf6ba6d9f1c",
-      "command_file": "/home/qujing/mtp-lm-head-cpu-gb10-20260920-r1/run.py",
+      "command_file": "<evidence-home-2>/mtp-lm-head-cpu-gb10-20260920-r1/run.py",
       "command_file_sha256": "dec6296a334c0605cc57f42a8f30dd9c22b603deefd06a22f73e05ab073bf527",
       "candidate_source_hashes": {
         "mtp_lm_head_cpu_r1.cpp": {
@@ -1371,7 +1371,7 @@
       "host": "aitopatom-66c4",
       "model": "/mnt/data/models/Qwen3.6-35B-A3B",
       "source_commit": "41f7ee98079640e22d1dd58b94abedf6ba6d9f1c",
-      "command_file": "/home/qujing/mtp-lm-head-cpu-gb10-20260920-r2/run.py",
+      "command_file": "<evidence-home-2>/mtp-lm-head-cpu-gb10-20260920-r2/run.py",
       "command_file_sha256": "544f5fda8ff4360cd6414a063d1619972cd0ad9d66522bf83d7245ba5ee3ed5a",
       "candidate_source_hashes": {
         "mtp_lm_head_cpu_r2.cpp": {
@@ -1525,7 +1525,7 @@
       "host": "aitopatom-66c4",
       "model": "/mnt/data/models/Qwen3.6-35B-A3B",
       "source_commit": "41f7ee98079640e22d1dd58b94abedf6ba6d9f1c",
-      "command_file": "/home/qujing/mtp-lm-head-cpu-gb10-20260920-r3/run.py",
+      "command_file": "<evidence-home-2>/mtp-lm-head-cpu-gb10-20260920-r3/run.py",
       "command_file_sha256": "3711d6db382229ead00c4fd544098f7b18b27bb734ab10cfb658ff7e6dacabe8",
       "candidate_source_hashes": {
         "mtp_lm_head_cpu_probe.cpp": {
@@ -2653,7 +2653,7 @@
             "test_mtp_*.py",
             "-v"
           ],
-          "working_directory": "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate",
+          "working_directory": "<evidence-home-1>/projects/AIMA-public-r1191-candidate",
           "returncode": 0,
           "tests": 35,
           "seconds": 7.712,
@@ -2674,8 +2674,8 @@
             "-I",
             "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/tmp8_dpf5vm",
             "-I",
-            "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate",
-            "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tools/mtp_head_hip_probe.cpp"
+            "<evidence-home-1>/projects/AIMA-public-r1191-candidate",
+            "<evidence-home-1>/projects/AIMA-public-r1191-candidate/tools/mtp_head_hip_probe.cpp"
           ],
           "returncode": 0,
           "stdout": "",
@@ -6481,5 +6481,19 @@
   "recorder": {
     "file": "record_mtp_drafter_head_r1.py",
     "sha256": "0770a79f670d5299af25f98285aee1bafb35a2868b8628f4229f90d30d33129e"
+  },
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "c635aa6bf3bea9751c1876056bef019d6dd397d47af00fefbcf98bbb3ff06aa9",
+    "original_json_bytes": 229197,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/mtp-head-arithmetic-and-drafter-owner-20260920.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 3,
+      "<evidence-home-2>": 3
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
   }
 }

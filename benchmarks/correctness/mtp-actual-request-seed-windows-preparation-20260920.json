@@ -557,7 +557,7 @@
         {
           "command": [
             "python3.12",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/dispatch_mtp_request_seed_native_r1.py"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/dispatch_mtp_request_seed_native_r1.py"
           ],
           "returncode": 1,
           "stderr": "The original full256k native task is still active; no remote action was attempted.\n",
@@ -566,7 +566,7 @@
         {
           "command": [
             "python3.12",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/dispatch_mtp_request_seed_product_r1.py",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/dispatch_mtp_request_seed_product_r1.py",
             "q7169-out32"
           ],
           "returncode": 1,
@@ -632,5 +632,18 @@
   "speculative_target_acceptance_enabled": false,
   "inference_acceptance": false,
   "performance_acceptance": false,
-  "release_qualified": false
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "515871e26bb2b771c7f87d57206f97ba3e9d8f2bbdeb33883879a17f184a3e7c",
+    "original_json_bytes": 42538,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/mtp-actual-request-seed-windows-preparation-20260920.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 2
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
 }

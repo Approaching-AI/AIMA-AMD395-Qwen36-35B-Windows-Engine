@@ -30,25 +30,25 @@
     "-e",
     "VLLM_WORKER_MULTIPROC_METHOD=spawn",
     "-v",
-    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r1:/work",
+    "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r1:/work",
     "-v",
     "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
     "-v",
-    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
+    "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
     "-v",
-    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
+    "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
     "-v",
-    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
+    "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
     "-v",
-    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
+    "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
     "-v",
-    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
+    "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
     "-v",
-    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
+    "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
     "-v",
-    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
+    "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
     "-v",
-    "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
+    "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r1/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
     "-e",
     "QRT_GB10_CASE_BOUNDARY_OFFSETS={\"draft-limit-q262140-out16\":[2,3,4],\"draft-limit-q262142-out16\":[0,1,2],\"draft-limit-q262143-out16\":[0,1,2]}",
     "-w",
@@ -81,7 +81,7 @@
     "1800",
     "--execute"
   ],
-  "command_file": "/home/qujing/run-qrt-gb10-mtp-limit-boundary-20260920-r1.py",
+  "command_file": "<evidence-home-2>/run-qrt-gb10-mtp-limit-boundary-20260920-r1.py",
   "command_file_sha256": "27979bdd3fb15eacb7fccf32b676343eff955f66cdc62c4faa6a6fcd05285847",
   "dispatch_sha256": "e612a7142029d29652dff7845a311dcda60c0bb691af09227067d2d8ae3881c3",
   "cases": [
@@ -212,14 +212,14 @@
         "capture_file": "capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin"
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
         "norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ],
       "original_operands_independent": true,
       "selected_rows": [
@@ -545,14 +545,14 @@
         "capture_file": "capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin"
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
         "norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ],
       "original_operands_independent": true,
       "selected_rows": [
@@ -882,14 +882,14 @@
         "capture_file": "capture/mtp-original-weights/input-norm.bf16.bin"
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
         "norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ],
       "original_operands_independent": true,
       "selected_rows": [
@@ -1230,14 +1230,14 @@
         "capture_file": "capture/mtp-original-weights/fc.bf16.bin"
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
         "linear",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/fc.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/fc.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "4096",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ],
       "original_operands_independent": true,
       "selected_rows": [
@@ -1321,14 +1321,14 @@
         "capture_file": "capture/mtp-original-weights/kv-projection.bf16.bin"
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
         "linear",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/kv-projection.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/kv-projection.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "1024",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ],
       "original_operands_independent": true,
       "selected_rows": [
@@ -1411,14 +1411,14 @@
         "capture_file": "capture/mtp-original-weights/key-norm.bf16.bin"
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
         "key_norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/key-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/key-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "256",
         "256",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ],
       "original_operands_independent": true,
       "selected_rows": [
@@ -1501,14 +1501,14 @@
         "capture_file": "capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin"
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
         "norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ],
       "original_operands_independent": true,
       "selected_rows": [
@@ -1834,14 +1834,14 @@
         "capture_file": "capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin"
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
         "norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ],
       "original_operands_independent": true,
       "selected_rows": [
@@ -2171,14 +2171,14 @@
         "capture_file": "capture/mtp-original-weights/input-norm.bf16.bin"
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
         "norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ],
       "original_operands_independent": true,
       "selected_rows": [
@@ -2519,14 +2519,14 @@
         "capture_file": "capture/mtp-original-weights/fc.bf16.bin"
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
         "linear",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/fc.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/fc.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "4096",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ],
       "original_operands_independent": true,
       "selected_rows": [
@@ -2619,14 +2619,14 @@
         "capture_file": "capture/mtp-original-weights/kv-projection.bf16.bin"
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
         "linear",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/kv-projection.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/kv-projection.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "1024",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ],
       "original_operands_independent": true,
       "selected_rows": [
@@ -2718,14 +2718,14 @@
         "capture_file": "capture/mtp-original-weights/key-norm.bf16.bin"
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r1/mtp-reference-frontier-cpu",
         "key_norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/key-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/key-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "256",
         "256",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ],
       "original_operands_independent": true,
       "selected_rows": [
@@ -2820,7 +2820,7 @@
       "c++",
       "-std=c++17",
       "-MM",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp_reference_frontier_cpu_r1.cpp"
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp_reference_frontier_cpu_r1.cpp"
     ],
     "source_headers": {
       "native/providers/gdn/sm121_q1_math.h": {
@@ -2864,9 +2864,9 @@
       "-Wall",
       "-Wextra",
       "-Werror",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp_reference_frontier_cpu_r2.cpp",
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp_reference_frontier_cpu_r2.cpp",
       "-o",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu"
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu"
     ],
     "source_headers": {
       "native/providers/gdn/sm121_q1_math.h": {
@@ -3213,14 +3213,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3238,14 +3238,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm_dynamic",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3263,14 +3263,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3288,14 +3288,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm_dynamic",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3313,14 +3313,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3338,14 +3338,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm_dynamic",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3363,14 +3363,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3388,14 +3388,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm_dynamic",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3417,14 +3417,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3442,45 +3442,45 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm_dynamic",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
-      ]
-    },
-    {
-      "case": "q7169-out32",
-      "stage": "input_norm",
-      "original_batch_tokens": 7169,
-      "mode": "norm",
-      "report": {
-        "mode": "norm",
-        "rows": 2,
-        "elements": 4096,
-        "bf16_mismatches": 0,
-        "maximum_absolute_error": 0,
-        "first_difference": null,
-        "native_inference_acceptance": false
-      },
-      "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
-        "norm",
-        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
-        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
-        "2048",
-        "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
       "case": "q7169-out32",
       "stage": "input_norm",
       "original_batch_tokens": 7169,
+      "mode": "norm",
+      "report": {
+        "mode": "norm",
+        "rows": 2,
+        "elements": 4096,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0,
+        "first_difference": null,
+        "native_inference_acceptance": false
+      },
+      "command": [
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "norm",
+        "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
+        "2048",
+        "2048",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+      ]
+    },
+    {
+      "case": "q7169-out32",
+      "stage": "input_norm",
+      "original_batch_tokens": 7169,
       "mode": "norm_dynamic",
       "report": {
         "mode": "norm_dynamic",
@@ -3492,14 +3492,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm_dynamic",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3517,14 +3517,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3542,14 +3542,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm_dynamic",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3567,14 +3567,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3592,14 +3592,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm_dynamic",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3617,14 +3617,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3642,14 +3642,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm_dynamic",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3667,14 +3667,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3692,14 +3692,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm_dynamic",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3721,14 +3721,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3746,14 +3746,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm_dynamic",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3771,14 +3771,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     },
     {
@@ -3796,14 +3796,14 @@
         "native_inference_acceptance": false
       },
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu",
         "norm_dynamic",
         "TEMP_SELECTED_ORIGINAL_ROWS/input.bin",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-limit-boundary-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
         "TEMP_SELECTED_ORIGINAL_ROWS/expected.bin",
         "2048",
         "2048",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
       ]
     }
   ],
@@ -3821,5 +3821,19 @@
   "recorder": {
     "file": "record_mtp_frontier_short_controls_r1.py",
     "sha256": "a2658573fe743b856f7f855ad0a269550d2151abfff7eb043a3be7e23e9723ec"
+  },
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "a6c39dd65f2174796a582f5cddeb9b56cf0c0aabebdb715cac8c25561199a043",
+    "original_json_bytes": 131404,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/gb10-mtp-short-frontier-arithmetic-20260920.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 111,
+      "<evidence-home-2>": 10
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
   }
 }

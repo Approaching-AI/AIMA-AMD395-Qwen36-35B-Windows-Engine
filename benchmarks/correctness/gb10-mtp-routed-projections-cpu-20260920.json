@@ -5,7 +5,7 @@
     "source_commit": "abefe1baeac4fec4d757f0683caf6cac25c391a9",
     "model": "/mnt/data/models/Qwen3.6-35B-A3B",
     "spec_sha256": "37c50ff6c50ba1d92dc0e1f2dd0cda2e96c35e1848c4be52675a8895f8b28aed",
-    "command_file": "/home/qujing/mtp-routed-cpu-gb10-20260920-r1/run.py",
+    "command_file": "<evidence-home-1>/mtp-routed-cpu-gb10-20260920-r1/run.py",
     "command_file_sha256": "73c3a2a12d8033beae91d384f405f2414265718fb65662e7b7590012e86df8d2",
     "gpu_used": false,
     "model_framework_loaded": false,
@@ -3733,5 +3733,18 @@
   "recorder": {
     "file": "record_mtp_routed_cpu_r1.py",
     "sha256": "2fec3a45d1f9afb5af5b475c22c0c4d12159a5ae8342396c899538c857a11d81"
+  },
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "f8ea9ff74d1d1ca18a57de105fdebf7618d4e4521ab3a0505680e3d282f4cd4c",
+    "original_json_bytes": 145090,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/gb10-mtp-routed-projections-cpu-20260920.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 1
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
   }
 }

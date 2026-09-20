@@ -29,25 +29,25 @@
       "-e",
       "VLLM_WORKER_MULTIPROC_METHOD=spawn",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-full-prefill-20260920-r1:/work",
+      "<evidence-home-2>/qrt-gb10-mtp-full-prefill-20260920-r1:/work",
       "-v",
       "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-full-prefill-20260920-r1/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-full-prefill-20260920-r1/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-full-prefill-20260920-r1/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-full-prefill-20260920-r1/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-full-prefill-20260920-r1/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-full-prefill-20260920-r1/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-full-prefill-20260920-r1/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-full-prefill-20260920-r1/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-full-prefill-20260920-r1/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-full-prefill-20260920-r1/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-full-prefill-20260920-r1/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-full-prefill-20260920-r1/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-full-prefill-20260920-r1/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-full-prefill-20260920-r1/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-full-prefill-20260920-r1/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-full-prefill-20260920-r1/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
       "-w",
       "/work",
       "--entrypoint",
@@ -76,7 +76,7 @@
       "600",
       "--execute"
     ],
-    "command_file": "/home/qujing/run-qrt-gb10-mtp-full-prefill-20260920-r1.py",
+    "command_file": "<evidence-home-2>/run-qrt-gb10-mtp-full-prefill-20260920-r1.py",
     "command_file_sha256": "90b6b9f61ae481827795e5514b8e132cf58d0a6d94681577cfe579096f7355e9",
     "source_commit": "38c9f1fdd35291a02421abaa862fab0ebf1ac838",
     "returncode": 0,
@@ -245,7 +245,7 @@
       "-o",
       "ConnectTimeout=10",
       "gb10-4t",
-      "timeout --signal=TERM --kill-after=10 870 python3 /home/qujing/run-qrt-gb10-mtp-full-prefill-20260920-r1.py"
+      "timeout --signal=TERM --kill-after=10 870 python3 <evidence-home-2>/run-qrt-gb10-mtp-full-prefill-20260920-r1.py"
     ]
   },
   "cases": [
@@ -13169,9 +13169,9 @@
           "-Wall",
           "-Wextra",
           "-Werror",
-          "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/providers/gdn/sm121_mtp_frontier_cpu_probe.cpp",
+          "<evidence-home-1>/projects/AIMA-public-r1191-candidate/native/providers/gdn/sm121_mtp_frontier_cpu_probe.cpp",
           "-o",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r3/mtp-reference-frontier-cpu"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r3/mtp-reference-frontier-cpu"
         ],
         "returncode": 0,
         "stdout": "",
@@ -13227,11 +13227,11 @@
           "case": "q7169-out32",
           "stage": "embedding-norm",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r3/mtp-reference-frontier-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-embedding.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-embedding-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r3/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-embedding.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-embedding-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -13248,11 +13248,11 @@
           "case": "q7169-out32",
           "stage": "hidden-norm",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r3/mtp-reference-frontier-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-target-hidden.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-hidden-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r3/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-target-hidden.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-hidden-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 1,
           "report": {
@@ -13273,11 +13273,11 @@
           "case": "q7169-out32",
           "stage": "input-norm",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r3/mtp-reference-frontier-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-fusion.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-input-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r3/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-fusion.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-input-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -13294,11 +13294,11 @@
           "case": "q8192-out32",
           "stage": "embedding-norm",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r3/mtp-reference-frontier-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-embedding.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-embedding-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r3/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-embedding.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-embedding-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -13315,11 +13315,11 @@
           "case": "q8192-out32",
           "stage": "hidden-norm",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r3/mtp-reference-frontier-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-target-hidden.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-hidden-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r3/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-target-hidden.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-hidden-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 1,
           "report": {
@@ -13340,11 +13340,11 @@
           "case": "q8192-out32",
           "stage": "input-norm",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r3/mtp-reference-frontier-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-fusion.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-input-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r3/mtp-reference-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-fusion.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-input-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -13371,9 +13371,9 @@
           "-Wall",
           "-Wextra",
           "-Werror",
-          "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/providers/gdn/sm121_mtp_frontier_cpu_probe.cpp",
+          "<evidence-home-1>/projects/AIMA-public-r1191-candidate/native/providers/gdn/sm121_mtp_frontier_cpu_probe.cpp",
           "-o",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-norm-cpu-r2/mtp-frontier-cpu"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-norm-cpu-r2/mtp-frontier-cpu"
         ],
         "returncode": 0,
         "stdout": "",
@@ -13400,11 +13400,11 @@
           "case": "q7169-out32",
           "stage": "embedding-norm",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-norm-cpu-r2/mtp-frontier-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-embedding.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-embedding-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-norm-cpu-r2/mtp-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-embedding.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-embedding-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "--split1024"
           ],
           "returncode": 0,
@@ -13423,11 +13423,11 @@
           "case": "q7169-out32",
           "stage": "hidden-norm",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-norm-cpu-r2/mtp-frontier-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-target-hidden.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-hidden-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-norm-cpu-r2/mtp-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-target-hidden.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-hidden-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "--split1024"
           ],
           "returncode": 0,
@@ -13446,11 +13446,11 @@
           "case": "q7169-out32",
           "stage": "input-norm",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-norm-cpu-r2/mtp-frontier-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-fusion.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-input-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-norm-cpu-r2/mtp-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-fusion.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-input-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -13468,11 +13468,11 @@
           "case": "q8192-out32",
           "stage": "embedding-norm",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-norm-cpu-r2/mtp-frontier-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-embedding.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-embedding-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-norm-cpu-r2/mtp-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-embedding.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-embedding-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "--split1024"
           ],
           "returncode": 0,
@@ -13491,11 +13491,11 @@
           "case": "q8192-out32",
           "stage": "hidden-norm",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-norm-cpu-r2/mtp-frontier-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-target-hidden.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-hidden-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-norm-cpu-r2/mtp-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-target-hidden.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-hidden-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "--split1024"
           ],
           "returncode": 0,
@@ -13514,11 +13514,11 @@
           "case": "q8192-out32",
           "stage": "input-norm",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-norm-cpu-r2/mtp-frontier-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-fusion.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-input-norm.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-norm-cpu-r2/mtp-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-fusion.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/input-norm.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-input-norm.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
           ],
           "returncode": 0,
           "report": {
@@ -13536,13 +13536,13 @@
           "case": "q7169-out32",
           "stage": "fusion-input",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-norm-cpu-r2/mtp-frontier-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-embedding.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-fusion-input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-target-hidden.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-norm-cpu-r2/mtp-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-embedding.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-fusion-input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q7169-out32/full-mtp-target-hidden.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
             "--split1024"
           ],
           "returncode": 0,
@@ -13561,13 +13561,13 @@
           "case": "q8192-out32",
           "stage": "fusion-input",
           "command": [
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-norm-cpu-r2/mtp-frontier-cpu",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-embedding.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-fusion-input.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-target-hidden.bin",
-            "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-norm-cpu-r2/mtp-frontier-cpu",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-embedding.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-embedding-norm.bf16.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-fusion-input.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/q8192-out32/full-mtp-target-hidden.bin",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-full-prefill-20260920-r1/capture/mtp-original-weights/pre-fc-hidden-norm.bf16.bin",
             "--split1024"
           ],
           "returncode": 0,
@@ -13600,9 +13600,9 @@
           "-Wall",
           "-Wextra",
           "-Werror",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp_reference_frontier_cpu_r2.cpp",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp_reference_frontier_cpu_r2.cpp",
           "-o",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu"
         ],
         "source_headers": {
           "native/providers/gdn/sm121_q1_math.h": {
@@ -13654,9 +13654,9 @@
           "-Werror",
           "-fsanitize=address,undefined",
           "-fno-sanitize-recover=all",
-          "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/providers/gdn/sm121_mtp_kv_cpu_probe.cpp",
+          "<evidence-home-1>/projects/AIMA-public-r1191-candidate/native/providers/gdn/sm121_mtp_kv_cpu_probe.cpp",
           "-o",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-kv-cpu-r1/mtp-kv-cpu"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-full-kv-cpu-r1/mtp-kv-cpu"
         ],
         "returncode": 0,
         "stdout": "",
@@ -13695,9 +13695,9 @@
           "-Wall",
           "-Wextra",
           "-Werror",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp_reference_frontier_cpu_r2.cpp",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp_reference_frontier_cpu_r2.cpp",
           "-o",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-reference-frontier-cpu-build-r2/mtp-reference-frontier-cpu"
         ],
         "source_headers": {
           "native/providers/gdn/sm121_q1_math.h": {
@@ -13865,5 +13865,19 @@
   "observer": {
     "file": "record_full_mtp_prefill_r1.py",
     "sha256": "3812054f5e7e7adb71c6b2ec9b7132bcce951246d127afc8b00b35b46a50e50c"
+  },
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "427dc85d8ca26a9dc7fc18ffd83304a3c7acca99234a61b0e183681b5d90ebd1",
+    "original_json_bytes": 398923,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/gb10-mtp-complete-prompt-frontends-20260920.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 84,
+      "<evidence-home-2>": 11
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
   }
 }

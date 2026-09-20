@@ -28,25 +28,25 @@
       "-e",
       "VLLM_WORKER_MULTIPROC_METHOD=spawn",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-moe-20260920-r1:/work",
+      "<evidence-home-1>/qrt-gb10-mtp-moe-20260920-r1:/work",
       "-v",
       "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-moe-20260920-r1/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
+      "<evidence-home-1>/qrt-gb10-mtp-moe-20260920-r1/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-moe-20260920-r1/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
+      "<evidence-home-1>/qrt-gb10-mtp-moe-20260920-r1/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-moe-20260920-r1/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
+      "<evidence-home-1>/qrt-gb10-mtp-moe-20260920-r1/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-moe-20260920-r1/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
+      "<evidence-home-1>/qrt-gb10-mtp-moe-20260920-r1/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-moe-20260920-r1/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
+      "<evidence-home-1>/qrt-gb10-mtp-moe-20260920-r1/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-moe-20260920-r1/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
+      "<evidence-home-1>/qrt-gb10-mtp-moe-20260920-r1/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-moe-20260920-r1/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
+      "<evidence-home-1>/qrt-gb10-mtp-moe-20260920-r1/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-moe-20260920-r1/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
+      "<evidence-home-1>/qrt-gb10-mtp-moe-20260920-r1/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
       "-w",
       "/work",
       "--entrypoint",
@@ -75,7 +75,7 @@
       "600",
       "--execute"
     ],
-    "command_file": "/home/qujing/run-qrt-gb10-mtp-moe-20260920-r1.py",
+    "command_file": "<evidence-home-1>/run-qrt-gb10-mtp-moe-20260920-r1.py",
     "command_file_sha256": "baec3e9a8d3d9d888d974c6cd19d0de9a413788af4d3f85e795132011437b31c",
     "source_commit": "68c755fa7e254bcec653d790f121dbc1551321b5",
     "returncode": 1,
@@ -212,5 +212,18 @@
     "gpu_used": false,
     "model_loaded": false
   },
-  "diagnosis": "The observer incorrectly required shared overlap and internal routing to be disabled. The pinned FusedMoE source enables shared overlap at TP1 and its gate property then uses the original router. R1 did not persist individual MTP configuration flags; the corrected observer will bind them explicitly before any capture."
+  "diagnosis": "The observer incorrectly required shared overlap and internal routing to be disabled. The pinned FusedMoE source enables shared overlap at TP1 and its gate property then uses the original router. R1 did not persist individual MTP configuration flags; the corrected observer will bind them explicitly before any capture.",
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "9a6d58a3aa3e8868fc8a126f3d82eb24317d8793c8d9512dc9e7a40d070e6568",
+    "original_json_bytes": 9863,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/gb10-mtp-moe-observer-configuration-rejection-20260920.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 10
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
 }

@@ -35,7 +35,7 @@
         "test_mtp_attention_launch",
         "test_mtp_moe_launch"
       ],
-      "cwd": "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tests",
+      "cwd": "<evidence-home-1>/projects/AIMA-public-r1191-candidate/tests",
       "returncode": 0,
       "stdout": "",
       "stderr": "test_prefix_decode_and_private_rows (test_q2_cache_view.Q2CacheViewTests.test_prefix_decode_and_private_rows) ... ok\ntest_private_history_and_submission_failures (test_q2_attention_block.Q2AttentionBlockTests.test_private_history_and_submission_failures) ... ok\ntest_private_layer_graph_and_partial_failure (test_q2_attention_layer.Q2AttentionLayerTests.test_private_layer_graph_and_partial_failure) ... ok\ntest_private_k16_logits_and_real_argmax (test_q2_target_head.Q2TargetHeadTests.test_private_k16_logits_and_real_argmax) ... ok\ntest_original_cache_view_and_failed_stage_stop (test_mtp_attention_launch.MtpAttentionLaunchTests.test_original_cache_view_and_failed_stage_stop) ... ok\ntest_disjoint_workspace_and_rejected_extents (test_mtp_moe_launch.MtpMoeLaunchTests.test_disjoint_workspace_and_rejected_extents) ... ok\ntest_launch_contract_and_partial_submission_stop (test_mtp_moe_launch.MtpMoeLaunchTests.test_launch_contract_and_partial_submission_stop) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 5.493s\n\nOK\n",
@@ -73,7 +73,7 @@
       "host": "aitopatom-66c4",
       "command": [
         "/usr/bin/python3",
-        "/home/qujing/run_q2_target_head_cpu_r1.py"
+        "<evidence-home-2>/run_q2_target_head_cpu_r1.py"
       ],
       "command_file_sha256": "a813076999247df2e29889644601846312d8f1a28baa0b84e4faa816fbb2bc85",
       "source_plan_sha256": "06c28f2d28559344c4e50d4b0505fcdf50afc784d08ae3aa8fa6fe6ef8e57dc1",
@@ -91,10 +91,10 @@
         "-fno-fast-math",
         "-march=native",
         "-I",
-        "/home/qujing/qrt-q2-target-head-cpu-20260921-r1",
-        "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q2_target_head_cpu_r1.cpp",
+        "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1",
+        "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/q2_target_head_cpu_r1.cpp",
         "-o",
-        "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head"
+        "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/target-head"
       ],
       "executable_sha256": "84ae7753d0256588593a0c6a05cddfda84df9e152a5fcd5604c2415c3c7a5fdf",
       "model": "/mnt/data/models/Qwen3.6-35B-A3B",
@@ -123,7 +123,7 @@
             "expected_token": 220,
             "expected_logit": 9.9375,
             "input": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-final-norm-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-final-norm-bf16.bin",
               "bytes": 8192,
               "sha256": "cbca115e8ff8a3d2206eaf463c658aad5bb1020f4b4248d687bba48ea8e20d0e",
               "shape": [
@@ -132,7 +132,7 @@
               ]
             },
             "logits": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-position-7169-logits-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-position-7169-logits-bf16.bin",
               "bytes": 496640,
               "sha256": "d14c0ba865c14a5073360355f94c43303e29cdae1f76e06f0b27f7f73f35e30d",
               "shape": [
@@ -142,11 +142,11 @@
             }
           },
           "command": [
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/target-head",
             "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
             "4112",
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q7169-out32-txn1-row0-input.bin",
-            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-position-7169-logits-bf16.bin"
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/q7169-out32-txn1-row0-input.bin",
+            "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-position-7169-logits-bf16.bin"
           ],
           "input_slice_sha256": "c853db8460111b5a9060ee48e170ae225bb714e27c966d059a5a6b0b91617380",
           "input_row_bytes": 4096,
@@ -203,7 +203,7 @@
             "expected_token": 244,
             "expected_logit": 18.25,
             "input": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-final-norm-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-final-norm-bf16.bin",
               "bytes": 8192,
               "sha256": "cbca115e8ff8a3d2206eaf463c658aad5bb1020f4b4248d687bba48ea8e20d0e",
               "shape": [
@@ -212,7 +212,7 @@
               ]
             },
             "logits": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-position-7170-logits-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-position-7170-logits-bf16.bin",
               "bytes": 496640,
               "sha256": "88516caec6ccb398371a4e5287f4e3950e8f2d4f433f62826d29335e206ddbec",
               "shape": [
@@ -222,11 +222,11 @@
             }
           },
           "command": [
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/target-head",
             "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
             "4112",
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q7169-out32-txn1-row1-input.bin",
-            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-position-7170-logits-bf16.bin"
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/q7169-out32-txn1-row1-input.bin",
+            "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-position-7170-logits-bf16.bin"
           ],
           "input_slice_sha256": "810c3d8c3b9122bdef167b0e13ab237c8c9644b6aebefa5535fd1c61b3ee953b",
           "input_row_bytes": 4096,
@@ -283,7 +283,7 @@
             "expected_token": 196,
             "expected_logit": 11.0,
             "input": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-final-norm-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-final-norm-bf16.bin",
               "bytes": 8192,
               "sha256": "b0f44855bfc65791268768ca3d753a4c74b9fb1bdd1fc144f9df1b610ba6bbe5",
               "shape": [
@@ -292,7 +292,7 @@
               ]
             },
             "logits": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-position-7170-logits-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-position-7170-logits-bf16.bin",
               "bytes": 496640,
               "sha256": "f4346ed0b7f1091debcc594670d64f09a6e1be2af0ce8f297f7356b77305aa40",
               "shape": [
@@ -302,11 +302,11 @@
             }
           },
           "command": [
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/target-head",
             "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
             "4112",
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q7169-out32-txn2-row0-input.bin",
-            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-position-7170-logits-bf16.bin"
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/q7169-out32-txn2-row0-input.bin",
+            "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-position-7170-logits-bf16.bin"
           ],
           "input_slice_sha256": "7bdc08aed5fcef30e40ca7252a993d37c967496e6c2a192738feafb55d4cbe88",
           "input_row_bytes": 4096,
@@ -363,7 +363,7 @@
             "expected_token": 244,
             "expected_logit": 18.125,
             "input": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-final-norm-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-final-norm-bf16.bin",
               "bytes": 8192,
               "sha256": "b0f44855bfc65791268768ca3d753a4c74b9fb1bdd1fc144f9df1b610ba6bbe5",
               "shape": [
@@ -372,7 +372,7 @@
               ]
             },
             "logits": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-position-7171-logits-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-position-7171-logits-bf16.bin",
               "bytes": 496640,
               "sha256": "051aeceebbbe7cdc2f4110f78a4518a4f097aeebc89e1b7158c04af2b944c6d2",
               "shape": [
@@ -382,11 +382,11 @@
             }
           },
           "command": [
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/target-head",
             "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
             "4112",
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q7169-out32-txn2-row1-input.bin",
-            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-position-7171-logits-bf16.bin"
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/q7169-out32-txn2-row1-input.bin",
+            "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-position-7171-logits-bf16.bin"
           ],
           "input_slice_sha256": "884b545fddb03a811bc839a9e3daa6dc249115135f3fee296691ce67dd879769",
           "input_row_bytes": 4096,
@@ -443,7 +443,7 @@
             "expected_token": 220,
             "expected_logit": 9.375,
             "input": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-final-norm-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-final-norm-bf16.bin",
               "bytes": 8192,
               "sha256": "0af9ea8b5760a4004f59c3e10d71974fd66374f6143ba95677f23a3a637b086d",
               "shape": [
@@ -452,7 +452,7 @@
               ]
             },
             "logits": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-position-7171-logits-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-position-7171-logits-bf16.bin",
               "bytes": 496640,
               "sha256": "10aaf602aa39977c87aee2eda73c1639036c7cc32427bc17fa68e97ae99f4b41",
               "shape": [
@@ -462,11 +462,11 @@
             }
           },
           "command": [
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/target-head",
             "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
             "4112",
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q7169-out32-txn3-row0-input.bin",
-            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-position-7171-logits-bf16.bin"
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/q7169-out32-txn3-row0-input.bin",
+            "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-position-7171-logits-bf16.bin"
           ],
           "input_slice_sha256": "f17aac3dba5cb2ee5fdc8cc386f6a602396916b404a1813da7e2c56b3ed4adfa",
           "input_row_bytes": 4096,
@@ -523,7 +523,7 @@
             "expected_token": 220,
             "expected_logit": 9.6875,
             "input": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-final-norm-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-final-norm-bf16.bin",
               "bytes": 8192,
               "sha256": "0af9ea8b5760a4004f59c3e10d71974fd66374f6143ba95677f23a3a637b086d",
               "shape": [
@@ -532,7 +532,7 @@
               ]
             },
             "logits": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-position-7172-logits-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-position-7172-logits-bf16.bin",
               "bytes": 496640,
               "sha256": "c2cbfa09130a78acff61def903f81764d468f124dda060742c1a07dd731ede5b",
               "shape": [
@@ -542,11 +542,11 @@
             }
           },
           "command": [
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/target-head",
             "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
             "4112",
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q7169-out32-txn3-row1-input.bin",
-            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-position-7172-logits-bf16.bin"
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/q7169-out32-txn3-row1-input.bin",
+            "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-position-7172-logits-bf16.bin"
           ],
           "input_slice_sha256": "88f95559d0c829c9dc1436c3afedbb5f90a1a4d9816d539244cfffdefed783ce",
           "input_row_bytes": 4096,
@@ -603,7 +603,7 @@
             "expected_token": 255,
             "expected_logit": 17.875,
             "input": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-final-norm-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-final-norm-bf16.bin",
               "bytes": 8192,
               "sha256": "5a66a235805383b82f4da5f2cf243abd2f5c336c61c5d278d0eb80edaae8b8d1",
               "shape": [
@@ -612,7 +612,7 @@
               ]
             },
             "logits": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-position-8192-logits-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-position-8192-logits-bf16.bin",
               "bytes": 496640,
               "sha256": "9d5e534ff558268fbbe23aa40bae591ec5b4a86c97940c554bd6b232f4be87ce",
               "shape": [
@@ -622,11 +622,11 @@
             }
           },
           "command": [
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/target-head",
             "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
             "4112",
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q8192-out32-txn1-row0-input.bin",
-            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-position-8192-logits-bf16.bin"
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/q8192-out32-txn1-row0-input.bin",
+            "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-position-8192-logits-bf16.bin"
           ],
           "input_slice_sha256": "8dc463afa50d9ba83c98df765d6a9b3b96fc57c32dcda1eae8e3c730a06e8614",
           "input_row_bytes": 4096,
@@ -683,7 +683,7 @@
             "expected_token": 82,
             "expected_logit": 9.5625,
             "input": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-final-norm-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-final-norm-bf16.bin",
               "bytes": 8192,
               "sha256": "5a66a235805383b82f4da5f2cf243abd2f5c336c61c5d278d0eb80edaae8b8d1",
               "shape": [
@@ -692,7 +692,7 @@
               ]
             },
             "logits": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-position-8193-logits-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-position-8193-logits-bf16.bin",
               "bytes": 496640,
               "sha256": "1b67cb0cfc0c6f9d5e1437c19111281314fc7e6273efc418330a6c15c17b32f2",
               "shape": [
@@ -702,11 +702,11 @@
             }
           },
           "command": [
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/target-head",
             "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
             "4112",
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q8192-out32-txn1-row1-input.bin",
-            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-position-8193-logits-bf16.bin"
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/q8192-out32-txn1-row1-input.bin",
+            "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-position-8193-logits-bf16.bin"
           ],
           "input_slice_sha256": "dd26887865d2a50dc1a2e698f25b5a2bee6be9e4294f778fc7f70b90be1a94c8",
           "input_row_bytes": 4096,
@@ -763,7 +763,7 @@
             "expected_token": 57,
             "expected_logit": 9.75,
             "input": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-final-norm-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-final-norm-bf16.bin",
               "bytes": 8192,
               "sha256": "f2e9c04ac2c2b276170655c189788e4a05ce260a10ccce783dd77f0322f0283e",
               "shape": [
@@ -772,7 +772,7 @@
               ]
             },
             "logits": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-position-8194-logits-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-position-8194-logits-bf16.bin",
               "bytes": 496640,
               "sha256": "259d3c74b52eab301c705688692273deaf158075552a295dc8cf9c8c4f5d8f8e",
               "shape": [
@@ -782,11 +782,11 @@
             }
           },
           "command": [
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/target-head",
             "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
             "4112",
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q8192-out32-txn2-row0-input.bin",
-            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-position-8194-logits-bf16.bin"
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/q8192-out32-txn2-row0-input.bin",
+            "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-position-8194-logits-bf16.bin"
           ],
           "input_slice_sha256": "8a5fe280d822745d88fd8d5967d4a8c8c78ba42b2b382386ba13a7e64c72f16e",
           "input_row_bytes": 4096,
@@ -843,7 +843,7 @@
             "expected_token": 104,
             "expected_logit": 19.75,
             "input": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-final-norm-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-final-norm-bf16.bin",
               "bytes": 8192,
               "sha256": "f2e9c04ac2c2b276170655c189788e4a05ce260a10ccce783dd77f0322f0283e",
               "shape": [
@@ -852,7 +852,7 @@
               ]
             },
             "logits": {
-              "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-position-8195-logits-bf16.bin",
+              "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-position-8195-logits-bf16.bin",
               "bytes": 496640,
               "sha256": "093e71d1866d2fab9b30a185f42c61725317ba95421a7cb8367b4b0096511491",
               "shape": [
@@ -862,11 +862,11 @@
             }
           },
           "command": [
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/target-head",
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/target-head",
             "/mnt/data/models/Qwen3.6-35B-A3B/model-00026-of-00026.safetensors",
             "4112",
-            "/home/qujing/qrt-q2-target-head-cpu-20260921-r1/q8192-out32-txn2-row1-input.bin",
-            "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-position-8195-logits-bf16.bin"
+            "<evidence-home-2>/qrt-q2-target-head-cpu-20260921-r1/q8192-out32-txn2-row1-input.bin",
+            "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-position-8195-logits-bf16.bin"
           ],
           "input_slice_sha256": "24fa3fb0fd0852390c92077a874ecbe427e38e237c2fcbbded661f5cb216700d",
           "input_row_bytes": 4096,
@@ -963,5 +963,19 @@
   "model_loaded": false,
   "inference_acceptance": false,
   "performance_acceptance": false,
-  "release_qualified": false
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "458a250cc1c5554bf34a6fbdd843057a0168805d91e660bfdabc1918b51dc535",
+    "original_json_bytes": 40575,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/q2-target-cache-and-head-cpu-20260921.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 1,
+      "<evidence-home-2>": 54
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
 }

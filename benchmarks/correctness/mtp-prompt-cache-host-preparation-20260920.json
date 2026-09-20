@@ -15,7 +15,7 @@
       "test_mtp_prompt_*.py",
       "-v"
     ],
-    "cwd": "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate",
+    "cwd": "<evidence-home-1>/projects/AIMA-public-r1191-candidate",
     "timeout_seconds": 150,
     "elapsed_seconds": 2.3325970005244017,
     "returncode": 0,
@@ -47,9 +47,9 @@
         "-Wall",
         "-Wextra",
         "-Werror",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/providers/mtp_prompt_inputs_probe.cpp",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/native/providers/mtp_prompt_inputs_probe.cpp",
         "-o",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/mtp-prompt-inputs"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/mtp-prompt-inputs"
       ],
       "returncode": 0,
       "stdout": "",
@@ -92,25 +92,25 @@
       "-e",
       "VLLM_WORKER_MULTIPROC_METHOD=spawn",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2:/work",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2:/work",
       "-v",
       "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
       "-v",
-      "/home/qujing/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
+      "<evidence-home-2>/qrt-gb10-mtp-limit-boundary-20260920-r2/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
       "-e",
       "QRT_GB10_CASE_BOUNDARY_OFFSETS={\"draft-limit-q262140-out16\":[2,3,4],\"draft-limit-q262142-out16\":[0,1,2],\"draft-limit-q262143-out16\":[0,1,2]}",
       "-w",
@@ -143,7 +143,7 @@
       "1800",
       "--execute"
     ],
-    "reference_command_file": "/home/qujing/run-qrt-gb10-mtp-limit-boundary-20260920-r2.py",
+    "reference_command_file": "<evidence-home-2>/run-qrt-gb10-mtp-limit-boundary-20260920-r2.py",
     "reference_command_file_sha256": "16891d0cac7e464f798e4e42de3eabafeedbe68c4536c3f697a8984e3d052155",
     "reference_dispatch_sha256": "5eb10747ec587bfdd55bb30ddc7d17bb7d26a6dbbf8279585e1a6902ef00fd03",
     "reference_capture_sha256": "82fcde0d7f7a87e13e4c763513da37db553b991b4b0fd304839e606b2de2add2",
@@ -195,8 +195,8 @@
         ],
         "full_first_logits_sha256": "719813bb031f041544c91840b0092fd43a0e3ef96ccbb9ac44cd2f713a5763c9",
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/mtp-prompt-inputs",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/q7169-out32.prompt-u32le.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/mtp-prompt-inputs",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/q7169-out32.prompt-u32le.bin"
         ],
         "stdin": "0 7169 0 82\n",
         "returncode": 0,
@@ -275,8 +275,8 @@
         ],
         "full_first_logits_sha256": "145adfd0d14158d649b4c57f1dbb5151466d73f9183821e7da24e831d74112c0",
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/mtp-prompt-inputs",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/q8192-out32.prompt-u32le.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/mtp-prompt-inputs",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/q8192-out32.prompt-u32le.bin"
         ],
         "stdin": "0 8192 0 144\n",
         "returncode": 0,
@@ -354,8 +354,8 @@
         ],
         "full_first_logits_sha256": "a29f8caade68a34ae1201e9f3d9b5b8849e8ec3548235c46c99679fb23042cfe",
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/mtp-prompt-inputs",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/long-prefix262144-owner-out32.prompt-u32le.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/mtp-prompt-inputs",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/long-prefix262144-owner-out32.prompt-u32le.bin"
         ],
         "stdin": "0 8192 1 271\n8192 8192 1 271\n16384 8192 1 271\n24576 8192 1 271\n32768 8192 1 271\n40960 8192 1 271\n49152 8192 1 271\n57344 8192 1 271\n65536 8192 1 271\n73728 8192 1 271\n81920 8192 1 271\n90112 8192 1 271\n98304 8192 1 271\n106496 8192 1 271\n114688 8192 1 271\n122880 8192 1 271\n131072 8192 1 271\n139264 8192 1 271\n147456 8192 1 271\n155648 8192 1 271\n163840 8192 1 271\n172032 8192 1 271\n180224 8192 1 271\n188416 8192 1 271\n196608 8192 1 271\n204800 8192 1 271\n212992 8192 1 271\n221184 8192 1 271\n229376 8192 1 271\n237568 8192 1 271\n245760 8192 1 271\n",
         "returncode": 0,
@@ -1167,8 +1167,8 @@
         ],
         "full_first_logits_sha256": "f33d3e1e26ce601d5e3f988ef71481111a7c3b825bc264242ccc869181611e8c",
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/mtp-prompt-inputs",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/draft-limit-q262140-out16.prompt-u32le.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/mtp-prompt-inputs",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/draft-limit-q262140-out16.prompt-u32le.bin"
         ],
         "stdin": "0 8192 1 198\n8192 8192 1 198\n16384 8192 1 198\n24576 8192 1 198\n32768 8192 1 198\n40960 8192 1 198\n49152 8192 1 198\n57344 8192 1 198\n65536 8192 1 198\n73728 8192 1 198\n81920 8192 1 198\n90112 8192 1 198\n98304 8192 1 198\n106496 8192 1 198\n114688 8192 1 198\n122880 8192 1 198\n131072 8192 1 198\n139264 8192 1 198\n147456 8192 1 198\n155648 8192 1 198\n163840 8192 1 198\n172032 8192 1 198\n180224 8192 1 198\n188416 8192 1 198\n196608 8192 1 198\n204800 8192 1 198\n212992 8192 1 198\n221184 8192 1 198\n229376 8192 1 198\n237568 8192 1 198\n245760 8192 1 198\n253952 8188 0 248068\n",
         "returncode": 0,
@@ -2005,8 +2005,8 @@
         ],
         "full_first_logits_sha256": "55c83a9add3bd3d95db6e215f9073b274992643418b43c89cab8e4420fd3167d",
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/mtp-prompt-inputs",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/draft-limit-q262142-out16.prompt-u32le.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/mtp-prompt-inputs",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/draft-limit-q262142-out16.prompt-u32le.bin"
         ],
         "stdin": "0 8192 1 271\n8192 8192 1 271\n16384 8192 1 271\n24576 8192 1 271\n32768 8192 1 271\n40960 8192 1 271\n49152 8192 1 271\n57344 8192 1 271\n65536 8192 1 271\n73728 8192 1 271\n81920 8192 1 271\n90112 8192 1 271\n98304 8192 1 271\n106496 8192 1 271\n114688 8192 1 271\n122880 8192 1 271\n131072 8192 1 271\n139264 8192 1 271\n147456 8192 1 271\n155648 8192 1 271\n163840 8192 1 271\n172032 8192 1 271\n180224 8192 1 271\n188416 8192 1 271\n196608 8192 1 271\n204800 8192 1 271\n212992 8192 1 271\n221184 8192 1 271\n229376 8192 1 271\n237568 8192 1 271\n245760 8192 1 271\n253952 8190 0 248069\n",
         "returncode": 0,
@@ -2843,8 +2843,8 @@
         ],
         "full_first_logits_sha256": "cb34c979b724220725733f6dcb2f88c6243ceb775373ec7aff29aac77668e1c5",
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/mtp-prompt-inputs",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/draft-limit-q262143-out16.prompt-u32le.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/mtp-prompt-inputs",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prompt-inputs-reference-replay-r1/draft-limit-q262143-out16.prompt-u32le.bin"
         ],
         "stdin": "0 8192 1 248069\n8192 8192 1 248069\n16384 8192 1 248069\n24576 8192 1 248069\n32768 8192 1 248069\n40960 8192 1 248069\n49152 8192 1 248069\n57344 8192 1 248069\n65536 8192 1 248069\n73728 8192 1 248069\n81920 8192 1 248069\n90112 8192 1 248069\n98304 8192 1 248069\n106496 8192 1 248069\n114688 8192 1 248069\n122880 8192 1 248069\n131072 8192 1 248069\n139264 8192 1 248069\n147456 8192 1 248069\n155648 8192 1 248069\n163840 8192 1 248069\n172032 8192 1 248069\n180224 8192 1 248069\n188416 8192 1 248069\n196608 8192 1 248069\n204800 8192 1 248069\n212992 8192 1 248069\n221184 8192 1 248069\n229376 8192 1 248069\n237568 8192 1 248069\n245760 8192 1 248069\n253952 8191 0 271\n",
         "returncode": 0,
@@ -3756,5 +3756,19 @@
     "full_interior_buffers_not_captured": true,
     "recorder": "record_mtp_prompt_pipeline_r2.py",
     "recorder_sha256": "86a2f44f40fce5751fcd9824761339a356319b102f352ed61cf1489d6a6cdd48"
+  },
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "7494776431816ce1759ce336c6ddd238a58c86346325707ec99ca523d3f8e1ec",
+    "original_json_bytes": 131622,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/mtp-prompt-cache-host-preparation-20260920.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 15,
+      "<evidence-home-2>": 10
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
   }
 }

@@ -3,7 +3,7 @@
   "host": "aitopatom-66c4",
   "command": [
     "/usr/bin/python3",
-    "/home/qujing/run_packed_dense_production_cpu_r1.py"
+    "<evidence-home-1>/run_packed_dense_production_cpu_r1.py"
   ],
   "command_file_sha256": "fe1b34db383f37fe982a2016e9dfc7fc800088e46b2ca9177e39001781c9e4cc",
   "model": "/mnt/data/models/Qwen3.6-35B-A3B",
@@ -43,10 +43,10 @@
     "-fno-fast-math",
     "-march=native",
     "-I",
-    "/home/qujing/qrt-packed-dense-production-cpu-20260920-r1",
-    "/home/qujing/qrt-packed-dense-production-cpu-20260920-r1/original_dense_projection_cpu_r1.cpp",
+    "<evidence-home-1>/qrt-packed-dense-production-cpu-20260920-r1",
+    "<evidence-home-1>/qrt-packed-dense-production-cpu-20260920-r1/original_dense_projection_cpu_r1.cpp",
     "-o",
-    "/home/qujing/qrt-packed-dense-production-cpu-20260920-r1/projection"
+    "<evidence-home-1>/qrt-packed-dense-production-cpu-20260920-r1/projection"
   ],
   "executable_sha256": "16ed67c23cbfc26d8301624d68b4185513fb0f89175377e7228c9f27c270d1e2",
   "summary": {
@@ -7045,5 +7045,18 @@
       "sha256": "698c952da09eb872707dd3de3a357207065c4531ccda18a7e08228a09bf17fec",
       "reason": "Router event test double lacked the new packed projection declaration; extended it to exercise both actual submission branches."
     }
+  },
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "0750d68a0bceae31ce53638c673fef106c8008ba94f9d88a21802968060878d9",
+    "original_json_bytes": 225601,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/packed-dense-production-cpu-20260920.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 4
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
   }
 }

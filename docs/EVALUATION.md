@@ -7,6 +7,15 @@ acceptance binds real prompt token IDs, the first generated token, and the
 first-token logit within 0.125. Decode and prefix continuation are compared
 token-for-token. Engine self-hashes are diagnostic only.
 
+Public evidence may include a public_evidence_view field. It identifies a
+path-redacted JSON copy and preserves the original JSON digest, source revision
+and every embedded artifact hash. Numerical results are unchanged. The
+[September21 publication audit](../benchmarks/correctness/public-evidence-path-redaction-20260921.json)
+retains all40 original reports and removes6343 personal home prefixes from
+current public copies. Commands containing aliases require local substitution.
+Run tools/publish_evidence.py before publishing new reports and check the
+result with tools/public_hygiene.py.
+
 The latest [whole-provider build and q8192 regression](../benchmarks/correctness/segmented-attention-whole-q8192-20260921.json)
 pass on baiying at source9428e9e. All512 output IDs and callbacks match GB10,
 first144/logit10.375/error0. Load21718.0055ms passes; TTFT23554.1578ms and

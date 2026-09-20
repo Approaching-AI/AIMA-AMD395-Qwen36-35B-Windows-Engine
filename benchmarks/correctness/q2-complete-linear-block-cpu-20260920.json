@@ -35,7 +35,7 @@
     "host": "aitopatom-66c4",
     "command": [
       "/usr/bin/python3",
-      "/home/qujing/run_q2_linear_block_cpu_r1.py"
+      "<evidence-home-2>/run_q2_linear_block_cpu_r1.py"
     ],
     "command_file_sha256": "4e80ebef8311488072dfc314757b4d8080f6a39870c37c2b78c6bbf610e82f29",
     "source_plan_sha256": "126ca850a74d90f5aee66a0e6445b820972636cc6d39fe0fa5bf6e6bcfe3afb2",
@@ -65,10 +65,10 @@
       "-fno-fast-math",
       "-march=native",
       "-I",
-      "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1",
-      "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/q2_linear_block_cpu_r1.cpp",
+      "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1",
+      "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/q2_linear_block_cpu_r1.cpp",
       "-o",
-      "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/block"
+      "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/block"
     ],
     "executable_sha256": "e36b00820c171f3d2ecda675172a42ce30bd3686190f1b87127c778c797f2f06",
     "model": "/mnt/data/models/Qwen3.6-35B-A3B",
@@ -277,109 +277,109 @@
         "layer": 0,
         "transaction": 1,
         "command": [
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/block",
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/q7169-out32-txn1-layer0.tsv",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/block",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/q7169-out32-txn1-layer0.tsv",
           "7169"
         ],
         "plan_sha256": "23e43dc70ba62037ae8a9670b02beb9c5534006f67574e78d2b38494101c275f",
         "roles": {
           "expected_convolution": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-conv-decode-output-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-conv-decode-output-bf16.bin",
             "bytes": 32768,
             "sha256": "24dbc4b100070bb21d54c469ffb1be250645196469ea94d3b0200b34668fbf8b"
           },
           "expected_a": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-a-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-a-projection-bf16.bin",
             "bytes": 128,
             "sha256": "badb1b9074f5272acfa013436499e826deccf1e25ec5322b4f0bc99d51b98edb"
           },
           "expected_b": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-b-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-b-projection-bf16.bin",
             "bytes": 128,
             "sha256": "a95d97c1729f52cf954ba10a3267a496a363328437f8b2e25c8267ff100af58c"
           },
           "initial_state": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-decode-state-before-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-decode-state-before-f32.bin",
             "bytes": 2097152,
             "sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2"
           },
           "expected_states": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-decode-state-after-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-decode-state-after-f32.bin",
             "bytes": 4194304,
             "sha256": "5aa6fc8290cfbd15b692250f07e2334c6baeab57825f8d47ed9b67184a7b81d0"
           },
           "expected_core": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-core-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-core-bf16.bin",
             "bytes": 16384,
             "sha256": "c6ea390416ab7cc17a589e2203ed0a9e80c2135dec9e335ab1a43a264e925a17"
           },
           "g_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4.bin",
             "bytes": 8388608,
             "sha256": "fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4"
           },
           "beta_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
             "bytes": 262144,
             "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
           },
           "exp2": {
-            "file": "/home/qujing/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+            "file": "<evidence-home-2>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
             "bytes": 183174448,
             "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
           },
           "rsqrt": {
-            "file": "/home/qujing/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "file": "<evidence-home-2>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "bytes": 17301808,
             "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
           },
           "expected_qkv": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-qkv-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-qkv-bf16.bin",
             "bytes": 32768,
             "sha256": "bda7463e4784f33c878f163ec7b841da5828f09614dd0cbea9cefe523c27b095"
           },
           "conv_weights": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38.bin",
             "bytes": 65536,
             "sha256": "196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38"
           },
           "conv_silu": {
-            "file": "/home/qujing/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+            "file": "<evidence-home-2>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
             "bytes": 648036,
             "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
           },
           "input": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-layer-00-input-rmsnorm-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-layer-00-input-rmsnorm-bf16.bin",
             "bytes": 8192,
             "sha256": "652e8c0a611c2aa268205eab4bffa0637846e1576907c3ec71247306189b7cc3"
           },
           "expected_z": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-z-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-z-projection-bf16.bin",
             "bytes": 16384,
             "sha256": "145b860fe411ba750130addb1633aa57b2f9c109c43f7c7b52b718258d9e585e"
           },
           "expected_gated": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-gated-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-gated-bf16.bin",
             "bytes": 16384,
             "sha256": "372df9ef29e5d57dcf7ddb59e0c86dcaffce3b1d72cb2fb61ded62d3a4ba198d"
           },
           "expected_output": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-output-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-00-output-projection-bf16.bin",
             "bytes": 8192,
             "sha256": "d7b7791a8b1f104350d7b7012559ce9d02ca3fe06bd24efd3e43eae286abeb19"
           },
           "gated_silu": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
             "bytes": 262144,
             "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
           },
           "initial_ring": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/69094546da5cf706adbf9380677e20d1cb13fec85efa15b6a37d9e635b108076.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/69094546da5cf706adbf9380677e20d1cb13fec85efa15b6a37d9e635b108076.bin",
             "bytes": 65536,
             "sha256": "69094546da5cf706adbf9380677e20d1cb13fec85efa15b6a37d9e635b108076"
           },
           "expected_rings": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/512e88d92a012238a64b3de37215f9d5b92a8f71978968e24962b2400208ae16.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/512e88d92a012238a64b3de37215f9d5b92a8f71978968e24962b2400208ae16.bin",
             "bytes": 131072,
             "sha256": "512e88d92a012238a64b3de37215f9d5b92a8f71978968e24962b2400208ae16"
           },
@@ -576,109 +576,109 @@
         "layer": 1,
         "transaction": 1,
         "command": [
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/block",
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/q7169-out32-txn1-layer1.tsv",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/block",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/q7169-out32-txn1-layer1.tsv",
           "7169"
         ],
         "plan_sha256": "460691c3fe9137853f1fccef591bddf4762693e614b83eaec0b04842af9f4dbe",
         "roles": {
           "expected_convolution": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-conv-decode-output-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-conv-decode-output-bf16.bin",
             "bytes": 32768,
             "sha256": "9219e85c8687ccfe4d3bc907d80e40ef38f291574402df91c302abeb9dc5006d"
           },
           "expected_a": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-a-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-a-projection-bf16.bin",
             "bytes": 128,
             "sha256": "a42b43c52f4252e9d639cdbe3f79525932fedb4b4908a8d0dd02521fd4b357ec"
           },
           "expected_b": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-b-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-b-projection-bf16.bin",
             "bytes": 128,
             "sha256": "9042845f60a8e966eb4e19b68bdd940911e2327592089291aa446c80ef026927"
           },
           "initial_state": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-decode-state-before-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-decode-state-before-f32.bin",
             "bytes": 2097152,
             "sha256": "420e50409a828e6cadaf92151ff7dfe985ca7e917a4954cff8b8424dbd4c96df"
           },
           "expected_states": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-decode-state-after-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-decode-state-after-f32.bin",
             "bytes": 4194304,
             "sha256": "3a2f0cce30095a75482339d055f6d817385e2bc551dbf5faaa3301d4fc6a218a"
           },
           "expected_core": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-core-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-core-bf16.bin",
             "bytes": 16384,
             "sha256": "44677e978d21d7c195cefa3127724664986510b2bedacb2ac431fab426e826df"
           },
           "g_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc.bin",
             "bytes": 8388608,
             "sha256": "f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc"
           },
           "beta_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
             "bytes": 262144,
             "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
           },
           "exp2": {
-            "file": "/home/qujing/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+            "file": "<evidence-home-2>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
             "bytes": 183174448,
             "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
           },
           "rsqrt": {
-            "file": "/home/qujing/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "file": "<evidence-home-2>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "bytes": 17301808,
             "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
           },
           "expected_qkv": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-qkv-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-qkv-bf16.bin",
             "bytes": 32768,
             "sha256": "e7d96738e20abfb96347e45ce2acfe85eca21f944ea34ff44e62fe6f8e909d88"
           },
           "conv_weights": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/8174138832d50c5e60262f87ecd3d896bc0e7ff54200e9988a2e227e0f378c6e.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/8174138832d50c5e60262f87ecd3d896bc0e7ff54200e9988a2e227e0f378c6e.bin",
             "bytes": 65536,
             "sha256": "8174138832d50c5e60262f87ecd3d896bc0e7ff54200e9988a2e227e0f378c6e"
           },
           "conv_silu": {
-            "file": "/home/qujing/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+            "file": "<evidence-home-2>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
             "bytes": 648036,
             "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
           },
           "input": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-layer-01-input-rmsnorm-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-layer-01-input-rmsnorm-bf16.bin",
             "bytes": 8192,
             "sha256": "74e3d1861adde5e1c4fe55ffa8fa3954db521bb1d94f7eb91928620dcbadce1f"
           },
           "expected_z": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-z-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-z-projection-bf16.bin",
             "bytes": 16384,
             "sha256": "e4d96216eea3428f42f2a1751ea1c15dee39de217002af5179c57c3236e9755a"
           },
           "expected_gated": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-gated-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-gated-bf16.bin",
             "bytes": 16384,
             "sha256": "0ec357b89f51f8eb5cff1a5c15b20cd7dc5ab6f2ad98a449c69f0c7a44186a32"
           },
           "expected_output": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-output-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-01-output-projection-bf16.bin",
             "bytes": 8192,
             "sha256": "d3ee93ccd145ec7f38047f9e57126eac5009d74201b29951fd3f5c520c2caa54"
           },
           "gated_silu": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
             "bytes": 262144,
             "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
           },
           "initial_ring": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/63045d849d0dd08dc9f95989106c963c95ff5ddfc31d29539cbca24cb2cfa6ad.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/63045d849d0dd08dc9f95989106c963c95ff5ddfc31d29539cbca24cb2cfa6ad.bin",
             "bytes": 65536,
             "sha256": "63045d849d0dd08dc9f95989106c963c95ff5ddfc31d29539cbca24cb2cfa6ad"
           },
           "expected_rings": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/e8161b4d9b4c5736153403f5898f3f8eeb5b0cfa7efeef9d22297c8c8c726310.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/e8161b4d9b4c5736153403f5898f3f8eeb5b0cfa7efeef9d22297c8c8c726310.bin",
             "bytes": 131072,
             "sha256": "e8161b4d9b4c5736153403f5898f3f8eeb5b0cfa7efeef9d22297c8c8c726310"
           },
@@ -875,109 +875,109 @@
         "layer": 2,
         "transaction": 1,
         "command": [
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/block",
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/q7169-out32-txn1-layer2.tsv",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/block",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/q7169-out32-txn1-layer2.tsv",
           "7169"
         ],
         "plan_sha256": "c62cfae28320334aa34b37d60f56316f8d86b26ee9b0ee2c5b37561ef4f6befc",
         "roles": {
           "expected_convolution": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-conv-decode-output-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-conv-decode-output-bf16.bin",
             "bytes": 32768,
             "sha256": "d014112983ca5042f6c1c433b6cee5c93afa08963c6c7ae012615a6d5e83411e"
           },
           "expected_a": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-a-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-a-projection-bf16.bin",
             "bytes": 128,
             "sha256": "ab5e435743adc3bc1aec182be31565994e97faa1798199b2ce3788ac29a28cbb"
           },
           "expected_b": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-b-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-b-projection-bf16.bin",
             "bytes": 128,
             "sha256": "6c827a0904a798d855e7f191201baca2974bff20b0f03bf84edc4cb0e97a2250"
           },
           "initial_state": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-decode-state-before-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-decode-state-before-f32.bin",
             "bytes": 2097152,
             "sha256": "10fa43c22e2a0c84c18410e656f7e56a995df7e8b9cf3bc84e08f1cfe65b78fd"
           },
           "expected_states": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-decode-state-after-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-decode-state-after-f32.bin",
             "bytes": 4194304,
             "sha256": "64b73cd8bcc7f562f8689c4f3b682daffcd94555bd3332b2888f7e0073f8ae74"
           },
           "expected_core": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-core-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-core-bf16.bin",
             "bytes": 16384,
             "sha256": "8035e19ce8915d4427fbd94197c4f1f6f4a473591878dfcc88d2d34406ebc75e"
           },
           "g_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080.bin",
             "bytes": 8388608,
             "sha256": "2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080"
           },
           "beta_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
             "bytes": 262144,
             "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
           },
           "exp2": {
-            "file": "/home/qujing/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+            "file": "<evidence-home-2>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
             "bytes": 183174448,
             "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
           },
           "rsqrt": {
-            "file": "/home/qujing/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "file": "<evidence-home-2>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "bytes": 17301808,
             "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
           },
           "expected_qkv": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-qkv-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-qkv-bf16.bin",
             "bytes": 32768,
             "sha256": "79578f94ea223728aae18b4aadbbf5463d8577eefe08c0d831efaced06f1f65e"
           },
           "conv_weights": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/71295e846eee918b25b71bd81d736db08330b6510c04040e95ce09361ba9b169.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/71295e846eee918b25b71bd81d736db08330b6510c04040e95ce09361ba9b169.bin",
             "bytes": 65536,
             "sha256": "71295e846eee918b25b71bd81d736db08330b6510c04040e95ce09361ba9b169"
           },
           "conv_silu": {
-            "file": "/home/qujing/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+            "file": "<evidence-home-2>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
             "bytes": 648036,
             "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
           },
           "input": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-layer-02-input-rmsnorm-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-layer-02-input-rmsnorm-bf16.bin",
             "bytes": 8192,
             "sha256": "f263c013982af9fb8b7cd668f9bc2378fa259d0b0ae7e0198dc16765fcf54733"
           },
           "expected_z": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-z-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-z-projection-bf16.bin",
             "bytes": 16384,
             "sha256": "ca0b228db126a94e5f86be132976a5f26d9a0d1dd169c1bed294e70a0b061fb3"
           },
           "expected_gated": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-gated-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-gated-bf16.bin",
             "bytes": 16384,
             "sha256": "f149eb63532c5652ed685806f1360186a01a65dd4b20faea9c46169d65bb2d03"
           },
           "expected_output": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-output-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0001-linear-02-output-projection-bf16.bin",
             "bytes": 8192,
             "sha256": "543359e802b029b665440974aeffb51e870b7ab39bee208e49659554141896c1"
           },
           "gated_silu": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
             "bytes": 262144,
             "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
           },
           "initial_ring": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/aa46e593de0aad23d52630458c2e73bec92be9aa29ab1397800e16ced7bfe6b8.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/aa46e593de0aad23d52630458c2e73bec92be9aa29ab1397800e16ced7bfe6b8.bin",
             "bytes": 65536,
             "sha256": "aa46e593de0aad23d52630458c2e73bec92be9aa29ab1397800e16ced7bfe6b8"
           },
           "expected_rings": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/ec640fc2eeeba6e45c7f8d6932c9b0d4f6b5415bc09ba2dd1a817b591305b162.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/ec640fc2eeeba6e45c7f8d6932c9b0d4f6b5415bc09ba2dd1a817b591305b162.bin",
             "bytes": 131072,
             "sha256": "ec640fc2eeeba6e45c7f8d6932c9b0d4f6b5415bc09ba2dd1a817b591305b162"
           },
@@ -1174,109 +1174,109 @@
         "layer": 0,
         "transaction": 2,
         "command": [
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/block",
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/q7169-out32-txn2-layer0.tsv",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/block",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/q7169-out32-txn2-layer0.tsv",
           "7170"
         ],
         "plan_sha256": "6a0abccf73c5523d2123657ce24f6c3b456bec7378366591625a550a1d70ae81",
         "roles": {
           "expected_convolution": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-conv-decode-output-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-conv-decode-output-bf16.bin",
             "bytes": 32768,
             "sha256": "056027c530299dc09cd7759b574056088ab551160b3a0e4350bac361b224e125"
           },
           "expected_a": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-a-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-a-projection-bf16.bin",
             "bytes": 128,
             "sha256": "7e853afd4a3da153d7a02469f588bcf73d72a064c16a1f6e7546899693751e56"
           },
           "expected_b": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-b-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-b-projection-bf16.bin",
             "bytes": 128,
             "sha256": "d18f75b29a4fa054153cd26014f4562d0e1cb18575f23272731cb45d2a536c9c"
           },
           "initial_state": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-decode-state-before-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-decode-state-before-f32.bin",
             "bytes": 2097152,
             "sha256": "bf36dcf3a3a58503ed2299411e2ff468ccccfa79e88d16d319c511e1d3bf8e2c"
           },
           "expected_states": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-decode-state-after-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-decode-state-after-f32.bin",
             "bytes": 4194304,
             "sha256": "d640a693c3968c69b46dcde71dd0bb09eab9a95fee7061c1381fa448ad61ac2e"
           },
           "expected_core": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-core-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-core-bf16.bin",
             "bytes": 16384,
             "sha256": "48961c5119efd999584b99a3b3e9cf962f39329a9af8212728baa4b0cb63c337"
           },
           "g_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4.bin",
             "bytes": 8388608,
             "sha256": "fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4"
           },
           "beta_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
             "bytes": 262144,
             "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
           },
           "exp2": {
-            "file": "/home/qujing/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+            "file": "<evidence-home-2>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
             "bytes": 183174448,
             "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
           },
           "rsqrt": {
-            "file": "/home/qujing/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "file": "<evidence-home-2>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "bytes": 17301808,
             "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
           },
           "expected_qkv": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-qkv-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-qkv-bf16.bin",
             "bytes": 32768,
             "sha256": "d92d7bebf73a99ad1bbe58b704cc1c4cdfeebf99ac7c0b0a2466020be182d46d"
           },
           "conv_weights": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38.bin",
             "bytes": 65536,
             "sha256": "196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38"
           },
           "conv_silu": {
-            "file": "/home/qujing/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+            "file": "<evidence-home-2>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
             "bytes": 648036,
             "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
           },
           "input": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-layer-00-input-rmsnorm-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-layer-00-input-rmsnorm-bf16.bin",
             "bytes": 8192,
             "sha256": "bc9a8cbd85ea35d17fd449e4b5794d06b3061a391abf2b18d5e5ee3776cbe71c"
           },
           "expected_z": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-z-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-z-projection-bf16.bin",
             "bytes": 16384,
             "sha256": "c40645c37a187dcb7fa1527caf3f6c333b222e6100eb99b3afa4b25908ade66d"
           },
           "expected_gated": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-gated-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-gated-bf16.bin",
             "bytes": 16384,
             "sha256": "055ab15757e57f54e63e60d036ee1fe1827fadf143386bccf4098de0e700299c"
           },
           "expected_output": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-output-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-00-output-projection-bf16.bin",
             "bytes": 8192,
             "sha256": "2e0898e11adc898d0b24a29f8926a106285b44d567f40a5c5561abc3dac6db4d"
           },
           "gated_silu": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
             "bytes": 262144,
             "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
           },
           "initial_ring": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/4856d5b32541214db12ad8617f2e46e86ce71ae91026bd7667f10ac095d0b840.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/4856d5b32541214db12ad8617f2e46e86ce71ae91026bd7667f10ac095d0b840.bin",
             "bytes": 65536,
             "sha256": "4856d5b32541214db12ad8617f2e46e86ce71ae91026bd7667f10ac095d0b840"
           },
           "expected_rings": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/4709cce03f023ef77aa5cebe523ac5c22c940290a9c4559284c98544790f21f6.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/4709cce03f023ef77aa5cebe523ac5c22c940290a9c4559284c98544790f21f6.bin",
             "bytes": 131072,
             "sha256": "4709cce03f023ef77aa5cebe523ac5c22c940290a9c4559284c98544790f21f6"
           },
@@ -1473,109 +1473,109 @@
         "layer": 1,
         "transaction": 2,
         "command": [
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/block",
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/q7169-out32-txn2-layer1.tsv",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/block",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/q7169-out32-txn2-layer1.tsv",
           "7170"
         ],
         "plan_sha256": "452cd78889d41ee5e8810b37fc8c6cb719e6fdfd99413348e4804ed1e98daef2",
         "roles": {
           "expected_convolution": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-conv-decode-output-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-conv-decode-output-bf16.bin",
             "bytes": 32768,
             "sha256": "e78e68419fe83e13e18e9cb0c93b3d245f5c3865f45ee03285f74617ce9902db"
           },
           "expected_a": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-a-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-a-projection-bf16.bin",
             "bytes": 128,
             "sha256": "83e695149084f9981f4486aa620ae4463c4e2463006f940a0278162e09f2756f"
           },
           "expected_b": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-b-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-b-projection-bf16.bin",
             "bytes": 128,
             "sha256": "e6b5446d219305ca26ce6bf52b32a7312e5af95db8f808fbe268ac09625d3d66"
           },
           "initial_state": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-decode-state-before-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-decode-state-before-f32.bin",
             "bytes": 2097152,
             "sha256": "f94205e0499ee09ef348a5b5108b540eec1068fc55ccf14637c28510cdf0d0f8"
           },
           "expected_states": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-decode-state-after-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-decode-state-after-f32.bin",
             "bytes": 4194304,
             "sha256": "646e82aa66e28508503af295f0b2a247d358dede60acf896360aec48590ed177"
           },
           "expected_core": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-core-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-core-bf16.bin",
             "bytes": 16384,
             "sha256": "762d64a80714596a7f4c7218abf40cbbb0cede212ae782756f5faa3d7af06512"
           },
           "g_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc.bin",
             "bytes": 8388608,
             "sha256": "f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc"
           },
           "beta_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
             "bytes": 262144,
             "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
           },
           "exp2": {
-            "file": "/home/qujing/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+            "file": "<evidence-home-2>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
             "bytes": 183174448,
             "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
           },
           "rsqrt": {
-            "file": "/home/qujing/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "file": "<evidence-home-2>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "bytes": 17301808,
             "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
           },
           "expected_qkv": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-qkv-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-qkv-bf16.bin",
             "bytes": 32768,
             "sha256": "93080c6eb9248e4f5ed1dbbe688bebfd58dd7ebf0328a7d797ea3264320609aa"
           },
           "conv_weights": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/8174138832d50c5e60262f87ecd3d896bc0e7ff54200e9988a2e227e0f378c6e.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/8174138832d50c5e60262f87ecd3d896bc0e7ff54200e9988a2e227e0f378c6e.bin",
             "bytes": 65536,
             "sha256": "8174138832d50c5e60262f87ecd3d896bc0e7ff54200e9988a2e227e0f378c6e"
           },
           "conv_silu": {
-            "file": "/home/qujing/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+            "file": "<evidence-home-2>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
             "bytes": 648036,
             "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
           },
           "input": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-layer-01-input-rmsnorm-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-layer-01-input-rmsnorm-bf16.bin",
             "bytes": 8192,
             "sha256": "60f229ca69e5b519d6fd95bde5188ae4b4a7927ef0a705083e2dd55bc081e1da"
           },
           "expected_z": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-z-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-z-projection-bf16.bin",
             "bytes": 16384,
             "sha256": "68f12266d38e4ec9b44d6aa726ed850573594a92911cf67103ea1deb149108b4"
           },
           "expected_gated": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-gated-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-gated-bf16.bin",
             "bytes": 16384,
             "sha256": "d3b24939d99aef5f091bfa76cc869c781a719ebd129b1cec73ff29a0e36e3a38"
           },
           "expected_output": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-output-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-01-output-projection-bf16.bin",
             "bytes": 8192,
             "sha256": "01a7542a70900c5c8a3983ec0eee66d3fbfebb2e4c083e5571281831ab86d923"
           },
           "gated_silu": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
             "bytes": 262144,
             "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
           },
           "initial_ring": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/86804ea1530525b2019ef1f7ccc00822cca7d11af34d721796fe05635920b0a2.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/86804ea1530525b2019ef1f7ccc00822cca7d11af34d721796fe05635920b0a2.bin",
             "bytes": 65536,
             "sha256": "86804ea1530525b2019ef1f7ccc00822cca7d11af34d721796fe05635920b0a2"
           },
           "expected_rings": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/b84696c37249b0d1484a211a3119a39fe9db2ce574a8440bc0bf164a2da6c752.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/b84696c37249b0d1484a211a3119a39fe9db2ce574a8440bc0bf164a2da6c752.bin",
             "bytes": 131072,
             "sha256": "b84696c37249b0d1484a211a3119a39fe9db2ce574a8440bc0bf164a2da6c752"
           },
@@ -1772,109 +1772,109 @@
         "layer": 2,
         "transaction": 2,
         "command": [
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/block",
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/q7169-out32-txn2-layer2.tsv",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/block",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/q7169-out32-txn2-layer2.tsv",
           "7170"
         ],
         "plan_sha256": "cac2f3e3b14e43e81913db01e16d769b4028fa972dbc62da1823e1199834e127",
         "roles": {
           "expected_convolution": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-conv-decode-output-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-conv-decode-output-bf16.bin",
             "bytes": 32768,
             "sha256": "0e20825fc88bba42707bd73694165cbb4975c4123f684451a5c5feb30b694baf"
           },
           "expected_a": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-a-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-a-projection-bf16.bin",
             "bytes": 128,
             "sha256": "beb681b6d3e9a962f3767a037d9085e18739b5044eb796fa082653f0815a2ef3"
           },
           "expected_b": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-b-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-b-projection-bf16.bin",
             "bytes": 128,
             "sha256": "8cba079ab77c89f10606ed0291b05e7154be0fb4555afd8c48ed52eab6543309"
           },
           "initial_state": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-decode-state-before-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-decode-state-before-f32.bin",
             "bytes": 2097152,
             "sha256": "c200eba74d3bde5c18cb8c06bbebce6b41543271d6cf7c281dc94831578e7dc1"
           },
           "expected_states": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-decode-state-after-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-decode-state-after-f32.bin",
             "bytes": 4194304,
             "sha256": "eaac21c6e02230c14bb10a7ba9d96658050763f1949233959117154cfe21e67a"
           },
           "expected_core": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-core-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-core-bf16.bin",
             "bytes": 16384,
             "sha256": "22294d315e4a939d8e81176b02307dcbd0cd49a2e3582d816e52c1d8e986e02d"
           },
           "g_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080.bin",
             "bytes": 8388608,
             "sha256": "2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080"
           },
           "beta_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
             "bytes": 262144,
             "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
           },
           "exp2": {
-            "file": "/home/qujing/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+            "file": "<evidence-home-2>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
             "bytes": 183174448,
             "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
           },
           "rsqrt": {
-            "file": "/home/qujing/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "file": "<evidence-home-2>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "bytes": 17301808,
             "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
           },
           "expected_qkv": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-qkv-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-qkv-bf16.bin",
             "bytes": 32768,
             "sha256": "ed31c66dad10b8919c663f5cade388949293d10af3e9ed3c4aea52154eb3f2d0"
           },
           "conv_weights": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/71295e846eee918b25b71bd81d736db08330b6510c04040e95ce09361ba9b169.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/71295e846eee918b25b71bd81d736db08330b6510c04040e95ce09361ba9b169.bin",
             "bytes": 65536,
             "sha256": "71295e846eee918b25b71bd81d736db08330b6510c04040e95ce09361ba9b169"
           },
           "conv_silu": {
-            "file": "/home/qujing/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+            "file": "<evidence-home-2>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
             "bytes": 648036,
             "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
           },
           "input": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-layer-02-input-rmsnorm-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-layer-02-input-rmsnorm-bf16.bin",
             "bytes": 8192,
             "sha256": "e996d2282a3015749fdb38ee6a06639ec35008a92bcd1d55aad33244d2206e5b"
           },
           "expected_z": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-z-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-z-projection-bf16.bin",
             "bytes": 16384,
             "sha256": "6f0de8c7f4ebca5da70d827584a5158c182ac522c3c5d59f733ddc9a7bb1ae26"
           },
           "expected_gated": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-gated-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-gated-bf16.bin",
             "bytes": 16384,
             "sha256": "f57c4940f27abec3f825ab8ae8179fbbf1425700a868deaa09e12e8e2b6484f6"
           },
           "expected_output": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-output-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0002-linear-02-output-projection-bf16.bin",
             "bytes": 8192,
             "sha256": "f29f5e664c80e026007eefd10dcd6e6cde7642c9736755562b6e4bb5a4a4f81a"
           },
           "gated_silu": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
             "bytes": 262144,
             "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
           },
           "initial_ring": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/fe72a317a8a9adabb4f680d9b5e2ef97954bd2b4569a9324594acc647f0b3eca.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/fe72a317a8a9adabb4f680d9b5e2ef97954bd2b4569a9324594acc647f0b3eca.bin",
             "bytes": 65536,
             "sha256": "fe72a317a8a9adabb4f680d9b5e2ef97954bd2b4569a9324594acc647f0b3eca"
           },
           "expected_rings": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/9fdd12856e5de9cf1f468b10a155c98ac24f242d0715e05a92d83c5a0cbf5fbe.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/9fdd12856e5de9cf1f468b10a155c98ac24f242d0715e05a92d83c5a0cbf5fbe.bin",
             "bytes": 131072,
             "sha256": "9fdd12856e5de9cf1f468b10a155c98ac24f242d0715e05a92d83c5a0cbf5fbe"
           },
@@ -2071,109 +2071,109 @@
         "layer": 0,
         "transaction": 3,
         "command": [
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/block",
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/q7169-out32-txn3-layer0.tsv",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/block",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/q7169-out32-txn3-layer0.tsv",
           "7171"
         ],
         "plan_sha256": "cdf06cf42fb04b963e7f49d415db77f52a46b10a785187da234d996df1ea35ca",
         "roles": {
           "expected_convolution": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-conv-decode-output-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-conv-decode-output-bf16.bin",
             "bytes": 32768,
             "sha256": "13e3eeaed13713c12ece50c93d2bbb4e3391c11658c1cd8c74e17b4391a7d4e7"
           },
           "expected_a": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-a-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-a-projection-bf16.bin",
             "bytes": 128,
             "sha256": "9a4862d30f240bb02756d0021b9d1f73bcc27857f8ba893e7c9c248245629b77"
           },
           "expected_b": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-b-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-b-projection-bf16.bin",
             "bytes": 128,
             "sha256": "23d36a1bcf92b539c3f4b8ea557cca109b8faeb7eb07fd264c856e1cab56ad69"
           },
           "initial_state": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-decode-state-before-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-decode-state-before-f32.bin",
             "bytes": 2097152,
             "sha256": "e3a5ad366c24a8c6bc7c7265122f9f54f6fb94b4fbfc07656e66014c99d8260e"
           },
           "expected_states": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-decode-state-after-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-decode-state-after-f32.bin",
             "bytes": 4194304,
             "sha256": "25270b49658a29844b751aaab7af598fc6daf20605f6a8b4b93bef10537c6a5b"
           },
           "expected_core": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-core-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-core-bf16.bin",
             "bytes": 16384,
             "sha256": "6d939be4e21ba588a0c48e51dc2f2881965e67c088bb9d9577404fae8bdcecb6"
           },
           "g_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4.bin",
             "bytes": 8388608,
             "sha256": "fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4"
           },
           "beta_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
             "bytes": 262144,
             "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
           },
           "exp2": {
-            "file": "/home/qujing/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+            "file": "<evidence-home-2>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
             "bytes": 183174448,
             "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
           },
           "rsqrt": {
-            "file": "/home/qujing/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "file": "<evidence-home-2>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "bytes": 17301808,
             "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
           },
           "expected_qkv": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-qkv-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-qkv-bf16.bin",
             "bytes": 32768,
             "sha256": "1a37ad96f3014fd31388de370e2f66f960ed86e109a5c19793b62ef3f14ba5e5"
           },
           "conv_weights": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38.bin",
             "bytes": 65536,
             "sha256": "196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38"
           },
           "conv_silu": {
-            "file": "/home/qujing/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+            "file": "<evidence-home-2>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
             "bytes": 648036,
             "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
           },
           "input": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-layer-00-input-rmsnorm-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-layer-00-input-rmsnorm-bf16.bin",
             "bytes": 8192,
             "sha256": "51064857bc3e589cd62df5ab5302f3ec5c0b44e610b7fd4ee9340d0e9e478cd5"
           },
           "expected_z": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-z-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-z-projection-bf16.bin",
             "bytes": 16384,
             "sha256": "dcab2f4d5e86cd2b69ead7f993c29a60807ac9eb2c18dc25769c8041b0bf3442"
           },
           "expected_gated": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-gated-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-gated-bf16.bin",
             "bytes": 16384,
             "sha256": "1f2edfa1d06a7828f0545eadb2eb155ca87f6de0f13223234f31f64b17fc95f7"
           },
           "expected_output": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-output-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-00-output-projection-bf16.bin",
             "bytes": 8192,
             "sha256": "6c4f315a6222a3f9630d509f717b1d6bd1dd47b7adbaf94311b71c1a22ffed64"
           },
           "gated_silu": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
             "bytes": 262144,
             "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
           },
           "initial_ring": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/2d7109483006a5393248f44cf2f5699301c64d6e487b93c617cacce12ed0fb6d.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/2d7109483006a5393248f44cf2f5699301c64d6e487b93c617cacce12ed0fb6d.bin",
             "bytes": 65536,
             "sha256": "2d7109483006a5393248f44cf2f5699301c64d6e487b93c617cacce12ed0fb6d"
           },
           "expected_rings": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/da7b05824703ed0916696d28c34a32746a80d420e29b903ff577413fcfee4228.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/da7b05824703ed0916696d28c34a32746a80d420e29b903ff577413fcfee4228.bin",
             "bytes": 131072,
             "sha256": "da7b05824703ed0916696d28c34a32746a80d420e29b903ff577413fcfee4228"
           },
@@ -2370,109 +2370,109 @@
         "layer": 1,
         "transaction": 3,
         "command": [
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/block",
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/q7169-out32-txn3-layer1.tsv",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/block",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/q7169-out32-txn3-layer1.tsv",
           "7171"
         ],
         "plan_sha256": "e28fb59cde27c02b6368e632d504f4e8448e13113294e4c8f7f2a15535e7437c",
         "roles": {
           "expected_convolution": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-conv-decode-output-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-conv-decode-output-bf16.bin",
             "bytes": 32768,
             "sha256": "bbe0d2adf49c0c200dbb5ef966c0928f96e8857f848be9db8812fe4cbd53d439"
           },
           "expected_a": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-a-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-a-projection-bf16.bin",
             "bytes": 128,
             "sha256": "1de2c793755b94fdd5b73fc40646b7cf96463cdc5a28ae24c5c1dc09ce56b9d2"
           },
           "expected_b": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-b-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-b-projection-bf16.bin",
             "bytes": 128,
             "sha256": "a5534ef65f922bac3e2270f471bd4dd88ce6709937a83cf0d12bacbbe0134122"
           },
           "initial_state": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-decode-state-before-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-decode-state-before-f32.bin",
             "bytes": 2097152,
             "sha256": "2cf1acd03953a767d7fad9d942b91ee8d1fe957b8220dbc7a9402defccf65148"
           },
           "expected_states": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-decode-state-after-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-decode-state-after-f32.bin",
             "bytes": 4194304,
             "sha256": "446a4a4f78bf54b9bed5ee606ae8fdbd6191ba1a244dbda9f223ce05fc2b03b4"
           },
           "expected_core": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-core-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-core-bf16.bin",
             "bytes": 16384,
             "sha256": "ca7f589d9afb5441a58e6a7bc1b12f728b684d290a2674f88b80299faa67e59d"
           },
           "g_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc.bin",
             "bytes": 8388608,
             "sha256": "f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc"
           },
           "beta_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
             "bytes": 262144,
             "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
           },
           "exp2": {
-            "file": "/home/qujing/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+            "file": "<evidence-home-2>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
             "bytes": 183174448,
             "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
           },
           "rsqrt": {
-            "file": "/home/qujing/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "file": "<evidence-home-2>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "bytes": 17301808,
             "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
           },
           "expected_qkv": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-qkv-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-qkv-bf16.bin",
             "bytes": 32768,
             "sha256": "b6d5d1db0459d215db2b57d2fff088e47d845ae606eeb819c99469fc48722770"
           },
           "conv_weights": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/8174138832d50c5e60262f87ecd3d896bc0e7ff54200e9988a2e227e0f378c6e.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/8174138832d50c5e60262f87ecd3d896bc0e7ff54200e9988a2e227e0f378c6e.bin",
             "bytes": 65536,
             "sha256": "8174138832d50c5e60262f87ecd3d896bc0e7ff54200e9988a2e227e0f378c6e"
           },
           "conv_silu": {
-            "file": "/home/qujing/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+            "file": "<evidence-home-2>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
             "bytes": 648036,
             "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
           },
           "input": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-layer-01-input-rmsnorm-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-layer-01-input-rmsnorm-bf16.bin",
             "bytes": 8192,
             "sha256": "2dbee2bcf8e4a1dfce936fc383e406655f85aaf99dfcf1a79dc5021e155d13f2"
           },
           "expected_z": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-z-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-z-projection-bf16.bin",
             "bytes": 16384,
             "sha256": "84f820fba95af555728879016c28e0319bda22a1700f838f7ffcfabf006a7bcc"
           },
           "expected_gated": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-gated-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-gated-bf16.bin",
             "bytes": 16384,
             "sha256": "bf3685e94079689c32e3a1a7ed730b875e829654d5214a18d74350ceae23a727"
           },
           "expected_output": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-output-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-01-output-projection-bf16.bin",
             "bytes": 8192,
             "sha256": "8824eb85cfcea96ce49c5a63f91db9be87697c76626757ce7ceab3c550ef076f"
           },
           "gated_silu": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
             "bytes": 262144,
             "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
           },
           "initial_ring": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/a408099216294aed099941ca667854a74cf6111df37454b08504cc1d68db8d2b.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/a408099216294aed099941ca667854a74cf6111df37454b08504cc1d68db8d2b.bin",
             "bytes": 65536,
             "sha256": "a408099216294aed099941ca667854a74cf6111df37454b08504cc1d68db8d2b"
           },
           "expected_rings": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/c882c6bd30b7b50001aac317f1ceded98b52ee3efb86efe17c1041157c1f3109.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/c882c6bd30b7b50001aac317f1ceded98b52ee3efb86efe17c1041157c1f3109.bin",
             "bytes": 131072,
             "sha256": "c882c6bd30b7b50001aac317f1ceded98b52ee3efb86efe17c1041157c1f3109"
           },
@@ -2669,109 +2669,109 @@
         "layer": 2,
         "transaction": 3,
         "command": [
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/block",
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/q7169-out32-txn3-layer2.tsv",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/block",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/q7169-out32-txn3-layer2.tsv",
           "7171"
         ],
         "plan_sha256": "bbd8c430db8de3e968ad757c796e403ee4a5d7a363c256721efd246652ce0440",
         "roles": {
           "expected_convolution": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-conv-decode-output-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-conv-decode-output-bf16.bin",
             "bytes": 32768,
             "sha256": "dd31ac3f2a6a15d58f20966fa17af47eadad89b844aaf977e4c860e333767fa0"
           },
           "expected_a": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-a-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-a-projection-bf16.bin",
             "bytes": 128,
             "sha256": "b419ec54afa3f33e25e7186cc8331ef91500c8478a610d6f5d23620c84513143"
           },
           "expected_b": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-b-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-b-projection-bf16.bin",
             "bytes": 128,
             "sha256": "bd73aa6f76321139dec4acfdbe0aa533ff719dd8186613df7e0a98019a19ecc1"
           },
           "initial_state": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-decode-state-before-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-decode-state-before-f32.bin",
             "bytes": 2097152,
             "sha256": "c134c7bceca36c250da8fc11fc3449f187f7b47208cee11f99daf1c3df4b7d8c"
           },
           "expected_states": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-decode-state-after-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-decode-state-after-f32.bin",
             "bytes": 4194304,
             "sha256": "a3c3605dd324071ee267f35b770a23596241725a82e6ea3d6a720ac5b59d228c"
           },
           "expected_core": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-core-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-core-bf16.bin",
             "bytes": 16384,
             "sha256": "2080e3fc5fd9e45e88f3925e692b5ffe144d8af9d8c4206a821d2319db55ffa6"
           },
           "g_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080.bin",
             "bytes": 8388608,
             "sha256": "2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080"
           },
           "beta_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
             "bytes": 262144,
             "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
           },
           "exp2": {
-            "file": "/home/qujing/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+            "file": "<evidence-home-2>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
             "bytes": 183174448,
             "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
           },
           "rsqrt": {
-            "file": "/home/qujing/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "file": "<evidence-home-2>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "bytes": 17301808,
             "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
           },
           "expected_qkv": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-qkv-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-qkv-bf16.bin",
             "bytes": 32768,
             "sha256": "265a3513621fdb0bc3070f217bd33633472c831fbf7ec75e846e5cab56307b07"
           },
           "conv_weights": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/71295e846eee918b25b71bd81d736db08330b6510c04040e95ce09361ba9b169.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/71295e846eee918b25b71bd81d736db08330b6510c04040e95ce09361ba9b169.bin",
             "bytes": 65536,
             "sha256": "71295e846eee918b25b71bd81d736db08330b6510c04040e95ce09361ba9b169"
           },
           "conv_silu": {
-            "file": "/home/qujing/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+            "file": "<evidence-home-2>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
             "bytes": 648036,
             "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
           },
           "input": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-layer-02-input-rmsnorm-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-layer-02-input-rmsnorm-bf16.bin",
             "bytes": 8192,
             "sha256": "be49158c4f83130cc1b659954676358a1c55a3bffa95791f0f6e720333bb1711"
           },
           "expected_z": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-z-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-z-projection-bf16.bin",
             "bytes": 16384,
             "sha256": "49c6686d6a9f4560b81b4cc6cf6458af9aec8d4a17f27b8320513a79a2eb10c2"
           },
           "expected_gated": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-gated-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-gated-bf16.bin",
             "bytes": 16384,
             "sha256": "fc3fa093ebd6ae2897012f1cc5a77765f432a6fcaa6dd929f1dbf4b500498448"
           },
           "expected_output": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-output-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q7169-out32/txn0003-linear-02-output-projection-bf16.bin",
             "bytes": 8192,
             "sha256": "55ca9470977405caf7595e9fb5bc794fdf8278b7106e0656e585d5c13be779e3"
           },
           "gated_silu": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
             "bytes": 262144,
             "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
           },
           "initial_ring": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/46dc7615e93174f782acc4b994bee9aec9a0aeb90ee08b5d825e65cb8a5671d8.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/46dc7615e93174f782acc4b994bee9aec9a0aeb90ee08b5d825e65cb8a5671d8.bin",
             "bytes": 65536,
             "sha256": "46dc7615e93174f782acc4b994bee9aec9a0aeb90ee08b5d825e65cb8a5671d8"
           },
           "expected_rings": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/29cc6f9123e2b753186c1887411ba517f77628f7d4530e5a0d24599a8c09d4cc.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/29cc6f9123e2b753186c1887411ba517f77628f7d4530e5a0d24599a8c09d4cc.bin",
             "bytes": 131072,
             "sha256": "29cc6f9123e2b753186c1887411ba517f77628f7d4530e5a0d24599a8c09d4cc"
           },
@@ -2968,109 +2968,109 @@
         "layer": 0,
         "transaction": 1,
         "command": [
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/block",
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/q8192-out32-txn1-layer0.tsv",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/block",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/q8192-out32-txn1-layer0.tsv",
           "8192"
         ],
         "plan_sha256": "cc48c2b821491c377c00bcd67e0255262a8232f77002ec21436bfc4ba15f6606",
         "roles": {
           "expected_convolution": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-conv-decode-output-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-conv-decode-output-bf16.bin",
             "bytes": 32768,
             "sha256": "2c8c034ecf3534ab3d4447db674b4fcf5e5a861eb4beb7b50cff3c31e2581357"
           },
           "expected_a": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-a-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-a-projection-bf16.bin",
             "bytes": 128,
             "sha256": "462c67c5e88837f0c3f8fa2a005e581db05d925ed81a4b842b6728913d6d6e4b"
           },
           "expected_b": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-b-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-b-projection-bf16.bin",
             "bytes": 128,
             "sha256": "5c79108fd44b2d597a12b7862951f46af0085500fb9fc26c7c0e53eb012c7bef"
           },
           "initial_state": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-decode-state-before-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-decode-state-before-f32.bin",
             "bytes": 2097152,
             "sha256": "df7054595e55c391c1a3a4099a7b32d74c8a51cfe233480ec559642f038b3e38"
           },
           "expected_states": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-decode-state-after-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-decode-state-after-f32.bin",
             "bytes": 4194304,
             "sha256": "93077dda58f2052c944385b211951e65875720d0bf478dbb570eda6c4c8e2f37"
           },
           "expected_core": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-core-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-core-bf16.bin",
             "bytes": 16384,
             "sha256": "60e26f6d4782e292f25d7569e2d0823598bd0eb9ab813b07874691bfb9e6d83b"
           },
           "g_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4.bin",
             "bytes": 8388608,
             "sha256": "fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4"
           },
           "beta_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
             "bytes": 262144,
             "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
           },
           "exp2": {
-            "file": "/home/qujing/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+            "file": "<evidence-home-2>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
             "bytes": 183174448,
             "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
           },
           "rsqrt": {
-            "file": "/home/qujing/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "file": "<evidence-home-2>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "bytes": 17301808,
             "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
           },
           "expected_qkv": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-qkv-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-qkv-bf16.bin",
             "bytes": 32768,
             "sha256": "0ac607b206097202117f6e8f2334d4238e999b3d982d9812db15dbe343739442"
           },
           "conv_weights": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38.bin",
             "bytes": 65536,
             "sha256": "196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38"
           },
           "conv_silu": {
-            "file": "/home/qujing/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+            "file": "<evidence-home-2>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
             "bytes": 648036,
             "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
           },
           "input": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-layer-00-input-rmsnorm-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-layer-00-input-rmsnorm-bf16.bin",
             "bytes": 8192,
             "sha256": "87510f92b929bdd72d87be48eace640dc09930cce7f783cf12205fee490c59cd"
           },
           "expected_z": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-z-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-z-projection-bf16.bin",
             "bytes": 16384,
             "sha256": "e24b8be1ff2a228200bb7a8f698e140de6e142ce43bee5bd45144a235b6cc80e"
           },
           "expected_gated": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-gated-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-gated-bf16.bin",
             "bytes": 16384,
             "sha256": "752ee371c4f3509d9f938737c1b88b95465f0b4b7a46aafb82ea33abd18fa6d8"
           },
           "expected_output": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-output-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-00-output-projection-bf16.bin",
             "bytes": 8192,
             "sha256": "9070386bf8599e5a834b70d7639607b49fc952a043584ab83f18e285bc35d02c"
           },
           "gated_silu": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
             "bytes": 262144,
             "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
           },
           "initial_ring": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/436476c0cecaf5bad26a415722d92f0d734f528acce0d88f5fb608ceffbfc98e.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/436476c0cecaf5bad26a415722d92f0d734f528acce0d88f5fb608ceffbfc98e.bin",
             "bytes": 65536,
             "sha256": "436476c0cecaf5bad26a415722d92f0d734f528acce0d88f5fb608ceffbfc98e"
           },
           "expected_rings": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/16b5f15ff1a7dd6b89f811a6ae629a3e23280a999d7e3a45581b606f0f2defe3.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/16b5f15ff1a7dd6b89f811a6ae629a3e23280a999d7e3a45581b606f0f2defe3.bin",
             "bytes": 131072,
             "sha256": "16b5f15ff1a7dd6b89f811a6ae629a3e23280a999d7e3a45581b606f0f2defe3"
           },
@@ -3267,109 +3267,109 @@
         "layer": 1,
         "transaction": 1,
         "command": [
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/block",
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/q8192-out32-txn1-layer1.tsv",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/block",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/q8192-out32-txn1-layer1.tsv",
           "8192"
         ],
         "plan_sha256": "4bbfbead55a9011fe5e4d8e07d93a7213b9268795b07c5257fcdeec262106b3b",
         "roles": {
           "expected_convolution": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-conv-decode-output-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-conv-decode-output-bf16.bin",
             "bytes": 32768,
             "sha256": "09df0c0533c106c47aca0abc5a2bd8a8f6d21407bf5ef5db110eb03014b9db9c"
           },
           "expected_a": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-a-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-a-projection-bf16.bin",
             "bytes": 128,
             "sha256": "199678ebd1b4e4319440983f4f7ad7814666d92d1b2fa2eaaf5783773e025c6f"
           },
           "expected_b": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-b-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-b-projection-bf16.bin",
             "bytes": 128,
             "sha256": "2549fd19f4b293352297711c2dc3f9461a5ce3096c96a6086abdc2acf42fc1b3"
           },
           "initial_state": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-decode-state-before-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-decode-state-before-f32.bin",
             "bytes": 2097152,
             "sha256": "bf2a5294ef0bfacb0d7444c2f260fbad25aed2165ee0a780e0b68b78f36cef8d"
           },
           "expected_states": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-decode-state-after-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-decode-state-after-f32.bin",
             "bytes": 4194304,
             "sha256": "bd97082add301d6129675f99e1c7d8ce87f31f158df0d982b6bc4e78e3095e9d"
           },
           "expected_core": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-core-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-core-bf16.bin",
             "bytes": 16384,
             "sha256": "cfd2fb736076686eca40a2565c35d083e64ecf7047c6c6e1fd1ecb0e96c11526"
           },
           "g_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc.bin",
             "bytes": 8388608,
             "sha256": "f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc"
           },
           "beta_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
             "bytes": 262144,
             "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
           },
           "exp2": {
-            "file": "/home/qujing/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+            "file": "<evidence-home-2>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
             "bytes": 183174448,
             "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
           },
           "rsqrt": {
-            "file": "/home/qujing/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "file": "<evidence-home-2>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "bytes": 17301808,
             "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
           },
           "expected_qkv": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-qkv-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-qkv-bf16.bin",
             "bytes": 32768,
             "sha256": "cdf668aa6f1f45ddc7f3633acbf4d7aefbd7f0a9cc266a8bf2f66211b94d1b77"
           },
           "conv_weights": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/8174138832d50c5e60262f87ecd3d896bc0e7ff54200e9988a2e227e0f378c6e.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/8174138832d50c5e60262f87ecd3d896bc0e7ff54200e9988a2e227e0f378c6e.bin",
             "bytes": 65536,
             "sha256": "8174138832d50c5e60262f87ecd3d896bc0e7ff54200e9988a2e227e0f378c6e"
           },
           "conv_silu": {
-            "file": "/home/qujing/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+            "file": "<evidence-home-2>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
             "bytes": 648036,
             "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
           },
           "input": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-layer-01-input-rmsnorm-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-layer-01-input-rmsnorm-bf16.bin",
             "bytes": 8192,
             "sha256": "b5271e9f7f75cdfa9975b06526afbea4fea20aacbf03f55d8983f5cf6e331e29"
           },
           "expected_z": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-z-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-z-projection-bf16.bin",
             "bytes": 16384,
             "sha256": "cfb2c91b65b00d5ef8b6da71de2254a9efb282a5c3cc2ec60e5f26a9c3d136bd"
           },
           "expected_gated": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-gated-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-gated-bf16.bin",
             "bytes": 16384,
             "sha256": "ebba1fb811a266ecfeab0a732ba14c0c34388e5b9bedcd26f09d50d5e469a15a"
           },
           "expected_output": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-output-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-01-output-projection-bf16.bin",
             "bytes": 8192,
             "sha256": "4b866618fc9b045272a2b389cd2e0725d5f26b1e2a8486aa7360056c47ad6604"
           },
           "gated_silu": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
             "bytes": 262144,
             "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
           },
           "initial_ring": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/da95ba0fd9b531ea77ec95ea81e647d171e689b67fbfaae3597829c87d7f0db2.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/da95ba0fd9b531ea77ec95ea81e647d171e689b67fbfaae3597829c87d7f0db2.bin",
             "bytes": 65536,
             "sha256": "da95ba0fd9b531ea77ec95ea81e647d171e689b67fbfaae3597829c87d7f0db2"
           },
           "expected_rings": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/c50c6507308bb5e80f97a94bbd0565eb3df0f90bfbed98b02c9e0b4e41f1fcc4.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/c50c6507308bb5e80f97a94bbd0565eb3df0f90bfbed98b02c9e0b4e41f1fcc4.bin",
             "bytes": 131072,
             "sha256": "c50c6507308bb5e80f97a94bbd0565eb3df0f90bfbed98b02c9e0b4e41f1fcc4"
           },
@@ -3566,109 +3566,109 @@
         "layer": 2,
         "transaction": 1,
         "command": [
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/block",
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/q8192-out32-txn1-layer2.tsv",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/block",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/q8192-out32-txn1-layer2.tsv",
           "8192"
         ],
         "plan_sha256": "9988ad4447774169837c0ac8434197faaa8912a4ae3db5bbdaa99737c62c9c38",
         "roles": {
           "expected_convolution": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-conv-decode-output-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-conv-decode-output-bf16.bin",
             "bytes": 32768,
             "sha256": "6337c9a3d652e0870242045cb82cc9bec96fbd2461867cf3443f8845e83e8a1c"
           },
           "expected_a": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-a-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-a-projection-bf16.bin",
             "bytes": 128,
             "sha256": "6922bb8eaabcbb1c1e39850bf22a456f44fc3c691a4cf303df512d73168b9658"
           },
           "expected_b": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-b-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-b-projection-bf16.bin",
             "bytes": 128,
             "sha256": "52bd8c6b635bb2984e3fc10202ef6c82f4182a18867d4512d96ccdcbf952fe58"
           },
           "initial_state": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-decode-state-before-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-decode-state-before-f32.bin",
             "bytes": 2097152,
             "sha256": "20209ccec9043c9822d28693ef3835cdcc834f84be373033fb002fb63beded2f"
           },
           "expected_states": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-decode-state-after-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-decode-state-after-f32.bin",
             "bytes": 4194304,
             "sha256": "7abbee1b78323eec82d8f629b6435b5518db347df27f46f1e7eb371e413c9c15"
           },
           "expected_core": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-core-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-core-bf16.bin",
             "bytes": 16384,
             "sha256": "dff9a2bb954445aeaf9df4a84876fd5e1ad7ca8882179cb7c59124386606fd80"
           },
           "g_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080.bin",
             "bytes": 8388608,
             "sha256": "2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080"
           },
           "beta_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
             "bytes": 262144,
             "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
           },
           "exp2": {
-            "file": "/home/qujing/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+            "file": "<evidence-home-2>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
             "bytes": 183174448,
             "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
           },
           "rsqrt": {
-            "file": "/home/qujing/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "file": "<evidence-home-2>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "bytes": 17301808,
             "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
           },
           "expected_qkv": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-qkv-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-qkv-bf16.bin",
             "bytes": 32768,
             "sha256": "ed49142c5719ce476cbac9cc79790b7f9ab2c334216ba51c99137a476a7e5ea7"
           },
           "conv_weights": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/71295e846eee918b25b71bd81d736db08330b6510c04040e95ce09361ba9b169.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/71295e846eee918b25b71bd81d736db08330b6510c04040e95ce09361ba9b169.bin",
             "bytes": 65536,
             "sha256": "71295e846eee918b25b71bd81d736db08330b6510c04040e95ce09361ba9b169"
           },
           "conv_silu": {
-            "file": "/home/qujing/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+            "file": "<evidence-home-2>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
             "bytes": 648036,
             "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
           },
           "input": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-layer-02-input-rmsnorm-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-layer-02-input-rmsnorm-bf16.bin",
             "bytes": 8192,
             "sha256": "8c4105a48fa77c0d70e617f98a5065320af226b9e331c99f92533e5a1bf34fca"
           },
           "expected_z": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-z-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-z-projection-bf16.bin",
             "bytes": 16384,
             "sha256": "1fcac8f74d2181f17b1d2286ef91ce7be5985d090f585e35ce2a3f89b883ad0e"
           },
           "expected_gated": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-gated-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-gated-bf16.bin",
             "bytes": 16384,
             "sha256": "c2be1adad1553f248dc9df4ca51aaf638adc3474e82cfb17544d9739a6c91603"
           },
           "expected_output": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-output-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0001-linear-02-output-projection-bf16.bin",
             "bytes": 8192,
             "sha256": "42e90caba235a1651555475fca66c632809b49857547930e23777487619dd4ee"
           },
           "gated_silu": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
             "bytes": 262144,
             "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
           },
           "initial_ring": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/24a6d6e5a9281c7aa349231dd08a0a5ee975f1c9b41110b55d2b4ba485ffbd2a.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/24a6d6e5a9281c7aa349231dd08a0a5ee975f1c9b41110b55d2b4ba485ffbd2a.bin",
             "bytes": 65536,
             "sha256": "24a6d6e5a9281c7aa349231dd08a0a5ee975f1c9b41110b55d2b4ba485ffbd2a"
           },
           "expected_rings": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/90b986a54bd55fc975c9f2a13d3f57e6dd147521d92c5c8c800f5844c36e5d2b.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/90b986a54bd55fc975c9f2a13d3f57e6dd147521d92c5c8c800f5844c36e5d2b.bin",
             "bytes": 131072,
             "sha256": "90b986a54bd55fc975c9f2a13d3f57e6dd147521d92c5c8c800f5844c36e5d2b"
           },
@@ -3865,109 +3865,109 @@
         "layer": 0,
         "transaction": 2,
         "command": [
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/block",
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/q8192-out32-txn2-layer0.tsv",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/block",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/q8192-out32-txn2-layer0.tsv",
           "8194"
         ],
         "plan_sha256": "fb23b642e551ffdce0da4a1aa4d790460e719e2ac20ce822177da9fa9a52b959",
         "roles": {
           "expected_convolution": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-conv-decode-output-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-conv-decode-output-bf16.bin",
             "bytes": 32768,
             "sha256": "4c106d13015b10afa02035e8e184a11d1e3e0056499ae54b8513999226642dcb"
           },
           "expected_a": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-a-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-a-projection-bf16.bin",
             "bytes": 128,
             "sha256": "2c830fb7e7754e307a81bf8595ebda5cf55f9070035393a995862cc797b7419e"
           },
           "expected_b": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-b-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-b-projection-bf16.bin",
             "bytes": 128,
             "sha256": "468714e9c00462a952168bde143232ec3c795ae23163ab7ed8e0fcb90d53deed"
           },
           "initial_state": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-decode-state-before-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-decode-state-before-f32.bin",
             "bytes": 2097152,
             "sha256": "bd9d14786cdf7420385ed59459f8fc3f1e0b5ebe778b35242d35b29b83aeda53"
           },
           "expected_states": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-decode-state-after-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-decode-state-after-f32.bin",
             "bytes": 4194304,
             "sha256": "6101f8173fc92b9302cd8e5c8836a7268f8c3ccca09c12bb2f566aa59df8829b"
           },
           "expected_core": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-core-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-core-bf16.bin",
             "bytes": 16384,
             "sha256": "5f72b2582a05ece2b95a29862efc2b35785d4b4de02d8f0ec5a37205377712c4"
           },
           "g_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4.bin",
             "bytes": 8388608,
             "sha256": "fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4"
           },
           "beta_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
             "bytes": 262144,
             "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
           },
           "exp2": {
-            "file": "/home/qujing/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+            "file": "<evidence-home-2>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
             "bytes": 183174448,
             "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
           },
           "rsqrt": {
-            "file": "/home/qujing/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "file": "<evidence-home-2>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "bytes": 17301808,
             "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
           },
           "expected_qkv": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-qkv-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-qkv-bf16.bin",
             "bytes": 32768,
             "sha256": "3dbd6639a8a47b9ac6981cd160c98791ffeb32861af65c0b69353d587e7c12c4"
           },
           "conv_weights": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38.bin",
             "bytes": 65536,
             "sha256": "196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38"
           },
           "conv_silu": {
-            "file": "/home/qujing/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+            "file": "<evidence-home-2>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
             "bytes": 648036,
             "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
           },
           "input": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-layer-00-input-rmsnorm-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-layer-00-input-rmsnorm-bf16.bin",
             "bytes": 8192,
             "sha256": "2e0d23b6024c779df1c4a9d45c3599ce70a8af8bf6d5c1c0612c09fe22bf64e9"
           },
           "expected_z": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-z-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-z-projection-bf16.bin",
             "bytes": 16384,
             "sha256": "9c3f754b4d8da135420d5e1ac1f279f747e98fd3a9b711ed31d2f0f5858cd3e3"
           },
           "expected_gated": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-gated-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-gated-bf16.bin",
             "bytes": 16384,
             "sha256": "55213fb8dd439c91b05a87861cd089ed0c3351f4db28ef6570f3441fcbe6be3a"
           },
           "expected_output": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-output-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-00-output-projection-bf16.bin",
             "bytes": 8192,
             "sha256": "9e2c0f9fd271dda2751db4170c238ff4b536f678326028d725ebf72b937d897c"
           },
           "gated_silu": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
             "bytes": 262144,
             "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
           },
           "initial_ring": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/3a32c1d3a91b64e48efb4bed1c17ca3b48c412aadd60484cb70afb322450c369.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/3a32c1d3a91b64e48efb4bed1c17ca3b48c412aadd60484cb70afb322450c369.bin",
             "bytes": 65536,
             "sha256": "3a32c1d3a91b64e48efb4bed1c17ca3b48c412aadd60484cb70afb322450c369"
           },
           "expected_rings": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/4de313b5b7ffa42db1e4ff6e3c18f8d11c0624ebc29c76e7262d95b3354b1b86.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/4de313b5b7ffa42db1e4ff6e3c18f8d11c0624ebc29c76e7262d95b3354b1b86.bin",
             "bytes": 131072,
             "sha256": "4de313b5b7ffa42db1e4ff6e3c18f8d11c0624ebc29c76e7262d95b3354b1b86"
           },
@@ -4164,109 +4164,109 @@
         "layer": 1,
         "transaction": 2,
         "command": [
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/block",
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/q8192-out32-txn2-layer1.tsv",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/block",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/q8192-out32-txn2-layer1.tsv",
           "8194"
         ],
         "plan_sha256": "d4f96f2091d6443f2351b6075ec8e079afaba884f231f5f46de4d452ab070631",
         "roles": {
           "expected_convolution": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-conv-decode-output-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-conv-decode-output-bf16.bin",
             "bytes": 32768,
             "sha256": "dd42d704c986dc527455406b67efd2ad16c3137ac4bb18b8532403efc16308a4"
           },
           "expected_a": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-a-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-a-projection-bf16.bin",
             "bytes": 128,
             "sha256": "0182273c7c9ba71da3219b17f0cb3948c1abe3b4929d99298d949e6370feb22c"
           },
           "expected_b": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-b-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-b-projection-bf16.bin",
             "bytes": 128,
             "sha256": "81b63f444fe58b22ec36d8e62525666df02c156c5f895c212e1efee699497967"
           },
           "initial_state": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-decode-state-before-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-decode-state-before-f32.bin",
             "bytes": 2097152,
             "sha256": "d73a037788ca029105b39531e4cf4a2f2fcd264f2494449d34a30baa794f139c"
           },
           "expected_states": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-decode-state-after-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-decode-state-after-f32.bin",
             "bytes": 4194304,
             "sha256": "bcd84657c71eab48b7e033cec633b6c571bb7c9cb17d24e29e004487894e8bf7"
           },
           "expected_core": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-core-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-core-bf16.bin",
             "bytes": 16384,
             "sha256": "1c36c1166f086a8d094e605dccb2ced4bf01ebf6c9726a2a6fab4f3de7890040"
           },
           "g_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc.bin",
             "bytes": 8388608,
             "sha256": "f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc"
           },
           "beta_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
             "bytes": 262144,
             "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
           },
           "exp2": {
-            "file": "/home/qujing/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+            "file": "<evidence-home-2>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
             "bytes": 183174448,
             "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
           },
           "rsqrt": {
-            "file": "/home/qujing/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "file": "<evidence-home-2>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "bytes": 17301808,
             "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
           },
           "expected_qkv": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-qkv-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-qkv-bf16.bin",
             "bytes": 32768,
             "sha256": "26f7a8592cb98db08abe0e7b18e2ac076eb42782d7de7b25a6f81826b2460fe5"
           },
           "conv_weights": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/8174138832d50c5e60262f87ecd3d896bc0e7ff54200e9988a2e227e0f378c6e.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/8174138832d50c5e60262f87ecd3d896bc0e7ff54200e9988a2e227e0f378c6e.bin",
             "bytes": 65536,
             "sha256": "8174138832d50c5e60262f87ecd3d896bc0e7ff54200e9988a2e227e0f378c6e"
           },
           "conv_silu": {
-            "file": "/home/qujing/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+            "file": "<evidence-home-2>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
             "bytes": 648036,
             "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
           },
           "input": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-layer-01-input-rmsnorm-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-layer-01-input-rmsnorm-bf16.bin",
             "bytes": 8192,
             "sha256": "6bbf2675098a02f58b20711835541db1c6d1346663f0ccd5dc2540ae631c0683"
           },
           "expected_z": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-z-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-z-projection-bf16.bin",
             "bytes": 16384,
             "sha256": "cdeb2ff16fb913643484f676e43379ab8a7f096eabd11754a1fecfc398cdfe51"
           },
           "expected_gated": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-gated-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-gated-bf16.bin",
             "bytes": 16384,
             "sha256": "4019c61e253bae820f493784a8ac29f578aec2b8d178ea375285f17902730d3a"
           },
           "expected_output": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-output-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-01-output-projection-bf16.bin",
             "bytes": 8192,
             "sha256": "e56bca3354a5bf92e6824d65e5b878a86c594d002514108a7c1c3cfa4ce67ae2"
           },
           "gated_silu": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
             "bytes": 262144,
             "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
           },
           "initial_ring": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f3b46472aadb20cce6ee35be80a16afa1fddcac66a495604c9846ca710f1da89.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f3b46472aadb20cce6ee35be80a16afa1fddcac66a495604c9846ca710f1da89.bin",
             "bytes": 65536,
             "sha256": "f3b46472aadb20cce6ee35be80a16afa1fddcac66a495604c9846ca710f1da89"
           },
           "expected_rings": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/df500d88e52db21309938be3133f457a279e73b9fb2f5b276b487e7ae2983681.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/df500d88e52db21309938be3133f457a279e73b9fb2f5b276b487e7ae2983681.bin",
             "bytes": 131072,
             "sha256": "df500d88e52db21309938be3133f457a279e73b9fb2f5b276b487e7ae2983681"
           },
@@ -4463,109 +4463,109 @@
         "layer": 2,
         "transaction": 2,
         "command": [
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/block",
-          "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/q8192-out32-txn2-layer2.tsv",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/block",
+          "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/q8192-out32-txn2-layer2.tsv",
           "8194"
         ],
         "plan_sha256": "b1e22c00b81544b06eef2e1849323dfa87767e0e706a465dd28d1f16a96fd974",
         "roles": {
           "expected_convolution": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-conv-decode-output-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-conv-decode-output-bf16.bin",
             "bytes": 32768,
             "sha256": "b8ce39667e75a2b0f61430ca54d521851226b92060ee1d9fd833f585a61add5f"
           },
           "expected_a": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-a-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-a-projection-bf16.bin",
             "bytes": 128,
             "sha256": "0dbb6c0a9bc42e7174389ba914db1c3c3833022f1479a55acd3439655e06cdcc"
           },
           "expected_b": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-b-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-b-projection-bf16.bin",
             "bytes": 128,
             "sha256": "ebe32dd0faea6288be6f6014370fdf1c7657a158addf43cdc7c415d919968a18"
           },
           "initial_state": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-decode-state-before-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-decode-state-before-f32.bin",
             "bytes": 2097152,
             "sha256": "2924b59c53e78b26957bda934df887afc9c4d54241f6559b1342c7a67ca2c7a6"
           },
           "expected_states": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-decode-state-after-f32.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-decode-state-after-f32.bin",
             "bytes": 4194304,
             "sha256": "22de449f5d711603d82de8982451a5c0170cc0e269520b42be9a13d9b164fa24"
           },
           "expected_core": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-core-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-core-bf16.bin",
             "bytes": 16384,
             "sha256": "e298bbf2e6262b8ff419c0a4af3227c84c82e85c6feab6bf9a065345cef055ec"
           },
           "g_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080.bin",
             "bytes": 8388608,
             "sha256": "2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080"
           },
           "beta_table": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5.bin",
             "bytes": 262144,
             "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
           },
           "exp2": {
-            "file": "/home/qujing/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+            "file": "<evidence-home-2>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
             "bytes": 183174448,
             "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
           },
           "rsqrt": {
-            "file": "/home/qujing/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "file": "<evidence-home-2>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
             "bytes": 17301808,
             "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
           },
           "expected_qkv": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-qkv-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-qkv-bf16.bin",
             "bytes": 32768,
             "sha256": "19fbf2981bdcc94da32bd870a1eaa8c2aec708f449bfd271c2519edc06a833be"
           },
           "conv_weights": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/71295e846eee918b25b71bd81d736db08330b6510c04040e95ce09361ba9b169.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/71295e846eee918b25b71bd81d736db08330b6510c04040e95ce09361ba9b169.bin",
             "bytes": 65536,
             "sha256": "71295e846eee918b25b71bd81d736db08330b6510c04040e95ce09361ba9b169"
           },
           "conv_silu": {
-            "file": "/home/qujing/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+            "file": "<evidence-home-2>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
             "bytes": 648036,
             "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
           },
           "input": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-layer-02-input-rmsnorm-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-layer-02-input-rmsnorm-bf16.bin",
             "bytes": 8192,
             "sha256": "267d0f5dc51df67674c92500746a17996514c3113e194b9038f236f23ac76aca"
           },
           "expected_z": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-z-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-z-projection-bf16.bin",
             "bytes": 16384,
             "sha256": "ad370339a09c469f3fda2036591ee142d8bf980deea67fff2b1f0f842c0cb447"
           },
           "expected_gated": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-gated-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-gated-bf16.bin",
             "bytes": 16384,
             "sha256": "d9592de4273a3c07744ce15b7b374d962334ea60b2af838b5fa5adbd2b876b84"
           },
           "expected_output": {
-            "file": "/home/qujing/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-output-projection-bf16.bin",
+            "file": "<evidence-home-2>/qrt-gb10-q2-target-rows-20260920-r2/capture/q8192-out32/txn0002-linear-02-output-projection-bf16.bin",
             "bytes": 8192,
             "sha256": "2b78cd28f750c6c3e9181df76dc41f90ab6a2d1d6acf38b3e54d8d24677256f2"
           },
           "gated_silu": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c.bin",
             "bytes": 262144,
             "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
           },
           "initial_ring": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/cd8f8c2f0c9fe83d702cb171b99b0d1f379f8a2c6beac8c2f2593697f3f0b540.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/cd8f8c2f0c9fe83d702cb171b99b0d1f379f8a2c6beac8c2f2593697f3f0b540.bin",
             "bytes": 65536,
             "sha256": "cd8f8c2f0c9fe83d702cb171b99b0d1f379f8a2c6beac8c2f2593697f3f0b540"
           },
           "expected_rings": {
-            "file": "/home/qujing/qrt-q2-linear-block-cpu-20260920-r1/inputs/967ec9aa84edfe6c65d6200ef36bc1f64a28ed2049c78a1deb7fb7fdc24a4d5a.bin",
+            "file": "<evidence-home-2>/qrt-q2-linear-block-cpu-20260920-r1/inputs/967ec9aa84edfe6c65d6200ef36bc1f64a28ed2049c78a1deb7fb7fdc24a4d5a.bin",
             "bytes": 131072,
             "sha256": "967ec9aa84edfe6c65d6200ef36bc1f64a28ed2049c78a1deb7fb7fdc24a4d5a"
           },
@@ -4770,10 +4770,10 @@
   "gated_normalization": {
     "host": "Jiawei-MacminideMac-mini.local",
     "command": [
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/q2-gated-math-cpu-r1/gated",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/q2-gated-math-cpu-r1/plan.tsv",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/gated-compat-tables-r1/silu-f32.bin"
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/q2-gated-math-cpu-r1/gated",
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/q2-gated-math-cpu-r1/plan.tsv",
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/gated-compat-tables-r1/silu-f32.bin"
     ],
     "command_file": "validate_q2_gated_math_r1.py",
     "command_file_sha256": "1343e57e9fb9442719b06bfec71c9902e3e84603afae44df0d5f436f2f77d506",
@@ -4838,7 +4838,7 @@
       "test_q2_linear",
       "test_q2_recurrent"
     ],
-    "working_directory": "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tests",
+    "working_directory": "<evidence-home-1>/projects/AIMA-public-r1191-candidate/tests",
     "returncode": 0,
     "wall_seconds": 2.860367207787931,
     "tests": 3,
@@ -4946,5 +4946,19 @@
   "target_runtime_integration": false,
   "inference_acceptance": false,
   "performance_acceptance": false,
-  "release_qualified": false
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "1d91e4a98c2b692bc8767e5207669da4e37289b5f19ebf077a182b372e155af3",
+    "original_json_bytes": 201706,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/q2-complete-linear-block-cpu-20260920.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 5,
+      "<evidence-home-2>": 334
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
 }

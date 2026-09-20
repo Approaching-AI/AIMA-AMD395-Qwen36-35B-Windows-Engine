@@ -4,7 +4,7 @@
   "host": "Jiawei-MacminideMac-mini.local",
   "base_source_commit": "2e7c3a30854c69464416a8d325994646642c5ac6",
   "validation": {
-    "path": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-request-seed-local-r1/validation.json",
+    "path": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-request-seed-local-r1/validation.json",
     "sha256": "dcffd61811fb4e96b049f17f42cb1ec5168a9ca0fc9e32b3af5f02480fea268f",
     "kind": "native-mtp-actual-prefill-session-seed-local-validation",
     "utc": "2026-09-20T10:51:05.621589+00:00",
@@ -35,7 +35,7 @@
       "test_prefill_chunks",
       "-v"
     ],
-    "working_directory": "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tests",
+    "working_directory": "<evidence-home-1>/projects/AIMA-public-r1191-candidate/tests",
     "returncode": 0,
     "wall_seconds": 34.56840570829809,
     "tests": 53,
@@ -416,5 +416,18 @@
   "prefix_acceptance": false,
   "inference_acceptance": false,
   "performance_acceptance": false,
-  "release_qualified": false
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "9f653230776efadac4b7ade4c7a0137beec86ad764759eb41b97f290a0f1948b",
+    "original_json_bytes": 35204,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/mtp-actual-resident-request-seed-local-20260920.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 2
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
 }

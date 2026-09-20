@@ -83,10 +83,10 @@
         "-fsanitize=address,undefined",
         "-fno-sanitize-recover=all",
         "-I",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-resident-storage-local-r2/layout_audit.cpp",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-resident-storage-local-r2/layout_audit.cpp",
         "-o",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-resident-storage-local-r2/layout_audit"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-resident-storage-local-r2/layout_audit"
       ],
       "returncode": 0,
       "stdout": "",
@@ -96,8 +96,8 @@
     },
     "audit": {
       "command": [
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/mtp-resident-storage-local-r2/layout_audit",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/resident-text-shards-local-r1/original-tensor-ranges.txt"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-resident-storage-local-r2/layout_audit",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/resident-text-shards-local-r1/original-tensor-ranges.txt"
       ],
       "returncode": 0,
       "stdout": "{\"tensor_checks\":1045,\"mtp_tensors\":19,\"mtp_tensor_bytes\":1689281536,\"fixed_tensors\":611,\"fixed_bytes\":3879600640,\"fixed_positions_unchanged\":true,\"old_ordinary_bytes\":65441632256,\"new_ordinary_bytes\":67130913792,\"additional_device_bytes\":1689281536,\"remaining_omitted_tensors\":333,\"remaining_omitted_bytes\":893142496,\"weights_read\":false,\"inference_acceptance\":false}\n",
@@ -784,5 +784,18 @@
   "recorder": {
     "file": "record_mtp_resident_storage_r1.py",
     "sha256": "fdd18aeb55333eab94e55d95feca03037926d7b556746af99985c4c04ea1d25f"
+  },
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "d3fd950308d8502cdb287bd01b72f9a4706e9dd71b7cf2f356786f12d7d08e84",
+    "original_json_bytes": 30753,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/mtp-resident-storage-preparation-20260920.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 5
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
   }
 }

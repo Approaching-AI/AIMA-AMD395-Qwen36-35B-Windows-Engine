@@ -11,13 +11,13 @@
   "original_replay_sha256": "f3500f4d2d77b8830263fe82c5e3c56826a6041bebf80eee637e5de66df387f4",
   "original_root_cause_proof": "prefix256-segmented-attention-root-cause-20260921.json",
   "command": [
-    "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/segmented_attention_merge_cpu_r1",
-    "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix256-attention-replay-20260921-r1/3d-segment-output-f32.bin",
-    "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix256-attention-replay-20260921-r1/3d-segment-max-f32.bin",
-    "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix256-attention-replay-20260921-r1/3d-segment-sum-f32.bin",
-    "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix256-attention-replay-20260921-r1/3d-f32-context.bin",
-    "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
-    "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rcp-table-20260911-r2/sm121-attention-rcp-delta-i8.bin"
+    "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/segmented_attention_merge_cpu_r1",
+    "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix256-attention-replay-20260921-r1/3d-segment-output-f32.bin",
+    "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix256-attention-replay-20260921-r1/3d-segment-max-f32.bin",
+    "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix256-attention-replay-20260921-r1/3d-segment-sum-f32.bin",
+    "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-prefix256-attention-replay-20260921-r1/3d-f32-context.bin",
+    "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+    "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rcp-table-20260911-r2/sm121-attention-rcp-delta-i8.bin"
   ],
   "command_source_sha256": "be52b4387f78cea65784c4d33ca1bcc7567801cecc7721aab9e193adc981cc9d",
   "executable_sha256": "3ed0a1ec5eaa50aea630104ab11bacac3e4d52e2069888131b932360487b8079",
@@ -66,5 +66,18 @@
   "windows_gpu_probe_run": false,
   "inference_acceptance": false,
   "performance_acceptance": false,
-  "release_qualified": false
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "f293f9edbc68a2c304d854170e0ad0b86c26400684888b382d30d497f77a69bc",
+    "original_json_bytes": 3710,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/prefix256-segmented-attention-merge-cpu-20260921.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 7
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
 }

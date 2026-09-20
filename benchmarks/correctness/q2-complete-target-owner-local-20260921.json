@@ -215,7 +215,7 @@
       "-I",
       "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-q2-probe-syntax-s80qirmk",
       "-I",
-      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/providers/gdn",
+      "<evidence-home-1>/projects/AIMA-public-r1191-candidate/native/providers/gdn",
       "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-q2-probe-syntax-s80qirmk/probe.cpp"
     ],
     "returncode": 0,
@@ -283,5 +283,18 @@
   "inference_acceptance": false,
   "performance_acceptance": false,
   "release_qualified": false,
-  "published": false
+  "published": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "de0e83ec48cdb4c90dbf2bb46c572a8fdc962c188a042df09246730ad62fe7e3",
+    "original_json_bytes": 26621,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/q2-complete-target-owner-local-20260921.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 1
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
 }

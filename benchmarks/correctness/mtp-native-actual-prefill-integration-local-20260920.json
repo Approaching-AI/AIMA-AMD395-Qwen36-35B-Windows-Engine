@@ -35,7 +35,7 @@
         "test_resident_ordered_shards",
         "-v"
       ],
-      "working_directory": "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tests",
+      "working_directory": "<evidence-home-1>/projects/AIMA-public-r1191-candidate/tests",
       "returncode": 0,
       "wall_seconds": 28.517269833013415,
       "tests": 51,
@@ -409,5 +409,18 @@
   "native_model_execution": false,
   "inference_acceptance": false,
   "performance_acceptance": false,
-  "release_qualified": false
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "65f092068cc3935d0733d8f4b71906000c3efc54e9a783ea087794ded1096a8b",
+    "original_json_bytes": 33181,
+    "source_revision": "676e8892fb212a3551959b687987aa9ead94b2fe",
+    "source_path": "benchmarks/correctness/mtp-native-actual-prefill-integration-local-20260920.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 1
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
 }
