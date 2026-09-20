@@ -916,6 +916,25 @@ The observer's58 local checks also pass. The target binding is not yet called
 by the live target transaction; Windows compilation, complete target execution,
 state publication and inference acceptance remain pending.
 
+The [continuous forty-layer CPU replay](../benchmarks/correctness/q2-continuous-forty-layer-cpu-20260921.json)
+starts from the two original embeddings at position8192 and the committed
+target caches. Computed hidden and residual values feed every following layer;
+expected intermediate activations are comparison outputs only. Both observed
+candidate KV rows are excluded from history and recomputed. All542 stages agree
+bit-for-bit across36999936 values, including31457280 FP32 state values and both
+complete248320-element logit rows. Actual samples are255/logit17.875 and
+82/logit9.5625, exactly matching the original target.
+
+This run hashes all633 original BF16 payloads (69321217536 bytes), verifies601
+external numerical input files and61 derived inputs, and binds the qualified
+original capture and gating manifest. CPU execution takes22.251805 seconds;
+preparation and replay take75.316974 seconds onaitopatom-66c4. These timings do
+not measure Windows inference. An earlier attempt stopped before numerical
+execution because of an incorrect gating-manifest path; the corrected plan
+changes31 hash-verified paths without changing arithmetic. Complete native
+execution, accepted-state publication and target-request integration remain
+unrun.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a
