@@ -405,10 +405,23 @@ def full_prefill_attention_window(case, prompt_tokens):
     return plans.get(case)
 
 
-def observation_byte_limit(attention_window):
+def observation_byte_limit(attention_window, case=None, prompt_tokens=0):
     # One original 8192-row attention transaction plus its complete logical KV
     # history needs more than the selected-row ceiling. Other cases keep it.
-    return (1024 if attention_window is not None else 512) << 20
+    if attention_window is not None:
+        return 1024 << 20
+    if case is not None and case_full_cache_observation(case) is not None:
+        if type(prompt_tokens) is not int or not 1 <= prompt_tokens <= 263168:
+            raise ValueError('invalid full-cache observation prompt extent')
+        # One 256k K/V history alone exceeds 512 MiB. Reserve another 256 MiB
+        # for selected numerical rows; reject an oversized plan before running.
+        tokens = prompt_tokens + full_cache_observation_offset(case) + 1
+        needed = tokens * 2 * 512 * 2 * len(full_attention_observation_layers(case)) + (256 << 20)
+        if needed > 1024 << 20:
+            raise ValueError('full-cache observation exceeds the 1 GiB capture bound')
+        if needed > 512 << 20:
+            return 1024 << 20
+    return 512 << 20
 
 
 def observation_timeout_seconds(prompt_tokens):
@@ -436,7 +449,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         # Capture both scheduled identities, then qualify against real tokens.
         selected = observation_positions(case, prompt_tokens)
         full_attention_window = full_prefill_attention_window(case, prompt_tokens)
-        self._qrt_boundary_byte_limit = observation_byte_limit(full_attention_window)
+        self._qrt_boundary_byte_limit = observation_byte_limit(full_attention_window, case, prompt_tokens)
         self._qrt_boundary_handles = []
         self._qrt_boundary_transactions = []
         self._qrt_boundary_files = {}

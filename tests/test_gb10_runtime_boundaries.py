@@ -252,6 +252,19 @@ class RuntimeBoundaryTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     full_prefill_attention_window(case, 17408)
 
+    def test_long_decode_cache_budget_is_derived_and_bounded(self):
+        case = 'long-prefix262144-suffix1024-out512'
+        plan = {case: dict(offset=0, row=0)}
+        with patch.dict(os.environ, {'QRT_GB10_CASE_FULL_CACHE': json.dumps(plan)}, clear=True):
+            self.assertEqual(observation_byte_limit(None, case, 263168), 1024 << 20)
+            self.assertEqual(observation_byte_limit(None, 'q8192-out32', 8192), 512 << 20)
+            for value in (0, True, 263169):
+                with self.assertRaises(ValueError):
+                    observation_byte_limit(None, case, value)
+            with patch.dict(os.environ, {'QRT_GB10_CASE_BOUNDARY_FULL_LAYERS': json.dumps({case: [3, 7]})}):
+                with self.assertRaisesRegex(ValueError, '1 GiB'):
+                    observation_byte_limit(None, case, 263168)
+
     def test_full_attention_cold_chunk_keeps_complete_cache_bounded(self):
         case = 'long-prefix131072-owner-out512'
         plan = dict(layer=15, first_position=90112, tokens=8192)

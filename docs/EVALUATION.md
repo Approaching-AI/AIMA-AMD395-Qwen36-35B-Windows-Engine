@@ -7,6 +7,35 @@ acceptance binds real prompt token IDs, the first generated token, and the
 first-token logit within 0.125. Decode and prefix continuation are compared
 token-for-token. Engine self-hashes are diagnostic only.
 
+The latest [complete Windows Q2 target verification](../benchmarks/correctness/q2-complete-target-native-20260921.json)
+passes on baiying at source `69baaaa`. Starting from real token embeddings
+144/255 and original committed q8192 caches, it computes all40 layers, final
+normalization and both complete248320-logit rows continuously. All135778304
+compared values match in four BF16/F32-ring and state-layout configurations;
+samples are255/17.875 and82/9.5625. All633 original target weights are loaded
+and checked. Separate complete-linear and attention/head probes pass72478200
+and13511680 comparisons. Every native build/run and cleanup is attached.
+This establishes the full private computation, not live MTP acceptance or
+resident-cache publication. No product performance is accepted from this probe.
+
+The latest [packed-dense full256k run and diagnosed prefetch omission](../benchmarks/correctness/packed-dense-prefix256k-token-divergence-20260921.json)
+uses whole `f93b6c8`, CK370/FLA1d/MoE923/CLI6d and the real Windows model.
+All32 owner chunks complete; owner16/24.375 and suffix248045/5.78125 are exact.
+The first248 suffix outputs match, then output248 is8106 instead of424;
+255 of512 positions differ. Initial-suffix restoration and every host/process
+guard pass. Owner32 and the second suffix remain unmeasured after this failure.
+Native wall22862569.657ms is diagnostic, not accepted performance.
+
+The1113 captured-surface comparisons identify two remaining paths. At263356,
+layer0's normalized input is exact but its device-token prefetch still used
+old K16 projections; all13 QKV differences and the Z difference correspond to
+that qualified old operator. Prefetch now selects the same packed projection
+as ordinary long-context decode. At263168, layers0–2 and layer3 QKV/norm/RoPE
+are exact; the first independent difference is layer3 attention context
+(564 BF16 values). A bounded original-cache capture is being prepared to
+resolve it. Thirty local dispatch/observer tests pass; the revised whole DLL
+and product continuation have not yet run. Release remains unqualified.
+
 The September20 original256k run on whole `b3af8b6`, CK `3701495`, FLA
 `1d11bf7`, MoE `9235750` and CLI `6d9602c` completes all32 owner chunks,
 then fails the first suffix continuation. Owner first16/logit24.375 and suffix

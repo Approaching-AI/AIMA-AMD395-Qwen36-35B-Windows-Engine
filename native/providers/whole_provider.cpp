@@ -35095,9 +35095,13 @@ __global__ void selected_q1_float_projection_sm121_kernel(
 
 void launch_q1_float_projection(
     const uint16_t *weights, const float *input, float *output,
-    unsigned int rows, hipStream_t stream
+    unsigned int rows, hipStream_t stream, bool packed_dense = false
 ) {
-    if (env_flag_enabled("QRT_QWEN36_Q1_F32_PROJECTION_SM121")) {
+    if (packed_dense) {
+        hipLaunchKernelGGL((qrt_sm121_packed_dense::projection<2048u,float,float>),
+            dim3((rows + 15u) / 16u), dim3(256u), 0, stream,
+            input, weights, output, rows, 1u);
+    } else if (env_flag_enabled("QRT_QWEN36_Q1_F32_PROJECTION_SM121")) {
         hipLaunchKernelGGL(selected_q1_float_projection_sm121_kernel,
             dim3((rows + 15u) / 16u), dim3(256u), 0, stream,
             weights, input, output, rows);
@@ -194806,21 +194810,25 @@ bool run_qwen36_resident_decode_direct_output_plan(
                     workspace->device_norm_f32
                 );
             }
+            // Prefetch is consumed instead of the ordinary layer-0 projection.
+            // It must select the same arithmetic as that next target step.
+            const bool packed_prefetch = env_flag_enabled("QRT_QWEN36_Q1_SM121_GDN") &&
+                qrt_sm121_q1_packed_runtime::applies_to_prefix(g_qwen36_resident_session.prefix_tokens);
             launch_q1_float_projection(
                 qkv_weights, workspace->device_norm_f32, device_qkv,
-                kQkvRows, direct_output_stream
+                kQkvRows, direct_output_stream, packed_prefetch
             );
             launch_q1_float_projection(
                 z_weights, workspace->device_norm_f32, device_z,
-                kZRows, direct_output_stream
+                kZRows, direct_output_stream, packed_prefetch
             );
             launch_q1_float_projection(
                 a_weights, workspace->device_norm_f32, device_a,
-                kAbRows, direct_output_stream
+                kAbRows, direct_output_stream, packed_prefetch
             );
             launch_q1_float_projection(
                 b_weights, workspace->device_norm_f32, device_b,
-                kAbRows, direct_output_stream
+                kAbRows, direct_output_stream, packed_prefetch
             );
             status = hipGetLastError();
             if (status != hipSuccess) {
