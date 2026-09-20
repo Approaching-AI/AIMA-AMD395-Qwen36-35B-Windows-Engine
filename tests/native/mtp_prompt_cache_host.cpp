@@ -109,14 +109,28 @@ int main() {
     reset_faults();
     { PromptCache c; assert(c.reserve(8u,2u) == hipSuccess);
       assert(c.allocated_bytes() == 8u*2048u + 2u*18432u + 8u);
+      assert(!c.tail(0u,1u).fusion);
       assert(append(c,0u,2u).status == hipSuccess && c.retained_tokens() == 2u);
+      const auto first_tail = c.tail(0u,2u), last_tail = c.tail(1u,1u);
+      assert(c.valid_tail(first_tail) && c.valid_tail(last_tail));
+      assert(first_tail.fusion[0] == 22u && first_tail.normalized[0] == 33u);
+      assert(last_tail.fusion == first_tail.fusion + 2048u);
+      assert(last_tail.normalized == first_tail.normalized + 2048u);
+      assert(!c.tail(0u,0u).fusion && !c.tail(0u,3u).fusion && !c.tail(2u,1u).fusion);
+      assert(!c.tail(~0u,1u).fusion && !c.tail(1u,~0u).fusion);
       assert(!qrt_sm121_mtp::observed_split1024);
       assert((stages == std::vector<std::string>{"clear","gather","copy","fc","norm","kv","cache"}));
       const auto* pointer = c.data(); const auto calls = stages.size();
       assert(append(c,1u,2u).status == hipErrorInvalidValue && stages.size() == calls);
+      assert(c.valid_tail(first_tail)); // Rejected before modifying scratch.
       assert(c.reserve(9u,2u) == hipErrorInvalidValue && c.data() == pointer);
       assert(!c.truncate(3u) && c.truncate(1u));
+      assert(!c.valid_tail(first_tail) && !c.valid_tail(last_tail));
       assert(append(c,1u,2u,true).status == hipSuccess && c.retained_tokens() == 3u);
+      const auto next_tail = c.tail(1u,2u);
+      assert(c.valid_tail(next_tail) && !c.valid_tail(first_tail));
+      assert(next_tail.generation != first_tail.generation);
+      assert(c.truncate(3u) && c.valid_tail(next_tail));
       assert(qrt_sm121_mtp::observed_split1024);
       assert(c.data()[3u*1024u] == 0xa5a5u); // Unpublished tail untouched.
     } assert(allocations.empty());
@@ -124,9 +138,11 @@ int main() {
     for (const char* stage : {"clear","gather","copy","fc","norm","kv","cache"}) {
         reset_faults();
         { PromptCache c; assert(c.reserve(8u,2u) == hipSuccess); assert(append(c,0u,1u).status == hipSuccess);
+          const auto view = c.tail(0u,1u); assert(c.valid_tail(view));
           reset_faults(); fail_stage = stage; auto result = append(c,1u,2u);
           assert(result.status == injected && !result.completion_unknown && !c.quarantined());
           assert(c.retained_tokens() == 1u && c.data()[0] == 55u && queued.empty());
+          assert(!c.valid_tail(view) && !c.tail(0u,1u).fusion);
           reset_faults(); assert(append(c,1u,2u).status == hipSuccess && c.retained_tokens() == 3u);
         } assert(allocations.empty());
     }

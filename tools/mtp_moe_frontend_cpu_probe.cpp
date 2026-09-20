@@ -12,6 +12,7 @@
 #include "sm121_shared_gate.h"
 #include "sm121_router_exp.h"
 #include "q1_moe_hawkeye_bf16_accumulator.h"
+#include "native/providers/gdn/sm121_mtp_moe_math.h"
 
 float widen(uint16_t x) { return qrt_sm121_shared_gate::value(x); }
 uint32_t bits(float x) { uint32_t u; std::memcpy(&u,&x,4); return u; }
@@ -64,39 +65,25 @@ int main(int argc,char** argv) try {
         checks["shared_gate_k16_diagnostic"].add(bf16(qrt_q1_moe_hawkeye::dot_bf16_hopper_blackwell(
             input.data()+t*2048,wg.data(),2048)),gate[t]);
         for(unsigned i=0;i<512;++i)checks["shared_activation"].add(
-            bf16(widen(silu[12+gu[t*1024+i]])*widen(gu[t*1024+512+i])),act[t*512+i]);
+            qrt_sm121_mtp::moe_activate(gu[t*1024+i],gu[t*1024+512+i],silu.data()+12),act[t*512+i]);
         for(unsigned route=0;route<8;++route)for(unsigned i=0;i<512;++i) {
             const size_t base=t*8192+route*1024;
-            checks["routed_activation"].add(bf16(widen(silu[12+rgu[base+i]])*widen(rgu[base+512+i])),
+            checks["routed_activation"].add(qrt_sm121_mtp::moe_activate(rgu[base+i],rgu[base+512+i],silu.data()+12),
                 ract[t*4096+route*512+i]);
         }
         for(unsigned i=0;i<2048;++i) {
-            checks["shared_gate_product"].add(bf16(widen(sigmoid[gate[t]])*widen(down[t*2048+i])),shared[t*2048+i]);
-            const size_t base=t*16384+i;
-            float sum=widen(weighted[base])+widen(weighted[base+4*2048]);
-            for(unsigned j=1;j<4;++j)sum=sum+(widen(weighted[base+j*2048])+widen(weighted[base+(j+4)*2048]));
-            checks["routed_sum"].add(bf16(sum),routed[t*2048+i]);
-            checks["moe_sum"].add(bf16(widen(shared[t*2048+i])+widen(routed[t*2048+i])),moe[t*2048+i]);
+            checks["shared_gate_product"].add(qrt_sm121_mtp::moe_shared_product(gate[t],down[t*2048+i],sigmoid.data()),shared[t*2048+i]);
+            checks["routed_sum"].add(qrt_sm121_mtp::moe_routed_sum(weighted.data()+t*16384,i),routed[t*2048+i]);
+            checks["moe_sum"].add(qrt_sm121_mtp::moe_output(shared[t*2048+i],routed[t*2048+i]),moe[t*2048+i]);
             checks["attention_residual"].add(bf16(widen(fusion[t*2048+i])+widen(attention[t*2048+i])),residual[t*2048+i]);
         }
-        float p[256],maximum=-INFINITY,sums[32]={};
-        for(unsigned i=0;i<256;++i)maximum=std::max(maximum,widen(router[t*256+i]));
-        for(unsigned l=0;l<32;++l)for(unsigned j=0;j<8;++j) {
-            const unsigned i=l*8+j;p[i]=qrt_sm121_router::exp(widen(router[t*256+i])-maximum,fraction.data());
-            sums[l]=sums[l]+p[i];
-        }
-        for(unsigned mask=16;mask;mask/=2) {
-            float next[32];for(unsigned l=0;l<32;++l)next[l]=sums[l]+sums[l^mask];
-            std::copy(next,next+32,sums);
-        }
-        const float inverse=1.0f/sums[0];for(float& v:p)v=v*inverse;
-        float selected[8],denominator=0;
+        uint32_t selected_ids[8];float selected_weights[8];
+        if(!qrt_sm121_mtp::moe_route(router.data()+t*256,fraction.data(),selected_ids,selected_weights))
+            throw std::runtime_error("invalid router operands");
         for(unsigned k=0;k<8;++k) {
-            unsigned best=0;for(unsigned i=1;i<256;++i)if(p[i]>p[best])best=i;
-            selected[k]=p[best];denominator=denominator+selected[k];p[best]=-10000;
-            checks["router_ids"].add(best,ids[t*8+k]);
+            checks["router_ids"].add(selected_ids[k],ids[t*8+k]);
+            checks["router_weight_f32"].add(bits(selected_weights[k]),bits(weights[t*8+k]));
         }
-        for(unsigned k=0;k<8;++k)checks["router_weight_f32"].add(bits(selected[k]/denominator),bits(weights[t*8+k]));
     }
     std::cout<<"{\"rows\":"<<rows<<",\"checks\":{";
     bool comma=false;size_t mismatches=0;

@@ -402,6 +402,25 @@ operands pass. Every native process exits0 and leaves no matching process.
 These runs load captured operands, not the complete model, and establish no
 inference or performance acceptance.
 
+The [native MTP MoE candidate's local checks](../benchmarks/correctness/mtp-moe-native-chain-local-20260920.json)
+now cover a complete one/two-row chain: router projection and selection,
+shared gate and expert, eight routed experts, and the final merge. Its 13
+intermediate buffers remain observable in bounded caller-owned workspace.
+Shared host/device routing and pointwise arithmetic reproduce all 66 original
+rows, including exact FP32 route weights. The GPU implementation uses ordinary
+FP32 division and requires unsafe/reciprocal math to be disabled explicitly.
+Twenty-one local tests pass, including workspace overlap/overflow rejection,
+stopping after every simulated submission failure, and prompt-tail lifetime.
+The native probe's host C++ syntax also passes; this does not compile kernels.
+
+`PromptCache::tail` exposes completed FC and normalized rows for subsequent
+query projection and residuals. A successful append, truncation or reallocation
+invalidates older views; partially submitted failures also invalidate scratch
+views while retaining the completed K/V prefix. The new MoE GPU probe compares
+every stage under one/two-row batching and 7/1024-block bounds, plus all borrowed
+input bytes, guards and unused padding. Its Windows build and GPU execution
+remain pending. Complete native MTP is still unwired and unqualified.
+
 `native/providers/mtp_draft_schedule.h` implements the original scheduled-extent
 rule as a separate state machine. It waits until the current batch completes
 before choosing the next operator, using the scheduled extent even when a

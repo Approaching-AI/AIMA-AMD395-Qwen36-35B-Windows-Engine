@@ -1,0 +1,308 @@
+{
+  "kind": "mtp_moe_native_chain_candidate_local_validation",
+  "cpu": {
+    "kind": "original_mtp_moe_shared_host_device_math_cpu_regression",
+    "host": "Jiawei-MacminideMac-mini.local",
+    "source_base_commit": "22a1de36db707b17f31fce9f41a035db6ddfb9e6",
+    "source_is_uncommitted_candidate": true,
+    "source_sha256": {
+      "tools/mtp_moe_frontend_cpu_probe.cpp": "e69f229f490c075fe0b8913cfdf4995b46069cb80ff914aa7d2aa1430f1f0c12",
+      "native/providers/gdn/sm121_mtp_moe_math.h": "1bca67f5dd6a672d0f0d79f90bf0d3a992c6908dea235b3b028efa29900fb349",
+      "native/providers/gdn/sm121_mtp_moe_layout.h": "aa25ff78b71bd698db2745b2e7a84cfebd565b9d143a81bc4f7e7a302617ff1f",
+      "native/providers/gdn/sm121_mtp_moe.h": "df38e91dae5bc127961813be746da1d5bd8ce8dc0e2fb01782f3aeac896cb52d",
+      "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+      "native/providers/moe_accumulator/sm121_router_exp.h": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+      "native/providers/moe_accumulator/sm121_shared_gate.h": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f"
+    },
+    "original_reference_host": "aitopatom-66c4",
+    "original_reference_model": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "original_reference_source_commit": "e034919575af8a56c56a8e49447294455dc2db7a",
+    "original_reference_capture_sha256": "7d0ef0f9cc4d8d3686698062a8707278968f4c4a3e552fdde23295214cb71025",
+    "original_cpu_comparison_sha256": "cfdcc9121fbffd2cd8f871c81ebc75c0ff8f97ad5f5cf930ae038af9020b87cd",
+    "build": {
+      "command": [
+        "c++",
+        "-std=c++17",
+        "-O2",
+        "-fno-fast-math",
+        "-fno-reciprocal-math",
+        "-ffp-contract=off",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "-I",
+        "<private-home>/projects/AIMA-public-r1191-candidate",
+        "-I",
+        "<private-home>/projects/AIMA-public-r1191-candidate/native/providers/moe_accumulator",
+        "<private-home>/projects/AIMA-public-r1191-candidate/tools/mtp_moe_frontend_cpu_probe.cpp",
+        "-o",
+        "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-moe-shared-math-cpu-r2/mtp-moe-frontend-cpu"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "executable_sha256": "80e54726f31bb56a8f69e9e167d12aa3f3bca70281b2d022e7c47b8689d94677",
+    "results": [
+      {
+        "case": "q7169-out32",
+        "command": [
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-moe-shared-math-cpu-r2/mtp-moe-frontend-cpu",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-moe-cpu-r3/q7169-out32",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-moe-20260920-r3/capture/mtp-moe-original-weights/shared-gate.bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-moe-tables-20260910-r1/cuda-vllm-silu-bf16-domain.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-moe-tables-20260910-r1/cuda-router-ex2-fraction-f32.bin"
+        ],
+        "returncode": 0,
+        "seconds": 0.6272011250257492,
+        "report": {
+          "rows": 33,
+          "checks": {
+            "attention_residual": {
+              "elements": 67584,
+              "mismatches": 0,
+              "first_difference": null
+            },
+            "moe_sum": {
+              "elements": 67584,
+              "mismatches": 0,
+              "first_difference": null
+            },
+            "routed_activation": {
+              "elements": 135168,
+              "mismatches": 0,
+              "first_difference": null
+            },
+            "routed_sum": {
+              "elements": 67584,
+              "mismatches": 0,
+              "first_difference": null
+            },
+            "router_ids": {
+              "elements": 264,
+              "mismatches": 0,
+              "first_difference": null
+            },
+            "router_weight_f32": {
+              "elements": 264,
+              "mismatches": 0,
+              "first_difference": null
+            },
+            "shared_activation": {
+              "elements": 16896,
+              "mismatches": 0,
+              "first_difference": null
+            },
+            "shared_gate_k16_diagnostic": {
+              "elements": 33,
+              "mismatches": 0,
+              "first_difference": null
+            },
+            "shared_gate_lane16": {
+              "elements": 33,
+              "mismatches": 0,
+              "first_difference": null
+            },
+            "shared_gate_product": {
+              "elements": 67584,
+              "mismatches": 0,
+              "first_difference": null
+            }
+          },
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        "stderr": ""
+      },
+      {
+        "case": "q8192-out32",
+        "command": [
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-moe-shared-math-cpu-r2/mtp-moe-frontend-cpu",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-moe-cpu-r3/q8192-out32",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-mtp-moe-20260920-r3/capture/mtp-moe-original-weights/shared-gate.bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-moe-tables-20260910-r1/cuda-vllm-silu-bf16-domain.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-moe-tables-20260910-r1/cuda-router-ex2-fraction-f32.bin"
+        ],
+        "returncode": 0,
+        "seconds": 0.08179200068116188,
+        "report": {
+          "rows": 33,
+          "checks": {
+            "attention_residual": {
+              "elements": 67584,
+              "mismatches": 0,
+              "first_difference": null
+            },
+            "moe_sum": {
+              "elements": 67584,
+              "mismatches": 0,
+              "first_difference": null
+            },
+            "routed_activation": {
+              "elements": 135168,
+              "mismatches": 0,
+              "first_difference": null
+            },
+            "routed_sum": {
+              "elements": 67584,
+              "mismatches": 0,
+              "first_difference": null
+            },
+            "router_ids": {
+              "elements": 264,
+              "mismatches": 0,
+              "first_difference": null
+            },
+            "router_weight_f32": {
+              "elements": 264,
+              "mismatches": 0,
+              "first_difference": null
+            },
+            "shared_activation": {
+              "elements": 16896,
+              "mismatches": 0,
+              "first_difference": null
+            },
+            "shared_gate_k16_diagnostic": {
+              "elements": 33,
+              "mismatches": 0,
+              "first_difference": null
+            },
+            "shared_gate_lane16": {
+              "elements": 33,
+              "mismatches": 0,
+              "first_difference": null
+            },
+            "shared_gate_product": {
+              "elements": 67584,
+              "mismatches": 0,
+              "first_difference": null
+            }
+          },
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        "stderr": ""
+      }
+    ],
+    "selected_rows": 66,
+    "all_pass": true,
+    "asan_ubsan": true,
+    "native_execution": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "helper": {
+      "file": "check_mtp_moe_shared_math_cpu_r2.py",
+      "sha256": "09090e541e8b744f327f2b3a221166c4d830299b3f3e273a67cd8ab08e1434dc"
+    }
+  },
+  "cpu_sha256": "beb4f35e903e9fe8eb6d22318f94a552d872ec6c1447f2337837beec59144be5",
+  "validation": {
+    "all_pass": true,
+    "checks": [
+      {
+        "command": [
+          "python3.12",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-p",
+          "test_mtp_moe_launch.py"
+        ],
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 1.447s\n\nOK\n"
+      },
+      {
+        "command": [
+          "python3.12",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-p",
+          "test_mtp_prompt_cache.py"
+        ],
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 1.023s\n\nOK\n"
+      },
+      {
+        "command": [
+          "python3.12",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-p",
+          "test_mtp_moe_capture.py"
+        ],
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "..................\n----------------------------------------------------------------------\nRan 18 tests in 0.554s\n\nOK\n"
+      },
+      {
+        "command": [
+          "c++",
+          "-std=c++17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-fsyntax-only",
+          "-I",
+          "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/tmpjew6mbak",
+          "-I",
+          "<private-home>/projects/AIMA-public-r1191-candidate",
+          "<private-home>/projects/AIMA-public-r1191-candidate/tools/mtp_moe_hip_probe.cpp"
+        ],
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "scope": "Probe host C++ syntax with declaration-only HIP/MoE interface; no kernel compilation or execution."
+      }
+    ],
+    "sources": {
+      "native/providers/gdn/sm121_mtp_moe.h": "df38e91dae5bc127961813be746da1d5bd8ce8dc0e2fb01782f3aeac896cb52d",
+      "native/providers/gdn/sm121_mtp_moe_math.h": "1bca67f5dd6a672d0f0d79f90bf0d3a992c6908dea235b3b028efa29900fb349",
+      "native/providers/gdn/sm121_mtp_moe_layout.h": "aa25ff78b71bd698db2745b2e7a84cfebd565b9d143a81bc4f7e7a302617ff1f",
+      "native/providers/gdn/sm121_mtp_prompt_cache.h": "d9b3acfca1948909b6754e8a00e7e864e5db1859e092f85742fb7c5788fdafcb",
+      "tools/mtp_moe_hip_probe.cpp": "863c68a5b47f11290a94dd2263422f5e0f779c0551bfe7da53b7ec979e34c8c9",
+      "tools/mtp_moe_frontend_cpu_probe.cpp": "e69f229f490c075fe0b8913cfdf4995b46069cb80ff914aa7d2aa1430f1f0c12",
+      "tests/native/mtp_moe_workspace_host.cpp": "70e490a9493ce21e5f1df3e2e9b160b7fa93a747addf3c2527f49fb0bdae51df",
+      "tests/native/mtp_prompt_cache_host.cpp": "bf3b5e581bf2bd5c15307d9441530b9bb8b3970889acd6f96316f33ec0d39af6",
+      "tests/test_mtp_moe_launch.py": "1cdf1aa4fac444e3420b257ff8b0e3e9bae4be92eae99f58535e689a95fe9196"
+    },
+    "native_kernel_compilation": false,
+    "native_execution": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "helper": {
+      "file": "validate_mtp_moe_chain_local_r1.py",
+      "sha256": "746ed3cfc5af5ce7171fc6d64a00a4bb0cb1e1b9d26c9c6c62b35604b5c137a6"
+    }
+  },
+  "validation_sha256": "c608cc639c2dbcb4ce454320c52c6670c27f8299d3e244e14f8f2f184b847cdf",
+  "original_reference": {
+    "file": "benchmarks/correctness/gb10-mtp-moe-original-frontiers-20260920.json",
+    "bytes": 742513,
+    "sha256": "77431960c7cd10eebb395c3b76e295b59885d209c95ee9ff2911122ae0589b7c"
+  },
+  "original_routed_projection_proof": {
+    "file": "benchmarks/correctness/gb10-mtp-routed-projections-cpu-20260920.json",
+    "bytes": 145090,
+    "sha256": "f8ea9ff74d1d1ca18a57de105fdebf7618d4e4521ab3a0505680e3d282f4cd4c"
+  },
+  "native_build": false,
+  "native_execution": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "scope": "Candidate completes the native TP1/EP1 MTP MoE chain on one or two rows, preserving all intermediate stages. Local host contracts and 66 original-input shared math rows pass. The new complete GPU chain and complete drafter remain unqualified."
+}

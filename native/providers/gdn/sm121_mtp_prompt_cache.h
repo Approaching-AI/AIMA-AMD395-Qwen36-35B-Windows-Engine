@@ -33,6 +33,14 @@ struct PromptStep {
     bool completion_unknown = false;
 };
 
+struct PromptTail {
+    const uint16_t* fusion = nullptr;
+    const uint16_t* normalized = nullptr;
+    unsigned int first_position = 0;
+    unsigned int rows = 0;
+    uint64_t generation = 0;
+};
+
 // One request owns this storage. A completed append publishes only a
 // contiguous prefix; failed work cannot advance its visible cache extent.
 // Each input row must be the actual target's post-final-norm hidden row.
@@ -84,6 +92,7 @@ public:
         std::swap(host_invalid_, next.host_invalid_);
         std::swap(capacity_, next.capacity_);
         std::swap(row_capacity_, next.row_capacity_);
+        invalidate_tail();
         return hipSuccess;
     }
 
@@ -101,6 +110,7 @@ public:
             first_position >= capacity_ || rows > capacity_ - first_position ||
             first_position >= rope_rows || rows > rope_rows - first_position)
             return {hipErrorInvalidValue, "input_contract", retained_};
+        invalidate_tail();
         const auto fail = [&](hipError_t status, const char* stage) {
             // Drain any preceding launches before scratch storage can be
             // reused, including a projection that failed after partial work.
@@ -135,6 +145,8 @@ public:
         status = hipStreamSynchronize(stream);
         if (status != hipSuccess) return quarantine(status, "cache_completion");
         retained_ += rows;
+        tail_first_ = first_position;
+        tail_rows_ = rows;
         return {hipSuccess, "complete", retained_};
     }
 
@@ -142,8 +154,24 @@ public:
     // acceptance. It must never infer this extent from reference decisions.
     bool truncate(unsigned int tokens) {
         if (quarantined_ || tokens > retained_) return false;
+        if (tokens != retained_) invalidate_tail();
         retained_ = tokens;
         return true;
+    }
+    // Borrow at most two completed rows for Q projection and the attention
+    // residual. A later append, truncation or reallocation invalidates this
+    // scratch view; the persistent K/V prefix has a separate lifetime.
+    PromptTail tail(unsigned int first, unsigned int rows) const {
+        if (quarantined_ || !rows || rows > 2u || first < tail_first_ ||
+            first - tail_first_ >= tail_rows_ || rows > tail_rows_ - (first - tail_first_) ||
+            first >= retained_ || rows > retained_ - first) return {};
+        const size_t offset = size_t(first - tail_first_) * 2048u;
+        return {fusion_output_ + offset, normalized_input_ + offset, first, rows, generation_};
+    }
+    bool valid_tail(const PromptTail& view) const {
+        const PromptTail current = tail(view.first_position, view.rows);
+        return current.fusion && current.fusion == view.fusion && current.normalized == view.normalized &&
+            current.generation == view.generation;
     }
     const uint16_t* data() const { return quarantined_ ? nullptr : cache_; }
     bool quarantined() const { return quarantined_; }
@@ -154,7 +182,9 @@ public:
     }
 
 private:
+    void invalidate_tail() { tail_rows_ = 0u; ++generation_; }
     PromptStep quarantine(hipError_t status, const char* stage) {
+        invalidate_tail();
         quarantined_ = true;
         completion_error_ = status;
         return {status, stage, retained_, true};
@@ -170,6 +200,9 @@ private:
     unsigned int capacity_ = 0;
     unsigned int row_capacity_ = 0;
     unsigned int retained_ = 0;
+    unsigned int tail_first_ = 0;
+    unsigned int tail_rows_ = 0;
+    uint64_t generation_ = 0;
     bool quarantined_ = false;
     hipError_t completion_error_ = hipSuccess;
 };
