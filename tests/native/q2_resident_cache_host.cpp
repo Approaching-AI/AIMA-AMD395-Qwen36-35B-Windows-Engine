@@ -162,11 +162,35 @@ static void verify_factory() {
     factory_session=nullptr;
 }
 
+static void verify_factory_extended_rope(const ModelWeightBinding& binding) {
+    ResidentFixture f;factory_session=&f.session;factory_tables=f.tables;
+    factory_tables.moe.sigmoid=factory_tables.attention.sigmoid;
+    ScopedQwen36ResidentSessionShadowTransaction tx(f);std::string stage,error;
+    // The verified runtime allocation includes suffix/rollback capacity beyond
+    // the target's logical context. Exercise the actual factory AND Target.
+    for(unsigned allocated_rows:{12u,262144u,263680u,264736u}) {
+        factory_tables.attention.rope_rows=allocated_rows;table_failure=table_calls=0;
+        auto owner=acquire_qwen36_target_cache_owner(tx,&stage,&error);assert(owner);
+        Target target;TargetResult result;reset();
+        assert(target.evaluate(binding,owner,{144,255},&result,1024,wanted_stream).status==hipSuccess);
+        assert(result.ready()&&result.frontier()->tables.attention.rope==factory_tables.attention.rope);
+        assert(result.frontier()->tables.attention.rope_rows==std::min(allocated_rows,target_context_limit));
+        assert(factory_tables.attention.rope_rows==allocated_rows);
+    }
+    for(unsigned allocated_rows:{0u,10u,11u}) {
+        factory_tables.attention.rope_rows=allocated_rows;table_failure=table_calls=0;reset();
+        assert(!acquire_qwen36_target_cache_owner(tx,&stage,&error)&&!calls&&pending.empty());
+        assert(!g_qwen36_target_cache_borrows&&f.session.valid);
+    }
+    factory_session=nullptr;
+}
+
 int main() {
     verify_factory();
     {
         auto weights=std::make_shared<Weights>();ModelWeights model;
         assert(model.prepare(weights,7,wanted_stream).status==hipSuccess);const auto binding=model.binding(7);
+        verify_factory_extended_rope(binding);
         for(bool fp32:{false,true})for(bool contiguous:{false,true})for(unsigned rows:{1u,2u}) {
             reset();ResidentFixture f(fp32,contiguous);auto owner=f.bind();assert(owner&&g_qwen36_target_cache_borrows==1u);
             TargetSnapshot before;assert(owner->snapshot(&before)&&before.processed_tokens==10u&&before.owner==&f.session);

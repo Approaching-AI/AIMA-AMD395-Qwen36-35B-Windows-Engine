@@ -246,6 +246,27 @@ retirement crossing remain unsupported by this opt-in route. No numerical
 kernel changes, Windows execution, real-model qualification or release claim
 is included. All previously prepared native source plans remain unchanged.
 
+The three [native MTP foundation components](../benchmarks/correctness/native-mtp-foundation-components-20260921.json)
+have now completed on baiying with all original reference values exact and all
+host cleanup checks passing. Accepted-cache publication compares473653248
+values across eight accepted-row/layout configurations. Six actual cold MTP
+request cases compare531632156values, and the16384-to17408 prefix repair
+compares277876744values. These components use original model weights and
+GB10 operands; their1283162148 exact values do not establish a complete live
+target/MTP request or product performance.
+
+The0edb356 whole provider and prefix probe both build on Windows. Its first
+actual q7169/out32 MTP request seeds the exact7169-token checkpoint and emits
+prefill token82, then fails before target submission with `target_graph`.
+The [RoPE binding diagnosis and repair](../benchmarks/correctness/native-mtp-target-rope-repair-local-20260921.json)
+identifies a verified264736-row allocation incorrectly exposed as a263680-row
+logical target view. The resident factory now borrows the supported prefix
+without changing the allocation or logical context limit. A failing old-code
+control and three passing ASan/UBSan regressions exercise the actual factory,
+target owner and decode coordinator, including complete and insufficient table
+extents. The failed native request rolls back and cleans up successfully;
+native execution of this repair and complete model qualification remain open.
+
 The subsequent [native MTP retirement change](../benchmarks/correctness/native-mtp-retirement-runtime-local-20260921.json)
 lets a live decode finish its crossing Q2 transaction and continue through the
 existing single-row target decoder. Retirement follows the scheduled pair,

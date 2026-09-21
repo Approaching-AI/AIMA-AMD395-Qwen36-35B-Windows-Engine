@@ -82257,7 +82257,12 @@ std::shared_ptr<Qwen36TargetCacheOwner> acquire_qwen36_target_cache_owner(
             return fail("target_cache_tables","native target numerical table owners differ or lack the requested position");
         tables.beta = full.core.beta; tables.convolution_silu = full.core.silu;
         tables.attention.rsqrt = full.core.rsqrt; tables.attention.exp2 = full.core.exp2;
-        tables.attention.rope = full.rope; tables.attention.rope_rows = static_cast<unsigned>(full.rope_rows);
+        tables.attention.rope = full.rope;
+        // The verified allocation also covers ordinary suffix/rollback slots.
+        // Borrow only the target's supported prefix; allocation capacity does
+        // not expand the two-row target's logical context contract.
+        tables.attention.rope_rows = static_cast<unsigned>(std::min(
+            full.rope_rows, static_cast<size_t>(qrt_sm121_q2::target_context_limit)));
         tables.moe = {moe.silu,tables.attention.sigmoid,moe.router};
         std::string table_failure;
         if (!load_gb10_gated_silu_f32_lut(&tables.gated_silu,&table_failure))

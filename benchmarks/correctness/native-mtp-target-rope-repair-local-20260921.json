@@ -1,0 +1,323 @@
+{
+  "kind": "native_mtp_target_rope_allocation_extent_repair",
+  "failed_product": {
+    "kind": "original_model_native_mtp_short_control",
+    "host": "BAIYING",
+    "source_commit": "0edb356a97557c923e0cc19fcf1f2b0c2a1d563a",
+    "model": "D:\\models\\Qwen3.6-35B-A3B",
+    "command_file": "D:\\projects\\run-native-mtp-prefix-runtime-product-r1.ps1",
+    "source_manifest_sha256": "491d84b919bafe0c7e64558e1bb59fdc114eb0b1709dc36da2a25e2f468daf92",
+    "build": {
+      "source_manifest": "native-mtp-prefix-runtime-whole-source-r1.json",
+      "source_manifest_sha256": "1f2b74500e7e75fa4a4d4a1a4ac9ef6d13f5cdbdf2b892570d16829bfdb51b74",
+      "source_commit": "0edb356a97557c923e0cc19fcf1f2b0c2a1d563a",
+      "repo": "D:/projects/AIMA-public-native-mtp-prefix-runtime-20260921-r1",
+      "run_directory": "native-mtp-prefix-runtime-build-r1",
+      "run_sha256": "822594c87cf7becb79a688ea46acfd65e1d4b65296ed500d118ad177a34f71d1",
+      "whole_metadata_sha256": "8ef985c619ea691d219b2265dd75900939a5ce3dc215519300c328ffc2b9a12e",
+      "whole_artifact": {
+        "name": "qrt_qwen36_whole_provider.dll",
+        "bytes": 14049280,
+        "sha256": "a9709682d7f5ad8e9e3464231288daad9ea6b869aa8837f63c664c1c8b6d7ef5"
+      },
+      "whole_artifacts": [
+        {
+          "name": "qrt_qwen36_whole_provider.dll",
+          "bytes": 14049280,
+          "sha256": "a9709682d7f5ad8e9e3464231288daad9ea6b869aa8837f63c664c1c8b6d7ef5"
+        },
+        {
+          "name": "q1_moe_avx512bf16_host_provider.obj",
+          "bytes": 183170,
+          "sha256": "1855aeaf1904b6d5b19661e9dc13fce5d87369720d16f33816a5f83dcafd156b"
+        }
+      ],
+      "probe_metadata_sha256": "e3ff65f6e713ee031a9d0c2cae580554d4902f6bcebbf66aa63f372bbfd6366b",
+      "probe_executable_sha256": "f8027e65135fe9a6acf43a301936026cd50880ab9f58a69295f7afc31b50a457",
+      "probe_executable_bytes": 955904,
+      "whole_compilation_inputs": 165,
+      "probe_compilation_inputs": 10,
+      "all_source_inputs": 171,
+      "compiler_flags_match_control": true
+    },
+    "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+    "case": "q7169-out32",
+    "checks": {
+      "completed": false,
+      "dispatch_completed": false,
+      "host_cleanup": true,
+      "original_prompt": false,
+      "original_outputs": false,
+      "original_first_logit": false,
+      "actual_native_seed": true,
+      "actual_native_commits": false,
+      "actual_native_token_boundaries": false,
+      "completed_native_spans": false,
+      "exact_callbacks": false,
+      "callback_clocks": true,
+      "public_stream_contract": false,
+      "no_diagnostic_seed_files": true
+    },
+    "qualified": false,
+    "first_token": null,
+    "first_logit": null,
+    "first_difference": null,
+    "native_output_count": 0,
+    "callback_count": 1,
+    "native_target_commits": 0,
+    "native_seeds": [
+      {
+        "generation": "1",
+        "processed_tokens": "7169",
+        "exact_target_frontier": "1",
+        "immutable_checkpoint": "1",
+        "mtp_acceptance_enabled": "0",
+        "numerical_correctness_claimed": "0"
+      }
+    ],
+    "native_spans": [],
+    "native_prerequisites": [
+      {
+        "name": "q2-publication-native-r1",
+        "source_commit": "b532817fd65a222a1ccf194bdc58e962cb3e599f",
+        "manifest_sha256": "9061c307ada9d058851a57dd9d8ef7f20ce01d276c0711669de0737ae3b29847",
+        "comparison_sha256": "f96c5d71e882e27e5c0ede5fc3f90595adf5db02890d009f30a967752d549158",
+        "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/q2-publication-native-r1/comparison.json",
+        "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-q2-publication-native-r1-r1.json",
+        "expected_values": 473653248,
+        "run_records": [
+          {
+            "path": "D:/projects/AIMA-public-q2-publication-20260921-r1/build/q2-publication-native-r1/qrt-q2-publication-build/run-record.json",
+            "sha256": "01b5fdde66c4f64d8ebb3a0fd72d17b8fd2ed1cfedb149e2bef2a419d135135d"
+          },
+          {
+            "path": "D:/projects/AIMA-public-q2-publication-20260921-r1/build/q2-publication-native-r1/q8192-accepted-cache-rows/run-record.json",
+            "sha256": "edc9130d397ade94210f0b46bab1b478064fea8a2bd8cd9fe25bb0c916418a84"
+          }
+        ]
+      },
+      {
+        "name": "mtp-chunked-request-native-r1",
+        "source_commit": "e7880fc58697a703a737defdab73de269731b579",
+        "manifest_sha256": "9212d2c63492c9b9b3b0765b6ea66d1fa0079f88a67a47f810b1178fd846adb7",
+        "comparison_sha256": "ff22cb38e4069e4de31f79f0d4046257fc94ea2048eba370151f0d05610d515b",
+        "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-chunked-request-native-r1/comparison.json",
+        "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-mtp-chunked-request-native-r1-r1.json",
+        "expected_values": 531632156,
+        "run_records": [
+          {
+            "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/qrt-mtp-chunked-request-build/run-record.json",
+            "sha256": "8ea59319c1bd908b55625d141b890cafdbcd8f6b8a49d702f03cfdf7f091ac78"
+          },
+          {
+            "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q7169-out32-norm2048/run-record.json",
+            "sha256": "628a7883cfc7a2780f1f63aeeb92ea465ae39c09d85eac75ca4e3a4e9b9975ee"
+          },
+          {
+            "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q8192-out32-norm2048/run-record.json",
+            "sha256": "a4da63a1151679941717e72a4b6560e550c33a722bd295c84a3a3722c97e9553"
+          },
+          {
+            "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/long-prefix16384-owner-out32-norm2048/run-record.json",
+            "sha256": "78c542d96e463bf0897757e2c97b0d33cb9a8b056a4ca69a8797c0407f710a3f"
+          },
+          {
+            "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/long-prefix16384-suffix1024-out32-norm2048/run-record.json",
+            "sha256": "0e57a290957f0acd769cbd068b4952ffa8083a6dfb5798816c7f5a60bd840d1f"
+          },
+          {
+            "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q7169-out32-norm1024/run-record.json",
+            "sha256": "11de34c9d62e5bb0870341a53611cf748c10e9b80a3b67ed25a64b909ffbc86c"
+          },
+          {
+            "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q8192-out32-norm1024/run-record.json",
+            "sha256": "b742a71d6fc87a538c1571f4712cd26cdeea8b1f398c18cf5d8c58c6455bc86b"
+          }
+        ]
+      },
+      {
+        "name": "mtp-prefix-request-native-r1",
+        "source_commit": "6137e029dd9273f028c156cc23a707796894ed42",
+        "manifest_sha256": "9922076403e748e3cd371338a40787f25893c688f7ceac9d03494f73e9bfb59d",
+        "comparison_sha256": "e15f6112d722b54b38a79d168e163096becbcf98c436a40f01d4113b5c81664e",
+        "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prefix-request-native-r1/comparison.json",
+        "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-mtp-prefix-request-native-r1-r1.json",
+        "expected_values": 277876744,
+        "run_records": [
+          {
+            "path": "D:/projects/AIMA-public-mtp-prefix-request-20260921-r1/build/mtp-prefix-request-native-r1/qrt-mtp-prefix-request-build/run-record.json",
+            "sha256": "8f16f2e070041b10b2031d2e95941346184b1270d6ee867d48a06987cde4decd"
+          },
+          {
+            "path": "D:/projects/AIMA-public-mtp-prefix-request-20260921-r1/build/mtp-prefix-request-native-r1/owner16384-to-cold17408-prefix-repair/run-record.json",
+            "sha256": "ac7605c355e6d5ee0b524a8171841398115732d16e68978a6847f32c5027144a"
+          }
+        ]
+      }
+    ],
+    "observed_timing": {
+      "engine_load_ms": null,
+      "ttft_ms": null,
+      "tpot_ms": null,
+      "request_wall_ms": null
+    },
+    "performance_acceptance": false,
+    "release_qualified": false,
+    "raw_records": {
+      "product.stderr.log": {
+        "bytes": 678030,
+        "sha256": "1ccad411ae2a64d5ac47435d8cc51a8d0ede4a57bd5a6550a3f9278857e715c4"
+      },
+      "dispatch.json": {
+        "bytes": 952,
+        "sha256": "ee53651d6a90542f988a8290842964889f6acd145224522689c3b06f9269a03c"
+      },
+      "product.stdout.jsonl": {
+        "bytes": 135,
+        "sha256": "e667f4426ac55dcc00f7dc3d23e6d351a5d1e429f8a687298c8a8d72925a037e"
+      },
+      "launch.json": {
+        "bytes": 132,
+        "sha256": "fb9a2edf267c60d3b1458f4c2511433fd5072458635394adb34a6ef5664086c3"
+      },
+      "preflight.json": {
+        "bytes": 95110,
+        "sha256": "936c223ed7d1c5328c43f487ebc659a716e27c770e69e842b581b47d1d220a12"
+      },
+      "telemetry.jsonl": {
+        "bytes": 23283,
+        "sha256": "f65eed59aaa7b79f6e44a680386d541ba9be9f396839855221a425674156df77"
+      },
+      "run-record.json": {
+        "bytes": 209445,
+        "sha256": "4b7bd141d1a872963050be856f6cb58c2e9ae2e5674f407ef0a68f739f964b06"
+      },
+      "transfers.json": {
+        "bytes": 548,
+        "sha256": "7d8dd63703202c1259bffd5a384b486864e82cc0317dfe2a195fba51c7d66d78"
+      },
+      "runtime.env": {
+        "bytes": 34746,
+        "sha256": "54bce05b087f8bb50be262385f742e019ba6d62458592aec0fe0f3dd677118f6"
+      }
+    }
+  },
+  "failed_run_sha256": "4b7bd141d1a872963050be856f6cb58c2e9ae2e5674f407ef0a68f739f964b06",
+  "failed_run_wall_ms": 49056.137,
+  "failed_log_sha256": "1ccad411ae2a64d5ac47435d8cc51a8d0ede4a57bd5a6550a3f9278857e715c4",
+  "verified_build": {
+    "source_manifest": "native-mtp-prefix-runtime-whole-source-r1.json",
+    "source_manifest_sha256": "1f2b74500e7e75fa4a4d4a1a4ac9ef6d13f5cdbdf2b892570d16829bfdb51b74",
+    "source_commit": "0edb356a97557c923e0cc19fcf1f2b0c2a1d563a",
+    "repo": "D:/projects/AIMA-public-native-mtp-prefix-runtime-20260921-r1",
+    "run_directory": "native-mtp-prefix-runtime-build-r1",
+    "run_sha256": "822594c87cf7becb79a688ea46acfd65e1d4b65296ed500d118ad177a34f71d1",
+    "whole_metadata_sha256": "8ef985c619ea691d219b2265dd75900939a5ce3dc215519300c328ffc2b9a12e",
+    "whole_artifact": {
+      "name": "qrt_qwen36_whole_provider.dll",
+      "bytes": 14049280,
+      "sha256": "a9709682d7f5ad8e9e3464231288daad9ea6b869aa8837f63c664c1c8b6d7ef5"
+    },
+    "whole_artifacts": [
+      {
+        "name": "qrt_qwen36_whole_provider.dll",
+        "bytes": 14049280,
+        "sha256": "a9709682d7f5ad8e9e3464231288daad9ea6b869aa8837f63c664c1c8b6d7ef5"
+      },
+      {
+        "name": "q1_moe_avx512bf16_host_provider.obj",
+        "bytes": 183170,
+        "sha256": "1855aeaf1904b6d5b19661e9dc13fce5d87369720d16f33816a5f83dcafd156b"
+      }
+    ],
+    "probe_metadata_sha256": "e3ff65f6e713ee031a9d0c2cae580554d4902f6bcebbf66aa63f372bbfd6366b",
+    "probe_executable_sha256": "f8027e65135fe9a6acf43a301936026cd50880ab9f58a69295f7afc31b50a457",
+    "probe_executable_bytes": 955904,
+    "whole_compilation_inputs": 165,
+    "probe_compilation_inputs": 10,
+    "all_source_inputs": 171,
+    "compiler_flags_match_control": true
+  },
+  "failure_stage": "target_graph",
+  "actual_rope_allocation_rows": 264736,
+  "target_logical_context_rows": 263680,
+  "diagnosis": "The actual resident factory passed verified allocation capacity to the target logical view. Attention validation rejected 264736 > 263680 before target submissions.",
+  "repair": "Borrow min(verified allocation rows, target context limit) without changing the allocation, bytes, position, or target context limit.",
+  "original_source_base_commit": "b65579529182360f0b0e492fbbec3e07f02a162b",
+  "patched_source_sha256": {
+    "native/providers/whole_provider.cpp": "a890b83915d74c62e74ca2595801e1073d3afcec436655dfc114443ea713ccb9",
+    "tests/native/q2_resident_cache_host.cpp": "83789b75f39db7a95bfdb91368853cc78886c938ba84a4f0c634f988ad959a56"
+  },
+  "failing_control": {
+    "command": [
+      "python3.12",
+      "-m",
+      "unittest",
+      "tests.test_q2_resident_cache"
+    ],
+    "returncode": 1,
+    "seconds": 2.4342873338609934,
+    "stdout": "",
+    "stderr": "F\n======================================================================\nFAIL: test_actual_session_accepted_metadata_and_lifetime (tests.test_q2_resident_cache.Q2ResidentCacheTests.test_actual_session_accepted_metadata_and_lifetime)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tests/test_q2_resident_cache.py\", line 65, in test_actual_session_accepted_metadata_and_lifetime\n    self.assertEqual(run.returncode, 0, run.stdout + run.stderr)\nAssertionError: -6 != 0 : Assertion failed: (target.evaluate(binding,owner,{144,255},&result,1024,wanted_stream).status==hipSuccess), function verify_factory_extended_rope, file q2_resident_cache_host.cpp, line 175.\n\n\n----------------------------------------------------------------------\nRan 1 test in 2.398s\n\nFAILED (failures=1)\n",
+    "source": "b655795 plus extended RoPE regression, prior to fix"
+  },
+  "local_validation": {
+    "host": "Jiawei-MacminideMac-mini.local",
+    "command": [
+      "python3.12",
+      "-m",
+      "unittest",
+      "tests.test_q2_resident_cache",
+      "tests.test_q2_target",
+      "tests.test_native_mtp_decode"
+    ],
+    "returncode": 0,
+    "seconds": 11.798167667351663,
+    "stdout": "",
+    "stderr": "...\n----------------------------------------------------------------------\nRan 3 tests in 11.762s\n\nOK\n",
+    "source_base_commit": "b65579529182360f0b0e492fbbec3e07f02a162b",
+    "source_sha256": {
+      "native/providers/whole_provider.cpp": "a890b83915d74c62e74ca2595801e1073d3afcec436655dfc114443ea713ccb9",
+      "tests/native/q2_resident_cache_host.cpp": "83789b75f39db7a95bfdb91368853cc78886c938ba84a4f0c634f988ad959a56"
+    },
+    "native_execution": false,
+    "inference_acceptance": false
+  },
+  "asan_ubsan": true,
+  "regression": {
+    "valid_allocations": [
+      12,
+      262144,
+      263680,
+      264736
+    ],
+    "incomplete_allocations": [
+      0,
+      10,
+      11
+    ],
+    "actual_resident_factory": true,
+    "actual_target_owner": true,
+    "gpu_producers": "deferred host test queue",
+    "extended_table_pointer_unchanged": true,
+    "logical_rows_clamped": true
+  },
+  "repaired_native_build_executed": false,
+  "repaired_real_model_executed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "15b3c7c9bb8da98cbd92c99af92737382f6c518781f8ea20fb4d8c508f8b4de9",
+    "original_json_bytes": 14886,
+    "source_revision": "b65579529182360f0b0e492fbbec3e07f02a162b",
+    "source_path": "build/recovery-20260910/native-mtp-target-rope-repair-local-20260921-raw.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 4
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}
