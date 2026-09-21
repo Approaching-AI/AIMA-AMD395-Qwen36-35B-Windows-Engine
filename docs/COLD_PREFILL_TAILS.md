@@ -137,7 +137,21 @@ uses a controller execution mock under ASan/UBSan: one original input passes
 and eight injected faults reject. An initial observer missed input changes
 that were restored by the next invocation; the probe now verifies immutable
 inputs after every invocation. Both old negative controls remain recorded.
-The mock is excluded from native compilation. GPU execution remains pending.
+The mock is excluded from native compilation. The
+[native build and complete replay preparation](../benchmarks/correctness/step124-convolution-native-prepared-20260921.json)
+now bind sourceae2b207 and all eight compilation inputs; its seven runtime
+headers equal c268. The baiying compiler completes in7290.194 ms with all host
+checks and the declared long owner preserved. Executable SHA256
+f63ececaafd4fd5c4ac208a3b295a593111eb5c1fe49e4ec8fa07b920f8f68a3
+has zero private bytes or spills for both convolution kernels.
+
+All90 original cases/180 layouts are prepared. The391-file input archive
+contains30 captured weight tensors, one model-independent SiLU table and360
+original input/expected surfaces. Read-only baiying checks verify23 files and
+two script parses;30 damaged report controls and active-owner admission reject.
+The archive remains on the controller. The GPU worker requires completed long
+cleanup before transfer/extraction and keeps each expected output on the host.
+These GPU executions and later actual Windows operands remain unmeasured.
 
 The [native recurrence replay preparation](../benchmarks/correctness/step124-gdn-native-prepared-20260921.json)
 binds those90 original rows to the existing GPU probe. All eight compilation
