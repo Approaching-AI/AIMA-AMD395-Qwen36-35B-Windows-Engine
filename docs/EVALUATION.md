@@ -159,6 +159,16 @@ crossing and prefix-suffix reseeding remain open. The frozen first native MTP
 build stays at490370a; this subsequent integration needs a separate Windows
 build and original-model comparison before correctness or release acceptance.
 
+The [bounded original chunk observer](../benchmarks/correctness/mtp-chunked-prefill-observer-local-20260921.json)
+is prepared for prompts up to32768 tokens. It copies complete actual MTP target
+hidden rows, shifted IDs, K/RoPE and V writes for every cold chunk, plus the
+final draft hidden and all248320 logits. Qualification requires contiguous
+prompt coverage, exact original shifts, matching selected observations and
+the actual sampled draft. The original logit call runs once and returns its
+unchanged object. Thirty distinct local tests pass, including CLI mode/control
+checks and deliberately corrupted identities, values and ledgers. These use
+generated fixture bytes; the new original GB10 capture remains unrun.
+
 The native cache-publication probe is prepared in
 tools/q2_cache_publication_hip_probe.cpp. It evaluates the complete original
 q8192 target pair, then checks accepted1/2 rows with BF16/FP32 tails and both

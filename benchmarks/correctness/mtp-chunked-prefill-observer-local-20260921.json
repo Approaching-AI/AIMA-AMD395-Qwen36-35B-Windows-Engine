@@ -1,0 +1,64 @@
+{
+  "kind": "original_mtp_chunked_prefill_capture_local_checks",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "source_parent": "661d1aa1d0ce99247851e143bd86e14004c27904",
+  "source_sha256": {
+    "scripts/capture_gb10_mtp_chunked_prefill.py": "10488aad52dc61eb2e3725cc584c9b7818a37f36d675d53debc12212d1cf72d7",
+    "scripts/capture_gb10_token_matrix.py": "b045ffb1ee12760174488a075fa0759e46a04a2e2f616c8f90a994620014db36",
+    "scripts/capture_gb10_mtp_boundaries.py": "b0597b553f98e22b525d47832cdd124202517e787286d455964003ce0fd8aa08",
+    "scripts/capture_gb10_mtp_launchers.py": "f63b0dae9f2dc642eb9d35a8ac9ab7c232acee2d9b4381c593f3fce93574c89c",
+    "tests/test_mtp_chunked_prefill_capture.py": "e907f5b6ea233047a13b9ae9b2f33f20d2d114afcb0d2b20fae741918e685b66",
+    "tests/test_mtp_full_prefill_capture.py": "5f1c61bd1f8da37b5220ce23de0fee89cfa87de7289437447f7c7cfaab97f498",
+    "tests/test_gb10_token_matrix.py": "b0b2d648ff76700eec4d455035d0b0983b5806ce86bbac43fde790f39dd5c2d2",
+    "tests/test_explicit_gb10_cases.py": "62f4f52ad2268223780909838a99ece346bc6381a6e442718fff6b08781a01e7"
+  },
+  "validation_runs": [
+    {
+      "command": [
+        "python3.12",
+        "-m",
+        "unittest",
+        "tests.test_mtp_chunked_prefill_capture",
+        "tests.test_mtp_full_prefill_capture",
+        "tests.test_gb10_token_matrix",
+        "tests.test_explicit_gb10_cases"
+      ],
+      "returncode": 0,
+      "checks": 29,
+      "seconds": 1.179,
+      "execution_session": 89353
+    },
+    {
+      "command": [
+        "python3.12",
+        "-m",
+        "unittest",
+        "tests.test_mtp_chunked_prefill_capture"
+      ],
+      "returncode": 0,
+      "checks": 11,
+      "seconds": 0.249,
+      "reason": "Added the final dry-run CLI mode/control/maximum-prompt check; all other sources remained unchanged."
+    }
+  ],
+  "recorded_from_completed_tool_results": true,
+  "distinct_tests": 30,
+  "maximum_prompt_tokens": 32768,
+  "maximum_case_bytes": 234881024,
+  "full_frontiers": {
+    "target-hidden": 2048,
+    "k-rope": 512,
+    "v": 512
+  },
+  "full_shifted_input_ids": true,
+  "complete_final_draft_logits": 248320,
+  "final_draft_hidden_matches_selected_original_norm": true,
+  "original_call_and_return_identity_checked": true,
+  "original_model_arithmetic_changed": false,
+  "synthetic_validation_only": true,
+  "gpu_model_executed": false,
+  "original_gb10_capture_qualified": false,
+  "windows_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

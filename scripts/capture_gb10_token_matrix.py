@@ -243,7 +243,9 @@ def execute(args, cases, oracles):
               async_scheduling=False, enable_prefix_caching=False,
               attention_config={"backend": "TRITON_ATTN"}, mm_encoder_attn_backend="TORCH_SDPA",
               speculative_config={"method": "mtp", "num_speculative_tokens": 1},
-              worker_extension_cls=("capture_gb10_mtp_moe.MtpMoeBoundaryCapture"
+              worker_extension_cls=("capture_gb10_mtp_chunked_prefill.MtpChunkedPrefillBoundaryCapture"
+                                    if args.mtp_chunked_prefill_frontiers else
+                                    "capture_gb10_mtp_moe.MtpMoeBoundaryCapture"
                                     if args.mtp_moe_frontiers else
                                     "capture_gb10_mtp_full_prefill.MtpFullPrefillBoundaryCapture"
                                     if args.mtp_full_prefill_frontiers else
@@ -308,6 +310,10 @@ def execute(args, cases, oracles):
             from capture_gb10_mtp_boundaries import qualify_mtp_capture
             try:
                 qualify_mtp_capture(worker, case["prompt_token_ids"], tokens)
+                if args.mtp_chunked_prefill_frontiers:
+                    from capture_gb10_mtp_chunked_prefill import qualify_chunked_prefill_capture
+                    qualify_chunked_prefill_capture(worker, case["prompt_token_ids"], tokens,
+                        args.output_dir / case["name"])
                 if args.mtp_moe_frontiers:
                     from capture_gb10_mtp_moe import qualify_moe_capture
                     qualify_moe_capture(worker, args.output_dir / case["name"])
@@ -349,6 +355,8 @@ def main():
                         help="copy complete MTP cache frontends for both immutable short controls; requires --mtp-kernel-launches")
     parser.add_argument("--mtp-moe-frontiers", action="store_true",
                         help="copy original MTP MoE and sampled draft logits for both short controls; requires --mtp-kernel-launches")
+    parser.add_argument("--mtp-chunked-prefill-frontiers", action="store_true",
+                        help="copy actual MTP cold chunk inputs/KV and final draft logits up to 32768 tokens; requires --mtp-kernel-launches")
     parser.add_argument("--oracle-q7169", type=Path, required=True)
     parser.add_argument("--oracle-q8192", type=Path, required=True)
     parser.add_argument("--model-root", type=Path, default=Path("/models"))
@@ -371,6 +379,9 @@ def main():
         parser.error("--mtp-boundaries requires --runtime-boundaries")
     if args.mtp_kernel_launches and not args.mtp_boundaries:
         parser.error("--mtp-kernel-launches requires --mtp-boundaries")
+    if args.mtp_chunked_prefill_frontiers and (not args.mtp_kernel_launches or
+            args.mtp_full_prefill_frontiers or args.mtp_moe_frontiers):
+        parser.error("--mtp-chunked-prefill-frontiers requires --mtp-kernel-launches and its own observation mode")
     if args.mtp_full_prefill_frontiers and (not args.mtp_kernel_launches or args.additional_cases is not None):
         parser.error("--mtp-full-prefill-frontiers requires --mtp-kernel-launches and uses only the two immutable controls")
     if args.mtp_moe_frontiers and (not args.mtp_kernel_launches or args.additional_cases is not None or args.mtp_full_prefill_frontiers):
@@ -384,6 +395,8 @@ def main():
         cases = explicit_cases(args.additional_cases, cases, args.maximum_prompt_tokens)
         if args.runtime_boundaries and any(case["output_count"] < 2 for case in cases):
             raise ValueError("runtime boundaries require the first generated input to execute")
+    if args.mtp_chunked_prefill_frontiers and max(len(case['prompt_token_ids']) for case in cases) > 32768:
+        raise ValueError("MTP cold chunk capture requires at most 32768 actual prompt tokens")
     # Large reference captures keep the same math and model configuration.
     # Extend only their owned process budget; ordinary controls keep 600 seconds.
     timeout_limit = 1800 if max(len(case["prompt_token_ids"]) for case in cases) > 66560 else 600
@@ -411,6 +424,7 @@ def main():
                   runtime_boundaries=args.runtime_boundaries, mtp_boundaries=args.mtp_boundaries,
                   mtp_kernel_launches=args.mtp_kernel_launches,
                   mtp_full_prefill_frontiers=args.mtp_full_prefill_frontiers,
+                  mtp_chunked_prefill_frontiers=args.mtp_chunked_prefill_frontiers,
                   mtp_moe_frontiers=args.mtp_moe_frontiers,
                   timeout_seconds=args.timeout_seconds, maximum_timeout_seconds=timeout_limit,
                   maximum_additional_prompt_tokens=args.maximum_prompt_tokens)
