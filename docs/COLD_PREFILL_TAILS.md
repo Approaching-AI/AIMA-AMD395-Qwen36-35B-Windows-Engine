@@ -109,6 +109,15 @@ and position 263290 on c268. Its comparator first checks the actual generated
 history; an old native control matches all 628 compared surfaces at position
 263168 against the new reference. That control does not qualify later steps.
 
+An [offline arithmetic replay](../benchmarks/correctness/prefix256-step124-arithmetic-host-20260921.json)
+uses independently qualified GB10 operands at263168,263290 and263291 with the
+actual c268 headers and ASan/UBSan. Both current RoPE helpers match60 original
+Q/K surfaces,138240 BF16 values. All30 recurrent layers at all three positions
+match47185920 FP32 state values and368640 BF16 core outputs bit-for-bit, using
+each original transaction's operator selection. The older double-round RoPE
+control also matches these particular rows. These component results do not
+establish the Windows operands, accumulated state or cause of the divergence.
+
 The original native q262140/q262142/q262143 retirement cases remain unrun.
 The [current package preparation](../benchmarks/correctness/single-tail-package-prepared-20260921.json)
 now binds the actual c268 whole DLL, CLI and static-C-core server together
