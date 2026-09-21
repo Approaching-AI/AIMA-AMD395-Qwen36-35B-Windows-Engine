@@ -43,6 +43,12 @@ All completed builds and short runs pass host checks and process cleanup.
 The preceding c268 server passed54 Rust tests, but server/package qualification
 with the repaired provider remains open. The complete256k rerun is now active.
 
+A separate [Linux core Windows prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md)
+is queued after that owner. Source0a57516 ports the pinned Linux compute core
+while preserving the original GB10 oracle and token/logit requirements. Its
+local OS/COFF/observer controls pass; Windows compilation and model runs are
+unqualified. It does not change the current runtime or release status.
+
 The [cold-tail implementation and diagnosis](COLD_PREFILL_TAILS.md) describe
 the failed earlier batch route, the real q1 bridge and per-call numeric
 fallback repair. Local bridge checks cover 31 ASan/UBSan cases; numeric checks

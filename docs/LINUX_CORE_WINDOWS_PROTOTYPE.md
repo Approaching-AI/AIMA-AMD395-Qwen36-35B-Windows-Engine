@@ -93,3 +93,12 @@ Read-only baiying inspection confirms the ROCm hipBLASLt library and required
 headers are installed, and the real model's config/index SHA values equal the
 imported layout. Native compilation and correctness-attached product measurement
 are still required before this route can be selected.
+
+The [preparation evidence](../benchmarks/correctness/linux-core-windows-preparation-20260922.json)
+binds these checks to Windows experiment source
+`0a57516e8c7c1dba55a077eba9d38b6155a0620e`, including the actual PowerShell parser
+result on baiying. A controller is queued behind the repaired runtime's complete
+256k owner. It has not dispatched compilation or inference. Its fixed blueprint
+binds 335 build inputs, the original prompt, existing CK DLL and arithmetic
+tables; only the completed prior-owner receipt is filled after cleanup. The
+subsequent build and q8192/out512 phases must pass their own evidence checks.

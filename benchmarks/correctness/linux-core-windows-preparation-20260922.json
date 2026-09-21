@@ -1,0 +1,337 @@
+{
+  "schema": 1,
+  "record_type": "linux_native_core_windows_preparation",
+  "created_utc": "2026-09-21T23:37:16.167175+00:00",
+  "source_commit": "0a57516e8c7c1dba55a077eba9d38b6155a0620e",
+  "upstream_commit": "ec9934446911fdf376da8eebcd83e7b137efbb7c",
+  "declared_linux_release": "v1.5.1-native-vl.10",
+  "upstream_inventory_sha256": "00737aa8d71b9ade06dd663171cf2e02f45e7de514ce79bfd870cafea97345c2",
+  "source_inputs": [
+    {
+      "path": "third_party/aima_linux/UPSTREAM.json",
+      "bytes": 66767,
+      "sha256": "00737aa8d71b9ade06dd663171cf2e02f45e7de514ce79bfd870cafea97345c2"
+    },
+    {
+      "path": "scripts/baiying_linux_core_probe.ps1",
+      "bytes": 6456,
+      "sha256": "f46b8149c7d91f38199cb35707049315fe5cf79818299a98691b381465e5319f"
+    },
+    {
+      "path": "native/linux_core_port/dlfcn.h",
+      "bytes": 1619,
+      "sha256": "56ce6451ae3141d30834d98ba5fbe079dda648c70b32bb10d07eeb26f502ff31"
+    },
+    {
+      "path": "native/linux_core_port/file_io.h",
+      "bytes": 4596,
+      "sha256": "2af502ce0708706225603578d645d0f9670ed68f8491f245d0c39e227d4b36b6"
+    },
+    {
+      "path": "native/linux_core_port/host_contract_test.cpp",
+      "bytes": 5407,
+      "sha256": "997fc07e0aae9b0e2ed6a5c2b0e7178bf5b7d19a170df62045b8f87aa149905c"
+    },
+    {
+      "path": "native/linux_core_port/probe.cpp",
+      "bytes": 7613,
+      "sha256": "c7b3a58d83e5a6723e4e34c147e84184529db7c33e47a7c580936c82307e95ff"
+    },
+    {
+      "path": "native/linux_core_port/probe_input.h",
+      "bytes": 2579,
+      "sha256": "b9fc9294a4d187a94d446298fb7959d006eaf2087ff54874c70d7e8997f2053b"
+    },
+    {
+      "path": "tools/import_linux_native_core.py",
+      "bytes": 3901,
+      "sha256": "aac0b53412970da345d2e410106317a84f1977a988b88067c0c0f4e648ad1a55"
+    },
+    {
+      "path": "tools/prepare_linux_core_windows.py",
+      "bytes": 13926,
+      "sha256": "dcaa4616861ab131bd85fa2c5cdadbc368b4b2f62ea08d96962ead6d51e8ac0e"
+    },
+    {
+      "path": "tools/build_linux_core_windows.py",
+      "bytes": 8302,
+      "sha256": "4e135fa1d966abb1bcbfa44cbb5f49fda513d9408afa22e7d6c5c2c613976767"
+    },
+    {
+      "path": "tools/linux_core_coff.py",
+      "bytes": 3969,
+      "sha256": "53a3f3e686aadc1b248b4953f2f2d5708e9b1328211d14294f9c5dbd3a82a021"
+    },
+    {
+      "path": "tools/check_linux_core_q8192.py",
+      "bytes": 8901,
+      "sha256": "34c100c340851576c914efce856aa60629b9068795a0284a2484d8327b0377de"
+    },
+    {
+      "path": "tools/test_linux_core_port.py",
+      "bytes": 7042,
+      "sha256": "8840819f0f517bd275af232453ca5b8f3b36148193a0d9241ba4111e347a8a28"
+    }
+  ],
+  "imported_files": 327,
+  "imported_bytes": 29415573,
+  "upstream_bytes_unchanged": true,
+  "local_host": "Jiawei-MacminideMac-mini.local",
+  "local_command": "python3.12 tools/test_linux_core_port.py --out build/linux-core-port-local-r2",
+  "local_result_sha256": "8d096575b8c020334ef99d0a45268ff811ffa106ed429707f3c965090c07d0aa",
+  "local_checks": {
+    "upstream_files": 327,
+    "overlays": 7,
+    "coff": {
+      "machine": "AMD64",
+      "images": 72,
+      "image_bytes": 1319512,
+      "object_bytes": 1334135,
+      "object_sha256": "991869712843b98df837642b3a17b097f575efb4de6e930b69c937442ca2dcd3",
+      "all_image_bytes_and_symbols_match": true,
+      "gpu_executed": false,
+      "negative_controls": {
+        "image_byte_changed": "Embedded GPU image hash differs",
+        "writable_section": "Image section is writable, executable or relocated",
+        "executable_section": "Image section is writable, executable or relocated",
+        "truncated_symbols": "Invalid string table"
+      }
+    },
+    "observer_negative_controls": {
+      "wrong_host": "Unexpected execution host",
+      "wrong_model": "Unexpected model path",
+      "wrong_prompt": "Prompt token identity differs",
+      "wrong_commit": "Compiled source identity differs",
+      "wrong_upstream": "Compiled source identity differs",
+      "wrong_shape": "Unexpected requested shape",
+      "wrong_count": "Incomplete or oracle-seeded execution",
+      "incomplete": "Incomplete or oracle-seeded execution",
+      "oracle_seed": "Incomplete or oracle-seeded execution",
+      "cached_request": "Cold run restored a prefix",
+      "decode_fallback": "Request did not use cold AOT prefill",
+      "missing_output": "Output extent differs",
+      "wrong_output": "Output continuation differs from GB10",
+      "boolean_token": "Invalid token ID array",
+      "reordered_callback": "Streaming callback order or token differs",
+      "wrong_callback": "Streaming callback order or token differs",
+      "clock_reversed": "Callback clock is invalid",
+      "clock_nan": "Callback clock is invalid",
+      "bad_first_logit": "First logit exceeds original GB10 tolerance",
+      "nonfinite_first_logit": "First logit is invalid",
+      "boolean_first_logit": "First logit is invalid",
+      "wrong_ttft": "TTFT is not the first callback clock",
+      "wrong_tpot": "TPOT is not the callback interval",
+      "wrong_load_time": "Load clock is invalid",
+      "missing_event": "Expected start, ready, 512 callbacks and result"
+    },
+    "observer_tolerance_edge_controls": 2,
+    "compiler_stages": [
+      "prepare",
+      "coff-compile",
+      "host-build",
+      "host-contract"
+    ],
+    "model_loaded": false,
+    "gpu_executed": false,
+    "windows_build_qualified": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "local_stages": [
+    {
+      "name": "prepare",
+      "sha256": "9c1d040d4094971d6985e1a3669a5c524626b917e41be1001d155c4221d8681a",
+      "evidence": {
+        "command": [
+          "<evidence-home-1>/.local/bin/python3.12",
+          "<evidence-home-1>/projects/AIMA-public-r1191-candidate/tools/prepare_linux_core_windows.py",
+          "--out",
+          "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-port-local-r2/prepared"
+        ],
+        "returncode": 0,
+        "stdout": "{\"upstream_revision\": \"ec9934446911fdf376da8eebcd83e7b137efbb7c\", \"imported_files\": 327, \"imported_bytes\": 29415573, \"image_bytes\": 1319512, \"images\": 72, \"compilation_units\": 53, \"overlays\": 7}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "coff-compile",
+      "sha256": "7b0f522423bc8c3fad54e6c6a86e616098b5cba11328274703596f9555b4bb5f",
+      "evidence": {
+        "command": [
+          "clang++",
+          "--target=x86_64-pc-windows-msvc",
+          "-c",
+          "-x",
+          "assembler",
+          "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-port-local-r2/prepared/aot_images.S",
+          "-o",
+          "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-port-local-r2/aot_images.obj"
+        ],
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "host-build",
+      "sha256": "6fb5272c6acc142274ebe6d0b5e1fdd782fd3e9dd8a883421b09294acbb1c8c0",
+      "evidence": {
+        "command": [
+          "clang++",
+          "-std=c++17",
+          "-O1",
+          "-g",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "<evidence-home-1>/projects/AIMA-public-r1191-candidate/native/linux_core_port/host_contract_test.cpp",
+          "-o",
+          "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-port-local-r2/host-test"
+        ],
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "host-contract",
+      "sha256": "d6e51f455de1a62dc74393b484062dc64e5262190b4c97940184880e1a4fffc1",
+      "evidence": {
+        "command": [
+          "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-port-local-r2/host-test",
+          "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-port-local-r2/fixtures"
+        ],
+        "returncode": 0,
+        "stdout": "{\"passed\":true,\"large_offset\":4294967313,\"tokens_checked\":8192,\"model_loaded\":false}\n",
+        "stderr": ""
+      }
+    }
+  ],
+  "windows_model_and_headers_readonly": {
+    "receipt_sha256": "54097d54090d5e521ab22562d8a5d249c454dd09026bb3f311e46c24a4311576",
+    "observations": {
+      "host": "BAIYING",
+      "files": [
+        {
+          "path": "D:/models/Qwen3.6-35B-A3B/config.json",
+          "sha256": "93a4693fa9d8392fbfccd4b3c9873f4bfdcb14fdede978b123d07d19675efe99",
+          "bytes": 3686
+        },
+        {
+          "path": "D:/models/Qwen3.6-35B-A3B/model.safetensors.index.json",
+          "sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+          "bytes": 98383
+        },
+        {
+          "path": "C:/Program Files/AMD/ROCm/7.1/include/hip/hip_bf16.h",
+          "sha256": "94bc3a2b996d6fa02a4ae20d613abc7e5c71b039013fc636cdbaa652305c1bd7",
+          "bytes": 1571
+        },
+        {
+          "path": "C:/Program Files/AMD/ROCm/7.1/include/hipblaslt/hipblaslt.h",
+          "sha256": "029e4b8537bfa7630ac7312a2b8118067f01b6fa8d8b591df5ed1ed3be414941",
+          "bytes": 51267
+        }
+      ],
+      "python": [
+        "C:\\Program Files\\Python313\\python.exe",
+        "C:\\Program Files\\Python313\\python3.exe",
+        "C:\\WINDOWS\\py.exe"
+      ]
+    }
+  },
+  "windows_libraries_readonly": {
+    "receipt_sha256": "86d22edc4ddf847564f8c81f3a51aa80314d9078c4cbad1544754e0a5d3a6ab6",
+    "observations": {
+      "host": "BAIYING",
+      "root": "C:/Program Files/AMD/ROCm/7.1",
+      "files": [
+        {
+          "sha256": "6055254510d720213f6f835efb92f3d08dc49d5023dd0a14c00111771051a74e",
+          "bytes": 716696,
+          "relative": "bin/libhipblas.dll"
+        },
+        {
+          "sha256": "9f97d95c3b7257efcab992914b4e1c1b3b71b0693a6ad5d61a8f3cbf08a96dee",
+          "bytes": 6012312,
+          "relative": "bin/libhipblaslt.dll"
+        },
+        {
+          "sha256": "5c001a3a4693f344899d36bc31c6202681fa467e9e25b127a42067c6732b3fc5",
+          "bytes": 41072536,
+          "relative": "bin/rocblas.dll"
+        },
+        {
+          "sha256": "a09cc8ef4de3d333fa05c4df8a239ac63b4c8838ae9d0d3790d343b25d5733b3",
+          "bytes": 264712,
+          "relative": "lib/libhipblas.dll.a"
+        },
+        {
+          "sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+          "bytes": 318010,
+          "relative": "lib/libhipblaslt.dll.a"
+        },
+        {
+          "sha256": "733b9b81c9ff54f4ef938a4273b2f19aacb572e528c09d1433e71c894acb9406",
+          "bytes": 2583156,
+          "relative": "lib/rocblas.lib"
+        }
+      ],
+      "model_loaded": false,
+      "gpu_commands_executed": false
+    }
+  },
+  "windows_script_parse": {
+    "receipt_sha256": "42d353372656d28aedc437de666f5b5d369c397d0d9b70b5db75178e3d7f2f57",
+    "source_sha256": "f46b8149c7d91f38199cb35707049315fe5cf79818299a98691b381465e5319f",
+    "observations": {
+      "host": "BAIYING",
+      "parse_errors": [],
+      "model_loaded": false,
+      "script_executed": false
+    },
+    "script_executed": false
+  },
+  "queued_native_plan": {
+    "blueprint_sha256": "8214cb11c90273945e58eb33043835a57acab773353ff5a0ad22ace60037c9ef",
+    "stage_sha256": "4922d8d13893a6ea8ae4a6ba0e07e417c96adf6ee0fc9388c07590ed10c5797c",
+    "source_commit": "0a57516e8c7c1dba55a077eba9d38b6155a0620e",
+    "build_source_inputs": 335,
+    "bundle_bytes": 1588120,
+    "bundle_sha256": "aec230bb417d181abb005cb14504698d32da4908fe8600b8f2459e579f8ac673",
+    "prior_owner": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1/run-record.json",
+    "prior_owner_completed": false,
+    "build_dispatched": false,
+    "product_dispatched": false,
+    "build_internal_timeout_seconds": 1500,
+    "build_guard_timeout_seconds": 1740,
+    "product_guard_timeout_seconds": 600,
+    "purpose": "Wait for the repaired runtime complete256k owner to leave a clean host, then build and compare the original q8192/out512 case."
+  },
+  "original_gb10_oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+  "prompt_u32_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+  "first_logit_tolerance": 0.125,
+  "expected_output_count": 512,
+  "model_loaded": false,
+  "windows_build_qualified": false,
+  "model_correctness_qualified": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "retained_runtime_source_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+  "retained_runtime_changed": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "266e34f045fb979967801c321ab61f8b585aa2a39eabe80b0b1e7f85cbc9d524",
+    "original_json_bytes": 12659,
+    "source_revision": "0a57516e8c7c1dba55a077eba9d38b6155a0620e",
+    "source_path": "build/linux-core-windows-preparation-original-20260922.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 9
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}
