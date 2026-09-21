@@ -119,7 +119,7 @@ public:
  uint64_t epoch()const{return epoch_;}
  qrt_sm121_mtp::PromptStep begin(const qrt_mtp_target_rows::PrefillRows& batch,std::shared_ptr<MtpSource> source,
   const qrt_sm121_mtp::TargetFrontier& actual,unsigned capacity){
-  assert(!processed_&&source&&actual.model_epoch==5u&&capacity==requested_total+512u);
+  assert(!processed_&&source&&actual.model_epoch==5u&&capacity==std::min(size_t(262144u),requested_total+512u));
   epoch_=5u;return append(batch,actual);
  }
  qrt_sm121_mtp::PromptStep append(const qrt_mtp_target_rows::PrefillRows& batch,const qrt_sm121_mtp::TargetFrontier& actual){
@@ -188,7 +188,7 @@ bool run_qwen36_resident_batch_suffix(const qrt_qwen36_whole_provider_prefix_req
  assert(!teachers&&terminal_only&&r.expected_prefix_token_count==s.prefix_tokens);
  assert(r.suffix_tokens==actual_prompt+s.prefix_tokens&&r.suffix_token_count==std::min(size_t(8192),requested_total-s.prefix_tokens));
  // Actual nested allocator scope must preserve the caller's chunk lease. The
- // same two temporary spans serve every complete chunk and the 1024-row tail.
+ // same two temporary spans serve every complete chunk and the actual tail.
  ScopedDescriptorProductDeviceAllocationReuse inner(true);assert(!inner.owns_scope);
  struct Handoff{void* a=nullptr;void* b=nullptr;~Handoff(){free_device(b);free_device(a);}} handoff;
  if(qrt_descriptor_device_malloc(&handoff.a,size_t(r.suffix_token_count)*8u)!=hipSuccess||
@@ -236,7 +236,9 @@ int main(){
   assert(!g_qwen36_chunked_prefill_total_tokens&&!g_descriptor_product_reuse_device_allocations);
   assert(allocations.empty()&&g_descriptor_device_allocation_pool.empty()&&allocation_count==free_count);return ok;
  };
- for(size_t total:{16384u,17408u,32768u,65536u,66560u,122880u,123904u,131072u,132096u,262144u,263168u}){
+ for(size_t total:{8193u,8194u,8195u,8196u,8255u,8256u,8257u,9215u,9216u,9217u,
+                  16383u,16384u,16385u,17408u,32768u,65536u,66560u,122880u,123904u,
+                  131072u,132096u,262140u,262142u,262143u,262144u,263168u}){
   assert(run(total)==1&&callbacks==1&&seeds==1&&suffixes==(total+8191)/8192-1&&!releases);
   assert(reservations==10);
   assert(allocation_count==2&&g_descriptor_device_allocation_pool_stats.request_count==suffixes*2u);
@@ -276,11 +278,13 @@ int main(){
  assert(!run(32768)&&suffixes==1&&!callbacks&&releases==1&&!g_qwen36_resident_session.valid);
  assert(!std::strcmp(result->failure_stage,"qwen36_chunked_prefill_scratch_handoff"));bad_handoff=false;
  cancel=true;assert(!run(17408)&&callbacks==1&&releases==1&&result->prefill_emit_rejected&&!result->resident_session_valid);cancel=false;
- assert(!run(16385)&&!seeds&&!callbacks&&!releases);
+ assert(!run(8192)&&!seeds&&!callbacks&&!releases);
+ assert(!run(8191)&&!seeds&&!callbacks&&!releases);
  assert(!run(qrt_sm121_attention_capacity::kTokens+1024u)&&!seeds&&!callbacks&&!releases);
  assert(run(16384)&&callbacks==1&&result->completed);
  native_mtp=true;
- for(size_t total:{16384u,17408u,65536u,131072u}){
+ for(size_t total:{8193u,8194u,8195u,8257u,16383u,16384u,16385u,17408u,
+                  65536u,131072u,262140u,262142u,262143u}){
   assert(run(total)&&callbacks==1&&mtp_calls==(total+8191u)/8192u+1u);
   assert(g_qwen36_resident_session.native_mtp_checkpoint.retained&&result->resident_session_valid);
  }
@@ -296,6 +300,13 @@ int main(){
   assert(!std::strcmp(result->failure_stage,"mtp_chunked_prefill_seed_frontier"));
  }
  bad_seed_identity=0;
+ // The last short chunk can fail before or after private MTP production.
+ for(unsigned at:{2u,3u})for(bool unknown:{false,true}){
+  fail_mtp_at=at;unknown_mtp=unknown;
+  assert(!run(8193u)&&mtp_calls==at&&!callbacks&&releases==1&&!result->resident_session_valid);
+  assert(g_qwen36_resident_completion_unknown==unknown);
+ }
+ fail_mtp_at=0;unknown_mtp=false;
  cancel=true;assert(!run(17408u)&&callbacks==1&&releases==1);cancel=false;
  assert(!run(262144u)&&!seeds&&!mtp_calls&&!callbacks&&!releases);
  assert(run(16384u)&&callbacks==1&&result->completed);

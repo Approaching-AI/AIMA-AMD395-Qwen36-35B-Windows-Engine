@@ -122,18 +122,16 @@ int run_qwen36_chunked_prefill(
     };
     const size_t total = request.input_token_count;
     const bool native_mtp = env_flag_enabled("QRT_QWEN36_MTP_NATIVE_DECODE");
-    // The two supported transaction sizes have original-input seeded FLA
-    // evidence. Other tail sizes continue to use the ordinary route when this
-    // experimental mode is off; they are not padded or silently substituted.
+    // Every nonfinal chunk contains 8192 actual inputs. The final chunk keeps
+    // its true extent, including one-token tails; no synthetic input is added.
     if (!request.resident_engine || total <= 8192u || total > qrt_sm121_attention_capacity::kTokens ||
-        (total % 8192u != 0u && total % 8192u != 1024u) ||
         g_qwen36_chunked_prefill_total_tokens || ScopedQwen36PrefixBatchSuffix::active ||
         raw_env_flag_enabled("QRT_QWEN36_PREFIX_CHECKPOINTS") ||
         !env_flag_enabled("QRT_QWEN36_WHOLE_PROVIDER_RESIDENT_SESSION") ||
         !env_flag_enabled("QRT_QWEN36_WHOLE_PROVIDER_DIRECT_ORCHESTRATION") ||
         !env_flag_enabled("QRT_QWEN36_WHOLE_PROVIDER_FUSED_LAYER_STACK"))
         return fail_request("qwen36_chunked_prefill_request",
-            "cold chunks require an 8192-aligned prompt, optionally 1024 final inputs, and a resident fused owner without checkpoint capture");
+            "cold chunks require more than 8192 bounded actual inputs and a resident fused owner without checkpoint capture");
     if (native_mtp && total >= qrt_mtp_draft_schedule::reference_drafter_limit)
         return fail_request("mtp_chunked_prefill_retirement",
             "native MTP cold chunks currently require a prompt before drafter retirement");

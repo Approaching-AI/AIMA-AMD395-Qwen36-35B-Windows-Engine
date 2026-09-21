@@ -26,6 +26,16 @@ this commit. Complete256k is now running with this binary; native retirement
 itself remains unqualified. This single control does not replace retained
 performance medians or qualify a release.
 
+The [cold final-chunk repair](COLD_PREFILL_TAILS.md) now admits actual tails
+from1 through8192 tokens, preserves untouched convolution ring slots for
+tails shorter than4, and routes native MTP around the C cold-suffix shortcut.
+All23 related local tests, C smoke and seven transaction cases pass; three
+old-code controls reproduce the respective failures. Windows compilation
+and original-model checks remain pending. Both the DLL and product CLI must
+be rebuilt. The two r1 plans below retain their original inputs but require
+new runtime bindings before execution; their old binaries do not include
+this fix.
+
 The [prepared native retirement matrix](../benchmarks/correctness/native-mtp-retirement-prepared-20260921.json)
 uses existing original GB10 q262140/q262142/q262143 prompts, each with16
 outputs. Same-source native q7169/out32 and q8192/out512 controls precede the

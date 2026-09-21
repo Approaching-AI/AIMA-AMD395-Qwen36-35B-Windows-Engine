@@ -10,6 +10,66 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class PrefixBatchSuffixTests(unittest.TestCase):
+    def test_actual_ring_update_keeps_unreplaced_prefix_slots(self):
+        header = (ROOT / 'native/providers/prefix_batch_suffix.h').read_text()
+        kernel = function(header, '__global__ void qwen36_prefix_suffix_ring_kernel(')
+        source = r'''
+#include <algorithm>
+#include <cassert>
+#include <cstdint>
+#include <cstring>
+#include <vector>
+#define __global__
+struct Dim {unsigned x=0;};Dim blockIdx,threadIdx,blockDim{256};
+uint16_t device_float_to_bf16(float value){
+ uint32_t bits;std::memcpy(&bits,&value,4);return uint16_t((bits+0x7fffu+((bits>>16u)&1u))>>16u);
+}
+''' + kernel + r'''
+int main(){
+ constexpr unsigned width=8192,guard=256;
+ std::vector<float> input(size_t(8192)*width+guard*2u,-999.0f);
+ float* qkv=input.data()+guard;
+ std::vector<float> ring(4u*width+guard*2u),old;
+ std::vector<uint16_t> bf16(ring.size()),old_bf16;
+ for(unsigned tokens:{1u,2u,3u,4u,5u,7u,63u,64u,65u,1023u,1024u,1025u,7168u,8188u,8190u,8191u,8192u,0u}){
+  for(unsigned relative=0;relative<std::min(tokens,4u);++relative){
+   const unsigned row=tokens-1u-relative;
+   for(unsigned c=0;c<width;++c)qkv[size_t(row)*width+c]=float(int((row*7u+c*3u)%101u)-50)/128.0f+1.0f/2048.0f;
+  }
+  for(unsigned prefix:{8192u,8193u,8194u,8195u})for(bool packed:{false,true}){
+   std::fill(ring.begin(),ring.end(),-999.0f);std::fill(bf16.begin(),bf16.end(),0xa5a5u);
+   for(unsigned i=0;i<4u*width;++i){ring[guard+i]=float(100u+i/width*16u)+float(i%29u)/16.0f;bf16[guard+i]=device_float_to_bf16(ring[guard+i]);}
+   old=ring;old_bf16=bf16;
+   for(unsigned i=0;i<4u*width+guard;++i){blockIdx.x=i/256u;threadIdx.x=i%256u;
+    qwen36_prefix_suffix_ring_kernel(qkv,packed?nullptr:ring.data()+guard,packed?bf16.data()+guard:nullptr,prefix,tokens);
+   }
+   // Determine each slot's newest absolute token, independently of the
+   // kernel's thread/row mapping. Slots without a new token retain history.
+   for(unsigned slot=0;slot<4u;++slot)for(unsigned c=0;c<width;++c){
+    const size_t at=guard+size_t(slot)*width+c;
+    const unsigned distance=(prefix+tokens+3u-slot)%4u;
+    const bool replaced=tokens && distance<tokens;
+    const float expected=replaced?qkv[size_t(tokens-1u-distance)*width+c]:old[at];
+    if(packed)assert(bf16[at]==(replaced?device_float_to_bf16(expected):old_bf16[at]));
+    else assert(ring[at]==expected);
+   }
+   if(packed)assert(ring==old);else assert(bf16==old_bf16);
+   for(unsigned i=0;i<guard;++i){
+    assert(ring[i]==old[i]&&ring[ring.size()-1u-i]==old[old.size()-1u-i]);
+    assert(bf16[i]==old_bf16[i]&&bf16[bf16.size()-1u-i]==old_bf16[old_bf16.size()-1u-i]);
+    assert(input[i]==-999.0f&&input[input.size()-1u-i]==-999.0f);
+   }
+  }
+ }
+}
+'''
+        with tempfile.TemporaryDirectory(prefix='qrt-cold-tail-ring-') as tmp:
+            exe = str(Path(tmp) / 'ring')
+            subprocess.run(['c++', '-std=c++17', '-O1', '-Wall', '-Wextra', '-Werror',
+                            '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
+                            '-x', 'c++', '-', '-o', exe], input=source, text=True, check=True, timeout=30)
+            subprocess.run([exe], check=True, timeout=30, capture_output=True)
+
     def test_bf16_export_without_legacy_f32_prepare_and_submit_failures(self):
         header = (ROOT/'native/providers/prefix_batch_suffix.h').read_text()
         method = function(header, '    hipError_t attention(')
@@ -170,7 +230,11 @@ int main(){
  v.tokens=8192;assert(!v.validate());v.terminal_only=true;assert(!v.validate());
  for(unsigned i=3;i<40;i+=4){auto& l=session.full_attention_layers[i];l.decode_tail_capacity_tokens=8192;
   l.decode_tail_k_bytes=l.decode_tail_v_bytes=8192u*1024u;}
- assert(v.validate());v.tokens=8193;assert(!v.validate());v.terminal_only=false;
+ assert(v.validate());
+ for(unsigned tail:{1u,2u,3u,4u,63u,64u,65u,1023u,1024u,1025u,8188u,8190u,8191u,8192u}){
+  v.tokens=tail;assert(v.validate());
+ }
+ v.tokens=0;assert(!v.validate());v.tokens=8193;assert(!v.validate());v.terminal_only=false;
  v.tokens=1025;assert(!v.validate());v.tokens=1024;v.prefix=16383;assert(!v.validate());v.prefix=16384;
  v.previous=&v;assert(!v.validate());v.previous=nullptr;session.committed_decode_token_count=1;assert(!v.validate());
 }

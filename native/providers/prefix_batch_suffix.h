@@ -25,8 +25,11 @@ __global__ void qwen36_prefix_suffix_ring_kernel(
     unsigned prefix, unsigned tokens
 ) {
     const unsigned i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i >= 4u * 8192u) return;
-    const unsigned row = tokens - 4u + i / 8192u, channel = i % 8192u;
+    const unsigned rows = tokens < 4u ? tokens : 4u;
+    if (i >= rows * 8192u) return;
+    // A short tail replaces only the new ring slots. Earlier prefix slots
+    // remain live for the next causal convolution.
+    const unsigned row = tokens - rows + i / 8192u, channel = i % 8192u;
     const size_t destination = size_t((prefix + row) % 4u) * 8192u + channel;
     const float value = qkv[size_t(row) * 8192u + channel];
     if (ring_bf16) ring_bf16[destination] = device_float_to_bf16(value);
@@ -79,9 +82,9 @@ struct ScopedQwen36PrefixBatchSuffix {
         if (previous || !session || !session->valid || !session->owner_engine ||
             session->prefix_tokens != prefix || session->committed_decode_token_count ||
             prefix < 8192u || prefix % 8192u ||
-            (tokens != 1024u && !(terminal_only && tokens == 8192u)) ||
+            (tokens != 1024u && !(terminal_only && tokens && tokens <= 8192u)) ||
             prefix > qrt_sm121_attention_capacity::kTokens - tokens)
-            return reject("batch suffix requires an untouched aligned prefix and 1024 actual inputs, or an 8192-input cold chunk");
+            return reject("batch suffix requires an untouched aligned prefix and 1024 actual inputs, or a cold chunk of 1 through 8192 inputs");
         for (unsigned i = 0; i < 40u; ++i) {
             if (i % 4u != 3u) {
                 const auto &layer = session->linear_layers[i];

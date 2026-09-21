@@ -51,6 +51,13 @@ typedef struct { qrt_engine_t *engine; uint64_t expected_session_generation; siz
 static uint64_t clock_ns;
 static unsigned seeds, suffixes, locks, unlocks, callback_count;
 static int mode, allow_lock=1, eligible=1, cancel_at=-1;
+static int native_mtp_option, chunked_option;
+static const char *fixture_env(const char *name) {
+ if(!strcmp(name,"QRT_QWEN36_MTP_NATIVE_DECODE"))return native_mtp_option?"1":NULL;
+ if(!strcmp(name,"QRT_QWEN36_CHUNKED_PREFILL"))return chunked_option?"1":NULL;
+ return NULL;
+}
+#define getenv fixture_env
 static uint64_t first_wall, first_step;
 static uint64_t qrt_now_ns(void) { return ++clock_ns; }
 static uint64_t qrt_elapsed_ns(uint64_t start, uint64_t end) { return end-start; }
@@ -120,7 +127,8 @@ static int callback(void *data,const qrt_token_stream_event_v1_t *event) {
 }
 static qrt_engine_t fresh(void) {
  qrt_engine_t e={0};clock_ns=0;seeds=suffixes=locks=unlocks=callback_count=0;
- mode=0;allow_lock=eligible=1;cancel_at=-1;first_wall=first_step=0;return e;
+ mode=0;allow_lock=eligible=1;cancel_at=-1;first_wall=first_step=0;
+ native_mtp_option=chunked_option=0;return e;
 }
 int main(void) {
  uint32_t *in=calloc(10000,sizeof(*in));uint32_t out[512]={0};size_t count;int handled;
@@ -152,6 +160,19 @@ int main(void) {
  for(size_t n=8193;n<=9216;n+=1023){e=fresh();assert(qrt_engine_request_tokens(&e,in,n,out,512,&count)==QRT_STATUS_OK);assert(count==512);}
  const size_t bypass[]={8191,8192,9217,10000};
  for(size_t i=0;i<4;++i){e=fresh();handled=1;assert(qrt_qwen36_try_bounded_prefill_suffix(&e,in,bypass[i],out,32,&count,&handled)==QRT_STATUS_UNSUPPORTED);assert(!handled && !seeds);}
+ // Leave the complete request to the native chunk owner before any seed,
+ // lock, callback, output count or engine-state mutation occurs.
+ for(size_t n=8193;n<=9216;n+=1023){
+  e=fresh();native_mtp_option=chunked_option=1;qrt_engine_t before=e;count=99;handled=1;
+  assert(qrt_qwen36_try_bounded_prefill_suffix(&e,in,n,out,32,&count,&handled)==QRT_STATUS_UNSUPPORTED);
+  assert(!handled && count==99 && !seeds && !suffixes && !locks && !callback_count);
+  assert(!memcmp(&e,&before,sizeof(e)));
+ }
+ for(unsigned selected=0;selected<2;++selected){
+  e=fresh();native_mtp_option=selected;chunked_option=!selected;
+  assert(qrt_engine_request_tokens(&e,in,8193,out,32,&count)==QRT_STATUS_OK);
+  assert(seeds==1 && suffixes==1 && count==32);
+ }
  for(int fault=1;fault<=6;++fault){
   e=fresh();mode=fault;count=99;
   assert(qrt_engine_request_tokens_stream_v1_unlocked(&e,in,8193,out,32,&count,callback,(void*)0x1234)!=QRT_STATUS_OK);

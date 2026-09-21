@@ -82680,8 +82680,17 @@ static qrt_status_t qrt_qwen36_try_bounded_prefill_suffix(
     uint64_t old_seed_clock;
     int stream_active;
     size_t i;
+    const char *native_mtp = getenv("QRT_QWEN36_MTP_NATIVE_DECODE");
+    const char *chunked_prefill = getenv("QRT_QWEN36_CHUNKED_PREFILL");
 
     *out_handled = 0;
+    /* Native MTP must consume the complete cold prompt through its chunk
+     * owner. Splitting here would instead seed an unrelated 8192-token draft
+     * checkpoint and send the tail through the prefix/decode entry point. */
+    if (native_mtp != NULL && strcmp(native_mtp, "1") == 0 &&
+        chunked_prefill != NULL && strcmp(chunked_prefill, "1") == 0) {
+        return QRT_STATUS_UNSUPPORTED;
+    }
     if (input_token_count <= prefix_tokens ||
         input_token_count - prefix_tokens >
             QRT_QWEN36_RESIDENT_PREFIX_CACHE_MAX_SUFFIX_TOKENS ||
