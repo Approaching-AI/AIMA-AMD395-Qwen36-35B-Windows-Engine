@@ -23,6 +23,19 @@ TPOT100.232207ms do not meet the performance goals. DLL SHA256 is
 `393cb7ceb8353b0d590894628f577d23efdc854f67d2e03a71f483b8132128bd`.
 The combined whole/probe build binds173 source inputs. This functional run
 does not replace the23353.80795ms retained median or qualify long contexts.
+The [complete native MTP prefix and cancellation run](../benchmarks/correctness/native-mtp-prefix-cancellation-qualified-20260921.json)
+passes on baiying at6a5da30: both original512-token suffix requests after a
+16384-token owner, all five original32-token owner continuations, ten calls,
+1247 live observations and1753 actual target commits. Cancellation at0/1/64/511
+and every restored owner pass. All14 shadow rollbacks preserve the original
+allocations and state. Owner prefill logit25.625, suffix logit5.6875 and all
+five owner-continuation logits24.5 match their original GB10 boundaries.
+The matching native q7169/out32 and q8192/out512 controls also pass. Native
+wall590951.055ms includes the complete diagnostic matrix; it is not a retained
+latency sample. The first attempt stopped at disk admission before inference;
+three hash-verified diagnostic archives moved to P before the unchanged guard
+admitted the rerun. Native retirement and longer native-MTP contexts remain open.
+
 The [retired native MTP row-mode regression](../benchmarks/correctness/native-mtp-retired-reference-mode-local-20260921.json)
 now selects the original single-row route from the validated retired target
 scope, including requests whose initial prefix was shorter than262144 tokens.
