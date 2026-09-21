@@ -49,6 +49,20 @@ keep the original fallback, and the original certificate keeps its admissions.
 All encoded-key shuffles execute uniformly before any fallback consumer.
 This variant remains outside product dispatch.
 
+A further isolated variant keeps each lossless signed16 coefficient while
+storing an unrepresentable element's original BF16 word in the same slot.
+A16-bit exception mask makes the matrix use zero for that slot. The exact
+matrix remainder is aligned normally, and only omitted products are expanded
+and individually aligned using original narrow arithmetic. Actual exponents
+and nonzero masks include all original elements. The prepared row grows from
+60 to64 bytes. Unsupported domains and shifts still use the original group;
+no approximate operand or partial maximum is substituted.
+
+The partial wave owner broadcasts every key field uniformly before sparse
+correction or fallback. It keeps the same four-wave output ownership and
+ordered carries. All existing wave variants and their prepared rows remain
+unchanged. This candidate is not connected to product dispatch.
+
 ## Verification
 
 The host audit compares the compact metadata view with the full row and the
@@ -99,6 +113,27 @@ row. The q8192 extension still repeats captured rows. The historical producer
 exits6; only its independently GB10-matched Q/K surfaces qualify as inputs.
 Its downstream mismatch is preserved, and these samples establish neither
 GPU numerical correctness nor an inference or speed result.
+
+The [partial-coefficient host audit](../benchmarks/correctness/partial-matrix-local-20260921.json)
+checks192322 ordered groups throughK8192 and8251456 lossless prepared words
+under ASan/UBSan, including every possible BF16 bit pattern. It preserves47104
+original and14336 remainder admissions, adds75386 sparse-correction groups
+and retains55496 original fallbacks. All raw carries and rejection sentinels
+match. The other two original matrix tests pass unchanged.
+
+On the same deterministic captured Q/K sample, all remaining199940 q7169
+and201208 q8192 groups now use exact sparse correction, requiring223379 and
+224548 individual products respectively. All1048576 groups per shape match
+original ordered arithmetic. This does not predict GPU speed or replace the
+complete GB10 context comparison.
+
+`tests/native/partial_wave_matrix_qk_capture.cpp` keeps all four earlier timed
+variants and adds the partial wave owner. Safety also keeps forced original
+wave replay and adds forced original partial-row replay, giving560 generated
+cases. CPU metadata, original raw scores and consumer surfaces, GB10 context,
+all candidate sets, immutable inputs and redzones remain checked. Each variant
+reports its own complete metadata preparation cost. Native compilation and
+these complete GPU comparisons remain pending for the partial owner.
 
 The [native build record](../benchmarks/correctness/wave-matrix-qk-native-build-20260921.json)
 binds source804ccf4,56 compilation inputs, the original compiler flags and

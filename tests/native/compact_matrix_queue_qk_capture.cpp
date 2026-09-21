@@ -7,7 +7,15 @@
 #include "../../native/providers/ck_fmha/compact_matrix_queue_qk.h"
 #ifdef QRT_WAVE_MATRIX_QK_CAPTURE
 #include "../../native/providers/ck_fmha/wave_matrix_qk.h"
-#ifdef QRT_WAVE_MATRIX_REMAINDER_QK_CAPTURE
+#ifdef QRT_PARTIAL_WAVE_MATRIX_QK_CAPTURE
+#include "../../native/providers/ck_fmha/partial_wave_matrix_qk.h"
+#include <memory>
+#define QRT_MATRIX_QK_LABEL "partial_wave_matrix_qk"
+#define QRT_MATRIX_QK_MARKER "PARTIAL_WAVE_MATRIX_QK"
+#define QRT_MATRIX_QK_CAPTURE_VARIANTS 5u
+#define QRT_MATRIX_QK_SAFETY_VARIANTS 7u
+#define QRT_MATRIX_QK_FORCE_FIELD ",\"forced_all_original_wave\":true,\"forced_all_original_partial_wave\":true"
+#elif defined(QRT_WAVE_MATRIX_REMAINDER_QK_CAPTURE)
 #define QRT_MATRIX_QK_LABEL "wave_matrix_remainder_qk"
 #define QRT_MATRIX_QK_MARKER "WAVE_MATRIX_REMAINDER_QK"
 #define QRT_MATRIX_QK_CAPTURE_VARIANTS 4u
@@ -17,7 +25,9 @@
 #define QRT_MATRIX_QK_MARKER "WAVE_MATRIX_QK"
 #endif
 #define QRT_MATRIX_QK_QUEUE_CONTROL "false"
+#ifndef QRT_MATRIX_QK_FORCE_FIELD
 #define QRT_MATRIX_QK_FORCE_FIELD ",\"forced_all_original_wave\":true"
+#endif
 #else
 #define QRT_MATRIX_QK_LABEL "compact_matrix_queue_qk"
 #define QRT_MATRIX_QK_MARKER "COMPACT_MATRIX_QUEUE_QK"
@@ -30,6 +40,37 @@
 #endif
 
 namespace {
+#ifdef QRT_PARTIAL_WAVE_MATRIX_QK_CAPTURE
+struct PartialMetadata {
+    using Row = qrt_partial_wave_matrix_qk::Row;
+    Guarded query,key;
+    std::vector<Row> expected_query,expected_key;
+    double ms=0.0;
+    PartialMetadata(const uint16_t* q,const uint16_t* k,const std::vector<uint16_t>& hq,
+        const std::vector<uint16_t>& hk,unsigned tokens):
+        query(size_t(tokens)*16u*16u*sizeof(Row)),key(size_t(tokens)*2u*16u*sizeof(Row)),
+        expected_query(size_t(tokens)*16u*16u),expected_key(size_t(tokens)*2u*16u){
+        for(unsigned is_key=0u;is_key<2u;++is_key){
+            const auto& input=is_key?hk:hq;
+            auto& expected=is_key?expected_key:expected_query;
+            const unsigned heads=is_key?2u:16u;
+            for(unsigned row=0u;row<tokens*heads;++row)for(unsigned g=0u;g<16u;++g){
+                const auto encoded=qrt_sm121_partial_matrix_group::prepare(input.data()+size_t(row)*256u+g*16u);
+                for(unsigned i=0u;i<16u;++i)
+                    if(qrt_sm121_partial_matrix_group::original(encoded,i)!=input[size_t(row)*256u+g*16u+i])
+                        throw std::runtime_error("partial metadata is not lossless");
+                expected[is_key?(size_t(row%heads)*16u+g)*tokens+row/heads:size_t(row)*16u+g]=encoded;
+            }
+        }
+        finish();const auto begin=std::chrono::steady_clock::now();
+        hipLaunchKernelGGL((qrt_partial_wave_matrix_qk::prepare<false>),dim3((tokens*16u*16u+255u)/256u),dim3(256u),0u,nullptr,
+            q,query.as<Row>(),tokens);check(hipGetLastError());
+        hipLaunchKernelGGL((qrt_partial_wave_matrix_qk::prepare<true>),dim3((tokens*2u*16u+255u)/256u),dim3(256u),0u,nullptr,
+            k,key.as<Row>(),tokens);check(hipGetLastError());finish();ms=elapsed(begin);verify();
+    }
+    void verify(){query.immutable(expected_query);key.immutable(expected_key);}
+};
+#endif
 void immutable_transpose(Guarded& device,const std::vector<uint16_t>& source,unsigned tokens){
     std::vector<uint16_t> expected(source.size());
     for(unsigned token=0u;token<tokens;++token)for(unsigned feature=0u;feature<512u;++feature)
@@ -42,6 +83,9 @@ struct NarrowDomain {
     std::vector<unsigned> expected_query,expected_key;
     std::vector<Metadata> expected_metadata_query,expected_metadata_key;
     double ms=0.0,matrix_ms=0.0;
+#ifdef QRT_PARTIAL_WAVE_MATRIX_QK_CAPTURE
+    std::unique_ptr<PartialMetadata> partial;
+#endif
     NarrowDomain(const uint16_t* q,const uint16_t* k,const std::vector<uint16_t>& hq,
         const std::vector<uint16_t>& hk,Prepared& prepared,unsigned tokens):
         query(size_t(tokens)*16u*4u),key(size_t(tokens)*2u*4u),statistics(8u),
@@ -68,7 +112,11 @@ struct NarrowDomain {
         hipLaunchKernelGGL((qrt_compact_matrix_queue_qk::prepare<false>),dim3((tokens*16u*16u+255u)/256u),dim3(256u),0u,nullptr,
             q,metadata_query.as<Metadata>(),tokens);check(hipGetLastError());
         hipLaunchKernelGGL((qrt_compact_matrix_queue_qk::prepare<true>),dim3((tokens*2u*16u+255u)/256u),dim3(256u),0u,nullptr,
-            k,metadata_key.as<Metadata>(),tokens);check(hipGetLastError());finish();matrix_ms=elapsed(begin);verify();
+            k,metadata_key.as<Metadata>(),tokens);check(hipGetLastError());finish();matrix_ms=elapsed(begin);
+#ifdef QRT_PARTIAL_WAVE_MATRIX_QK_CAPTURE
+        partial=std::make_unique<PartialMetadata>(q,k,hq,hk,tokens);
+#endif
+        verify();
     }
     qrt_narrow_domain_qk::Workspace workspace(Prepared& p,unsigned tokens){
         return {p.qp.as<uint32_t>()+guard,p.kp.as<uint32_t>()+guard,
@@ -78,9 +126,18 @@ struct NarrowDomain {
     qrt_compact_matrix_queue_qk::Workspace matrix_workspace(Prepared& p,unsigned tokens){
         return {workspace(p,tokens),metadata_query.as<Metadata>(),metadata_key.as<Metadata>()};
     }
+    double matrix_preparation(unsigned variant) const{
+#ifdef QRT_PARTIAL_WAVE_MATRIX_QK_CAPTURE
+        if(variant==4u || variant==6u)return partial->ms;
+#endif
+        return variant?matrix_ms:0.0;
+    }
     void verify(){
         query.immutable(expected_query);key.immutable(expected_key);statistics.guards();
         metadata_query.immutable(expected_metadata_query);metadata_key.immutable(expected_metadata_key);
+#ifdef QRT_PARTIAL_WAVE_MATRIX_QK_CAPTURE
+        partial->verify();
+#endif
     }
 };
 
@@ -95,12 +152,25 @@ void producer(const uint16_t* q,const uint16_t* kt,const uint16_t* v,const uint1
     if(!variant){
         const auto workspace=domain.workspace(prepared,tokens);
         check(hipError_t(qrt_narrow_domain_qk::launch_workspace(&workspace,q,kt,scores,nullptr,start,count,stride,tokens)));
-    }else{
+    }
+#ifdef QRT_PARTIAL_WAVE_MATRIX_QK_CAPTURE
+    else if(variant==4u || variant==6u){
+        const qrt_partial_wave_matrix_qk::Workspace workspace{domain.workspace(prepared,tokens),
+            domain.partial->query.as<PartialMetadata::Row>(),domain.partial->key.as<PartialMetadata::Row>()};
+        const auto launch=variant==4u?qrt_partial_wave_matrix_qk::launch<false>:
+            qrt_partial_wave_matrix_qk::launch<true>;
+        check(hipError_t(launch(&workspace,q,kt,scores,nullptr,start,count,stride,tokens)));
+    }
+#endif
+    else{
         const auto workspace=domain.matrix_workspace(prepared,tokens);
 #ifdef QRT_WAVE_MATRIX_QK_CAPTURE
         const auto launch=variant==1u?qrt_compact_matrix_queue_qk::launch<true>:
             variant==2u?qrt_wave_matrix_qk::launch<false>:
-#ifdef QRT_WAVE_MATRIX_REMAINDER_QK_CAPTURE
+#ifdef QRT_PARTIAL_WAVE_MATRIX_QK_CAPTURE
+            variant==3u?qrt_wave_matrix_qk::launch<false,true>:
+            variant==5u?qrt_wave_matrix_qk::launch<true>:nullptr;
+#elif defined(QRT_WAVE_MATRIX_REMAINDER_QK_CAPTURE)
             variant==3u?qrt_wave_matrix_qk::launch<false,true>:
             variant==4u?qrt_wave_matrix_qk::launch<true>:nullptr;
 #else
@@ -263,7 +333,7 @@ void run_capture(unsigned tokens,const char* qfile,const char* kfile,const char*
 #ifdef QRT_WAVE_MATRIX_QK_CAPTURE
         if(variant>=2u){query_cells=1u;key_cells=8u;}
 #endif
-        std::printf("{\"kind\":\"" QRT_MATRIX_QK_LABEL "_capture\",\"tokens\":%u,\"source_capture_tokens\":7169,\"repeated_rows\":%u,\"variant\":%u,\"query_cells\":%u,\"key_cells\":%u,\"narrow_tiles\":%llu,\"original_tiles\":%llu,\"domain_classification_ms\":%.9f,\"retained_control_callback_and_isolated_candidate\":true,\"pre_replay_native_surfaces_checked_on_warmup\":true,\"cpu_metadata_checked\":true,\"query_batch\":128,\"score_slots\":%llu,\"output_cells\":%u,\"gb10_context_cells\":29364224,\"cpu_dots\":%u,\"pv_candidates\":%llu,\"completed_attention_samples_ms\":[%.9f,%.9f,%.9f],\"median_completed_attention_ms\":%.9f,\"common_preparation_ms\":%.9f,\"raw_bit_mismatches\":0,\"gb10_context_mismatches\":0,\"all_attempts_checked\":true,\"warmups_per_slab\":1,\"timed_attempts_per_slab\":3,\"original_qk_and_pv\":true,\"reference_is_compute_input\":false,\"redzones_and_unused_tails_pass\":true,\"immutable_inputs\":true,\"model_loaded\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",tokens,tokens-7169u,variant,query_cells,key_cells,(unsigned long long)fast_tiles[variant],(unsigned long long)slow_tiles[variant],domain.ms+(variant?domain.matrix_ms:0.0),(unsigned long long)score_cells,tokens*4096u,cpu_dots,(unsigned long long)candidates[variant],samples[variant][0],samples[variant][1],samples[variant][2],sorted[1],prepared.ms+transpose_ms);
+        std::printf("{\"kind\":\"" QRT_MATRIX_QK_LABEL "_capture\",\"tokens\":%u,\"source_capture_tokens\":7169,\"repeated_rows\":%u,\"variant\":%u,\"query_cells\":%u,\"key_cells\":%u,\"narrow_tiles\":%llu,\"original_tiles\":%llu,\"domain_classification_ms\":%.9f,\"retained_control_callback_and_isolated_candidate\":true,\"pre_replay_native_surfaces_checked_on_warmup\":true,\"cpu_metadata_checked\":true,\"query_batch\":128,\"score_slots\":%llu,\"output_cells\":%u,\"gb10_context_cells\":29364224,\"cpu_dots\":%u,\"pv_candidates\":%llu,\"completed_attention_samples_ms\":[%.9f,%.9f,%.9f],\"median_completed_attention_ms\":%.9f,\"common_preparation_ms\":%.9f,\"raw_bit_mismatches\":0,\"gb10_context_mismatches\":0,\"all_attempts_checked\":true,\"warmups_per_slab\":1,\"timed_attempts_per_slab\":3,\"original_qk_and_pv\":true,\"reference_is_compute_input\":false,\"redzones_and_unused_tails_pass\":true,\"immutable_inputs\":true,\"model_loaded\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",tokens,tokens-7169u,variant,query_cells,key_cells,(unsigned long long)fast_tiles[variant],(unsigned long long)slow_tiles[variant],domain.ms+domain.matrix_preparation(variant),(unsigned long long)score_cells,tokens*4096u,cpu_dots,(unsigned long long)candidates[variant],samples[variant][0],samples[variant][1],samples[variant][2],sorted[1],prepared.ms+transpose_ms);
     }
 }
 } // namespace

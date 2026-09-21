@@ -1,0 +1,3 @@
+#define QRT_WAVE_MATRIX_QK_CAPTURE
+#define QRT_PARTIAL_WAVE_MATRIX_QK_CAPTURE
+#include "compact_matrix_queue_qk_capture.cpp"
