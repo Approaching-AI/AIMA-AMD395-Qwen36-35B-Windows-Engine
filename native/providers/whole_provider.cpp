@@ -42648,10 +42648,13 @@ bool qwen36_chunk_prefill_continuation_active();
 
 bool qwen36_final_layer_full_prefix_requested(unsigned int prefill_tokens) {
     // The complete-prefix path reuses the validated attention and MoE providers.
-    // Keep this explicit replay within their existing single q8192 allocation.
-    return prefill_tokens > 1u && prefill_tokens <= kRetainedPrefillTokens &&
-        (env_flag_enabled("QRT_QWEN36_FINAL_LAYER_FULL_PREFIX") ||
-         qrt_mtp_target_rows::Scope::requested(prefill_tokens) ||
+    // A cold chunk can contain one real trailing input. Its scoped transaction
+    // must advance layer39 through the same provider as the preceding layers.
+    // Standalone one-token requests keep their existing terminal route.
+    return prefill_tokens > 0u && prefill_tokens <= kRetainedPrefillTokens &&
+        ((prefill_tokens > 1u &&
+          (env_flag_enabled("QRT_QWEN36_FINAL_LAYER_FULL_PREFIX") ||
+           qrt_mtp_target_rows::Scope::requested(prefill_tokens))) ||
          qwen36_chunk_prefill_continuation_active());
 }
 

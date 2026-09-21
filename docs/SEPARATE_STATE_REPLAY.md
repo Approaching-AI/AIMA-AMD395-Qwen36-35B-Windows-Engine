@@ -174,12 +174,11 @@ preserved. No production arithmetic changed during that correction.
 
 `state_replay_provider_selftest.cpp` uses the actual submission wrapper in
 the three-variant complete-chain fixture. The arithmetic kernels remain
-identical to the previously checked hybrid source. Windows compilation,
-all336 generated configurations, original q7169 operands, q8192 component
-shape, provider probes and same-DLL real q8192/out512 comparisons remain
-pending. This default-off integration adds no new numerical, performance
-or release qualification. The separately frozen e14f64b fixture is still
-reproducible and need not be mistaken for a build of this provider.
+identical to the previously checked hybrid source. The completed provider
+fixture results below cover native compilation, all336 generated configurations,
+original q7169 operands and the q8192 component shape. No product provider DLL
+or full-model comparison has been run for this experiment. The separately
+frozen e14f64b fixture remains a historical preparation.
 
 The [initial provider component plan](../benchmarks/correctness/state-replay-provider-prepared-20260921.json)
 freezes430 inputs at6003bcdee4be820c8901e11139ae64dabde32d4f. Its Windows
@@ -188,8 +187,36 @@ cooperative `.cpp` path, so clang treated `hip` as an input file. No GPU
 component executed; the completed exit1 record and clean host state are
 preserved. The fixture now includes the actual cooperative implementation
 in its source file, keeping one translation unit without that compiler argument.
-The numerical provider sources remain unchanged. A new native build is required.
+All20 numerical provider source inputs remain unchanged.
 
 The original parsing and missing-prerequisite checks remain preparation evidence.
 Native build/component/transport bounds remain180/300/420 seconds, with30-second
-Git children. No resource or native speed result exists yet.
+Git children.
+
+## Completed provider components
+
+The [replacement build and component results](../benchmarks/correctness/state-replay-provider-components-native-20260921.json)
+bind430 inputs to349bdfc and executable66c68057. The build passes in10560.704ms;
+all336 generated cases and six rows for each captured/component shape pass.
+Every raw-state, output, intermediate, alias, guard and checkpoint comparison
+is exact. All host checks pass with no remaining process. The q8192 fixture
+extends the original7168 rows by repeating1024 captured rows; it does not
+establish a real q8192 model boundary.
+
+Median complete-chain times in milliseconds, after one warmup and three
+rotated attempts per variant:
+
+| Shape and U owner | Retained | Fast/replay | Fast/retry/replay |
+| --- | ---: | ---: | ---: |
+| q7169 separate | 70.6384 | 75.0047 | 72.2431 |
+| q7169 U=V | 73.7023 | 74.0565 | 73.0450 |
+| q8192 separate | 83.0446 | 80.7930 | 90.4316 |
+| q8192 U=V | 84.5526 | 87.7071 | 89.5772 |
+
+The q7169 fast/retry/replay receipts are2901/562/633 out of4096 CTAs;
+q8192 records2804/579/713. Retained/fast/retry/replay kernels use113/139/152/113
+VGPRs,40/64/67/40 SGPRs and26180/25352/26508/26180 LDS bytes, with wave32 and
+zero spills/private bytes. Resource counts do not establish occupancy or
+product speed. These samples do not support enabling the route: mode0
+remains default, and no provider DLL or full-model experiment is justified
+by a seconds-scale benefit here. Future route selection remains unrestricted.

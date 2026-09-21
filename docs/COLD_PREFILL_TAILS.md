@@ -57,14 +57,35 @@ bind these checks to a7e2092. Positive command results are recorded from the
 local tool output; complete stdout logs are not claimed. The negative-control
 report includes its commands, generated-source hashes and actual failures.
 
-## Native qualification remains open
+## Actual native controls and terminal admission
 
-The current 256k ordinary-prefix run uses the previously built 8612387
-runtime and continues independently. Its outcome does not qualify this fix.
-Both the whole provider and the normal product CLI must be rebuilt, since
-the C entry point changed. The prepared native tail and retirement r1 plans
-bind the older runtime and must be rebound before execution. Their original
-GB10 prompts, expected outputs and numerical tolerances remain unchanged.
+The a7e2092 whole provider, normal CLI and prefix probe now build on baiying
+with all173 source inputs verified. The ordinary q8192/out512 control passes
+all original outputs and callbacks, first144/logit10.375. Three native MTP
+controls also pass: q7169/out32, q8191/out32 and q8192/out512, with31/31/511
+native target commits respectively and no ordinary decode commits. Their
+first tokens/logits are82/9.25,168589/11.375 and144/10.375. These are functional
+controls; native MTP remains opt-in and no retained performance changes.
+
+The actual q8193/out32 run reaches the final one-input chunk, then fails
+at layer39 before emitting any token or callback. Its full-prefix predicate
+required more than one input, disabling the whole/QKV provider needed by
+the compact attention path. The repair admits one input only inside the
+actual terminal-only cold transaction. Standalone one-token requests retain
+their existing selection even when the full-prefix or MTP flags are set.
+
+The [actual runs and local repair checks](../benchmarks/correctness/terminal-cold-tail-local-20260921.json)
+record204 predicate cases and66912 actual provider-selection cases under
+ASan/UBSan. Restoring the old predicate reproduces the failure. Four related
+coordinator/C-bridge/clock regressions pass. An initial test extractor error
+selected a forward declaration; the corrected test selects the production
+definition, and both logs are retained. The repaired source still needs its
+Windows build and original q8193 boundary; local selection checks do not
+qualify model inference.
+
+The separate8612387 full256k run completed with a mismatch at output124.
+Its matching first-step operands do not qualify the later continuation or
+the three original native retirement cases, which remain unrun.
 
 The [new build preparation](../benchmarks/correctness/cold-prefill-tail-prepared-20260921.json)
 binds 173 source inputs: 167 whole-provider, 10 prefix-probe and 8 normal CLI
@@ -74,10 +95,11 @@ Both Windows command files parse successfully. The active-process admission
 check performs zero dispatch calls. Compilation deadlines are 240/180/180
 seconds, within a 660-second guarded process and 750-second transport bound.
 
-The seven-case native transport preserves the earlier observer logic and
-original reference files. Its binary binding remains pending until the actual
-build succeeds. Four same-build short controls precede the three retirement
-cases. An ordinary q8192 control is also required before performance claims.
+The current seven-case native transport preserves the earlier observer logic
+and original reference files. Its r3 binding uses the successful a7 build and
+the actual completed long-run failure record; the two earlier preparations
+remain historical. New terminal-repair binaries require fresh bindings before
+repeating the short controls and proceeding to the retirement cases.
 
 The [server rebuild preparation](../benchmarks/correctness/cold-prefill-tail-server-prepared-20260921.json)
 also binds the HTTP server's statically linked C core to a7e2092. Its 25

@@ -52,9 +52,29 @@ is preserved. After verified diagnostic archival, r2 uses the identical173
 source inputs and compilation commands. The [ordinary original-model regression](../benchmarks/correctness/cold-prefill-tail-q8192-20260921.json)
 also passes: all512 token IDs and callbacks match, first144/logit10.375/error0,
 load21630.589501ms, TTFT23349.126501ms and TPOT101.333687ms. Load meets its
-bound; the TTFT and retained-performance goals remain open. The two r1 plans below retain their original inputs but require
-new runtime bindings before execution; their old binaries do not include
-this fix.
+bound; the TTFT and retained-performance goals remain open.
+
+The [actual native cold-tail controls](../benchmarks/correctness/terminal-cold-tail-local-20260921.json)
+pass q7169/out32, q8191/out32 and q8192/out512 with all32/32/512 original
+outputs and live callbacks, first logits9.25/11.375/10.375 and31/31/511 native
+commits. The q8193 case fails at layer39 before output: its terminal provider
+predicate excludes the final one-input cold chunk. A scoped admission repair
+passes204 predicate and66912 provider-selection checks plus four regressions;
+the actual old predicate fails the new test. This new source has not yet
+been built or qualified on Windows. Native MTP remains opt-in.
+
+The [first step124 reference attempt](../benchmarks/correctness/gb10-step124-control-rejection-20260921.json)
+is rejected because its q7169 first token is220/9.375 instead of82/9.25.
+Its original compute source and frozen autotune remain unchanged. The first
+observed prefill difference is layer3 post-attention norm; this does not
+identify the cause. Its outputs and412 common tensors reproduce an earlier
+rejected control exactly. The original oracle is preserved. An identical
+configuration retry [passes offline qualification](../benchmarks/correctness/gb10-prefix256-step124-reference-20260921.json):
+all608 outputs and complete first-logit anchors match, all4886 downloaded
+files verify, and original generated history binds positions263168/263290/263291.
+At the first native mismatch, input471 produces reference4980/logit26.625,
+ahead of8984/logit26.375. Native operands at this position have not yet been
+captured; the cause of that difference remains open.
 
 The [server source and preparation check](../benchmarks/correctness/cold-prefill-tail-server-prepared-20260921.json)
 binds 25 build inputs to the same cold-tail implementation. All54 existing
@@ -96,7 +116,8 @@ reuse original q8191/out32 and q8193/out32 tokens and first logits. The latter
 requires the actual8192+1 cold chunk sequence, followed by31 native target
 commits and all32 live outputs. Their observer passes two prior real logs,
 two synthetic tail sequences and16 deliberate corruptions. PowerShell parsing
-and the active-process admission check pass; neither model case has run yet.
+and the active-process admission check pass. These are historical preparations;
+the actual a7 q8191 pass and q8193 failure are recorded above.
 
 Sourcea31b364 adds an isolated [separate GDN state/replay experiment](SEPARATE_STATE_REPLAY.md).
 The [host and original-operand evidence](../benchmarks/correctness/separate-state-gdn-local-20260921.json)
@@ -131,14 +152,21 @@ route at0. It reuses2048 bytes of existing temporary storage and preserves
 checkpoint export. Local tests pass104 wrapper and320 caller cases plus seven
 related regressions; missing initialization and swallowed launch failures are
 detected. [Exact local evidence](../benchmarks/correctness/state-replay-provider-local-20260921.json)
-records the initial test-extraction error as well. Its Windows build, original
-captured component comparisons and same-DLL real q8192/out512 remain pending.
-No native speed or model qualification transfers from this preparation.
+records the initial test-extraction error as well. The later native component
+result below supersedes the unrun preparation without qualifying model inference.
 Its [native component plan](../benchmarks/correctness/state-replay-provider-prepared-20260921.json)
 binds430 inputs at6003bcd, includes the actual cooperative translation unit
 once, and uses the provider's `-O2` flags. Two Windows parsing checks, six
 zero-dispatch admission checks and six synthetic report rows pass; native
-build, resources, generated/captured comparisons and product timing are pending.
+checks are preparation only. Its first actual build failed before GPU execution
+because hipcc rewrote a forced-include argument. Source349bdfc includes the
+actual implementation in the fixture instead, with all20 numerical inputs
+unchanged. The [replacement native component run](../benchmarks/correctness/state-replay-provider-components-native-20260921.json)
+passes all336 generated cases and12 original-capture/extended-shape rows with
+zero bit mismatches. The q8192 extension repeats1024 captured rows and is not
+a full-model oracle. Both hybrid q8192 owner modes are slower than retained
+in these same-executable samples. Mode0 stays default; no product DLL or
+speed gain is accepted. Resource inspection finds zero spills/private bytes.
 
 The preceding [whole-provider build and q8192 regression](../benchmarks/correctness/residual-norm-mode-q8192-20260921.json)
 pass on baiying at source6a5da30. All512 output IDs and callbacks match GB10,

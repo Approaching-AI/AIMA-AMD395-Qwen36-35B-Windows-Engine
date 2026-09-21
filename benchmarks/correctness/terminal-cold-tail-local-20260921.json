@@ -1,0 +1,1125 @@
+{
+  "kind": "native_cold_tail_terminal_admission_repair",
+  "native_source_commit": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+  "source_parent_commit": "349bdfcd532623111e524fc389e24e8413e4885a",
+  "source_sha256": {
+    "native/providers/whole_provider.cpp": "602525d5ec908775ab8563cad2fb5a5e8be7d764f7cbf51caa0865b6d1861cbe",
+    "tests/test_terminal_cold_tail.py": "92a275306b1e3095486c25496bbcc7a1fcb65ece124404f5234e65cb13801913"
+  },
+  "native_build": {
+    "source_manifest": "cold-prefill-tail-whole-source-r2.json",
+    "source_manifest_sha256": "b769a06022029aae72acda0cf2b2d8b771f8b91017ebe007afe85f0b66a25959",
+    "source_commit": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+    "repo": "D:/projects/AIMA-public-cold-prefill-tail-20260921-r1",
+    "run_directory": "cold-prefill-tail-build-r2",
+    "run_sha256": "07f22dbde04c817fbc66f2662b4f34057be41a30634a41dc55ac9c5c795803a5",
+    "whole_metadata_sha256": "eda689e54fd586d729e543fbd913519a0ab8be5133f6e488e4a69effa3cfb9dc",
+    "whole_artifact": {
+      "name": "qrt_qwen36_whole_provider.dll",
+      "bytes": 14062592,
+      "sha256": "87d6160eab5c0c3bdff52c8aab17c74684e9cfd64cd4664a5ef28149ce569b50"
+    },
+    "whole_artifacts": [
+      {
+        "name": "qrt_qwen36_whole_provider.dll",
+        "bytes": 14062592,
+        "sha256": "87d6160eab5c0c3bdff52c8aab17c74684e9cfd64cd4664a5ef28149ce569b50"
+      },
+      {
+        "name": "q1_moe_avx512bf16_host_provider.obj",
+        "bytes": 183170,
+        "sha256": "4314f5a23cd11ac658e8265ba393c9ceb6744054d4bd3d950af3be9143684477"
+      }
+    ],
+    "probe_metadata_sha256": "5aa06c5a5dfcb22d53c065200a616cb65c400042aaea545dcad5db0687ac3df4",
+    "probe_executable_sha256": "40bcf8bd86182d94b06891bac7d1655058d8e0b5516606bde390c8add9ce8229",
+    "probe_executable_bytes": 956416,
+    "cli_metadata_sha256": "77b61fd24da55511b358bb0f75cd45e32bd2bbcddb68fb9f40cbb6ecdefcf16e",
+    "cli_executable_sha256": "a00252c0b58637fea53099ad4768ce724e37b06bf1b5425b6d796c0019d7a8a1",
+    "cli_executable_bytes": 949760,
+    "cli_path": "D:/projects/AIMA-public-cold-prefill-tail-20260921-r1/build/product-cli/qrt-product.exe",
+    "whole_compilation_inputs": 167,
+    "probe_compilation_inputs": 10,
+    "cli_compilation_inputs": 8,
+    "all_source_inputs": 173,
+    "compiler_flags_match_control": true
+  },
+  "native_source_manifest_sha256": "8a040ef241865a3248a7cec49763e6c0615965a7de03bf0b31a848002d26a1ae",
+  "cases": {
+    "q7169-out32": {
+      "analysis": {
+        "kind": "original_model_native_mtp_cold_tail_and_retirement",
+        "host": "BAIYING",
+        "source_commit": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+        "model": "D:\\models\\Qwen3.6-35B-A3B",
+        "command_file": "D:\\projects\\run-cold-tail-native-mtp-current-r1.ps1",
+        "source_manifest_sha256": "8a040ef241865a3248a7cec49763e6c0615965a7de03bf0b31a848002d26a1ae",
+        "build": {
+          "source_manifest": "cold-prefill-tail-whole-source-r2.json",
+          "source_manifest_sha256": "b769a06022029aae72acda0cf2b2d8b771f8b91017ebe007afe85f0b66a25959",
+          "source_commit": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+          "repo": "D:/projects/AIMA-public-cold-prefill-tail-20260921-r1",
+          "run_directory": "cold-prefill-tail-build-r2",
+          "run_sha256": "07f22dbde04c817fbc66f2662b4f34057be41a30634a41dc55ac9c5c795803a5",
+          "whole_metadata_sha256": "eda689e54fd586d729e543fbd913519a0ab8be5133f6e488e4a69effa3cfb9dc",
+          "whole_artifact": {
+            "name": "qrt_qwen36_whole_provider.dll",
+            "bytes": 14062592,
+            "sha256": "87d6160eab5c0c3bdff52c8aab17c74684e9cfd64cd4664a5ef28149ce569b50"
+          },
+          "whole_artifacts": [
+            {
+              "name": "qrt_qwen36_whole_provider.dll",
+              "bytes": 14062592,
+              "sha256": "87d6160eab5c0c3bdff52c8aab17c74684e9cfd64cd4664a5ef28149ce569b50"
+            },
+            {
+              "name": "q1_moe_avx512bf16_host_provider.obj",
+              "bytes": 183170,
+              "sha256": "4314f5a23cd11ac658e8265ba393c9ceb6744054d4bd3d950af3be9143684477"
+            }
+          ],
+          "probe_metadata_sha256": "5aa06c5a5dfcb22d53c065200a616cb65c400042aaea545dcad5db0687ac3df4",
+          "probe_executable_sha256": "40bcf8bd86182d94b06891bac7d1655058d8e0b5516606bde390c8add9ce8229",
+          "probe_executable_bytes": 956416,
+          "cli_metadata_sha256": "77b61fd24da55511b358bb0f75cd45e32bd2bbcddb68fb9f40cbb6ecdefcf16e",
+          "cli_executable_sha256": "a00252c0b58637fea53099ad4768ce724e37b06bf1b5425b6d796c0019d7a8a1",
+          "cli_executable_bytes": 949760,
+          "cli_path": "D:/projects/AIMA-public-cold-prefill-tail-20260921-r1/build/product-cli/qrt-product.exe",
+          "whole_compilation_inputs": 167,
+          "probe_compilation_inputs": 10,
+          "cli_compilation_inputs": 8,
+          "all_source_inputs": 173,
+          "compiler_flags_match_control": true
+        },
+        "case": "q7169-out32",
+        "original_source": {
+          "file": "<evidence-home-1>/projects/AIMA-public-r1191-candidate/contracts/gb10_cold_token_matrix_20260911_oracle.json",
+          "sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1"
+        },
+        "checks": {
+          "completed": true,
+          "dispatch_completed": true,
+          "host_cleanup": true,
+          "original_prompt": true,
+          "original_outputs": true,
+          "original_first_logit": true,
+          "actual_native_seed": true,
+          "native_commits": true,
+          "native_token_boundaries": true,
+          "exact_callbacks": true,
+          "callback_clocks": true,
+          "public_stream_contract": true,
+          "no_diagnostic_seed_files": true,
+          "completed_native_spans": true,
+          "complete_native_short_route": true
+        },
+        "qualified": true,
+        "token_boundary_qualified": true,
+        "first_token": 82,
+        "first_logit": 9.25,
+        "native_output_count": 32,
+        "callback_count": 32,
+        "first_difference": null,
+        "native_target_commits": 31,
+        "ordinary_target_commits": 0,
+        "native_pair_groups": [],
+        "native_seeds": [
+          {
+            "generation": "1",
+            "processed_tokens": "7169",
+            "exact_target_frontier": "1",
+            "immutable_checkpoint": "1",
+            "mtp_acceptance_enabled": "0",
+            "numerical_correctness_claimed": "0"
+          }
+        ],
+        "native_spans": [
+          {
+            "generation": "1",
+            "target_batches": "18",
+            "accepted_tokens": "31",
+            "paired_checkpoint": "1",
+            "drafter_retired": "0",
+            "reference_input": "0",
+            "numerical_correctness_claimed": "0"
+          }
+        ],
+        "retired_target_spans": [],
+        "comparable_original_decode_logits": [],
+        "different_layout_original_rows": [],
+        "observed_timing": {
+          "engine_load_ms": 21670.3163,
+          "ttft_ms": 25743.0743,
+          "tpot_ms": 252.9945,
+          "request_wall_ms": 34519.6446
+        },
+        "native_prerequisites": [
+          {
+            "name": "q2-publication-native-r1",
+            "source_commit": "b532817fd65a222a1ccf194bdc58e962cb3e599f",
+            "manifest_sha256": "9061c307ada9d058851a57dd9d8ef7f20ce01d276c0711669de0737ae3b29847",
+            "comparison_sha256": "f96c5d71e882e27e5c0ede5fc3f90595adf5db02890d009f30a967752d549158",
+            "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/q2-publication-native-r1/comparison.json",
+            "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-q2-publication-native-r1-r1.json",
+            "expected_values": 473653248,
+            "run_records": [
+              {
+                "path": "D:/projects/AIMA-public-q2-publication-20260921-r1/build/q2-publication-native-r1/qrt-q2-publication-build/run-record.json",
+                "sha256": "01b5fdde66c4f64d8ebb3a0fd72d17b8fd2ed1cfedb149e2bef2a419d135135d"
+              },
+              {
+                "path": "D:/projects/AIMA-public-q2-publication-20260921-r1/build/q2-publication-native-r1/q8192-accepted-cache-rows/run-record.json",
+                "sha256": "edc9130d397ade94210f0b46bab1b478064fea8a2bd8cd9fe25bb0c916418a84"
+              }
+            ]
+          },
+          {
+            "name": "mtp-chunked-request-native-r1",
+            "source_commit": "e7880fc58697a703a737defdab73de269731b579",
+            "manifest_sha256": "9212d2c63492c9b9b3b0765b6ea66d1fa0079f88a67a47f810b1178fd846adb7",
+            "comparison_sha256": "ff22cb38e4069e4de31f79f0d4046257fc94ea2048eba370151f0d05610d515b",
+            "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-chunked-request-native-r1/comparison.json",
+            "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-mtp-chunked-request-native-r1-r1.json",
+            "expected_values": 531632156,
+            "run_records": [
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/qrt-mtp-chunked-request-build/run-record.json",
+                "sha256": "8ea59319c1bd908b55625d141b890cafdbcd8f6b8a49d702f03cfdf7f091ac78"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q7169-out32-norm2048/run-record.json",
+                "sha256": "628a7883cfc7a2780f1f63aeeb92ea465ae39c09d85eac75ca4e3a4e9b9975ee"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q8192-out32-norm2048/run-record.json",
+                "sha256": "a4da63a1151679941717e72a4b6560e550c33a722bd295c84a3a3722c97e9553"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/long-prefix16384-owner-out32-norm2048/run-record.json",
+                "sha256": "78c542d96e463bf0897757e2c97b0d33cb9a8b056a4ca69a8797c0407f710a3f"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/long-prefix16384-suffix1024-out32-norm2048/run-record.json",
+                "sha256": "0e57a290957f0acd769cbd068b4952ffa8083a6dfb5798816c7f5a60bd840d1f"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q7169-out32-norm1024/run-record.json",
+                "sha256": "11de34c9d62e5bb0870341a53611cf748c10e9b80a3b67ed25a64b909ffbc86c"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q8192-out32-norm1024/run-record.json",
+                "sha256": "b742a71d6fc87a538c1571f4712cd26cdeea8b1f398c18cf5d8c58c6455bc86b"
+              }
+            ]
+          },
+          {
+            "name": "mtp-prefix-request-native-r1",
+            "source_commit": "6137e029dd9273f028c156cc23a707796894ed42",
+            "manifest_sha256": "9922076403e748e3cd371338a40787f25893c688f7ceac9d03494f73e9bfb59d",
+            "comparison_sha256": "e15f6112d722b54b38a79d168e163096becbcf98c436a40f01d4113b5c81664e",
+            "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prefix-request-native-r1/comparison.json",
+            "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-mtp-prefix-request-native-r1-r1.json",
+            "expected_values": 277876744,
+            "run_records": [
+              {
+                "path": "D:/projects/AIMA-public-mtp-prefix-request-20260921-r1/build/mtp-prefix-request-native-r1/qrt-mtp-prefix-request-build/run-record.json",
+                "sha256": "8f16f2e070041b10b2031d2e95941346184b1270d6ee867d48a06987cde4decd"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-prefix-request-20260921-r1/build/mtp-prefix-request-native-r1/owner16384-to-cold17408-prefix-repair/run-record.json",
+                "sha256": "ac7605c355e6d5ee0b524a8171841398115732d16e68978a6847f32c5027144a"
+              }
+            ]
+          }
+        ],
+        "numerical_tolerance": 0.125,
+        "performance_acceptance": false,
+        "release_qualified": false,
+        "raw_records": {
+          "product.stderr.log": {
+            "bytes": 683164,
+            "sha256": "aa0b33ab7961884d69d7a66f23555171123acec76db14fecab6a30dec53c9948"
+          },
+          "dispatch.json": {
+            "bytes": 450,
+            "sha256": "061ca83045e7b397593471655b19ef472adf26230222af0750541f195ef4c985"
+          },
+          "product.stdout.jsonl": {
+            "bytes": 6787,
+            "sha256": "22ec8655558041a307d09f220e5f5bf40eddbfaa740242fde06eb57eee8d08b6"
+          },
+          "launch.json": {
+            "bytes": 132,
+            "sha256": "052ce073e2dec77f53e4d06afafa7a85e9100851a6daf0b9c61f9273f124ffe3"
+          },
+          "preflight.json": {
+            "bytes": 102660,
+            "sha256": "37f9dd63fa664dd39ae36e52263f07f53daf9a5e6a8bfb6c46ce3a9ba6bfb0b1"
+          },
+          "telemetry.jsonl": {
+            "bytes": 26945,
+            "sha256": "6373f3f4784cf8a428e2adff94defeb5ca114a8e88c931289239d129182e3b5e"
+          },
+          "run-record.json": {
+            "bytes": 232328,
+            "sha256": "4b678ee277c62210be410b44f829bfa97e46900f783be864bdf71dc7605fee1c"
+          },
+          "transfers.json": {
+            "bytes": 548,
+            "sha256": "7d8dd63703202c1259bffd5a384b486864e82cc0317dfe2a195fba51c7d66d78"
+          },
+          "runtime.env": {
+            "bytes": 34746,
+            "sha256": "54bce05b087f8bb50be262385f742e019ba6d62458592aec0fe0f3dd677118f6"
+          }
+        }
+      },
+      "analysis_sha256": "c103d10a3ad3ae6cdf4c9276c1a9063ac15491091f727038ea8c59421f31db5e",
+      "run_record_sha256": "4b678ee277c62210be410b44f829bfa97e46900f783be864bdf71dc7605fee1c",
+      "native_process_wall_ms": 56536.048,
+      "exit_code": 0,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "after_processes": []
+    },
+    "q8191-out32": {
+      "analysis": {
+        "kind": "original_model_native_mtp_cold_tail_and_retirement",
+        "host": "BAIYING",
+        "source_commit": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+        "model": "D:\\models\\Qwen3.6-35B-A3B",
+        "command_file": "D:\\projects\\run-cold-tail-native-mtp-current-r1.ps1",
+        "source_manifest_sha256": "8a040ef241865a3248a7cec49763e6c0615965a7de03bf0b31a848002d26a1ae",
+        "build": {
+          "source_manifest": "cold-prefill-tail-whole-source-r2.json",
+          "source_manifest_sha256": "b769a06022029aae72acda0cf2b2d8b771f8b91017ebe007afe85f0b66a25959",
+          "source_commit": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+          "repo": "D:/projects/AIMA-public-cold-prefill-tail-20260921-r1",
+          "run_directory": "cold-prefill-tail-build-r2",
+          "run_sha256": "07f22dbde04c817fbc66f2662b4f34057be41a30634a41dc55ac9c5c795803a5",
+          "whole_metadata_sha256": "eda689e54fd586d729e543fbd913519a0ab8be5133f6e488e4a69effa3cfb9dc",
+          "whole_artifact": {
+            "name": "qrt_qwen36_whole_provider.dll",
+            "bytes": 14062592,
+            "sha256": "87d6160eab5c0c3bdff52c8aab17c74684e9cfd64cd4664a5ef28149ce569b50"
+          },
+          "whole_artifacts": [
+            {
+              "name": "qrt_qwen36_whole_provider.dll",
+              "bytes": 14062592,
+              "sha256": "87d6160eab5c0c3bdff52c8aab17c74684e9cfd64cd4664a5ef28149ce569b50"
+            },
+            {
+              "name": "q1_moe_avx512bf16_host_provider.obj",
+              "bytes": 183170,
+              "sha256": "4314f5a23cd11ac658e8265ba393c9ceb6744054d4bd3d950af3be9143684477"
+            }
+          ],
+          "probe_metadata_sha256": "5aa06c5a5dfcb22d53c065200a616cb65c400042aaea545dcad5db0687ac3df4",
+          "probe_executable_sha256": "40bcf8bd86182d94b06891bac7d1655058d8e0b5516606bde390c8add9ce8229",
+          "probe_executable_bytes": 956416,
+          "cli_metadata_sha256": "77b61fd24da55511b358bb0f75cd45e32bd2bbcddb68fb9f40cbb6ecdefcf16e",
+          "cli_executable_sha256": "a00252c0b58637fea53099ad4768ce724e37b06bf1b5425b6d796c0019d7a8a1",
+          "cli_executable_bytes": 949760,
+          "cli_path": "D:/projects/AIMA-public-cold-prefill-tail-20260921-r1/build/product-cli/qrt-product.exe",
+          "whole_compilation_inputs": 167,
+          "probe_compilation_inputs": 10,
+          "cli_compilation_inputs": 8,
+          "all_source_inputs": 173,
+          "compiler_flags_match_control": true
+        },
+        "case": "q8191-out32",
+        "original_source": {
+          "file": "<evidence-home-1>/projects/AIMA-public-r1191-candidate/contracts/gb10_cold_token_matrix_20260911_oracle.json",
+          "sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1"
+        },
+        "checks": {
+          "completed": true,
+          "dispatch_completed": true,
+          "host_cleanup": true,
+          "original_prompt": true,
+          "original_outputs": true,
+          "original_first_logit": true,
+          "actual_native_seed": true,
+          "native_commits": true,
+          "native_token_boundaries": true,
+          "exact_callbacks": true,
+          "callback_clocks": true,
+          "public_stream_contract": true,
+          "no_diagnostic_seed_files": true,
+          "completed_native_spans": true,
+          "complete_native_short_route": true
+        },
+        "qualified": true,
+        "token_boundary_qualified": true,
+        "first_token": 168589,
+        "first_logit": 11.375,
+        "native_output_count": 32,
+        "callback_count": 32,
+        "first_difference": null,
+        "native_target_commits": 31,
+        "ordinary_target_commits": 0,
+        "native_pair_groups": [],
+        "native_seeds": [
+          {
+            "generation": "1",
+            "processed_tokens": "8191",
+            "exact_target_frontier": "1",
+            "immutable_checkpoint": "1",
+            "mtp_acceptance_enabled": "0",
+            "numerical_correctness_claimed": "0"
+          }
+        ],
+        "native_spans": [
+          {
+            "generation": "1",
+            "target_batches": "19",
+            "accepted_tokens": "31",
+            "paired_checkpoint": "1",
+            "drafter_retired": "0",
+            "reference_input": "0",
+            "numerical_correctness_claimed": "0"
+          }
+        ],
+        "retired_target_spans": [],
+        "comparable_original_decode_logits": [],
+        "different_layout_original_rows": [],
+        "observed_timing": {
+          "engine_load_ms": 21568.2163,
+          "ttft_ms": 29816.290599,
+          "tpot_ms": 256.463803,
+          "request_wall_ms": 38788.4827
+        },
+        "native_prerequisites": [
+          {
+            "name": "q2-publication-native-r1",
+            "source_commit": "b532817fd65a222a1ccf194bdc58e962cb3e599f",
+            "manifest_sha256": "9061c307ada9d058851a57dd9d8ef7f20ce01d276c0711669de0737ae3b29847",
+            "comparison_sha256": "f96c5d71e882e27e5c0ede5fc3f90595adf5db02890d009f30a967752d549158",
+            "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/q2-publication-native-r1/comparison.json",
+            "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-q2-publication-native-r1-r1.json",
+            "expected_values": 473653248,
+            "run_records": [
+              {
+                "path": "D:/projects/AIMA-public-q2-publication-20260921-r1/build/q2-publication-native-r1/qrt-q2-publication-build/run-record.json",
+                "sha256": "01b5fdde66c4f64d8ebb3a0fd72d17b8fd2ed1cfedb149e2bef2a419d135135d"
+              },
+              {
+                "path": "D:/projects/AIMA-public-q2-publication-20260921-r1/build/q2-publication-native-r1/q8192-accepted-cache-rows/run-record.json",
+                "sha256": "edc9130d397ade94210f0b46bab1b478064fea8a2bd8cd9fe25bb0c916418a84"
+              }
+            ]
+          },
+          {
+            "name": "mtp-chunked-request-native-r1",
+            "source_commit": "e7880fc58697a703a737defdab73de269731b579",
+            "manifest_sha256": "9212d2c63492c9b9b3b0765b6ea66d1fa0079f88a67a47f810b1178fd846adb7",
+            "comparison_sha256": "ff22cb38e4069e4de31f79f0d4046257fc94ea2048eba370151f0d05610d515b",
+            "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-chunked-request-native-r1/comparison.json",
+            "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-mtp-chunked-request-native-r1-r1.json",
+            "expected_values": 531632156,
+            "run_records": [
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/qrt-mtp-chunked-request-build/run-record.json",
+                "sha256": "8ea59319c1bd908b55625d141b890cafdbcd8f6b8a49d702f03cfdf7f091ac78"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q7169-out32-norm2048/run-record.json",
+                "sha256": "628a7883cfc7a2780f1f63aeeb92ea465ae39c09d85eac75ca4e3a4e9b9975ee"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q8192-out32-norm2048/run-record.json",
+                "sha256": "a4da63a1151679941717e72a4b6560e550c33a722bd295c84a3a3722c97e9553"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/long-prefix16384-owner-out32-norm2048/run-record.json",
+                "sha256": "78c542d96e463bf0897757e2c97b0d33cb9a8b056a4ca69a8797c0407f710a3f"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/long-prefix16384-suffix1024-out32-norm2048/run-record.json",
+                "sha256": "0e57a290957f0acd769cbd068b4952ffa8083a6dfb5798816c7f5a60bd840d1f"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q7169-out32-norm1024/run-record.json",
+                "sha256": "11de34c9d62e5bb0870341a53611cf748c10e9b80a3b67ed25a64b909ffbc86c"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q8192-out32-norm1024/run-record.json",
+                "sha256": "b742a71d6fc87a538c1571f4712cd26cdeea8b1f398c18cf5d8c58c6455bc86b"
+              }
+            ]
+          },
+          {
+            "name": "mtp-prefix-request-native-r1",
+            "source_commit": "6137e029dd9273f028c156cc23a707796894ed42",
+            "manifest_sha256": "9922076403e748e3cd371338a40787f25893c688f7ceac9d03494f73e9bfb59d",
+            "comparison_sha256": "e15f6112d722b54b38a79d168e163096becbcf98c436a40f01d4113b5c81664e",
+            "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prefix-request-native-r1/comparison.json",
+            "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-mtp-prefix-request-native-r1-r1.json",
+            "expected_values": 277876744,
+            "run_records": [
+              {
+                "path": "D:/projects/AIMA-public-mtp-prefix-request-20260921-r1/build/mtp-prefix-request-native-r1/qrt-mtp-prefix-request-build/run-record.json",
+                "sha256": "8f16f2e070041b10b2031d2e95941346184b1270d6ee867d48a06987cde4decd"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-prefix-request-20260921-r1/build/mtp-prefix-request-native-r1/owner16384-to-cold17408-prefix-repair/run-record.json",
+                "sha256": "ac7605c355e6d5ee0b524a8171841398115732d16e68978a6847f32c5027144a"
+              }
+            ]
+          }
+        ],
+        "numerical_tolerance": 0.125,
+        "performance_acceptance": false,
+        "release_qualified": false,
+        "raw_records": {
+          "product.stderr.log": {
+            "bytes": 715550,
+            "sha256": "d8843637351264efbb51201602ff75cd833e22aa6b8fa337209e55d2b8774fce"
+          },
+          "dispatch.json": {
+            "bytes": 452,
+            "sha256": "b285853df6fe682a9b95a7de6790efdf48fb6f27c1121b6b46b893cf558da934"
+          },
+          "product.stdout.jsonl": {
+            "bytes": 6803,
+            "sha256": "c684ad3b45e1e73137ff05bb694a7466e5383fc1e51e96ac038e197a38352a89"
+          },
+          "launch.json": {
+            "bytes": 132,
+            "sha256": "55a36c7de3a0c3aaaaf192f5751ecbee659a7c265a01092f90396d9ac0489d8d"
+          },
+          "preflight.json": {
+            "bytes": 102666,
+            "sha256": "ca2e93cf62380b6020ba818319ef92627914d3f7ef484c67a73a50293e818059"
+          },
+          "telemetry.jsonl": {
+            "bytes": 28652,
+            "sha256": "0c913bb4536f584e6f8db136a7d41ecf3f9f14ad7d0493a4432e088e0e3116fb"
+          },
+          "run-record.json": {
+            "bytes": 232352,
+            "sha256": "aee71432cda9a4139168ce30da190b0622193c26ad9df58d6f2f3481dc1be944"
+          },
+          "transfers.json": {
+            "bytes": 548,
+            "sha256": "7d8dd63703202c1259bffd5a384b486864e82cc0317dfe2a195fba51c7d66d78"
+          },
+          "runtime.env": {
+            "bytes": 34746,
+            "sha256": "54bce05b087f8bb50be262385f742e019ba6d62458592aec0fe0f3dd677118f6"
+          }
+        }
+      },
+      "analysis_sha256": "7c30137c2ea4e14ad6c0c8bd09229892fe56ca5835cbbefc0be0cdefb65784f8",
+      "run_record_sha256": "aee71432cda9a4139168ce30da190b0622193c26ad9df58d6f2f3481dc1be944",
+      "native_process_wall_ms": 60705.348,
+      "exit_code": 0,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "after_processes": []
+    },
+    "q8193-out32": {
+      "analysis": {
+        "kind": "original_model_native_mtp_cold_tail_and_retirement",
+        "host": "BAIYING",
+        "source_commit": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+        "model": "D:\\models\\Qwen3.6-35B-A3B",
+        "command_file": "D:\\projects\\run-cold-tail-native-mtp-current-r1.ps1",
+        "source_manifest_sha256": "8a040ef241865a3248a7cec49763e6c0615965a7de03bf0b31a848002d26a1ae",
+        "build": {
+          "source_manifest": "cold-prefill-tail-whole-source-r2.json",
+          "source_manifest_sha256": "b769a06022029aae72acda0cf2b2d8b771f8b91017ebe007afe85f0b66a25959",
+          "source_commit": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+          "repo": "D:/projects/AIMA-public-cold-prefill-tail-20260921-r1",
+          "run_directory": "cold-prefill-tail-build-r2",
+          "run_sha256": "07f22dbde04c817fbc66f2662b4f34057be41a30634a41dc55ac9c5c795803a5",
+          "whole_metadata_sha256": "eda689e54fd586d729e543fbd913519a0ab8be5133f6e488e4a69effa3cfb9dc",
+          "whole_artifact": {
+            "name": "qrt_qwen36_whole_provider.dll",
+            "bytes": 14062592,
+            "sha256": "87d6160eab5c0c3bdff52c8aab17c74684e9cfd64cd4664a5ef28149ce569b50"
+          },
+          "whole_artifacts": [
+            {
+              "name": "qrt_qwen36_whole_provider.dll",
+              "bytes": 14062592,
+              "sha256": "87d6160eab5c0c3bdff52c8aab17c74684e9cfd64cd4664a5ef28149ce569b50"
+            },
+            {
+              "name": "q1_moe_avx512bf16_host_provider.obj",
+              "bytes": 183170,
+              "sha256": "4314f5a23cd11ac658e8265ba393c9ceb6744054d4bd3d950af3be9143684477"
+            }
+          ],
+          "probe_metadata_sha256": "5aa06c5a5dfcb22d53c065200a616cb65c400042aaea545dcad5db0687ac3df4",
+          "probe_executable_sha256": "40bcf8bd86182d94b06891bac7d1655058d8e0b5516606bde390c8add9ce8229",
+          "probe_executable_bytes": 956416,
+          "cli_metadata_sha256": "77b61fd24da55511b358bb0f75cd45e32bd2bbcddb68fb9f40cbb6ecdefcf16e",
+          "cli_executable_sha256": "a00252c0b58637fea53099ad4768ce724e37b06bf1b5425b6d796c0019d7a8a1",
+          "cli_executable_bytes": 949760,
+          "cli_path": "D:/projects/AIMA-public-cold-prefill-tail-20260921-r1/build/product-cli/qrt-product.exe",
+          "whole_compilation_inputs": 167,
+          "probe_compilation_inputs": 10,
+          "cli_compilation_inputs": 8,
+          "all_source_inputs": 173,
+          "compiler_flags_match_control": true
+        },
+        "case": "q8193-out32",
+        "original_source": {
+          "file": "<evidence-home-1>/projects/AIMA-public-r1191-candidate/contracts/gb10_cold_token_matrix_20260911_oracle.json",
+          "sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1"
+        },
+        "checks": {
+          "completed": false,
+          "dispatch_completed": false,
+          "host_cleanup": true,
+          "original_prompt": false,
+          "original_outputs": false,
+          "original_first_logit": false,
+          "actual_native_seed": false,
+          "native_commits": false,
+          "native_token_boundaries": true,
+          "exact_callbacks": false,
+          "callback_clocks": false,
+          "public_stream_contract": false,
+          "no_diagnostic_seed_files": true,
+          "completed_native_spans": false,
+          "complete_native_short_route": false,
+          "actual_cold_tail_chunks": false,
+          "completed_cold_tail": false
+        },
+        "qualified": false,
+        "token_boundary_qualified": false,
+        "first_token": null,
+        "first_logit": null,
+        "native_output_count": 0,
+        "callback_count": 0,
+        "first_difference": null,
+        "native_target_commits": 0,
+        "ordinary_target_commits": 0,
+        "native_pair_groups": [],
+        "native_seeds": [],
+        "native_spans": [],
+        "retired_target_spans": [],
+        "comparable_original_decode_logits": [],
+        "different_layout_original_rows": [],
+        "observed_timing": {
+          "engine_load_ms": null,
+          "ttft_ms": null,
+          "tpot_ms": null,
+          "request_wall_ms": null
+        },
+        "native_prerequisites": [
+          {
+            "name": "q2-publication-native-r1",
+            "source_commit": "b532817fd65a222a1ccf194bdc58e962cb3e599f",
+            "manifest_sha256": "9061c307ada9d058851a57dd9d8ef7f20ce01d276c0711669de0737ae3b29847",
+            "comparison_sha256": "f96c5d71e882e27e5c0ede5fc3f90595adf5db02890d009f30a967752d549158",
+            "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/q2-publication-native-r1/comparison.json",
+            "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-q2-publication-native-r1-r1.json",
+            "expected_values": 473653248,
+            "run_records": [
+              {
+                "path": "D:/projects/AIMA-public-q2-publication-20260921-r1/build/q2-publication-native-r1/qrt-q2-publication-build/run-record.json",
+                "sha256": "01b5fdde66c4f64d8ebb3a0fd72d17b8fd2ed1cfedb149e2bef2a419d135135d"
+              },
+              {
+                "path": "D:/projects/AIMA-public-q2-publication-20260921-r1/build/q2-publication-native-r1/q8192-accepted-cache-rows/run-record.json",
+                "sha256": "edc9130d397ade94210f0b46bab1b478064fea8a2bd8cd9fe25bb0c916418a84"
+              }
+            ]
+          },
+          {
+            "name": "mtp-chunked-request-native-r1",
+            "source_commit": "e7880fc58697a703a737defdab73de269731b579",
+            "manifest_sha256": "9212d2c63492c9b9b3b0765b6ea66d1fa0079f88a67a47f810b1178fd846adb7",
+            "comparison_sha256": "ff22cb38e4069e4de31f79f0d4046257fc94ea2048eba370151f0d05610d515b",
+            "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-chunked-request-native-r1/comparison.json",
+            "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-mtp-chunked-request-native-r1-r1.json",
+            "expected_values": 531632156,
+            "run_records": [
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/qrt-mtp-chunked-request-build/run-record.json",
+                "sha256": "8ea59319c1bd908b55625d141b890cafdbcd8f6b8a49d702f03cfdf7f091ac78"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q7169-out32-norm2048/run-record.json",
+                "sha256": "628a7883cfc7a2780f1f63aeeb92ea465ae39c09d85eac75ca4e3a4e9b9975ee"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q8192-out32-norm2048/run-record.json",
+                "sha256": "a4da63a1151679941717e72a4b6560e550c33a722bd295c84a3a3722c97e9553"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/long-prefix16384-owner-out32-norm2048/run-record.json",
+                "sha256": "78c542d96e463bf0897757e2c97b0d33cb9a8b056a4ca69a8797c0407f710a3f"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/long-prefix16384-suffix1024-out32-norm2048/run-record.json",
+                "sha256": "0e57a290957f0acd769cbd068b4952ffa8083a6dfb5798816c7f5a60bd840d1f"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q7169-out32-norm1024/run-record.json",
+                "sha256": "11de34c9d62e5bb0870341a53611cf748c10e9b80a3b67ed25a64b909ffbc86c"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q8192-out32-norm1024/run-record.json",
+                "sha256": "b742a71d6fc87a538c1571f4712cd26cdeea8b1f398c18cf5d8c58c6455bc86b"
+              }
+            ]
+          },
+          {
+            "name": "mtp-prefix-request-native-r1",
+            "source_commit": "6137e029dd9273f028c156cc23a707796894ed42",
+            "manifest_sha256": "9922076403e748e3cd371338a40787f25893c688f7ceac9d03494f73e9bfb59d",
+            "comparison_sha256": "e15f6112d722b54b38a79d168e163096becbcf98c436a40f01d4113b5c81664e",
+            "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prefix-request-native-r1/comparison.json",
+            "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-mtp-prefix-request-native-r1-r1.json",
+            "expected_values": 277876744,
+            "run_records": [
+              {
+                "path": "D:/projects/AIMA-public-mtp-prefix-request-20260921-r1/build/mtp-prefix-request-native-r1/qrt-mtp-prefix-request-build/run-record.json",
+                "sha256": "8f16f2e070041b10b2031d2e95941346184b1270d6ee867d48a06987cde4decd"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-prefix-request-20260921-r1/build/mtp-prefix-request-native-r1/owner16384-to-cold17408-prefix-repair/run-record.json",
+                "sha256": "ac7605c355e6d5ee0b524a8171841398115732d16e68978a6847f32c5027144a"
+              }
+            ]
+          }
+        ],
+        "numerical_tolerance": 0.125,
+        "performance_acceptance": false,
+        "release_qualified": false,
+        "raw_records": {
+          "product.stderr.log": {
+            "bytes": 926582,
+            "sha256": "f05832eba16c4ea8866dc284253315cce52ce95f495ea54413497ca8440f9804"
+          },
+          "dispatch.json": {
+            "bytes": 941,
+            "sha256": "96b17eb6d2108e886896c70851d095b72498ddf37f6306c7763d0c44e6ffe7bf"
+          },
+          "product.stdout.jsonl": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "launch.json": {
+            "bytes": 132,
+            "sha256": "863e21dc0890e20e5b3e684995539e022a3e22edfd8e05287a0072a900b5a87a"
+          },
+          "preflight.json": {
+            "bytes": 102661,
+            "sha256": "3d94f264eef8936374d499dc467e6acd9b20cf8c59897d71a37e0de5326b601d"
+          },
+          "telemetry.jsonl": {
+            "bytes": 22675,
+            "sha256": "a5acfb57483431210982f2b627792be1da1c628e309b539ff4563bf6759d469f"
+          },
+          "run-record.json": {
+            "bytes": 226070,
+            "sha256": "88144fb0fada5f331e886c18ab250be5c296df1745d34b0bac7b2589edcf082c"
+          },
+          "transfers.json": {
+            "bytes": 548,
+            "sha256": "7d8dd63703202c1259bffd5a384b486864e82cc0317dfe2a195fba51c7d66d78"
+          },
+          "runtime.env": {
+            "bytes": 34746,
+            "sha256": "54bce05b087f8bb50be262385f742e019ba6d62458592aec0fe0f3dd677118f6"
+          }
+        }
+      },
+      "analysis_sha256": "6aaaa34280450c0e4435e8f249570b822446948563c809767e57daf0bdebd844",
+      "run_record_sha256": "88144fb0fada5f331e886c18ab250be5c296df1745d34b0bac7b2589edcf082c",
+      "native_process_wall_ms": 48053.632,
+      "exit_code": 5,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "after_processes": [],
+      "actual_failure_markers": [
+        "BATCH_MARK layer39_fixed_attention_weights_fallback layer=39 prefill_tokens=1 history_tokens=1 target_tokens=1 borrowed_tensors=0 borrowed_bytes=0 reason=compact_q_route_not_requested",
+        "BATCH_MARK full_attention_ck_compact_bf16_rejected layer=39 exact_q8192=0 exact_q16384=0 exact_q32768=0 exact_q65536=0 exact_q131_context=0 external_provider=1 ck=1 whole=0 resident_bf16=1 qkv_hipblaslt=0",
+        "streaming request 0 failed: unsupported output=0 callbacks=0 callback_failed=0 stage=layer39_resident_full_attention_core_ck_compact_bf16_prerequisi failure=compact BF16 attention requires an exact q8192/q65536 Triton or q8192/q16384/q32768/q65536/q131072/q262144 CK provider, whole full-attention layer provider, resident BF16 matrix provider, and"
+      ]
+    },
+    "q8192-out512": {
+      "analysis": {
+        "kind": "original_model_native_mtp_cold_tail_and_retirement",
+        "host": "BAIYING",
+        "source_commit": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+        "model": "D:\\models\\Qwen3.6-35B-A3B",
+        "command_file": "D:\\projects\\run-cold-tail-native-mtp-current-r1.ps1",
+        "source_manifest_sha256": "8a040ef241865a3248a7cec49763e6c0615965a7de03bf0b31a848002d26a1ae",
+        "build": {
+          "source_manifest": "cold-prefill-tail-whole-source-r2.json",
+          "source_manifest_sha256": "b769a06022029aae72acda0cf2b2d8b771f8b91017ebe007afe85f0b66a25959",
+          "source_commit": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+          "repo": "D:/projects/AIMA-public-cold-prefill-tail-20260921-r1",
+          "run_directory": "cold-prefill-tail-build-r2",
+          "run_sha256": "07f22dbde04c817fbc66f2662b4f34057be41a30634a41dc55ac9c5c795803a5",
+          "whole_metadata_sha256": "eda689e54fd586d729e543fbd913519a0ab8be5133f6e488e4a69effa3cfb9dc",
+          "whole_artifact": {
+            "name": "qrt_qwen36_whole_provider.dll",
+            "bytes": 14062592,
+            "sha256": "87d6160eab5c0c3bdff52c8aab17c74684e9cfd64cd4664a5ef28149ce569b50"
+          },
+          "whole_artifacts": [
+            {
+              "name": "qrt_qwen36_whole_provider.dll",
+              "bytes": 14062592,
+              "sha256": "87d6160eab5c0c3bdff52c8aab17c74684e9cfd64cd4664a5ef28149ce569b50"
+            },
+            {
+              "name": "q1_moe_avx512bf16_host_provider.obj",
+              "bytes": 183170,
+              "sha256": "4314f5a23cd11ac658e8265ba393c9ceb6744054d4bd3d950af3be9143684477"
+            }
+          ],
+          "probe_metadata_sha256": "5aa06c5a5dfcb22d53c065200a616cb65c400042aaea545dcad5db0687ac3df4",
+          "probe_executable_sha256": "40bcf8bd86182d94b06891bac7d1655058d8e0b5516606bde390c8add9ce8229",
+          "probe_executable_bytes": 956416,
+          "cli_metadata_sha256": "77b61fd24da55511b358bb0f75cd45e32bd2bbcddb68fb9f40cbb6ecdefcf16e",
+          "cli_executable_sha256": "a00252c0b58637fea53099ad4768ce724e37b06bf1b5425b6d796c0019d7a8a1",
+          "cli_executable_bytes": 949760,
+          "cli_path": "D:/projects/AIMA-public-cold-prefill-tail-20260921-r1/build/product-cli/qrt-product.exe",
+          "whole_compilation_inputs": 167,
+          "probe_compilation_inputs": 10,
+          "cli_compilation_inputs": 8,
+          "all_source_inputs": 173,
+          "compiler_flags_match_control": true
+        },
+        "case": "q8192-out512",
+        "original_source": {
+          "file": "<evidence-home-1>/projects/AIMA-public-r1191-candidate/contracts/gb10_cold_token_matrix_20260911_oracle.json",
+          "sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1"
+        },
+        "checks": {
+          "completed": true,
+          "dispatch_completed": true,
+          "host_cleanup": true,
+          "original_prompt": true,
+          "original_outputs": true,
+          "original_first_logit": true,
+          "actual_native_seed": true,
+          "native_commits": true,
+          "native_token_boundaries": true,
+          "exact_callbacks": true,
+          "callback_clocks": true,
+          "public_stream_contract": true,
+          "no_diagnostic_seed_files": true,
+          "completed_native_spans": true,
+          "complete_native_short_route": true
+        },
+        "qualified": true,
+        "token_boundary_qualified": true,
+        "first_token": 144,
+        "first_logit": 10.375,
+        "native_output_count": 512,
+        "callback_count": 512,
+        "first_difference": null,
+        "native_target_commits": 511,
+        "ordinary_target_commits": 0,
+        "native_pair_groups": [],
+        "native_seeds": [
+          {
+            "generation": "1",
+            "processed_tokens": "8192",
+            "exact_target_frontier": "1",
+            "immutable_checkpoint": "1",
+            "mtp_acceptance_enabled": "0",
+            "numerical_correctness_claimed": "0"
+          }
+        ],
+        "native_spans": [
+          {
+            "generation": "1",
+            "target_batches": "35",
+            "accepted_tokens": "63",
+            "paired_checkpoint": "1",
+            "drafter_retired": "0",
+            "reference_input": "0",
+            "numerical_correctness_claimed": "0"
+          },
+          {
+            "generation": "1",
+            "target_batches": "32",
+            "accepted_tokens": "63",
+            "paired_checkpoint": "1",
+            "drafter_retired": "0",
+            "reference_input": "0",
+            "numerical_correctness_claimed": "0"
+          },
+          {
+            "generation": "1",
+            "target_batches": "35",
+            "accepted_tokens": "63",
+            "paired_checkpoint": "1",
+            "drafter_retired": "0",
+            "reference_input": "0",
+            "numerical_correctness_claimed": "0"
+          },
+          {
+            "generation": "1",
+            "target_batches": "35",
+            "accepted_tokens": "63",
+            "paired_checkpoint": "1",
+            "drafter_retired": "0",
+            "reference_input": "0",
+            "numerical_correctness_claimed": "0"
+          },
+          {
+            "generation": "1",
+            "target_batches": "38",
+            "accepted_tokens": "63",
+            "paired_checkpoint": "1",
+            "drafter_retired": "0",
+            "reference_input": "0",
+            "numerical_correctness_claimed": "0"
+          },
+          {
+            "generation": "1",
+            "target_batches": "39",
+            "accepted_tokens": "63",
+            "paired_checkpoint": "1",
+            "drafter_retired": "0",
+            "reference_input": "0",
+            "numerical_correctness_claimed": "0"
+          },
+          {
+            "generation": "1",
+            "target_batches": "37",
+            "accepted_tokens": "63",
+            "paired_checkpoint": "1",
+            "drafter_retired": "0",
+            "reference_input": "0",
+            "numerical_correctness_claimed": "0"
+          },
+          {
+            "generation": "1",
+            "target_batches": "32",
+            "accepted_tokens": "63",
+            "paired_checkpoint": "1",
+            "drafter_retired": "0",
+            "reference_input": "0",
+            "numerical_correctness_claimed": "0"
+          },
+          {
+            "generation": "1",
+            "target_batches": "4",
+            "accepted_tokens": "7",
+            "paired_checkpoint": "1",
+            "drafter_retired": "0",
+            "reference_input": "0",
+            "numerical_correctness_claimed": "0"
+          }
+        ],
+        "retired_target_spans": [],
+        "comparable_original_decode_logits": [],
+        "different_layout_original_rows": [],
+        "observed_timing": {
+          "engine_load_ms": 21557.0373,
+          "ttft_ms": 24724.3384,
+          "tpot_ms": 241.512442,
+          "request_wall_ms": 149170.2696
+        },
+        "native_prerequisites": [
+          {
+            "name": "q2-publication-native-r1",
+            "source_commit": "b532817fd65a222a1ccf194bdc58e962cb3e599f",
+            "manifest_sha256": "9061c307ada9d058851a57dd9d8ef7f20ce01d276c0711669de0737ae3b29847",
+            "comparison_sha256": "f96c5d71e882e27e5c0ede5fc3f90595adf5db02890d009f30a967752d549158",
+            "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/q2-publication-native-r1/comparison.json",
+            "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-q2-publication-native-r1-r1.json",
+            "expected_values": 473653248,
+            "run_records": [
+              {
+                "path": "D:/projects/AIMA-public-q2-publication-20260921-r1/build/q2-publication-native-r1/qrt-q2-publication-build/run-record.json",
+                "sha256": "01b5fdde66c4f64d8ebb3a0fd72d17b8fd2ed1cfedb149e2bef2a419d135135d"
+              },
+              {
+                "path": "D:/projects/AIMA-public-q2-publication-20260921-r1/build/q2-publication-native-r1/q8192-accepted-cache-rows/run-record.json",
+                "sha256": "edc9130d397ade94210f0b46bab1b478064fea8a2bd8cd9fe25bb0c916418a84"
+              }
+            ]
+          },
+          {
+            "name": "mtp-chunked-request-native-r1",
+            "source_commit": "e7880fc58697a703a737defdab73de269731b579",
+            "manifest_sha256": "9212d2c63492c9b9b3b0765b6ea66d1fa0079f88a67a47f810b1178fd846adb7",
+            "comparison_sha256": "ff22cb38e4069e4de31f79f0d4046257fc94ea2048eba370151f0d05610d515b",
+            "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-chunked-request-native-r1/comparison.json",
+            "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-mtp-chunked-request-native-r1-r1.json",
+            "expected_values": 531632156,
+            "run_records": [
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/qrt-mtp-chunked-request-build/run-record.json",
+                "sha256": "8ea59319c1bd908b55625d141b890cafdbcd8f6b8a49d702f03cfdf7f091ac78"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q7169-out32-norm2048/run-record.json",
+                "sha256": "628a7883cfc7a2780f1f63aeeb92ea465ae39c09d85eac75ca4e3a4e9b9975ee"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q8192-out32-norm2048/run-record.json",
+                "sha256": "a4da63a1151679941717e72a4b6560e550c33a722bd295c84a3a3722c97e9553"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/long-prefix16384-owner-out32-norm2048/run-record.json",
+                "sha256": "78c542d96e463bf0897757e2c97b0d33cb9a8b056a4ca69a8797c0407f710a3f"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/long-prefix16384-suffix1024-out32-norm2048/run-record.json",
+                "sha256": "0e57a290957f0acd769cbd068b4952ffa8083a6dfb5798816c7f5a60bd840d1f"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q7169-out32-norm1024/run-record.json",
+                "sha256": "11de34c9d62e5bb0870341a53611cf748c10e9b80a3b67ed25a64b909ffbc86c"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q8192-out32-norm1024/run-record.json",
+                "sha256": "b742a71d6fc87a538c1571f4712cd26cdeea8b1f398c18cf5d8c58c6455bc86b"
+              }
+            ]
+          },
+          {
+            "name": "mtp-prefix-request-native-r1",
+            "source_commit": "6137e029dd9273f028c156cc23a707796894ed42",
+            "manifest_sha256": "9922076403e748e3cd371338a40787f25893c688f7ceac9d03494f73e9bfb59d",
+            "comparison_sha256": "e15f6112d722b54b38a79d168e163096becbcf98c436a40f01d4113b5c81664e",
+            "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prefix-request-native-r1/comparison.json",
+            "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-mtp-prefix-request-native-r1-r1.json",
+            "expected_values": 277876744,
+            "run_records": [
+              {
+                "path": "D:/projects/AIMA-public-mtp-prefix-request-20260921-r1/build/mtp-prefix-request-native-r1/qrt-mtp-prefix-request-build/run-record.json",
+                "sha256": "8f16f2e070041b10b2031d2e95941346184b1270d6ee867d48a06987cde4decd"
+              },
+              {
+                "path": "D:/projects/AIMA-public-mtp-prefix-request-20260921-r1/build/mtp-prefix-request-native-r1/owner16384-to-cold17408-prefix-repair/run-record.json",
+                "sha256": "ac7605c355e6d5ee0b524a8171841398115732d16e68978a6847f32c5027144a"
+              }
+            ]
+          }
+        ],
+        "numerical_tolerance": 0.125,
+        "performance_acceptance": false,
+        "release_qualified": false,
+        "raw_records": {
+          "product.stderr.log": {
+            "bytes": 759006,
+            "sha256": "10de2c9c7fdf037181928d2b5ef947b9ce80dea5337c5e3844196f1bf438cc45"
+          },
+          "dispatch.json": {
+            "bytes": 454,
+            "sha256": "b0bb2e7d5a9223f06884df455dacec2ff3205a3912147ad58eb8efd7a8cec20d"
+          },
+          "product.stdout.jsonl": {
+            "bytes": 73856,
+            "sha256": "8501a2af5df0412b2914b7089e8123350f0d44d3a258d5c6e7206f53ce563675"
+          },
+          "launch.json": {
+            "bytes": 131,
+            "sha256": "ca2c07a327e204a561048d2f5c64a8a60c6e1a6b46ff1ba41a5ec057b09b6bff"
+          },
+          "preflight.json": {
+            "bytes": 102673,
+            "sha256": "df4a48241ba25a37d4f1af16f69e064c9e26db31b05f08a9674774845fa2cc6e"
+          },
+          "telemetry.jsonl": {
+            "bytes": 81388,
+            "sha256": "00fd30d8749ae6ec4cdbee311291533d584adda77b092eaec25c899187bb38b2"
+          },
+          "run-record.json": {
+            "bytes": 257156,
+            "sha256": "1ef52d089687f5d13bf9d3bde101aebadf21560cd09a84d39a6a2f16bc4b8557"
+          },
+          "transfers.json": {
+            "bytes": 548,
+            "sha256": "7d8dd63703202c1259bffd5a384b486864e82cc0317dfe2a195fba51c7d66d78"
+          },
+          "runtime.env": {
+            "bytes": 34746,
+            "sha256": "54bce05b087f8bb50be262385f742e019ba6d62458592aec0fe0f3dd677118f6"
+          }
+        }
+      },
+      "analysis_sha256": "7a04afa61fc3019ecca4d6a0d6818f84e20d73721b72f8d7d88cce05dadbb418",
+      "run_record_sha256": "1ef52d089687f5d13bf9d3bde101aebadf21560cd09a84d39a6a2f16bc4b8557",
+      "native_process_wall_ms": 171072.603,
+      "exit_code": 0,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "after_processes": []
+    }
+  },
+  "diagnosis": "The actual8192+1 cold transaction reaches layer39, whose full-prefix predicate excludes one input. The compact CK prerequisites reject before any output. Admit one input only while the actual terminal-only cold transaction is active.",
+  "local_validation": {
+    "host": "Jiawei-MacminideMac-mini.local",
+    "predicate_cases": 204,
+    "provider_cases": 66912,
+    "asan_ubsan_pass": true,
+    "actual_old_predicate_failure_detected": true,
+    "related_regression_tests": 4,
+    "logs": {
+      "terminal-cold-tail-local-r1.log": {
+        "sha256": "f227367d8f2f130ea50cb929002091f2e4d0f223dbc198a97b486f301d667cee",
+        "text": "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/tmpti7oclpv/main.cpp:37:6: error: redefinition of 'qwen36_final_layer_full_prefix_requested'\n   37 | bool qwen36_final_layer_full_prefix_requested(unsigned int prefill_tokens) {\n      |      ^\n/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/tmpti7oclpv/main.cpp:26:6: note: previous definition is here\n   26 | bool qwen36_final_layer_full_prefix_requested(unsigned int prefill_tokens) {\n      |      ^\n1 error generated.\nE\n======================================================================\nERROR: test_scoped_tail_and_standalone_route_selection (test_terminal_cold_tail.TerminalColdTailTests.test_scoped_tail_and_standalone_route_selection)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tests/test_terminal_cold_tail.py\", line 84, in test_scoped_tail_and_standalone_route_selection\n    subprocess.run(['c++', '-std=c++17', '-O1', '-Wall', '-Wextra', '-Werror',\n  File \"<evidence-home-1>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/subprocess.py\", line 571, in run\n    raise CalledProcessError(retcode, process.args,\nsubprocess.CalledProcessError: Command '['c++', '-std=c++17', '-O1', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/tmpti7oclpv/main.cpp', '-o', '/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/tmpti7oclpv/check']' returned non-zero exit status 1.\n\n----------------------------------------------------------------------\nRan 1 test in 0.556s\n\nFAILED (errors=1)\n"
+      },
+      "terminal-cold-tail-local-r2.log": {
+        "sha256": "88592898d956b705c9f753a87ea5d013aac3521d3acce4c616b972f9bc6c318a",
+        "text": "terminal_cold_tail=pass predicate_cases=204 provider_cases=66912 cold_tail_one_admitted=1 standalone_one_preserved=1\nterminal_cold_tail_old_predicate=detected\n.\n----------------------------------------------------------------------\nRan 1 test in 1.896s\n\nOK\n"
+      },
+      "terminal-cold-tail-regression-r1.log": {
+        "sha256": "083efdc52e010325e0da5aec14111953c4aeb30b80a5e7624c4380217181bef4",
+        "text": "cold_prefill_suffix: clocks, hidden seed, boundaries, cancellation, ownership and logit ABI pass\n....\n----------------------------------------------------------------------\nRan 4 tests in 17.507s\n\nOK\n"
+      }
+    },
+    "initial_fixture_error": "The extractor initially chose the forward declaration. The corrected test selects the actual function definition; no production source changed for this correction.",
+    "commands": [
+      "PYTHONPATH=tests python3.12 -m unittest test_terminal_cold_tail",
+      "PYTHONPATH=tests python3.12 -m unittest test_prefill_chunks test_mtp_native_prefill_integration test_bounded_prefill_suffix"
+    ]
+  },
+  "native_repaired_source_built": false,
+  "repaired_q8193_qualified": false,
+  "native_mtp_default_enabled": false,
+  "full256k_continuation_qualified": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "18f16e42834b5de10f11c76c165a2690d5711876e6884e4aceb37d81868a785d",
+    "original_json_bytes": 57356,
+    "source_revision": "349bdfcd532623111e524fc389e24e8413e4885a",
+    "source_path": "benchmarks/correctness/terminal-cold-tail-local-20260921.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 18
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}
