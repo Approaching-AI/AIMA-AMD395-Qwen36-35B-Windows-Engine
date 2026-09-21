@@ -1,8 +1,9 @@
 # Wave ownership for exact matrix QK
 
 This component keeps the matrix result and its ordered carries in the wave
-that computes them. It is isolated from runtime dispatch. The Windows kernel,
-complete q8192 component and original-model boundary remain unmeasured.
+that computes them. It is isolated from runtime dispatch. The native Windows
+build passes; GPU numerical behavior, the complete q8192 component and the
+original-model boundary remain unmeasured.
 
 The preceding [compact matrix queue](COMPACT_MATRIX_QUEUE_QK.md) passes its
 numerical checks but costs 989.6595 ms for complete q8192 attention plus
@@ -60,8 +61,25 @@ Complete attention, metadata preparation and common preparation are reported
 separately; every required stage must be included in a comparison. One warmup
 and three rotated samples retain their numerical checks.
 
-The actual compiler's registers, shared/private memory and spills must be
-recorded with the complete native measurements. Static resource declarations
-alone do not establish a speedup. The current ordinary q8192 functional TTFT
+The [native build record](../benchmarks/correctness/wave-matrix-qk-native-build-20260921.json)
+binds source804ccf4,56 compilation inputs, the original compiler flags and
+executable SHA256be45deaa2893604679cf3134d61649fd05d837999767a20ac1893a90947cb128.
+It compiles on baiying in46403.676 ms. The separately owned CPU compiler job
+keeps the declared long diagnostic owner running, preserves all host checks,
+and launches no GPU fixture. Its complete q8192, GB10 and safety measurements
+must wait for that owner's completion and cleanup.
+
+The compiled gfx1151 kernels have these resources. Every listed kernel has
+zero private memory and zero reported register spills.
+
+| Kernel | VGPRs | Shared bytes per block |
+| --- | ---: | ---: |
+| Retained narrow control | 167 | 24576 |
+| Earlier compact matrix wave queue | 73 | 28160 |
+| New matrix wave owner | 140 | 4 |
+| Forced original-wave safety | 89 | 4 |
+
+These compiled resources do not establish measured occupancy or a speedup.
+The current ordinary q8192 functional TTFT
 is 23134.0106 ms; its below-10000-ms gate, retained performance target and
 release requirements are unchanged.

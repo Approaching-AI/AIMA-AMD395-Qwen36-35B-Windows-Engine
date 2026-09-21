@@ -1,39 +1,36 @@
 # Linux sibling fixes reviewed for the next Windows release
 
-## September 20 status: original continuations and archive boundaries
+## September 21 status
 
-The [API refresh](../benchmarks/correctness/linux-windows-release-review-refresh-20260920.json)
-at 2026-09-19T18:02:10Z rechecks the latest five releases: `.10`, `.9`, `.7`,
-`.6` and `.5`. All five bodies match the preceding review, and the latest `.10`
-tag still resolves to `0522a57caf24bf21e0e6fcc5b234a7fc361fbc94`, with declared
-native source `ec9934446911fdf376da8eebcd83e7b137efbb7c`. The source review below
-therefore remains applicable. This refresh executes no model.
+The [API refresh](../benchmarks/correctness/linux-windows-release-review-refresh-20260921.json)
+at 2026-09-21T15:18:58Z rechecks the latest five releases: `.10`, `.9`, `.7`,
+`.6` and `.5`. All five identities and bodies match the preceding review.
+The latest `.10` tag still resolves to `0522a57caf24bf21e0e6fcc5b234a7fc361fbc94`,
+with declared native source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
+The source review below remains applicable. This refresh executes no model.
 
-The subsequent Windows long-context repair is independently GB10-anchored.
-A [single-round RoPE correction](../benchmarks/correctness/prefix96-rope-single-round-root-cause-20260919.json)
-fixes the BF16 midpoint at position91018, layer15. The
-[original128k product run](../benchmarks/correctness/rope-single-round-prefix128k-product-20260919.json)
-then matches the combined owner32 and both complete512-token suffixes,
-first logits, actual callbacks, restoration and changed-prefix rejection on
-whole32a/FLA1d. Separate cold owner512 and other binary combinations retain
-their own acceptance boundaries.
+The current Windows whole provider and C CLI at `c2683cd` pass
+[ordinary and native controls](../benchmarks/correctness/single-tail-q1-native-20260921.json):
+ordinary q8192/out512, plus native q7169/out32, q8191/out32, q8193/out32 and
+q8192/out512. All 1120 original GB10 outputs, callbacks and first logits match.
+The single cold input at position8192 now uses the resident q1 arithmetic;
+[its implementation and scope](COLD_PREFILL_TAILS.md) keep cold inputs separate
+from generated native commits. Ordinary q8192 loads in21496.2425 ms and has
+TTFT23134.0106 ms. The below10000-ms requirement and retained target remain open.
 
-The newer wholeb3/CK370 storage stack separately passes
-[original q8192/out512](../benchmarks/correctness/resident-ordered-compact-query-native-q8192-20260919.json)
-and [cold32k/out512](../benchmarks/correctness/resident-ordered-compact-query-cold32k-out512-20260919.json),
-with all original IDs/callbacks and zero first-logit error. Its original full256k
-owner and both suffixes are still running. q8192 TTFT remains above10 seconds;
-the immutable retained-performance target has not changed.
+The preceding [complete256k diagnostic](../benchmarks/correctness/retired-reference-mode-prefix256k-20260921.json)
+first differs at generated index124 after the original owner and suffix
+prefill. The c268 rerun is active with output-only observations immediately
+before and at that step. Its continuation, owner restoration and negative
+branches have no completed new result yet. Reference operands never enter
+native inference. Earlier128k qualification remains tied to its declared build.
 
-Serverb3d75e9 is now included in the unpublished R6 archive. Its actual
-[protocol, saved-prefix and control-plane checks](../benchmarks/correctness/current-portable-r6-protocol-prefix-controlplane-20260919.json)
-pass45 protocol requests, saved-prefix branches and55 control requests, and its
-[exact ZIP inventory](../benchmarks/correctness/portable-archive-inventory-20260919.json)
-is independently verified. R6 still lacks its exact-archive13-case matrix and
-one-hour soak. R8's newer whole/FLA stack and test commands are prepared but
-unrun. Later model components cannot inherit archive qualification from R6.
-No new archive is release-qualified or published. Windows still rejects visual
-media explicitly; Linux VL and numerical/soak results do not qualify it.
+The same c268 server passes its native build and all54 Rust tests. Its new
+HTTP matrix, final archive inventory,13-case cold matrix and one-hour soak
+remain unrun. Older archive/API records below retain their own component
+boundaries. No new archive is release-qualified or published. Windows still
+rejects visual media explicitly; Linux VL and numerical/soak results do not
+qualify the Windows artifact.
 
 ## September 18 refresh: Linux `.10` tool content
 
