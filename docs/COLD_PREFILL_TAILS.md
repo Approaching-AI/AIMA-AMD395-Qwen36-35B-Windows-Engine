@@ -118,6 +118,17 @@ each original transaction's operator selection. The older double-round RoPE
 control also matches these particular rows. These component results do not
 establish the Windows operands, accumulated state or cause of the divergence.
 
+The [convolution kernel-body replay](../benchmarks/correctness/prefix256-step124-convolution-host-20260921.json)
+also checks all30 layers at those three positions. It extracts the unchanged
+c268 convolution body and supplies CPU execution coordinates, running both
+BF16 and FP32 ring storage under ASan/UBSan. All180 layout cases match1474560
+BF16 outputs, their widened FP32 carriers and4423680 active history entries
+bit-for-bit. Reference padding, unowned ring slots, input immutability and
+redzones pass, including an out-of-range block. Model weights are bound to the
+completed861 diagnostic whose263168 convolution surfaces separately match;
+its later token failure remains recorded. This checks supplied original
+operands on the controller, not later actual Windows state or GPU execution.
+
 The [native recurrence replay preparation](../benchmarks/correctness/step124-gdn-native-prepared-20260921.json)
 binds those90 original rows to the existing GPU probe. All eight compilation
 inputs are identical to c268; the actual probe, seven preceding build/control
