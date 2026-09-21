@@ -109,6 +109,9 @@ def main():
                 all(record["host_checks"].get(k) is True for k in (
                     "same_boot", "no_engine_process", "host_memory_reserve", "commit_reserve", "amd_gpu_ok")),
                 "Guarded run did not complete cleanly")
+        require(record["preflight"]["pass"] is True and
+                all(value is True for value in record["preflight"]["checks"].values()),
+                "Guarded preflight did not pass")
         require(record["spec"]["repo_commit"] == commit, "Guarded source commit differs")
     require(build["completed"] is True and build["dirty_tree"] is False and build["repo_commit"] == commit and
             build["upstream_commit"] == UPSTREAM_COMMIT, "Build provenance is incomplete")
@@ -121,6 +124,8 @@ def main():
         require(run["spec"][key] == plan["run_spec"][key], "Frozen run spec differs: " + key)
     require(run["spec"]["executable_sha256"] == next(x["sha256"] for x in build["artifacts"]
             if path_key(x["path"]) == path_key(run["spec"]["executable"])), "Runtime artifact differs")
+    require(run["preflight"]["executable_sha256"] == run["spec"]["executable_sha256"],
+            "Actually launched executable differs from the qualified build")
     events = [json.loads(line) for line in (args.run / "product.stdout.jsonl").read_text(encoding="utf-8-sig").splitlines() if line.strip()]
     require(events[0]["ck_provider_sha256"] == plan["ck_provider"]["sha256"], "CK provider differs")
     require(events[0]["vision_image_sha256"] == plan["vision_image"]["sha256"], "Vision image differs")

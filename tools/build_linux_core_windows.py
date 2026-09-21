@@ -27,13 +27,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--rocm", type=Path, default=Path("C:/Program Files/AMD/ROCm/7.1"))
-    parser.add_argument("--timeout-seconds", type=int, default=2100)
+    parser.add_argument("--timeout-seconds", type=int, default=1500)
     args = parser.parse_args()
     host = socket.gethostname()
     if platform.system() != "Windows" or host.split(".")[0].lower() != "baiying":
         raise SystemExit("Native compilation requires the local baiying Windows environment")
-    if not 60 <= args.timeout_seconds <= 2400:
-        raise SystemExit("Build timeout must be 60..2400 seconds")
+    if not 60 <= args.timeout_seconds <= 1680:
+        raise SystemExit("Build timeout must be 60..1680 seconds, inside the 1800-second owner bound")
     inventory = verify_import()
     def git(*arguments):
         return subprocess.check_output(["git", "-C", str(ROOT), *arguments], timeout=15, text=True).strip()
@@ -122,7 +122,8 @@ def main():
             target = out / f"unit-{index:02d}.obj"
             run(f"compile-{index:02d}", [hipcc, *flags, "-c", source, "-o", target])
             objects.append(target)
-        executable = out / "aima-linux-core-q8192-probe.exe"
+        # The existing process owner recognizes qrt* engine processes.
+        executable = out / "qrt-linux-core-q8192-probe.exe"
         run("link", [hipcc, "--offload-arch=gfx1151", "-fno-gpu-rdc", *objects,
                      "-L", out, "-lhipblaslt", "-Xlinker", "/STACK:268435456", "-o", executable], 180)
         record["artifacts"] = [dict(path=str(p), bytes=p.stat().st_size, sha256=sha(p))

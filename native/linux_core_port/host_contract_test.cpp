@@ -4,6 +4,9 @@
 #include <array>
 #include <iostream>
 #include <limits>
+#ifdef _WIN32
+#include <winioctl.h>
+#endif
 
 namespace {
 void require(bool ok, const char* message) {
@@ -26,10 +29,26 @@ int main(int argc, char** argv) {
     constexpr std::uint64_t offset = (1ULL << 32) + 17;
     const std::string expected = "64-bit-shard-offset";
     {
+#ifdef _WIN32
+      const auto fixture = CreateFileW(path.c_str(), GENERIC_WRITE, 0, nullptr,
+                                      CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
+      require(fixture != INVALID_HANDLE_VALUE, "Sparse shard fixture create failed");
+      DWORD amount = 0;
+      LARGE_INTEGER position{};
+      position.QuadPart = offset;
+      const bool written = DeviceIoControl(fixture, FSCTL_SET_SPARSE, nullptr, 0,
+                                           nullptr, 0, &amount, nullptr) != 0 &&
+          SetFilePointerEx(fixture, position, nullptr, FILE_BEGIN) != 0 &&
+          WriteFile(fixture, expected.data(), static_cast<DWORD>(expected.size()),
+                    &amount, nullptr) != 0 && amount == expected.size();
+      CloseHandle(fixture);
+      require(written, "64-bit sparse fixture write failed");
+#else
       std::ofstream output(path, std::ios::binary);
       output.seekp(offset);
       output.write(expected.data(), expected.size());
       require(bool(output), "Sparse shard fixture write failed");
+#endif
     }
     require(aima_port::file_size_matches(path.u8string().c_str(), offset + expected.size()),
             "64-bit file size or UTF-8 path failed");

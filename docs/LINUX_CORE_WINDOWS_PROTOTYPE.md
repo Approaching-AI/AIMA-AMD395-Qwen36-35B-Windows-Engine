@@ -57,8 +57,15 @@ uses the installed ROCm 7.1 toolchain and hipBLASLt import library, imposes a
 total deadline and per-process timeouts, preserves compiler output, checks the
 Win32 host contract, and records source/generated/binary hashes. It never starts
 a model. A CPU build or COFF check is not native inference evidence.
+`scripts/baiying_linux_core_probe.ps1` binds the completed prior owner, frozen
+source manifest and artifacts for separate build/product phases. It keeps the
+existing global experiment mutex, memory checks and process cleanup. The build
+has a 1500-second internal deadline inside its 1740-second owner; a product run
+has a 600-second owner. The executable name matches the existing `qrt*` process
+filter. The Win32 host fixture explicitly marks its file sparse before writing
+beyond 4 GiB, avoiding a multi-gigabyte zero-filled allocation.
 
-The resulting `aima-linux-core-q8192-probe.exe` requires explicit model, prompt
+The resulting `qrt-linux-core-q8192-probe.exe` requires explicit model, prompt
 u32 file, CK DLL, vision image and fresh load-report paths. It loads the real
 model, performs one cold q8192 request, emits all 512 greedy outputs and streaming
 callbacks, and records the first raw logit, first-callback TTFT and loading time.
