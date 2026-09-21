@@ -128,8 +128,8 @@ remain open.
 
 [Source bindings, raw host sample, original reference provenance and syntax
 receipt](../benchmarks/correctness/partial-wave-projection-local-20260921.json):
-70679bytes, SHA256
-`6d3719adc83d720c07d7f7885895726ba0990c9750ecc70a0cda1ff4c50b5365`.
+71383bytes, SHA256
+`4c054a0a09cd793a3869fcd3cfe3ec809ecf87ebd97e41a79f66e6ca06799fe7`.
 
 The earlier native plan freezes source501569f, a26-file standalone quoted-include closure
 and an891-file source inventory. The inventory is explicitly not a preprocessed
@@ -147,8 +147,8 @@ deadlines are240s for standalone compilation,300s for safety,330s for the replay
 build and300s per captured operator, with a480s transport deadline. All use the
 unchanged exclusive execution guard after cleanup.
 [Frozen plan, script, parser and prepared checks](../benchmarks/correctness/partial-wave-projection-prepared-20260921.json):
-154247bytes, SHA256
-`32e426f4e40599a91a5174d9155a088e1c1c6bed50e33788a0806277f5b5f2b8`.
+154971bytes, SHA256
+`36731bff0942ec81332a9c09293006cc1196ab0ced5fc584f0d48297d32046fa`.
 
 The current plan uses source `5d63d5c` and the complete original q8192 capture.
 Projection plan r2 and attention plan r3 share eight verified tensors plus a
@@ -181,3 +181,7 @@ Deliberately changing the broadcast row or output position causes rejection.
 This model does not execute the GPU unsupported-row subgroup or establish
 physical WMMA behavior. Those remain part of the pending native safety suite.
 [Original rejected-row endpoints and host coordinate evidence](../benchmarks/correctness/original-q8192-projection-followup-local-20260921.json).
+
+Earlier local and preparation evidence now use public path views; embedded
+artifact hashes still identify their unchanged originals at the recorded source
+revision. [View identities](../benchmarks/correctness/public-evidence-home-path-views-20260922.json).

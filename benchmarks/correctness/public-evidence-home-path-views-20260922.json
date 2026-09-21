@@ -1,0 +1,30 @@
+{
+  "kind": "public_evidence_home_path_views",
+  "scope": "Three earlier JSON receipts contained local home prefixes. Their original bytes remain available at the recorded repository revision; public views alter only path text. Embedded hashes continue to identify original artifacts.",
+  "files": [
+    {
+      "file": "benchmarks/correctness/linux-windows-release-review-refresh-20260921-r2.json",
+      "original_sha256": "7d3194c43bc8e95f4135653122843ad1a81202bcd8e38c4e580621fba7d830d0",
+      "public_view_sha256": "f02eca8ab1c5ee2bddb33ad1527f279cce16659978494621bc2ec1565e831774",
+      "source_commit": "c55040aab026914708d93f43fd96f9f234750a8d",
+      "numerical_values_and_embedded_artifact_hashes_changed": false
+    },
+    {
+      "file": "benchmarks/correctness/partial-wave-projection-local-20260921.json",
+      "original_sha256": "6d3719adc83d720c07d7f7885895726ba0990c9750ecc70a0cda1ff4c50b5365",
+      "public_view_sha256": "4c054a0a09cd793a3869fcd3cfe3ec809ecf87ebd97e41a79f66e6ca06799fe7",
+      "source_commit": "c55040aab026914708d93f43fd96f9f234750a8d",
+      "numerical_values_and_embedded_artifact_hashes_changed": false
+    },
+    {
+      "file": "benchmarks/correctness/partial-wave-projection-prepared-20260921.json",
+      "original_sha256": "32e426f4e40599a91a5174d9155a088e1c1c6bed50e33788a0806277f5b5f2b8",
+      "public_view_sha256": "36731bff0942ec81332a9c09293006cc1196ab0ced5fc584f0d48297d32046fa",
+      "source_commit": "c55040aab026914708d93f43fd96f9f234750a8d",
+      "numerical_values_and_embedded_artifact_hashes_changed": false
+    }
+  ],
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}
