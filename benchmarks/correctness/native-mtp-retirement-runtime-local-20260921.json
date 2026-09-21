@@ -1,0 +1,156 @@
+{
+  "kind": "native_mtp_retirement_runtime_local_validation",
+  "utc": "2026-09-21T03:47:56.173206+00:00",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "source_base_commit": "7d65626de7faa2a405a11e163180da1885016345",
+  "source_revision_suffix": "working-tree",
+  "source_sha256": {
+    "native/providers/native_mtp_target_stream.h": "d6cdff5861e2c3b3f10ff947232613e16f96d9f80e840a4d0b5a877d6f451e05",
+    "tests/native/mtp_retired_request_host.inc": "caf22b6e7864d46fea5c33d0e5546daa31e673a17f47128ff8f7c4ffa204233e",
+    "native/providers/gdn/sm121_mtp_request.h": "7cc613959087ad2fc5906e39ee4b2aef387f942876805e23fec468a8ebb02d9d",
+    "native/providers/whole_provider.cpp": "c4bf6d53453b424f248f308ddd4cf910ce0e43291141193a2f90f37b78b2c344",
+    "tests/native/mtp_drafter_host.cpp": "478e70535ba3a2285ffe6705eed07fb03a77b916dfd0158a27be0eb26f59d41c",
+    "tests/native/native_mtp_decode_host.cpp": "d93cce56d349852e73b2d89926b4510ea0c12c90e1895c8409a5e7252e0ef2de",
+    "tests/test_mtp_drafter.py": "ff8ece25f30aa3c29c1894c5d924e3c44b04db4b23ff156c0dc68a1a1c22ffa7",
+    "tests/test_native_mtp_decode.py": "c752f19862623578a35f464b578bb242eb5b4e79568d6490376a9be4e9e71ec4"
+  },
+  "patch_sha256": "782e1cbb5440f90b9d0f93c820651937de4a68553dded832dfd869268780a601",
+  "implementation": {
+    "actual_request_save_and_checkpoint": true,
+    "actual_whole_decode_coordinator": true,
+    "retirement_uses_scheduled_extent_not_accepted_count": true,
+    "following_target_rows": 1,
+    "ordinary_target_invocation": "existing whole-provider decode v1; private pointer-bound scope",
+    "target_cache_borrow_released_before_ordinary_decode": true,
+    "callbacks": "synchronous producer events; outer arrival clocks; complete returned sequence compared",
+    "rollback": "outer target shadow covers both Q2 and subsequent ordinary target work",
+    "retired_checkpoint": "immutable actual owner, generation, current model epoch, processed input IDs and sampled token; no drafter KV or proposal",
+    "native_mtp_default_enabled": false,
+    "numerical_kernels_changed": false
+  },
+  "regressions": {
+    "actual_request_crossings": 5,
+    "actual_retired_continuations": 15,
+    "invalid_frontiers": 70,
+    "retired_gpu_submissions": 0,
+    "coordinator_crossings": 60,
+    "resumed_retired_spans": 8,
+    "ordinary_failures": 8,
+    "cancellations": 10,
+    "real_limit": 262144,
+    "target_limit": 263680,
+    "accept_reject_and_final_clipping": true,
+    "source_checkpoint_immutable": true,
+    "epoch_invalidation": true,
+    "scope_does_not_admit_copied_request": true
+  },
+  "local_tests": {
+    "kind": "mtp_retirement_runtime_local_validation",
+    "utc": "2026-09-21T03:47:56.173206+00:00",
+    "host": "Jiawei-MacminideMac-mini.local",
+    "source_base_commit": "7d65626de7faa2a405a11e163180da1885016345",
+    "source_revision": "working-tree",
+    "cwd": "<evidence-home-1>/projects/AIMA-public-r1191-candidate",
+    "command": [
+      "<evidence-home-1>/.local/bin/python3.12",
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/run_mtp_retirement_runtime_local_r1.py"
+    ],
+    "test_modules": [
+      "tests.test_mtp_drafter",
+      "tests.test_mtp_native_prefill_integration",
+      "tests.test_prefill_chunks",
+      "tests.test_model_prefix_checkpoint",
+      "tests.test_native_mtp_decode",
+      "tests.test_prefix_decode_stream"
+    ],
+    "changed_source_sha256": {
+      "native/providers/native_mtp_target_stream.h": "d6cdff5861e2c3b3f10ff947232613e16f96d9f80e840a4d0b5a877d6f451e05",
+      "tests/native/mtp_retired_request_host.inc": "caf22b6e7864d46fea5c33d0e5546daa31e673a17f47128ff8f7c4ffa204233e",
+      "native/providers/gdn/sm121_mtp_request.h": "7cc613959087ad2fc5906e39ee4b2aef387f942876805e23fec468a8ebb02d9d",
+      "native/providers/whole_provider.cpp": "c4bf6d53453b424f248f308ddd4cf910ce0e43291141193a2f90f37b78b2c344",
+      "tests/native/mtp_drafter_host.cpp": "478e70535ba3a2285ffe6705eed07fb03a77b916dfd0158a27be0eb26f59d41c",
+      "tests/native/native_mtp_decode_host.cpp": "d93cce56d349852e73b2d89926b4510ea0c12c90e1895c8409a5e7252e0ef2de",
+      "tests/test_mtp_drafter.py": "ff8ece25f30aa3c29c1894c5d924e3c44b04db4b23ff156c0dc68a1a1c22ffa7",
+      "tests/test_native_mtp_decode.py": "c752f19862623578a35f464b578bb242eb5b4e79568d6490376a9be4e9e71ec4"
+    },
+    "patch_sha256": "782e1cbb5440f90b9d0f93c820651937de4a68553dded832dfd869268780a601",
+    "wall_seconds": 48.99332583229989,
+    "test_methods": 9,
+    "exit_code": 0,
+    "output": ".........\n----------------------------------------------------------------------\nRan 9 tests in 48.984s\n\nOK\n",
+    "actual_request_child_results": [
+      {
+        "command": [
+          "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/tmp8yn55hqh/test",
+          "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/tmp8yn55hqh"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "5cda55ba6383cd7451f00efa1398a7828e9b482bcfc7adb61cdd9d8e963d5321",
+        "stderr_sha256": "0c9a401de4174632f3c96495ecab0725deb1f3ae52637c1449e9dfab65bb0185",
+        "markers": [
+          "native MTP plain seed cases=5 completion_fences=6 pass",
+          "native MTP chunked seed cases=5 invalid_frontiers=10 retry_failures=7 completion_fences=7 pass",
+          "native MTP retired request crossings=5 continuations=15 invalid=70 zero_retired_gpu_work=1 pass",
+          "native MTP chunked runtime completion_fences=9 pass",
+          "native MTP explicit prefill norm cases=2 profiles=2 pass",
+          "native MTP prefix repairs cases=9 invalid_frontiers=14 retry_failures=12 completion_fences=11 pass",
+          "native MTP prefix runtime cases=5 invalid_frontiers=26 failed_publications=10 completion_fences=12 pass",
+          "native MTP actual prefix entry cases=5 pass"
+        ],
+        "failure_stderr": null
+      },
+      {
+        "command": [
+          "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-native-mtp-decode-3oknz6z7/decode"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "3ede07bff3df82e0b7b30a75d8f4d8c1141c81b3f9ce46a34feba94d5675c85e",
+        "stderr_sha256": "98f74f31b0ac20e8967b555a125e464cede310a88c2dfd8af6d53081087ab5d8",
+        "markers": [
+          "native MTP retirement crossings=60 resumed=8 failures=8 cancellations=10 pass",
+          "native MTP decode request ordering and failure recovery pass"
+        ],
+        "failure_stderr": null
+      }
+    ],
+    "asan_ubsan": true,
+    "native_execution": false,
+    "real_model_inference": false,
+    "performance_qualified": false,
+    "release_qualified": false
+  },
+  "local_tests_file": "mtp-retirement-runtime-local-tests-r1.json",
+  "local_tests_sha256": "32aaad6a4ab448cea14b7f1d2f3a935538f85175f599ca22e298a0fd52f0e16b",
+  "prior_failed_checks": [
+    {
+      "kind": "host_fixture_compilation",
+      "reason": "One auto declaration mixed size_t and unsigned; split declarations before the passing run."
+    },
+    {
+      "kind": "test_module_discovery",
+      "reason": "Two tests import their companion module by basename; final runner includes the repository tests directory on sys.path."
+    }
+  ],
+  "limits": [
+    "Host kernel and ordinary-target doubles do not qualify native arithmetic or real-model retirement.",
+    "Cold native MTP still requires a prompt below262144; prefix admission retains its previous boundary.",
+    "Frozen0edb Windows plans are unchanged and do not contain this additional retirement change."
+  ],
+  "native_execution": false,
+  "real_model_inference_qualified": false,
+  "performance_qualified": false,
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "e4bf0ef0698cabaa437835031507fdbd9f6c958c92fbf01941ea1e40101a8b31",
+    "original_json_bytes": 7631,
+    "source_revision": "7d65626de7faa2a405a11e163180da1885016345-plus-working-tree",
+    "source_path": "build/recovery-20260910/native-mtp-retirement-runtime-local-20260921.raw.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 3
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}

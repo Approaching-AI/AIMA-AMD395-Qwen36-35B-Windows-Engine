@@ -246,6 +246,27 @@ retirement crossing remain unsupported by this opt-in route. No numerical
 kernel changes, Windows execution, real-model qualification or release claim
 is included. All previously prepared native source plans remain unchanged.
 
+The subsequent [native MTP retirement change](../benchmarks/correctness/native-mtp-retirement-runtime-local-20260921.json)
+lets a live decode finish its crossing Q2 transaction and continue through the
+existing single-row target decoder. Retirement follows the scheduled pair,
+including when its second row is rejected. An immutable receipt retains the
+actual target owner, generation, model epoch, processed inputs and sample;
+it owns no retired drafter KV. Q2 producers and cache borrows are destroyed
+before ordinary decode starts. Only the exact private request bypasses MTP
+dispatch. Its actual callbacks carry enclosing-request arrival times, and the
+returned sequence must match those events. The outer Shadow still covers
+both routes, cancellation and failure.
+
+Nine local ASan/UBSan tests pass in48.984s. The actual Request executes five
+crossings at the real262144 boundary,15 retired continuations and70 invalid
+frontiers, with no retired GPU submissions. The actual coordinator executes
+60 accept/reject/clipped crossings, eight resumed spans, eight ordinary-target
+failures and ten cancellations. GPU and ordinary-target producers in these
+tests are doubles. Native arithmetic, numerical kernels and the default-off
+switch are unchanged. Cold native MTP and prefix admission retain their
+earlier limits. Windows execution and real-model retirement remain open;
+the frozen0edb build and product plans do not include this later change.
+
 The [prepared integrated native plan](../benchmarks/correctness/native-mtp-prefix-runtime-prepared-20260921.json)
 binds0edb356,165 whole compilation inputs, the10-input streaming probe and
 171 combined source/build inputs. The runtime profile differs from the

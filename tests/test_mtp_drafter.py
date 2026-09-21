@@ -51,10 +51,11 @@ class MtpDrafterTests(unittest.TestCase):
                 '-I', str(ROOT), str(ROOT / 'tests/native/mtp_drafter_host.cpp'), '-o', str(exe)],
                 capture_output=True, text=True, timeout=60)
             self.assertEqual(build.returncode, 0, build.stderr)
-            run = subprocess.run([str(exe), str(directory)], capture_output=True, text=True, timeout=90)
+            run = subprocess.run([str(exe), str(directory)], capture_output=True, text=True, timeout=180)
             self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
             self.assertIn('native MTP plain seed cases=5 completion_fences=6 pass', run.stdout)
             self.assertIn('native MTP chunked seed cases=5 invalid_frontiers=10 retry_failures=7 completion_fences=7 pass', run.stdout)
+            self.assertIn('native MTP retired request crossings=5 continuations=15 invalid=70 zero_retired_gpu_work=1 pass', run.stdout)
             self.assertIn('native MTP chunked runtime completion_fences=9 pass', run.stdout)
             self.assertIn('native MTP explicit prefill norm cases=2 profiles=2 pass', run.stdout)
             self.assertIn('native MTP prefix repairs cases=9 invalid_frontiers=14 retry_failures=12 completion_fences=11 pass', run.stdout)

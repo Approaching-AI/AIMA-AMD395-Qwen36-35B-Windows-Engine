@@ -10,11 +10,14 @@
 #include <string>
 #include <vector>
 #include "native/providers/mtp_decode_rows.h"
+#include "native/providers/native_mtp_target_stream.h"
 using hipError_t=int;
 constexpr int hipSuccess=0;
 struct Step {int status=0;const char* stage="complete";bool completion_unknown=false;};
 static std::string fault_stage;
 static bool fault_unknown=false,throw_prepare=false;
+static bool force_reject=false;
+static unsigned ordinary_calls=0,ordinary_tokens=0;
 static unsigned fault_batch=1,batch_index=0,pins=0,targets=0,rollbacks=0,commits=0,aborts=0,callbacks=0,cancel_at=0;
 static unsigned target_committed=0,drafter_committed=0;
 static uint64_t clock_tick=10;
@@ -30,19 +33,34 @@ namespace qrt_sm121_q1 {
 static float widen(uint16_t value){uint32_t bits=uint32_t(value)<<16u;float result;std::memcpy(&result,&bits,4u);return result;}
 }
 namespace qrt_sm121_mtp {
-struct RequestCheckpoint {bool valid=false;std::vector<uint32_t> inputs;uint32_t current=0;};
+struct TargetFrontier;
+struct RequestCheckpoint {
+    bool valid=false;std::vector<uint32_t> inputs;uint32_t current=0;bool retired_state=false;
+    bool retired(const TargetFrontier&)const;
+    Step advance_retired(const TargetFrontier&,const TargetFrontier&,RequestCheckpoint*)const;
+};
 struct TargetFrontier {
     const void* owner=nullptr;uint64_t generation=0,model_epoch=0;
     const uint32_t* processed_inputs=nullptr;size_t processed_count=0;uint32_t current_token=0;
 };
 struct TargetBatch {uint64_t first_position=0;unsigned rows=0;std::array<uint32_t,2> inputs{};};
 struct AcceptedTarget {unsigned rows=0;std::array<uint32_t,2> outputs{};bool drafter_retired=false;};
+bool RequestCheckpoint::retired(const TargetFrontier& actual)const{
+    return valid&&retired_state&&actual.model_epoch==11u&&actual.processed_count==inputs.size()&&
+        actual.current_token==current&&std::equal(inputs.begin(),inputs.end(),actual.processed_inputs);
+}
+Step RequestCheckpoint::advance_retired(const TargetFrontier& before,const TargetFrontier& after,RequestCheckpoint* output)const{
+    assert(retired(before)&&after.processed_count>before.processed_count&&after.processed_inputs[before.processed_count]==current);
+    if(fails("retirement_save"))return {1,"retirement_save",false};
+    *output={true,{after.processed_inputs,after.processed_inputs+after.processed_count},after.current_token,true};return {};
+}
 }
 struct Session {
     const qrt_engine_t* owner_engine=reinterpret_cast<const qrt_engine_t*>(uintptr_t(0x1234));
     uint64_t generation=7u;std::string model_dir="original-model";
     size_t prefix_tokens=7u;uint32_t current_token_id=144u;
-    bool valid=true,route_active=true;
+    bool valid=true,route_active=true,provider_completed=true,current_token_valid=true;
+    size_t committed_decode_token_count=0;
     std::vector<uint32_t> native_mtp_processed_inputs{1,2,3,4,5,6,7};
     qrt_sm121_mtp::RequestCheckpoint native_mtp_checkpoint{true,native_mtp_processed_inputs,current_token_id};
 } g_qwen36_resident_session;
@@ -65,7 +83,7 @@ public:
     }
     ~ScopedQwen36ResidentSessionShadowTransaction(){if(active)(void)rollback("destructor");}
 };
-namespace qrt_sm121_q2 {struct TargetResult;struct TargetSnapshot {uint64_t model_epoch=11u;};}
+namespace qrt_sm121_q2 {constexpr unsigned target_context_limit=263680u;struct TargetResult;struct TargetSnapshot {uint64_t model_epoch=11u;};}
 struct Owner {
     Owner(){++pins;}
     ~Owner(){--pins;}
@@ -77,7 +95,7 @@ static std::shared_ptr<Owner> acquire_qwen36_target_cache_owner(
     const ScopedQwen36ResidentSessionShadowTransaction&,std::string*,std::string*){
     return fails("owner")?nullptr:std::make_shared<Owner>();
 }
-struct OriginalModel {};
+struct OriginalModel {uint64_t epoch()const{return 11u;}};
 static std::shared_ptr<OriginalModel> acquire_qwen36_target_model_weight_source(const std::string&,std::string*,std::string*){
     return fails("source")?nullptr:std::make_shared<OriginalModel>();
 }
@@ -117,6 +135,7 @@ bool Owner::commit_metadata(const qrt_sm121_q2::TargetResult& result,unsigned ro
     if(fails("metadata"))return false;
     auto& s=g_qwen36_resident_session;
     s.native_mtp_processed_inputs.insert(s.native_mtp_processed_inputs.end(),result.scheduled.begin(),result.scheduled.begin()+rows);
+    s.committed_decode_token_count+=rows;
     s.current_token_id=outputs[rows-1u];s.native_mtp_checkpoint={};++target_committed;
     return true;
 }
@@ -124,7 +143,7 @@ namespace qrt_sm121_mtp {
 class Request {
     std::vector<uint32_t> inputs;
     uint32_t current=0;TargetBatch batch;AcceptedTarget accepted;size_t remaining=0;
-    bool pending=false,prepared=false,unknown=false;
+    bool pending=false,prepared=false,unknown=false,retired_state=false;
 public:
     Step restore(const RequestCheckpoint& saved,const TargetFrontier& actual,unsigned capacity){
         assert(saved.valid&&saved.inputs.size()==actual.processed_count&&capacity>=actual.processed_count);
@@ -136,7 +155,7 @@ public:
         ++batch_index;assert(!pending&&left&&actual.processed_count==inputs.size()&&actual.current_token==current);
         assert(std::equal(inputs.begin(),inputs.end(),actual.processed_inputs));
         if(fails("begin"))return false;
-        batch={inputs.size(),2u,{current,batch_index%2u?100u+batch_index*2u:999u}};
+        batch={inputs.size(),2u,{current,!force_reject&&batch_index%2u?100u+batch_index*2u:999u}};
         remaining=left;pending=true;*output=batch;return true;
     }
     Step prepare(const uint32_t* supplied,const uint32_t* samples,size_t rows,
@@ -152,7 +171,8 @@ public:
         assert(accepted_rows.capture(batch.first_position,supplied,samples,rows,remaining,positions,normalized));
         accepted.rows=static_cast<unsigned>(accepted_rows.rows());
         std::copy(accepted_rows.shifted_tokens().begin(),accepted_rows.shifted_tokens().end(),accepted.outputs.begin());
-        accepted.drafter_retired=fails("acceptance");
+        accepted.drafter_retired=batch.first_position+2u>=262144u;
+        if(fails("acceptance"))accepted.rows=3u;
         prepared=true;*output=accepted;return {};
     }
     bool commit(const TargetFrontier& actual){
@@ -162,15 +182,44 @@ public:
         assert(std::equal(inputs.begin(),inputs.end(),actual.processed_inputs));
         assert(std::equal(batch.inputs.begin(),batch.inputs.begin()+accepted.rows,actual.processed_inputs+inputs.size()));
         inputs.insert(inputs.end(),batch.inputs.begin(),batch.inputs.begin()+accepted.rows);
-        current=actual.current_token;pending=prepared=false;++drafter_committed;return true;
+        current=actual.current_token;pending=prepared=false;retired_state=accepted.drafter_retired;++drafter_committed;return true;
     }
+    bool retired()const{return retired_state;}
     bool abort(uint64_t epoch){assert(epoch==11u);++aborts;pending=prepared=false;return true;}
     bool quarantined()const{return unknown;}
     Step save(RequestCheckpoint* checkpoint,const TargetFrontier& actual){
         assert(!pending&&inputs.size()==actual.processed_count&&actual.current_token==current);
-        *checkpoint={true,inputs,current};return step("save");
+        *checkpoint={true,inputs,current,retired_state};return step("save");
     }
 };
+}
+static int qrt_qwen36_whole_provider_decode_v1(const qrt_qwen36_whole_provider_decode_request_v1_t* request,
+    qrt_qwen36_whole_provider_decode_result_v1_t* output){
+    assert(Qwen36NativeTargetOnly::matches(request)&&!pins&&!targets);
+    auto copy=*request;assert(!Qwen36NativeTargetOnly::matches(&copy));
+    ++ordinary_calls;
+    if(fails("ordinary_before"))return 0;
+    auto& s=g_qwen36_resident_session;
+    assert(s.native_mtp_checkpoint.retired_state&&request->initial_output_token_id==s.current_token_id);
+    *output={};output->struct_size=sizeof(*output);output->abi_version=QRT_QWEN36_WHOLE_PROVIDER_DECODE_ABI_VERSION;
+    output->batch_size=1u;output->output_token_capacity=request->output_token_capacity;output->prefill_token_count=1u;
+    output->session_generation=request->expected_session_generation;output->prompt_token_ids_fnv1a64=request->expected_prompt_token_ids_fnv1a64;
+    output->output_tokens[0]=s.current_token_id;
+    for(unsigned i=1u;i<request->output_token_capacity;++i){
+        const uint32_t token=90000u+ordinary_tokens++;
+        ++s.committed_decode_token_count;s.current_token_id=token;
+        output->output_tokens[i]=token;output->token_step_elapsed_ns[i]=10u;output->token_end_elapsed_ns[i]=10u*i;
+        assert(request->emit_callback);
+        if(!request->emit_callback(request->emit_user_data,request->expected_session_generation,i,token,
+            output->token_step_elapsed_ns[i],output->token_end_elapsed_ns[i]))return 0;
+    }
+    output->output_token_count=output->timing_count=request->output_token_capacity;
+    output->decode_token_count=request->output_token_capacity-1u;
+    output->tpot_elapsed_ns=10u*output->decode_token_count;output->wall_clock_ns=output->tpot_elapsed_ns+1u;
+    output->completed=1u;output->status=QRT_STATUS_OK;
+    if(fails("ordinary_result"))output->output_tokens[1]++;
+    if(fails("ordinary_frontier"))s.current_token_id++;
+    return 1;
 }
 #include "native_mtp_decode_actual.h"
 
@@ -186,12 +235,27 @@ static void reset_case(){
     assert(!pins&&!targets);g_qwen36_resident_session={};g_qwen36_resident_completion_unknown=false;
     batch_index=rollbacks=commits=aborts=callbacks=cancel_at=target_committed=drafter_committed=0u;
     fault_stage.clear();fault_unknown=throw_prepare=false;fault_batch=1u;clock_tick=10;
+    force_reject=false;ordinary_calls=ordinary_tokens=0;
     emitted.clear();emitted_steps.clear();emitted_ends.clear();
 }
 static qrt_qwen36_whole_provider_decode_request_v1_t request(unsigned capacity){
     qrt_qwen36_whole_provider_decode_request_v1_t r{};r.expected_session_generation=7u;
     r.expected_prefix_token_count=7u;r.expected_prompt_token_ids_fnv1a64=9u;r.initial_output_token_id=144u;
     r.output_token_capacity=capacity;r.emit_callback=emit;return r;
+}
+static void near_retirement(size_t processed,bool retired=false){
+    auto& s=g_qwen36_resident_session;
+    s.native_mtp_processed_inputs.resize(processed,17u);
+    s.committed_decode_token_count=processed-s.prefix_tokens;
+    s.native_mtp_checkpoint={true,s.native_mtp_processed_inputs,s.current_token_id,retired};
+}
+static qrt_qwen36_whole_provider_decode_result_v1_t initialized_output(
+    const qrt_qwen36_whole_provider_decode_request_v1_t& r){
+    qrt_qwen36_whole_provider_decode_result_v1_t output{};
+    output.struct_size=sizeof(output);output.abi_version=QRT_QWEN36_WHOLE_PROVIDER_DECODE_ABI_VERSION;
+    output.batch_size=1u;output.output_token_capacity=r.output_token_capacity;output.prefill_token_count=1u;
+    output.session_generation=r.expected_session_generation;output.output_tokens[0]=r.initial_output_token_id;
+    return output;
 }
 int main(){
     for(unsigned capacity:{2u,3u,4u,5u,8u,64u}) {
@@ -250,5 +314,51 @@ int main(){
     {auto r=request(4u);qrt_qwen36_whole_provider_decode_result_v1_t output{};std::string stage,error;
      assert(!run_qwen36_native_mtp_decode(r,&output,10u,&stage,&error)&&stage=="mtp_native_decode_frontier");
      assert(rollbacks==1u&&!pins&&!targets&&!callbacks);}
+    unsigned crossing_cases=0u,retired_cases=0u;
+    for(size_t processed:{262141u,262142u,262143u})for(unsigned capacity:{2u,3u,4u,8u,64u})
+        for(bool rejection:{false,true})for(bool callback:{false,true}){
+            reset_case();near_retirement(processed);force_reject=rejection;
+            auto r=request(capacity);if(!callback)r.emit_callback=nullptr;
+            auto output=initialized_output(r);std::string stage,error;
+            assert(run_qwen36_native_mtp_decode(r,&output,10u,&stage,&error));
+            const char* abi_failure=nullptr;
+            assert(qrt_qwen36_whole_provider_decode_result_valid(&r,&output,&abi_failure));
+            const auto& s=g_qwen36_resident_session;
+            assert(s.native_mtp_processed_inputs.size()==processed+capacity-1u&&
+                s.committed_decode_token_count==processed+capacity-1u-s.prefix_tokens);
+            assert(callbacks==(callback?capacity-1u:0u)&&commits==1u&&!rollbacks&&!pins&&!targets);
+            assert(s.native_mtp_checkpoint.inputs==s.native_mtp_processed_inputs&&
+                s.native_mtp_checkpoint.current==s.current_token_id);
+            if(ordinary_calls)assert(s.native_mtp_checkpoint.retired_state&&ordinary_calls==1u&&ordinary_tokens>0u);
+            ++crossing_cases;
+        }
+    for(size_t processed:{262143u,262144u,262145u,263615u})for(unsigned capacity:{2u,64u}){
+        reset_case();near_retirement(processed,true);auto r=request(capacity);auto output=initialized_output(r);
+        std::string stage,error;assert(run_qwen36_native_mtp_decode(r,&output,10u,&stage,&error));
+        assert(ordinary_calls==1u&&ordinary_tokens==capacity-1u&&!batch_index&&!target_committed&&!drafter_committed);
+        const char* abi_failure=nullptr;assert(qrt_qwen36_whole_provider_decode_result_valid(&r,&output,&abi_failure));
+        assert(g_qwen36_resident_session.native_mtp_checkpoint.retired_state);
+        ++retired_cases;
+    }
+    for(bool already:{false,true})for(const auto* failure:{"ordinary_before","ordinary_result","ordinary_frontier","retirement_save"}){
+        reset_case();near_retirement(262142u,already);auto old=g_qwen36_resident_session;
+        fault_stage=failure;auto r=request(8u);auto output=initialized_output(r);std::string stage,error;
+        assert(!run_qwen36_native_mtp_decode(r,&output,10u,&stage,&error));
+        assert(rollbacks==1u&&!commits&&!pins&&!targets&&!g_qwen36_resident_session.valid);
+        assert(g_qwen36_resident_session.native_mtp_processed_inputs==old.native_mtp_processed_inputs&&
+            g_qwen36_resident_session.current_token_id==old.current_token_id);
+    }
+    for(bool already:{false,true})for(unsigned cancelled:{1u,2u,3u,6u,7u}){
+        reset_case();near_retirement(262142u,already);cancel_at=cancelled;
+        auto r=request(8u);auto output=initialized_output(r);std::string stage,error;
+        assert(!run_qwen36_native_mtp_decode(r,&output,10u,&stage,&error));
+        assert(callbacks==cancelled&&rollbacks==1u&&!commits&&!pins&&!targets&&!g_qwen36_resident_session.valid);
+        assert(g_qwen36_resident_session.native_mtp_processed_inputs.size()==262142u);
+    }
+    reset_case();near_retirement(263679u,true);
+    {auto r=request(3u);auto output=initialized_output(r);std::string stage,error;
+     assert(!run_qwen36_native_mtp_decode(r,&output,10u,&stage,&error)&&stage=="mtp_native_decode_frontier");
+     assert(!ordinary_calls&&!callbacks);}
+    std::cout<<"native MTP retirement crossings="<<crossing_cases<<" resumed="<<retired_cases<<" failures=8 cancellations=10 pass\n";
     std::cout<<"native MTP decode request ordering and failure recovery pass\n";
 }

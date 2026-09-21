@@ -413,6 +413,7 @@ static void test_checkpoints() {
 }
 #include "mtp_request_host.inc"
 #include "mtp_chunked_request_host.inc"
+#include "mtp_retired_request_host.inc"
 #include "mtp_prefix_request_host.inc"
 #include "mtp_prefix_runtime_host.inc"
 int main(int argc,char** argv){
@@ -424,6 +425,7 @@ int main(int argc,char** argv){
     test_request();
     test_prefill_request_seed();
     test_chunked_request();
+    test_retired_request();
     test_chunked_seed_runtime();
     test_explicit_prefill_norm_order();
     test_prefix_request();

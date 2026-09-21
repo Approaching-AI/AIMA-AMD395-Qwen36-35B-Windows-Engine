@@ -22,6 +22,7 @@
 #include "qrt.h"
 #include "qrt_prefix_logit.h"
 #include "prefix_decode_stream.h"
+#include "native_mtp_target_stream.h"
 #include "qrt_prefix_checkpoint.h"
 #include "prefix_checkpoint_policy.h"
 #include "resident_text_shard_layout.h"
@@ -159410,6 +159411,11 @@ void print_hprefill_resident_abi_boundary_json(unsigned int prefill_tokens) {
 #define QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL
 #endif
 
+QRT_PREFILL_DESCRIPTOR_BATCH_HIP_EXPORT int
+QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_decode_v1(
+    const qrt_qwen36_whole_provider_decode_request_v1_t*,
+    qrt_qwen36_whole_provider_decode_result_v1_t*);
+
 bool run_decode_conv_qkv_cache(
     const RepeatedPrefillLayerDescriptor &descriptor,
     const Layer1SelectedProjectionRun &qkv_run,
@@ -218535,33 +218541,40 @@ bool run_qwen36_native_mtp_decode(
     ScopedQwen36ResidentSessionShadowTransaction transaction(request.expected_session_generation,
         request.expected_prompt_token_ids_fnv1a64,failure_stage,failure);
     if (!transaction.ready()) return false;
-    // The first live route uses an existing exact MTP checkpoint. Crossing the
-    // drafter limit requires the ordinary target's subsequent one-row route.
-    // Do not continue Q2 arithmetic after the original schedule retires MTP.
+    // Retirement follows the scheduled Q2 extent, even when its second row
+    // is rejected. The following rows belong to the ordinary target route.
     const auto& session = g_qwen36_resident_session;
     const size_t processed = session.native_mtp_processed_inputs.size();
-    if (!output || session.current_token_id != request.initial_output_token_id ||
+    if (!output || request.output_token_capacity<2u ||
+        request.output_token_capacity>QRT_QWEN36_WHOLE_PROVIDER_DECODE_MAX_OUTPUT_TOKENS ||
+        session.current_token_id != request.initial_output_token_id ||
         session.prefix_tokens != request.expected_prefix_token_count ||
-        processed > 262144u-request.output_token_capacity-2u)
-        return fail("mtp_native_decode_frontier","native MTP requires an exact frontier and a span before drafter retirement");
+        session.prefix_tokens>processed || session.committed_decode_token_count!=processed-session.prefix_tokens ||
+        processed>qrt_sm121_q2::target_context_limit-(request.output_token_capacity-1u))
+        return fail("mtp_native_decode_frontier","native MTP requires an exact frontier and a span within the target context");
     bool target_mutated = false;
     uint64_t previous_end = 0u;
     unsigned batches = 0u, accepted_total = 0u;
+    uint32_t output_index = 1u;
+    uint64_t request_epoch = 0u;
+    const auto actual = [&]() {
+        const auto& s=g_qwen36_resident_session;
+        return qrt_sm121_mtp::TargetFrontier{s.owner_engine,s.generation,request_epoch,
+            s.native_mtp_processed_inputs.data(),s.native_mtp_processed_inputs.size(),s.current_token_id};
+    };
     // Destroy private producers and the cache pin before Shadow resolves its
     // ownership. Unknown completion self-retains the borrower and its owners.
     const auto run = [&]() -> bool {
+        auto original = acquire_qwen36_target_model_weight_source(session.model_dir,failure_stage,failure);
+        if (!original) return false;
+        request_epoch=original->epoch();
+        if(session.native_mtp_checkpoint.retired(actual()))return true;
         auto owner = acquire_qwen36_target_cache_owner(transaction,failure_stage,failure);
         if (!owner) return false;
         qrt_sm121_q2::TargetSnapshot snapshot;
         if (!owner->snapshot(&snapshot)) return fail("mtp_native_decode_snapshot","actual target cache snapshot is unavailable");
         const uint64_t epoch = snapshot.model_epoch;
-        const auto actual = [&]() {
-            const auto& s = g_qwen36_resident_session;
-            return qrt_sm121_mtp::TargetFrontier{s.owner_engine,s.generation,epoch,
-                s.native_mtp_processed_inputs.data(),s.native_mtp_processed_inputs.size(),s.current_token_id};
-        };
-        auto original = acquire_qwen36_target_model_weight_source(session.model_dir,failure_stage,failure);
-        if (!original) return false;
+        if(epoch!=request_epoch)return fail("mtp_native_decode_epoch","target and original model epochs differ");
         qrt_sm121_q2::ModelWeights weights;
         const auto packed = weights.prepare(original,epoch);
         if (packed.status != hipSuccess) {
@@ -218569,7 +218582,7 @@ bool run_qwen36_native_mtp_decode(
             return fail(packed.stage,"native target model binding failed");
         }
         qrt_sm121_mtp::Request live;
-        const unsigned capacity = static_cast<unsigned>(processed+request.output_token_capacity);
+        const unsigned capacity = static_cast<unsigned>((std::min)(size_t(262144u),processed+request.output_token_capacity));
         const auto restored = live.restore(session.native_mtp_checkpoint,actual(),capacity);
         if (restored.status != hipSuccess) {
             if (restored.completion_unknown) owner->quarantine();
@@ -218584,7 +218597,6 @@ bool run_qwen36_native_mtp_decode(
         const auto binding = weights.binding(epoch);
         const std::vector<unsigned> positions{0u,1u};
         std::vector<float> normalized(4096u);
-        uint32_t output_index = 1u;
         while (output_index < request.output_token_capacity) {
             qrt_sm121_mtp::TargetBatch batch;
             if (!live.begin(actual(),request.output_token_capacity-output_index,&batch))
@@ -218604,14 +218616,15 @@ bool run_qwen36_native_mtp_decode(
                 epoch,&accepted,nullptr,1024u);
             if (prepared.status != hipSuccess)
                 return abort(prepared.stage,"native MTP could not prepare the accepted target rows",prepared.completion_unknown);
-            if (accepted.drafter_retired || accepted.rows < 1u || accepted.rows > 2u ||
+            if (accepted.rows < 1u || accepted.rows > 2u ||
                 accepted.rows > request.output_token_capacity-output_index)
                 return abort("mtp_native_decode_acceptance","native MTP returned an unsupported accepted extent",false);
             target_mutated = true;
             const auto published = qrt_sm121_q2::CachePublisher::publish(result,*owner,accepted.rows);
             if (published.status != hipSuccess)
                 return abort(published.stage,"native accepted cache publication failed",published.completion_unknown);
-            if (!owner->commit_metadata(result,accepted.rows,accepted.outputs) || !live.commit(actual()))
+            if (!owner->commit_metadata(result,accepted.rows,accepted.outputs) || !live.commit(actual()) ||
+                live.retired()!=accepted.drafter_retired)
                 return abort("mtp_native_decode_receipt","target and MTP did not commit the same accepted inputs",false);
             ++batches; accepted_total += accepted.rows;
             for (unsigned row = 0; row < accepted.rows; ++row,++output_index) {
@@ -218633,6 +218646,7 @@ bool run_qwen36_native_mtp_decode(
                         output->token_step_elapsed_ns[output_index],end))
                     return abort("mtp_native_decode_callback","native MTP callback cancelled a committed target pair",false);
             }
+            if(live.retired())break;
         }
         qrt_sm121_mtp::RequestCheckpoint checkpoint;
         const auto saved = live.save(&checkpoint,actual());
@@ -218641,8 +218655,50 @@ bool run_qwen36_native_mtp_decode(
         g_qwen36_resident_session.native_mtp_checkpoint = std::move(checkpoint);
         return true;
     };
+    const auto target_only = [&]() -> bool {
+        if(output_index==request.output_token_capacity)return true;
+        auto& s=g_qwen36_resident_session;
+        const auto before=actual();
+        const auto retired=s.native_mtp_checkpoint;
+        if(!retired.retired(before))return fail("mtp_native_retirement_frontier","ordinary target requires a committed retirement receipt");
+        const size_t count=request.output_token_capacity-output_index;
+        const size_t prior_committed=s.committed_decode_token_count;
+        auto inputs=s.native_mtp_processed_inputs;
+        inputs.reserve(inputs.size()+count);
+        auto inner=request;
+        inner.initial_output_token_id=s.current_token_id;
+        inner.output_token_capacity=static_cast<uint32_t>(count+1u);
+        inner.emit_callback=nullptr;inner.emit_user_data=nullptr;
+        qrt_qwen36_whole_provider_decode_result_v1_t result{};
+        Qwen36NativeTargetStream stream(request,*output,output_index,started,previous_end,qrt_now_ns);
+        if(!stream.bind(&inner))return fail("mtp_native_retirement_stream",stream.failure());
+        int ok=0;
+        target_mutated=true;
+        {
+            Qwen36NativeTargetOnly ordinary(&inner);
+            ok=qrt_qwen36_whole_provider_decode_v1(&inner,&result);
+        }
+        if(!ok || !stream.complete(result))return fail("mtp_native_retirement_target",stream.failure());
+        if(!s.valid || !s.provider_completed || !s.current_token_valid || s.owner_engine!=before.owner ||
+            s.generation!=before.generation || s.prefix_tokens!=request.expected_prefix_token_count ||
+            s.committed_decode_token_count!=prior_committed+count ||
+            s.current_token_id!=result.output_tokens[count] || !retired.retired(before))
+            return fail("mtp_native_retirement_receipt","ordinary target did not publish its actual continuation frontier");
+        inputs.insert(inputs.end(),result.output_tokens,result.output_tokens+count);
+        const qrt_sm121_mtp::TargetFrontier after{s.owner_engine,s.generation,request_epoch,
+            inputs.data(),inputs.size(),s.current_token_id};
+        qrt_sm121_mtp::RequestCheckpoint next;
+        const auto saved=retired.advance_retired(before,after,&next);
+        if(saved.status!=hipSuccess)return fail(saved.stage,"retired target receipt could not advance");
+        s.native_mtp_checkpoint=std::move(next);s.native_mtp_processed_inputs.swap(inputs);
+        std::cerr << "BATCH_MARK qwen36_native_mtp_retired_target first_position=" << before.processed_count
+                  << " accepted_tokens=" << count << " processed_tokens=" << s.native_mtp_processed_inputs.size()
+                  << " drafter_retired=1 target_rows=1 reference_input=0" << std::endl;
+        output_index=request.output_token_capacity;
+        return true;
+    };
     bool completed = false;
-    try { completed = run(); }
+    try { completed = run() && target_only(); }
     catch (const std::bad_alloc&) { (void)fail("mtp_native_decode_host_allocation","native MTP request host allocation failed"); }
     catch (...) { (void)fail("mtp_native_decode_exception","native MTP request failed while preparing its private state"); }
     if (!completed || !transaction.commit(failure_stage,failure)) {
@@ -218662,7 +218718,8 @@ bool run_qwen36_native_mtp_decode(
     output->status = static_cast<int32_t>(QRT_STATUS_OK); output->completed = 1u;
     std::cerr << "BATCH_MARK qwen36_native_mtp_decode_complete generation=" << session.generation
               << " target_batches=" << batches << " accepted_tokens=" << accepted_total
-              << " paired_checkpoint=1 reference_input=0 numerical_correctness_claimed=0" << std::endl;
+              << " paired_checkpoint=1 drafter_retired=" << (session.native_mtp_checkpoint.retired(actual())?1:0)
+              << " reference_input=0 numerical_correctness_claimed=0" << std::endl;
     return true;
 }
 
@@ -218791,7 +218848,7 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_decode_v1(
         );
     }
 
-    if (raw_env_flag_enabled("QRT_QWEN36_MTP_NATIVE_DECODE")) {
+    if (raw_env_flag_enabled("QRT_QWEN36_MTP_NATIVE_DECODE") && !Qwen36NativeTargetOnly::matches(request)) {
         if (gb10_continuation_teacher_forced)
             return set_failure(QRT_STATUS_INVALID_ARGUMENT,"mtp_native_decode_reference_input",
                 "native MTP must schedule drafts from its actual paired checkpoint");

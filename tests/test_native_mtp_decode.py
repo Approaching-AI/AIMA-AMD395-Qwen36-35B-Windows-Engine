@@ -27,6 +27,7 @@ class NativeMtpDecodeTests(unittest.TestCase):
             run = subprocess.run([str(exe)], capture_output=True, text=True, timeout=30)
             self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
             self.assertIn('native MTP decode request ordering and failure recovery pass', run.stdout)
+            self.assertIn('native MTP retirement crossings=60 resumed=8 failures=8 cancellations=10 pass', run.stdout)
 
 
 if __name__ == '__main__':

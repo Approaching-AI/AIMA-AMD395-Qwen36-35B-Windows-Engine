@@ -94,9 +94,47 @@ struct Saved {
 class RequestCheckpoint final {
 public:
     bool matches(const TargetFrontier& actual) const {
-        return saved_ && saved_->cache.valid(actual.model_epoch) &&
-            saved_->cache.tokens() == saved_->state.inputs.size() &&
-            saved_->state.proposal_ready() && saved_->state.matches(actual);
+        if (!saved_ || !saved_->state.matches(actual)) return false;
+        if (!saved_->state.speculative()) return !saved_->cache.allocated_bytes();
+        return saved_->cache.valid(actual.model_epoch) &&
+            saved_->cache.tokens() == saved_->state.inputs.size() && saved_->state.proposal_ready();
+    }
+    bool retired(const TargetFrontier& actual) const {
+        return matches(actual) && !saved_->state.speculative();
+    }
+    // After the crossing target transaction, the drafter has no further
+    // cache or proposal. Preserve an immutable receipt of the actual one-row
+    // target continuation, including the schedule that caused retirement.
+    // The caller constructs both frontiers from its rollback-owned target.
+    PromptStep advance_retired(const TargetFrontier& before,const TargetFrontier& after,
+        RequestCheckpoint* output) const {
+        if (!output || !retired(before) || after.owner!=before.owner ||
+            after.generation!=before.generation || after.model_epoch!=before.model_epoch ||
+            !after.processed_inputs || after.processed_count<=before.processed_count ||
+            after.processed_count-before.processed_count>512u ||
+            after.current_token>=qrt_mtp_target_rows::vocabulary ||
+            !std::equal(saved_->state.inputs.begin(),saved_->state.inputs.end(),after.processed_inputs) ||
+            after.processed_inputs[before.processed_count]!=before.current_token)
+            return {hipErrorInvalidValue,"request_retired_frontier"};
+        for(size_t i=before.processed_count;i<after.processed_count;++i)
+            if(after.processed_inputs[i]>=qrt_mtp_target_rows::vocabulary)
+                return {hipErrorInvalidValue,"request_retired_input"};
+        try {
+            auto saved=std::make_shared<mtp_request_detail::Saved>();
+            saved->state=saved_->state;
+            for(size_t i=before.processed_count;i<after.processed_count;++i){
+                qrt_mtp_draft_schedule::Batch batch;
+                if(!saved->state.schedule.begin(&batch) || batch.speculative ||
+                    batch.scheduled_rows!=1u || batch.first_position!=i || !saved->state.schedule.complete(1u))
+                    return {hipErrorInvalidValue,"request_retired_schedule"};
+            }
+            saved->state.inputs.assign(after.processed_inputs,after.processed_inputs+after.processed_count);
+            saved->state.current=after.current_token;
+            RequestCheckpoint next;next.saved_=std::move(saved);
+            if(!next.retired(after))return {hipErrorInvalidValue,"request_retired_epoch"};
+            *output=std::move(next);
+            return {hipSuccess,"complete",static_cast<unsigned>(after.processed_count)};
+        }catch(...){return {hipErrorOutOfMemory,"request_retired_owner"};}
     }
     size_t tokens() const { return saved_ ? saved_->state.inputs.size() : 0u; }
     size_t allocated_bytes() const { return saved_ ? saved_->cache.allocated_bytes() : 0u; }
@@ -305,7 +343,8 @@ public:
     PromptStep restore(const RequestCheckpoint& checkpoint, const TargetFrontier& actual,
         unsigned capacity, hipStream_t stream = nullptr) {
         if (terminal_ != hipSuccess) return unavailable();
-        if (live_ || !checkpoint.matches(actual) || capacity < actual.processed_count || capacity > 262144u)
+        if (live_ || !checkpoint.matches(actual) || checkpoint.retired(actual) ||
+            capacity < actual.processed_count || capacity > 262144u)
             return invalid("request_restore_contract");
         try {
             auto next = std::make_unique<Live>();
@@ -408,7 +447,7 @@ public:
 
     bool abort(uint64_t epoch) {
         if (!ready() || epoch != live_->state.epoch || !live_->state.binding.valid(epoch)) return false;
-        if (live_->drafter.retained_tokens() != live_->state.inputs.size() &&
+        if (live_->state.speculative() && live_->drafter.retained_tokens() != live_->state.inputs.size() &&
             !live_->drafter.truncate(static_cast<unsigned>(live_->state.inputs.size()), epoch)) return false;
         pending_ = {};
         return true;
@@ -417,13 +456,16 @@ public:
     PromptStep save(RequestCheckpoint* output, const TargetFrontier& actual, hipStream_t stream = nullptr) {
         if (terminal_ != hipSuccess) return unavailable();
         if (!output || !ready() || pending_.active || !live_->state.matches(actual) ||
-            !live_->state.proposal_ready() || live_->drafter.retained_tokens() != actual.processed_count)
+            (live_->state.speculative() &&
+             (!live_->state.proposal_ready() || live_->drafter.retained_tokens() != actual.processed_count)))
             return invalid("request_save_contract");
         try {
             auto saved = std::make_shared<mtp_request_detail::Saved>();
             saved->state = live_->state;
-            const auto copied = live_->drafter.checkpoint(&saved->cache, actual.model_epoch, stream);
-            if (copied.status != hipSuccess) return failed(copied);
+            if(live_->state.speculative()){
+                const auto copied = live_->drafter.checkpoint(&saved->cache, actual.model_epoch, stream);
+                if (copied.status != hipSuccess) return failed(copied);
+            }
             RequestCheckpoint next; next.saved_ = std::move(saved);
             if (!next.matches(actual)) return invalid("request_save_frontier");
             *output = std::move(next);
