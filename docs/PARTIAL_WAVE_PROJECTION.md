@@ -41,8 +41,21 @@ attention surfaces and logical KV cache. Other matrix cases keep their original
 observation scope; conflicting window plans and wrong prompt extents reject.
 The 1 GiB per-case ceiling, original model calls, prompt IDs and complete token
 matrix checks remain in force. All 37 boundary/token-observer unit tests pass.
-The new reference capture has not executed yet and does not replace the
-existing operator fixtures or establish native performance.
+The new capture now passes all 1,216 original matrix outputs and every first
+token logit with error 0. The GB10 process completes in 370.3101 seconds,
+including model startup and all eight cases, with passing host checks and
+no remaining GPU process. All 12 complete tensors, 654,311,424 bytes, come
+from the original q8192 transaction; none of its input rows are repeated.
+
+ASan/UBSan host sampling on those original tensors passes 8,192 QKV and
+8,192 OUT dots, all sampled GB10 BF16 endpoints and 3,131,392 eligible ordered
+carries. All 8,192 QKV input rows and 8,080 of 8,192 weight rows are eligible.
+OUT has 8,191 eligible input rows and all 2,048 weight rows eligible. Its one
+unsupported input row is outside the deterministic dot sample; complete-row
+classification rejects it. Both expected outputs now come directly from the
+qualified whole-model reference. These results do not replace the existing
+native fixtures or establish GPU behavior or performance.
+[Complete reference, raw-logit checks and host arithmetic evidence](../benchmarks/correctness/gb10-real-q8192-prefill-operands-20260921.json).
 
 On the controller, ASan/UBSan sampling checks8192 dots per operator, with128 evenly
 spaced input rows and64 weight rows whose phase rotates between samples. This
