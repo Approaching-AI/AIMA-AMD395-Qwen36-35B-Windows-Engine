@@ -49,11 +49,10 @@ Two [follow-up admission audits](../benchmarks/correctness/separate-state-gdn-ad
 keep the existing product-exponent window. Aggregate operand ranges admit
 2912 of4096 original CTAs; individual K16 group checks admit3038. These add
 11 and137 CTAs over the existing2901 prediction. Both auditors pass their
-completed ASan/UBSan scans. The per-group predicate has no complete independent
-integer qualification, and neither audit measures native receipts or speed.
-The modest admission change does not yet justify adding checks inside every
-group. Measure the prepared split-kernel candidate first; a different domain
-design remains possible. Runtime and candidate kernel sources are unchanged.
+completed ASan/UBSan scans. Those admission audits alone do not qualify the
+arithmetic or measure native receipts or speed. The checked product-domain
+implementation below adds independent integer validation and a selective
+consumer certificate; the runtime remains unchanged.
 
 The host test runs the candidate bodies with64-thread transport and an
 independent wide integer reference. Seven cases cover partial chunks,
@@ -79,3 +78,59 @@ Run the local ownership test with
 [Source hashes, host commands, negative controls, original operand audit and
 the unrun native plan](../benchmarks/correctness/separate-state-gdn-local-20260921.json)
 are recorded separately from any native inference or performance acceptance.
+
+## Checked hybrid retry
+
+The new isolated `hybrid_state_replay.h` inserts a retry kernel between fast
+calculation and retained replay. It skips every successful fast CTA. For a
+W/H dot outside the original narrow domain, an absolute bound must prove both
+BF16 residual outputs identical; otherwise the entire CTA remains for replay.
+In-range W/H dots retain the original narrow calculation. K/V dots use the
+checked product-domain carry without approximating the FP32 recurrent update.
+Only a complete successful segment publishes state and receipt2. Failed
+retries preserve the original state, and retained replay overwrites every
+partially written H and residual output before consumers launch.
+
+`sm121_product_f32_carry.h` admits an ordered K16 group when its largest normal
+product exponent is in[-64,64]. It also admits all-zero finite products.
+Nonfinite operands and unsupported carry ranges decline without publishing.
+A product involving a subnormal operand is omitted only when its conservative
+exponent is at least27 below the normal maximum. Its aligned magnitude is
+then strictly below1 in the original integer algorithm as well. Tiny normal
+products flushed by scalar multiplication likewise cannot reach an integer
+alignment quantum. This keeps the existing carry floor and modulo reduction;
+the wider[-101,64] group window is not implemented.
+
+The [local hybrid evidence](../benchmarks/correctness/hybrid-state-gdn-local-20260921.json)
+records196052 admitted dots,147972 declined dots and298452 exact ordered carry
+boundaries, including simulated FTZ. Every normal exponent pair and every
+BF16 encoding is covered, with signs, cancellation and late rejection. Two
+deliberately weakened guards produce detectable numerical differences.
+The actual kernel bodies pass nine guarded host cases:20 fast CTAs,8 retry
+successes and8 retained replays. Both false completion and partial state
+publication are detected by independent state/ownership checks. ASan, UBSan
+and float-conversion overflow checks pass.
+
+The original q7169 layer0 audit certifies both BF16 consumers for4533406 of
+4539662 W/H dots outside the narrow operand range. Combining those certificates
+with conservative K16 product intervals predicts3463 of4096 segment CTAs
+admitted, including2953 of3584 full-segment CTAs. W/H certificates alone predict
+3070. Widening the product window adds only35 CTAs and is not part of this
+candidate. Native receipts may differ from conservative interval predictions.
+
+A separate original-input sample computes3670528 W/H dots with the independent
+wide integer implementation; every captured GB10 BF16 residual matches. It
+also verifies3103453 narrow carry results and both endpoints of566274 certified
+residuals. Among462848 sampled K/V dots,427924 checked carry results match the
+wide integer result, including91652 excluded by the old operand rule. The
+remaining34924 decline without changing output. This reconstructs the actual
+scaled residual from the original dot rather than substituting the captured
+rounded Vnew for its unrounded value.
+
+`hybrid_state_gdn_selftest.cpp` prepares three complete-chain controls:
+retained, fast/replay, and fast/retry/replay. It preserves the original capture,
+all output/intermediate comparisons, both U owners and independent CPU samples.
+Its336 generated configurations and rotated q7169/q8192 component comparisons
+are not yet compiled or executed on gfx1151. Native resources and timing will
+decide whether the extra retry work is worthwhile. None of these local results
+qualifies model inference, changes retained performance, or permits release.

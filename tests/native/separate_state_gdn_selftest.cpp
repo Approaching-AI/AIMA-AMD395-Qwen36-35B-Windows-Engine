@@ -8,12 +8,20 @@
 #include "../../native/providers/moe_accumulator/sm121_subgroup.h"
 #include <array>
 #include <string>
+#ifdef QRT_GDN_HYBRID_RETRY
+#include "../../native/providers/gdn/hybrid_state_replay.h"
+constexpr unsigned state_variants=3u;
+constexpr const char* state_component="hybrid_state_gdn_component";
+#else
+constexpr unsigned state_variants=2u;
+constexpr const char* state_component="separate_state_gdn_component";
+#endif
 namespace lifetime=qrt_fla_lifetime;
 __global__ void capture_scores(const uint16_t*,const uint16_t*,const float*,uint16_t*,unsigned,const unsigned char*);
 void paired_launch(unsigned variant,unsigned count,Device& q,Device& k,Device& v,Device& beta,
  Device& inverse,Device& g,Device& scores,Device& u,Device& w,Device& output,Device& h,Device& vn,
  Device& state,Device& table,Device& receipts,bool alias){
- require(variant<=1u,"invalid separate-state GDN variant");
+ require(variant<state_variants,"invalid separate-state GDN variant");
  const auto* exp=reinterpret_cast<unsigned char*>(table.data<uint32_t>());
  auto* actual_u=alias?v.data<uint16_t>():u.data<uint16_t>();
  for(unsigned offset=0u;offset<count;offset+=1024u){
@@ -30,6 +38,9 @@ void paired_launch(unsigned variant,unsigned count,Device& q,Device& k,Device& v
   if(variant){
    auto* flags=receipts.data<uint32_t>()+size_t(offset/1024u)*512u;
    hipLaunchKernelGGL((qrt_fla_separate_state::fast_kernel<8u>),dim3(16u,32u),dim3(256u),0u,nullptr,QRT_SEPARATE_STATE_ARGS,flags);check(hipGetLastError());
+#ifdef QRT_GDN_HYBRID_RETRY
+   if(variant==2u){hipLaunchKernelGGL((qrt_fla_hybrid_state::retry_kernel<8u>),dim3(16u,32u),dim3(256u),0u,nullptr,QRT_SEPARATE_STATE_ARGS,flags);check(hipGetLastError());}
+#endif
    hipLaunchKernelGGL((qrt_fla_separate_state::replay_kernel<8u>),dim3(16u,32u),dim3(256u),0u,nullptr,QRT_SEPARATE_STATE_ARGS,flags);
   }
   else{hipLaunchKernelGGL((lifetime::state_kernel<8u>),dim3(16u,32u),dim3(256u),0u,nullptr,QRT_SEPARATE_STATE_ARGS);}
@@ -128,12 +139,12 @@ void paired_run(unsigned count,unsigned mode,unsigned measured,Device& table,con
   }
  }
  Device du((large+2u*guard)*2u),dw((large+2u*guard)*2u),output((large+2u*guard)*4u),state((state_cells+2u*guard)*4u),h((checkpoints+2u*guard)*2u),vn((large+2u*guard)*2u);
- std::vector<float> expected,final;std::vector<uint16_t> old_w,old_u,old_h,old_vn;size_t cpu_dots=0u;double samples[2][2][3]{};
+ std::vector<float> expected,final;std::vector<uint16_t> old_w,old_u,old_h,old_vn;size_t cpu_dots=0u;double samples[2][state_variants][3]{};
  const size_t receipt_cells=size_t((count+1023u)/1024u)*512u;Device receipts((receipt_cells+2u*guard)*4u);
- size_t admitted_ctas[2]{};
+ size_t admitted_ctas[2][state_variants]{},retried_ctas[2][state_variants]{};
  const unsigned attempts=measured+1u;
- for(unsigned attempt=0u;attempt<attempts;++attempt)for(unsigned position=0u;position<4u;++position){
-  const unsigned choice=(attempt+position)%4u,variant=choice%2u;const bool alias=choice>=2u;
+ for(unsigned attempt=0u;attempt<attempts;++attempt)for(unsigned position=0u;position<2u*state_variants;++position){
+  const unsigned choice=(attempt+position)%(2u*state_variants),variant=choice%state_variants;const bool alias=choice>=state_variants;
   dv.reset();dv.upload(v);du.reset();dw.reset();output.reset();state.reset();state.upload(seed);h.reset();vn.reset();ds.reset();receipts.reset();finish();
   const auto begin=std::chrono::steady_clock::now();paired_launch(variant,count,dq,dk,dv,db,dinv,dg,ds,du,dw,output,h,vn,state,table,receipts,alias);finish();
   if(attempt){
@@ -142,8 +153,9 @@ void paired_run(unsigned count,unsigned mode,unsigned measured,Device& table,con
   }
   const auto flags=read<uint32_t>(receipts,receipt_cells);guards(flags);
   if(variant){
-   size_t admitted=0u;for(size_t i=0u;i<receipt_cells;++i){require(flags[guard+i]<=1u,"invalid state completion receipt");admitted+=flags[guard+i];}
-   if(!attempt)admitted_ctas[unsigned(alias)]=admitted;else require(admitted_ctas[unsigned(alias)]==admitted,"state admission changed between attempts");
+   size_t admitted=0u,retried=0u;for(size_t i=0u;i<receipt_cells;++i){require(flags[guard+i]<=variant,"invalid state completion receipt");admitted+=flags[guard+i]==1u;retried+=flags[guard+i]==2u;}
+   if(!attempt){admitted_ctas[unsigned(alias)][variant]=admitted;retried_ctas[unsigned(alias)][variant]=retried;}
+   else require(admitted_ctas[unsigned(alias)][variant]==admitted && retried_ctas[unsigned(alias)][variant]==retried,"state admission changed between attempts");
   }else for(size_t i=0u;i<receipt_cells;++i)require(flags[guard+i]==0xa5a5a5a5u,"control changed candidate receipt");
   const auto actual_scores=read<uint16_t>(ds,score_cells);guards(actual_scores);
   require(std::equal(scores.begin(),scores.end(),actual_scores.begin()+guard),"complete original score differs");
@@ -175,9 +187,9 @@ void paired_run(unsigned count,unsigned mode,unsigned measured,Device& table,con
   unchanged(dq,q);unchanged(dk,k);unchanged(db,beta);unchanged(dinv,inverse);unchanged(dg,g);
   if(!alias)unchanged(dv,v);else{const auto unused=read<uint16_t>(du,large);const auto* bytes=reinterpret_cast<const unsigned char*>(unused.data());require(std::all_of(bytes,bytes+unused.size()*2u,[](unsigned char x){return x==0xa5u;}),"inactive U buffer changed");}
  }
- for(unsigned alias=0u;alias<2u;++alias)for(unsigned variant=0u;variant<2u;++variant){
+ for(unsigned alias=0u;alias<2u;++alias)for(unsigned variant=0u;variant<state_variants;++variant){
   double sorted[3]={samples[alias][variant][0],samples[alias][variant][1],samples[alias][variant][2]};std::sort(sorted,sorted+3u);
-  std::printf("{\"kind\":\"separate_state_gdn_component\",\"tokens\":%u,\"mode\":%u,\"variant\":%u,\"separate_fast_and_replay\":%s,\"segment_tokens\":1024,\"segments\":%u,\"u_aliases_v\":%s,\"score_cells\":%zu,\"output_cells\":%zu,\"state_cells\":%zu,\"checkpoint_cells\":%zu,\"wu_and_residual_cells\":%zu,\"independent_cpu_dots\":%zu,\"state_ctas\":%zu,\"fast_state_ctas\":%zu,\"replayed_state_ctas\":%zu,\"warmups\":1,\"measured_attempts\":%u,\"complete_score_wu_state_output_ms\":%.6f,\"samples_ms\":[%.6f,%.6f,%.6f],\"captured_inputs\":%s,\"gb10_output_cells\":%zu,\"repeated_capture_rows\":%u,\"intermediate_host_synchronization\":false,\"all_attempts_verified\":true,\"raw_bit_mismatches\":0,\"receipt_guards_pass\":true,\"intermediate_and_alias_ownership_checked\":true,\"redzones_pass\":true,\"immutable_nonaliased_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",count,mode,variant,variant?"true":"false",(count+1023u)/1024u,alias?"true":"false",score_cells,large,state_cells,checkpoints,large*3u,cpu_dots,receipt_cells,variant?admitted_ctas[alias]:0u,variant?receipt_cells-admitted_ctas[alias]:0u,measured,sorted[1],samples[alias][variant][0],samples[alias][variant][1],samples[alias][variant][2],capture_root?"true":"false",capture_root?size_t(count==8192u?7168u:7169u)*4096u:0u,capture_root&&count==8192u?1024u:0u);
+  std::printf("{\"kind\":\"%s\",\"tokens\":%u,\"mode\":%u,\"variant\":%u,\"separate_fast_and_replay\":%s,\"hybrid_retry_enabled\":%s,\"segment_tokens\":1024,\"segments\":%u,\"u_aliases_v\":%s,\"score_cells\":%zu,\"output_cells\":%zu,\"state_cells\":%zu,\"checkpoint_cells\":%zu,\"wu_and_residual_cells\":%zu,\"independent_cpu_dots\":%zu,\"state_ctas\":%zu,\"fast_state_ctas\":%zu,\"retried_state_ctas\":%zu,\"replayed_state_ctas\":%zu,\"warmups\":1,\"measured_attempts\":%u,\"complete_score_wu_state_output_ms\":%.6f,\"samples_ms\":[%.6f,%.6f,%.6f],\"captured_inputs\":%s,\"gb10_output_cells\":%zu,\"repeated_capture_rows\":%u,\"intermediate_host_synchronization\":false,\"all_attempts_verified\":true,\"raw_bit_mismatches\":0,\"receipt_guards_pass\":true,\"intermediate_and_alias_ownership_checked\":true,\"redzones_pass\":true,\"immutable_nonaliased_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",state_component,count,mode,variant,variant?"true":"false",variant==2u?"true":"false",(count+1023u)/1024u,alias?"true":"false",score_cells,large,state_cells,checkpoints,large*3u,cpu_dots,receipt_cells,variant?admitted_ctas[alias][variant]:0u,variant?retried_ctas[alias][variant]:0u,variant?receipt_cells-admitted_ctas[alias][variant]-retried_ctas[alias][variant]:0u,measured,sorted[1],samples[alias][variant][0],samples[alias][variant][1],samples[alias][variant][2],capture_root?"true":"false",capture_root?size_t(count==8192u?7168u:7169u)*4096u:0u,capture_root&&count==8192u?1024u:0u);
  }
  std::fflush(stdout);
 }

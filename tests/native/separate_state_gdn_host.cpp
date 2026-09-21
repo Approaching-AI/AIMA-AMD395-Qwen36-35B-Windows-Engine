@@ -10,6 +10,10 @@
 #include <thread>
 #include <vector>
 #include "native/providers/moe_accumulator/sm121_narrow_f32_carry.h"
+#ifdef QRT_TEST_HYBRID_STATE
+#include "native/providers/moe_accumulator/sm121_product_f32_carry.h"
+#include "native/providers/gdn/absolute_dot_bound.h"
+#endif
 
 // The host transport uses64 threads. Native fixtures use the production256.
 constexpr unsigned host_threads=64u;
@@ -47,6 +51,9 @@ float dot(const uint32_t* left,const uint32_t (&right)[Width/2u][Columns],unsign
 #define __shared__ static
 using std::min;
 #include "separate_state_under_test.h"
+#ifdef QRT_TEST_HYBRID_STATE
+#include "hybrid_state_under_test.h"
+#endif
 
 struct Pool {
     std::mutex lock;std::condition_variable changed;unsigned epoch=0,finished=0;bool stop=false;
@@ -65,6 +72,9 @@ namespace candidate=qrt_fla_separate_state;
 constexpr uint16_t sentinel=0x5a5au;
 constexpr unsigned flag_guard=0x5a1234a5u;
 unsigned total_fast=0,total_replay=0,late_partial_replays=0;
+#ifdef QRT_TEST_HYBRID_STATE
+unsigned total_retry=0,total_retained=0,late_retry_rejections=0;
+#endif
 bool owned(unsigned head,unsigned column){return (head==0u||head==31u)&&(column<8u||column>=120u);}
 float reference_exp(float x){return qrt_fla_blackwell_scalar::exponential(x,nullptr);}
 void fill(std::vector<uint16_t>& a){for(size_t i=0;i<a.size();++i)a[i]=rounded(float(int(i*7u%17u)-8)/64.0f);}
@@ -82,6 +92,10 @@ void check(unsigned count,unsigned family){
     if(family==3u){assert(count>64u);k[(size_t(64u)*16u+15u)*128u]=uint16_t(94u<<7u|3u);}
     if(family==4u)for(unsigned row=0;row<count;++row)g[row*32u+31u]=-float(row%64u)*2.0f;
     if(family==5u){w[0]=1u;state[(31u*128u+120u)*128u]=from(uint16_t(191u<<7u|3u));}
+#ifdef QRT_TEST_HYBRID_STATE
+    if(family==6u){assert(count>64u);for(unsigned i=0;i<128u;++i){w[size_t(64u)*4096u+i]=uint16_t(94u<<7u|3u);u[size_t(64u)*4096u+i]=rounded(0.5f);}}
+    if(family==7u){std::fill(w.begin(),w.end(),0u);std::fill(u.begin(),u.end(),uint16_t(80u<<7u));k[0]=uint16_t(200u<<7u|3u);}
+#endif
     const auto original_k=k,original_u=u,original_w=w;
     const auto original_g=g,original_state=state;
     auto expected=state;
@@ -115,6 +129,24 @@ void check(unsigned count,unsigned family){
     }
     if(!family)assert(local_fast==4u&&!local_replay);
     if(family)assert(local_replay>0u);
+#ifdef QRT_TEST_HYBRID_STATE
+    const auto prior_flags=flags;
+    for(unsigned head:{31u,0u})for(unsigned tile:{0u,15u})
+        pool.run({tile,head,0u},[&]{qrt_fla_hybrid_state::retry_kernel<8u>(k.data(),u.data(),w.data(),g.data(),h.data()+1u,vn.data()+1u,state.data(),count,nullptr,flags.data()+1u);});
+    unsigned local_retry=0;
+    for(unsigned head=0;head<32u;++head)for(unsigned tile=0;tile<16u;++tile){
+        const unsigned at=1u+head*16u+tile,flag=flags[at];
+        if(!owned(head,tile*8u)){assert(flag==flag_guard);continue;}
+        if(prior_flags[at])assert(flag==prior_flags[at]);
+        else{assert(flag==0u||flag==2u);if(flag){++total_retry;++local_retry;}else{++total_retained;if(count>64u)++late_retry_rejections;}}
+        for(unsigned column=tile*8u;column<(tile+1u)*8u;++column){
+            const size_t base=(head*128u+column)*128u;
+            const auto& wanted=flag?expected:original_state;
+            assert(!std::memcmp(state.data()+base,wanted.data()+base,128u*sizeof(float)));
+        }
+    }
+    if(family==6u||family==7u)assert(local_retry>0u);
+#endif
     for(unsigned head:{31u,0u})for(unsigned tile:{15u,0u})
         pool.run({tile,head,0u},[&]{candidate::replay_kernel<8u>(k.data(),u.data(),w.data(),g.data(),h.data()+1u,vn.data()+1u,state.data(),count,nullptr,flags.data()+1u);});
     assert(exact(h,want_h)&&exact(vn,want_vn)&&exact(state,expected));
@@ -125,5 +157,11 @@ int main(){
     check(1u,0u);check(65u,0u);
     for(unsigned family=1u;family<=5u;++family)check(129u,family);
     assert(total_fast&&total_replay&&late_partial_replays);
+#ifdef QRT_TEST_HYBRID_STATE
+    check(65u,6u);check(129u,7u);
+    assert(total_retry&&total_retained&&late_retry_rejections);
+    std::printf("hybrid_state_host=pass fast_ctas=%u retry_ctas=%u retained_ctas=%u late_retry_rejections=%u gpu_execution=0 inference_acceptance=0\n",total_fast,total_retry,total_retained,late_retry_rejections);
+#else
     std::printf("separate_state_host=pass fast_ctas=%u replay_ctas=%u partial_replays=%u gpu_execution=0 inference_acceptance=0\n",total_fast,total_replay,late_partial_replays);
+#endif
 }

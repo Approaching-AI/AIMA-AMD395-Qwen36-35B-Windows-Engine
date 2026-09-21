@@ -1,0 +1,780 @@
+{
+  "kind": "isolated_hybrid_gdn_local_qualification",
+  "utc": "2026-09-21T10:21:31.404628+00:00",
+  "base_commit": "014cb2c7e96c279a55ca0278d113304d6fecc866",
+  "source_definition": "The exact uncommitted candidate blobs are identified below; this local proof accompanies their next commit. No native artifact is bound.",
+  "candidate_sources": [
+    {
+      "file": "native/providers/gdn/hybrid_state_replay.h",
+      "sha256": "030b5e494ac79d61ee3d375268647168e77a2cead5b493fd4d8b7ffb47e4da4e",
+      "git_blob_oid": "ef7794300b7712cb9b8a0f4a940429f90581842c"
+    },
+    {
+      "file": "native/providers/moe_accumulator/sm121_product_f32_carry.h",
+      "sha256": "89a3da0c6689db6d0f8b9c2b47f2cd37743f6bfddf7ba7aff345bb9f0c18256f",
+      "git_blob_oid": "c5f9b61f05b192a4c6468f561e1cb0e80e46ee35"
+    },
+    {
+      "file": "tests/native/separate_state_gdn_host.cpp",
+      "sha256": "c831b15295b428fdcc691cdc9526e2b44671c33e5d8d334f6594887551e6bd3f",
+      "git_blob_oid": "a223cb5d15f92748ab71544d6058707b16ba7897"
+    },
+    {
+      "file": "tests/native/product_f32_carry_host.cpp",
+      "sha256": "908f2dafa9d52863dd3dd629b657e083b70bf9047713d6ed688e4f4e0e909ed7",
+      "git_blob_oid": "cbed06a5e85e5d639778eb9fb6a96ad300c2de49"
+    },
+    {
+      "file": "tests/native/separate_state_gdn_selftest.cpp",
+      "sha256": "871fc4755fc79633e87be24d2ca662cc6fd73e1a69df330283a808148ec21d79",
+      "git_blob_oid": "a7e10d63ed2795dc2bea42835a27a1f0f622afeb"
+    },
+    {
+      "file": "tests/native/hybrid_state_gdn_selftest.cpp",
+      "sha256": "a032f055dc1784fd3be863b88779837513f017aa1ed2b490a1de0c807aa203b4",
+      "git_blob_oid": "b5b265584bc7867c3365f59a5cbd3d44bfa293af"
+    },
+    {
+      "file": "tests/test_fla_hybrid_state.py",
+      "sha256": "9fa11c781a181f8985b22d4808ce65b7972644d362558cfb37fffac8a9399346",
+      "git_blob_oid": "64badbc9c46e718b8dc555182bc9fded4ae08d3e"
+    },
+    {
+      "file": "tests/test_product_f32_carry.py",
+      "sha256": "cd68321052bc8df8b818ce5ea3066cc21c88071bc0646655e0590f56dcb08205",
+      "git_blob_oid": "2beeac3a4e0dfed85570cd678aaba8c32cec252e"
+    }
+  ],
+  "local_records": [
+    {
+      "file": "product-f32-carry-local-r1.json",
+      "sha256": "b9632643e01d01604a4ab06c63d57053b196d6cbdedf90ebf050957353173bfd",
+      "record": {
+        "utc": "2026-09-21T10:09:12.606314+00:00",
+        "host": "Jiawei-MacminideMac-mini.local",
+        "command": [
+          "python3.12",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-p",
+          "test_product_f32_carry.py",
+          "-v"
+        ],
+        "returncode": 0,
+        "stdout": "{\"component\":\"checked_k16_product_f32_carry\",\"accepted_dots\":196052,\"declined_dots\":147972,\"ordered_integer_boundaries\":298452,\"simulated_ftz_groups\":298452,\"raw_mismatches\":0,\"native_executed\":false}\nnegative_control_detected=subnormal expected=33000000 actual=00000000\nnegative_control_detected=floor expected=00800000 actual=00000000\n",
+        "stderr": "test_ordered_boundaries_rejection_and_guard_controls (test_product_f32_carry.ProductF32CarryTests.test_ordered_boundaries_rejection_and_guard_controls) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.837s\n\nOK\n",
+        "wall_seconds": 2.871630917303264,
+        "source_sha256": {
+          "native/providers/moe_accumulator/sm121_product_f32_carry.h": "89a3da0c6689db6d0f8b9c2b47f2cd37743f6bfddf7ba7aff345bb9f0c18256f",
+          "tests/native/product_f32_carry_host.cpp": "908f2dafa9d52863dd3dd629b657e083b70bf9047713d6ed688e4f4e0e909ed7",
+          "tests/test_product_f32_carry.py": "cd68321052bc8df8b818ce5ea3066cc21c88071bc0646655e0590f56dcb08205"
+        },
+        "native_executed": false,
+        "inference_acceptance": false
+      }
+    },
+    {
+      "file": "hybrid-state-gdn-local-r2.json",
+      "sha256": "966835115802efc75e3913cfb4c67433d8ae59f2714d35a3a7f92acf83bc17f9",
+      "record": {
+        "utc": "2026-09-21T10:16:55.008284+00:00",
+        "host": "Jiawei-MacminideMac-mini.local",
+        "command": [
+          "python3.12",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-p",
+          "test_fla_*state.py",
+          "-v"
+        ],
+        "returncode": 0,
+        "stdout": "hybrid_state_host=pass fast_ctas=20 retry_ctas=8 retained_ctas=8 late_retry_rejections=8 gpu_execution=0 inference_acceptance=0\nnegative_control_detected=false_completion exit=-6\nnegative_control_detected=partial_state_publish exit=-6\n",
+        "stderr": "test_actual_three_stage_ownership (test_fla_hybrid_state.HybridStateGdnTests.test_actual_three_stage_ownership) ... ok\ntest_actual_fast_abort_and_replay_preserve_tensor_owners (test_fla_separate_state.SeparateStateGdnTests.test_actual_fast_abort_and_replay_preserve_tensor_owners) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 5.787s\n\nOK\n",
+        "wall_seconds": 5.82103087566793,
+        "source_sha256": {
+          "native/providers/gdn/hybrid_state_replay.h": "030b5e494ac79d61ee3d375268647168e77a2cead5b493fd4d8b7ffb47e4da4e",
+          "native/providers/moe_accumulator/sm121_product_f32_carry.h": "89a3da0c6689db6d0f8b9c2b47f2cd37743f6bfddf7ba7aff345bb9f0c18256f",
+          "tests/native/separate_state_gdn_host.cpp": "c831b15295b428fdcc691cdc9526e2b44671c33e5d8d334f6594887551e6bd3f",
+          "tests/test_fla_hybrid_state.py": "9fa11c781a181f8985b22d4808ce65b7972644d362558cfb37fffac8a9399346",
+          "tests/native/separate_state_gdn_selftest.cpp": "871fc4755fc79633e87be24d2ca662cc6fd73e1a69df330283a808148ec21d79",
+          "tests/native/hybrid_state_gdn_selftest.cpp": "a032f055dc1784fd3be863b88779837513f017aa1ed2b490a1de0c807aa203b4"
+        },
+        "native_executed": false,
+        "inference_acceptance": false
+      }
+    },
+    {
+      "file": "gdn-hybrid-wh-admission-analysis-r1.json",
+      "sha256": "334c27e31db72e761170d69e26dc37afc955624fe9ef2c6646d7c756b5ea5b63",
+      "record": {
+        "utc": "2026-09-21T09:45:56.634926+00:00",
+        "host": "Jiawei-MacminideMac-mini.local",
+        "source_file": "audit_gdn_hybrid_wh_admission_r1.cpp",
+        "source_sha256": "1049275d2cdda505e6d8e35ba832d1930d896d559f24fe60669b8e45dfb37765",
+        "original_manifest_sha256": "57321dfcb495c5555fbde96cce5fe31038590f3be22c9f72b72bc80d1d5d791a",
+        "original_residual_analysis_sha256": "5c64b30cff3e8e8749a2d5b3253095f7d808cf040e885d0fb6ee1ed016f0429c",
+        "additional_u_copy_sha256": "8f4981165e4e02974572dd7ea2c4e5509f9e36d4c9e355ea0b0bc898fa862547",
+        "inputs": {
+          "full-w-bf16.bin": "5cc5baa0e2f85758c28c06f03d8b87d5cff82b361b3382d7b531e2927e545545",
+          "full-u-bf16.bin": "1b4d91596e6554314647111d1dfa156517be6afae313cd69cf51234dfd955cfb",
+          "full-v-new-bf16.bin": "b6fd8d6801622a4b7dc00490a6abee2e584df5e21b907f66eb6fa986a3d2229f",
+          "full-k-normalized-bf16.bin": "7778fce8bbd9ce6d046eec1e2639a0d89e53bb9e3b443b9ab1fe7e8d5656ea24",
+          "full-chunk-state-bf16.bin": "140741e123824032adb256af41c542fe74f8782ca1980b2b8eaba61ca61f6735",
+          "full-g-cumsum-f32.bin": "b618db8ede809426f3c95741cce49b03d8c4cbec7888f4af0a397d959dc557b0"
+        },
+        "table_sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+        "compile": {
+          "command": [
+            "c++",
+            "-std=c++17",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-ffp-contract=off",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "-I",
+            "<evidence-home-1>/projects/AIMA-public-r1191-candidate",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/audit_gdn_hybrid_wh_admission_r1.cpp",
+            "-o",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/audit-gdn-hybrid-wh-admission-r1"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "header_sha256": {
+          "tools/audit_gdn_replay_domain.cpp": "09fcef2ae1612b84a203e9371857b93f75d75adefced2b385a43c361cf5bcabc",
+          "native/providers/gdn/absolute_dot_bound.h": "1a13b810c8d667f154859433ac78c13f442b77152940a9bc1a3e81668ed8a90e",
+          "native/providers/gdn/consumer_interval.h": "f21ecbf1836b9a1c5b72e2408d303c89fe46d229d888271f70ec5a47170cacfa",
+          "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+          "native/providers/moe_accumulator/sm121_projection_interval.h": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+          "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+          "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a"
+        },
+        "native_executed": false,
+        "runtime_changed": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "command": [
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/audit-gdn-hybrid-wh-admission-r1",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/gdn-separate-replay-domain-audit-r1"
+        ],
+        "executable_sha256": "455844a5c9bd94dbc4d61b0daac42d93a0b0c502844cb5c21373d2cc15a7aa8c",
+        "returncode": 0,
+        "stdout": "{\"kind\":\"original_gb10_selective_wh_consumer_admission_audit\",\"tokens\":7169,\"residual_cells\":29364224,\"original_narrow_wh_cells\":24824562,\"consumer_certificate_calls\":4539662,\"certified_extra_wh_cells\":4533406,\"unresolved_residual_cells\":26269,\"original_integer_dot_samples\":28761,\"nonnarrow_sample_dots\":4467,\"certified_sample_dots\":4460,\"chunk_ctas\":{\"total\":57856,\"original_not_certified\":17561,\"hybrid_wh_not_certified\":2653,\"hybrid_kv_not_certified\":16202,\"hybrid_not_certified\":16234},\"full1024_segments\":{\"total\":3584,\"original_admitted\":2455,\"hybrid_admitted\":2560},\"all_segments\":{\"total\":4096,\"original_admitted\":2901,\"hybrid_wh_not_certified\":482,\"hybrid_kv_not_certified\":1018,\"hybrid_admitted\":3070},\"not_certified_by_segment\":[146,146,146,147,147,147,145,2],\"bf16_reference_mismatches\":0,\"sampled_bound_violations\":0,\"actual_unrounded_residual_observed\":false,\"fp32_state_consumer_omitted\":false,\"native_receipts_observed\":false,\"native_speed_observed\":false,\"inference_acceptance\":false}\n",
+        "stderr": "",
+        "wall_seconds": 1.9818889163434505,
+        "analysis": {
+          "kind": "original_gb10_selective_wh_consumer_admission_audit",
+          "tokens": 7169,
+          "residual_cells": 29364224,
+          "original_narrow_wh_cells": 24824562,
+          "consumer_certificate_calls": 4539662,
+          "certified_extra_wh_cells": 4533406,
+          "unresolved_residual_cells": 26269,
+          "original_integer_dot_samples": 28761,
+          "nonnarrow_sample_dots": 4467,
+          "certified_sample_dots": 4460,
+          "chunk_ctas": {
+            "total": 57856,
+            "original_not_certified": 17561,
+            "hybrid_wh_not_certified": 2653,
+            "hybrid_kv_not_certified": 16202,
+            "hybrid_not_certified": 16234
+          },
+          "full1024_segments": {
+            "total": 3584,
+            "original_admitted": 2455,
+            "hybrid_admitted": 2560
+          },
+          "all_segments": {
+            "total": 4096,
+            "original_admitted": 2901,
+            "hybrid_wh_not_certified": 482,
+            "hybrid_kv_not_certified": 1018,
+            "hybrid_admitted": 3070
+          },
+          "not_certified_by_segment": [
+            146,
+            146,
+            146,
+            147,
+            147,
+            147,
+            145,
+            2
+          ],
+          "bf16_reference_mismatches": 0,
+          "sampled_bound_violations": 0,
+          "actual_unrounded_residual_observed": false,
+          "fp32_state_consumer_omitted": false,
+          "native_receipts_observed": false,
+          "native_speed_observed": false,
+          "inference_acceptance": false
+        }
+      }
+    },
+    {
+      "file": "gdn-hybrid-groups-analysis-r1.json",
+      "sha256": "92ff973cd9ca1812f687ba8dcbd23c725ba2ebceaf93edce03db65b96d51c30e",
+      "record": {
+        "utc": "2026-09-21T09:54:55.945306+00:00",
+        "host": "Jiawei-MacminideMac-mini.local",
+        "source_file": "audit_gdn_hybrid_groups_r1.cpp",
+        "source_sha256": "48dd914a0932cdc021033cbbf117959d8b6875e79ec3b30fa4b32a5d115b9112",
+        "original_manifest_sha256": "57321dfcb495c5555fbde96cce5fe31038590f3be22c9f72b72bc80d1d5d791a",
+        "original_residual_analysis_sha256": "5c64b30cff3e8e8749a2d5b3253095f7d808cf040e885d0fb6ee1ed016f0429c",
+        "additional_u_copy_sha256": "8f4981165e4e02974572dd7ea2c4e5509f9e36d4c9e355ea0b0bc898fa862547",
+        "inputs": {
+          "full-w-bf16.bin": "5cc5baa0e2f85758c28c06f03d8b87d5cff82b361b3382d7b531e2927e545545",
+          "full-u-bf16.bin": "1b4d91596e6554314647111d1dfa156517be6afae313cd69cf51234dfd955cfb",
+          "full-v-new-bf16.bin": "b6fd8d6801622a4b7dc00490a6abee2e584df5e21b907f66eb6fa986a3d2229f",
+          "full-k-normalized-bf16.bin": "7778fce8bbd9ce6d046eec1e2639a0d89e53bb9e3b443b9ab1fe7e8d5656ea24",
+          "full-chunk-state-bf16.bin": "140741e123824032adb256af41c542fe74f8782ca1980b2b8eaba61ca61f6735",
+          "full-g-cumsum-f32.bin": "b618db8ede809426f3c95741cce49b03d8c4cbec7888f4af0a397d959dc557b0"
+        },
+        "table_sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+        "compile": {
+          "command": [
+            "c++",
+            "-std=c++17",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-ffp-contract=off",
+            "-pthread",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "-I",
+            "<evidence-home-1>/projects/AIMA-public-r1191-candidate",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/audit_gdn_hybrid_groups_r1.cpp",
+            "-o",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/audit-gdn-hybrid-groups-r1"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "header_sha256": {
+          "tools/audit_gdn_replay_domain.cpp": "09fcef2ae1612b84a203e9371857b93f75d75adefced2b385a43c361cf5bcabc",
+          "native/providers/gdn/absolute_dot_bound.h": "1a13b810c8d667f154859433ac78c13f442b77152940a9bc1a3e81668ed8a90e",
+          "native/providers/gdn/consumer_interval.h": "f21ecbf1836b9a1c5b72e2408d303c89fe46d229d888271f70ec5a47170cacfa",
+          "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+          "native/providers/moe_accumulator/sm121_projection_interval.h": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+          "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+          "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a"
+        },
+        "prior_hybrid_audit_sha256": "334c27e31db72e761170d69e26dc37afc955624fe9ef2c6646d7c756b5ea5b63",
+        "native_executed": false,
+        "runtime_changed": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "command": [
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/audit-gdn-hybrid-groups-r1",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/gdn-separate-replay-domain-audit-r1"
+        ],
+        "executable_sha256": "dc66827ad815e2957f7f529a1ebc5a19174bd5475c52f54be694d168433e5044",
+        "returncode": 0,
+        "stdout": "{\"kind\":\"original_gb10_hybrid_wh_and_kv_group_domain_observation\",\"tokens\":7169,\"workers\":4,\"certified_nonnarrow_wh_cells\":4533406,\"original_integer_dot_samples\":28761,\"certified_sample_dots\":4460,\"wh_not_certified_chunk_ctas\":2653,\"wh_not_certified_segment_ctas\":482,\"domains\":[{\"group_product_exponents\":[-64,64],\"chunk_kv_not_certified\":6650,\"chunk_combined_not_certified\":7805,\"segment_kv_not_certified\":513,\"all4096_segment_ctas_admitted\":3463,\"full3584_segment_ctas_admitted\":2953,\"not_certified_by_segment\":[80,97,80,97,82,99,96,2]},{\"group_product_exponents\":[-101,64],\"chunk_kv_not_certified\":2595,\"chunk_combined_not_certified\":4848,\"segment_kv_not_certified\":256,\"all4096_segment_ctas_admitted\":3498,\"full3584_segment_ctas_admitted\":2988,\"not_certified_by_segment\":[78,97,80,81,82,98,80,2]}],\"complete_integer_domain_qualification\":false,\"candidate_kernel_implemented\":false,\"native_receipts_observed\":false,\"native_speed_observed\":false,\"inference_acceptance\":false}\n",
+        "stderr": "",
+        "wall_seconds": 6.4624225832521915,
+        "analysis": {
+          "kind": "original_gb10_hybrid_wh_and_kv_group_domain_observation",
+          "tokens": 7169,
+          "workers": 4,
+          "certified_nonnarrow_wh_cells": 4533406,
+          "original_integer_dot_samples": 28761,
+          "certified_sample_dots": 4460,
+          "wh_not_certified_chunk_ctas": 2653,
+          "wh_not_certified_segment_ctas": 482,
+          "domains": [
+            {
+              "group_product_exponents": [
+                -64,
+                64
+              ],
+              "chunk_kv_not_certified": 6650,
+              "chunk_combined_not_certified": 7805,
+              "segment_kv_not_certified": 513,
+              "all4096_segment_ctas_admitted": 3463,
+              "full3584_segment_ctas_admitted": 2953,
+              "not_certified_by_segment": [
+                80,
+                97,
+                80,
+                97,
+                82,
+                99,
+                96,
+                2
+              ]
+            },
+            {
+              "group_product_exponents": [
+                -101,
+                64
+              ],
+              "chunk_kv_not_certified": 2595,
+              "chunk_combined_not_certified": 4848,
+              "segment_kv_not_certified": 256,
+              "all4096_segment_ctas_admitted": 3498,
+              "full3584_segment_ctas_admitted": 2988,
+              "not_certified_by_segment": [
+                78,
+                97,
+                80,
+                81,
+                82,
+                98,
+                80,
+                2
+              ]
+            }
+          ],
+          "complete_integer_domain_qualification": false,
+          "candidate_kernel_implemented": false,
+          "native_receipts_observed": false,
+          "native_speed_observed": false,
+          "inference_acceptance": false
+        }
+      }
+    },
+    {
+      "file": "gdn-hybrid-integer-samples-r1.json",
+      "sha256": "640742ada105b2a5eab34196043cba7bc4e23a5c25b13639ad611d2ce46a0e9d",
+      "record": {
+        "utc": "2026-09-21T10:18:38.257578+00:00",
+        "host": "Jiawei-MacminideMac-mini.local",
+        "source_file": "audit_gdn_hybrid_integer_samples_r1.cpp",
+        "source_sha256": "86e60dd2ea56357b0408ecc12b97fe53ef8986431088adcbdd1d187559ffebcb",
+        "original_manifest_sha256": "57321dfcb495c5555fbde96cce5fe31038590f3be22c9f72b72bc80d1d5d791a",
+        "original_residual_analysis_sha256": "5c64b30cff3e8e8749a2d5b3253095f7d808cf040e885d0fb6ee1ed016f0429c",
+        "additional_u_copy_sha256": "8f4981165e4e02974572dd7ea2c4e5509f9e36d4c9e355ea0b0bc898fa862547",
+        "inputs": {
+          "full-w-bf16.bin": "5cc5baa0e2f85758c28c06f03d8b87d5cff82b361b3382d7b531e2927e545545",
+          "full-u-bf16.bin": "1b4d91596e6554314647111d1dfa156517be6afae313cd69cf51234dfd955cfb",
+          "full-v-new-bf16.bin": "b6fd8d6801622a4b7dc00490a6abee2e584df5e21b907f66eb6fa986a3d2229f",
+          "full-k-normalized-bf16.bin": "7778fce8bbd9ce6d046eec1e2639a0d89e53bb9e3b443b9ab1fe7e8d5656ea24",
+          "full-chunk-state-bf16.bin": "140741e123824032adb256af41c542fe74f8782ca1980b2b8eaba61ca61f6735",
+          "full-g-cumsum-f32.bin": "b618db8ede809426f3c95741cce49b03d8c4cbec7888f4af0a397d959dc557b0"
+        },
+        "table_sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+        "compile": {
+          "command": [
+            "c++",
+            "-std=c++17",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-ffp-contract=off",
+            "-pthread",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "-I",
+            "<evidence-home-1>/projects/AIMA-public-r1191-candidate",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/audit_gdn_hybrid_integer_samples_r1.cpp",
+            "-o",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/audit-gdn-hybrid-integer-samples-r1"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "header_sha256": {
+          "tools/audit_gdn_replay_domain.cpp": "09fcef2ae1612b84a203e9371857b93f75d75adefced2b385a43c361cf5bcabc",
+          "native/providers/gdn/absolute_dot_bound.h": "1a13b810c8d667f154859433ac78c13f442b77152940a9bc1a3e81668ed8a90e",
+          "native/providers/gdn/consumer_interval.h": "f21ecbf1836b9a1c5b72e2408d303c89fe46d229d888271f70ec5a47170cacfa",
+          "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+          "native/providers/moe_accumulator/sm121_projection_interval.h": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+          "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+          "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+          "native/providers/moe_accumulator/sm121_product_f32_carry.h": "89a3da0c6689db6d0f8b9c2b47f2cd37743f6bfddf7ba7aff345bb9f0c18256f",
+          "native/providers/moe_accumulator/sm121_narrow_f32_carry.h": "85ab733dd564a8dbc5948f5700fcb6c66fbbc5239d0f55e405dbe7e4e210eca9",
+          "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+          "native/providers/moe_accumulator/sm121_f32_carry.h": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+          "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9"
+        },
+        "prior_hybrid_audit_sha256": "334c27e31db72e761170d69e26dc37afc955624fe9ef2c6646d7c756b5ea5b63",
+        "native_executed": false,
+        "runtime_changed": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "command": [
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/audit-gdn-hybrid-integer-samples-r1",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/gdn-separate-replay-domain-audit-r1"
+        ],
+        "executable_sha256": "c98fe1f9732904c989e81bf5a44828d0da3398f3ec46d356ed02f91330e2816c",
+        "returncode": 0,
+        "stdout": "{\"kind\":\"original_gb10_hybrid_integer_samples\",\"tokens\":7169,\"workers\":4,\"wh_original_integer_dots\":3670528,\"wh_gb10_residuals_exact\":3670528,\"wh_narrow_carry_dots_exact\":3103453,\"wh_both_consumers_certified_exact\":566274,\"wh_certificates_declined\":801,\"kv_original_integer_dots\":462848,\"kv_product_carry_dots_exact\":427924,\"kv_extra_over_operand_domain\":91652,\"kv_declined_without_publishing\":34924,\"raw_mismatches\":0,\"native_executed\":false,\"inference_acceptance\":false}\n",
+        "stderr": "",
+        "wall_seconds": 2.441875208169222,
+        "analysis": {
+          "kind": "original_gb10_hybrid_integer_samples",
+          "tokens": 7169,
+          "workers": 4,
+          "wh_original_integer_dots": 3670528,
+          "wh_gb10_residuals_exact": 3670528,
+          "wh_narrow_carry_dots_exact": 3103453,
+          "wh_both_consumers_certified_exact": 566274,
+          "wh_certificates_declined": 801,
+          "kv_original_integer_dots": 462848,
+          "kv_product_carry_dots_exact": 427924,
+          "kv_extra_over_operand_domain": 91652,
+          "kv_declined_without_publishing": 34924,
+          "raw_mismatches": 0,
+          "native_executed": false,
+          "inference_acceptance": false
+        }
+      }
+    }
+  ],
+  "audit_sources": [
+    {
+      "file": "audit_gdn_hybrid_wh_admission_r1.cpp",
+      "sha256": "1049275d2cdda505e6d8e35ba832d1930d896d559f24fe60669b8e45dfb37765",
+      "source_text": "#define main prior_residual_audit_main\n#include \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tools/audit_gdn_replay_domain.cpp\"\n#undef main\n#include \"native/providers/gdn/absolute_dot_bound.h\"\n#include \"native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h\"\n\nnamespace norm=qrt_fla_absolute_dot;\nnamespace consumer=qrt_fla_consumer_interval;\nnamespace original=qrt_q1_moe_hawkeye;\n\nfloat bf16(uint16_t x){return from(uint32_t(x)<<16u);}\nnorm::Norm summarize(const uint16_t* values,bool* narrow){\n    norm::Row row;*narrow=true;\n    for(unsigned i=0;i<128u;++i){norm::include(row,values[i]);*narrow=*narrow&&eligible(values[i],95u,159u);}\n    return norm::finish(row);\n}\nfloat original_dot(const uint16_t* a,const uint16_t* b){\n    original::Value carry{0u,-133,false};\n    for(unsigned base=0;base<128u;base+=16u){\n        original::Value terms[17];terms[0]=carry;\n        for(unsigned i=0;i<16u;++i)terms[i+1]=original::multiply_bf16(a[base+i],b[base+i],-133);\n        carry=original::group_sum<26,-133>(terms,17u);\n    }\n    return original::value_to_float(original::group_sum<26,-133>(&carry,1u));\n}\n\nint main(int argc,char** argv)try{\n    require(argc==2,\"requires verified original capture directory\");\n    require(std::fesetround(FE_TONEAREST)==0,\"rounding mode\");\n    const std::string root=argv[1];\n    const auto w=read<uint16_t>(root,\"full-w-bf16.bin\",size_t(tokens)*4096);\n    const auto u=read<uint16_t>(root,\"full-u-bf16.bin\",w.size());\n    const auto v=read<uint16_t>(root,\"full-v-new-bf16.bin\",w.size());\n    const auto k=read<uint16_t>(root,\"full-k-normalized-bf16.bin\",size_t(tokens)*2048);\n    const auto h=read<uint16_t>(root,\"full-chunk-state-bf16.bin\",size_t(chunks)*524288);\n    const auto g=read<float>(root,\"full-g-cumsum-f32.bin\",size_t(tokens)*32);\n    const auto table=read<unsigned char>(root,\"sm121-exp2-negative-f490940d.bin\",qrt_sm121_exp2::table_bytes);\n    require(qrt_sm121_exp2::valid_layout(table.data(),table.size()),\"original table layout\");\n    std::vector<norm::Norm> wn(w.size()/128),hn(h.size()/128);\n    std::vector<unsigned char> wok(wn.size()),hok(hn.size());\n    for(size_t i=0;i<wn.size();++i){bool ok;wn[i]=summarize(w.data()+i*128,&ok);wok[i]=ok;}\n    for(size_t i=0;i<hn.size();++i){bool ok;hn[i]=summarize(h.data()+i*128,&ok);hok[i]=ok;}\n    Flags bad_k{},old_wh{},old_kv{},old_all{},hybrid_wh{},hybrid_kv{},hybrid_unknown{},hybrid_all{};\n    for(size_t i=0;i<k.size();++i)if(!eligible(k[i],95u,159u)){\n        const size_t row=i/128,at=(row/16/64)*32+(row%16)*2;\n        bad_k[at]=bad_k[at+1]=0xffffu;\n    }\n    size_t narrow_wh=0,certificate_calls=0,certified_wh=0,unresolved_residual_cells=0;\n    size_t original_dots=0,certified_sample_dots=0,nonnarrow_sample_dots=0;\n    for(unsigned token=0;token<tokens;++token)for(unsigned head=0;head<32u;++head){\n        const unsigned chunk=token/64u,at=chunk*32u+head,last=std::min(tokens,(chunk+1u)*64u)-1u;\n        volatile float difference=g[size_t(last)*32u+head]-g[size_t(token)*32u+head];\n        volatile float argument=difference*1.4426950408889634074f;\n        const float decay=qrt_sm121_exp2::evaluate(table.data(),argument);\n        require(std::isfinite(decay)&&decay>=0.0f&&decay<=1.0f,\"decay domain\");\n        const size_t wi=size_t(token)*32u+head;\n        for(unsigned col=0;col<128u;++col){\n            const size_t index=wi*128u+col,hi=size_t(at)*128u+col;\n            const uint16_t mask=uint16_t(1u<<(col/8u));\n            const bool narrow=wok[wi]&&hok[hi];\n            const auto envelope=norm::enclose(wn[wi],hn[hi]);\n            uint16_t updated=0xa5a5u,scaled=0xa5a5u;\n            bool certified=false;\n            if(narrow)++narrow_wh;\n            else{\n                ++certificate_calls;\n                certified=consumer::residual(envelope,bf16(u[index]),decay,&updated,&scaled);\n                if(certified){require(updated==v[index],\"certified residual differs from original GB10\");++certified_wh;}\n                else require(updated==0xa5a5u&&scaled==0xa5a5u,\"declined certificate changed outputs\");\n            }\n            const unsigned residual=residual_class(v[index],decay,95u,159u);\n            const bool old_k_ok=!(bad_k[at]&mask)&&residual==0u;\n            const bool hybrid_k_ok=!(bad_k[at]&mask)&&(certified?eligible(scaled,95u,159u):residual==0u);\n            if(!narrow)old_wh[at]|=mask;\n            if(!old_k_ok)old_kv[at]|=mask;\n            if(!narrow||!old_k_ok)old_all[at]|=mask;\n            if(!narrow&&!certified)hybrid_wh[at]|=mask;\n            if(!hybrid_k_ok)hybrid_kv[at]|=mask;\n            if(!certified&&residual==2u){hybrid_unknown[at]|=mask;++unresolved_residual_cells;}\n            if((!narrow&&!certified)||!hybrid_k_ok)hybrid_all[at]|=mask;\n            // A deterministic sample compares the original ordered integer\n            // dot, its enclosing bound and both actual residual consumers.\n            if(index%1021u==0u){\n                const float dot=original_dot(w.data()+wi*128u,h.data()+hi*128u);\n                ++original_dots;if(!narrow)++nonnarrow_sample_dots;\n                require(qrt_sm121_projection_interval::valid(envelope),\"invalid sampled envelope\");\n                require(dot>=envelope.lower&&dot<=envelope.upper,\"original dot outside envelope\");\n                const float delta=consumer::subtract(bf16(u[index]),dot);\n                require(rounded(delta)==v[index],\"sampled original residual differs from GB10\");\n                if(certified){require(updated==rounded(delta)&&scaled==rounded(consumer::multiply(delta,decay)),\"certified sampled endpoint differs\");++certified_sample_dots;}\n            }\n        }\n    }\n    const auto old=fold(old_all),now=fold(hybrid_all),wh=fold(hybrid_wh),kv=fold(hybrid_kv);\n    require(count(old)==1195u,\"prior narrow admission prediction changed\");\n    unsigned full_old=0,full_new=0;\n    std::array<unsigned,segments> per_segment{};\n    for(unsigned s=0;s<segments;++s)for(unsigned head=0;head<32u;++head){\n        const unsigned at=s*32u+head;per_segment[s]+=pop(now[at]);\n        if(s<7u){full_old+=pop(old[at]);full_new+=pop(now[at]);}\n        require((now[at]&old[at])==now[at],\"hybrid declined an originally admitted CTA\");\n    }\n    std::printf(\"{\\\"kind\\\":\\\"original_gb10_selective_wh_consumer_admission_audit\\\",\\\"tokens\\\":%u,\\\"residual_cells\\\":%zu,\\\"original_narrow_wh_cells\\\":%zu,\\\"consumer_certificate_calls\\\":%zu,\\\"certified_extra_wh_cells\\\":%zu,\\\"unresolved_residual_cells\\\":%zu,\\\"original_integer_dot_samples\\\":%zu,\\\"nonnarrow_sample_dots\\\":%zu,\\\"certified_sample_dots\\\":%zu,\\\"chunk_ctas\\\":{\\\"total\\\":57856,\\\"original_not_certified\\\":%u,\\\"hybrid_wh_not_certified\\\":%u,\\\"hybrid_kv_not_certified\\\":%u,\\\"hybrid_not_certified\\\":%u},\\\"full1024_segments\\\":{\\\"total\\\":3584,\\\"original_admitted\\\":%u,\\\"hybrid_admitted\\\":%u},\\\"all_segments\\\":{\\\"total\\\":4096,\\\"original_admitted\\\":%u,\\\"hybrid_wh_not_certified\\\":%u,\\\"hybrid_kv_not_certified\\\":%u,\\\"hybrid_admitted\\\":%u},\\\"not_certified_by_segment\\\":[\",\n        tokens,v.size(),narrow_wh,certificate_calls,certified_wh,unresolved_residual_cells,original_dots,nonnarrow_sample_dots,certified_sample_dots,\n        count(old_all),count(hybrid_wh),count(hybrid_kv),count(hybrid_all),3584u-full_old,3584u-full_new,4096u-count(old),count(wh),count(kv),4096u-count(now));\n    for(unsigned s=0;s<segments;++s)std::printf(\"%s%u\",s?\",\":\"\",per_segment[s]);\n    std::printf(\"],\\\"bf16_reference_mismatches\\\":0,\\\"sampled_bound_violations\\\":0,\\\"actual_unrounded_residual_observed\\\":false,\\\"fp32_state_consumer_omitted\\\":false,\\\"native_receipts_observed\\\":false,\\\"native_speed_observed\\\":false,\\\"inference_acceptance\\\":false}\\n\");\n    return 0;\n}catch(const std::exception& e){std::fprintf(stderr,\"%s\\n\",e.what());return 1;}\n"
+    },
+    {
+      "file": "run_gdn_hybrid_wh_admission_r1.py",
+      "sha256": "bbabcbf6382578454a8bc569b0afa227475b617ce3af9815bab41461896b727d",
+      "source_text": "from pathlib import Path\nimport datetime\nimport hashlib\nimport json\nimport socket\nimport subprocess\nimport time\n\nB = Path(__file__).resolve().parent\nP = Path('<evidence-home-1>/projects/AIMA-public-r1191-candidate')\nroot = B / 'gdn-separate-replay-domain-audit-r1'\nsha = lambda p: hashlib.file_digest(p.open('rb'), 'sha256').hexdigest()\nread = lambda p: json.loads(p.read_text(encoding='utf-8-sig'))\nmanifest = read(root / 'original-manifest.json')\noriginal = read(root / 'residual-domain-analysis-r1.json')\nfiles = ['full-w-bf16.bin', 'full-u-bf16.bin', 'full-v-new-bf16.bin',\n         'full-k-normalized-bf16.bin', 'full-chunk-state-bf16.bin', 'full-g-cumsum-f32.bin']\nfor name in files:\n    expected = next(x for x in manifest['files'] if x['file'] == name)\n    path = root / name\n    assert path.stat().st_size == expected['bytes'] and sha(path) == expected['sha256']\ntable = root / 'sm121-exp2-negative-f490940d.bin'\nassert sha(table) == 'f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b'\nsource = B / 'audit_gdn_hybrid_wh_admission_r1.cpp'\nexe = B / 'audit-gdn-hybrid-wh-admission-r1'\nassert not exe.exists()\ncommand = ['c++', '-std=c++17', '-O2', '-Wall', '-Wextra', '-Werror', '-ffp-contract=off',\n           '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-I', str(P), str(source), '-o', str(exe)]\nbuild = subprocess.run(command, capture_output=True, text=True, timeout=60)\nrecord = dict(utc=datetime.datetime.now(datetime.UTC).isoformat(), host=socket.gethostname(),\n    source_file=source.name, source_sha256=sha(source), original_manifest_sha256=sha(root / 'original-manifest.json'),\n    original_residual_analysis_sha256=sha(root / 'residual-domain-analysis-r1.json'),\n    additional_u_copy_sha256=sha(B / 'gdn-hybrid-admission-u-copy-r1.json'),\n    inputs={n: sha(root / n) for n in files}, table_sha256=sha(table),\n    compile=dict(command=command, returncode=build.returncode, stdout=build.stdout, stderr=build.stderr),\n    header_sha256={name: sha(P / name) for name in [\n        'tools/audit_gdn_replay_domain.cpp', 'native/providers/gdn/absolute_dot_bound.h',\n        'native/providers/gdn/consumer_interval.h', 'native/providers/gdn/sm121_exp2_table.h',\n        'native/providers/moe_accumulator/sm121_projection_interval.h',\n        'native/providers/moe_accumulator/sm121_pv_error_bound.h',\n        'native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h']},\n    native_executed=False, runtime_changed=False, inference_acceptance=False, performance_acceptance=False)\nif build.returncode == 0:\n    start = time.monotonic()\n    run_command = [str(exe), str(root)]\n    run = subprocess.run(run_command, capture_output=True, text=True, timeout=180)\n    record.update(command=run_command, executable_sha256=sha(exe), returncode=run.returncode,\n                  stdout=run.stdout, stderr=run.stderr, wall_seconds=time.monotonic() - start)\n    if run.returncode == 0:\n        record['analysis'] = json.loads(run.stdout)\nout = B / 'gdn-hybrid-wh-admission-analysis-r1.json'\nwith out.open('x') as f:\n    json.dump(record, f, indent=2)\n    f.write('\\n')\nprint(json.dumps(dict(file=out.name, sha256=sha(out), compile_returncode=build.returncode,\n                     returncode=record.get('returncode'), analysis=record.get('analysis'),\n                     stderr=record.get('stderr', build.stderr)[-2000:])), flush=True)\nbuild.check_returncode()\nrun.check_returncode()\n"
+    },
+    {
+      "file": "audit_gdn_hybrid_groups_r1.cpp",
+      "sha256": "48dd914a0932cdc021033cbbf117959d8b6875e79ec3b30fa4b32a5d115b9112",
+      "source_text": "#define main prior_residual_audit_main\n#include \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tools/audit_gdn_replay_domain.cpp\"\n#undef main\n#include \"native/providers/gdn/absolute_dot_bound.h\"\n#include \"native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h\"\n\n#include <atomic>\n#include <thread>\nnamespace norm=qrt_fla_absolute_dot;\nnamespace consumer=qrt_fla_consumer_interval;\nnamespace original=qrt_q1_moe_hawkeye;\n\nfloat bf16(uint16_t x){return from(uint32_t(x)<<16u);}\nnorm::Norm summarize(const uint16_t* values,bool* narrow){\n    norm::Row row;*narrow=true;\n    for(unsigned i=0;i<128u;++i){norm::include(row,values[i]);*narrow=*narrow&&eligible(values[i],95u,159u);}\n    return norm::finish(row);\n}\nfloat original_dot(const uint16_t* a,const uint16_t* b){\n    original::Value carry{0u,-133,false};\n    for(unsigned base=0;base<128u;base+=16u){\n        original::Value terms[17];terms[0]=carry;\n        for(unsigned i=0;i<16u;++i)terms[i+1]=original::multiply_bf16(a[base+i],b[base+i],-133);\n        carry=original::group_sum<26,-133>(terms,17u);\n    }\n    return original::value_to_float(original::group_sum<26,-133>(&carry,1u));\n}\n\nstruct Bounds{uint16_t low,high;};\nBounds interval(uint16_t value,float decay){\n    const unsigned magnitude=value&0x7fffu;\n    require(magnitude<0x7f80u && std::isfinite(decay) && decay>=0.0f && decay<=1.0f,\"residual domain\");\n    const uint32_t center=magnitude<<16u,left=center>=0x8000u?center-0x8000u:0u,right=center+0x8000u;\n    volatile float lo=from(left)*decay,hi=from(right)*decay;\n    unsigned a=rounded(lo)&0x7fffu,b=rounded(hi)&0x7fffu;\n    if((bits(lo)&0x7f800000u)==0u || (bits(decay)&0x7f800000u)==0u)a=0;\n    require(a<=b,\"nonmonotone interval\");return {uint16_t(a),uint16_t(b)};\n}\n// Candidate group-domain observations only; a new carry needs separate integer qualification.\n// A subnormal input is permitted only when its contribution must truncate to\n// zero after original alignment, whether scalar multiplication uses FTZ or not.\nstruct KVGroup{\n    int lower=-1000,upper=-1000,risk=-1000;\n    bool valid=true,nonzero=false;\n    void pair(uint16_t left,Bounds right){\n        const unsigned a=left&0x7fffu,l=right.low&0x7fffu,h=right.high&0x7fffu;\n        if(a>=0x7f80u || h>=0x7f80u){valid=false;return;}\n        if(!a || !h)return;\n        nonzero=true;\n        const int ae=int(std::max(1u,a>>7u)),he=int(std::max(1u,h>>7u));\n        upper=std::max(upper,ae+he-254);\n        if(a>=128u && l>=128u)lower=std::max(lower,int(a>>7u)+int(l>>7u)-254);\n        if(a<128u)risk=std::max(risk,ae+he-254);\n        if(l<128u)risk=std::max(risk,ae+1-254);\n    }\n    bool admitted(int minimum)const{return valid && (!nonzero || (lower>=minimum && upper<=64 && risk<=lower-27));}\n};\nint main(int argc,char** argv)try{\n    require(argc==2,\"requires verified original capture directory\");\n    require(std::fesetround(FE_TONEAREST)==0,\"rounding mode\");\n    const std::string root=argv[1];\n    const auto w=read<uint16_t>(root,\"full-w-bf16.bin\",size_t(tokens)*4096);\n    const auto u=read<uint16_t>(root,\"full-u-bf16.bin\",w.size());\n    const auto v=read<uint16_t>(root,\"full-v-new-bf16.bin\",w.size());\n    const auto k=read<uint16_t>(root,\"full-k-normalized-bf16.bin\",size_t(tokens)*2048);\n    const auto h=read<uint16_t>(root,\"full-chunk-state-bf16.bin\",size_t(chunks)*524288);\n    const auto g=read<float>(root,\"full-g-cumsum-f32.bin\",size_t(tokens)*32);\n    const auto table=read<unsigned char>(root,\"sm121-exp2-negative-f490940d.bin\",qrt_sm121_exp2::table_bytes);\n    require(qrt_sm121_exp2::valid_layout(table.data(),table.size()),\"original table layout\");\n    std::vector<Bounds> residual_bounds(v.size());\n    std::vector<norm::Norm> wn(w.size()/128),hn(h.size()/128);\n    std::vector<unsigned char> wok(wn.size()),hok(hn.size());\n    for(size_t i=0;i<wn.size();++i){bool ok;wn[i]=summarize(w.data()+i*128,&ok);wok[i]=ok;}\n    for(size_t i=0;i<hn.size();++i){bool ok;hn[i]=summarize(h.data()+i*128,&ok);hok[i]=ok;}\n    Flags bad_k{},old_wh{},old_kv{},old_all{},hybrid_wh{},hybrid_kv{},hybrid_unknown{},hybrid_all{};\n    for(size_t i=0;i<k.size();++i)if(!eligible(k[i],95u,159u)){\n        const size_t row=i/128,at=(row/16/64)*32+(row%16)*2;\n        bad_k[at]=bad_k[at+1]=0xffffu;\n    }\n    size_t narrow_wh=0,certificate_calls=0,certified_wh=0,unresolved_residual_cells=0;\n    size_t original_dots=0,certified_sample_dots=0,nonnarrow_sample_dots=0;\n    for(unsigned token=0;token<tokens;++token)for(unsigned head=0;head<32u;++head){\n        const unsigned chunk=token/64u,at=chunk*32u+head,last=std::min(tokens,(chunk+1u)*64u)-1u;\n        volatile float difference=g[size_t(last)*32u+head]-g[size_t(token)*32u+head];\n        volatile float argument=difference*1.4426950408889634074f;\n        const float decay=qrt_sm121_exp2::evaluate(table.data(),argument);\n        require(std::isfinite(decay)&&decay>=0.0f&&decay<=1.0f,\"decay domain\");\n        const size_t wi=size_t(token)*32u+head;\n        for(unsigned col=0;col<128u;++col){\n            const size_t index=wi*128u+col,hi=size_t(at)*128u+col;\n            const uint16_t mask=uint16_t(1u<<(col/8u));\n            const bool narrow=wok[wi]&&hok[hi];\n            const auto envelope=norm::enclose(wn[wi],hn[hi]);\n            uint16_t updated=0xa5a5u,scaled=0xa5a5u;\n            bool certified=false;\n            if(narrow)++narrow_wh;\n            else{\n                ++certificate_calls;\n                certified=consumer::residual(envelope,bf16(u[index]),decay,&updated,&scaled);\n                if(certified){require(updated==v[index],\"certified residual differs from original GB10\");++certified_wh;}\n                else require(updated==0xa5a5u&&scaled==0xa5a5u,\"declined certificate changed outputs\");\n            }\n            residual_bounds[index]=certified?Bounds{uint16_t(scaled&0x7fffu),uint16_t(scaled&0x7fffu)}:interval(v[index],decay);\n            const unsigned residual=residual_class(v[index],decay,95u,159u);\n            const bool old_k_ok=!(bad_k[at]&mask)&&residual==0u;\n            const bool hybrid_k_ok=!(bad_k[at]&mask)&&(certified?eligible(scaled,95u,159u):residual==0u);\n            if(!narrow)old_wh[at]|=mask;\n            if(!old_k_ok)old_kv[at]|=mask;\n            if(!narrow||!old_k_ok)old_all[at]|=mask;\n            if(!narrow&&!certified)hybrid_wh[at]|=mask;\n            if(!hybrid_k_ok)hybrid_kv[at]|=mask;\n            if(!certified&&residual==2u){hybrid_unknown[at]|=mask;++unresolved_residual_cells;}\n            if((!narrow&&!certified)||!hybrid_k_ok)hybrid_all[at]|=mask;\n            // A deterministic sample compares the original ordered integer\n            // dot, its enclosing bound and both actual residual consumers.\n            if(index%1021u==0u){\n                const float dot=original_dot(w.data()+wi*128u,h.data()+hi*128u);\n                ++original_dots;if(!narrow)++nonnarrow_sample_dots;\n                require(qrt_sm121_projection_interval::valid(envelope),\"invalid sampled envelope\");\n                require(dot>=envelope.lower&&dot<=envelope.upper,\"original dot outside envelope\");\n                const float delta=consumer::subtract(bf16(u[index]),dot);\n                require(rounded(delta)==v[index],\"sampled original residual differs from GB10\");\n                if(certified){require(updated==rounded(delta)&&scaled==rounded(consumer::multiply(delta,decay)),\"certified sampled endpoint differs\");++certified_sample_dots;}\n            }\n        }\n    }\n    const auto old=fold(old_all),now=fold(hybrid_all),wh=fold(hybrid_wh),kv=fold(hybrid_kv);\n    require(count(old)==1195u,\"prior narrow admission prediction changed\");\n    unsigned full_old=0,full_new=0;\n    std::array<unsigned,segments> per_segment{};\n    for(unsigned s=0;s<segments;++s)for(unsigned head=0;head<32u;++head){\n        const unsigned at=s*32u+head;per_segment[s]+=pop(now[at]);\n        if(s<7u){full_old+=pop(old[at]);full_new+=pop(now[at]);}\n        require((now[at]&old[at])==now[at],\"hybrid declined an originally admitted CTA\");\n    }\n    require(narrow_wh+certificate_calls==v.size() && nonnarrow_sample_dots>0 && unresolved_residual_cells>0 && full_old==1129u && full_new==1024u && count(wh)==482u && count(kv)==1018u,\"prior hybrid summary differs\");\n    require(certified_wh==4533406u && count(fold(hybrid_wh))==482u,\"prior hybrid WH audit changed\");\n    const std::array<int,2> limits{-64,-101};\n    std::array<Flags,2> group_kv_failed{},group_combined_failed{};\n    std::atomic<unsigned> next{0u};std::array<std::thread,4> workers;\n    for(auto& worker:workers)worker=std::thread([&]{\n        for(unsigned at=next.fetch_add(1u);at<chunks*32u;at=next.fetch_add(1u)){\n            const unsigned chunk=at/32u,head=at%32u,first=chunk*64u,valid=std::min(64u,tokens-first);\n            for(unsigned tile=0;tile<16u;++tile){\n                const uint16_t mask=uint16_t(1u<<tile);\n                bool ok64=true,ok101=true;\n                for(unsigned col=tile*8u;col<(tile+1u)*8u&&(ok64||ok101);++col)\n                    for(unsigned feature=0;feature<128u&&(ok64||ok101);++feature)\n                        for(unsigned offset=0;offset<64u&&(ok64||ok101);offset+=16u){\n                            KVGroup group;\n                            for(unsigned j=0;j<16u&&offset+j<valid;++j)\n                                group.pair(k[(size_t(first+offset+j)*16u+head/2u)*128u+feature],\n                                    residual_bounds[(size_t(first+offset+j)*32u+head)*128u+col]);\n                            ok64=ok64&&group.admitted(-64);\n                            ok101=ok101&&group.admitted(-101);\n                        }\n                if(!ok64)group_kv_failed[0][at]|=mask;\n                if(!ok101)group_kv_failed[1][at]|=mask;\n                if(!ok64||(hybrid_wh[at]&mask))group_combined_failed[0][at]|=mask;\n                if(!ok101||(hybrid_wh[at]&mask))group_combined_failed[1][at]|=mask;\n            }\n        }\n    });\n    for(auto& worker:workers)worker.join();\n    std::printf(\"{\\\"kind\\\":\\\"original_gb10_hybrid_wh_and_kv_group_domain_observation\\\",\\\"tokens\\\":%u,\\\"workers\\\":4,\\\"certified_nonnarrow_wh_cells\\\":%zu,\\\"original_integer_dot_samples\\\":%zu,\\\"certified_sample_dots\\\":%zu,\\\"wh_not_certified_chunk_ctas\\\":%u,\\\"wh_not_certified_segment_ctas\\\":%u,\\\"domains\\\":[\",tokens,certified_wh,original_dots,certified_sample_dots,count(hybrid_wh),count(fold(hybrid_wh)));\n    for(unsigned mode=0;mode<2u;++mode){\n        const auto kv=fold(group_kv_failed[mode]),combined=fold(group_combined_failed[mode]);\n        unsigned full=0;std::array<unsigned,segments> bad{};\n        for(unsigned s=0;s<segments;++s)for(unsigned head=0;head<32u;++head){bad[s]+=pop(combined[s*32u+head]);if(s<7u)full+=pop(combined[s*32u+head]);}\n        std::printf(\"%s{\\\"group_product_exponents\\\":[%d,64],\\\"chunk_kv_not_certified\\\":%u,\\\"chunk_combined_not_certified\\\":%u,\\\"segment_kv_not_certified\\\":%u,\\\"all4096_segment_ctas_admitted\\\":%u,\\\"full3584_segment_ctas_admitted\\\":%u,\\\"not_certified_by_segment\\\":[\",mode?\",\":\"\",limits[mode],count(group_kv_failed[mode]),count(group_combined_failed[mode]),count(kv),4096u-count(combined),3584u-full);\n        for(unsigned s=0;s<segments;++s)std::printf(\"%s%u\",s?\",\":\"\",bad[s]);\n        std::printf(\"]}\");\n    }\n    std::printf(\"],\\\"complete_integer_domain_qualification\\\":false,\\\"candidate_kernel_implemented\\\":false,\\\"native_receipts_observed\\\":false,\\\"native_speed_observed\\\":false,\\\"inference_acceptance\\\":false}\\n\");\n    return 0;\n}catch(const std::exception& e){std::fprintf(stderr,\"%s\\n\",e.what());return 1;}\n"
+    },
+    {
+      "file": "run_gdn_hybrid_groups_r1.py",
+      "sha256": "bce9d9ad905170255fe7274cd10e07be541e3150ed01c8fa3e3c445b5aafa79a",
+      "source_text": "from pathlib import Path\nimport datetime\nimport hashlib\nimport json\nimport socket\nimport subprocess\nimport time\n\nB = Path(__file__).resolve().parent\nP = Path('<evidence-home-1>/projects/AIMA-public-r1191-candidate')\nroot = B / 'gdn-separate-replay-domain-audit-r1'\nsha = lambda p: hashlib.file_digest(p.open('rb'), 'sha256').hexdigest()\nread = lambda p: json.loads(p.read_text(encoding='utf-8-sig'))\nmanifest = read(root / 'original-manifest.json')\noriginal = read(root / 'residual-domain-analysis-r1.json')\nfiles = ['full-w-bf16.bin', 'full-u-bf16.bin', 'full-v-new-bf16.bin',\n         'full-k-normalized-bf16.bin', 'full-chunk-state-bf16.bin', 'full-g-cumsum-f32.bin']\nfor name in files:\n    expected = next(x for x in manifest['files'] if x['file'] == name)\n    path = root / name\n    assert path.stat().st_size == expected['bytes'] and sha(path) == expected['sha256']\ntable = root / 'sm121-exp2-negative-f490940d.bin'\nassert sha(table) == 'f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b'\nsource = B / 'audit_gdn_hybrid_groups_r1.cpp'\nexe = B / 'audit-gdn-hybrid-groups-r1'\nassert not exe.exists()\ncommand = ['c++', '-std=c++17', '-O2', '-Wall', '-Wextra', '-Werror', '-ffp-contract=off', '-pthread',\n           '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-I', str(P), str(source), '-o', str(exe)]\nbuild = subprocess.run(command, capture_output=True, text=True, timeout=60)\nrecord = dict(utc=datetime.datetime.now(datetime.UTC).isoformat(), host=socket.gethostname(),\n    source_file=source.name, source_sha256=sha(source), original_manifest_sha256=sha(root / 'original-manifest.json'),\n    original_residual_analysis_sha256=sha(root / 'residual-domain-analysis-r1.json'),\n    additional_u_copy_sha256=sha(B / 'gdn-hybrid-admission-u-copy-r1.json'),\n    inputs={n: sha(root / n) for n in files}, table_sha256=sha(table),\n    compile=dict(command=command, returncode=build.returncode, stdout=build.stdout, stderr=build.stderr),\n    header_sha256={name: sha(P / name) for name in [\n        'tools/audit_gdn_replay_domain.cpp', 'native/providers/gdn/absolute_dot_bound.h',\n        'native/providers/gdn/consumer_interval.h', 'native/providers/gdn/sm121_exp2_table.h',\n        'native/providers/moe_accumulator/sm121_projection_interval.h',\n        'native/providers/moe_accumulator/sm121_pv_error_bound.h',\n        'native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h']},\n    prior_hybrid_audit_sha256=sha(B / 'gdn-hybrid-wh-admission-analysis-r1.json'),\n    native_executed=False, runtime_changed=False, inference_acceptance=False, performance_acceptance=False)\nif build.returncode == 0:\n    start = time.monotonic()\n    run_command = [str(exe), str(root)]\n    run = subprocess.run(run_command, capture_output=True, text=True, timeout=180)\n    record.update(command=run_command, executable_sha256=sha(exe), returncode=run.returncode,\n                  stdout=run.stdout, stderr=run.stderr, wall_seconds=time.monotonic() - start)\n    if run.returncode == 0:\n        record['analysis'] = json.loads(run.stdout)\nout = B / 'gdn-hybrid-groups-analysis-r1.json'\nwith out.open('x') as f:\n    json.dump(record, f, indent=2)\n    f.write('\\n')\nprint(json.dumps(dict(file=out.name, sha256=sha(out), compile_returncode=build.returncode,\n                     returncode=record.get('returncode'), analysis=record.get('analysis'),\n                     stderr=record.get('stderr', build.stderr)[-2000:])), flush=True)\nbuild.check_returncode()\nrun.check_returncode()\n"
+    },
+    {
+      "file": "audit_gdn_hybrid_integer_samples_r1.cpp",
+      "sha256": "86e60dd2ea56357b0408ecc12b97fe53ef8986431088adcbdd1d187559ffebcb",
+      "source_text": "#define main prior_residual_audit_main\n#include \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tools/audit_gdn_replay_domain.cpp\"\n#undef main\n#include \"native/providers/gdn/absolute_dot_bound.h\"\n#include \"native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h\"\n\nnamespace norm=qrt_fla_absolute_dot;\nnamespace consumer=qrt_fla_consumer_interval;\nnamespace original=qrt_q1_moe_hawkeye;\n\nfloat bf16(uint16_t x){return from(uint32_t(x)<<16u);}\nnorm::Norm summarize(const uint16_t* values,bool* narrow){\n    norm::Row row;*narrow=true;\n    for(unsigned i=0;i<128u;++i){norm::include(row,values[i]);*narrow=*narrow&&eligible(values[i],95u,159u);}\n    return norm::finish(row);\n}\nfloat original_dot(const uint16_t* a,const uint16_t* b){\n    original::Value carry{0u,-133,false};\n    for(unsigned base=0;base<128u;base+=16u){\n        original::Value terms[17];terms[0]=carry;\n        for(unsigned i=0;i<16u;++i)terms[i+1]=original::multiply_bf16(a[base+i],b[base+i],-133);\n        carry=original::group_sum<26,-133>(terms,17u);\n    }\n    return original::value_to_float(original::group_sum<26,-133>(&carry,1u));\n}\n\n#include \"native/providers/moe_accumulator/sm121_product_f32_carry.h\"\n#include <atomic>\n#include <thread>\nnamespace product=qrt_sm121_product_f32_carry;\nuint32_t raw(float x){uint32_t b;std::memcpy(&b,&x,4);return b;}\nstruct Counts{size_t wh=0,wh_narrow=0,wh_certified=0,wh_declined=0,kv=0,kv_admitted=0,kv_extra=0,kv_declined=0;};\nint main(int argc,char** argv)try{\n require(argc==2,\"requires verified original capture directory\");\n require(std::fesetround(FE_TONEAREST)==0,\"rounding mode\");\n const std::string root=argv[1];\n const auto w=read<uint16_t>(root,\"full-w-bf16.bin\",size_t(tokens)*4096);\n const auto u=read<uint16_t>(root,\"full-u-bf16.bin\",w.size());\n const auto v=read<uint16_t>(root,\"full-v-new-bf16.bin\",w.size());\n const auto k=read<uint16_t>(root,\"full-k-normalized-bf16.bin\",size_t(tokens)*2048);\n const auto h=read<uint16_t>(root,\"full-chunk-state-bf16.bin\",size_t(chunks)*524288);\n const auto g=read<float>(root,\"full-g-cumsum-f32.bin\",size_t(tokens)*32);\n const auto table=read<unsigned char>(root,\"sm121-exp2-negative-f490940d.bin\",qrt_sm121_exp2::table_bytes);\n require(qrt_sm121_exp2::valid_layout(table.data(),table.size()),\"original table layout\");\n std::vector<norm::Norm> wn(w.size()/128),hn(h.size()/128);\n std::vector<unsigned char> wok(wn.size()),hok(hn.size());\n for(size_t i=0;i<wn.size();++i){bool ok;wn[i]=summarize(w.data()+i*128,&ok);wok[i]=ok;}\n for(size_t i=0;i<hn.size();++i){bool ok;hn[i]=summarize(h.data()+i*128,&ok);hok[i]=ok;}\n std::atomic<unsigned> next{0u};std::array<std::thread,4> workers;std::array<Counts,4> counts{};\n for(unsigned worker=0;worker<4u;++worker)workers[worker]=std::thread([&,worker]{\n  Counts& c=counts[worker];\n  for(unsigned at=next.fetch_add(1u);at<chunks*32u;at=next.fetch_add(1u)){\n   const unsigned chunk=at/32u,head=at%32u,first=chunk*64u,valid=std::min(64u,tokens-first),last=first+valid-1u;\n   for(unsigned tile=0;tile<16u;++tile){\n    const unsigned column=tile*8u+(chunk+head+tile)%8u;\n    const size_t hi=size_t(at)*128u+column;\n    uint16_t residual[64]{};\n    for(unsigned row=0;row<valid;++row){\n     const size_t wi=size_t(first+row)*32u+head,index=wi*128u+column;\n     const float dot=original_dot(w.data()+wi*128u,h.data()+hi*128u);\n     const float delta=consumer::subtract(bf16(u[index]),dot);\n     require(rounded(delta)==v[index],\"sampled original residual differs from GB10\");\n     volatile float difference=g[size_t(last)*32u+head]-g[size_t(first+row)*32u+head];\n     volatile float argument=difference*1.4426950408889634074f;\n     const float decay=qrt_sm121_exp2::evaluate(table.data(),argument);\n     residual[row]=rounded(consumer::multiply(delta,decay));++c.wh;\n     if(wok[wi]&&hok[hi]){\n      float actual=123.25f;\n      require(product::dot<128u>(w.data()+wi*128u,h.data()+hi*128u,&actual),\"narrow WH unexpectedly declined\");\n      require(raw(actual)==raw(dot),\"narrow WH carry differs from original integer\");++c.wh_narrow;\n     }else{\n      uint16_t updated=0xa5a5u,scaled=0xa5a5u;\n      if(consumer::residual(norm::enclose(wn[wi],hn[hi]),bf16(u[index]),decay,&updated,&scaled)){\n       require(updated==v[index]&&scaled==residual[row],\"certified sampled consumers differ\");++c.wh_certified;\n      }else{require(updated==0xa5a5u&&scaled==0xa5a5u,\"declined certificate published\");++c.wh_declined;}\n     }\n    }\n    for(unsigned sample=0;sample<8u;++sample){\n     const unsigned feature=(chunk*13u+head*7u+column*3u+sample*17u)%128u;\n     uint16_t keys[64]{};bool narrow=true;\n     for(unsigned row=0;row<valid;++row){keys[row]=k[(size_t(first+row)*16u+head/2u)*128u+feature];narrow=narrow&&eligible(keys[row],95u,159u)&&eligible(residual[row],95u,159u);}\n     const float expected=original::dot_bf16_hopper(keys,residual,64u);\n     float actual=123.25f;++c.kv;\n     if(product::dot<64u>(keys,residual,&actual)){\n      require(raw(actual)==raw(expected),\"sampled KV carry differs from original integer\");++c.kv_admitted;if(!narrow)++c.kv_extra;\n     }else{require(actual==123.25f&&!narrow,\"rejected KV published or declined original narrow domain\");++c.kv_declined;}\n    }\n   }\n  }\n });\n for(auto& worker:workers)worker.join();Counts c;\n for(const auto& x:counts){c.wh+=x.wh;c.wh_narrow+=x.wh_narrow;c.wh_certified+=x.wh_certified;c.wh_declined+=x.wh_declined;c.kv+=x.kv;c.kv_admitted+=x.kv_admitted;c.kv_extra+=x.kv_extra;c.kv_declined+=x.kv_declined;}\n require(c.wh==size_t(tokens)*32u*16u&&c.kv==size_t(chunks)*32u*16u*8u,\"sample coverage\");\n require(c.wh_certified&&c.wh_declined&&c.kv_extra&&c.kv_declined,\"sample branches missing\");\n std::printf(\"{\\\"kind\\\":\\\"original_gb10_hybrid_integer_samples\\\",\\\"tokens\\\":%u,\\\"workers\\\":4,\\\"wh_original_integer_dots\\\":%zu,\\\"wh_gb10_residuals_exact\\\":%zu,\\\"wh_narrow_carry_dots_exact\\\":%zu,\\\"wh_both_consumers_certified_exact\\\":%zu,\\\"wh_certificates_declined\\\":%zu,\\\"kv_original_integer_dots\\\":%zu,\\\"kv_product_carry_dots_exact\\\":%zu,\\\"kv_extra_over_operand_domain\\\":%zu,\\\"kv_declined_without_publishing\\\":%zu,\\\"raw_mismatches\\\":0,\\\"native_executed\\\":false,\\\"inference_acceptance\\\":false}\\n\",tokens,c.wh,c.wh,c.wh_narrow,c.wh_certified,c.wh_declined,c.kv,c.kv_admitted,c.kv_extra,c.kv_declined);\n return 0;\n}catch(const std::exception& e){std::fprintf(stderr,\"%s\\n\",e.what());return 1;}\n"
+    },
+    {
+      "file": "run_gdn_hybrid_integer_samples_r1.py",
+      "sha256": "6fdaca7842e93b3b661a1dc703ee642df182055f53d1790e4061274a95dc65e3",
+      "source_text": "from pathlib import Path\nimport datetime\nimport hashlib\nimport json\nimport socket\nimport subprocess\nimport time\n\nB = Path(__file__).resolve().parent\nP = Path('<evidence-home-1>/projects/AIMA-public-r1191-candidate')\nroot = B / 'gdn-separate-replay-domain-audit-r1'\nsha = lambda p: hashlib.file_digest(p.open('rb'), 'sha256').hexdigest()\nread = lambda p: json.loads(p.read_text(encoding='utf-8-sig'))\nmanifest = read(root / 'original-manifest.json')\noriginal = read(root / 'residual-domain-analysis-r1.json')\nfiles = ['full-w-bf16.bin', 'full-u-bf16.bin', 'full-v-new-bf16.bin',\n         'full-k-normalized-bf16.bin', 'full-chunk-state-bf16.bin', 'full-g-cumsum-f32.bin']\nfor name in files:\n    expected = next(x for x in manifest['files'] if x['file'] == name)\n    path = root / name\n    assert path.stat().st_size == expected['bytes'] and sha(path) == expected['sha256']\ntable = root / 'sm121-exp2-negative-f490940d.bin'\nassert sha(table) == 'f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b'\nsource = B / 'audit_gdn_hybrid_integer_samples_r1.cpp'\nexe = B / 'audit-gdn-hybrid-integer-samples-r1'\nassert not exe.exists()\ncommand = ['c++', '-std=c++17', '-O2', '-Wall', '-Wextra', '-Werror', '-ffp-contract=off', '-pthread',\n           '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-I', str(P), str(source), '-o', str(exe)]\nbuild = subprocess.run(command, capture_output=True, text=True, timeout=60)\nrecord = dict(utc=datetime.datetime.now(datetime.UTC).isoformat(), host=socket.gethostname(),\n    source_file=source.name, source_sha256=sha(source), original_manifest_sha256=sha(root / 'original-manifest.json'),\n    original_residual_analysis_sha256=sha(root / 'residual-domain-analysis-r1.json'),\n    additional_u_copy_sha256=sha(B / 'gdn-hybrid-admission-u-copy-r1.json'),\n    inputs={n: sha(root / n) for n in files}, table_sha256=sha(table),\n    compile=dict(command=command, returncode=build.returncode, stdout=build.stdout, stderr=build.stderr),\n    header_sha256={name: sha(P / name) for name in [\n        'tools/audit_gdn_replay_domain.cpp', 'native/providers/gdn/absolute_dot_bound.h',\n        'native/providers/gdn/consumer_interval.h', 'native/providers/gdn/sm121_exp2_table.h',\n        'native/providers/moe_accumulator/sm121_projection_interval.h',\n        'native/providers/moe_accumulator/sm121_pv_error_bound.h',\n        'native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h', 'native/providers/moe_accumulator/sm121_product_f32_carry.h', 'native/providers/moe_accumulator/sm121_narrow_f32_carry.h', 'native/providers/moe_accumulator/sm121_float_alignment.h', 'native/providers/moe_accumulator/sm121_f32_carry.h', 'native/providers/moe_accumulator/sm121_group16_modulo.h']},\n    prior_hybrid_audit_sha256=sha(B / 'gdn-hybrid-wh-admission-analysis-r1.json'),\n    native_executed=False, runtime_changed=False, inference_acceptance=False, performance_acceptance=False)\nif build.returncode == 0:\n    start = time.monotonic()\n    run_command = [str(exe), str(root)]\n    run = subprocess.run(run_command, capture_output=True, text=True, timeout=180)\n    record.update(command=run_command, executable_sha256=sha(exe), returncode=run.returncode,\n                  stdout=run.stdout, stderr=run.stderr, wall_seconds=time.monotonic() - start)\n    if run.returncode == 0:\n        record['analysis'] = json.loads(run.stdout)\nout = B / 'gdn-hybrid-integer-samples-r1.json'\nwith out.open('x') as f:\n    json.dump(record, f, indent=2)\n    f.write('\\n')\nprint(json.dumps(dict(file=out.name, sha256=sha(out), compile_returncode=build.returncode,\n                     returncode=record.get('returncode'), analysis=record.get('analysis'),\n                     stderr=record.get('stderr', build.stderr)[-2000:])), flush=True)\nbuild.check_returncode()\nrun.check_returncode()\n"
+    }
+  ],
+  "original_manifest": {
+    "kind": "original_gb10_gdn_layer0_capture",
+    "source_tokens": 7169,
+    "files": [
+      {
+        "file": "full-q-normalized-bf16.bin",
+        "bytes": 29364224,
+        "sha256": "a6c81d03c850de6745ecc0e6810474689f8202cbd4c6cb616d6368b1f051c573",
+        "shape": [
+          1,
+          7169,
+          16,
+          128
+        ],
+        "dtype": "bfloat16",
+        "reference_only": false,
+        "descriptor_file": "detail-full-q-normalized.json",
+        "descriptor_sha256": "f2a8a3a522b02bfbf68e41116cf96886cc0b9c6c4615c3f66bb1854f2e4ea690"
+      },
+      {
+        "file": "full-k-normalized-bf16.bin",
+        "bytes": 29364224,
+        "sha256": "7778fce8bbd9ce6d046eec1e2639a0d89e53bb9e3b443b9ab1fe7e8d5656ea24",
+        "shape": [
+          1,
+          7169,
+          16,
+          128
+        ],
+        "dtype": "bfloat16",
+        "reference_only": false,
+        "descriptor_file": "detail-full-k-normalized.json",
+        "descriptor_sha256": "dcf82be0ea6222e6690f87560fce0edc025671d5df20f9d7406d559185273f27"
+      },
+      {
+        "file": "full-v-bf16.bin",
+        "bytes": 58728448,
+        "sha256": "cc324c828ffa9f2e950235a14669a66d74fc9efd3babc148d0c0659b2ad19dd9",
+        "shape": [
+          1,
+          7169,
+          32,
+          128
+        ],
+        "dtype": "bfloat16",
+        "reference_only": false,
+        "descriptor_file": "detail-full-v.json",
+        "descriptor_sha256": "62161b892292780c64dcca337c2ad149a0e3c913fcfe27b9d4a1a37927a2e2bd"
+      },
+      {
+        "file": "full-beta-bf16.bin",
+        "bytes": 458816,
+        "sha256": "0cdbca3923d699b6c9db3a4b9aac166a851f322f409b365fc5264b7726cf642b",
+        "shape": [
+          1,
+          7169,
+          32
+        ],
+        "dtype": "bfloat16",
+        "reference_only": false,
+        "descriptor_file": "detail-full-beta.json",
+        "descriptor_sha256": "f84b00d7d8bbf5191ad661a168ad28e31a7d3a84038642c62e8fd178ed1772ad"
+      },
+      {
+        "file": "full-a-inverse-bf16.bin",
+        "bytes": 29364224,
+        "sha256": "7c6a9c8445ab3496c7468282aa7cd2d6cc47ed6849aa57762b84d56e57cecc62",
+        "shape": [
+          1,
+          7169,
+          32,
+          64
+        ],
+        "dtype": "bfloat16",
+        "reference_only": false,
+        "descriptor_file": "detail-full-a-inverse.json",
+        "descriptor_sha256": "ff1e27a22b4855fd9171fa82464d8d00fa229e8aeec555ea678f7384b7f268b3"
+      },
+      {
+        "file": "full-g-cumsum-f32.bin",
+        "bytes": 917632,
+        "sha256": "b618db8ede809426f3c95741cce49b03d8c4cbec7888f4af0a397d959dc557b0",
+        "shape": [
+          1,
+          7169,
+          32
+        ],
+        "dtype": "float32",
+        "reference_only": false,
+        "descriptor_file": "detail-full-g-cumsum.json",
+        "descriptor_sha256": "4bd5de3f39799ac27d4cae67508b5cd05718a0cb67ebb714c6217702c40de6a6"
+      },
+      {
+        "file": "full-initial_state-f32.bin",
+        "bytes": 2097152,
+        "sha256": "5647f05ec18958947d32874eeb788fa396a05d0bab7c1b71f112ceb7e9b31eee",
+        "shape": [
+          1,
+          32,
+          128,
+          128
+        ],
+        "dtype": "float32",
+        "reference_only": false,
+        "descriptor_file": "detail-full-initial_state.json",
+        "descriptor_sha256": "a69666b9dfad9a1c965c391d305505cda6384edd6360d8d77c06c71568e2b447"
+      },
+      {
+        "file": "full-output-bf16.bin",
+        "bytes": 58728448,
+        "sha256": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde",
+        "shape": [
+          1,
+          7169,
+          32,
+          128
+        ],
+        "dtype": "bfloat16",
+        "reference_only": true,
+        "descriptor_file": "detail-full-output.json",
+        "descriptor_sha256": "98f47fffc574b0b004a248957971cc9a08dd70c517947c94056a8dd146e56932"
+      },
+      {
+        "file": "full-w-bf16.bin",
+        "bytes": 58728448,
+        "sha256": "5cc5baa0e2f85758c28c06f03d8b87d5cff82b361b3382d7b531e2927e545545",
+        "shape": [
+          1,
+          7169,
+          32,
+          128
+        ],
+        "dtype": "bfloat16",
+        "reference_only": true,
+        "descriptor_file": "detail-full-w.json",
+        "descriptor_sha256": "f677dff1dda3b88f3727969d84ca9f526b45dc86d8902b03adb12dce93414498"
+      },
+      {
+        "file": "full-u-bf16.bin",
+        "bytes": 58728448,
+        "sha256": "1b4d91596e6554314647111d1dfa156517be6afae313cd69cf51234dfd955cfb",
+        "shape": [
+          1,
+          7169,
+          32,
+          128
+        ],
+        "dtype": "bfloat16",
+        "reference_only": true,
+        "descriptor_file": "detail-full-u.json",
+        "descriptor_sha256": "47f7b0efb67db3e0c51eced6322f67b7bc6a73af4fb45100bc1d0af05757358f"
+      },
+      {
+        "file": "full-v-new-bf16.bin",
+        "bytes": 58728448,
+        "sha256": "b6fd8d6801622a4b7dc00490a6abee2e584df5e21b907f66eb6fa986a3d2229f",
+        "shape": [
+          1,
+          7169,
+          32,
+          128
+        ],
+        "dtype": "bfloat16",
+        "reference_only": true,
+        "descriptor_file": "detail-full-v-new.json",
+        "descriptor_sha256": "409ce7f5ca9b8993c35cde69402c8376d05591c18aa79fe550d292d2b94bf775"
+      },
+      {
+        "file": "full-chunk-state-bf16.bin",
+        "bytes": 118489088,
+        "sha256": "140741e123824032adb256af41c542fe74f8782ca1980b2b8eaba61ca61f6735",
+        "shape": [
+          1,
+          113,
+          32,
+          128,
+          128
+        ],
+        "dtype": "bfloat16",
+        "reference_only": true,
+        "descriptor_file": "detail-full-chunk-state.json",
+        "descriptor_sha256": "b194d3b1ecfe378f2d955d6009aaafe5c7c768a22a3053a75fbcae45517ab0df"
+      },
+      {
+        "file": "full-state-f32.bin",
+        "bytes": 2097152,
+        "sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2",
+        "shape": [
+          1,
+          32,
+          128,
+          128
+        ],
+        "dtype": "float32",
+        "reference_only": true,
+        "descriptor_file": "detail-full-state.json",
+        "descriptor_sha256": "3e979f6f86504b4bf6b00c2c6b62740f94a2c45f10345c7f3f59520694d2bdc9"
+      }
+    ],
+    "remote_directory": "D:/projects/sparse-group-gdn-capture-20260918-r1",
+    "extension": {
+      "tokens": 8192,
+      "original_rows": 7168,
+      "repeated_rows": 1024,
+      "repeated_source_start": 0,
+      "gb10_output_cells": 29360128,
+      "final_state_external_reference": false
+    },
+    "model_reference": "D:/models/Qwen3.6-35B-A3B",
+    "references_select_work": false
+  },
+  "original_manifest_sha256": "57321dfcb495c5555fbde96cce5fe31038590f3be22c9f72b72bc80d1d5d791a",
+  "additional_u_copy": {
+    "utc": "2026-09-21T09:42:17.425924+00:00",
+    "controller": "Jiawei-MacminideMac-mini.local",
+    "source_manifest_sha256": "57321dfcb495c5555fbde96cce5fe31038590f3be22c9f72b72bc80d1d5d791a",
+    "original_entry": {
+      "file": "full-u-bf16.bin",
+      "bytes": 58728448,
+      "sha256": "1b4d91596e6554314647111d1dfa156517be6afae313cd69cf51234dfd955cfb",
+      "shape": [
+        1,
+        7169,
+        32,
+        128
+      ],
+      "dtype": "bfloat16",
+      "reference_only": true,
+      "descriptor_file": "detail-full-u.json",
+      "descriptor_sha256": "47f7b0efb67db3e0c51eced6322f67b7bc6a73af4fb45100bc1d0af05757358f"
+    },
+    "remote_check": {
+      "host": "BAIYING",
+      "sha256": "1b4d91596e6554314647111d1dfa156517be6afae313cd69cf51234dfd955cfb",
+      "file": "D:/projects/sparse-group-gdn-capture-20260918-r1/full-u-bf16.bin",
+      "bytes": 58728448
+    },
+    "copy_returncode": 0,
+    "wall_seconds": 4.263973250053823,
+    "local_sha256": "1b4d91596e6554314647111d1dfa156517be6afae313cd69cf51234dfd955cfb",
+    "original_model_reference": "D:/models/Qwen3.6-35B-A3B",
+    "remote_directory": "D:/projects/sparse-group-gdn-capture-20260918-r1",
+    "remote_read_only": true,
+    "native_model_process_started": false,
+    "gpu_work_started": false,
+    "scope": "Copy one already captured original GB10 U tensor for a local admission audit; no new inference or compilation."
+  },
+  "additional_u_copy_sha256": "8f4981165e4e02974572dd7ea2c4e5509f9e36d4c9e355ea0b0bc898fa862547",
+  "selected_product_maximum_window": [
+    -64,
+    64
+  ],
+  "subnormal_operand_risk_margin": 27,
+  "conservative_original_capture_admission": {
+    "all_segment_ctas": 4096,
+    "prior_narrow_ctas": 2901,
+    "wh_certificate_only_ctas": 3070,
+    "hybrid_wh_and_product_group_ctas": 3463,
+    "full_segment_ctas": 3584,
+    "full_hybrid_admitted": 2953
+  },
+  "wider_window_not_implemented": {
+    "window": [
+      -101,
+      64
+    ],
+    "additional_predicted_ctas": 35
+  },
+  "native_fixture": {
+    "source": "tests/native/hybrid_state_gdn_selftest.cpp",
+    "variants": [
+      "retained",
+      "separate_fast_and_retained_replay",
+      "fast_hybrid_retry_and_retained_replay"
+    ],
+    "generated_configurations": 336,
+    "owners": [
+      "separate_U",
+      "U_aliases_V"
+    ],
+    "original_capture_tokens": 7169,
+    "synthetic_extension_tokens": 8192,
+    "warmups": 1,
+    "rotated_measured_samples": 3,
+    "compiled": false
+  },
+  "runtime_dispatch_changed": false,
+  "native_resources_measured": false,
+  "native_receipts_measured": false,
+  "native_speed_measured": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "scope": "CPU-only integer, ownership and original-input qualification. The candidate certifies both BF16 WH consumers only outside the original narrow operand domain; KV retains ordered K16 arithmetic with checked product maxima. A failed CTA leaves global recurrent state unpublished and the retained replay overwrites all partial outputs. Original captures inform admission but do not select GPU work. Component speed and full-model behavior remain unmeasured.",
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "df561a688d08faaefbf5a83ffd29bc89b453f12cfee1b84d8bb5a681463344b0",
+    "original_json_bytes": 73461,
+    "source_revision": "014cb2c7e96c279a55ca0278d113304d6fecc866",
+    "source_path": "benchmarks/correctness/hybrid-state-gdn-local-20260921.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 21
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}

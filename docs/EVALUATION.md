@@ -73,6 +73,18 @@ The prepared425-input native fixture compares the complete retained chain
 with separate fast and replay kernels. Runtime dispatch, retained timings
 and every product acceptance threshold remain unchanged.
 
+The [checked hybrid retry candidate](../benchmarks/correctness/hybrid-state-gdn-local-20260921.json)
+adds selective W/H consumer certificates and a checked K16 product-domain
+carry in a third isolated kernel. Local tests pass298452 integer carry
+boundaries and36 CTAs across nine ownership cases, including8 successful retries and8
+retained replays; four broken guard/ownership variants are detected. Original
+GB10 inputs additionally pass3670528 sampled residual comparisons and427924
+admitted K/V dot comparisons against the independent integer algorithm.
+The combined interval audit predicts3463/4096 admitted CTAs, versus2901 under
+the original narrow operand rule. The new336-case native fixture remains
+unbuilt. No actual admission receipts, resource improvement or speedup are
+claimed; this is a component experiment and does not enter runtime dispatch.
+
 The preceding [whole-provider build and q8192 regression](../benchmarks/correctness/residual-norm-mode-q8192-20260921.json)
 pass on baiying at source6a5da30. All512 output IDs and callbacks match GB10,
 first144/logit10.375/error0. Load21692.5148ms passes; TTFT23241.443799ms and
