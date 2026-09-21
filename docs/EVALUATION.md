@@ -200,6 +200,27 @@ row, final hidden, full-vocabulary logits, paired checkpoint restoration and
 the next draft on default/nonblocking streams. Its host syntax passes; native
 compilation, execution and whole-model validation remain pending.
 
+The [local prefix repair](../benchmarks/correctness/native-mtp-prefix-repair-local-20260921.json)
+adds an actual Request fork for complete,8192-aligned cold checkpoints with
+the same pre-FC norm profile. The checkpoint retains at most32 actual target
+boundary rows. A fork copies its immutable KV, recomputes only changed chunk
+tails using the new prompt's backup token, then consumes the actual suffix.
+No proposal or checkpoint is exposed during repair or intermediate chunks.
+Known repair failures discard the private copy; unknown completion retains
+its device, pinned-host and model storage. Partial/decode checkpoints, profile
+changes and retirement crossing remain outside this API.
+
+Four focused local tests pass in27.130s. The actual owner is exercised through
+nine forks, both norm orders, zero/one/two changed seams, a two-chunk suffix,
+14 invalid frontiers,12 completed-failure retries and11 unknown-completion
+fences. Deferred writes under ASan/UBSan verify both the unchanged source and
+its restored checkpoint. The native component probe now also prepares the
+original16k-to17k comparison, including every fork/source KV cell, complete
+draft logits and both restored next proposals on default/nonblocking streams.
+Its host syntax passes. This prefix API is not yet selected by the whole
+runtime; Windows arithmetic, live prefix continuation and release remain
+unqualified. The six-case cold native plan remains frozen at e7880fc.
+
 The native cache-publication probe is prepared in
 tools/q2_cache_publication_hip_probe.cpp. It evaluates the complete original
 q8192 target pair, then checks accepted1/2 rows with BF16/FP32 tails and both

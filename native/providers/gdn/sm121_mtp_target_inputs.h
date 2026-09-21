@@ -54,9 +54,25 @@ public:
     size_t allocated_bytes() const { return storage_ ? 2u * storage_->bytes : 0u; }
 
 private:
+    friend class Request;
+    PromptStep replace_prefix_row(Drafter& drafter,
+        const std::array<uint16_t,2048u>& hidden, uint32_t shifted_id, unsigned position,
+        bool split1024_pre_fc_norm, uint64_t epoch, hipStream_t stream, unsigned maximum_blocks) {
+        struct Row {
+            const std::array<uint16_t,2048u>& values;
+            std::array<uint32_t,1u> ids;
+            unsigned position;
+            size_t rows()const{return 1u;}
+            unsigned first_position()const{return position;}
+            const auto& hidden()const{return values;}
+            const auto& shifted_tokens()const{return ids;}
+        } row{hidden,{shifted_id},position};
+        return append_completed(drafter,row,true,split1024_pre_fc_norm,epoch,stream,maximum_blocks,true);
+    }
     template<class Rows>
     PromptStep append_completed(Drafter& drafter, const Rows& batch, bool completed_rows,
-        bool split1024_pre_fc_norm, uint64_t epoch, hipStream_t stream, unsigned maximum_blocks) {
+        bool split1024_pre_fc_norm, uint64_t epoch, hipStream_t stream, unsigned maximum_blocks,
+        bool replacing = false) {
         if (terminal_ != hipSuccess)
             return {terminal_, "target_input_quarantined", drafter.retained_tokens(), true};
         if (!completed_rows || !batch.rows() ||
@@ -89,7 +105,11 @@ private:
             return {completed, "target_input_completion", drafter.retained_tokens(), true};
         }
         if (copied != hipSuccess) return {copied, "target_input_copy", drafter.retained_tokens()};
-        const auto result = drafter.append_target(reinterpret_cast<const uint16_t*>(storage_->device),
+        const auto result = replacing ? drafter.replace_target_row(
+            reinterpret_cast<const uint16_t*>(storage_->device),
+            reinterpret_cast<const uint32_t*>(storage_->device + hidden_bytes),
+            static_cast<unsigned>(batch.first_position()),split1024_pre_fc_norm,epoch,stream,maximum_blocks) :
+            drafter.append_target(reinterpret_cast<const uint16_t*>(storage_->device),
             reinterpret_cast<const uint32_t*>(storage_->device + hidden_bytes),
             static_cast<unsigned>(batch.first_position()), static_cast<unsigned>(batch.rows()),
             split1024_pre_fc_norm, epoch, stream, maximum_blocks);

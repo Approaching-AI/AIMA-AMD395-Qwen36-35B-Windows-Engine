@@ -22,6 +22,7 @@ static std::map<void*,Allocation> allocations;
 static std::vector<std::function<void()>> queued;
 static std::vector<std::string> stages;
 static unsigned allocation_call=0, fail_allocation=0, sync_call=0, fail_sync=0, copies=0;
+static unsigned fail_stage_occurrence=1, failing_stage_seen=0;
 static std::string fail_stage;
 static bool invalid_input=false, invalid_moe=false, invalid_head=false, invalid_id=false, invalid_logit=false;
 static hipStream_t expected_stream=reinterpret_cast<void*>(0x1234);
@@ -34,6 +35,8 @@ static std::vector<uint32_t> expected_ids;
 static bool expected_split=true;
 static uint16_t cache_fill=55u;
 static std::function<void()> completion_hook;
+static std::function<void(const uint16_t*,const uint32_t*,unsigned,bool)> input_observer;
+static std::function<void(const uint16_t*,unsigned)> cache_observer;
 static hipError_t allocate(void** pointer,size_t bytes,bool host) {
     if(++allocation_call==fail_allocation)return hipErrorOutOfMemory;
     assert(!posix_memalign(pointer,256u,(bytes+255u)&~size_t(255u)));
@@ -49,7 +52,7 @@ static hipError_t hipFree(void* p){return release(p,false);}
 static hipError_t hipHostFree(void* p){return release(p,true);}
 static hipError_t enqueue(const std::string& stage,hipStream_t stream,std::function<void()> action) {
     assert(stream==expected_stream);stages.push_back(stage);queued.push_back(action);
-    return fail_stage==stage?injected:hipSuccess;
+    return fail_stage==stage && ++failing_stage_seen==fail_stage_occurrence?injected:hipSuccess;
 }
 static hipError_t hipStreamSynchronize(hipStream_t stream) {
     assert(stream==expected_stream);if(++sync_call==fail_sync)return injected;
@@ -81,6 +84,7 @@ namespace qrt_sm121_mtp {
 static hipError_t launch_fusion_inputs(const uint16_t*,const uint16_t* hidden,const uint32_t* ids,const uint16_t*,
     const uint16_t*,const unsigned char*,unsigned rows,uint16_t* out,uint32_t* invalid,hipStream_t stream,bool split) {
     return enqueue("gather",stream,[=]{
+        if(input_observer)input_observer(hidden,ids,rows,split);
         if(!expected_hidden.empty()){
             assert(expected_hidden.size()==size_t(rows)*2048u&&expected_ids.size()==rows&&split==expected_split);
             assert(std::equal(expected_hidden.begin(),expected_hidden.end(),hidden));
@@ -114,7 +118,9 @@ static hipError_t launch_attention(const uint16_t* q,const uint16_t* cache,unsig
     unsigned rows,const unsigned char*,const unsigned char*,float*,unsigned stride,float*,uint16_t* out,hipStream_t stream) {
     attention_tokens=tokens;attention_first=first;attention_rows=rows;
     assert(first+rows<=tokens&&stride>=first+rows&&stride%32u==0u);
-    return enqueue("attention",stream,[=]{assert(q[0]==67u);for(unsigned i=0;i<tokens;++i)assert(cache[i*1024u]==55u);
+    return enqueue("attention",stream,[=]{assert(q[0]==67u);
+        if(cache_observer)cache_observer(cache,tokens);
+        else for(unsigned i=0;i<tokens;++i)assert(cache[i*1024u]==55u);
         std::fill_n(out,rows*4096u,70u);});
 }
 static hipError_t launch_gate(const uint16_t* in,const uint16_t* gate,const uint16_t*,uint16_t* out,
@@ -189,7 +195,8 @@ static void reset() {
     assert(queued.empty());allocation_call=fail_allocation=sync_call=fail_sync=copies=0;
     stages.clear();fail_stage.clear();invalid_input=invalid_moe=invalid_head=invalid_id=invalid_logit=false;
     expected_hidden.clear();expected_ids.clear();expected_split=true;
-    cache_fill=55u;completion_hook={};
+    cache_fill=55u;completion_hook={};input_observer={};cache_observer={};
+    fail_stage_occurrence=1;failing_stage_seen=0;
 }
 static bool bind(qrt_sm121_mtp::Drafter& d,uint64_t epoch=10u) {
     using namespace qrt_sm121_mtp;
@@ -405,6 +412,7 @@ static void test_checkpoints() {
 }
 #include "mtp_request_host.inc"
 #include "mtp_chunked_request_host.inc"
+#include "mtp_prefix_request_host.inc"
 int main(int argc,char** argv){
     assert(argc==2);
     using qrt_sm121_mtp::Drafter;
@@ -416,6 +424,7 @@ int main(int argc,char** argv){
     test_chunked_request();
     test_chunked_seed_runtime();
     test_explicit_prefill_norm_order();
+    test_prefix_request();
     test_prefill_request_probe(argv[1]);
     for(unsigned fail=1;fail<=25u;++fail){
         reset();{Drafter d;assert(d.reserve(8,2)==hipSuccess&&allocations.size()==25u);auto* old=d.cache_data();

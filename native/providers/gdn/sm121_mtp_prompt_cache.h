@@ -101,12 +101,34 @@ public:
         const uint16_t* rope_table, unsigned int rope_rows,
         unsigned int first_position, unsigned int rows, Project project,
         void* project_context, hipStream_t stream = nullptr) {
+        return update(weights,target_hidden,shifted_ids,rsqrt_table,rope_table,rope_rows,
+            first_position,rows,project,project_context,stream,false);
+    }
+
+private:
+    // Only a newly restored, unpublished request may replace a prefix row.
+    // Its owner discards the entire private branch on a completed failure;
+    // the immutable checkpoint is never a destination of these writes.
+    PromptStep replace_completed(const PromptWeights& weights, const uint16_t* target_hidden,
+        const uint32_t* shifted_ids, const unsigned char* rsqrt_table,
+        const uint16_t* rope_table, unsigned int rope_rows,
+        unsigned int position, Project project, void* project_context, hipStream_t stream) {
+        return update(weights,target_hidden,shifted_ids,rsqrt_table,rope_table,rope_rows,
+            position,1u,project,project_context,stream,true);
+    }
+    PromptStep update(const PromptWeights& weights, const uint16_t* target_hidden,
+        const uint32_t* shifted_ids, const unsigned char* rsqrt_table,
+        const uint16_t* rope_table, unsigned int rope_rows,
+        unsigned int first_position, unsigned int rows, Project project,
+        void* project_context, hipStream_t stream, bool replacing) {
         if (quarantined_)
             return {completion_error_, "quarantined", retained_, true};
         if (!project || !target_hidden || !shifted_ids || !rsqrt_table || !rope_table ||
             !weights.embeddings || !weights.embedding_norm || !weights.hidden_norm ||
             !weights.fusion || !weights.input_norm || !weights.kv_projection || !weights.key_norm ||
-            !cache_ || first_position != retained_ || !rows || rows > row_capacity_ ||
+            !cache_ || (!replacing && first_position != retained_) ||
+            (replacing && (first_position >= retained_ || rows > retained_ - first_position)) ||
+            !rows || rows > row_capacity_ ||
             first_position >= capacity_ || rows > capacity_ - first_position ||
             first_position >= rope_rows || rows > rope_rows - first_position)
             return {hipErrorInvalidValue, "input_contract", retained_};
@@ -144,12 +166,13 @@ public:
         if (status != hipSuccess) return fail(status, "key_normalization_rope");
         status = hipStreamSynchronize(stream);
         if (status != hipSuccess) return quarantine(status, "cache_completion");
-        retained_ += rows;
+        if (!replacing) retained_ += rows;
         tail_first_ = first_position;
         tail_rows_ = rows;
         return {hipSuccess, "complete", retained_};
     }
 
+public:
     // The caller may discard a provisional suffix after actual native target
     // acceptance. It must never infer this extent from reference decisions.
     bool truncate(unsigned int tokens) {

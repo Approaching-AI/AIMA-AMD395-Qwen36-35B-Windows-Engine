@@ -1,0 +1,211 @@
+{
+  "kind": "native_mtp_prefix_repair_local_validation",
+  "utc": "2026-09-21T01:07:24.194469+00:00",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "source_base_commit": "e7880fc58697a703a737defdab73de269731b579",
+  "source_revision_suffix": "working-tree",
+  "source_sha256": {
+    "native/providers/gdn/sm121_mtp_drafter.h": "1d30e81258d926bab4db6463ec07df735078e47fe02f009c3f7df5ce3d89bd85",
+    "native/providers/gdn/sm121_mtp_prompt_cache.h": "28aca81bc55485ebefaba7cca4e1f91512b4c55710909b86cc14482f070ab147",
+    "native/providers/gdn/sm121_mtp_request.h": "fd7991766e34cea951c819c0f02e111b6c6cd2f35284485e8f4964ee63fd24fb",
+    "native/providers/gdn/sm121_mtp_target_inputs.h": "20c0733c8156b15feff6667d58e8918b7ba9b92eafdafb72360b16df4a836750",
+    "tests/native/mtp_drafter_host.cpp": "ed5bb42c371777d50964a6dbcbbf4df0bfc7b6ac7dbf1f2e6ea4367ec1bdb6ad",
+    "tests/native/mtp_prefix_request_host.inc": "22199359aebc32059b5fdce06ef12a16031b86a20f0316e5aac60c2370115155",
+    "tests/native/mtp_chunked_request_host.inc": "344994db7231c924b6b2f11d6f7d679e2a6603bac4abd3678a25931b2a78e692",
+    "tests/test_mtp_drafter.py": "bcf597eb3834ff8d85111f2ef4b43ec091f28774b69bd8f0812743f4a4513a39",
+    "tools/mtp_chunked_request_hip_probe.cpp": "95c00a204abf525abe45ed00afafadc907fc9a621ed6ac5972bd8fdd77bacdbb"
+  },
+  "original_boundary": {
+    "file": "benchmarks/correctness/mtp-chunked-prefill-original-20260921.json",
+    "sha256": "4ed85ad0c7fbb3c49eba8fc2fcc3c4443490cf3705492488268ad55f886c8a4b",
+    "prefix_prompt_tokens": 16384,
+    "extended_prompt_tokens": 17408,
+    "complete_prefix_hidden_identical": true,
+    "original_changed_kv_rows": [
+      8191,
+      16383
+    ],
+    "original_prefill_norm_r0_block": 2048,
+    "original_owner_first_token": 16,
+    "original_owner_first_logit": 25.625,
+    "original_extension_first_token": 3709,
+    "original_extension_first_logit": 5.6875,
+    "original_owner_draft_token": 15,
+    "original_owner_draft_logit": 26.875,
+    "original_extension_draft_token": 248046,
+    "original_extension_draft_logit": 6.40625,
+    "cold_original_cases_only": true,
+    "live_prefix_inference_qualified": false
+  },
+  "implementation": {
+    "actual_request_api": "Request::extend_prefill_prefix",
+    "actual_cache_owner": true,
+    "whole_runtime_prefix_dispatch_enabled": false,
+    "old_checkpoint_immutable": true,
+    "prefix_copy_before_repair": true,
+    "actual_target_boundary_rows_retained": true,
+    "maximum_retained_boundary_rows": 32,
+    "no_proposal_or_checkpoint_during_repair": true,
+    "final_proposal_after_actual_suffix": true,
+    "required_identity": [
+      "target owner",
+      "generation",
+      "model epoch",
+      "all prefix input IDs",
+      "prefill norm profile"
+    ],
+    "admitted_prefix": "complete cold chunks of 8192 rows with an aligned prompt end",
+    "excluded": [
+      "partial checkpoints",
+      "decode checkpoints",
+      "different norm profiles",
+      "drafter retirement crossing"
+    ],
+    "known_repair_failure": "discard private fork; retry from unchanged checkpoint",
+    "unknown_completion": "quarantine private device/host/model storage; no further publication"
+  },
+  "local_tests": {
+    "kind": "mtp_prefix_request_local_regressions",
+    "execution_host": "Jiawei-MacminideMac-mini.local",
+    "source_base_commit": "e7880fc58697a703a737defdab73de269731b579",
+    "command": [
+      "python3.12",
+      "-m",
+      "unittest",
+      "tests.test_mtp_drafter",
+      "tests.test_mtp_prompt_cache",
+      "tests.test_mtp_native_prefill_integration",
+      "tests.test_native_mtp_decode"
+    ],
+    "cwd": "<evidence-home-1>/projects/AIMA-public-r1191-candidate",
+    "result": {
+      "chunk_id": "83c00f",
+      "wall_time_seconds": 1.5e-06,
+      "exit_code": 0,
+      "original_token_count": 26,
+      "output": "....\n----------------------------------------------------------------------\nRan 4 tests in 27.130s\n\nOK\n"
+    },
+    "unittest_reported_seconds": 27.13,
+    "test_methods": 4,
+    "asan_ubsan": true,
+    "native_execution": false,
+    "model_inference": false
+  },
+  "local_tests_sha256": "6b1784d1f2fc6090f03b35c5a35f7c61c3409f8a79478f864e009946610e59e7",
+  "regression_cases": {
+    "successful_prefix_forks": 9,
+    "base_prefix_lengths": [
+      8192,
+      16384
+    ],
+    "prefill_norm_profiles": [
+      1024,
+      2048
+    ],
+    "zero_one_two_seam_recomputations": true,
+    "continued_suffix_chunks": [
+      8192,
+      1024
+    ],
+    "invalid_frontiers_with_zero_submissions": 14,
+    "known_failure_stages": [
+      "input_copy",
+      "gather",
+      "fusion",
+      "prompt_norm",
+      "kv",
+      "cache"
+    ],
+    "known_failure_positions_per_stage": 2,
+    "known_failure_retries": 12,
+    "unknown_completion_fences": 11,
+    "source_cache_and_restored_checkpoint_compared_after_known_failures": true
+  },
+  "earlier_test_selection": {
+    "command": [
+      "python3.12",
+      "-m",
+      "unittest",
+      "tests.test_mtp_drafter",
+      "tests.test_mtp_prompt_cache",
+      "tests.test_mtp_target_inputs"
+    ],
+    "returncode": 1,
+    "real_test_methods_passed": 2,
+    "loader_error": "ModuleNotFoundError: No module named 'tests.test_mtp_target_inputs'",
+    "correction": "The final invocation uses the four existing relevant modules; no missing test was invented."
+  },
+  "probe_host_syntax": {
+    "kind": "original_mtp_prefix_request_probe_host_syntax",
+    "source_sha256": "95c00a204abf525abe45ed00afafadc907fc9a621ed6ac5972bd8fdd77bacdbb",
+    "source_derived_interface_sha256": {
+      "native/providers/gdn/sm121_mtp_prompt_cache.h": "28aca81bc55485ebefaba7cca4e1f91512b4c55710909b86cc14482f070ab147",
+      "native/providers/gdn/sm121_mtp_moe.h": "df38e91dae5bc127961813be746da1d5bd8ce8dc0e2fb01782f3aeac896cb52d",
+      "native/providers/gdn/sm121_mtp_drafter.h": "1d30e81258d926bab4db6463ec07df735078e47fe02f009c3f7df5ce3d89bd85",
+      "native/providers/gdn/sm121_mtp_request.h": "fd7991766e34cea951c819c0f02e111b6c6cd2f35284485e8f4964ee63fd24fb"
+    },
+    "command": [
+      "c++",
+      "-std=c++17",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsyntax-only",
+      "-I",
+      "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-mtp-chunk-probe-syntax-kctc64_t",
+      "-I",
+      "<evidence-home-1>/projects/AIMA-public-r1191-candidate",
+      "<evidence-home-1>/projects/AIMA-public-r1191-candidate/tools/mtp_chunked_request_hip_probe.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "",
+    "helper_sha256": "40f33a35d799057710e99f93ff93d0b29f4659d1b2783b35d8aa5c1211e7123f",
+    "windows_and_hip_api_declarations_only": true,
+    "request_interface_declarations_only": true,
+    "original_model_weights_and_target_rows_headers": true,
+    "native_compilation": false,
+    "native_execution": false
+  },
+  "probe_host_syntax_sha256": "8be7cc605ff94234bc406465f27f18949981eb819e64a164a2eded2fba7c45c9",
+  "native_probe": {
+    "default_and_nonblocking_streams": true,
+    "original_model_weight_count": 21,
+    "original_target_hidden_and_prompt_input": true,
+    "expected_kv_and_logits_are_compute_input": false,
+    "compares": [
+      "original prefix token/hidden identity",
+      "all original owner KV",
+      "complete owner draft hidden/logits",
+      "all repaired fork KV",
+      "complete fork hidden/logits",
+      "restored fork KV and next proposal",
+      "unchanged source KV",
+      "restored original checkpoint KV and next proposal",
+      "original weight/table hashes and guards"
+    ],
+    "windows_compiled": false,
+    "executed": false
+  },
+  "native_execution": false,
+  "model_inference": false,
+  "gb10_token_gate_passed_by_native_change": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "generator": "record_mtp_prefix_request_local_r1.py",
+  "generator_sha256": "7f1fc93ad0aa5b9c60cf535faf3a9c255254ce2f40e46b13543bf92070ba8e06",
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "853f07cd76522f8345dc177865ba367b43d2ed0c9d0bddb4edd9cfd0f5a7c1c1",
+    "original_json_bytes": 7948,
+    "source_revision": "e7880fc58697a703a737defdab73de269731b579+working-tree",
+    "source_path": "build/recovery-20260910/native-mtp-prefix-repair-local-20260921.raw.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 3
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}

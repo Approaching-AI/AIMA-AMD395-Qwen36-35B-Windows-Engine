@@ -181,11 +181,166 @@ void complete(const qrt_sm121_mtp::PromptStep& step) {
         throw std::runtime_error(std::string(step.stage) + ": " + hipGetErrorString(step.status));
 }
 uint32_t bits(float value) { uint32_t word = 0; std::memcpy(&word, &value, sizeof(word)); return word; }
+Plan read_plan(const char* path,unsigned chunks){
+    Plan plan;std::ifstream file(path);std::string label;Entry entry;
+    while(file>>std::quoted(label)>>std::quoted(entry.path)>>entry.offset>>entry.bytes>>entry.digest){
+        if(label.empty()||label.size()>160u||entry.path.empty()||entry.path.size()>2048u||
+            entry.digest.size()!=64u||entry.digest.find_first_not_of("0123456789abcdef")!=std::string::npos||
+            !entry.bytes||entry.bytes>(uint64_t(1)<<30u)||plan.size()>=64u||
+            !plan.emplace(label,entry).second)throw std::runtime_error("original input plan");
+    }
+    if(!file.eof()||plan.size()!=qrt_sm121_mtp::model_weight_specs.size()+10u+4u*chunks)
+        throw std::runtime_error("incomplete original plan");
+    return plan;
+}
+// Original 16k and cold 17k share every target hidden value in the prefix,
+// but their MTP chunk tails differ. Replay both complete native requests,
+// preserve the source checkpoint and compare the repaired fork to cold 17k.
+int replay_prefix(const Plan& prefix_plan,const Plan& plan,unsigned prefix_rows,
+    unsigned prompt_rows,unsigned prefix_first,unsigned first_target,bool split){
+    using namespace qrt_sm121_mtp;
+    if(prefix_rows!=16384u||prompt_rows!=17408u||split)
+        throw std::runtime_error("original prefix component shape/profile");
+    for(const auto& item:prefix_plan){
+        if(item.first.rfind("weight/",0u)&&item.first.rfind("table/",0u))continue;
+        const auto& other=plan.at(item.first);
+        if(other.bytes!=item.second.bytes||other.digest!=item.second.digest)
+            throw std::runtime_error("prefix model/table identity");
+    }
+    const auto prefix=read<uint32_t>(prefix_plan,"prompt-ids",prefix_rows);
+    const auto prompt=read<uint32_t>(plan,"prompt-ids",prompt_rows);
+    if(!std::equal(prefix.begin(),prefix.end(),prompt.begin()))
+        throw std::runtime_error("exact prefix prompt identity");
+    std::map<std::string,Comparison> comparisons;
+    for(unsigned i=0;i<prefix_rows;++i)comparisons["original-prefix-token-identity"].add(prefix[i],prompt[i],i);
+    for(unsigned chunk=0;chunk<2u;++chunk){
+        const auto role="chunk-"+std::to_string(chunk)+"/target-hidden";
+        const auto before=read<uint16_t>(prefix_plan,role,size_t(8192u)*2048u);
+        const auto after=read<uint16_t>(plan,role,before.size());
+        for(size_t i=0;i<before.size();++i)
+            comparisons["original-prefix-target-hidden-identity"].add(before[i],after[i],size_t(chunk)*before.size()+i);
+    }
+    if(comparisons.at("original-prefix-target-hidden-identity").mismatches)
+        throw std::runtime_error("original prefix target hidden is not a comparable cold case");
+    auto original=std::make_shared<OriginalWeights>(prefix_plan);TableOwner tables(prefix_plan);
+    check(hipDeviceSynchronize());ModelWeights weights;
+    const auto prepared=weights.prepare(original,1u);
+    if(prepared.status!=hipSuccess||prepared.completion_unknown)
+        throw std::runtime_error(std::string(prepared.stage)+": model pack");
+    const auto batch=[&](const Plan& inputs,const std::vector<uint32_t>& ids,unsigned first,
+        unsigned sample,const std::string& name){
+        const unsigned rows=std::min(8192u,static_cast<unsigned>(ids.size())-first);
+        const std::string role="chunk-"+std::to_string(first/8192u)+'/';
+        const auto hidden=read<uint16_t>(inputs,role+"target-hidden",size_t(rows)*2048u);
+        const auto shifted=read<uint32_t>(inputs,role+"shifted-ids",rows);
+        std::vector<float> normalized(hidden.size());
+        for(size_t i=0;i<hidden.size();++i){const uint32_t word=uint32_t(hidden[i])<<16u;
+            std::memcpy(&normalized[i],&word,sizeof(word));}
+        auto result=std::make_unique<qrt_mtp_target_rows::PrefillRows>(ids.data(),ids.size(),first,rows);
+        const uint32_t marker=result->discarded_prefill()?ids.back():sample;
+        if(!result->stage(result->local_rows(),normalized,marker)||!result->publish(marker))
+            throw std::runtime_error("original prefix target publication");
+        for(unsigned i=0;i<rows;++i)comparisons[name+"-shifted-ids"].add(result->shifted_tokens()[i],shifted[i],first+i);
+        for(size_t i=0;i<hidden.size();++i)
+            comparisons[name+"-target-hidden"].add(result->hidden()[i],hidden[i],size_t(first)*2048u+i);
+        return result;
+    };
+    const auto compare_cache=[&](Request& request,const Plan& inputs,unsigned tokens,const std::string& name){
+        for(unsigned first=0u;first<tokens;first+=8192u){
+            const unsigned rows=std::min(8192u,tokens-first);
+            const std::string role="chunk-"+std::to_string(first/8192u)+'/';
+            const auto keys=read<uint16_t>(inputs,role+"k",size_t(rows)*512u);
+            const auto values=read<uint16_t>(inputs,role+"v",size_t(rows)*512u);
+            const auto actual=copy(request,request.cache_data()+size_t(first)*1024u,size_t(rows)*1024u);
+            for(unsigned row=0u;row<rows;++row)for(unsigned c=0u;c<1024u;++c)
+                comparisons[name].add(actual[size_t(row)*1024u+c],
+                    (c<512u?keys:values)[size_t(row)*512u+c%512u],size_t(first+row)*1024u+c);
+        }
+    };
+    const auto compare_head=[&](Request& request,const Plan& inputs,unsigned tokens,const std::string& name){
+        const auto proposal=request.proposal(1u);const auto observation=request.observation(1u);
+        if(proposal.status!=hipSuccess||proposal.completion_unknown||proposal.rows!=1u||
+            proposal.first_position+1u!=tokens||observation.rows!=1u||observation.first_position+1u!=tokens)
+            throw std::runtime_error("prefix proposal frontier");
+        const auto hidden=copy(request,observation.final_hidden,2048u);
+        const auto logits=copy(request,observation.vocabulary_logits,head_vocabulary);
+        const auto want_hidden=read<uint16_t>(inputs,"final-hidden",2048u);
+        const auto want_logits=read<uint16_t>(inputs,"final-logits",head_vocabulary);
+        HeadBest best;
+        for(unsigned token=0;token<head_vocabulary;++token){
+            if(!head_candidate(want_logits[token],token,&best))throw std::runtime_error("original prefix logit");
+            comparisons[name+"-full-vocabulary-logits"].add(logits[token],want_logits[token],token);
+        }
+        for(unsigned h=0;h<2048u;++h)comparisons[name+"-hidden"].add(hidden[h],want_hidden[h],h);
+        comparisons[name+"-token"].add(proposal.tokens[0],best.token,0u);
+        comparisons[name+"-logit"].add(bits(proposal.logits[0]),bits(best.logit),0u);
+        return proposal;
+    };
+    unsigned restored_branches=0u,restored_sources=0u;
+    std::array<uint32_t,2> actual_tokens{};std::array<float,2> actual_logits{};
+    for(unsigned mode=0u;mode<2u;++mode){
+        hipStream_t stream=nullptr;if(mode)check(hipStreamCreateWithFlags(&stream,hipStreamNonBlocking));
+        {
+            int target_owner=0;Request source;
+            TargetFrontier cached{&target_owner,17u,1u,prefix.data(),0u,prefix_first};
+            for(unsigned first=0u;first<prefix_rows;first+=8192u){
+                auto rows=batch(prefix_plan,prefix,first,prefix_first,"owner");
+                cached.processed_count=first+rows->rows();cached.current_token=rows->sampled_token();
+                if(first)complete(source.append_prefill_chunk(*rows,cached,stream));
+                else complete(source.seed_prefill_chunks(*rows,cached,weights.binding(1u),tables.tables,
+                    prefix_rows+32u,stream,1024u,split));
+            }
+            const auto owner_proposal=compare_head(source,prefix_plan,prefix_rows,"owner-head");
+            compare_cache(source,prefix_plan,prefix_rows,"owner-complete-cache");
+            RequestCheckpoint checkpoint;complete(source.save(&checkpoint,cached,stream));
+            if(!checkpoint.matches(cached))throw std::runtime_error("source prefix checkpoint");
+            auto suffix=batch(plan,prompt,prefix_rows,first_target,"suffix");
+            const TargetFrontier actual{cached.owner,cached.generation,1u,prompt.data(),prompt_rows,first_target};
+            Request fork;complete(fork.extend_prefill_prefix(checkpoint,cached,*suffix,actual,
+                prompt_rows+32u,split,stream));
+            const auto proposal=compare_head(fork,plan,prompt_rows,"fork-head");
+            actual_tokens[mode]=proposal.tokens[0];actual_logits[mode]=proposal.logits[0];
+            compare_cache(fork,plan,prompt_rows,"fork-complete-cache");
+            RequestCheckpoint saved;complete(fork.save(&saved,actual,stream));
+            Request restored;complete(restored.restore(saved,actual,prompt_rows+32u,stream));
+            compare_cache(restored,plan,prompt_rows,"restored-fork-complete-cache");
+            TargetBatch next;
+            if(!restored.begin(actual,32u,&next)||next.first_position!=prompt_rows||next.rows!=2u||
+                next.inputs[0]!=first_target||next.inputs[1]!=proposal.tokens[0]||!restored.abort(1u))
+                throw std::runtime_error("restored prefix fork frontier");
+            ++restored_branches;
+            if(!source.matches(cached)||!checkpoint.matches(cached))throw std::runtime_error("mutated source prefix identity");
+            compare_cache(source,prefix_plan,prefix_rows,"source-cache-after-fork");
+            Request restored_source;complete(restored_source.restore(checkpoint,cached,prefix_rows+32u,stream));
+            compare_cache(restored_source,prefix_plan,prefix_rows,"restored-source-complete-cache");
+            if(!restored_source.begin(cached,32u,&next)||next.first_position!=prefix_rows||next.rows!=2u||
+                next.inputs[0]!=prefix_first||next.inputs[1]!=owner_proposal.tokens[0]||!restored_source.abort(1u))
+                throw std::runtime_error("restored source next proposal");
+            ++restored_sources;check(hipStreamSynchronize(stream));
+        }
+        if(mode)check(hipStreamDestroy(stream));
+    }
+    const size_t immutable_errors=original->inputs.verify()+tables.inputs.verify();
+    size_t errors=immutable_errors,values=0;
+    std::cout<<"{\"kind\":\"original_mtp_prefix_repair_component_replay\",\"prefix_tokens\":"<<prefix_rows
+        <<",\"prompt_tokens\":"<<prompt_rows<<",\"split1024_pre_fc_norm\":false,\"configurations\":2"
+        <<",\"streams\":[\"default\",\"nonblocking\"],\"restored_branches\":"<<restored_branches
+        <<",\"restored_sources\":"<<restored_sources<<",\"actual_draft_tokens\":["<<actual_tokens[0]<<','<<actual_tokens[1]
+        <<"],\"actual_draft_logits\":["<<std::setprecision(9)<<actual_logits[0]<<','<<actual_logits[1]<<"],\"checks\":{";
+    bool comma=false;for(const auto& item:comparisons){if(comma)std::cout<<',';comma=true;emit(item.first,item.second);
+        values+=item.second.elements;errors+=item.second.mismatches;}
+    std::cout<<"},\"compared_values\":"<<values<<",\"immutable_input_and_guard_errors\":"<<immutable_errors
+        <<",\"passed\":"<<(errors?"false":"true")
+        <<",\"original_target_hidden_drives_component_only\":true,\"expected_kv_and_logits_are_compute_input\":false"
+        <<",\"model_inference\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n";
+    return errors?1:0;
+}
 } // namespace
 
 int main(int argc, char** argv) try {
     using namespace qrt_sm121_mtp;
-    if (argc != 5) throw std::runtime_error("input_plan prompt_tokens original_first_target_token split1024_pre_fc_norm");
+    if (argc != 5 && argc != 8) throw std::runtime_error(
+        "input_plan prompt_tokens original_first_target_token split1024_pre_fc_norm [prefix_plan prefix_tokens prefix_first_target]");
     const auto number = [](const char* value, unsigned maximum) {
         const std::string text(value);
         if (text.empty() || text.find_first_not_of("0123456789") != std::string::npos)
@@ -200,18 +355,12 @@ int main(int argc, char** argv) try {
     if (prompt_rows != 7169u && prompt_rows != 8192u && prompt_rows != 16384u && prompt_rows != 17408u)
         throw std::runtime_error("original component prompt shape");
     const unsigned chunk_count = (prompt_rows + 8191u) / 8192u;
-    Plan plan;
-    std::ifstream file(argv[1]);
-    std::string label;
-    Entry entry;
-    while (file >> std::quoted(label) >> std::quoted(entry.path) >> entry.offset >> entry.bytes >> entry.digest) {
-        if (label.empty() || label.size() > 160u || entry.path.empty() || entry.path.size() > 2048u ||
-            entry.digest.size() != 64u || entry.digest.find_first_not_of("0123456789abcdef") != std::string::npos ||
-            !entry.bytes || entry.bytes > (uint64_t(1) << 30u) || plan.size() >= 64u ||
-            !plan.emplace(label, entry).second) throw std::runtime_error("original input plan");
+    const Plan plan=read_plan(argv[1],chunk_count);
+    if(argc==8){
+        const unsigned prefix_rows=number(argv[6],32768u),prefix_first=number(argv[7],head_vocabulary-1u);
+        return replay_prefix(read_plan(argv[5],(prefix_rows+8191u)/8192u),plan,prefix_rows,
+            prompt_rows,prefix_first,first_target,split1024);
     }
-    if (!file.eof() || plan.size() != model_weight_specs.size() + 10u + 4u * chunk_count)
-        throw std::runtime_error("incomplete original plan");
     const auto prompt = read<uint32_t>(plan, "prompt-ids", prompt_rows);
     auto original = std::make_shared<OriginalWeights>(plan);
     TableOwner tables(plan);

@@ -26,6 +26,35 @@ struct AcceptedTarget {
 };
 
 namespace mtp_request_detail {
+struct PrefillSeam {
+    unsigned position = 0;
+    uint32_t shifted_id = UINT32_MAX;
+    std::array<uint16_t,qrt_mtp_target_rows::hidden_width> hidden{};
+};
+// Bounded actual target rows needed to reconstruct the original discarded
+// chunk shifts when an aligned cold prefix gains another prompt suffix.
+// Other chunk geometries and decode checkpoints are deliberately ineligible.
+struct PrefillHistory {
+    explicit PrefillHistory(bool split):split1024(split){seams.reserve(32u);}
+    void append(const qrt_mtp_target_rows::PrefillRows& batch) noexcept {
+        if(!eligible)return;
+        if(batch.first_position()!=tokens || batch.rows()!=8192u || seams.size()>=32u){
+            eligible=false;seams.clear();return;
+        }
+        PrefillSeam seam;
+        seam.position=static_cast<unsigned>(batch.first_position()+batch.rows()-1u);
+        seam.shifted_id=batch.shifted_tokens().back();
+        std::copy_n(batch.hidden().end()-qrt_mtp_target_rows::hidden_width,
+            qrt_mtp_target_rows::hidden_width,seam.hidden.begin());
+        seams.push_back(seam);tokens+=batch.rows();
+    }
+    bool complete(size_t count)const{
+        return eligible && count && tokens==count && seams.size()*8192u==count;
+    }
+    bool split1024 = true, eligible = true;
+    size_t tokens = 0;
+    std::vector<PrefillSeam> seams;
+};
 struct State {
     const void* owner = nullptr;
     uint64_t generation = 0, epoch = 0;
@@ -34,6 +63,7 @@ struct State {
     qrt_mtp_draft_schedule::Schedule schedule;
     DraftStep proposal;
     ModelWeightBinding binding;
+    std::shared_ptr<const PrefillHistory> prefill;
 
     bool matches(const TargetFrontier& actual) const {
         return binding.valid(actual.model_epoch) && actual.owner == owner &&
@@ -110,6 +140,7 @@ public:
         try {
             auto next = std::make_unique<Live>();
             auto prompt = first.prompt();
+            next->prefill=std::make_shared<mtp_request_detail::PrefillHistory>(split1024_pre_fc_norm);
             auto& state = next->state;
             state.owner = actual.owner; state.generation = actual.generation;
             state.epoch = actual.model_epoch; state.binding = binding;
@@ -159,8 +190,11 @@ public:
         state.inputs.insert(state.inputs.end(),actual.processed_inputs+state.inputs.size(),
             actual.processed_inputs+actual.processed_count);
         state.current = actual.current_token;
+        live_->prefill->append(batch);
         if (!batch.discarded_prefill()) {
             state.schedule.reset(actual.processed_count); state.proposal = proposal;
+            if(live_->prefill->complete(actual.processed_count))state.prefill=live_->prefill;
+            live_->prefill.reset();
             prefill_pending_ = false; prefill_prompt_.clear();
             if (!state.matches(actual) || !state.proposal_ready()) {
                 terminal_ = hipErrorInvalidValue;
@@ -184,6 +218,7 @@ public:
             return invalid("request_seed_contract");
         try {
             auto next = std::make_unique<Live>();
+            auto history=std::make_shared<mtp_request_detail::PrefillHistory>(split1024_pre_fc_norm);
             auto& state = next->state;
             state.owner = actual.owner; state.generation = actual.generation; state.epoch = actual.model_epoch;
             state.inputs.reserve(size_t(capacity)+2u);
@@ -199,9 +234,63 @@ public:
                 actual.model_epoch, stream, maximum_blocks);
             if (state.proposal.status != hipSuccess) return failed(state.proposal);
             if (!state.matches(actual) || !state.proposal_ready()) return invalid("request_seed_frontier");
+            history->append(batch);
+            if(history->complete(actual.processed_count))state.prefill=std::move(history);
             live_ = std::move(next);
             return complete();
         } catch (...) { return {hipErrorOutOfMemory, "request_seed_owner"}; }
+    }
+
+    // Fork a completed, 8192-aligned cold prefix. The actual target owner must
+    // have restored that exact prefix before producing first_suffix. Rebuild
+    // each changed discarded-chunk tail on a private copy, then consume only
+    // actual new target rows. There is no proposal/checkpoint between repairs.
+    // A profile change needs a complete MTP reseed and cannot use this path.
+    PromptStep extend_prefill_prefix(const RequestCheckpoint& checkpoint,
+        const TargetFrontier& cached, const qrt_mtp_target_rows::PrefillRows& first_suffix,
+        const TargetFrontier& actual, unsigned capacity, bool split1024_pre_fc_norm,
+        hipStream_t stream = nullptr, unsigned maximum_blocks = 1024u) {
+        if(terminal_!=hipSuccess)return unavailable();
+        if(live_ || !checkpoint.matches(cached) || !checkpoint.saved_->state.prefill ||
+            !checkpoint.saved_->state.prefill->complete(cached.processed_count) ||
+            checkpoint.saved_->state.prefill->split1024!=split1024_pre_fc_norm ||
+            !first_suffix.published() || first_suffix.first_position()!=cached.processed_count ||
+            first_suffix.prompt_tokens()>=qrt_mtp_draft_schedule::reference_drafter_limit ||
+            !actual.processed_inputs || actual.owner!=cached.owner ||
+            actual.generation!=cached.generation || actual.model_epoch!=cached.model_epoch ||
+            actual.processed_count!=first_suffix.first_position()+first_suffix.rows() ||
+            actual.current_token!=first_suffix.sampled_token() ||
+            !std::equal(checkpoint.saved_->state.inputs.begin(),checkpoint.saved_->state.inputs.end(),
+                first_suffix.prompt().begin()) ||
+            !std::equal(first_suffix.prompt().begin(),first_suffix.prompt().begin()+actual.processed_count,
+                actual.processed_inputs) || capacity<first_suffix.prompt_tokens() || capacity>262144u ||
+            !maximum_blocks || maximum_blocks>4096u)
+            return invalid("request_prefix_seed_contract");
+        try {
+            auto next=std::make_unique<Live>();
+            next->state=checkpoint.saved_->state;
+            next->state.inputs.reserve(size_t(capacity)+2u);
+            next->state.prefill.reset();next->state.proposal={};
+            auto prompt=first_suffix.prompt();
+            next->prefill=std::make_shared<mtp_request_detail::PrefillHistory>(
+                *checkpoint.saved_->state.prefill);
+            next->prefill->seams.reserve(32u);
+            const auto restored=next->drafter.restore(checkpoint.saved_->cache,capacity,
+                static_cast<unsigned>((std::min)(size_t(8192u),prompt.size()-cached.processed_count)),
+                actual.model_epoch,stream);
+            if(restored.status!=hipSuccess)return failed(restored);
+            for(auto& seam:next->prefill->seams){
+                if(seam.shifted_id==prompt.back())continue;
+                const auto repaired=next->inputs.replace_prefix_row(next->drafter,seam.hidden,
+                    prompt.back(),seam.position,split1024_pre_fc_norm,actual.model_epoch,stream,maximum_blocks);
+                if(repaired.status!=hipSuccess)return failed(repaired);
+                seam.shifted_id=prompt.back();
+            }
+            if(!checkpoint.matches(cached))return invalid("request_prefix_seed_epoch");
+            live_=std::move(next);prefill_prompt_.swap(prompt);
+            prefill_pending_=true;prefill_split1024_=split1024_pre_fc_norm;
+            return append_prefill_chunk(first_suffix,actual,stream,maximum_blocks);
+        }catch(...){return {hipErrorOutOfMemory,"request_prefix_seed_owner"};}
     }
 
     PromptStep restore(const RequestCheckpoint& checkpoint, const TargetFrontier& actual,
@@ -303,6 +392,7 @@ public:
         state.inputs.insert(state.inputs.end(), pending_.batch.inputs.begin(), pending_.batch.inputs.begin()+added);
         state.current = receipt.current_token;
         state.schedule = pending_.schedule; state.proposal = pending_.proposal;
+        state.prefill.reset();
         pending_ = {};
         return true;
     }
@@ -366,6 +456,7 @@ private:
         mtp_request_detail::State state;
         TargetInputs inputs;
         Drafter drafter;
+        std::shared_ptr<mtp_request_detail::PrefillHistory> prefill;
     };
     struct Pending {
         TargetBatch batch;

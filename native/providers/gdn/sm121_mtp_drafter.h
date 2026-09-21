@@ -325,6 +325,23 @@ public:
     }
 
 private:
+    friend class TargetInputs;
+    // TargetInputs exposes this only to Request's unpublished prefix fork.
+    // A completed failure requires destroying that fork before another use.
+    PromptStep replace_target_row(const uint16_t* hidden, const uint32_t* shifted_id,
+        unsigned position, bool split1024_pre_fc_norm, uint64_t current_epoch,
+        hipStream_t stream, unsigned maximum_blocks) {
+        if (quarantined_) return {completion_error_,"quarantined",retained_tokens(),true};
+        if (!cache_ || !model_current(current_epoch) || !maximum_blocks || maximum_blocks>4096u)
+            return {hipErrorInvalidValue,"prefix_repair_model_contract",retained_tokens()};
+        invalidate_observation();
+        PromptWeights prompt=weights_.prompt;
+        prompt.split1024_pre_fc_norm=split1024_pre_fc_norm;
+        const auto result=cache_->replace_completed(prompt,hidden,shifted_id,tables_.rsqrt,
+            tables_.rope,tables_.rope_rows,position,project,&maximum_blocks,stream);
+        if(result.completion_unknown)quarantine(result.status);
+        return result;
+    }
     struct Publication { uint32_t moe_invalid, head_invalid, tokens[2]; float logits[2]; };
     struct Storage {
         std::array<void*, 17> owned{};
