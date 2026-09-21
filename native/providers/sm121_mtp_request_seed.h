@@ -24,7 +24,11 @@ public:
         qrt_sm121_mtp::DrafterTables tables;
         const auto status=prepare(&tables,capacity-1u);
         if(status!=hipSuccess)return {status,"mtp_chunked_seed_tables"};
-        return request_.seed_prefill_chunks(first,actual,model_.binding(epoch_),tables,capacity);
+        // Original cold 16k/17k captures select the stride-512, R0_BLOCK2048
+        // pre-FC norm. Short-request seeding retains its earlier split1024
+        // reference profile. No reference tensor controls this selection.
+        return request_.seed_prefill_chunks(first,actual,model_.binding(epoch_),tables,capacity,
+            nullptr,1024u,false);
     }
     qrt_sm121_mtp::PromptStep append(const qrt_mtp_target_rows::PrefillRows& batch,
         const qrt_sm121_mtp::TargetFrontier& actual) {

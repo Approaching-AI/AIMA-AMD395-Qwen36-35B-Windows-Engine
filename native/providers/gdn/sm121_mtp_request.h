@@ -97,7 +97,8 @@ public:
     PromptStep seed_prefill_chunks(const qrt_mtp_target_rows::PrefillRows& first,
         const TargetFrontier& actual, const ModelWeightBinding& binding,
         const DrafterTables& tables, unsigned capacity,
-        hipStream_t stream = nullptr, unsigned maximum_blocks = 1024u) {
+        hipStream_t stream = nullptr, unsigned maximum_blocks = 1024u,
+        bool split1024_pre_fc_norm = true) {
         if (terminal_ != hipSuccess) return unavailable();
         if (live_ || !actual.owner || !actual.generation || !binding.valid(actual.model_epoch) ||
             !first.published() || first.first_position() || !first.discarded_prefill() ||
@@ -120,6 +121,7 @@ public:
                 return invalid("request_chunk_seed_binding");
             live_ = std::move(next);
             prefill_prompt_.swap(prompt); prefill_pending_ = true;
+            prefill_split1024_ = split1024_pre_fc_norm;
             return append_prefill_chunk(first,actual,stream,maximum_blocks);
         } catch (...) { return {hipErrorOutOfMemory,"request_chunk_seed_owner"}; }
     }
@@ -143,7 +145,7 @@ public:
                 terminal_ = failure.status;
             return failure;
         };
-        const auto appended = live_->inputs.append(live_->drafter,batch,true,state.epoch,stream,maximum_blocks);
+        const auto appended = live_->inputs.append(live_->drafter,batch,prefill_split1024_,state.epoch,stream,maximum_blocks);
         if (appended.status != hipSuccess) return undo(appended);
         DraftStep proposal;
         if (!batch.discarded_prefill()) {
@@ -170,7 +172,8 @@ public:
 
     PromptStep seed(const qrt_mtp_target_rows::PrefillRows& batch, const TargetFrontier& actual,
         const ModelWeightBinding& binding, const DrafterTables& tables, unsigned capacity,
-        hipStream_t stream = nullptr, unsigned maximum_blocks = 1024u) {
+        hipStream_t stream = nullptr, unsigned maximum_blocks = 1024u,
+        bool split1024_pre_fc_norm = true) {
         if (terminal_ != hipSuccess) return unavailable();
         if (live_ || !actual.owner || !actual.generation || !binding.valid(actual.model_epoch) ||
             !batch.published() || batch.first_position() || batch.discarded_prefill() ||
@@ -190,7 +193,7 @@ public:
             const auto reserved = next->drafter.reserve(capacity, (std::max)(2u, static_cast<unsigned>(batch.rows())));
             if (reserved != hipSuccess) return {reserved, "request_seed_reserve"};
             if (!next->drafter.bind(binding, tables, actual.model_epoch)) return invalid("request_seed_binding");
-            const auto appended = next->inputs.append(next->drafter, batch, true, actual.model_epoch, stream, maximum_blocks);
+            const auto appended = next->inputs.append(next->drafter, batch, split1024_pre_fc_norm, actual.model_epoch, stream, maximum_blocks);
             if (appended.status != hipSuccess) return failed(appended);
             state.proposal = next->drafter.propose(static_cast<unsigned>(batch.rows()-1u), 1u,
                 actual.model_epoch, stream, maximum_blocks);
@@ -395,6 +398,9 @@ private:
     std::unique_ptr<Live> live_;
     std::vector<uint32_t> prefill_prompt_;
     bool prefill_pending_ = false;
+    // A cold request keeps one declared pre-FC reduction order across chunks.
+    // Both original GB10 launchers are supported; decode uses its own order.
+    bool prefill_split1024_ = true;
     Pending pending_;
     hipError_t terminal_ = hipSuccess;
     bool completion_unknown_ = false;

@@ -167,7 +167,38 @@ prompt coverage, exact original shifts, matching selected observations and
 the actual sampled draft. The original logit call runs once and returns its
 unchanged object. Thirty distinct local tests pass, including CLI mode/control
 checks and deliberately corrupted identities, values and ledgers. These use
-generated fixture bytes; the new original GB10 capture remains unrun.
+generated fixture bytes; the following capture supplies real original values.
+
+The [original cold chunk capture](../benchmarks/correctness/mtp-chunked-prefill-original-20260921.json)
+at d7e1d70 now passes q7169/out32, q8192/out32, owner16384/out32 and
+cold17408/out32. All128 output IDs and all four complete first-logit buffers
+match their original boundaries; the17408 case qualifies only the first32 of
+its existing512-token golden continuation. Seven chunks retain304195588 bytes
+of complete target hidden, shifted IDs, KV writes and final draft logits.
+All3625 downloaded files verify; host reserve, container exit and cleanup pass.
+Reference wall is308.627803s; this does not measure Windows performance.
+
+The original pre-FC norm launcher in this capture selects R0_BLOCK2048, while
+the earlier complete prompt capture selected split1024. Both reproduce every
+original output and full first logit. The complete control target hidden and
+shifted IDs are identical, but the new q7169 K/V differs in79/99 values at
+row1379 and q8192 in467/432 values at rows449,1136,2198. These are explicitly
+recorded operator differences, not failed token gates. Request prefill now
+accepts an explicit existing norm order and keeps it across all cold chunks.
+The new long cold runtime selects the observed2048 order; the short-request
+default and frozen490370a build retain their earlier1024 profile. Three focused
+ASan/UBSan checks pass in14.811s, including both explicit orders and all existing
+request/seed failure boundaries. No numerical kernel implementation changes.
+
+Both complete8192-row target hidden blocks are also identical between the16k
+owner and17k extension. Only MTP KV rows8191 and16383 differ. This indicates
+that reusing this owner MTP checkpoint for the longer prompt requires repairing
+its old chunk seams, whose shifted backup IDs change. Live prefix reuse is not
+qualified by these cold captures. The new component probe in
+tools/mtp_chunked_request_hip_probe.cpp checks actual Request seeding, every KV
+row, final hidden, full-vocabulary logits, paired checkpoint restoration and
+the next draft on default/nonblocking streams. Its host syntax passes; native
+compilation, execution and whole-model validation remain pending.
 
 The native cache-publication probe is prepared in
 tools/q2_cache_publication_hip_probe.cpp. It evaluates the complete original

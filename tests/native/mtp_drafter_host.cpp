@@ -415,6 +415,7 @@ int main(int argc,char** argv){
     test_prefill_request_seed();
     test_chunked_request();
     test_chunked_seed_runtime();
+    test_explicit_prefill_norm_order();
     test_prefill_request_probe(argv[1]);
     for(unsigned fail=1;fail<=25u;++fail){
         reset();{Drafter d;assert(d.reserve(8,2)==hipSuccess&&allocations.size()==25u);auto* old=d.cache_data();

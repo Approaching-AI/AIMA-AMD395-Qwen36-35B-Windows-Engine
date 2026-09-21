@@ -146,11 +146,13 @@ static void test_chunked_seed_runtime() {
             const std::vector<uint32_t> prompt{10u,11u,12u,13u,14u,15u,16u};
             auto source=std::make_shared<LeasedWeights>();ChunkedPrefillSeed seed;
             auto first=chunk_batch(prompt,0u,3u);
+            expected_split=false;
             TargetFrontier actual{&seed,17u,10u,prompt.data(),3u,999u};
             fail_sync=failed;RequestCheckpoint checkpoint;
             auto result=seed.begin(*first,source,actual,39u);
             if(result.status==hipSuccess){
                 auto last=chunk_batch(prompt,3u,4u);actual.processed_count=7u;
+                expected_split=false;
                 result=seed.append(*last,actual);
                 if(result.status==hipSuccess)result=seed.save(&checkpoint,actual);
             }
@@ -176,4 +178,29 @@ static void test_chunked_seed_runtime() {
     }assert(allocations.empty());
     expected_stream=reinterpret_cast<void*>(0x1234);
     std::cout<<"native MTP chunked runtime completion_fences="<<fences<<" pass\n";
+}
+
+static void test_explicit_prefill_norm_order() {
+    using namespace qrt_sm121_mtp;
+    for(unsigned total:{7u,9216u})for(bool split:{false,true}){
+        reset();{
+            ChunkedRequestFixture fixture(total);
+            for(unsigned first=0u;first<total;){
+                const unsigned rows=std::min(8192u,total-first);
+                auto batch=chunk_batch(fixture.prompt,first,rows);
+                expected_split=split;
+                const auto actual=fixture.frontier(first+rows);
+                const auto result=first?fixture.request.append_prefill_chunk(*batch,actual,expected_stream):
+                    total>8192u?fixture.request.seed_prefill_chunks(*batch,actual,fixture.model.binding(10u),
+                        fixture.tables,total+32u,expected_stream,1024u,split):
+                    fixture.request.seed(*batch,actual,fixture.model.binding(10u),fixture.tables,
+                        total+32u,expected_stream,1024u,split);
+                assert(result.status==hipSuccess&&!result.completion_unknown);
+                first+=rows;
+            }
+            assert(fixture.request.matches(fixture.frontier(total)));
+            assert(std::count(stages.begin(),stages.end(),"head")==1);
+        }assert(allocations.empty()&&queued.empty());
+    }
+    std::cout<<"native MTP explicit prefill norm cases=2 profiles=2 pass\n";
 }

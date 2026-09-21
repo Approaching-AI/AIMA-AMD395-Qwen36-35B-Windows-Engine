@@ -44,6 +44,7 @@ class MtpDrafterTests(unittest.TestCase):
             self.assertIn('native MTP plain seed cases=5 completion_fences=6 pass', run.stdout)
             self.assertIn('native MTP chunked seed cases=5 invalid_frontiers=10 retry_failures=7 completion_fences=7 pass', run.stdout)
             self.assertIn('native MTP chunked runtime completion_fences=9 pass', run.stdout)
+            self.assertIn('native MTP explicit prefill norm cases=2 profiles=2 pass', run.stdout)
             for rows in (7169, 8192):
                 prefix = directory / f'prefill-{rows}'
                 record = json.loads(prefix.with_suffix('.json').read_text())
