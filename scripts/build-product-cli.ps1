@@ -1,5 +1,6 @@
 param(
     [Parameter(Mandatory = $false)][string]$OutDir = "",
+    [Parameter(Mandatory = $false)][switch]$PrefixStreamProbe,
     [Parameter(Mandatory = $false)]
         [ValidateRange(30, 900)]
         [int]$TimeoutSeconds = 300,
@@ -32,7 +33,7 @@ function Quote-BatArg {
 }
 
 if ([string]::IsNullOrWhiteSpace($OutDir)) {
-    $OutDir = Join-Path $repo "build\product-cli"
+    $OutDir = Join-Path $repo $(if ($PrefixStreamProbe) { "build\prefix-stream-probe" } else { "build\product-cli" })
 } elseif (-not [IO.Path]::IsPathRooted($OutDir)) {
     $OutDir = Join-Path $repo $OutDir
 }
@@ -46,10 +47,15 @@ if (-not (Test-Path -LiteralPath $VsDevCmdPath -PathType Leaf)) {
 }
 
 $sourceDir = Join-Path $repo "native\src"
+$entrySource = if ($PrefixStreamProbe) {
+    Join-Path $repo "tools\prefix_stream_product_probe.c"
+} else {
+    Join-Path $sourceDir "product_cli.c"
+}
 $sources = @(
     (Join-Path $sourceDir "qrt.c"),
     (Join-Path $sourceDir "qwen36_baseline.c"),
-    (Join-Path $sourceDir "product_cli.c")
+    $entrySource
 )
 foreach ($source in $sources) {
     if (-not (Test-Path -LiteralPath $source -PathType Leaf)) {
@@ -61,7 +67,7 @@ $objects = @(
     (Join-Path $OutDir "qwen36_baseline.obj"),
     (Join-Path $OutDir "product_cli.obj")
 )
-$executable = Join-Path $OutDir "qrt-product.exe"
+$executable = Join-Path $OutDir $(if ($PrefixStreamProbe) { "qrt-prefix-stream-probe.exe" } else { "qrt-product.exe" })
 $commandFile = Join-Path $OutDir "build-product-cli.bat"
 $stdoutPath = Join-Path $OutDir "build.stdout.txt"
 $stderrPath = Join-Path $OutDir "build.stderr.txt"
@@ -132,13 +138,20 @@ if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) {
     throw "product CLI build did not emit $executable"
 }
 
-$sourceRecords = foreach ($source in @($sources) + @(
+$recordSources = @($sources) + @(
         (Join-Path $sourceDir "qrt.h"),
         (Join-Path $sourceDir "qrt_context_limits.h"),
         (Join-Path $sourceDir "qrt_prefix_logit.h"),
         (Join-Path $sourceDir "qrt_prefix_checkpoint.h"),
         (Join-Path $sourceDir "qwen36_baseline.h")
-    )) {
+    )
+if ($PrefixStreamProbe) {
+    $recordSources += @(
+        (Join-Path $sourceDir "product_cli.c"),
+        (Join-Path $repo "tools\prefix_stream_observer.h")
+    )
+}
+$sourceRecords = foreach ($source in $recordSources) {
     [ordered]@{
         path = $source
         sha256 = (Get-FileHash -Algorithm SHA256 `
@@ -158,6 +171,7 @@ $record = [ordered]@{
         -LiteralPath $PSCommandPath).Hash.ToLowerInvariant()
     timeout_seconds = $TimeoutSeconds
     stack_reserve_bytes = $StackReserveBytes
+    prefix_stream_probe = [bool]$PrefixStreamProbe
     wall_ms = [Math]::Round($watch.Elapsed.TotalMilliseconds, 6)
     sources = @($sourceRecords)
     executable = $executable

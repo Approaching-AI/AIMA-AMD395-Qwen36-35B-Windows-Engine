@@ -239,6 +239,17 @@ real-model callback arrival, original GB10 outputs/logits and owner continuation
 after cancellation remain pending. This local result does not qualify inference,
 performance or release.
 
+The [prepared real-model streaming probe](../benchmarks/correctness/prefix-stream-product-probe-local-20260921.json)
+reuses the product CLI and its comparison-only original output files. It adds
+actual arrival clocks, checks delivery over each63-token decode span, cancels
+at outputs0/1/64/511 and verifies the original32-token owner continuation after
+every cancellation. Its three local tests pass in1.555s: a buffered-delivery
+control fails, four cancellation positions and12 invalid callback events are
+checked, and the complete probe rejects five invalid backend outcomes. The
+backend and loader in that control-flow test are host fixtures. Build the real
+probe with `scripts/build-product-cli.ps1 -PrefixStreamProbe`; Windows build and
+execution remain pending. Its extra transactions make all timing diagnostic.
+
 The native cache-publication probe is prepared in
 tools/q2_cache_publication_hip_probe.cpp. It evaluates the complete original
 q8192 target pair, then checks accepted1/2 rows with BF16/FP32 tails and both
