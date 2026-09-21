@@ -110,10 +110,20 @@ history; an old native control matches all 628 compared surfaces at position
 263168 against the new reference. That control does not qualify later steps.
 
 The original native q262140/q262142/q262143 retirement cases remain unrun.
-The portable package must bind the actual whole DLL, CLI and static-C-core
-server together with the declared CK, FLA and MoE dependencies. Earlier
-[package](../benchmarks/correctness/cold-tail-package-prepared-20260921.json)
-and [final-artifact regression](../benchmarks/correctness/cold-tail-package-regressions-prepared-20260921.json)
-preparations preserve 45 protocol, 15 prefix and 55 control-plane requests,
-13 cold cases with 1856 outputs, and the full 3600-second soak. They require
-new binary bindings and actual final-file results before release acceptance.
+The [current package preparation](../benchmarks/correctness/single-tail-package-prepared-20260921.json)
+now binds the actual c268 whole DLL, CLI and static-C-core server together
+with the declared CK, FLA and MoE dependencies. Read-only baiying checks verify
+all six files, their source/build records and the original q8192/out512 control.
+All535 portable options and34 paths match that control after the three declared
+profiling/chunking differences. The planned inventory contains269 runtime
+artifacts and285 release files; no new archive has been created or relocated.
+
+The preserved final-artifact workload contains45 protocol,15 prefix and55
+control-plane requests,13 cold cases with1856 outputs and the full3600-second
+soak. Preparation checks reject five profile faults,12 damaged historical
+records and20 attempts with missing actual archive results. Stage/test admission
+also waits for the existing long job's completed cleanup. Five native scripts
+parse successfully. The first read-only binding observer's absent optional
+MoE-size field failure is retained; its corrected reader still requires the
+original SHA256. These checks qualify preparation only. Actual final-file
+inference, archive verification and release acceptance remain open.
