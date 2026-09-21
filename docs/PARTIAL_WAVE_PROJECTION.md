@@ -34,6 +34,16 @@ outputs. QKV keeps matrix4 and PPB1000; OUT keeps matrix0 and PPB10000. The OUT
 comparison is the original midpoint replay, not the retained coarse-OUT provider.
 Both operators repeat the first1023 captured q7169 input rows to reach8192.
 
+The reference observer now offers `QRT_GB10_FULL_PREFILL_PRODUCT_OPERANDS=1`
+to capture the original `q8192-out512` prefill transaction. It records the
+layer0 normalized input and QKV projection, plus the existing complete layer3
+attention surfaces and logical KV cache. Other matrix cases keep their original
+observation scope; conflicting window plans and wrong prompt extents reject.
+The 1 GiB per-case ceiling, original model calls, prompt IDs and complete token
+matrix checks remain in force. All 37 boundary/token-observer unit tests pass.
+The new reference capture has not executed yet and does not replace the
+existing operator fixtures or establish native performance.
+
 On the controller, ASan/UBSan sampling checks8192 dots per operator, with128 evenly
 spaced input rows and64 weight rows whose phase rotates between samples. This
 sample is independent of midpoint selection and is not a timing estimate.

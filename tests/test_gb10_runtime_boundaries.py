@@ -14,7 +14,7 @@ from capture_gb10_runtime_boundaries import (  # noqa: E402
     full_cache_observation_row, full_cache_row_is_qualified,
     full_prefill_attention_window, full_prefill_linear_window, matches_linear_window,
     observation_byte_limit, linear_observation_layers,
-    full_prefill_linear_core_only, full_prefill_linear_labels,
+    full_prefill_linear_core_only, full_prefill_linear_labels, product_prefill_operands,
     observation_positions, observation_timeout_seconds, prepared_token_ids, qualify_transaction,
     recurrent_state_selection, selected_prefill_moe_observation,
     short_prefill_moe_observation, target_rows,
@@ -24,6 +24,39 @@ from capture_gb10_token_matrix import qualify_runtime_capture  # noqa: E402
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_product_prefill_operands_bind_the_original_complete_q8192_transaction(self):
+        key = 'QRT_GB10_FULL_PREFILL_PRODUCT_OPERANDS'
+        case = 'q8192-out512'
+        with patch.dict(os.environ, {key: '1'}, clear=True):
+            self.assertTrue(product_prefill_operands(case, 8192))
+            linear = full_prefill_linear_window(case, 8192)
+            attention = full_prefill_attention_window(case, 8192)
+            self.assertEqual(linear, dict(layer=0, first_position=0, tokens=8192))
+            self.assertEqual(attention, dict(layer=3, first_position=0, tokens=8192))
+            self.assertEqual(full_prefill_linear_labels(0, False, True),
+                             {'layer-00-input-rmsnorm', 'linear-00-qkv'})
+            self.assertEqual(observation_byte_limit(attention), 1024 << 20)
+            for other, count in [('q7169-out32', 7169), ('q8192-out32', 8192),
+                                 ('q7169-out512', 7169), ('q8193-out32', 8193)]:
+                self.assertFalse(product_prefill_operands(other, count))
+                self.assertIsNone(full_prefill_linear_window(other, count))
+                self.assertIsNone(full_prefill_attention_window(other, count))
+            for count in (8191, 8193, True, 8192.0):
+                with self.assertRaisesRegex(ValueError, 'original q8192 extent'):
+                    product_prefill_operands(case, count)
+        for name, value in [(key, '2'), ('QRT_GB10_FULL_PREFILL_LINEAR_WINDOWS', '{}'),
+                ('QRT_GB10_FULL_PREFILL_ATTENTION_WINDOWS', '{}'),
+                ('QRT_GB10_FULL_PREFILL_LINEAR_CORE_ONLY', '1')]:
+            with patch.dict(os.environ, {key: '1', name: value}, clear=True):
+                with self.assertRaises(ValueError):
+                    full_prefill_linear_window(case, 8192)
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertFalse(product_prefill_operands(case, 8192))
+            self.assertIsNone(full_prefill_linear_window(case, 8192))
+            self.assertIsNone(full_prefill_attention_window(case, 8192))
+            with self.assertRaises(ValueError):
+                full_prefill_linear_labels(0, True, True)
+
     def test_all_full_attention_owners_remain_scoped_to_the_named_case(self):
         layers = list(range(3, 40, 4))
         with patch.dict(os.environ, {'QRT_GB10_CASE_BOUNDARY_FULL_LAYERS':
