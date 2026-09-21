@@ -1,202 +1,119 @@
 # Cold prefill final chunks
 
-Current result: source99fb67f builds on baiying and passes all512 ordinary
-q8192 outputs/callbacks, first144/logit10.375. Its admitted q8193 cold tail
-completes but emits64 instead of the original GB10 token220. The new single
-input bridge below has passed local checks and still needs a Windows build
-and the unchanged original-model boundary. See
-[actual controls, diagnosis and local bridge evidence](../benchmarks/correctness/single-tail-q1-local-20260921.json).
+Source `c2683cd5cb55478099f1adffe47b98e5cef79fba` builds on baiying and
+passes the original q8193 native MTP boundary. The final prompt input is
+`63` at position 8192; it produces `220 / 9.75`, followed by all 31 original
+continuation tokens. The ordinary q8192 control and all four native short
+controls also pass. Native MTP remains opt-in. The full 256K continuation,
+native retirement cases, final package and performance gates remain open.
 
-The cold chunk coordinator previously accepted only multiples of 8192 and
-an optional 1024-token tail. This rejected the original q8193 and
-q262140/q262142/q262143 native MTP cases before their correctness boundary
-could run. It now retains the true final extent from 1 through 8192 inputs.
-Every earlier chunk still contains exactly 8192 original tokens; the prompt
-is never padded or substituted.
+[Actual build, token, callback and server evidence](../benchmarks/correctness/single-tail-q1-native-20260921.json)
+binds the command files, model, source revisions, binary hashes, original
+references and host cleanup. Every model run uses baiying and
+`D:\models\Qwen3.6-35B-A3B`.
 
-The suffix convolution ring also assumed at least four new inputs. A final
-chunk of one, two or three inputs would underflow its source row. The actual
-kernel now replaces only the new ring slots and preserves the preceding
-prefix slots. Both FP32 and BF16 ring layouts follow this rule.
+## Runtime behavior
 
-Finally, the C entry point previously split prompts of 8193 through 9216
-tokens into an 8192-token seed and a prefix/decode suffix before the whole
-provider saw the request. With native MTP and cold chunking both enabled,
-that shortcut now delegates the complete prompt to the chunk owner. This
-preserves the original full-prompt shifted inputs and checkpoint provenance.
-Other C entry modes retain their existing behavior. Native MTP remains opt-in.
+The cold coordinator retains a true final extent from 1 through 8192 inputs.
+Every earlier chunk contains exactly 8192 original tokens. A convolution ring
+update with fewer than four new inputs replaces only the new slots and
+preserves preceding prefix slots in both FP32 and BF16 layouts.
 
-These changes do not expand the public prefix-cache suffix interface or
-permit native MTP to start at or beyond its 262144-token drafter limit.
-The existing standalone native route already admits q8191; the q7169/q8192
-restriction belongs to a separate diagnostic capture mode.
+With native MTP and cold chunking enabled, the C entry point delegates the
+complete prompt to this owner. This preserves shifted-input and checkpoint
+provenance across the former 8193–9216 cold-suffix shortcut. The public prefix
+suffix interface and the drafter's 262144-token admission limit are unchanged.
 
-## Local verification
+A final one-input chunk uses the full resident q1 export with the original
+prefix arithmetic. Before execution, empty unpooled KV tails return to the
+standard 1536-token q1 layout. A private request consumes the actual prompt
+input, completes all layers and fences the final BF16 normalized row. That
+row and the actual sample enter the private MTP seed; the cold coordinator
+promotes KV and recurrent counters, then emits its one caller callback.
+The private request has no callback. Its cold-input scope preserves nested
+retired-target ownership without selecting retired-target arithmetic.
+Batch descriptor metrics are empty for this q1 tail.
 
-The actual coordinator passes 26 ordinary prompt lengths and 13 native MTP
-lengths, including single-token tails and the three original retirement
-prompts. Failure checks cover short-tail publication, known and unknown
-completion, checkpoint saves and cleanup. The extracted production ring
-kernel passes 18 extents, four prefix residues and both formats: 144 shapes
-under ASan/UBSan, including unchanged slots and allocation guards. The C
-bridge checks the two route flags independently, cancellation, callback
-clocks, metadata and ownership.
+Numeric u32/i32/u64 environment caches freeze configured values or their
+absence/invalidity, then resolve each caller's fallback on every invocation.
+Dynamic probes and the original parsing contracts are preserved.
 
-The following focused runs pass, totaling 23 distinct Python tests:
+## Actual Windows results
 
-```sh
-PYTHONPATH=tests python3.12 -m unittest test_prefill_chunks test_prefix_batch_suffix test_bounded_prefill_suffix
-PYTHONPATH=tests python3.12 -m unittest test_prefix_batch_suffix.PrefixBatchSuffixTests.test_actual_ring_update_keeps_unreplaced_prefix_slots test_attention_suffix test_prefix_fla_suffix test_mtp_chunked_prefill_capture
-PYTHONPATH=tests python3.12 -m unittest test_mtp_native_prefill_integration test_native_mtp_decode test_mtp_drafter
-make c-smoke
-python3.12 scripts/test_q16_transaction_contract.py
-```
+The whole DLL, normal CLI and prefix probe verify 173 source inputs and build
+in 119915.977 ms. Their compilation closures contain 167, 8 and 10 inputs,
+with overlap. Whole DLL SHA256 starts `84e3cedc`; CLI SHA256 starts `813dd56d`.
+All compiler flags match the declared control.
 
-The C smoke and all seven transaction cases also pass. Three separately
-restored old implementations compile successfully and fail their respective
-new checks: ring underflow, coordinator tail rejection and C shortcut
-misrouting. The initial evidence writer failed to serialize subprocess
-bytes after executing these controls; its partial record and fixtures are
-preserved, and the corrected writer records all expected outcomes.
+| Mode and original case | Outputs and callbacks | First token / logit | Native continuation commits | Load ms | TTFT ms |
+| --- | ---: | --- | ---: | ---: | ---: |
+| Ordinary q8192/out512 | 512 / 512 | 144 / 10.375 | disabled | 21496.2425 | 23134.0106 |
+| Native q7169/out32 | 32 / 32 | 82 / 9.25 | 31 | 21466.160699 | 25633.5616 |
+| Native q8191/out32 | 32 / 32 | 168589 / 11.375 | 31 | 21452.8289 | 29500.1411 |
+| Native q8192/out512 | 512 / 512 | 144 / 10.375 | 511 | 21460.0423 | 24529.5116 |
+| Native q8193/out32 | 32 / 32 | 220 / 9.75 | 31 | 21749.386 | 25665.424 |
 
-[Committed source hashes and completed local outcomes](../benchmarks/correctness/cold-prefill-tail-local-20260921.json)
-bind these checks to a7e2092. Positive command results are recorded from the
-local tool output; complete stdout logs are not claimed. The negative-control
-report includes its commands, generated-source hashes and actual failures.
+All original prompt IDs, output IDs, first logits and actual callback order
+match. The four native cases contain no ordinary generated-token commits;
+q8193 separately records its one cold q1 input and completed MTP handoff.
+Every run completes with passing host checks and no remaining process.
+These are functional controls. The ordinary TTFT still exceeds 10000 ms;
+its TPOT is 101.444817 ms. Retained performance targets and medians do not change.
 
-## Actual native controls and terminal admission
+The same-source Windows server also builds, verifying 25 source/build inputs,
+including nine C and ten Rust inputs. All 54 existing Rust tests and formatting
+pass. Native wall is 49708.972 ms; executable SHA256 starts `57a40483` and its
+PE stack reserve is 268435456 bytes. This build does not qualify HTTP inference.
 
-The a7e2092 whole provider, normal CLI and prefix probe now build on baiying
-with all173 source inputs verified. The ordinary q8192/out512 control passes
-all original outputs and callbacks, first144/logit10.375. Three native MTP
-controls also pass: q7169/out32, q8191/out32 and q8192/out512, with31/31/511
-native target commits respectively and no ordinary decode commits. Their
-first tokens/logits are82/9.25,168589/11.375 and144/10.375. These are functional
-controls; native MTP remains opt-in and no retained performance changes.
+The first whole build and ordinary q8192 attempt launch no native process
+because the output disk reserve check fails. Moving the source and evidence
+to P preserves the 10 GiB guard. All 2349 worktree files, 249383232 bytes and
+prior failure records are verified before the duplicate D copy is removed.
+The ordinary retry retains its original working directory, dependencies and
+numerical environment; only evidence paths move. Both failures are retained.
 
-The actual q8193/out32 run reaches the final one-input chunk, then fails
-at layer39 before emitting any token or callback. Its full-prefix predicate
-required more than one input, disabling the whole/QKV provider needed by
-the compact attention path. The repair admits one input only inside the
-actual terminal-only cold transaction. Standalone one-token requests retain
-their existing selection even when the full-prefix or MTP flags are set.
+## Diagnosis and local validation
 
-The [actual runs and local repair checks](../benchmarks/correctness/terminal-cold-tail-local-20260921.json)
-record204 predicate cases and66912 actual provider-selection cases under
-ASan/UBSan. Restoring the old predicate reproduces the failure. Four related
-coordinator/C-bridge/clock regressions pass. An initial test extractor error
-selected a forward declaration; the corrected test selects the production
-definition, and both logs are retained. Its actual99 build takes119961.528ms.
-The ordinary q8192 control passes with load21405.1728ms, TTFT23359.7708ms and
-TPOT101.500041ms. The actual q8193 run completes8192+1 inputs and31 native
-commits but returns first64/logit9.75 instead of220/logit9.75; native exit6,
-wall57197.527ms. A second observed run reproduces that wrong output boundary.
+The preceding a7 source rejects the final q8193 chunk at layer 39. A scoped
+terminal predicate repair at 99fb67f admits it, but outputs token 64 instead
+of 220. Both the ordinary and observed native failures are retained in the
+[diagnosis and local repair report](../benchmarks/correctness/single-tail-q1-local-20260921.json).
+Of 80 observed tail norms, only layer 0 input is bit-exact with the original
+GB10 transaction. Layer 0 postattention differs in 974/2048 BF16 values,
+maximum absolute error 0.03125. This did not isolate the LM head as the cause.
+Carrier/final-norm text markers were filtered and are not claimed as compared.
 
-All80 tail norm files compare against the original qualified GB10 transaction
-at position8192/input63. Layer0 input is bit-exact; its postattention norm
-differs974/2048 BF16 values, maxabs0.03125. This is not an isolated LM-head
-diagnosis. The initial observer run exits before output because the numeric
-environment cache retained fallback position8191 when the next chunk had one
-input. Explicit local position0 permits the complete norm capture. Text
-carrier/final-norm markers are absent from the filtered log.
+The first observer fails before output because a cached fallback position of
+8191 is reused for the one-input tail. An explicit local position permits
+the complete norm capture; the cache repair removes this caller-default bug.
+The final bridge passes 31 ASan/UBSan cases, including actual input, norm and
+sample handoff, scope restoration, stale metadata, exceptions and copy failure.
+Numeric parser validation covers 752 checks and three actual old-parser
+negative controls. Coordinator, C bridge and native retirement regressions pass.
+Initial fixture extraction failures and corrected logs remain in the report.
 
-The new terminal bridge sends that one actual input through the existing
-resident q1 export with its original prefix arithmetic. It resizes empty,
-unpooled tails to1536 tokens, uses a private request without callbacks, and
-copies the fenced final BF16 normalization into the actual MTP target row.
-The cold coordinator promotes KV/recurrent counters and publishes the final
-sample only after both states finish. A cold-input scope does not select the
-different arithmetic used after MTP retirement. No original oracle input or
-output is substituted. q1 tails leave batch descriptor timings empty.
+The earlier [tail-layout tests](../benchmarks/correctness/cold-prefill-tail-local-20260921.json)
+cover 26 ordinary and 13 MTP prompt lengths, 144 ring shapes, cancellation,
+checkpoint failure and publication cleanup. The [terminal predicate checks](../benchmarks/correctness/terminal-cold-tail-local-20260921.json)
+cover 204 predicate and 66912 provider-selection cases. New observer validation
+separates cold input from generated commits and rejects 23 short-case and
+72 retirement-boundary faults. Synthetic checks establish observer behavior;
+actual original-model runs establish the token boundary.
 
-The actual bridge passes31 ASan/UBSan cases covering exact input/norm/sample
-handoff, nested scope restoration, exceptions, stale metadata and failed
-copies. Coordinator shape/failure tests, C bridge and native retirement
-regressions pass. Numeric u32/i32/u64 caches preserve configured values and
-absence, but resolve each caller's fallback afresh;752 checks and three actual
-old-parser negative controls pass. The initial expanded parser fixture chose
-a forward declaration; the corrected extractor and both outcomes are kept.
-The new bridge still needs its actual Windows build and q8193 token boundary.
+## Remaining validation
 
-The separate8612387 full256k run completed with a mismatch at output124.
-Its matching first-step operands do not qualify the later continuation or
-the three original native retirement cases, which remain unrun.
+The previous complete 256K owner run matches the first 124 suffix outputs,
+then emits 8984 instead of 4980. The qualified original reference supplies
+input 471 at position 263291. The new output-only capture targets this point
+and position 263290 on c268. Its comparator first checks the actual generated
+history; an old native control matches all 628 compared surfaces at position
+263168 against the new reference. That control does not qualify later steps.
 
-The [new build preparation](../benchmarks/correctness/cold-prefill-tail-prepared-20260921.json)
-binds 173 source inputs: 167 whole-provider, 10 prefix-probe and 8 normal CLI
-inputs in overlapping compilation closures, plus the build scripts. Only the
-three repaired implementation files differ from the prior build closure.
-Both Windows command files parse successfully. The active-process admission
-check performs zero dispatch calls. Compilation deadlines are 240/180/180
-seconds, within a 660-second guarded process and 750-second transport bound.
-
-The current seven-case native transport preserves the earlier observer logic
-and original reference files. Its r3 binding uses the successful a7 build and
-the actual completed long-run failure record; the two earlier preparations
-remain historical. New terminal-repair binaries require fresh bindings before
-repeating the short controls and proceeding to the retirement cases.
-
-The [server rebuild preparation](../benchmarks/correctness/cold-prefill-tail-server-prepared-20260921.json)
-also binds the HTTP server's statically linked C core to a7e2092. Its 25
-source/build inputs include nine C inputs and ten Rust inputs. Rust sources
-match the prior qualified server; qrt.c and qrt.h have changed. All 54 existing
-Rust library tests and formatting pass on the Mac, with complete logs and
-unchanged source hashes. These tests do not exercise Windows model inference.
-
-The Windows server command parses. The dispatcher's missing-build check
-makes zero network or native calls before the same-source whole/CLI/probe
-build completes. Its
-test/build deadline is 900 seconds inside a 960-second guard and 1050-second
-transport bound; Git child processes have separate 30-second deadlines.
-The server executable remains unbuilt. The ordinary q8192 generator also
-stops before binding binaries until the new build exists. Earlier R9 package
-bindings refer to older components and must be replaced before packaging this
-repair. Final-artifact HTTP, prefix, context and one-hour soak checks remain open.
-
-The [new portable-package preparation](../benchmarks/correctness/cold-tail-package-prepared-20260921.json)
-requires the actual a7 whole/CLI/probe and 54-test server builds, plus the
-same-artifact original q8192/out512 boundary, before binding any executable
-hash. It will replace the whole DLL, normal CLI and static-C-core server
-together and retain the separately pinned CK, FLA and MoE providers. Every
-provider identity and the complete535-option portable profile must match the
-declared functional control. Its three profile differences are explicit;
-chunked prefill still requires final-package model tests.
-
-Preparation passes Windows parsing, zero-dispatch missing-build checks and
-five deliberately incorrect profile/baseline bindings. The existing861 control
-checks profile normalization only and does not qualify the a7 package. No
-bound package input, archive or relocated runtime exists yet. Expected inventory
-is269 runtime artifacts and285 release files, including the model-independent
-square-root table. Staging will create an unqualified candidate for the final
-archive tests; all context, native retirement, HTTP, soak, load and performance
-requirements remain open. This preparation does not reuse the stale R9 binary
-bindings or claim that the active861 full256k run qualifies the repaired C core.
-
-The [final-archive regression preparation](../benchmarks/correctness/cold-tail-package-regressions-prepared-20260921.json)
-now covers all three HTTP suites, all13 cold CLI cases and the complete
-one-hour same-process soak. Their shared validator requires actual component
-builds, matching archive inventories, relocation and the numerical profile.
-It checks the repaired whole DLL, CLI and static-C-core server together.
-Historical R6 stage records are only a positive control for this validator;
-twelve in-memory faults are rejected. All20 missing-binding paths stop before
-any subprocess or network call. Four Windows command files parse successfully.
-
-The HTTP workers preserve the original45 protocol,15 saved-prefix and55
-control-plane requests. The CLI matrix retains all1856 original output IDs,
-first logits within0.125 and actual callback order. The soak retains its full
-3600-second active window,4200-second controller,120-second request bounds,
-4500-second native guard and original resource/cleanup checks. Its preparation
-requires offline replay of both the same-archive HTTP results and all13 cold
-cases before binding. No executable hashes, requests or model results are
-created by these preparations.
-
-After actual staging, the checks and matrix generators create their bound
-plans. Run the three HTTP actions and their analyzer, and all13 CLI cases
-with the short/cold analyzers. Their completed evidence then supplies the
-soak generator. The source report retains the exact generator, worker,
-dispatcher and analyzer files. Earlier unrun package scripts remain historical.
-
-Next validation uses the original q8191/out32 and q8193/out32 boundaries,
-same-build ordinary and native q8192 controls, then the three original native
-retirement cases. Host transport checks establish no native numerical,
-performance or release acceptance.
+The original native q262140/q262142/q262143 retirement cases remain unrun.
+The portable package must bind the actual whole DLL, CLI and static-C-core
+server together with the declared CK, FLA and MoE dependencies. Earlier
+[package](../benchmarks/correctness/cold-tail-package-prepared-20260921.json)
+and [final-artifact regression](../benchmarks/correctness/cold-tail-package-regressions-prepared-20260921.json)
+preparations preserve 45 protocol, 15 prefix and 55 control-plane requests,
+13 cold cases with 1856 outputs, and the full 3600-second soak. They require
+new binary bindings and actual final-file results before release acceptance.

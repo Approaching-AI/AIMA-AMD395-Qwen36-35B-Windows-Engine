@@ -16,7 +16,73 @@ current public copies. Commands containing aliases require local substitution.
 Run tools/publish_evidence.py before publishing new reports and check the
 result with tools/public_hygiene.py.
 
-The newest [actual99 build, ordinary q8192 control and q8193 diagnosis](../benchmarks/correctness/single-tail-q1-local-20260921.json)
+## Current measured state — September 21
+
+The [c268 native evidence](../benchmarks/correctness/single-tail-q1-native-20260921.json)
+qualifies the repaired cold one-input tail against the original GB10 q8193
+prompt and all 32 output tokens. Actual input 63 at position 8192 produces
+220 / 9.75. Its one private cold q1 operation publishes the actual normalized
+row into MTP state, then 31 native continuation commits reproduce the original
+output and callback sequence. The same-source q7169/out32, q8191/out32 and
+native q8192/out512 cases also pass, totaling 608 native output observations.
+No ordinary generated-token commits occur in these four cases.
+
+The ordinary q8192/out512 control passes all original prompt IDs, 512 output
+IDs, 512 callbacks and first token 144 / 10.375, with zero first-logit error.
+Load is 21496.2425 ms; TTFT is 23134.0106 ms and TPOT is 101.444817 ms.
+These timings do not replace retained medians. TTFT must first fall below
+10000 ms. The retained targets remain 1506.407263 tok/s, 4187.415605 ms TTFT
+and 35.502151 ms TPOT; model plus engine loading must remain at most 30000 ms.
+
+The whole DLL, CLI and prefix probe build on baiying from
+`c2683cd5cb55478099f1adffe47b98e5cef79fba`, verifying 173 inputs in
+119915.977 ms. Whole SHA256 starts `84e3cedc`; CLI SHA256 starts `813dd56d`.
+The same-source server verifies 25 source/build inputs and passes all 54 Rust
+tests plus formatting on Windows. It builds in 49708.972 ms, with executable
+SHA256 starting `57a40483` and a 268435456-byte PE stack reserve. All builds
+and model runs have passing host checks and complete process cleanup.
+
+The initial whole build and ordinary control launch no compiler/model process
+because the output-disk reserve check fails. Source and output relocation to
+P preserves every verified file and the unchanged 10 GiB guard. The ordinary
+retry preserves its working directory, dependencies and numerical environment.
+Both failed preflights remain bound to the successful evidence.
+
+The [cold-tail implementation and diagnosis](COLD_PREFILL_TAILS.md) describe
+the failed earlier batch route, the real q1 bridge and per-call numeric
+fallback repair. Local bridge checks cover 31 ASan/UBSan cases; numeric checks
+cover 752 cases and three actual old-parser failures. Observer controls reject
+23 short-case and 72 retirement-boundary faults. These tests supplement the
+actual original-model boundaries; native MTP remains opt-in.
+
+The previous [complete 256K owner run](../benchmarks/correctness/retired-reference-mode-prefix256k-20260921.json)
+matches its owner first token and the first 124 suffix outputs, then emits
+8984 instead of 4980 at output index 124. The [qualified original reference](../benchmarks/correctness/gb10-prefix256-step124-reference-20260921.json)
+reproduces all 608 original outputs and full first-logit anchors. At position
+263291, input 471 produces 4980 / 26.625. The c268 long run now observes that
+position and its predecessor 263290, using the original complete prompt and
+512-token continuation. It started on baiying at 14:39:52 UTC with PID 6948,
+a 28800-second process deadline and output on P. No result is qualified yet.
+
+The new operand comparator verifies the actual generated history before each
+comparison. Its old native control matches all 628 available surfaces at
+position 263168 against the new reference, with zero F32-bit or BF16 differences.
+All 1400 reference files at the two new positions verify. Neither check
+qualifies the still-uncaptured native operands at the later positions.
+
+The three native retirement cases and final portable archive remain open.
+The actual whole DLL, CLI and static-C-core server must be bound together for
+the final 45 protocol, 15 prefix and 55 control-plane requests, the 13 cold
+cases with 1856 outputs, and the complete 3600-second soak. Earlier unbound
+package preparations are historical. No new release or retained-performance
+acceptance is claimed.
+
+## Historical observations and preparations
+
+The records below describe their own source revisions and execution dates.
+Pending-work statements in this history do not override the current state above.
+
+The [actual99 build, ordinary q8192 control and q8193 diagnosis](../benchmarks/correctness/single-tail-q1-local-20260921.json)
 bind173 Windows/HIP source inputs at99fb67f. Whole DLL827d6c4d and CLIba4aec37
 pass the ordinary8192-input/512-output case, including all callbacks and
 first144/logit10.375/error0. Load21405.1728ms passes; TTFT23359.7708ms and
