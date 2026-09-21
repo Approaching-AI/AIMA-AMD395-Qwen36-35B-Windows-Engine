@@ -6,21 +6,24 @@
 // that enters another decode cannot inherit the target-only route.
 class Qwen36NativeTargetOnly final {
 public:
-    explicit Qwen36NativeTargetOnly(const qrt_qwen36_whole_provider_decode_request_v1_t* request)
-        : prior_(active_) { active_=request; }
-    ~Qwen36NativeTargetOnly(){active_=prior_;}
+    enum class InputKind { kRetiredTarget, kColdPrompt };
+    explicit Qwen36NativeTargetOnly(const qrt_qwen36_whole_provider_decode_request_v1_t* request,
+                                   InputKind kind=InputKind::kRetiredTarget)
+        : prior_(active_), prior_kind_(kind_) { active_=request; kind_=kind; }
+    ~Qwen36NativeTargetOnly(){active_=prior_;kind_=prior_kind_;}
     Qwen36NativeTargetOnly(const Qwen36NativeTargetOnly&)=delete;
     Qwen36NativeTargetOnly& operator=(const Qwen36NativeTargetOnly&)=delete;
     static bool matches(const qrt_qwen36_whole_provider_decode_request_v1_t* request){
         return request && request==active_;
     }
-    // Constructed only after the coordinator verifies an immutable retired
-    // checkpoint. The next target step has the reference's one-row layout,
-    // including when the rejected second row retired MTP below its limit.
-    static bool single_row_reference(){return active_!=nullptr;}
+    // Retired target steps use the reference's one-row arithmetic. Cold prompt
+    // inputs retain the already qualified prefix q1 arithmetic instead.
+    static bool single_row_reference(){return active_ && kind_==InputKind::kRetiredTarget;}
 private:
     inline static thread_local const qrt_qwen36_whole_provider_decode_request_v1_t* active_=nullptr;
+    inline static thread_local InputKind kind_=InputKind::kRetiredTarget;
     const qrt_qwen36_whole_provider_decode_request_v1_t* prior_;
+    InputKind prior_kind_;
 };
 
 // Forward the ordinary target's real callbacks while the outer native-MTP

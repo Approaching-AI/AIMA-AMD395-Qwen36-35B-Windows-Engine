@@ -1,5 +1,12 @@
 # Cold prefill final chunks
 
+Current result: source99fb67f builds on baiying and passes all512 ordinary
+q8192 outputs/callbacks, first144/logit10.375. Its admitted q8193 cold tail
+completes but emits64 instead of the original GB10 token220. The new single
+input bridge below has passed local checks and still needs a Windows build
+and the unchanged original-model boundary. See
+[actual controls, diagnosis and local bridge evidence](../benchmarks/correctness/single-tail-q1-local-20260921.json).
+
 The cold chunk coordinator previously accepted only multiples of 8192 and
 an optional 1024-token tail. This rejected the original q8193 and
 q262140/q262142/q262143 native MTP cases before their correctness boundary
@@ -79,9 +86,37 @@ record204 predicate cases and66912 actual provider-selection cases under
 ASan/UBSan. Restoring the old predicate reproduces the failure. Four related
 coordinator/C-bridge/clock regressions pass. An initial test extractor error
 selected a forward declaration; the corrected test selects the production
-definition, and both logs are retained. The repaired source still needs its
-Windows build and original q8193 boundary; local selection checks do not
-qualify model inference.
+definition, and both logs are retained. Its actual99 build takes119961.528ms.
+The ordinary q8192 control passes with load21405.1728ms, TTFT23359.7708ms and
+TPOT101.500041ms. The actual q8193 run completes8192+1 inputs and31 native
+commits but returns first64/logit9.75 instead of220/logit9.75; native exit6,
+wall57197.527ms. A second observed run reproduces that wrong output boundary.
+
+All80 tail norm files compare against the original qualified GB10 transaction
+at position8192/input63. Layer0 input is bit-exact; its postattention norm
+differs974/2048 BF16 values, maxabs0.03125. This is not an isolated LM-head
+diagnosis. The initial observer run exits before output because the numeric
+environment cache retained fallback position8191 when the next chunk had one
+input. Explicit local position0 permits the complete norm capture. Text
+carrier/final-norm markers are absent from the filtered log.
+
+The new terminal bridge sends that one actual input through the existing
+resident q1 export with its original prefix arithmetic. It resizes empty,
+unpooled tails to1536 tokens, uses a private request without callbacks, and
+copies the fenced final BF16 normalization into the actual MTP target row.
+The cold coordinator promotes KV/recurrent counters and publishes the final
+sample only after both states finish. A cold-input scope does not select the
+different arithmetic used after MTP retirement. No original oracle input or
+output is substituted. q1 tails leave batch descriptor timings empty.
+
+The actual bridge passes31 ASan/UBSan cases covering exact input/norm/sample
+handoff, nested scope restoration, exceptions, stale metadata and failed
+copies. Coordinator shape/failure tests, C bridge and native retirement
+regressions pass. Numeric u32/i32/u64 caches preserve configured values and
+absence, but resolve each caller's fallback afresh;752 checks and three actual
+old-parser negative controls pass. The initial expanded parser fixture chose
+a forward declaration; the corrected extractor and both outcomes are kept.
+The new bridge still needs its actual Windows build and q8193 token boundary.
 
 The separate8612387 full256k run completed with a mismatch at output124.
 Its matching first-step operands do not qualify the later continuation or

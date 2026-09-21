@@ -109,6 +109,118 @@ hipError_t promote_qwen36_prefill_chunk_attention(
     return hipSuccess;
 }
 
+// A one-input cold tail has the same numerical shape as prefix continuation.
+// Execute that actual input through the resident q1 export, which owns its
+// arithmetic scopes and fences all forty layers before returning. The caller
+// still owns the cold transaction, KV promotion, MTP seed and final callback.
+bool run_qwen36_prefill_single_tail(
+    const qrt_qwen36_whole_provider_prefix_request_v1_t &suffix,
+    std::string *stage, std::string *failure,
+    qrt_qwen36_whole_provider_result_t *result
+) {
+    auto &owner = g_qwen36_resident_session;
+    auto *rows = qrt_mtp_target_rows::Scope::active;
+    *stage = "qwen36_chunked_prefill_single_input";
+    if (!result || suffix.suffix_token_count != 1u || !suffix.suffix_tokens ||
+        suffix.suffix_tokens[0] >= QRT_QWEN36_VOCAB_SIZE ||
+        !owner.valid || !owner.provider_completed || !owner.current_token_valid ||
+        owner.prefix_tokens != suffix.expected_prefix_token_count ||
+        owner.committed_decode_token_count || owner.dflash_prefetched_valid || owner.q2_prefetched_valid ||
+        (rows && (!qrt_mtp_target_rows::Scope::requested(1u) ||
+            !rows->matches_input(suffix.suffix_tokens, 1u) || rows->first_position() != owner.prefix_tokens ||
+            rows->discarded_prefill() || !q1_decode_direct_output_plan_enabled()))) {
+        *failure = "single-input cold tail requires its untouched resident frontier and actual terminal MTP row";
+        return false;
+    }
+    qrt_mtp_target_rows::Publication publication(rows);
+    const uint64_t started = qrt_now_ns();
+    qrt_qwen36_whole_provider_decode_request_v1_t request{};
+    request.struct_size = sizeof(request);
+    request.abi_version = QRT_QWEN36_WHOLE_PROVIDER_DECODE_ABI_VERSION;
+    request.flags = QRT_QWEN36_WHOLE_PROVIDER_DECODE_FLAG_NONE;
+    request.batch_size = 1u;
+    request.expected_prefix_token_count = suffix.expected_prefix_token_count;
+    request.output_token_capacity = 2u;
+    request.initial_output_token_id = suffix.suffix_tokens[0];
+    request.expected_session_generation = owner.generation;
+    request.expected_prompt_token_ids_fnv1a64 = owner.prompt_token_ids_fnv1a64;
+    // This is the caller's remaining prompt input. The preceding chunk's
+    // discarded sample is never substituted for it or emitted to the caller.
+    owner.current_token_id = request.initial_output_token_id;
+    qrt_qwen36_whole_provider_decode_result_v1_t decoded{};
+    int ok = 0;
+    {
+        Qwen36NativeTargetOnly target_only(&request, Qwen36NativeTargetOnly::InputKind::kColdPrompt);
+        ok = qrt_qwen36_whole_provider_decode_v1(&request, &decoded);
+    }
+    if (!ok || !decoded.completed || decoded.status != static_cast<int32_t>(QRT_STATUS_OK) ||
+        decoded.output_token_count != 2u || decoded.decode_token_count != 1u ||
+        decoded.output_tokens[0] != suffix.suffix_tokens[0] || !owner.valid ||
+        owner.prefix_tokens != request.expected_prefix_token_count ||
+        owner.generation != request.expected_session_generation ||
+        owner.prompt_token_ids_fnv1a64 != request.expected_prompt_token_ids_fnv1a64 ||
+        owner.committed_decode_token_count != 1u || !owner.current_token_valid ||
+        owner.current_token_id != decoded.output_tokens[1] || !owner.last_decode_top2_valid ||
+        owner.last_decode_top2_position != owner.prefix_tokens ||
+        owner.last_decode_top2_ids[0] != decoded.output_tokens[1] ||
+        !std::isfinite(owner.last_decode_top2_logits[0])) {
+        if (decoded.failure_stage[0]) *stage = decoded.failure_stage;
+        *failure = decoded.failure[0] ? decoded.failure : "single-input target did not commit its actual sample and complete frontier";
+        return false;
+    }
+    if (rows) {
+        const auto &workspace = owner.activation_workspace;
+        if (!qwen36_resident_decode_activation_workspace_layout_valid(workspace) ||
+            workspace.generation != owner.generation || !workspace.device_norm_bf16 ||
+            workspace.in_use || workspace.phase != Qwen36ResidentDecodeActivationWorkspacePhase::kIdle) {
+            *failure = "completed single-input target has no fenced normalized MTP row";
+            return false;
+        }
+        std::array<uint16_t, QRT_QWEN36_HIDDEN_SIZE> bf16{};
+        const auto status = hipMemcpy(bf16.data(), workspace.device_norm_bf16, sizeof(bf16), hipMemcpyDeviceToHost);
+        if (status != hipSuccess) {
+            *stage = "mtp_chunked_prefill_single_norm";
+            *failure = hipGetErrorString(status);
+            return false;
+        }
+        std::vector<float> normalized(bf16.size());
+        for (size_t i = 0u; i < bf16.size(); ++i) normalized[i] = qrt_sm121_q1::widen(bf16[i]);
+        if (!rows->stage(rows->local_rows(), normalized, owner.current_token_id) ||
+            !rows->publish(owner.current_token_id)) {
+            *stage = "mtp_chunked_prefill_single_publish";
+            *failure = "single-input target could not publish its actual normalized row and shifted sample";
+            return false;
+        }
+    }
+    // This tail executed a q1 stack, so it has no batch descriptor timings.
+    // Preserve only diagnostics computed from this actual terminal input/sample.
+    *result = qrt_qwen36_whole_provider_result_t{};
+    result->completed = 1u;
+    result->provided_surfaces = QRT_QWEN36_WHOLE_PROVIDER_SURFACE_SELECTED_MOE |
+        QRT_QWEN36_WHOLE_PROVIDER_SURFACE_FULL_ATTENTION |
+        QRT_QWEN36_WHOLE_PROVIDER_SURFACE_RESIDENT_STACK |
+        QRT_QWEN36_WHOLE_PROVIDER_SURFACE_REQUEST_PATH;
+    result->output_token_capacity = result->output_token_count = 1u;
+    result->output_tokens[0] = owner.current_token_id;
+    result->output_tokens_fnv1a64 = qrt_fnv1a64_bytes(result->output_tokens, sizeof(uint32_t));
+    result->prompt_token_ids_fnv1a64 = qrt_fnv1a64_bytes(suffix.suffix_tokens, sizeof(uint32_t));
+    result->continuation.output_token_emitted = 1u;
+    result->continuation.output_token_id = owner.current_token_id;
+    result->continuation.output_logit = owner.last_decode_top2_logits[0];
+    result->continuation.sampler_fnv1a64 = qrt_fnv1a64_update_bytes(result->output_tokens_fnv1a64,
+        &result->continuation.output_logit, sizeof(float));
+    result->continuation.digest_fnv1a64 = qrt_fnv1a64_update_bytes(result->prompt_token_ids_fnv1a64,
+        &result->continuation.sampler_fnv1a64, sizeof(uint64_t));
+    result->wall_clock_ns = qrt_elapsed_ns(started, qrt_now_ns());
+    publication.complete();
+    std::cerr << "BATCH_MARK qwen36_chunked_prefill_single_input position=" << owner.prefix_tokens
+              << " input_token=" << suffix.suffix_tokens[0] << " output_token=" << owner.current_token_id
+              << " output_logit=" << result->continuation.output_logit
+              << " target_rows=1 mtp_target_row=" << (rows ? 1 : 0)
+              << " caller_callbacks=0 reference_input=0 completed=1" << std::endl;
+    return true;
+}
+
 int run_qwen36_chunked_prefill(
     const qrt_qwen36_whole_provider_request_t &request,
     qrt_qwen36_whole_provider_result_t *result, uint64_t start_ns
@@ -239,6 +351,14 @@ int run_qwen36_chunked_prefill(
             ScopedDescriptorProductDeviceAllocationReuse chunk_scratch_scope(true);
             for (size_t prefix = 8192u; prefix < total;) {
                 const size_t count = (std::min)(size_t(8192u), total - prefix);
+                if (count == 1u) {
+                    // The q1 export validates its normal decode-tail layout.
+                    // Earlier chunks are fenced and promoted, so these empty
+                    // unpooled tails can be resized without touching KV history.
+                    status = resize_tails(kQwen36ResidentDecodeTailCapacityTokens);
+                    if (status != hipSuccess)
+                        return fail("qwen36_chunked_prefill_single_tail_layout", hipGetErrorString(status));
+                }
                 qrt_qwen36_whole_provider_prefix_request_v1_t suffix{};
                 suffix.expected_prefix_token_count = static_cast<uint32_t>(prefix);
                 suffix.suffix_token_count = static_cast<uint32_t>(count);
@@ -250,7 +370,9 @@ int run_qwen36_chunked_prefill(
                 bool suffix_ok=false;
                 {
                     qrt_mtp_target_rows::Scope rows_scope(mtp_rows.get());
-                    suffix_ok=run_qwen36_resident_batch_suffix(suffix,nullptr,&stage,&failure,true,chunk_result.get());
+                    suffix_ok=count == 1u
+                        ? run_qwen36_prefill_single_tail(suffix,&stage,&failure,chunk_result.get())
+                        : run_qwen36_resident_batch_suffix(suffix,nullptr,&stage,&failure,true,chunk_result.get());
                 }
                 if (!suffix_ok)
                     return fail(stage, failure);
@@ -339,11 +461,12 @@ int run_qwen36_chunked_prefill(
         result->provider_digest_fnv1a64 = qrt_fnv1a64_update_bytes(prompt_digest,
             &result->output_tokens_fnv1a64, sizeof(result->output_tokens_fnv1a64));
         result->wall_clock_ns = qrt_elapsed_ns(start_ns, qrt_now_ns());
-        // The descriptor diagnostics describe the final real chunk. The ABI
-        // wall and callback clock cover every chunk, allocation and KV promotion.
+        // Batch descriptor diagnostics describe the final real chunk. A q1
+        // tail leaves them empty. The ABI wall and callback clock cover all work.
         std::cerr << "BATCH_MARK qwen36_chunked_prefill_complete input_tokens=" << total
                   << " chunks=" << chunks << " maximum_chunk_tokens=8192 decode_committed_tokens=0"
-                  << " descriptor_metrics_scope=last_chunk first_token=" << result->output_tokens[0]
+                  << " descriptor_metrics_scope=" << (total % 8192u == 1u ? "empty_q1_tail" : "last_chunk")
+                  << " first_token=" << result->output_tokens[0]
                   << " raw_logit=" << result->continuation.output_logit
                   << " elapsed_ms=" << double(result->wall_clock_ns) / 1000000.0 << std::endl;
         if (request.prefill_emit_callback) {

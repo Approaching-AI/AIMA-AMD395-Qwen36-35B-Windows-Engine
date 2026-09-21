@@ -16,7 +16,14 @@ current public copies. Commands containing aliases require local substitution.
 Run tools/publish_evidence.py before publishing new reports and check the
 result with tools/public_hygiene.py.
 
-The newest [retired-reference-mode build and ordinary q8192 regression](../benchmarks/correctness/retired-reference-mode-q8192-20260921.json)
+The newest [actual99 build, ordinary q8192 control and q8193 diagnosis](../benchmarks/correctness/single-tail-q1-local-20260921.json)
+bind173 Windows/HIP source inputs at99fb67f. Whole DLL827d6c4d and CLIba4aec37
+pass the ordinary8192-input/512-output case, including all callbacks and
+first144/logit10.375/error0. Load21405.1728ms passes; TTFT23359.7708ms and
+TPOT101.500041ms do not meet the retained targets. Build wall119961.528ms;
+native control wall97051.669ms. These timings do not replace retained medians.
+
+The earlier [retired-reference-mode build and ordinary q8192 regression](../benchmarks/correctness/retired-reference-mode-q8192-20260921.json)
 pass at861238786053b26363ddb64418632a8f8ee7dce2. Whole DLL252f70d8 binds173
 sources; Windows/HIP build wall109966.979ms. All512 original outputs and
 callbacks match; first144/logit10.375/error0. Load21645.8589ms passes, while
@@ -58,10 +65,29 @@ The [actual native cold-tail controls](../benchmarks/correctness/terminal-cold-t
 pass q7169/out32, q8191/out32 and q8192/out512 with all32/32/512 original
 outputs and live callbacks, first logits9.25/11.375/10.375 and31/31/511 native
 commits. The q8193 case fails at layer39 before output: its terminal provider
-predicate excludes the final one-input cold chunk. A scoped admission repair
+predicate excludes the final one-input cold chunk. The scoped admission repair
 passes204 predicate and66912 provider-selection checks plus four regressions;
-the actual old predicate fails the new test. This new source has not yet
-been built or qualified on Windows. Native MTP remains opt-in.
+the actual old predicate fails the new test. Its actual99 Windows build now
+completes q8193, but first64/logit9.75 disagrees with original220/logit9.75.
+Both the unobserved and complete observed runs return32 tokens/callbacks and
+31 native target commits, with exit6 and clean host guards. Their wrong token
+is not accepted merely because its scalar logit matches.
+
+The80 observed tail norms bind the original GB10 input63 at position8192 and
+all32 original outputs/full first logits. Only layer0 input norm is bit-exact;
+layer0 postattention differs974/2048 BF16 values, maxabs0.03125. Internal norms
+are diagnostic, while the emitted-token boundary remains authoritative.
+Carrier/final-norm text markers were filtered and are not claimed as compared.
+
+The new cold single-input bridge reuses the full resident prefix q1 export,
+preserves its arithmetic, consumes the actual remaining prompt token, then
+publishes the completed normalized row to the private MTP seed. Empty KV tails
+return to the standard1536-token q1 layout before execution; the existing cold
+owner handles promotion and the only caller callback. Local ASan/UBSan bridge,
+coordinator, C-bridge and native retirement checks pass. Numeric environment
+caches now apply caller defaults per invocation;752 checks and three actual
+old-parser negative controls pass. New bridge binaries and q8193 correctness
+remain unmeasured. Native MTP remains opt-in; no release is qualified.
 
 The [first step124 reference attempt](../benchmarks/correctness/gb10-step124-control-rejection-20260921.json)
 is rejected because its q7169 first token is220/9.375 instead of82/9.25.

@@ -97,7 +97,7 @@ bool raw_env_flag_enabled(const char*){return false;}
 bool native_mtp=false,g_qwen36_resident_completion_unknown=false;
 bool env_flag_enabled(const char* name){return std::strcmp(name,"QRT_QWEN36_MTP_NATIVE_DECODE")||native_mtp;}
 bool qwen36_resident_decode_activation_workspace_layout_valid(const Workspace&){return true;}
-unsigned seeds=0,suffixes=0,callbacks=0,releases=0,fail_suffix=0,reservations=0,fail_reservation=0;
+unsigned seeds=0,suffixes=0,single_tails=0,callbacks=0,releases=0,fail_suffix=0,reservations=0,fail_reservation=0;
 bool fail_seed=false,cancel=false,bad_counter=false,bad_handoff=false;
 unsigned bad_seed_identity=0;
 unsigned throw_suffix=0;
@@ -164,7 +164,9 @@ int qrt_qwen36_whole_provider_prefill_v1(const qrt_qwen36_whole_provider_request
  return !fail_seed;
 }
 hipError_t resize_qwen36_prefill_chunk_tail(Attention& a,size_t count){
- assert(!g_descriptor_product_reuse_device_allocations&&allocations.empty());
+ assert(std::none_of(g_descriptor_device_allocation_pool.begin(),g_descriptor_device_allocation_pool.end(),
+  [](const auto& block){return block.in_use;}));
+ if(g_descriptor_product_reuse_device_allocations)assert(count==1536u);
  a.decode_tail_k_bytes=a.decode_tail_v_bytes=count*1024;return hipSuccess;
 }
 hipError_t reserve_qwen36_prefill_chunk_attention(Attention& a,size_t count){
@@ -182,7 +184,7 @@ hipError_t promote_qwen36_prefill_chunk_attention(Attention& a,size_t prefix,siz
  if(a.history_tokens==a.prefill_reserved_tokens)a.prefill_reserved_tokens=0;
  return hipSuccess;
 }
-bool run_qwen36_resident_batch_suffix(const qrt_qwen36_whole_provider_prefix_request_v1_t& r,uint32_t* teachers,
+bool mock_completed_suffix(const qrt_qwen36_whole_provider_prefix_request_v1_t& r,uint32_t* teachers,
  std::string* stage,std::string* failure,bool terminal_only,qrt_qwen36_whole_provider_result_t* out){
  ++suffixes;auto& s=g_qwen36_resident_session;
  assert(!teachers&&terminal_only&&r.expected_prefix_token_count==s.prefix_tokens);
@@ -210,6 +212,16 @@ bool run_qwen36_resident_batch_suffix(const qrt_qwen36_whole_provider_prefix_req
  out->continuation.output_token_id=42;out->continuation.output_logit=5.5;out->output_tokens_fnv1a64=234;
  return true;
 }
+bool run_qwen36_resident_batch_suffix(const qrt_qwen36_whole_provider_prefix_request_v1_t& r,uint32_t* teachers,
+ std::string* stage,std::string* failure,bool terminal_only,qrt_qwen36_whole_provider_result_t* out){
+ assert(r.suffix_token_count>1u);return mock_completed_suffix(r,teachers,stage,failure,terminal_only,out);
+}
+bool run_qwen36_prefill_single_tail(const qrt_qwen36_whole_provider_prefix_request_v1_t& r,
+ std::string* stage,std::string* failure,qrt_qwen36_whole_provider_result_t* out){
+ assert(r.suffix_token_count==1u&&r.expected_prefix_token_count+1u==requested_total);
+ for(unsigned i=3;i<40;i+=4)assert(g_qwen36_resident_session.full_attention_layers[i].decode_tail_k_bytes==1536u*1024u);
+ ++single_tails;return mock_completed_suffix(r,nullptr,stage,failure,true,out);
+}
 int QRT_CDECL emit(void*,uint32_t token,uint64_t elapsed){
  assert(!g_descriptor_product_reuse_device_allocations&&allocations.empty());
  ++callbacks;assert(token==42&&elapsed>1&&g_qwen36_resident_session.prefix_tokens==requested_total);
@@ -224,7 +236,7 @@ int main(){
  for(size_t i=0;i<prompt.size();++i)prompt[i]=uint32_t(i%245000);
  actual_prompt=prompt.data();auto result=std::make_unique<qrt_qwen36_whole_provider_result_t>();
  auto run=[&](size_t total){
- requested_total=total;seeds=suffixes=callbacks=releases=reservations=0;*result={};result->preload_wall_clock_ns=789;
+ requested_total=total;seeds=suffixes=single_tails=callbacks=releases=reservations=0;*result={};result->preload_wall_clock_ns=789;
  mtp_calls=0;g_qwen36_resident_completion_unknown=false;
   assert(!g_descriptor_product_reuse_device_allocations&&allocations.empty()&&g_descriptor_device_allocation_pool.empty());
   allocation_attempts=allocation_count=free_count=0;
@@ -241,6 +253,7 @@ int main(){
                   131072u,132096u,262140u,262142u,262143u,262144u,263168u}){
   assert(run(total)==1&&callbacks==1&&seeds==1&&suffixes==(total+8191)/8192-1&&!releases);
   assert(reservations==10);
+  assert(single_tails==(total%8192u==1u?1u:0u));
   assert(allocation_count==2&&g_descriptor_device_allocation_pool_stats.request_count==suffixes*2u);
   assert(g_descriptor_device_allocation_pool_stats.new_allocation_count==2);
   assert(g_descriptor_device_allocation_pool_stats.reuse_count==(suffixes-1u)*2u);
@@ -286,6 +299,7 @@ int main(){
  for(size_t total:{8193u,8194u,8195u,8257u,16383u,16384u,16385u,17408u,
                   65536u,131072u,262140u,262142u,262143u}){
   assert(run(total)&&callbacks==1&&mtp_calls==(total+8191u)/8192u+1u);
+  assert(single_tails==(total%8192u==1u?1u:0u));
   assert(g_qwen36_resident_session.native_mtp_checkpoint.retained&&result->resident_session_valid);
  }
  for(unsigned at:{1u,2u,3u,4u})for(bool unknown:{false,true}){

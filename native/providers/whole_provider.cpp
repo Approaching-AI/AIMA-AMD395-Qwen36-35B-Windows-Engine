@@ -41688,34 +41688,36 @@ private:
 };
 
 unsigned int env_u32_or_default(const char *name, unsigned int fallback) {
-    auto parse = [&]() -> unsigned int {
+    auto parse = [&]() -> std::optional<unsigned int> {
         const char *value = getenv(name);
         if (value == nullptr || value[0] == '\0') {
-            return fallback;
+            return std::nullopt;
         }
         char *end = nullptr;
         const unsigned long parsed = std::strtoul(value, &end, 10);
         return end != value && end != nullptr && *end == '\0' &&
                 parsed <= static_cast<unsigned long>(UINT_MAX)
-            ? static_cast<unsigned int>(parsed)
-            : fallback;
+            ? std::optional<unsigned int>(static_cast<unsigned int>(parsed))
+            : std::nullopt;
     };
     if (!q1_decode_control_plane_cache_enabled()) {
-        return parse();
+        return parse().value_or(fallback);
     }
     // Match env_flag_enabled(): product q1 processes freeze route selection
     // before session capture, while generic probes retain dynamic parsing by
     // leaving the control-plane cache disabled.  Numeric layer masks and
     // launch geometry are queried hundreds of times per decode token, so a
     // raw Windows CRT getenv/strtoul on every layer is a product-scale wall.
-    thread_local std::unordered_map<std::string, unsigned int> cache;
+    // Freeze the configured value, including absence/invalidity. A fallback
+    // belongs to the current call and can depend on its actual chunk extent.
+    thread_local std::unordered_map<std::string, std::optional<unsigned int>> cache;
     const auto found = cache.find(name);
     if (found != cache.end()) {
-        return found->second;
+        return found->second.value_or(fallback);
     }
-    const unsigned int parsed = parse();
+    const auto parsed = parse();
     cache.emplace(name, parsed);
-    return parsed;
+    return parsed.value_or(fallback);
 }
 
 unsigned int selected_hawkeye_correction_maximum_blocks_per_launch() {
@@ -41745,30 +41747,30 @@ unsigned int selected_hawkeye_candidate_count_maximum_blocks_per_launch() {
 }
 
 int env_i32_or_default(const char *name, int fallback) {
-    auto parse = [&]() -> int {
+    auto parse = [&]() -> std::optional<int> {
         const char *value = getenv(name);
         if (value == nullptr || value[0] == '\0') {
-            return fallback;
+            return std::nullopt;
         }
         char *end = nullptr;
         const long parsed = std::strtol(value, &end, 10);
         return end != value && end != nullptr && *end == '\0' &&
                 parsed >= static_cast<long>((std::numeric_limits<int>::min)()) &&
                 parsed <= static_cast<long>((std::numeric_limits<int>::max)())
-            ? static_cast<int>(parsed)
-            : fallback;
+            ? std::optional<int>(static_cast<int>(parsed))
+            : std::nullopt;
     };
     if (!q1_decode_control_plane_cache_enabled()) {
-        return parse();
+        return parse().value_or(fallback);
     }
-    thread_local std::unordered_map<std::string, int> cache;
+    thread_local std::unordered_map<std::string, std::optional<int>> cache;
     const auto found = cache.find(name);
     if (found != cache.end()) {
-        return found->second;
+        return found->second.value_or(fallback);
     }
-    const int parsed = parse();
+    const auto parsed = parse();
     cache.emplace(name, parsed);
-    return parsed;
+    return parsed.value_or(fallback);
 }
 
 constexpr size_t kGb10GateLutBf16Values = UINT32_C(1) << 16;
@@ -75504,29 +75506,29 @@ struct RoutedMappedRawWeightView {
 std::vector<RoutedMappedRawWeightView> g_routed_mapped_raw_weight_views;
 
 uint64_t parse_env_u64_or_default(const char *name, uint64_t default_value) {
-    auto parse = [&]() -> uint64_t {
+    auto parse = [&]() -> std::optional<uint64_t> {
         const char *value = std::getenv(name);
         if (value == nullptr || value[0] == '\0') {
-            return default_value;
+            return std::nullopt;
         }
         char *end = nullptr;
         const unsigned long long parsed = std::strtoull(value, &end, 0);
         if (end == value || (end != nullptr && *end != '\0')) {
-            return default_value;
+            return std::nullopt;
         }
         return static_cast<uint64_t>(parsed);
     };
     if (!q1_decode_control_plane_cache_enabled()) {
-        return parse();
+        return parse().value_or(default_value);
     }
-    thread_local std::unordered_map<std::string, uint64_t> cache;
+    thread_local std::unordered_map<std::string, std::optional<uint64_t>> cache;
     const auto found = cache.find(name);
     if (found != cache.end()) {
-        return found->second;
+        return found->second.value_or(default_value);
     }
-    const uint64_t parsed = parse();
+    const auto parsed = parse();
     cache.emplace(name, parsed);
-    return parsed;
+    return parsed.value_or(default_value);
 }
 
 uint64_t exact_arbitrary_dynamic_ck_layer_mask_for_request(
