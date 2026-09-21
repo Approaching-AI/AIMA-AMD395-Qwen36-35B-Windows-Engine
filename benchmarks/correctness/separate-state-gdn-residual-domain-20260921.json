@@ -1,0 +1,427 @@
+{
+  "kind": "original_gb10_gdn_replay_residual_interval_audit",
+  "utc": "2026-09-21T07:55:20.155692+00:00",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "model_reference": "Original GB10 Qwen3.6-35B-A3B q7169 layer0 capture, already qualified against retained native GDN output and intermediates",
+  "candidate_source_commit": "a31b3644cdc6cacd3f219c7da1daf737bcd24400",
+  "auditor": {
+    "file": "tools/audit_gdn_replay_domain.cpp",
+    "sha256": "09fcef2ae1612b84a203e9371857b93f75d75adefced2b385a43c361cf5bcabc",
+    "source_text": "#include \"../native/providers/gdn/sm121_exp2_table.h\"\n#include <algorithm>\n#include <array>\n#include <cfenv>\n#include <cmath>\n#include <cstdint>\n#include <cstdio>\n#include <cstring>\n#include <fstream>\n#include <stdexcept>\n#include <string>\n#include <vector>\n\nconstexpr unsigned tokens=7169, chunks=113, segments=8;\nusing Flags=std::array<uint16_t,chunks*32>;\nvoid require(bool x,const char* message){if(!x)throw std::runtime_error(message);}\nuint32_t bits(float x){uint32_t y;std::memcpy(&y,&x,4);return y;}\nfloat from(uint32_t x){float y;std::memcpy(&y,&x,4);return y;}\nuint16_t rounded(float x){\n    uint32_t u=bits(x);\n    if((u&0x7fffffffu)>0x7f800000u)return uint16_t((u|0x00400000u)>>16u);\n    return uint16_t((u+0x7fffu+((u>>16u)&1u))>>16u);\n}\ntemplate<class T>std::vector<T> read(const std::string& root,const char* name,size_t n){\n    std::ifstream f(root+\"/\"+name,std::ios::binary|std::ios::ate);\n    require(f && f.tellg()==std::streamoff(n*sizeof(T)),\"incorrect artifact size\");\n    std::vector<T> a(n);f.seekg(0);f.read(reinterpret_cast<char*>(a.data()),n*sizeof(T));\n    require(bool(f),\"artifact read failed\");return a;\n}\nbool eligible(uint16_t x,unsigned low,unsigned high){\n    const unsigned magnitude=x&0x7fffu,exponent=magnitude>>7;\n    return !magnitude || (exponent>=low && exponent<=high);\n}\n// A nonnegative finite BF16 value describes an inclusive superset of its\n// original FP32 rounding bin. Multiplication by the nonnegative original\n// decay is monotone. Preserve both gradual-underflow and flushed-zero\n// possibilities: uncertain cells cannot reject or admit the candidate.\n// 0 = all possibilities admitted, 1 = all rejected, 2 = unresolved.\nunsigned residual_class(uint16_t value,float decay,unsigned low,unsigned high){\n    const unsigned magnitude=value&0x7fffu;\n    if(magnitude>=0x7f80u || !std::isfinite(decay) || decay<0.0f || decay>1.0f)return 2;\n    const uint32_t center=magnitude<<16u;\n    const uint32_t left=center>=0x8000u?center-0x8000u:0u,right=center+0x8000u;\n    volatile float product_low=from(left)*decay,product_high=from(right)*decay;\n    unsigned a=rounded(product_low)&0x7fffu,b=rounded(product_high)&0x7fffu;\n    if((bits(product_low)&0x7f800000u)==0u || (bits(decay)&0x7f800000u)==0u)a=0u;\n    require(a<=b,\"nonmonotone residual interval\");\n    const unsigned first=low<<7u,last=(high<<7u)|127u;\n    if(!b || (a>=first && b<=last))return 0;\n    if((a>0u && b<first) || a>last)return 1;\n    return 2;\n}\nunsigned pop(unsigned x){return unsigned(__builtin_popcount(x));}\nstd::array<uint16_t,segments*32> fold(const Flags& a){\n    std::array<uint16_t,segments*32> out{};\n    for(unsigned c=0;c<chunks;++c)for(unsigned h=0;h<32;++h)out[(c/16)*32+h]|=a[c*32+h];\n    return out;\n}\ntemplate<size_t N>unsigned count(const std::array<uint16_t,N>& a){unsigned n=0;for(auto x:a)n+=pop(x);return n;}\nint main(int argc,char** argv)try{\n    require(argc==2,\"requires verified local capture directory\");\n    require(std::fesetround(FE_TONEAREST)==0,\"rounding mode\");\n    // Independent checks of BF16 bin containment and source round trips.\n    unsigned bin_checks=0;\n    for(unsigned word=0;word<0x7f80u;++word){\n        const uint32_t center=word<<16u,low=center>=0x8000u?center-0x8000u:0u,high=center+0x8000u;\n        require(rounded(from(center))==word,\"BF16 center round trip\");\n        for(uint32_t candidate:std::array<uint32_t,7>{low?low-1u:0u,low,low+1u,center,high-1u,high,high+1u}){\n            if((rounded(from(candidate))&0x7fffu)==word)require(candidate>=low && candidate<=high,\"positive bin containment\");\n            if((rounded(from(candidate|0x80000000u))&0x7fffu)==word)require(candidate>=low && candidate<=high,\"negative bin containment\");\n            ++bin_checks;\n        }\n    }\n    require(residual_class(0x3f80u,1.0f,95,159)==0,\"normal endpoint class\");\n    require(residual_class(0x3f80u,0.0f,95,159)==0,\"zero decay class\");\n    require(residual_class(0x3f80u,from(80u<<23u),95,159)==1,\"tiny normal endpoint class\");\n    require(residual_class(0x7fc1u,1.0f,95,159)==2,\"nonfinite uncertainty\");\n    require(residual_class(0x0001u,1.0f,95,159)==2,\"denormal uncertainty\");\n\n    const std::string root=argv[1];\n    const auto w=read<uint16_t>(root,\"full-w-bf16.bin\",size_t(tokens)*4096);\n    const auto k=read<uint16_t>(root,\"full-k-normalized-bf16.bin\",size_t(tokens)*2048);\n    const auto h=read<uint16_t>(root,\"full-chunk-state-bf16.bin\",size_t(chunks)*524288);\n    const auto v=read<uint16_t>(root,\"full-v-new-bf16.bin\",size_t(tokens)*4096);\n    const auto g=read<float>(root,\"full-g-cumsum-f32.bin\",size_t(tokens)*32);\n    const auto table=read<unsigned char>(root,\"sm121-exp2-negative-f490940d.bin\",qrt_sm121_exp2::table_bytes);\n    require(qrt_sm121_exp2::valid_layout(table.data(),table.size()),\"original exponential table layout\");\n    std::vector<float> decay(size_t(tokens)*32);\n    for(unsigned row=0;row<tokens;++row)for(unsigned head=0;head<32;++head){\n        const unsigned last=std::min(tokens,((row/64)+1)*64)-1;\n        volatile float difference=g[size_t(last)*32+head]-g[size_t(row)*32+head];\n        volatile float argument=difference*1.4426950408889634074f;\n        decay[size_t(row)*32+head]=qrt_sm121_exp2::evaluate(table.data(),argument);\n        require(std::isfinite(decay[size_t(row)*32+head]) && decay[size_t(row)*32+head]>=0.0f && decay[size_t(row)*32+head]<=1.0f,\"captured decay domain\");\n    }\n    std::printf(\"{\\\"kind\\\":\\\"original_gb10_residual_domain_interval_audit\\\",\\\"bin_checks\\\":%u,\\\"tokens\\\":%u,\\\"domains\\\":[\",bin_checks,tokens);\n    unsigned domain_index=0;\n    for(auto domain:std::array<std::array<unsigned,2>,2>{{{95,159},{64,190}}}){\n        const unsigned low=domain[0],high=domain[1];Flags base{},bad{},unknown{};\n        for(size_t i=0;i<w.size();++i)if(!eligible(w[i],low,high)){const size_t row=i/128;base[(row/32/64)*32+row%32]=0xffffu;}\n        for(size_t i=0;i<k.size();++i)if(!eligible(k[i],low,high)){const size_t row=i/128,at=(row/16/64)*32+(row%16)*2;base[at]=base[at+1]=0xffffu;}\n        for(size_t i=0;i<h.size();++i)if(!eligible(h[i],low,high)){const size_t column=i/128;base[column/128]|=uint16_t(1u<<((column%128)/8));}\n        std::array<size_t,3> cells{};\n        for(size_t i=0;i<v.size();++i){\n            const size_t row=i/4096,head=(i/128)%32,column=i%128;\n            const unsigned classification=residual_class(v[i],decay[row*32+head],low,high);++cells[classification];\n            const unsigned at=unsigned((row/64)*32+head),mask=1u<<(column/8);\n            if(classification==1)bad[at]|=uint16_t(mask);\n            if(classification==2)unknown[at]|=uint16_t(mask);\n        }\n        Flags rejected{},unresolved{};\n        for(unsigned i=0;i<base.size();++i){rejected[i]=base[i]|bad[i];unresolved[i]=unknown[i]&~rejected[i];}\n        const auto base_segment=fold(base),bad_segment=fold(rejected),uncertain_segment=fold(unknown);\n        unsigned full_base=0,full_bad=0,full_unknown=0,total_unknown=0;\n        std::array<unsigned,segments> segment_bad{},segment_unknown{};\n        for(unsigned s=0;s<segments;++s)for(unsigned head=0;head<32;++head){\n            const unsigned at=s*32+head;\n            segment_bad[s]+=pop(bad_segment[at]);\n            segment_unknown[s]+=pop(uncertain_segment[at]&~bad_segment[at]);\n            if(s<7){full_base+=pop(base_segment[at]);full_bad+=pop(bad_segment[at]);full_unknown+=pop(uncertain_segment[at]&~bad_segment[at]);}\n            total_unknown+=pop(uncertain_segment[at]&~bad_segment[at]);\n        }\n        require(full_base==(domain_index?1008u:1126u),\"prior operand-only audit differs\");\n        std::printf(\"%s{\\\"domain\\\":[%u,%u],\\\"residual_cells\\\":{\\\"admitted\\\":%zu,\\\"rejected\\\":%zu,\\\"unresolved\\\":%zu},\\\"base_chunk_ctas\\\":%u,\\\"residual_rejected_chunk_ctas\\\":%u,\\\"combined_rejected_chunk_ctas\\\":%u,\\\"combined_unresolved_chunk_ctas\\\":%u,\\\"full1024_segments\\\":{\\\"total_ctas\\\":3584,\\\"base_rejected_ctas\\\":%u,\\\"combined_rejected_ctas\\\":%u,\\\"unresolved_ctas\\\":%u,\\\"admitted_ctas\\\":%u},\\\"all_segments\\\":{\\\"total_ctas\\\":4096,\\\"rejected_ctas\\\":%u,\\\"unresolved_ctas\\\":%u},\\\"rejected_ctas_by_segment\\\":[\",domain_index?\",\":\"\",low,high,cells[0],cells[1],cells[2],count(base),count(bad),count(rejected),count(unresolved),full_base,full_bad,full_unknown,3584-full_bad-full_unknown,count(bad_segment),total_unknown);\n        for(unsigned s=0;s<segments;++s)std::printf(\"%s%u\",s?\",\":\"\",segment_bad[s]);\n        std::printf(\"],\\\"unresolved_ctas_by_segment\\\":[\");for(unsigned s=0;s<segments;++s)std::printf(\"%s%u\",s?\",\":\"\",segment_unknown[s]);std::printf(\"]}\");\n        ++domain_index;\n    }\n    std::printf(\"],\\\"uses_original_unrounded_residual\\\":false,\\\"uncertainty_includes_gradual_and_flushed_subnormals\\\":true,\\\"native_receipts_observed\\\":false,\\\"inference_acceptance\\\":false,\\\"performance_acceptance\\\":false}\\n\");\n    return 0;\n}catch(const std::exception& e){std::fprintf(stderr,\"%s\\n\",e.what());return 1;}\n"
+  },
+  "original_analysis": {
+    "utc": "2026-09-21T07:52:17.116907+00:00",
+    "host": "Jiawei-MacminideMac-mini.local",
+    "source_commit": "a31b3644cdc6cacd3f219c7da1daf737bcd24400",
+    "analyzer": {
+      "file": "audit_gdn_residual_domain_r1.cpp",
+      "sha256": "fdefcbb79fb5d6bd980c5138dd95276159cfe83523e89a46e2f7aa85eef1e529"
+    },
+    "header": {
+      "file": "<evidence-home-1>/projects/AIMA-public-r1191-candidate/native/providers/gdn/sm121_exp2_table.h",
+      "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142"
+    },
+    "table": {
+      "file": "sm121-exp2-negative-f490940d.bin",
+      "bytes": 183174448,
+      "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
+    },
+    "inputs": [
+      {
+        "file": "full-w-bf16.bin",
+        "bytes": 58728448,
+        "sha256": "5cc5baa0e2f85758c28c06f03d8b87d5cff82b361b3382d7b531e2927e545545",
+        "shape": [
+          1,
+          7169,
+          32,
+          128
+        ],
+        "dtype": "bfloat16",
+        "reference_only": true,
+        "descriptor_file": "detail-full-w.json",
+        "descriptor_sha256": "f677dff1dda3b88f3727969d84ca9f526b45dc86d8902b03adb12dce93414498"
+      },
+      {
+        "file": "full-k-normalized-bf16.bin",
+        "bytes": 29364224,
+        "sha256": "7778fce8bbd9ce6d046eec1e2639a0d89e53bb9e3b443b9ab1fe7e8d5656ea24",
+        "shape": [
+          1,
+          7169,
+          16,
+          128
+        ],
+        "dtype": "bfloat16",
+        "reference_only": false,
+        "descriptor_file": "detail-full-k-normalized.json",
+        "descriptor_sha256": "dcf82be0ea6222e6690f87560fce0edc025671d5df20f9d7406d559185273f27"
+      },
+      {
+        "file": "full-chunk-state-bf16.bin",
+        "bytes": 118489088,
+        "sha256": "140741e123824032adb256af41c542fe74f8782ca1980b2b8eaba61ca61f6735",
+        "shape": [
+          1,
+          113,
+          32,
+          128,
+          128
+        ],
+        "dtype": "bfloat16",
+        "reference_only": true,
+        "descriptor_file": "detail-full-chunk-state.json",
+        "descriptor_sha256": "b194d3b1ecfe378f2d955d6009aaafe5c7c768a22a3053a75fbcae45517ab0df"
+      },
+      {
+        "file": "full-v-new-bf16.bin",
+        "bytes": 58728448,
+        "sha256": "b6fd8d6801622a4b7dc00490a6abee2e584df5e21b907f66eb6fa986a3d2229f",
+        "shape": [
+          1,
+          7169,
+          32,
+          128
+        ],
+        "dtype": "bfloat16",
+        "reference_only": true,
+        "descriptor_file": "detail-full-v-new.json",
+        "descriptor_sha256": "409ce7f5ca9b8993c35cde69402c8376d05591c18aa79fe550d292d2b94bf775"
+      },
+      {
+        "file": "full-g-cumsum-f32.bin",
+        "bytes": 917632,
+        "sha256": "b618db8ede809426f3c95741cce49b03d8c4cbec7888f4af0a397d959dc557b0",
+        "shape": [
+          1,
+          7169,
+          32
+        ],
+        "dtype": "float32",
+        "reference_only": false,
+        "descriptor_file": "detail-full-g-cumsum.json",
+        "descriptor_sha256": "4bd5de3f39799ac27d4cae67508b5cd05718a0cb67ebb714c6217702c40de6a6"
+      }
+    ],
+    "compile": {
+      "command": [
+        "clang++",
+        "-std=c++17",
+        "-O2",
+        "-ffp-contract=off",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-MMD",
+        "-MF",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/gdn-separate-replay-domain-audit-r1/audit-residual-domain-r1.d",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/audit_gdn_residual_domain_r1.cpp",
+        "-o",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/gdn-separate-replay-domain-audit-r1/audit-residual-domain-r1"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "wall_seconds": 0.8864014586433768
+    },
+    "command": [
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/gdn-separate-replay-domain-audit-r1/audit-residual-domain-r1",
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/gdn-separate-replay-domain-audit-r1"
+    ],
+    "returncode": 0,
+    "wall_seconds": 1.8018580423668027,
+    "stdout_sha256": "b83dc3dc4d313e2c6088488791d3ac26e7f47352333ebe93aace931cb4149b11",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scope": "Original rounded residuals provide inclusive FP32 bins. Only guaranteed classifications count; uncertainty includes gradual and flushed subnormals. This is an original-capture domain audit, not observed GPU receipts or model inference.",
+    "native_executed": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "analysis": {
+      "kind": "original_gb10_residual_domain_interval_audit",
+      "bin_checks": 228480,
+      "tokens": 7169,
+      "domains": [
+        {
+          "domain": [
+            95,
+            159
+          ],
+          "residual_cells": {
+            "admitted": 27112978,
+            "rejected": 2222583,
+            "unresolved": 28663
+          },
+          "base_chunk_ctas": 17529,
+          "residual_rejected_chunk_ctas": 16073,
+          "combined_rejected_chunk_ctas": 17532,
+          "combined_unresolved_chunk_ctas": 29,
+          "full1024_segments": {
+            "total_ctas": 3584,
+            "base_rejected_ctas": 1126,
+            "combined_rejected_ctas": 1129,
+            "unresolved_ctas": 0,
+            "admitted_ctas": 2455
+          },
+          "all_segments": {
+            "total_ctas": 4096,
+            "rejected_ctas": 1195,
+            "unresolved_ctas": 0
+          },
+          "rejected_ctas_by_segment": [
+            161,
+            161,
+            161,
+            162,
+            162,
+            162,
+            160,
+            66
+          ],
+          "unresolved_ctas_by_segment": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "domain": [
+            64,
+            190
+          ],
+          "residual_cells": {
+            "admitted": 28363649,
+            "rejected": 972079,
+            "unresolved": 28496
+          },
+          "base_chunk_ctas": 15696,
+          "residual_rejected_chunk_ctas": 14274,
+          "combined_rejected_chunk_ctas": 15712,
+          "combined_unresolved_chunk_ctas": 45,
+          "full1024_segments": {
+            "total_ctas": 3584,
+            "base_rejected_ctas": 1008,
+            "combined_rejected_ctas": 1008,
+            "unresolved_ctas": 0,
+            "admitted_ctas": 2576
+          },
+          "all_segments": {
+            "total_ctas": 4096,
+            "rejected_ctas": 1072,
+            "unresolved_ctas": 0
+          },
+          "rejected_ctas_by_segment": [
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            64
+          ],
+          "unresolved_ctas_by_segment": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "uses_original_unrounded_residual": false,
+      "uncertainty_includes_gradual_and_flushed_subnormals": true,
+      "native_receipts_observed": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false
+    }
+  },
+  "public_auditor_validation": {
+    "utc": "2026-09-21T07:54:11.912231+00:00",
+    "auditor_file": "tools/audit_gdn_replay_domain.cpp",
+    "auditor_sha256": "09fcef2ae1612b84a203e9371857b93f75d75adefced2b385a43c361cf5bcabc",
+    "retained_math_source_commit": "a31b3644cdc6cacd3f219c7da1daf737bcd24400",
+    "host": "Jiawei-MacminideMac-mini.local",
+    "compile": {
+      "command": [
+        "clang++",
+        "-std=c++17",
+        "-O2",
+        "-ffp-contract=off",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-MMD",
+        "-MF",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/gdn-separate-replay-domain-audit-r1/audit-residual-domain-public-r1.d",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/tools/audit_gdn_replay_domain.cpp",
+        "-o",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/gdn-separate-replay-domain-audit-r1/audit-residual-domain-public-r1"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "input_evidence_file": "gdn-separate-replay-domain-audit-r1/residual-domain-analysis-r1.json",
+    "input_evidence_sha256": "5c64b30cff3e8e8749a2d5b3253095f7d808cf040e885d0fb6ee1ed016f0429c",
+    "run": {
+      "command": [
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/gdn-separate-replay-domain-audit-r1/audit-residual-domain-public-r1",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/gdn-separate-replay-domain-audit-r1"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "wall_seconds": 1.6923056654632092
+    },
+    "analysis": {
+      "kind": "original_gb10_residual_domain_interval_audit",
+      "bin_checks": 228480,
+      "tokens": 7169,
+      "domains": [
+        {
+          "domain": [
+            95,
+            159
+          ],
+          "residual_cells": {
+            "admitted": 27112978,
+            "rejected": 2222583,
+            "unresolved": 28663
+          },
+          "base_chunk_ctas": 17529,
+          "residual_rejected_chunk_ctas": 16073,
+          "combined_rejected_chunk_ctas": 17532,
+          "combined_unresolved_chunk_ctas": 29,
+          "full1024_segments": {
+            "total_ctas": 3584,
+            "base_rejected_ctas": 1126,
+            "combined_rejected_ctas": 1129,
+            "unresolved_ctas": 0,
+            "admitted_ctas": 2455
+          },
+          "all_segments": {
+            "total_ctas": 4096,
+            "rejected_ctas": 1195,
+            "unresolved_ctas": 0
+          },
+          "rejected_ctas_by_segment": [
+            161,
+            161,
+            161,
+            162,
+            162,
+            162,
+            160,
+            66
+          ],
+          "unresolved_ctas_by_segment": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "domain": [
+            64,
+            190
+          ],
+          "residual_cells": {
+            "admitted": 28363649,
+            "rejected": 972079,
+            "unresolved": 28496
+          },
+          "base_chunk_ctas": 15696,
+          "residual_rejected_chunk_ctas": 14274,
+          "combined_rejected_chunk_ctas": 15712,
+          "combined_unresolved_chunk_ctas": 45,
+          "full1024_segments": {
+            "total_ctas": 3584,
+            "base_rejected_ctas": 1008,
+            "combined_rejected_ctas": 1008,
+            "unresolved_ctas": 0,
+            "admitted_ctas": 2576
+          },
+          "all_segments": {
+            "total_ctas": 4096,
+            "rejected_ctas": 1072,
+            "unresolved_ctas": 0
+          },
+          "rejected_ctas_by_segment": [
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            64
+          ],
+          "unresolved_ctas_by_segment": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "uses_original_unrounded_residual": false,
+      "uncertainty_includes_gradual_and_flushed_subnormals": true,
+      "native_receipts_observed": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false
+    },
+    "byte_identical_results": true,
+    "native_candidate_executed": false
+  },
+  "original_manifest_sha256": "57321dfcb495c5555fbde96cce5fe31038590f3be22c9f72b72bc80d1d5d791a",
+  "original_analysis_sha256": "5c64b30cff3e8e8749a2d5b3253095f7d808cf040e885d0fb6ee1ed016f0429c",
+  "public_validation_sha256": "348c590037d1fdc7a9ed91bbac45598f3d745f19954f7c12790b0c708974869e",
+  "prediction": {
+    "original_q7169_total_state_ctas": 4096,
+    "narrow_admitted_ctas": 2901,
+    "narrow_replayed_ctas": 1195,
+    "actual_native_receipts_observed": false
+  },
+  "interpretation": "The rounded original Vnew gives an inclusive FP32 rounding interval. Original decay-table lookup and monotone multiplication bound the scaled residual. Both gradual-underflow and flushed-zero possibilities remain included. Uncertain individual cells cannot admit or reject a CTA. Existing W/K/H exclusions resolve all whole-segment uncertainty in this one original layer. The wider64:190 comparison checks operands only and does not establish its carry domain.",
+  "limitations": [
+    "No native fast/replay execution or register/occupancy/speed result",
+    "One original captured layer, not all model layers",
+    "q8192 synthetic extension has no admission count inferred from q7169",
+    "Original unrounded residual values were not captured and are not invented"
+  ],
+  "native_dispatched": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "publisher": {
+    "file": "publish_gdn_residual_domain_r1.py",
+    "sha256": "75cfc1a247c18ba1f54d3357c12abe2498e125015cb233ee5afd4b1708fc10cb"
+  },
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "74c67bc24ca7f19a24aaa0e4aedd2d4087a42083c6dfc82e92f94570dc1c2792",
+    "original_json_bytes": 23219,
+    "source_revision": "a31b3644cdc6cacd3f219c7da1daf737bcd24400",
+    "source_path": "benchmarks/correctness/separate-state-gdn-residual-domain-20260921.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 11
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}

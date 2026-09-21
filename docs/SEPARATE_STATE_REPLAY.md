@@ -23,12 +23,27 @@ segment receipts to inspect admission after timing, without extra host
 synchronization inside the measured sequence.
 
 An audit of original GB10 q7169 layer0 operands finds that W, K or H excludes
-1126 of 3584 CTAs across the seven full 1024-token segments, about31.4%.
-Residual and dynamic carry admission were not audited, so actual replay can
-be higher. This measurement covers one captured layer and does not establish
+1126 of 3584 CTAs across the seven full 1024-token segments. Adding scaled
+residual intervals increases that count to1129, about31.5%. The remaining
+2455 CTAs satisfy the original-data operand checks. Across all eight segments,
+including the one-token tail, the audit predicts2901 fast and1195 replayed
+CTAs. These are predictions; actual native receipts remain unobserved.
+This measurement covers one captured layer and does not establish
 model performance. The prior combined narrow-domain kernel did not improve
 the production U=V component comparison; separating its two paths is a new
 experiment, not a retained result.
+
+The [residual auditor](../tools/audit_gdn_replay_domain.cpp) uses the inclusive
+FP32 rounding interval implied by each original BF16 Vnew value. Multiplying
+its endpoints by the original SM121 decay bounds the scaled residual without
+inventing an unrounded reference value. It includes both gradual underflow
+and possible flushed zeros. Individual uncertain cells cannot admit or reject
+a CTA; the complete W/K/H and residual audit leaves no unresolved segment
+classification in this capture. All228480 rounding-bin probes and the complete
+capture scan pass under ASan/UBSan. The wider64:190 operand comparison is
+diagnostic and does not establish a corresponding carry domain.
+[Inputs, source, commands and complete interval results](../benchmarks/correctness/separate-state-gdn-residual-domain-20260921.json)
+remain separate from native correctness or speed qualification.
 
 The host test runs the candidate bodies with64-thread transport and an
 independent wide integer reference. Seven cases cover partial chunks,

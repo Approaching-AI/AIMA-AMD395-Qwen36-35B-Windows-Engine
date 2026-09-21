@@ -47,7 +47,10 @@ The [host and original-operand evidence](../benchmarks/correctness/separate-stat
 checks18 fast and10 replayed CTAs, including6 partial-output replays, with
 independent integer endpoints and ASan/UBSan. Two broken ownership variants
 are rejected. The W/K/H audit alone excludes31.4% of full-segment CTAs in the
-captured first layer; residual admission and native performance are unmeasured.
+captured first layer. The [follow-up residual interval audit](../benchmarks/correctness/separate-state-gdn-residual-domain-20260921.json)
+raises this to1129/3584 CTAs, with no unresolved full-segment classifications.
+Across the original q7169 capture it predicts2901 fast and1195 replayed CTAs;
+actual native receipts and performance remain unmeasured.
 The prepared425-input native fixture compares the complete retained chain
 with separate fast and replay kernels. Runtime dispatch, retained timings
 and every product acceptance threshold remain unchanged.
