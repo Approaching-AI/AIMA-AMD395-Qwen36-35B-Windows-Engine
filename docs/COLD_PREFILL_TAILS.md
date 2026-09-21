@@ -96,6 +96,25 @@ stops before binding binaries until the new build exists. Earlier R9 package
 bindings refer to older components and must be replaced before packaging this
 repair. Final-artifact HTTP, prefix, context and one-hour soak checks remain open.
 
+The [new portable-package preparation](../benchmarks/correctness/cold-tail-package-prepared-20260921.json)
+requires the actual a7 whole/CLI/probe and 54-test server builds, plus the
+same-artifact original q8192/out512 boundary, before binding any executable
+hash. It will replace the whole DLL, normal CLI and static-C-core server
+together and retain the separately pinned CK, FLA and MoE providers. Every
+provider identity and the complete535-option portable profile must match the
+declared functional control. Its three profile differences are explicit;
+chunked prefill still requires final-package model tests.
+
+Preparation passes Windows parsing, zero-dispatch missing-build checks and
+five deliberately incorrect profile/baseline bindings. The existing861 control
+checks profile normalization only and does not qualify the a7 package. No
+bound package input, archive or relocated runtime exists yet. Expected inventory
+is269 runtime artifacts and285 release files, including the model-independent
+square-root table. Staging will create an unqualified candidate for the final
+archive tests; all context, native retirement, HTTP, soak, load and performance
+requirements remain open. This preparation does not reuse the stale R9 binary
+bindings or claim that the active861 full256k run qualifies the repaired C core.
+
 Next validation uses the original q8191/out32 and q8193/out32 boundaries,
 same-build ordinary and native q8192 controls, then the three original native
 retirement cases. Host transport checks establish no native numerical,

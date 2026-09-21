@@ -44,6 +44,14 @@ result exists yet. Both the server's static C core and normal product CLI
 must accompany the repaired DLL in the next package. Old R9 package bindings
 remain historical; archive, HTTP and soak acceptance requires the final files.
 
+The [replacement package preparation](../benchmarks/correctness/cold-tail-package-prepared-20260921.json)
+is unbound until the actual a7 whole/CLI/server builds and matching ordinary
+q8192 boundary pass. Windows parsing, missing-build admission and five invalid
+profile/baseline cases pass. It binds all numerical providers and all535
+portable options before staging; expected269 runtime artifacts and285 release
+files remain planned counts. No new archive, relocated model run or release
+qualification has been produced.
+
 The [prepared native retirement matrix](../benchmarks/correctness/native-mtp-retirement-prepared-20260921.json)
 uses existing original GB10 q262140/q262142/q262143 prompts, each with16
 outputs. Same-source native q7169/out32 and q8192/out512 controls precede the
