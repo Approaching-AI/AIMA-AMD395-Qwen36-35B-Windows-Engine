@@ -1,0 +1,999 @@
+{
+  "host": "BAIYING",
+  "command_file": "D:\\projects\\run-segmented-attention-prefix256k-r1.ps1",
+  "command_file_sha256": "bb82d06244d5f6abd135a97c86da95dc10802042c79f8927e82bc81bc1761fcc",
+  "model": "D:\\models\\Qwen3.6-35B-A3B",
+  "source_commit": "9428e9eed89f0e38851e226a0f3220fb43acfffc",
+  "source_manifest_sha256": "8f089c5783f78bb271408bb796653da9088af1de04270ba86f4ab1c1974ec127",
+  "cli_build": {
+    "source_record": "prefix-owner-cli-native-source-r1.json",
+    "source_record_sha256": "41037893f631a6333e9b3478a838e507530542a7d26841d010d3d3e71596d8f2",
+    "source_commit": "6d9602cb9e51096f4e336ecf07a2b220e53f6a54",
+    "repo": "D:/projects/AIMA-public-prefix-owner-cli-20260918-r1",
+    "executable": "D:\\projects\\AIMA-public-prefix-owner-cli-20260918-r1\\build\\prefix-owner-cli\\qrt-product.exe",
+    "executable_sha256": "153c0970dc2c4d1d3f8536ed698005842169431d412741a736cee185f731c78d",
+    "executable_bytes": 949248,
+    "metadata_file": "prefix-owner-cli-build-r1/build-provenance.json",
+    "metadata_sha256": "0defead4a309f7aab324200148fdde1270387ee8a39d1d09db5a4cbb68ac7f54",
+    "build_run_file": "prefix-owner-cli-build-r1/run-record.json",
+    "build_run_sha256": "d04e34e8a45c1eed1676351e4416de4922acbf20a8d5b4824829a3f255a64d65",
+    "compiled_sources": {
+      "native/src/qrt.c": "851904c79ea9ff3230423f86a4d92bae27734df30bb6dd51632ffb219397c076",
+      "native/src/qwen36_baseline.c": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061",
+      "native/src/product_cli.c": "e937d3ea5fcb6e4752487e15fc4ad38ca1c5f6f738c1a944dcfdf809708c319e",
+      "native/src/qrt.h": "c7af4d946b863eccbd98a540ffa0a034e1230685b5409514da05bfff9659bc4c",
+      "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+      "native/src/qrt_prefix_logit.h": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+      "native/src/qrt_prefix_checkpoint.h": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+      "native/src/qwen36_baseline.h": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42"
+    }
+  },
+  "components": {
+    "coarse_out_provider": {
+      "commit": "9428e9eed89f0e38851e226a0f3220fb43acfffc",
+      "metadata_path": "D:\\projects\\AIMA-public-segmented-attention-whole-20260921-r1\\build\\segmented-attention-whole-provider\\build-provenance.json",
+      "metadata_sha256": "e9c49fdb922f8f04a7ab0b1ac59e7913cd073cc5cee90705dcff94ae1fdbac0a",
+      "build_run_sha256": "e7802ffdae61e3b38c9c7d454d5f34c5d067910bc9f48e81e8381c6858c0ec99",
+      "dll_path": "D:\\projects\\AIMA-public-segmented-attention-whole-20260921-r1\\build\\segmented-attention-whole-provider\\qrt_qwen36_whole_provider.dll",
+      "dll_sha256": "b6952c58eb18b4d7308e11ed881c8da01344618c31c447b80daa4d54731e5f7b",
+      "artifacts": [
+        {
+          "name": "qrt_qwen36_whole_provider.dll",
+          "bytes": 13832704,
+          "sha256": "b6952c58eb18b4d7308e11ed881c8da01344618c31c447b80daa4d54731e5f7b"
+        },
+        {
+          "name": "q1_moe_avx512bf16_host_provider.obj",
+          "bytes": 183170,
+          "sha256": "5274fd23ea0b99e84a924f5b112f199a46862dd605c20ec1e91744845de0cff1"
+        }
+      ],
+      "source_sha256": "eb64a5b3d9285224f2ead683134a5a43bd0e304be47f128ba301e72f634a703b",
+      "dispatch_policy_sha256": "4fd95a932236498d6a2d7e5a0dc2523f2ead1dfdaff1c147acfa357e1645b0fe"
+    },
+    "exact_attention_provider": {
+      "commit": "37014953c28e5b5a91573c6233fdda00bb279b85",
+      "metadata_path": "D:\\projects\\AIMA-public-compact-suffix-query-20260919-r2\\build\\compact-suffix-query\\build-ck-provenance.json",
+      "metadata_sha256": "599681d26ec1aeb62081f56ab8868d5d35ff753b8ec8cf0656fcf94f969f9976",
+      "build_run_sha256": "b93dc75fbf922d7d062e656f2ffd8af7fe804bb4393a7da68d05051f2138fd27",
+      "dll_path": "D:\\projects\\AIMA-public-compact-suffix-query-20260919-r2\\build\\compact-suffix-query\\qrt_ck_fmha_sm121.dll",
+      "dll_sha256": "2ab47f4443fa8bb30b521c75b1c6785e8ce1a998b97021bd252aaed77c3aa64b",
+      "artifact": {
+        "sha256": "2ab47f4443fa8bb30b521c75b1c6785e8ce1a998b97021bd252aaed77c3aa64b",
+        "file": "D:\\projects\\AIMA-public-compact-suffix-query-20260919-r2\\build\\compact-suffix-query\\qrt_ck_fmha_sm121.dll",
+        "bytes": 2106368
+      }
+    },
+    "paired_gdn_provider": {
+      "commit": "1d11bf742268924ecf5df1e0e66a0e19fb7cec15",
+      "metadata_path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\build\\fla\\build-provenance.json",
+      "metadata_sha256": "1286c84384fc9dd71fff7db8b7f2b2e59b5c7b0665a0320b2d96c3560a817eba",
+      "build_run_sha256": "2922fa818d9496e52cd67003dfb0d999e5feca53dbad7ae301fd429bf591807a",
+      "dll_path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+      "dll_sha256": "a6b110c3482ca8bc1bb7ef1b6c8213133bb98d53afa5d3a491ba4194bc1d3a88",
+      "artifacts": [
+        {
+          "file": "fla-output-capture-replay.exe",
+          "bytes": 822784,
+          "sha256": "d2ac874d18d7c37a9f698e143b09347ccce7768e55233e6314faaf131e5ca0f0"
+        },
+        {
+          "file": "fla-upstream-capture-replay.exe",
+          "bytes": 904192,
+          "sha256": "99923a3d21467dd7ec8c8b7d4aec4e05995d866d2ffdecb819477764dac99dce"
+        },
+        {
+          "file": "metadata.json",
+          "bytes": 13951,
+          "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+        },
+        {
+          "file": "q1025-fla-smoke.exe",
+          "bytes": 347648,
+          "sha256": "23db944b005a4a23ca7799a3064fb24f89f74975c38c3b9c13031d511b6eb216"
+        },
+        {
+          "file": "q64-fla-smoke.exe",
+          "bytes": 328192,
+          "sha256": "1238486a88b197f5e1580e6bc3b57321213b0f6500cc41aa948da0fca2177714"
+        },
+        {
+          "file": "q65-fla-smoke.exe",
+          "bytes": 347648,
+          "sha256": "24ada79dd9710dd1350abde299ace41b80fb690be82e5bbc26b4b6db855c8095"
+        },
+        {
+          "file": "q7169-fla-smoke.exe",
+          "bytes": 347648,
+          "sha256": "5efd30e3b7ae1d6b6b75ee89224c4efe9f3df9e742120325bd34fca667dff242"
+        },
+        {
+          "file": "q8192-fla-smoke.exe",
+          "bytes": 347136,
+          "sha256": "d23c47d47304131c4fcd18684cca075a753e7ac6f713da524fc810d3dbb305fd"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+          "bytes": 16120,
+          "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+          "bytes": 16112,
+          "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+          "bytes": 18880,
+          "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+          "bytes": 6664,
+          "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+          "bytes": 26816,
+          "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+          "bytes": 27960,
+          "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+          "bytes": 45112,
+          "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+          "bytes": 38272,
+          "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+          "bytes": 13160,
+          "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+          "bytes": 6168,
+          "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+          "bytes": 6040,
+          "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+        },
+        {
+          "file": "qrt_fla_chunk_gdn_provider.dll",
+          "bytes": 984064,
+          "sha256": "a6b110c3482ca8bc1bb7ef1b6c8213133bb98d53afa5d3a491ba4194bc1d3a88"
+        },
+        {
+          "file": "qrt_fla_gdn_kernel_specs.inc",
+          "bytes": 940,
+          "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+        }
+      ],
+      "source_inputs": [
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\generators\\compile_q8192_fla_chunk_gdn.py",
+          "sha256": "46eea902c6e7eeb6d24a8d1004e9ebd869a9f852da6212752da9cdc817f00bb6"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\qrt_fla_chunk_gdn_q8192_provider.cpp",
+          "sha256": "9e19169742f1b0607247bb49c25fa48acade22e9d05a4791eb983eb69d5a141f"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\q64_fla_chunk_gdn_smoke.cpp",
+          "sha256": "19508dc07210fa8c1b30baee7487d813ea679f05d73cf89c1bfc7f6d5d4ef3a7"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\blackwell_kkt.h",
+          "sha256": "72a1af6ddcfa51334859081dbc3372f9bcb31362599c3e77e3b0ecb73d1bbf7d"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h",
+          "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\fla_output_capture_replay.cpp",
+          "sha256": "98afbd9c4caed9f836dc868dd0262d75d299663cc8c65c401dcc8734c0f4ca5f"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\fla_upstream_capture_replay.cpp",
+          "sha256": "8bff519f586c9abb3b9cca06cc471586a10982605f7ecc5e220a18a2ae0b64b8"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\blackwell_state.cpp",
+          "sha256": "5990b1fdacb25840be7e38451a60b3f71f000067d2f0b5d051df71666a0b0564"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\blackwell_state.h",
+          "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\blackwell_accumulator.h",
+          "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\moe_accumulator\\sm121_wave16.h",
+          "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h",
+          "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\moe_accumulator\\sm121_float_alignment.h",
+          "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\moe_accumulator\\sm121_subgroup.h",
+          "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\moe_accumulator\\sm121_paired_products.h",
+          "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\sm121_exp2_table.h",
+          "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\blackwell_wu_output.cpp",
+          "sha256": "cdc11bd66b3b821ad9a389ac024c983c3dfef22863c0b2b44b55f6536f2d3503"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\blackwell_wu_output.h",
+          "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\blackwell_cooperative.cpp",
+          "sha256": "d6d1d60f212e2f52cb84948dd2c51a226016442dd6e21553d3de62b76a45e1a0"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\blackwell_cooperative.h",
+          "sha256": "edc0f2a46fa1fec3dc2e3673b36617e4b8b3ad8afe4e28fb152de967403e6b98"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\blackwell_scalar_matrices.h",
+          "sha256": "b5afca4c6505188b010dea011493b839499aa3dc1972109b2e29d9111d521aaf"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\blackwell_scalar_state.h",
+          "sha256": "5343f29f341763574afa65f1352112a3d2cf6b688592f3bef34ff3464e4a7ae8"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\blackwell_lifetime_matrices.h",
+          "sha256": "fd252e85a357d15d7319be06e6172eee69b0ab10369ae2702219e1a07ee7acce"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\paired_score_matrices.h",
+          "sha256": "8f4ad8dde236962d94d2de7a82415a3dd28046c2f9e3542e2d452c918817224b"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\paired_score_policy.h",
+          "sha256": "11dac7c5e12bbb33fb3a8b4799e8f3bf572df7e28e88dd4bcc7477b4967e1e60"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\pipelined_segment_policy.h",
+          "sha256": "b5551604f7269f0104d94763323ae69dbf3012f293336d0e79420c1637331822"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\pipelined_segment_owner.h",
+          "sha256": "c60e960fb6567f767a4ad731abb6d5f383c3af00c88ea0b03e6c4e808af947e2"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\completion_guard.h",
+          "sha256": "c05f5fdffd38b49bfed875ba5aaa530a0896d9e9b79a113098d2b1d41a490fb0"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\output_failure_capture.h",
+          "sha256": "d6e5eb8b9792f6e24513bf89edab4bc4c1ddd8fc55458953ff16c78c725c6a3f"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\fused_state_output.h",
+          "sha256": "17230acfe1b4f7da52dd942faeda1dc38f52ac89c482b263c341d2308b069094"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\fused_state_output_policy.h",
+          "sha256": "8fbdf69258599e8b84ee91e25cd3cdf2833f13aac1297cfbbef0ed2805f27a2a"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\fla_checkpoint.h",
+          "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\interval_matrices.h",
+          "sha256": "a0d921e13a65674133bca20e1a55318767c982a451a0e2570188bbce07f0e72e"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\coarse_interval.h",
+          "sha256": "34b5d01655bce0a92c4979bcaa3749b0a45f9f7998fc3361ff1215d7329880a5"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\coarse_interval_policy.h",
+          "sha256": "8e574b308afbf2193e09d910fa27ba10d0014ad9ca2a25a571fbd23f7980f542"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\consumer_interval.h",
+          "sha256": "f21ecbf1836b9a1c5b72e2408d303c89fe46d229d888271f70ec5a47170cacfa"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\moe_accumulator\\sm121_coarse_projection_bound.h",
+          "sha256": "4dddf8106a4ab91ba4beaca6a2e3ce9046902b2c646f8b8bb4201efedc7001d8"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\moe_accumulator\\sm121_projection_interval.h",
+          "sha256": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h",
+          "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\blackwell_l2norm.cpp",
+          "sha256": "bb6d61d0584c377c06e2aacc682a6fe4d752887986671f54645a3b9e616c8b07"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\blackwell_l2norm.h",
+          "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\sm121_rsqrt_table.h",
+          "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\blackwell_inverse.cpp",
+          "sha256": "daa28f39654a7fb102c5cf8f44fa9ad1bde8df47fc6662eb398cb0136fb72c7e"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\blackwell_inverse.h",
+          "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\blackwell_inverse_math.h",
+          "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\native\\providers\\gdn\\first_call_capture.h",
+          "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667"
+        }
+      ]
+    },
+    "expert_order_moe_provider": {
+      "commit": "9235750e81a899f6843bb9dfd3f11165ad4cdce9",
+      "metadata_path": "D:\\projects\\AIMA-public-moe-down-compact-20260917-r6\\build\\moe-down-compact-provider\\build-provenance.json",
+      "metadata_sha256": "e318a189c68303b4918354e0d29ea6f849d20a6e9df19571a06c0289c8f824e9",
+      "build_run_sha256": "40dd15a883f3ed251727e5ca7d8de98f16b7d27ba5dc81ec92b793e6951d1aa4",
+      "dll_path": "D:\\projects\\AIMA-public-moe-down-compact-20260917-r6\\build\\moe-down-compact-provider\\qrt_triton_moe_q8192_provider.dll",
+      "dll_sha256": "716379525ead68d583b36380261b467e8bfc37cd427f6577a24ee4519cda9891",
+      "artifacts": [
+        {
+          "file": "q8192_selected_moe_route_count.hsaco",
+          "bytes": 4816,
+          "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+        },
+        {
+          "file": "q8192_selected_moe_route_prefix_by_program.hsaco",
+          "bytes": 4960,
+          "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+        },
+        {
+          "file": "q8192_selected_moe_route_padded_prefix.hsaco",
+          "bytes": 5040,
+          "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+        },
+        {
+          "file": "q8192_selected_moe_route_scatter.hsaco",
+          "bytes": 5608,
+          "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+        },
+        {
+          "file": "q8192_selected_moe_gate_up_silu.hsaco",
+          "bytes": 17752,
+          "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+        },
+        {
+          "file": "q8192_selected_moe_down.hsaco",
+          "bytes": 11384,
+          "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+        },
+        {
+          "file": "qrt_triton_moe_q8192_provider.dll",
+          "bytes": 914432,
+          "sha256": "716379525ead68d583b36380261b467e8bfc37cd427f6577a24ee4519cda9891"
+        },
+        {
+          "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+          "bytes": 7736,
+          "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+        },
+        {
+          "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+          "bytes": 6824,
+          "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+        },
+        {
+          "file": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+          "bytes": 6696,
+          "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+        },
+        {
+          "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+          "bytes": 7504,
+          "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+        }
+      ],
+      "provider_source_sha256": "509700cf3990e06d850b03c358a4c4392dd35b3b4faab473191925925dc0ac6a"
+    }
+  },
+  "native_reason": "completed",
+  "native_exit_code": 6,
+  "native_wall_ms": 22614410.512,
+  "process_deadline_seconds": 28800,
+  "job_kill_on_close": true,
+  "host_checks": {
+    "same_boot": true,
+    "no_engine_process": true,
+    "host_memory_reserve": true,
+    "commit_reserve": true,
+    "amd_gpu_ok": true
+  },
+  "host_checks_pass": true,
+  "after_processes": [],
+  "completed_owner_chunks": [
+    {
+      "index": "0",
+      "first_position": "0",
+      "input_tokens": "8192",
+      "history_tokens": "8192",
+      "sampled_to_caller": "0"
+    },
+    {
+      "index": "1",
+      "first_position": "8192",
+      "input_tokens": "8192",
+      "history_tokens": "16384",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "46142.4"
+    },
+    {
+      "index": "2",
+      "first_position": "16384",
+      "input_tokens": "8192",
+      "history_tokens": "24576",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "74386.1"
+    },
+    {
+      "index": "3",
+      "first_position": "24576",
+      "input_tokens": "8192",
+      "history_tokens": "32768",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "109953"
+    },
+    {
+      "index": "4",
+      "first_position": "32768",
+      "input_tokens": "8192",
+      "history_tokens": "40960",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "150666"
+    },
+    {
+      "index": "5",
+      "first_position": "40960",
+      "input_tokens": "8192",
+      "history_tokens": "49152",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "192449"
+    },
+    {
+      "index": "6",
+      "first_position": "49152",
+      "input_tokens": "8192",
+      "history_tokens": "57344",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "233440"
+    },
+    {
+      "index": "7",
+      "first_position": "57344",
+      "input_tokens": "8192",
+      "history_tokens": "65536",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "283640"
+    },
+    {
+      "index": "8",
+      "first_position": "65536",
+      "input_tokens": "8192",
+      "history_tokens": "73728",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "320489"
+    },
+    {
+      "index": "9",
+      "first_position": "73728",
+      "input_tokens": "8192",
+      "history_tokens": "81920",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "362826"
+    },
+    {
+      "index": "10",
+      "first_position": "81920",
+      "input_tokens": "8192",
+      "history_tokens": "90112",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "403329"
+    },
+    {
+      "index": "11",
+      "first_position": "90112",
+      "input_tokens": "8192",
+      "history_tokens": "98304",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "450586"
+    },
+    {
+      "index": "12",
+      "first_position": "98304",
+      "input_tokens": "8192",
+      "history_tokens": "106496",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "488232"
+    },
+    {
+      "index": "13",
+      "first_position": "106496",
+      "input_tokens": "8192",
+      "history_tokens": "114688",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "531962"
+    },
+    {
+      "index": "14",
+      "first_position": "114688",
+      "input_tokens": "8192",
+      "history_tokens": "122880",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "574339"
+    },
+    {
+      "index": "15",
+      "first_position": "122880",
+      "input_tokens": "8192",
+      "history_tokens": "131072",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "629728"
+    },
+    {
+      "index": "16",
+      "first_position": "131072",
+      "input_tokens": "8192",
+      "history_tokens": "139264",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "659983"
+    },
+    {
+      "index": "17",
+      "first_position": "139264",
+      "input_tokens": "8192",
+      "history_tokens": "147456",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "699656"
+    },
+    {
+      "index": "18",
+      "first_position": "147456",
+      "input_tokens": "8192",
+      "history_tokens": "155648",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "821673"
+    },
+    {
+      "index": "19",
+      "first_position": "155648",
+      "input_tokens": "8192",
+      "history_tokens": "163840",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "845807"
+    },
+    {
+      "index": "20",
+      "first_position": "163840",
+      "input_tokens": "8192",
+      "history_tokens": "172032",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "885237"
+    },
+    {
+      "index": "21",
+      "first_position": "172032",
+      "input_tokens": "8192",
+      "history_tokens": "180224",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "979543"
+    },
+    {
+      "index": "22",
+      "first_position": "180224",
+      "input_tokens": "8192",
+      "history_tokens": "188416",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "1.02572e+06"
+    },
+    {
+      "index": "23",
+      "first_position": "188416",
+      "input_tokens": "8192",
+      "history_tokens": "196608",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "1.09191e+06"
+    },
+    {
+      "index": "24",
+      "first_position": "196608",
+      "input_tokens": "8192",
+      "history_tokens": "204800",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "1.07544e+06"
+    },
+    {
+      "index": "25",
+      "first_position": "204800",
+      "input_tokens": "8192",
+      "history_tokens": "212992",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "1.13291e+06"
+    },
+    {
+      "index": "26",
+      "first_position": "212992",
+      "input_tokens": "8192",
+      "history_tokens": "221184",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "1.22487e+06"
+    },
+    {
+      "index": "27",
+      "first_position": "221184",
+      "input_tokens": "8192",
+      "history_tokens": "229376",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "1.2844e+06"
+    },
+    {
+      "index": "28",
+      "first_position": "229376",
+      "input_tokens": "8192",
+      "history_tokens": "237568",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "1.33455e+06"
+    },
+    {
+      "index": "29",
+      "first_position": "237568",
+      "input_tokens": "8192",
+      "history_tokens": "245760",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "1.34433e+06"
+    },
+    {
+      "index": "30",
+      "first_position": "245760",
+      "input_tokens": "8192",
+      "history_tokens": "253952",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "1.39336e+06"
+    },
+    {
+      "index": "31",
+      "first_position": "253952",
+      "input_tokens": "8192",
+      "history_tokens": "262144",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "1.52617e+06"
+    }
+  ],
+  "completed_owner_tokens": 262144,
+  "owner_completion": [
+    {
+      "input_tokens": "262144",
+      "chunks": "32",
+      "maximum_chunk_tokens": "8192",
+      "decode_committed_tokens": "0",
+      "descriptor_metrics_scope": "last_chunk",
+      "first_token": "16",
+      "raw_logit": "24.375",
+      "elapsed_ms": "2.2206e+07"
+    }
+  ],
+  "minimum_available_bytes": {
+    "available_physical": 11335094272,
+    "available_commit": 42134626304
+  },
+  "reference": {
+    "oracle_sha256": "7983b7bca3529c17b2db5b15f33e6fffdc4c6e395f8d82f5f39cbddee3e4ec91",
+    "public_oracle_sha256": "b41a265e9b4f142f3e529a902bdb5e9f084cb51c9800b97acd76e7d1b05eae50",
+    "case_sha256": "763ed6238ab4d04c291265670e6506f73462184566ad1b9dd1b265c85ed74b4f",
+    "prompt_sha256": "20d134200908292fe5656a2e2c19ad21a6e4ab00f6c9b8ef741219fc806331a7",
+    "prompt_tokens": 263168,
+    "owner_tokens": 262144,
+    "expected_owner_outputs": 32,
+    "expected_suffix_outputs": 512,
+    "first_logit_tolerance": 0.125
+  },
+  "kind": "completed_segmented_attention_prefix256k_divergence",
+  "run_sha256": "cc0d05d573ffcac2942eacb32339498cd369ad9890cfab0d28301085fd478d5c",
+  "whole_build": {
+    "source": "segmented-attention-whole-source-r1.json",
+    "source_sha256": "26dba6bb276a358291ecf4ed0a065453893bec15180c42c51543457013926fb9",
+    "source_commit": "9428e9eed89f0e38851e226a0f3220fb43acfffc",
+    "repo": "D:/projects/AIMA-public-segmented-attention-whole-20260921-r1",
+    "artifact": {
+      "name": "qrt_qwen36_whole_provider.dll",
+      "bytes": 13832704,
+      "sha256": "b6952c58eb18b4d7308e11ed881c8da01344618c31c447b80daa4d54731e5f7b"
+    },
+    "build_metadata_sha256": "e9c49fdb922f8f04a7ab0b1ac59e7913cd073cc5cee90705dcff94ae1fdbac0a",
+    "build_run_sha256": "e7802ffdae61e3b38c9c7d454d5f34c5d067910bc9f48e81e8381c6858c0ec99",
+    "local_include_files_verified": 143,
+    "local_build_inputs_verified": 145,
+    "compiler_flags_match_retained_whole": true
+  },
+  "raw_failure_analysis_sha256": "49c58d7d2c1e72fa280dc62cfb533dfc4bed5a1cb15add54e2a1e5067d1087b2",
+  "outputs": {
+    "first_suffix_token": 248045,
+    "first_suffix_logit": 5.78125,
+    "first_logit_error": 0.0,
+    "initial_matching_outputs": 99,
+    "first_difference_index": 99,
+    "actual_token": 1,
+    "original_token": 328,
+    "mismatches": 397,
+    "total_outputs": 512,
+    "restored_owner_continuation_executed": false,
+    "timed_second_suffix_executed": false
+  },
+  "diagnostic_capture": {
+    "manifest_sha256": "8680a9bcf37396308152d0e5f01027f86897c51f686f3ac552edbbe6a1ccc13a",
+    "files": 1559,
+    "bytes": 275048448,
+    "all_files_verified": true
+  },
+  "diagnostic_comparisons": [
+    {
+      "file": "actual-operand-comparison-r1.json",
+      "sha256": "dffe73913def792576269ca7a9377e16f2839ff6e716b96dfc6fe6f2a7f84ce6",
+      "surfaces": 232,
+      "reference_capture_sha256": "06c53a4cbf3040a463bb8a98cbe7990dae191d60f1449b148a13b6b240a7b36c"
+    },
+    {
+      "file": "actual-linear-operand-comparison-r1.json",
+      "sha256": "a0e5b3b2317ba903e76f5972d34289f544ec8ee30e6502bec33e24c4420b6fc9",
+      "surfaces": 556,
+      "reference_capture_sha256": "05b634cf1a37bebbbd6281fad43662a4e827ca36dc25bf39793f0c6ac24d2c2a"
+    }
+  ],
+  "matching_history_position": 263168,
+  "matching_history_input_token": 248045,
+  "earlier_exact_surfaces": 218,
+  "layer9_prior_exact_stages": [
+    {
+      "stage": "input_norm_f32",
+      "elements": 2048
+    },
+    {
+      "stage": "input_norm_bf16",
+      "elements": 2048
+    },
+    {
+      "stage": "projection_qkv_f32",
+      "elements": 8192
+    },
+    {
+      "stage": "projection_z_f32",
+      "elements": 4096
+    },
+    {
+      "stage": "projection_a_f32",
+      "elements": 32
+    },
+    {
+      "stage": "projection_b_f32",
+      "elements": 32
+    },
+    {
+      "stage": "conv_f32",
+      "elements": 8192
+    },
+    {
+      "stage": "conv_ring_before",
+      "elements": 24576
+    },
+    {
+      "stage": "recurrent_state_key_major_before_f32",
+      "elements": 524288
+    },
+    {
+      "stage": "recurrent_state_key_major_after_f32",
+      "elements": 524288
+    },
+    {
+      "stage": "recurrent_core_f32",
+      "elements": 4096
+    },
+    {
+      "stage": "gated_rmsnorm_f32",
+      "elements": 4096
+    },
+    {
+      "stage": "gated_output_bf16",
+      "elements": 4096
+    },
+    {
+      "stage": "output_projection_bf16",
+      "elements": 2048
+    },
+    {
+      "stage": "residual_hidden_f32",
+      "elements": 2048
+    }
+  ],
+  "first_postnorm_difference": {
+    "position": 263168,
+    "layer": 9,
+    "stage": "post_attention_norm_f32",
+    "native_file": "linear.txn8.pos263168.layer9.post_attention_norm_f32.bin",
+    "native_sha256": "4601f804a1718a8b111451b7c78c0be4e653ff186345d6844bb8d1a716fdfe17",
+    "reference_label": "layer-09-post-attention-rmsnorm",
+    "reference_file": "txn0033-layer-09-post-attention-rmsnorm-bf16.bin",
+    "reference_sha256": "6da593ce2e6a664bb77ad564d33106cb4cfc9f75e2eff9df1e9377f70475b6b0",
+    "layout_conversion": "identity",
+    "native_completion_evidence": "completed_stage_marker_and_capture_manifest",
+    "native_stage_ordinal": 8,
+    "comparison": {
+      "elements": 2048,
+      "f32_bit_mismatches": 1,
+      "bf16_mismatches": 1,
+      "nonfinite_pairs": 0,
+      "maximum_absolute_error": 0.0009765625,
+      "first_bf16_differences": [
+        {
+          "column": 1628,
+          "native_index": 1628,
+          "reference_index": 1628,
+          "native_bits": 3189440512,
+          "reference_bits": 3189506048,
+          "native": -0.1513671875,
+          "reference": -0.15234375
+        }
+      ]
+    }
+  },
+  "original_operator_replay": {
+    "dispatch": {
+      "host": "aitopatom-66c4",
+      "source_commit": "f963ff0c890dd94e0167057b19428e539e097628",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "qrt-gb10-postnorm9-replay-20260921-r1",
+        "--hostname",
+        "aitopatom-66c4",
+        "--gpus",
+        "all",
+        "--network",
+        "none",
+        "--memory",
+        "8g",
+        "--shm-size",
+        "1g",
+        "--cpus",
+        "4",
+        "-v",
+        "<evidence-home-1>/qrt-gb10-postnorm9-replay-20260921-r1:/work",
+        "-v",
+        "<evidence-home-1>/qrt-gb10-prefix256-attention-20260921-r2:/reference:ro",
+        "-w",
+        "/work",
+        "--entrypoint",
+        "timeout",
+        "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+        "--signal=TERM",
+        "--kill-after=5",
+        "300",
+        "python3",
+        "/work/replay_gb10_postnorm9_r1.py"
+      ],
+      "command_file": "<evidence-home-1>/qrt-gb10-postnorm9-replay-20260921-r1/run.py",
+      "command_file_sha256": "e97bd9abeea41efd4de1d789ad177a7fec3e93876e33ab36dc5acf336fe0ad53",
+      "returncode": 0,
+      "reason": "completed",
+      "wall_seconds": 12.172761408030055,
+      "container_status": "false 0",
+      "gpu_processes_after": "",
+      "host_cleanup_pass": true
+    },
+    "dispatch_sha256": "7598a908c0c9800823cd68199e35116db4ef231e2f3b01530aa1429f44fd396b",
+    "comparison_sha256": "e43aab776cdca4a2d6dbbf37d4cc29ae5b9c2e9dfb6c158b2801bc05eefbffa2",
+    "cases": [
+      {
+        "name": "eager",
+        "mismatches": 37,
+        "output": {
+          "file": "eager.bf16.bin",
+          "bytes": 4096,
+          "sha256": "19839782e78755a9d7b717e78e64473e4b0395be4c1e599a8f3dcdb23a50d4a7"
+        }
+      },
+      {
+        "name": "compiled-cold-one",
+        "mismatches": 0,
+        "output": {
+          "file": "compiled-cold-one.bf16.bin",
+          "bytes": 4096,
+          "sha256": "6da593ce2e6a664bb77ad564d33106cb4cfc9f75e2eff9df1e9377f70475b6b0"
+        }
+      },
+      {
+        "name": "compiled-after-prefill",
+        "mismatches": 0,
+        "output": {
+          "file": "compiled-after-prefill.bf16.bin",
+          "bytes": 4096,
+          "sha256": "6da593ce2e6a664bb77ad564d33106cb4cfc9f75e2eff9df1e9377f70475b6b0"
+        }
+      }
+    ],
+    "observer": {
+      "matches_original_compiled": true,
+      "original_expected_mismatches": 0,
+      "output": {
+        "file": "observer-output.bf16.bin",
+        "bytes": 4096,
+        "sha256": "6da593ce2e6a664bb77ad564d33106cb4cfc9f75e2eff9df1e9377f70475b6b0"
+      },
+      "variance": {
+        "file": "observer-variance.f32.bin",
+        "bytes": 4,
+        "sha256": "8216d2a3a1d09d1aaaac7412c0492ce62a5ad4cb94c74c95a8d900bbe4badbc3"
+      },
+      "inverse": {
+        "file": "observer-inverse.f32.bin",
+        "bytes": 4,
+        "sha256": "f1bb56c8567a786f5a5af736ea1ec63cc41359670c8e6bc45edff0b3bea3aa71"
+      },
+      "variance_value": 0.0014440726954489946,
+      "inverse_value": 26.306020736694336
+    },
+    "original_source_sha256": "8b4e0b93d1d76f0394bb28f40528bdfb250e16f22a83add184d3c2651f915623"
+  },
+  "diagnosis": "The complete layer9 inputs and projection match GB10. Its first post-attention norm difference is column1628. The original compiled single-row operator uses four adjacent values per lane and16 warps; retained prefill norm uses eight values and8 warps.",
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "caveat": "Later positions have divergent token history. This diagnosis does not qualify a repaired complete256k continuation.",
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "62f9d5bf893d083404917c6d416506014025996fad9039764db90f2fa70c6bd4",
+    "original_json_bytes": 38882,
+    "source_revision": "9428e9eed89f0e38851e226a0f3220fb43acfffc",
+    "source_path": "build/recovery-20260910/segmented-prefix256k-postnorm-divergence-20260921-raw.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 3
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}

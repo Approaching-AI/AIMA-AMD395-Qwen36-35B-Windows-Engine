@@ -1,0 +1,840 @@
+{
+  "kind": "actual_native_mtp_short_controls_and_prefix_restore_failure",
+  "host": "baiying",
+  "source_commit": "a7ba406e6edffce0090d0cca5b8239f2a5565450",
+  "short_controls": [
+    {
+      "kind": "original_model_native_mtp_short_control",
+      "host": "BAIYING",
+      "source_commit": "a7ba406e6edffce0090d0cca5b8239f2a5565450",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "command_file": "D:\\projects\\run-native-mtp-target-rope-product-r1.ps1",
+      "source_manifest_sha256": "1f01fe503df05f005efe94d61f377230389559770bf1d5c8b82c3432a3c5827f",
+      "build": {
+        "source_manifest": "native-mtp-target-rope-whole-source-r1.json",
+        "source_manifest_sha256": "5877cd3effab08cc3bbbdcc21607dbd0b61118c4523c56fa21e0b6919e4e5f2f",
+        "source_commit": "a7ba406e6edffce0090d0cca5b8239f2a5565450",
+        "repo": "D:/projects/AIMA-public-native-mtp-target-rope-20260921-r1",
+        "run_directory": "native-mtp-target-rope-build-r1",
+        "run_sha256": "9f44649f8322312dedec8ae11f18dc8122097f3eb8438225fae53f05038b1bd5",
+        "whole_metadata_sha256": "5edf6fbbfe82c9146e17bae3c00a8354fcdd7b25a46568d03550bd816be2a4b5",
+        "whole_artifact": {
+          "name": "qrt_qwen36_whole_provider.dll",
+          "bytes": 14057472,
+          "sha256": "10ef27c0f9380ed47cec72038e20bded876ab6eb576856d7f475c01d748249c9"
+        },
+        "whole_artifacts": [
+          {
+            "name": "qrt_qwen36_whole_provider.dll",
+            "bytes": 14057472,
+            "sha256": "10ef27c0f9380ed47cec72038e20bded876ab6eb576856d7f475c01d748249c9"
+          },
+          {
+            "name": "q1_moe_avx512bf16_host_provider.obj",
+            "bytes": 183170,
+            "sha256": "a6686d0c539bd1de82c7bd9d8d1d126c9772db0dab8cfd77049408e483b004d5"
+          }
+        ],
+        "probe_metadata_sha256": "67804dc201c3749e21240bca6512e4b273f6ac50f030588b88266d247dc82109",
+        "probe_executable_sha256": "6d13860b119e0f9b06fe6255e8d2bed3a3ffff365aac05d74f62e647be261781",
+        "probe_executable_bytes": 955904,
+        "whole_compilation_inputs": 166,
+        "probe_compilation_inputs": 10,
+        "all_source_inputs": 172,
+        "compiler_flags_match_control": true
+      },
+      "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+      "case": "q7169-out32",
+      "checks": {
+        "completed": true,
+        "dispatch_completed": true,
+        "host_cleanup": true,
+        "original_prompt": true,
+        "original_outputs": true,
+        "original_first_logit": true,
+        "actual_native_seed": true,
+        "actual_native_commits": true,
+        "actual_native_token_boundaries": true,
+        "completed_native_spans": true,
+        "exact_callbacks": true,
+        "callback_clocks": true,
+        "public_stream_contract": true,
+        "no_diagnostic_seed_files": true
+      },
+      "qualified": true,
+      "first_token": 82,
+      "first_logit": 9.25,
+      "first_difference": null,
+      "native_output_count": 32,
+      "callback_count": 32,
+      "native_target_commits": 31,
+      "native_seeds": [
+        {
+          "generation": "1",
+          "processed_tokens": "7169",
+          "exact_target_frontier": "1",
+          "immutable_checkpoint": "1",
+          "mtp_acceptance_enabled": "0",
+          "numerical_correctness_claimed": "0"
+        }
+      ],
+      "native_spans": [
+        {
+          "generation": "1",
+          "target_batches": "18",
+          "accepted_tokens": "31",
+          "paired_checkpoint": "1",
+          "drafter_retired": "0",
+          "reference_input": "0",
+          "numerical_correctness_claimed": "0"
+        }
+      ],
+      "native_prerequisites": [
+        {
+          "name": "q2-publication-native-r1",
+          "source_commit": "b532817fd65a222a1ccf194bdc58e962cb3e599f",
+          "manifest_sha256": "9061c307ada9d058851a57dd9d8ef7f20ce01d276c0711669de0737ae3b29847",
+          "comparison_sha256": "f96c5d71e882e27e5c0ede5fc3f90595adf5db02890d009f30a967752d549158",
+          "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/q2-publication-native-r1/comparison.json",
+          "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-q2-publication-native-r1-r1.json",
+          "expected_values": 473653248,
+          "run_records": [
+            {
+              "path": "D:/projects/AIMA-public-q2-publication-20260921-r1/build/q2-publication-native-r1/qrt-q2-publication-build/run-record.json",
+              "sha256": "01b5fdde66c4f64d8ebb3a0fd72d17b8fd2ed1cfedb149e2bef2a419d135135d"
+            },
+            {
+              "path": "D:/projects/AIMA-public-q2-publication-20260921-r1/build/q2-publication-native-r1/q8192-accepted-cache-rows/run-record.json",
+              "sha256": "edc9130d397ade94210f0b46bab1b478064fea8a2bd8cd9fe25bb0c916418a84"
+            }
+          ]
+        },
+        {
+          "name": "mtp-chunked-request-native-r1",
+          "source_commit": "e7880fc58697a703a737defdab73de269731b579",
+          "manifest_sha256": "9212d2c63492c9b9b3b0765b6ea66d1fa0079f88a67a47f810b1178fd846adb7",
+          "comparison_sha256": "ff22cb38e4069e4de31f79f0d4046257fc94ea2048eba370151f0d05610d515b",
+          "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-chunked-request-native-r1/comparison.json",
+          "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-mtp-chunked-request-native-r1-r1.json",
+          "expected_values": 531632156,
+          "run_records": [
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/qrt-mtp-chunked-request-build/run-record.json",
+              "sha256": "8ea59319c1bd908b55625d141b890cafdbcd8f6b8a49d702f03cfdf7f091ac78"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q7169-out32-norm2048/run-record.json",
+              "sha256": "628a7883cfc7a2780f1f63aeeb92ea465ae39c09d85eac75ca4e3a4e9b9975ee"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q8192-out32-norm2048/run-record.json",
+              "sha256": "a4da63a1151679941717e72a4b6560e550c33a722bd295c84a3a3722c97e9553"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/long-prefix16384-owner-out32-norm2048/run-record.json",
+              "sha256": "78c542d96e463bf0897757e2c97b0d33cb9a8b056a4ca69a8797c0407f710a3f"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/long-prefix16384-suffix1024-out32-norm2048/run-record.json",
+              "sha256": "0e57a290957f0acd769cbd068b4952ffa8083a6dfb5798816c7f5a60bd840d1f"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q7169-out32-norm1024/run-record.json",
+              "sha256": "11de34c9d62e5bb0870341a53611cf748c10e9b80a3b67ed25a64b909ffbc86c"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q8192-out32-norm1024/run-record.json",
+              "sha256": "b742a71d6fc87a538c1571f4712cd26cdeea8b1f398c18cf5d8c58c6455bc86b"
+            }
+          ]
+        },
+        {
+          "name": "mtp-prefix-request-native-r1",
+          "source_commit": "6137e029dd9273f028c156cc23a707796894ed42",
+          "manifest_sha256": "9922076403e748e3cd371338a40787f25893c688f7ceac9d03494f73e9bfb59d",
+          "comparison_sha256": "e15f6112d722b54b38a79d168e163096becbcf98c436a40f01d4113b5c81664e",
+          "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prefix-request-native-r1/comparison.json",
+          "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-mtp-prefix-request-native-r1-r1.json",
+          "expected_values": 277876744,
+          "run_records": [
+            {
+              "path": "D:/projects/AIMA-public-mtp-prefix-request-20260921-r1/build/mtp-prefix-request-native-r1/qrt-mtp-prefix-request-build/run-record.json",
+              "sha256": "8f16f2e070041b10b2031d2e95941346184b1270d6ee867d48a06987cde4decd"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-prefix-request-20260921-r1/build/mtp-prefix-request-native-r1/owner16384-to-cold17408-prefix-repair/run-record.json",
+              "sha256": "ac7605c355e6d5ee0b524a8171841398115732d16e68978a6847f32c5027144a"
+            }
+          ]
+        }
+      ],
+      "observed_timing": {
+        "engine_load_ms": 21947.891299,
+        "ttft_ms": 25769.7988,
+        "tpot_ms": 218.245019,
+        "request_wall_ms": 33520.6186
+      },
+      "performance_acceptance": false,
+      "release_qualified": false,
+      "raw_records": {
+        "product.stderr.log": {
+          "bytes": 682899,
+          "sha256": "594a13e6c7942216d3d42cafafe4542ff44e95fe591300dc67b443dbc01594de"
+        },
+        "dispatch.json": {
+          "bytes": 454,
+          "sha256": "06811f01119d19a4774fe9cab610ccd9896ea1a1fd902b5a03d28c830911a889"
+        },
+        "product.stdout.jsonl": {
+          "bytes": 6798,
+          "sha256": "c054af892500c36b3ed365b9db5135497a5f0024bb0696eb97705a33ed73ef9b"
+        },
+        "launch.json": {
+          "bytes": 131,
+          "sha256": "976e235f753533557e746b6c2aa12db3d5ff6ec0cdd1745432425d692c1496c3"
+        },
+        "preflight.json": {
+          "bytes": 95381,
+          "sha256": "d4e79efea598897b770359dea1a96409329b11d1637c558d8b664fa0fe98d03a"
+        },
+        "telemetry.jsonl": {
+          "bytes": 26577,
+          "sha256": "3ad9082fa7ffdca05ad731314f2d1e9ac14ff2fcc2a59e86cbe64375e21cac09"
+        },
+        "run-record.json": {
+          "bytes": 216339,
+          "sha256": "9aa93a54fa9ab1164e4a39d73ed42b0065fa3c4d22d0ab1ad94c84486c9c244a"
+        },
+        "transfers.json": {
+          "bytes": 548,
+          "sha256": "7d8dd63703202c1259bffd5a384b486864e82cc0317dfe2a195fba51c7d66d78"
+        },
+        "runtime.env": {
+          "bytes": 34746,
+          "sha256": "54bce05b087f8bb50be262385f742e019ba6d62458592aec0fe0f3dd677118f6"
+        }
+      },
+      "boundary_analysis_sha256": "6eb7cd199ff13eaa80dec95088e14fa91fdd5399328db6b429d9107bed78226c"
+    },
+    {
+      "kind": "original_model_native_mtp_short_control",
+      "host": "BAIYING",
+      "source_commit": "a7ba406e6edffce0090d0cca5b8239f2a5565450",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "command_file": "D:\\projects\\run-native-mtp-target-rope-product-r1.ps1",
+      "source_manifest_sha256": "1f01fe503df05f005efe94d61f377230389559770bf1d5c8b82c3432a3c5827f",
+      "build": {
+        "source_manifest": "native-mtp-target-rope-whole-source-r1.json",
+        "source_manifest_sha256": "5877cd3effab08cc3bbbdcc21607dbd0b61118c4523c56fa21e0b6919e4e5f2f",
+        "source_commit": "a7ba406e6edffce0090d0cca5b8239f2a5565450",
+        "repo": "D:/projects/AIMA-public-native-mtp-target-rope-20260921-r1",
+        "run_directory": "native-mtp-target-rope-build-r1",
+        "run_sha256": "9f44649f8322312dedec8ae11f18dc8122097f3eb8438225fae53f05038b1bd5",
+        "whole_metadata_sha256": "5edf6fbbfe82c9146e17bae3c00a8354fcdd7b25a46568d03550bd816be2a4b5",
+        "whole_artifact": {
+          "name": "qrt_qwen36_whole_provider.dll",
+          "bytes": 14057472,
+          "sha256": "10ef27c0f9380ed47cec72038e20bded876ab6eb576856d7f475c01d748249c9"
+        },
+        "whole_artifacts": [
+          {
+            "name": "qrt_qwen36_whole_provider.dll",
+            "bytes": 14057472,
+            "sha256": "10ef27c0f9380ed47cec72038e20bded876ab6eb576856d7f475c01d748249c9"
+          },
+          {
+            "name": "q1_moe_avx512bf16_host_provider.obj",
+            "bytes": 183170,
+            "sha256": "a6686d0c539bd1de82c7bd9d8d1d126c9772db0dab8cfd77049408e483b004d5"
+          }
+        ],
+        "probe_metadata_sha256": "67804dc201c3749e21240bca6512e4b273f6ac50f030588b88266d247dc82109",
+        "probe_executable_sha256": "6d13860b119e0f9b06fe6255e8d2bed3a3ffff365aac05d74f62e647be261781",
+        "probe_executable_bytes": 955904,
+        "whole_compilation_inputs": 166,
+        "probe_compilation_inputs": 10,
+        "all_source_inputs": 172,
+        "compiler_flags_match_control": true
+      },
+      "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+      "case": "q8192-out512",
+      "checks": {
+        "completed": true,
+        "dispatch_completed": true,
+        "host_cleanup": true,
+        "original_prompt": true,
+        "original_outputs": true,
+        "original_first_logit": true,
+        "actual_native_seed": true,
+        "actual_native_commits": true,
+        "actual_native_token_boundaries": true,
+        "completed_native_spans": true,
+        "exact_callbacks": true,
+        "callback_clocks": true,
+        "public_stream_contract": true,
+        "no_diagnostic_seed_files": true
+      },
+      "qualified": true,
+      "first_token": 144,
+      "first_logit": 10.375,
+      "first_difference": null,
+      "native_output_count": 512,
+      "callback_count": 512,
+      "native_target_commits": 511,
+      "native_seeds": [
+        {
+          "generation": "1",
+          "processed_tokens": "8192",
+          "exact_target_frontier": "1",
+          "immutable_checkpoint": "1",
+          "mtp_acceptance_enabled": "0",
+          "numerical_correctness_claimed": "0"
+        }
+      ],
+      "native_spans": [
+        {
+          "generation": "1",
+          "target_batches": "35",
+          "accepted_tokens": "63",
+          "paired_checkpoint": "1",
+          "drafter_retired": "0",
+          "reference_input": "0",
+          "numerical_correctness_claimed": "0"
+        },
+        {
+          "generation": "1",
+          "target_batches": "32",
+          "accepted_tokens": "63",
+          "paired_checkpoint": "1",
+          "drafter_retired": "0",
+          "reference_input": "0",
+          "numerical_correctness_claimed": "0"
+        },
+        {
+          "generation": "1",
+          "target_batches": "35",
+          "accepted_tokens": "63",
+          "paired_checkpoint": "1",
+          "drafter_retired": "0",
+          "reference_input": "0",
+          "numerical_correctness_claimed": "0"
+        },
+        {
+          "generation": "1",
+          "target_batches": "35",
+          "accepted_tokens": "63",
+          "paired_checkpoint": "1",
+          "drafter_retired": "0",
+          "reference_input": "0",
+          "numerical_correctness_claimed": "0"
+        },
+        {
+          "generation": "1",
+          "target_batches": "38",
+          "accepted_tokens": "63",
+          "paired_checkpoint": "1",
+          "drafter_retired": "0",
+          "reference_input": "0",
+          "numerical_correctness_claimed": "0"
+        },
+        {
+          "generation": "1",
+          "target_batches": "39",
+          "accepted_tokens": "63",
+          "paired_checkpoint": "1",
+          "drafter_retired": "0",
+          "reference_input": "0",
+          "numerical_correctness_claimed": "0"
+        },
+        {
+          "generation": "1",
+          "target_batches": "37",
+          "accepted_tokens": "63",
+          "paired_checkpoint": "1",
+          "drafter_retired": "0",
+          "reference_input": "0",
+          "numerical_correctness_claimed": "0"
+        },
+        {
+          "generation": "1",
+          "target_batches": "32",
+          "accepted_tokens": "63",
+          "paired_checkpoint": "1",
+          "drafter_retired": "0",
+          "reference_input": "0",
+          "numerical_correctness_claimed": "0"
+        },
+        {
+          "generation": "1",
+          "target_batches": "4",
+          "accepted_tokens": "7",
+          "paired_checkpoint": "1",
+          "drafter_retired": "0",
+          "reference_input": "0",
+          "numerical_correctness_claimed": "0"
+        }
+      ],
+      "native_prerequisites": [
+        {
+          "name": "q2-publication-native-r1",
+          "source_commit": "b532817fd65a222a1ccf194bdc58e962cb3e599f",
+          "manifest_sha256": "9061c307ada9d058851a57dd9d8ef7f20ce01d276c0711669de0737ae3b29847",
+          "comparison_sha256": "f96c5d71e882e27e5c0ede5fc3f90595adf5db02890d009f30a967752d549158",
+          "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/q2-publication-native-r1/comparison.json",
+          "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-q2-publication-native-r1-r1.json",
+          "expected_values": 473653248,
+          "run_records": [
+            {
+              "path": "D:/projects/AIMA-public-q2-publication-20260921-r1/build/q2-publication-native-r1/qrt-q2-publication-build/run-record.json",
+              "sha256": "01b5fdde66c4f64d8ebb3a0fd72d17b8fd2ed1cfedb149e2bef2a419d135135d"
+            },
+            {
+              "path": "D:/projects/AIMA-public-q2-publication-20260921-r1/build/q2-publication-native-r1/q8192-accepted-cache-rows/run-record.json",
+              "sha256": "edc9130d397ade94210f0b46bab1b478064fea8a2bd8cd9fe25bb0c916418a84"
+            }
+          ]
+        },
+        {
+          "name": "mtp-chunked-request-native-r1",
+          "source_commit": "e7880fc58697a703a737defdab73de269731b579",
+          "manifest_sha256": "9212d2c63492c9b9b3b0765b6ea66d1fa0079f88a67a47f810b1178fd846adb7",
+          "comparison_sha256": "ff22cb38e4069e4de31f79f0d4046257fc94ea2048eba370151f0d05610d515b",
+          "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-chunked-request-native-r1/comparison.json",
+          "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-mtp-chunked-request-native-r1-r1.json",
+          "expected_values": 531632156,
+          "run_records": [
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/qrt-mtp-chunked-request-build/run-record.json",
+              "sha256": "8ea59319c1bd908b55625d141b890cafdbcd8f6b8a49d702f03cfdf7f091ac78"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q7169-out32-norm2048/run-record.json",
+              "sha256": "628a7883cfc7a2780f1f63aeeb92ea465ae39c09d85eac75ca4e3a4e9b9975ee"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q8192-out32-norm2048/run-record.json",
+              "sha256": "a4da63a1151679941717e72a4b6560e550c33a722bd295c84a3a3722c97e9553"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/long-prefix16384-owner-out32-norm2048/run-record.json",
+              "sha256": "78c542d96e463bf0897757e2c97b0d33cb9a8b056a4ca69a8797c0407f710a3f"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/long-prefix16384-suffix1024-out32-norm2048/run-record.json",
+              "sha256": "0e57a290957f0acd769cbd068b4952ffa8083a6dfb5798816c7f5a60bd840d1f"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q7169-out32-norm1024/run-record.json",
+              "sha256": "11de34c9d62e5bb0870341a53611cf748c10e9b80a3b67ed25a64b909ffbc86c"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q8192-out32-norm1024/run-record.json",
+              "sha256": "b742a71d6fc87a538c1571f4712cd26cdeea8b1f398c18cf5d8c58c6455bc86b"
+            }
+          ]
+        },
+        {
+          "name": "mtp-prefix-request-native-r1",
+          "source_commit": "6137e029dd9273f028c156cc23a707796894ed42",
+          "manifest_sha256": "9922076403e748e3cd371338a40787f25893c688f7ceac9d03494f73e9bfb59d",
+          "comparison_sha256": "e15f6112d722b54b38a79d168e163096becbcf98c436a40f01d4113b5c81664e",
+          "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prefix-request-native-r1/comparison.json",
+          "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-mtp-prefix-request-native-r1-r1.json",
+          "expected_values": 277876744,
+          "run_records": [
+            {
+              "path": "D:/projects/AIMA-public-mtp-prefix-request-20260921-r1/build/mtp-prefix-request-native-r1/qrt-mtp-prefix-request-build/run-record.json",
+              "sha256": "8f16f2e070041b10b2031d2e95941346184b1270d6ee867d48a06987cde4decd"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-prefix-request-20260921-r1/build/mtp-prefix-request-native-r1/owner16384-to-cold17408-prefix-repair/run-record.json",
+              "sha256": "ac7605c355e6d5ee0b524a8171841398115732d16e68978a6847f32c5027144a"
+            }
+          ]
+        }
+      ],
+      "observed_timing": {
+        "engine_load_ms": 21772.1581,
+        "ttft_ms": 24656.0542,
+        "tpot_ms": 241.139303,
+        "request_wall_ms": 148893.948
+      },
+      "performance_acceptance": false,
+      "release_qualified": false,
+      "raw_records": {
+        "product.stderr.log": {
+          "bytes": 758765,
+          "sha256": "51698d04ca699c4fd828ef48a346661957b38b89be0593087cf99311231d5ffd"
+        },
+        "dispatch.json": {
+          "bytes": 455,
+          "sha256": "d76c7e70f85dc259d559c9bba84874f6093545badb58f66cb98060c00a703935"
+        },
+        "product.stdout.jsonl": {
+          "bytes": 73867,
+          "sha256": "b5d273f233861de50437833fb49ec3a05a1b6e0c1ad7f50d35a8b8f4141b0949"
+        },
+        "launch.json": {
+          "bytes": 131,
+          "sha256": "7ac6aa771a07391cca9f78ce8ee8e070b11a8d55f2f39eca5c051258ddae5b88"
+        },
+        "preflight.json": {
+          "bytes": 95387,
+          "sha256": "4ddaeb30f1aa356f05d77b68a2d6d029d29f162402a7eaff7f4e820c55801e80"
+        },
+        "telemetry.jsonl": {
+          "bytes": 81268,
+          "sha256": "fc42df6acfea97bd197101207e2f6296534810e7e3e94f8caa3260155b99c629"
+        },
+        "run-record.json": {
+          "bytes": 241152,
+          "sha256": "789264f706893ae765e87131866d0c9661f3e3278eac318a7c812230ba1f3833"
+        },
+        "transfers.json": {
+          "bytes": 548,
+          "sha256": "7d8dd63703202c1259bffd5a384b486864e82cc0317dfe2a195fba51c7d66d78"
+        },
+        "runtime.env": {
+          "bytes": 34746,
+          "sha256": "54bce05b087f8bb50be262385f742e019ba6d62458592aec0fe0f3dd677118f6"
+        }
+      },
+      "boundary_analysis_sha256": "784403fb367c7e16c2681c73b3880eed1a9b7c4a8ad0deef2470c279f9bd29a1"
+    }
+  ],
+  "prefix": {
+    "analysis": {
+      "kind": "original_model_native_mtp_prefix_runtime_and_cancellation",
+      "host": "BAIYING",
+      "source_commit": "a7ba406e6edffce0090d0cca5b8239f2a5565450",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "command_file": "D:\\projects\\run-native-mtp-target-rope-product-r1.ps1",
+      "source_manifest_sha256": "1f01fe503df05f005efe94d61f377230389559770bf1d5c8b82c3432a3c5827f",
+      "build": {
+        "source_manifest": "native-mtp-target-rope-whole-source-r1.json",
+        "source_manifest_sha256": "5877cd3effab08cc3bbbdcc21607dbd0b61118c4523c56fa21e0b6919e4e5f2f",
+        "source_commit": "a7ba406e6edffce0090d0cca5b8239f2a5565450",
+        "repo": "D:/projects/AIMA-public-native-mtp-target-rope-20260921-r1",
+        "run_directory": "native-mtp-target-rope-build-r1",
+        "run_sha256": "9f44649f8322312dedec8ae11f18dc8122097f3eb8438225fae53f05038b1bd5",
+        "whole_metadata_sha256": "5edf6fbbfe82c9146e17bae3c00a8354fcdd7b25a46568d03550bd816be2a4b5",
+        "whole_artifact": {
+          "name": "qrt_qwen36_whole_provider.dll",
+          "bytes": 14057472,
+          "sha256": "10ef27c0f9380ed47cec72038e20bded876ab6eb576856d7f475c01d748249c9"
+        },
+        "whole_artifacts": [
+          {
+            "name": "qrt_qwen36_whole_provider.dll",
+            "bytes": 14057472,
+            "sha256": "10ef27c0f9380ed47cec72038e20bded876ab6eb576856d7f475c01d748249c9"
+          },
+          {
+            "name": "q1_moe_avx512bf16_host_provider.obj",
+            "bytes": 183170,
+            "sha256": "a6686d0c539bd1de82c7bd9d8d1d126c9772db0dab8cfd77049408e483b004d5"
+          }
+        ],
+        "probe_metadata_sha256": "67804dc201c3749e21240bca6512e4b273f6ac50f030588b88266d247dc82109",
+        "probe_executable_sha256": "6d13860b119e0f9b06fe6255e8d2bed3a3ffff365aac05d74f62e647be261781",
+        "probe_executable_bytes": 955904,
+        "whole_compilation_inputs": 166,
+        "probe_compilation_inputs": 10,
+        "all_source_inputs": 172,
+        "compiler_flags_match_control": true
+      },
+      "oracle_sha256": "f3157aaa64ff6ba141366cd490be3a569e4e532d0f26103f65d6f79bb1a779a5",
+      "reason": "completed",
+      "native_exit_code": 5,
+      "checks": {
+        "completed": false,
+        "dispatch_completed": false,
+        "host_cleanup": true,
+        "summary": false,
+        "all_calls": false,
+        "seed": false,
+        "owners": false,
+        "suffix": false,
+        "original_owner_prefill": true,
+        "two_actual_chunks": true,
+        "all_observations": false,
+        "span_records_match_recomputed": false,
+        "four_requested_cancellations": false,
+        "actual_native_owner_seed": true,
+        "six_actual_suffix_mtp_repairs": false,
+        "actual_native_target_commits": false
+      },
+      "qualified": false,
+      "observed_call_checks": [
+        {
+          "call": 1,
+          "kind": "owner",
+          "expected_callbacks": 31,
+          "observed_callbacks": 0,
+          "passed": false
+        },
+        {
+          "call": 2,
+          "kind": "cancel",
+          "expected_callbacks": 1,
+          "observed_callbacks": 0,
+          "passed": false
+        },
+        {
+          "call": 3,
+          "kind": "owner",
+          "expected_callbacks": 31,
+          "observed_callbacks": 0,
+          "passed": false
+        },
+        {
+          "call": 4,
+          "kind": "cancel",
+          "expected_callbacks": 2,
+          "observed_callbacks": 0,
+          "passed": false
+        },
+        {
+          "call": 5,
+          "kind": "owner",
+          "expected_callbacks": 31,
+          "observed_callbacks": 0,
+          "passed": false
+        },
+        {
+          "call": 6,
+          "kind": "cancel",
+          "expected_callbacks": 65,
+          "observed_callbacks": 0,
+          "passed": false
+        },
+        {
+          "call": 7,
+          "kind": "owner",
+          "expected_callbacks": 31,
+          "observed_callbacks": 0,
+          "passed": false
+        },
+        {
+          "call": 8,
+          "kind": "cancel",
+          "expected_callbacks": 512,
+          "observed_callbacks": 0,
+          "passed": false
+        },
+        {
+          "call": 9,
+          "kind": "owner",
+          "expected_callbacks": 31,
+          "observed_callbacks": 0,
+          "passed": false
+        },
+        {
+          "call": 10,
+          "kind": "suffix",
+          "expected_callbacks": 512,
+          "observed_callbacks": 0,
+          "passed": false
+        }
+      ],
+      "spans": [],
+      "owner_boundary": [
+        {
+          "input_tokens": "16384",
+          "chunks": "2",
+          "maximum_chunk_tokens": "8192",
+          "decode_committed_tokens": "0",
+          "descriptor_metrics_scope": "last_chunk",
+          "first_token": "16",
+          "raw_logit": "25.625",
+          "elapsed_ms": "69229.6"
+        }
+      ],
+      "prefix_seed": [],
+      "owners": [],
+      "call_results": [],
+      "probe_summary": [
+        {
+          "type": "prefix_stream_probe_summary",
+          "calls": 0,
+          "cancel_passes": 0,
+          "owner_after_cancel_passes": 0,
+          "passed": false,
+          "diagnostic_timing_only": true,
+          "performance_acceptance": false
+        }
+      ],
+      "first_token": null,
+      "first_logit": null,
+      "first_difference": null,
+      "native_output_count": 0,
+      "cancel_logit_boundary": "Same original prompt, source, model and restored owner as both complete512-token suffix calls in this process; canceled-call logits are not separately observed.",
+      "observation_count": 0,
+      "native_target_commit_count": 511,
+      "expected_native_target_commit_count": 1753,
+      "native_prefix_seeds": [
+        {
+          "generation": "1",
+          "prefix_tokens": "16384",
+          "suffix_tokens": "1024",
+          "processed_tokens": "17408",
+          "actual_target_hidden": "1",
+          "immutable_source": "1",
+          "paired_checkpoint": "1",
+          "reference_input": "0",
+          "numerical_correctness_claimed": "0"
+        }
+      ],
+      "native_prerequisites": [
+        {
+          "name": "q2-publication-native-r1",
+          "source_commit": "b532817fd65a222a1ccf194bdc58e962cb3e599f",
+          "manifest_sha256": "9061c307ada9d058851a57dd9d8ef7f20ce01d276c0711669de0737ae3b29847",
+          "comparison_sha256": "f96c5d71e882e27e5c0ede5fc3f90595adf5db02890d009f30a967752d549158",
+          "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/q2-publication-native-r1/comparison.json",
+          "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-q2-publication-native-r1-r1.json",
+          "expected_values": 473653248,
+          "run_records": [
+            {
+              "path": "D:/projects/AIMA-public-q2-publication-20260921-r1/build/q2-publication-native-r1/qrt-q2-publication-build/run-record.json",
+              "sha256": "01b5fdde66c4f64d8ebb3a0fd72d17b8fd2ed1cfedb149e2bef2a419d135135d"
+            },
+            {
+              "path": "D:/projects/AIMA-public-q2-publication-20260921-r1/build/q2-publication-native-r1/q8192-accepted-cache-rows/run-record.json",
+              "sha256": "edc9130d397ade94210f0b46bab1b478064fea8a2bd8cd9fe25bb0c916418a84"
+            }
+          ]
+        },
+        {
+          "name": "mtp-chunked-request-native-r1",
+          "source_commit": "e7880fc58697a703a737defdab73de269731b579",
+          "manifest_sha256": "9212d2c63492c9b9b3b0765b6ea66d1fa0079f88a67a47f810b1178fd846adb7",
+          "comparison_sha256": "ff22cb38e4069e4de31f79f0d4046257fc94ea2048eba370151f0d05610d515b",
+          "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-chunked-request-native-r1/comparison.json",
+          "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-mtp-chunked-request-native-r1-r1.json",
+          "expected_values": 531632156,
+          "run_records": [
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/qrt-mtp-chunked-request-build/run-record.json",
+              "sha256": "8ea59319c1bd908b55625d141b890cafdbcd8f6b8a49d702f03cfdf7f091ac78"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q7169-out32-norm2048/run-record.json",
+              "sha256": "628a7883cfc7a2780f1f63aeeb92ea465ae39c09d85eac75ca4e3a4e9b9975ee"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q8192-out32-norm2048/run-record.json",
+              "sha256": "a4da63a1151679941717e72a4b6560e550c33a722bd295c84a3a3722c97e9553"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/long-prefix16384-owner-out32-norm2048/run-record.json",
+              "sha256": "78c542d96e463bf0897757e2c97b0d33cb9a8b056a4ca69a8797c0407f710a3f"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/long-prefix16384-suffix1024-out32-norm2048/run-record.json",
+              "sha256": "0e57a290957f0acd769cbd068b4952ffa8083a6dfb5798816c7f5a60bd840d1f"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q7169-out32-norm1024/run-record.json",
+              "sha256": "11de34c9d62e5bb0870341a53611cf748c10e9b80a3b67ed25a64b909ffbc86c"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-chunked-request-20260921-r1/build/mtp-chunked-request-native-r1/q8192-out32-norm1024/run-record.json",
+              "sha256": "b742a71d6fc87a538c1571f4712cd26cdeea8b1f398c18cf5d8c58c6455bc86b"
+            }
+          ]
+        },
+        {
+          "name": "mtp-prefix-request-native-r1",
+          "source_commit": "6137e029dd9273f028c156cc23a707796894ed42",
+          "manifest_sha256": "9922076403e748e3cd371338a40787f25893c688f7ceac9d03494f73e9bfb59d",
+          "comparison_sha256": "e15f6112d722b54b38a79d168e163096becbcf98c436a40f01d4113b5c81664e",
+          "comparison_local": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/mtp-prefix-request-native-r1/comparison.json",
+          "comparison_remote": "D:/projects/native-mtp-prefix-runtime-prerequisite-mtp-prefix-request-native-r1-r1.json",
+          "expected_values": 277876744,
+          "run_records": [
+            {
+              "path": "D:/projects/AIMA-public-mtp-prefix-request-20260921-r1/build/mtp-prefix-request-native-r1/qrt-mtp-prefix-request-build/run-record.json",
+              "sha256": "8f16f2e070041b10b2031d2e95941346184b1270d6ee867d48a06987cde4decd"
+            },
+            {
+              "path": "D:/projects/AIMA-public-mtp-prefix-request-20260921-r1/build/mtp-prefix-request-native-r1/owner16384-to-cold17408-prefix-repair/run-record.json",
+              "sha256": "ac7605c355e6d5ee0b524a8171841398115732d16e68978a6847f32c5027144a"
+            }
+          ]
+        }
+      ],
+      "wall_ms": 230804.156,
+      "performance_acceptance": false,
+      "release_qualified": false,
+      "raw_records": {
+        "product.stderr.log": {
+          "bytes": 1626558,
+          "sha256": "b55bd50f8174c8f4391ac72c7eded27fe0d89874bebbf063419b2fe0339c2214"
+        },
+        "dispatch.json": {
+          "bytes": 965,
+          "sha256": "813ee1e6a310d9ce7db98d94955319a77a9972736d5f1fb3477b60da14c47f18"
+        },
+        "product.stdout.jsonl": {
+          "bytes": 174,
+          "sha256": "6704883653dbaaa73fa8451612d821b55d7bf23c3d67e9eda5370ee7b11c597c"
+        },
+        "launch.json": {
+          "bytes": 132,
+          "sha256": "9a13f193bba427a910e15772ff1241fde4eec26a3d75c2f731d5317022e59e91"
+        },
+        "preflight.json": {
+          "bytes": 97422,
+          "sha256": "2de030ac833177c7c7a1bf071c7a7c9dfd5ccabc4a4ca712b3ad77adbdf1f43d"
+        },
+        "telemetry.jsonl": {
+          "bytes": 110169,
+          "sha256": "dc7fda5b246d00e03010e7245cef856e82d9c06d2c9558832f00b1c62dc53ba4"
+        },
+        "run-record.json": {
+          "bytes": 214461,
+          "sha256": "ede55f9869bf5c90fc811ffc20e9012bad7cc06474abfa2854616556915721cb"
+        },
+        "transfers.json": {
+          "bytes": 548,
+          "sha256": "7d8dd63703202c1259bffd5a384b486864e82cc0317dfe2a195fba51c7d66d78"
+        },
+        "runtime.env": {
+          "bytes": 34746,
+          "sha256": "54bce05b087f8bb50be262385f742e019ba6d62458592aec0fe0f3dd677118f6"
+        }
+      }
+    },
+    "run_sha256": "ede55f9869bf5c90fc811ffc20e9012bad7cc06474abfa2854616556915721cb",
+    "wall_ms": 230804.156,
+    "stderr_sha256": "b55bd50f8174c8f4391ac72c7eded27fe0d89874bebbf063419b2fe0339c2214",
+    "reason": "qwen36_resident_prefix_rollback",
+    "completed_target_token_commits": 511,
+    "probe_calls": 0,
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "host_checks_pass": true
+  },
+  "all_requested_cases_qualified": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "c4f386806381ce71b7e7becdf73c57599e0148fbcbdb493ea0b37f402792571a",
+    "original_json_bytes": 36615,
+    "source_revision": "a7ba406e6edffce0090d0cca5b8239f2a5565450",
+    "source_path": "build/recovery-20260910/native-mtp-short-controls-prefix-failure-20260921-raw.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 9
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}

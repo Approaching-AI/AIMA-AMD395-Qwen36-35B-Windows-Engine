@@ -22,9 +22,34 @@ first144/logit10.375/error0. Load21718.0055ms passes; TTFT23554.1578ms and
 TPOT100.697048ms do not meet the performance goals. DLL SHA256 is
 `b6952c58eb18b4d7308e11ed881c8da01344618c31c447b80daa4d54731e5f7b`.
 It binds143 compilation files/145 inputs and includes the actual long-context
-segmented-attention dispatch. A full256k run started2026-09-20T21:21:04.7128176Z,
-PID7324, with the unchanged28800-second deadline. It must complete the initial
-suffix512, restored-owner32 and second suffix512 before qualification.
+segmented-attention dispatch. The [full256k rerun](../benchmarks/correctness/segmented-prefix256k-postnorm-divergence-20260921.json)
+has completed with exit6 after22614410.512ms and clean host state. All32
+owner chunks complete, and suffix first248045/logit5.78125 is exact. The first99
+outputs match, then index99 is1 instead of328;397/512 positions differ.
+Prefix restoration passes, but owner32 and the second suffix are not executed.
+All1559 diagnostic files remain hash-verified. These timings are diagnostic.
+
+At the first matching-history decode position263168, all captured stages
+through layer8 and all layer9 operations before postnorm are exact. Postnorm
+column1628 is-0.1513671875 instead of-0.15234375. The [original single-row
+operator replay and local repair](../benchmarks/correctness/q1-residual-single-row-local-20260921.json)
+identify a512-lane/four-values/16-warp reduction. Its actual SM121 cubin also
+contracts the fourth square/add into FMA, which PTX-only reconstruction missed.
+The production math helper now matches163840 original BF16 outputs and all80
+variance/inverse values over40 layers at two actual Windows positions. Q1
+postnorm, MoE next-input norm and final norm select that reduction; multi-row
+prefill and Q2 arithmetic are unchanged. Three local regressions pass. The
+prepared native probe extracts the actual kernels; native numerical validation
+and complete repaired long-context inference remain open.
+
+The [real native MTP short controls](../benchmarks/correctness/native-mtp-short-controls-prefix-failure-20260921.json)
+at a7ba406 now pass q7169/out32 and q8192/out512, including every actual target
+commit and callback. First tokens/logits are82/9.25 and144/10.375. q8192 load
+21772.1581ms passes, but TTFT24656.0542ms and TPOT241.139303ms fail performance
+goals and are slower than ordinary decode. The16k-prefix attempt completes its
+initial511 target commits, then fails outer Shadow rollback with release
+status1. All host checks pass; the probe reports0 completed calls, leaving all
+cancellation/restored-owner branches unqualified. Native MTP remains opt-in.
 
 The latest [complete Windows Q2 target verification](../benchmarks/correctness/q2-complete-target-native-20260921.json)
 passes on baiying at source `69baaaa`. Starting from real token embeddings
@@ -65,7 +90,7 @@ single-query3D operator matches all4096 captured BF16 context values. The2D
 operator reproduces all564 Windows differences exactly. The original3D path
 uses16 segments,16-token tiles and an ordered final merge. The revised native
 packed decode path now selects that operator. Its correctness-attached full256k
-product rerun is active.
+product rerun has completed with the separate norm divergence described above.
 
 The [native ordered-merge CPU check](../benchmarks/correctness/prefix256-segmented-attention-merge-cpu-20260921.json)
 reproduces all4096 original FP32 context values from the captured segment
@@ -81,7 +106,8 @@ An explicit initialization fence fixes the probe; numerical kernel sources
 are unchanged. All build, failure, retry and final cleanup records remain.
 Whole integration reuses existing disjoint partial scratch regions with no
 additional workspace, preserves the short route and passes four dispatch/cache
-regressions. Complete product qualification still requires the active long run.
+regressions. Complete product qualification still requires the norm repair and
+a successful long-context rerun.
 
 The [target cache publication boundary](../benchmarks/correctness/q2-cache-publication-local-20260921.json)
 passes eight local regressions, including all80 partial-copy failure positions.

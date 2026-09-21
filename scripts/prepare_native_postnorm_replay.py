@@ -40,7 +40,9 @@ def main():
              "device_bf16_round_to_float", "device_mul_separate",
              "device_add_separate", "device_fma_f32",
              "device_sm121_rsqrt_from_gfx1151", "vllm_triton_lane8_sumsq",
-             "vllm_triton_reduce_sumsq", "output_bf16_residual_postnorm_vllm_kernel"]
+             "vllm_triton_reduce_sumsq", "vllm_triton_q1_reduce_sumsq",
+             "q1_moe_sm121_tail_kernel", "final_norm_unrounded_vllm_kernel",
+             "output_bf16_residual_postnorm_vllm_kernel"]
     functions = [definition(source, name) for name in names]
     original = functions[-1]
     reciprocal = "device_sm121_rsqrt_from_gfx1151(\n            variance,\n            gfx1151_sm121_rsqrt_correction\n        )"
@@ -61,6 +63,7 @@ def main():
                                       "device_add_separate(1.0f, device_bf16_to_float(norm_weights[col])))")
         variants.append(variant)
     text = ("// Generated from the current whole provider; do not edit.\n"
+            '#include "sm121_q1_residual_math.h"\n'
             "constexpr unsigned int kThreads = 256u;\n"
             "constexpr unsigned int QRT_QWEN36_HIDDEN_SIZE = 2048u;\n"
             "constexpr float QRT_QWEN36_RMS_NORM_EPSILON = 1.0e-6f;\n"

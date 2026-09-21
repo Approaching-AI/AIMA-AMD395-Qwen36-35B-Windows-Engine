@@ -45,6 +45,7 @@
 #include "sm121_q1_attention_runtime.h"
 #include "sm121_q1_packed_runtime.h"
 #include "gdn/sm121_q1_segmented_attention.h"
+#include "gdn/sm121_q1_residual_math.h"
 #include "moe_accumulator/sm121_packed_dense.h"
 #include "mtp_target_rows.h"
 #include "mtp_target_rows_trace.h"
@@ -22447,6 +22448,30 @@ __device__ __forceinline__ float vllm_triton_reduce_sumsq(
     unsigned int lane
 );
 
+// Keep the existing 256-thread launch, with two logical four-value lanes per
+// physical thread. The shared tree follows the original 512-lane Q1 layout.
+__device__ __forceinline__ float vllm_triton_q1_reduce_sumsq(
+    const float values[8], float *partial, unsigned int lane
+) {
+    partial[2u * lane] = qrt_sm121_q1_residual::lane_sumsq(values);
+    partial[2u * lane + 1u] = qrt_sm121_q1_residual::lane_sumsq(values + 4u);
+    __syncthreads();
+    for (unsigned stride = 16u; stride; stride >>= 1u) {
+        #pragma unroll
+        for (unsigned item = 0; item < 2u; ++item) {
+            const unsigned logical = 2u * lane + item;
+            if ((logical & 31u) < stride)
+                partial[logical] = device_add_separate(partial[logical], partial[logical + stride]);
+        }
+        __syncthreads();
+    }
+    if (lane < 16u) partial[lane] = partial[lane * 32u];
+    __syncthreads();
+    if (lane == 0u) partial[0] = qrt_sm121_q1_residual::sum_warps(partial);
+    __syncthreads();
+    return partial[0];
+}
+
 // The BF16 residual carrier is rounded for the next layer, but vLLM's fused
 // GemmaRMSNorm computes variance from the unrounded F32 sum of the two BF16
 // inputs.  The former q262144 path incorrectly reduced the rounded carrier in
@@ -22529,7 +22554,7 @@ __global__ void output_bf16_residual_postnorm_vllm_kernel(
     const uint8_t *gfx1151_sm121_rsqrt_correction,
     uint16_t *postnorm_outputs_bf16
 ) {
-    __shared__ float partial[kThreads];
+    __shared__ float partial[2u * kThreads];
     __shared__ float inv_shared;
     constexpr unsigned int kValuesPerLane =
         QRT_QWEN36_HIDDEN_SIZE / kThreads;
@@ -22560,11 +22585,9 @@ __global__ void output_bf16_residual_postnorm_vllm_kernel(
         unrounded_values[item] = unrounded_value;
         residual_outputs[token_base + col] = value;
     }
-    const float sumsq = vllm_triton_reduce_sumsq(
-        vllm_triton_lane8_sumsq(unrounded_values),
-        partial,
-        lane
-    );
+    const float sumsq = tokens == 1u
+        ? vllm_triton_q1_reduce_sumsq(unrounded_values, partial, lane)
+        : vllm_triton_reduce_sumsq(vllm_triton_lane8_sumsq(unrounded_values), partial, lane);
     if (lane == 0u) {
         const float variance = __fadd_rn(
             sumsq / static_cast<float>(QRT_QWEN36_HIDDEN_SIZE),
@@ -22601,7 +22624,7 @@ __global__ void q1_moe_sm121_tail_kernel(
     float *normalized, uint16_t *normalized_bf16,
     const float *sigmoid, const unsigned char *rsqrt_table, bool next_norm
 ) {
-    __shared__ float partial[kThreads];
+    __shared__ float partial[2u * kThreads];
     __shared__ float inverse;
     constexpr unsigned items = QRT_QWEN36_HIDDEN_SIZE / kThreads;
     const unsigned lane = threadIdx.x;
@@ -22618,8 +22641,7 @@ __global__ void q1_moe_sm121_tail_kernel(
         output[col] = unrounded[j];
     }
     if (!next_norm) return;
-    const float sum = vllm_triton_reduce_sumsq(
-        vllm_triton_lane8_sumsq(unrounded), partial, lane);
+    const float sum = vllm_triton_q1_reduce_sumsq(unrounded, partial, lane);
     if (lane == 0u) inverse = qrt_sm121_rsqrt::evaluate(rsqrt_table,
         __fadd_rn(sum / float(QRT_QWEN36_HIDDEN_SIZE), QRT_QWEN36_RMS_NORM_EPSILON));
     __syncthreads();
@@ -34636,7 +34658,7 @@ __global__ void final_norm_unrounded_vllm_kernel(
     unsigned int selected_token_count,
     const uint8_t *gfx1151_sm121_rsqrt_correction
 ) {
-    __shared__ float partial[kThreads];
+    __shared__ float partial[2u * kThreads];
     __shared__ float inv_shared;
     constexpr unsigned int kValuesPerLane = QRT_QWEN36_HIDDEN_SIZE / kThreads;
     const unsigned int token = blockIdx.x;
@@ -34651,8 +34673,9 @@ __global__ void final_norm_unrounded_vllm_kernel(
     for (unsigned int item = 0u; item < kValuesPerLane; ++item) {
         values[item] = selected_input[base + lane * kValuesPerLane + item];
     }
-    const float sumsq = vllm_triton_reduce_sumsq(
-        vllm_triton_lane8_sumsq(values), partial, lane);
+    const float sumsq = selected_token_count == 1u
+        ? vllm_triton_q1_reduce_sumsq(values, partial, lane)
+        : vllm_triton_reduce_sumsq(vllm_triton_lane8_sumsq(values), partial, lane);
     if (lane == 0u) {
         const float variance = __fadd_rn(
             sumsq / static_cast<float>(QRT_QWEN36_HIDDEN_SIZE),
