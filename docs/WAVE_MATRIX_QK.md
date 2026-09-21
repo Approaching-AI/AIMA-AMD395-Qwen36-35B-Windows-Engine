@@ -1,10 +1,34 @@
 # Wave ownership for exact matrix QK
 
-This component keeps the matrix result and its ordered carries in the wave
-that computes them. It is isolated from runtime dispatch. The native Windows
-build at804ccf4 passes. The subsequent exact-remainder variant atb9ff29d also
-passes host arithmetic checks and native compilation. GPU numerical behavior,
-the complete q8192 component and the original-model boundary remain unmeasured.
+The complete original-q8192 comparison at source `5d63d5c` passes all numerical
+checks on baiying. The retained narrow-QK control remains fastest; none of the
+four alternatives is selected by the product runtime.
+
+| Complete attention component | ms, including preparation and classification |
+| --- | ---: |
+| Retained narrow QK | 518.7543 |
+| Compact matrix queue | 975.0799 |
+| Wave matrix owner | 1028.6810 |
+| Exact-remainder wave owner | 1485.3155 |
+| Partial-coefficient wave owner | 1614.9949 |
+
+Each variant compares all33,554,432 original GB10 context cells across8192
+original rows, with zero repeats, plus545,259,520 score slots and intermediate
+numerical surfaces. Every warmup and timed attempt passes; each attention median
+uses three completed sequences. Complete timings include common preparation,
+domain classification, QK, probability, PV, exact replay and completion.
+
+The generated native suite passes560 cases and five reference-extent fault
+controls, including forced original fallback, physical matrix ownership, guards
+and immutable inputs. The new executable is
+`c5b58282d2c542dfd8591618ca9ea295bc3bcf145ba85bccf58b5b6c7329330b`.
+All seven selected kernels retain the previous build's resource counts, with
+zero private memory or register spills. All host checks and process cleanup
+pass. These component probes do not load the model or qualify whole inference.
+[Exact source, build, reference and full native results](../benchmarks/correctness/partial-wave-matrix-qk-native-20260921.json).
+
+The following design and validation notes preserve the earlier preparation
+sequence. Their pending-execution statements describe those historical stages.
 
 The preceding [compact matrix queue](COMPACT_MATRIX_QUEUE_QK.md) passes its
 numerical checks but costs 989.6595 ms for complete q8192 attention plus

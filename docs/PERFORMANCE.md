@@ -71,14 +71,23 @@ coarse-OUT and adaptive-OUT correction clocks overlap these totals. The
 [full profile](../benchmarks/correctness/narrow-stack-completed-profile-20260918.json)
 preserves the commands, outputs and invalid negative event clocks.
 
-The active structural candidates share original K16 work among wave-owned
-matrix tiles for [QK](WAVE_MATRIX_QK.md) and
-[projection](PARTIAL_WAVE_PROJECTION.md). Source `5d63d5c` fixtures consume
-the complete original q8192 reference with zero repeated rows. Native execution
-has started after long-run cleanup; complete original-data operator comparisons
-remain unqualified. Host arithmetic and coordinate checks do not establish
-GPU speed or product correctness.
-[Frozen native plans and exact pending scope](../benchmarks/correctness/original-q8192-native-prepared-20260921.json).
+The structural fixtures at source `5d63d5c` consume the complete original
+q8192 reference with zero repeated rows. The [projection experiment](PARTIAL_WAVE_PROJECTION.md)
+passes all240 generated GPU configurations and all83,886,080 original BF16
+operator outputs, but complete QKV preparation/replay increases41.2941 to641.18ms
+and OUT increases152.258 to598.795ms. Its implementation remains outside the
+runtime. OUT's comparator is the original midpoint correction, not retained
+coarse-OUT. [Completed native evidence](../benchmarks/correctness/partial-wave-projection-native-20260921.json).
+
+The independent [QK experiment](WAVE_MATRIX_QK.md) passes560 generated GPU
+cases, five reference-extent fault controls and all33,554,432 original GB10
+context cells per variant. Its complete component times are518.7543ms for the
+retained narrow control,975.0799ms for the compact queue,1028.6810ms for the
+wave owner,1485.3155ms for exact remainder and1614.9949ms for partial coefficients.
+All include common preparation and classification. The narrow runtime route
+remains selected. [Completed native comparison](../benchmarks/correctness/partial-wave-matrix-qk-native-20260921.json).
+These isolated results require a broader performance redesign; they do not
+change the whole-model median or the immutable targets.
 
 Existing slower candidates and failed attempts remain available in the
 [historical record](PERFORMANCE_HISTORY_THROUGH_20260921.md). Those results

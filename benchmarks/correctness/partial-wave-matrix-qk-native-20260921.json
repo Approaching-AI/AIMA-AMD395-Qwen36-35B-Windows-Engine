@@ -1,0 +1,1096 @@
+{
+  "kind": "partial_wave_matrix_qk_complete_original_q8192_native_comparison",
+  "host": "baiying",
+  "source_commit": "5d63d5c5417483b6ebb2e204e93f01d83627fa4b",
+  "model": "D:/models/Qwen3.6-35B-A3B",
+  "model_loaded": false,
+  "command_file": "P:/projects/run-native-partial-wave-matrix-qk-r3.ps1",
+  "command_file_sha256": "3094da838d8aad54512ac36ac997e25c91c9b6c7aa7cb8026f301a884614d271",
+  "source_manifest_sha256": "c9d5903095e636c9f4818fdfd5ebeae9f81b5ebeef6c5d6a414f36146e38f397",
+  "source_manifest": {
+    "kind": "original_q8192_partial_wave_matrix_qk_native_plan",
+    "source_commit": "5d63d5c5417483b6ebb2e204e93f01d83627fa4b",
+    "repo": "P:/projects/AIMA-public-partial-wave-matrix-qk-20260921-r3",
+    "seed": "P:/projects/AIMA-public-single-tail-q1-20260921-r1",
+    "prerequisite_commit": "c2683cd5cb55478099f1adffe47b98e5cef79fba",
+    "source_sha256": {
+      "native/providers/ck_fmha/blackwell_attention.h": "b8cefe638bfcc5c41ff73349624f65741395a383e4e6f72059882a7ae39a82ed",
+      "native/providers/ck_fmha/compact_matrix_queue_qk.h": "57df1bb01313558d15bceac5fa9baebea60c697ccc7b60abd5fed71eaada9d72",
+      "native/providers/ck_fmha/decoded_window_qk.h": "ec66d4193c2445f8bd404868237a28f04e8064e658238c672891bb081e28f54d",
+      "native/providers/ck_fmha/deferred_qk_fallback.h": "3acf7a41842e7f9e2e85450b00ceb2ae384bf35b01e085c6df64ecda03abe490",
+      "native/providers/ck_fmha/float_pv_replay.h": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+      "native/providers/ck_fmha/fused_probability_pv.h": "5957829d67fd3e055d9507b678e2e275a43286a64acdaf58895ddf6b311e9345",
+      "native/providers/ck_fmha/fused_qk_probability.h": "5245142370a5eba3d3acbf82086325b2518f7e5b6b5d0bd8ffec4a49d42d341f",
+      "native/providers/ck_fmha/inplace_probability_storage.h": "71d5c98c594c813b590aa6c5b8ae96cadaf4d0edfd08d9c7894feee7fc8ad64c",
+      "native/providers/ck_fmha/long_attention_layout.h": "b94f16310020a757076e6f9bd7d97bea81f91d90567e006a419d5de4acfd1f19",
+      "native/providers/ck_fmha/microtile_exact_qk.h": "3de72cfeec586a4609e2a759279307246d4b18444f52536917bd0829c66aeb04",
+      "native/providers/ck_fmha/narrow_domain_qk.h": "9dbc7ee3a9a292b610d1bc0823374e61b7a2feee01a35da123c0ed3454c02463",
+      "native/providers/ck_fmha/narrow_domain_qk_workspace.h": "ced9a51778b6463750f491ef06ebb701fb06131458d39de462e695324a43ad1d",
+      "native/providers/ck_fmha/native_delta_probability.h": "4a1bb411ef7641f02db818eef1e85adf4b62fcf74b294a1758cedb6cd2ec32ea",
+      "native/providers/ck_fmha/native_exp2_workspace.h": "a33f65e490070b23224978eaa3a5ea4ae9a6861631caa3fec59c681557cb828b",
+      "native/providers/ck_fmha/packed_probability_storage.h": "5bb63c12db0afdf2e7aa86e47f50fb90b827f1936321e352afeac6577330999e",
+      "native/providers/ck_fmha/partial_wave_matrix_qk.h": "663618d9a658fa02f07e83b5ae2bcac5ae40b298fe040e6e1f6676b781179c09",
+      "native/providers/ck_fmha/prepared_decoded_qk.h": "5b2c12fcc59eba1f8e7445101c3ffc7624f81bf01e9f3fa8d4ce5d90f48782d2",
+      "native/providers/ck_fmha/prepared_decoded_qk_workspace.h": "f7aeef4016b182ad11c30aab4b3b8d178847b035b993473ed4acca7e99771774",
+      "native/providers/ck_fmha/streamed_exact_attention.h": "aafc5f495c6ea965352445ef1f00390e4f7a5f856ec5dd40e18276e6d2df4f15",
+      "native/providers/ck_fmha/wave_matrix_qk.h": "537e86e0c1fee260845502505199a4f699c0822a616934576c366820ca33d29d",
+      "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+      "native/providers/gdn/sm121_exp2_interpolated.h": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+      "native/providers/gdn/sm121_exp2_native_delta.h": "18514c6dc67c0f55be29a33e524abe56d3a11735b3c1279e20a488c059725c33",
+      "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+      "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+      "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+      "native/providers/moe_accumulator/sm121_compact_integer_dot4.h": "dd88abde3847cc63159fd1884bbaa4e242266ed5cdd6dd6085b44d16fbbdc47e",
+      "native/providers/moe_accumulator/sm121_compact_matrix_group.h": "282151268703522059965ec017e02ed3c4c5705b26eaf3740273efda098c955d",
+      "native/providers/moe_accumulator/sm121_compact_matrix_metadata.h": "8edf086d07924971a1e815d334db809fd834dc8a101453c6d82451601ca95e61",
+      "native/providers/moe_accumulator/sm121_decoded_bf16.h": "861b7984ca4cb87c4f3d71c1e17b8e310aedaf32fe06257bca433ee03097b605",
+      "native/providers/moe_accumulator/sm121_dot_certificate.h": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+      "native/providers/moe_accumulator/sm121_f32_carry.h": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+      "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+      "native/providers/moe_accumulator/sm121_float_subgroup.h": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+      "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+      "native/providers/moe_accumulator/sm121_integer_core.h": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+      "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+      "native/providers/moe_accumulator/sm121_lane_reduce.h": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+      "native/providers/moe_accumulator/sm121_mantissa_parts.h": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+      "native/providers/moe_accumulator/sm121_matrix_remainder_group.h": "73b2ccad4a0c86b02ea0d6940b2ef43b6dca15c9e40ae80faeba9b69b3a8dd9a",
+      "native/providers/moe_accumulator/sm121_narrow_f32_carry.h": "85ab733dd564a8dbc5948f5700fcb6c66fbbc5239d0f55e405dbe7e4e210eca9",
+      "native/providers/moe_accumulator/sm121_native_product.h": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+      "native/providers/moe_accumulator/sm121_packed_core_remainder.h": "4cbf70b4b423073560fdb8eec0333a15d463a74b1f09c79e123a6a6fc553d2e5",
+      "native/providers/moe_accumulator/sm121_paired_products.h": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+      "native/providers/moe_accumulator/sm121_partial_matrix_group.h": "1d76b5d19a6ad75c95a2161ecdf6e74eb3def2769b757dccc2efcc35adf126d7",
+      "native/providers/moe_accumulator/sm121_prepared_bf16.h": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+      "native/providers/moe_accumulator/sm121_prepared_integer_pairs.h": "fc611756401aee8f4fcef546747a7510c1b60fa6a930b6aced3d3c1e02effe6c",
+      "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+      "native/providers/moe_accumulator/sm121_pv_final_bound.h": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+      "native/providers/moe_accumulator/sm121_scalar_integer_core.h": "adf2dd5d24e98632ef0239d3ea40170c683e1d06b5902b5f08e0e578ae010d66",
+      "native/providers/moe_accumulator/sm121_strided_pair.h": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+      "native/providers/moe_accumulator/sm121_subgroup.h": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+      "native/providers/moe_accumulator/sm121_wave16.h": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+      "native/providers/sm121_attention_capacity.h": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+      "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+      "tests/native/combined_exact_attention_capture.cpp": "98447dd968860d3fd40f0ea839540e35f139c6a5bb02a089a72c194231f104ba",
+      "tests/native/compact_matrix_queue_qk_capture.cpp": "be80ed85c82b1c0138649455756f95b6df24f962dd7ab694bdf9d9285be599fe",
+      "tests/native/fused_qk_probability_selftest.cpp": "c8386686b14eab803cdbf2d2628f75f4e24f0944b2630625d64d33aafac811bb",
+      "tests/native/partial_wave_matrix_qk_capture.cpp": "921a2e8391c4da97f6d13eff10d1000f25b48bc8c0b1d267434ff320cf24e8bb",
+      "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+      "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca"
+    },
+    "quoted_include_closure": {
+      "native/providers/ck_fmha/blackwell_attention.h": "b8cefe638bfcc5c41ff73349624f65741395a383e4e6f72059882a7ae39a82ed",
+      "native/providers/ck_fmha/compact_matrix_queue_qk.h": "57df1bb01313558d15bceac5fa9baebea60c697ccc7b60abd5fed71eaada9d72",
+      "native/providers/ck_fmha/decoded_window_qk.h": "ec66d4193c2445f8bd404868237a28f04e8064e658238c672891bb081e28f54d",
+      "native/providers/ck_fmha/deferred_qk_fallback.h": "3acf7a41842e7f9e2e85450b00ceb2ae384bf35b01e085c6df64ecda03abe490",
+      "native/providers/ck_fmha/float_pv_replay.h": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+      "native/providers/ck_fmha/fused_probability_pv.h": "5957829d67fd3e055d9507b678e2e275a43286a64acdaf58895ddf6b311e9345",
+      "native/providers/ck_fmha/fused_qk_probability.h": "5245142370a5eba3d3acbf82086325b2518f7e5b6b5d0bd8ffec4a49d42d341f",
+      "native/providers/ck_fmha/inplace_probability_storage.h": "71d5c98c594c813b590aa6c5b8ae96cadaf4d0edfd08d9c7894feee7fc8ad64c",
+      "native/providers/ck_fmha/long_attention_layout.h": "b94f16310020a757076e6f9bd7d97bea81f91d90567e006a419d5de4acfd1f19",
+      "native/providers/ck_fmha/microtile_exact_qk.h": "3de72cfeec586a4609e2a759279307246d4b18444f52536917bd0829c66aeb04",
+      "native/providers/ck_fmha/narrow_domain_qk.h": "9dbc7ee3a9a292b610d1bc0823374e61b7a2feee01a35da123c0ed3454c02463",
+      "native/providers/ck_fmha/narrow_domain_qk_workspace.h": "ced9a51778b6463750f491ef06ebb701fb06131458d39de462e695324a43ad1d",
+      "native/providers/ck_fmha/native_delta_probability.h": "4a1bb411ef7641f02db818eef1e85adf4b62fcf74b294a1758cedb6cd2ec32ea",
+      "native/providers/ck_fmha/native_exp2_workspace.h": "a33f65e490070b23224978eaa3a5ea4ae9a6861631caa3fec59c681557cb828b",
+      "native/providers/ck_fmha/packed_probability_storage.h": "5bb63c12db0afdf2e7aa86e47f50fb90b827f1936321e352afeac6577330999e",
+      "native/providers/ck_fmha/partial_wave_matrix_qk.h": "663618d9a658fa02f07e83b5ae2bcac5ae40b298fe040e6e1f6676b781179c09",
+      "native/providers/ck_fmha/prepared_decoded_qk.h": "5b2c12fcc59eba1f8e7445101c3ffc7624f81bf01e9f3fa8d4ce5d90f48782d2",
+      "native/providers/ck_fmha/prepared_decoded_qk_workspace.h": "f7aeef4016b182ad11c30aab4b3b8d178847b035b993473ed4acca7e99771774",
+      "native/providers/ck_fmha/streamed_exact_attention.h": "aafc5f495c6ea965352445ef1f00390e4f7a5f856ec5dd40e18276e6d2df4f15",
+      "native/providers/ck_fmha/wave_matrix_qk.h": "537e86e0c1fee260845502505199a4f699c0822a616934576c366820ca33d29d",
+      "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+      "native/providers/gdn/sm121_exp2_interpolated.h": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+      "native/providers/gdn/sm121_exp2_native_delta.h": "18514c6dc67c0f55be29a33e524abe56d3a11735b3c1279e20a488c059725c33",
+      "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+      "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+      "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+      "native/providers/moe_accumulator/sm121_compact_integer_dot4.h": "dd88abde3847cc63159fd1884bbaa4e242266ed5cdd6dd6085b44d16fbbdc47e",
+      "native/providers/moe_accumulator/sm121_compact_matrix_group.h": "282151268703522059965ec017e02ed3c4c5705b26eaf3740273efda098c955d",
+      "native/providers/moe_accumulator/sm121_compact_matrix_metadata.h": "8edf086d07924971a1e815d334db809fd834dc8a101453c6d82451601ca95e61",
+      "native/providers/moe_accumulator/sm121_decoded_bf16.h": "861b7984ca4cb87c4f3d71c1e17b8e310aedaf32fe06257bca433ee03097b605",
+      "native/providers/moe_accumulator/sm121_dot_certificate.h": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+      "native/providers/moe_accumulator/sm121_f32_carry.h": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+      "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+      "native/providers/moe_accumulator/sm121_float_subgroup.h": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+      "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+      "native/providers/moe_accumulator/sm121_integer_core.h": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+      "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+      "native/providers/moe_accumulator/sm121_lane_reduce.h": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+      "native/providers/moe_accumulator/sm121_mantissa_parts.h": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+      "native/providers/moe_accumulator/sm121_matrix_remainder_group.h": "73b2ccad4a0c86b02ea0d6940b2ef43b6dca15c9e40ae80faeba9b69b3a8dd9a",
+      "native/providers/moe_accumulator/sm121_narrow_f32_carry.h": "85ab733dd564a8dbc5948f5700fcb6c66fbbc5239d0f55e405dbe7e4e210eca9",
+      "native/providers/moe_accumulator/sm121_native_product.h": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+      "native/providers/moe_accumulator/sm121_packed_core_remainder.h": "4cbf70b4b423073560fdb8eec0333a15d463a74b1f09c79e123a6a6fc553d2e5",
+      "native/providers/moe_accumulator/sm121_paired_products.h": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+      "native/providers/moe_accumulator/sm121_partial_matrix_group.h": "1d76b5d19a6ad75c95a2161ecdf6e74eb3def2769b757dccc2efcc35adf126d7",
+      "native/providers/moe_accumulator/sm121_prepared_bf16.h": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+      "native/providers/moe_accumulator/sm121_prepared_integer_pairs.h": "fc611756401aee8f4fcef546747a7510c1b60fa6a930b6aced3d3c1e02effe6c",
+      "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+      "native/providers/moe_accumulator/sm121_pv_final_bound.h": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+      "native/providers/moe_accumulator/sm121_scalar_integer_core.h": "adf2dd5d24e98632ef0239d3ea40170c683e1d06b5902b5f08e0e578ae010d66",
+      "native/providers/moe_accumulator/sm121_strided_pair.h": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+      "native/providers/moe_accumulator/sm121_subgroup.h": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+      "native/providers/moe_accumulator/sm121_wave16.h": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+      "native/providers/sm121_attention_capacity.h": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+      "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+      "tests/native/combined_exact_attention_capture.cpp": "98447dd968860d3fd40f0ea839540e35f139c6a5bb02a089a72c194231f104ba",
+      "tests/native/compact_matrix_queue_qk_capture.cpp": "be80ed85c82b1c0138649455756f95b6df24f962dd7ab694bdf9d9285be599fe",
+      "tests/native/fused_qk_probability_selftest.cpp": "c8386686b14eab803cdbf2d2628f75f4e24f0944b2630625d64d33aafac811bb",
+      "tests/native/partial_wave_matrix_qk_capture.cpp": "921a2e8391c4da97f6d13eff10d1000f25b48bc8c0b1d267434ff320cf24e8bb"
+    },
+    "source_inventory_is_compiler_dependency_list": false,
+    "changed_source_inputs": [
+      "tests/native/compact_matrix_queue_qk_capture.cpp"
+    ],
+    "inputs": [
+      {
+        "path": "P:/projects/qrt-original-q8192-operands-20260921-r1/full-prefill-full-03-q-rope-bf16.bin",
+        "bytes": 67108864,
+        "sha256": "e29273ee25aecffe91f54b82f7d6ec75f16856ad2c83bc52eb7214bca83a0335"
+      },
+      {
+        "path": "P:/projects/qrt-original-q8192-operands-20260921-r1/full-prefill-full-03-cache-k-bf16.bin",
+        "bytes": 8388608,
+        "sha256": "56177136288727255bab9a4007078f8f392f37f46cdd5be2e91e85f8c6c2061e"
+      },
+      {
+        "path": "P:/projects/qrt-original-q8192-operands-20260921-r1/full-prefill-full-03-cache-v-bf16.bin",
+        "bytes": 8388608,
+        "sha256": "55c03fde856db2f27aab6339c348f4578b1681c05ac399d1e5a9d0332fcb4d2f"
+      },
+      {
+        "path": "P:/projects/qrt-original-q8192-operands-20260921-r1/full-prefill-full-03-context-bf16.bin",
+        "bytes": 67108864,
+        "sha256": "5fe7c13a99bf8c3d7185ccee3585818d32a4ce9b39ca55e5a98b79c72c62229b"
+      }
+    ],
+    "tables": [
+      {
+        "path": "D:/projects/sm121-exp2-interpolated-b5752a88.bin",
+        "sha256": "b5752a88488d8e6382cc99a897ef822e97758e0a782930c174954a5299126eec"
+      },
+      {
+        "path": "D:/projects/sm121-attention-rcp-d2e55754.bin",
+        "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39"
+      }
+    ],
+    "prerequisites": [
+      {
+        "path": "D:/projects/AIMA-public-native-exp2-delta-20260917/build/native-exp2-delta-test-r1/run-record.json",
+        "sha256": "46a1fbaca781b00f04c3d4e3041834e8ba438e563c4c6dc3fabafc1b22126bd2"
+      },
+      {
+        "path": "D:/projects/AIMA-public-microtile-exact-qk-20260917/build/microtile-exact-qk-test-r1/run-record.json",
+        "sha256": "d7da7e549cdf861f246d78dbfbdcb87faf152fd1920f2d19a33b9e6f069db0c6"
+      }
+    ],
+    "source_tokens": 8192,
+    "repeated_rows": 0,
+    "original_context_cells": 33554432,
+    "timed_variants": 5,
+    "generated_safety_variants": 7,
+    "generated_safety_cases": 560,
+    "reference_extent_fault_controls": 5,
+    "input_stage_manifest": "original-q8192-inputs-source-r1.json",
+    "input_stage_manifest_sha256": "b95f2aa9c56abc37e18f8b9b0bec49e53c36d03d1d5a7415b9189d90cf295ddf",
+    "input_stage_record": "P:/projects/AIMA-public-single-tail-q1-20260921-r1/build/original-q8192-inputs-stage-r1/run-record.json",
+    "input_archive_sha256": "db4b6233e0c3b0bd4c9b93eb14163abb868539baf3a02fab6438e1278aece8cc",
+    "reference": "benchmarks/correctness/gb10-real-q8192-prefill-operands-20260921.json",
+    "reference_sha256": "0442a488f70679bb8d502a11dd55061a095a7877edbb42749927a2b8b9830a38",
+    "reference_analysis_sha256": "0fbdd8be9b0cab0f0c8ea4506139ed22806f254366f2c60324d893e474f25a52",
+    "original_fixture_evidence": "benchmarks/correctness/original-q8192-fixture-local-20260921.json",
+    "original_fixture_evidence_sha256": "482342723caf5d9b6dd9807ee9ba5b009d6ea664fe467edf650f2e83cab0c568",
+    "prior_manifest": "partial-wave-matrix-qk-source-r2.json",
+    "prior_manifest_sha256": "09987b447f2aa08417b42ae6cf879f475d33b05a34fb8d912075ca23ebd282e1",
+    "native_timeout_seconds": {
+      "build": 240,
+      "safety": 480,
+      "q8192": 480
+    },
+    "transport_timeout_seconds": 600,
+    "all_builds_wait_for_long_cleanup": true,
+    "gpu_actions_wait_for_long_cleanup": true,
+    "exclusive_guard_unchanged": true,
+    "native_build_executed": false,
+    "gpu_executed": false,
+    "runtime_dispatch_changed": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false,
+    "generator": "prepare_partial_wave_matrix_qk_r3.py",
+    "generator_sha256": "f2b2c2cae668f39331b1ab2ae064c869544b4bb0aabd10ad9ae8a2da491330f8",
+    "bundle": "partial-wave-projection-5d63d5c.bundle",
+    "bundle_sha256": "40b934a46a8aa35075e3af83458bbea7e16e4c68c4a88f4ad5ec81d7fa391a89",
+    "bundle_bytes": 519381,
+    "guard_sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+    "active_long_name": "single-tail-q1-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+    "active_long_record": "P:/projects/AIMA-public-single-tail-q1-20260921-r1/build/single-tail-q1-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1/run-record.json",
+    "active_long_repo_commit": "37014953c28e5b5a91573c6233fdda00bb279b85",
+    "runtime_source_commit": "c2683cd5cb55478099f1adffe47b98e5cef79fba",
+    "active_long_command_sha256": "747492df5c3cfc1001c74cc361572baaf8bfdf86fc590cc4c925127a97159f14",
+    "admission_module": "dispatch_step124_convolution_native_r1.py",
+    "admission_module_sha256": "e0c4438fb8c60ecb4bd230380896371f103ac2144ed72d2e12bf31af19b0ee25",
+    "script": "run-native-partial-wave-matrix-qk-r3.ps1",
+    "script_sha256": "3094da838d8aad54512ac36ac997e25c91c9b6c7aa7cb8026f301a884614d271",
+    "dispatcher": "dispatch_partial_wave_matrix_qk_r3.py",
+    "dispatcher_sha256": "932995c1a014531cbdef731e8625b2887a05590d0e1d093c3a5770dc44a13c76",
+    "analyzer": "analyze_partial_wave_matrix_qk_r3.py",
+    "analyzer_sha256": "9a61c22abfce6d855bdab5c07f43447a9f7dedba7e7a8db9a665d1ee4b08ce6f"
+  },
+  "build_provenance": {
+    "host": "BAIYING",
+    "repo_commit": "5d63d5c5417483b6ebb2e204e93f01d83627fa4b",
+    "source_manifest_sha256": "c9d5903095e636c9f4818fdfd5ebeae9f81b5ebeef6c5d6a414f36146e38f397",
+    "source_inputs": [
+      {
+        "sha256": "b8cefe638bfcc5c41ff73349624f65741395a383e4e6f72059882a7ae39a82ed",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\blackwell_attention.h"
+      },
+      {
+        "sha256": "57df1bb01313558d15bceac5fa9baebea60c697ccc7b60abd5fed71eaada9d72",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\compact_matrix_queue_qk.h"
+      },
+      {
+        "sha256": "ec66d4193c2445f8bd404868237a28f04e8064e658238c672891bb081e28f54d",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\decoded_window_qk.h"
+      },
+      {
+        "sha256": "3acf7a41842e7f9e2e85450b00ceb2ae384bf35b01e085c6df64ecda03abe490",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\deferred_qk_fallback.h"
+      },
+      {
+        "sha256": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\float_pv_replay.h"
+      },
+      {
+        "sha256": "5957829d67fd3e055d9507b678e2e275a43286a64acdaf58895ddf6b311e9345",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\fused_probability_pv.h"
+      },
+      {
+        "sha256": "5245142370a5eba3d3acbf82086325b2518f7e5b6b5d0bd8ffec4a49d42d341f",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\fused_qk_probability.h"
+      },
+      {
+        "sha256": "71d5c98c594c813b590aa6c5b8ae96cadaf4d0edfd08d9c7894feee7fc8ad64c",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\inplace_probability_storage.h"
+      },
+      {
+        "sha256": "b94f16310020a757076e6f9bd7d97bea81f91d90567e006a419d5de4acfd1f19",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\long_attention_layout.h"
+      },
+      {
+        "sha256": "3de72cfeec586a4609e2a759279307246d4b18444f52536917bd0829c66aeb04",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\microtile_exact_qk.h"
+      },
+      {
+        "sha256": "9dbc7ee3a9a292b610d1bc0823374e61b7a2feee01a35da123c0ed3454c02463",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\narrow_domain_qk.h"
+      },
+      {
+        "sha256": "ced9a51778b6463750f491ef06ebb701fb06131458d39de462e695324a43ad1d",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\narrow_domain_qk_workspace.h"
+      },
+      {
+        "sha256": "4a1bb411ef7641f02db818eef1e85adf4b62fcf74b294a1758cedb6cd2ec32ea",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\native_delta_probability.h"
+      },
+      {
+        "sha256": "a33f65e490070b23224978eaa3a5ea4ae9a6861631caa3fec59c681557cb828b",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\native_exp2_workspace.h"
+      },
+      {
+        "sha256": "5bb63c12db0afdf2e7aa86e47f50fb90b827f1936321e352afeac6577330999e",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\packed_probability_storage.h"
+      },
+      {
+        "sha256": "663618d9a658fa02f07e83b5ae2bcac5ae40b298fe040e6e1f6676b781179c09",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\partial_wave_matrix_qk.h"
+      },
+      {
+        "sha256": "5b2c12fcc59eba1f8e7445101c3ffc7624f81bf01e9f3fa8d4ce5d90f48782d2",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\prepared_decoded_qk.h"
+      },
+      {
+        "sha256": "f7aeef4016b182ad11c30aab4b3b8d178847b035b993473ed4acca7e99771774",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\prepared_decoded_qk_workspace.h"
+      },
+      {
+        "sha256": "aafc5f495c6ea965352445ef1f00390e4f7a5f856ec5dd40e18276e6d2df4f15",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\streamed_exact_attention.h"
+      },
+      {
+        "sha256": "537e86e0c1fee260845502505199a4f699c0822a616934576c366820ca33d29d",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\ck_fmha\\wave_matrix_qk.h"
+      },
+      {
+        "sha256": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\gdn\\sm121_attention_rcp.h"
+      },
+      {
+        "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+      },
+      {
+        "sha256": "18514c6dc67c0f55be29a33e524abe56d3a11735b3c1279e20a488c059725c33",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\gdn\\sm121_exp2_native_delta.h"
+      },
+      {
+        "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\gdn\\sm121_exp2_table.h"
+      },
+      {
+        "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+      },
+      {
+        "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+      },
+      {
+        "sha256": "dd88abde3847cc63159fd1884bbaa4e242266ed5cdd6dd6085b44d16fbbdc47e",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_compact_integer_dot4.h"
+      },
+      {
+        "sha256": "282151268703522059965ec017e02ed3c4c5705b26eaf3740273efda098c955d",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_compact_matrix_group.h"
+      },
+      {
+        "sha256": "8edf086d07924971a1e815d334db809fd834dc8a101453c6d82451601ca95e61",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_compact_matrix_metadata.h"
+      },
+      {
+        "sha256": "861b7984ca4cb87c4f3d71c1e17b8e310aedaf32fe06257bca433ee03097b605",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_decoded_bf16.h"
+      },
+      {
+        "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+      },
+      {
+        "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_f32_carry.h"
+      },
+      {
+        "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+      },
+      {
+        "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+      },
+      {
+        "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+      },
+      {
+        "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+      },
+      {
+        "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+      },
+      {
+        "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+      },
+      {
+        "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+      },
+      {
+        "sha256": "73b2ccad4a0c86b02ea0d6940b2ef43b6dca15c9e40ae80faeba9b69b3a8dd9a",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_matrix_remainder_group.h"
+      },
+      {
+        "sha256": "85ab733dd564a8dbc5948f5700fcb6c66fbbc5239d0f55e405dbe7e4e210eca9",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_narrow_f32_carry.h"
+      },
+      {
+        "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+      },
+      {
+        "sha256": "4cbf70b4b423073560fdb8eec0333a15d463a74b1f09c79e123a6a6fc553d2e5",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_packed_core_remainder.h"
+      },
+      {
+        "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+      },
+      {
+        "sha256": "1d76b5d19a6ad75c95a2161ecdf6e74eb3def2769b757dccc2efcc35adf126d7",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_partial_matrix_group.h"
+      },
+      {
+        "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+      },
+      {
+        "sha256": "fc611756401aee8f4fcef546747a7510c1b60fa6a930b6aced3d3c1e02effe6c",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_prepared_integer_pairs.h"
+      },
+      {
+        "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+      },
+      {
+        "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+      },
+      {
+        "sha256": "adf2dd5d24e98632ef0239d3ea40170c683e1d06b5902b5f08e0e578ae010d66",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_scalar_integer_core.h"
+      },
+      {
+        "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+      },
+      {
+        "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+      },
+      {
+        "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+      },
+      {
+        "sha256": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\providers\\sm121_attention_capacity.h"
+      },
+      {
+        "sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\native\\src\\qrt_context_limits.h"
+      },
+      {
+        "sha256": "98447dd968860d3fd40f0ea839540e35f139c6a5bb02a089a72c194231f104ba",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\tests\\native\\combined_exact_attention_capture.cpp"
+      },
+      {
+        "sha256": "be80ed85c82b1c0138649455756f95b6df24f962dd7ab694bdf9d9285be599fe",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\tests\\native\\compact_matrix_queue_qk_capture.cpp"
+      },
+      {
+        "sha256": "c8386686b14eab803cdbf2d2628f75f4e24f0944b2630625d64d33aafac811bb",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\tests\\native\\fused_qk_probability_selftest.cpp"
+      },
+      {
+        "sha256": "921a2e8391c4da97f6d13eff10d1000f25b48bc8c0b1d267434ff320cf24e8bb",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\tests\\native\\partial_wave_matrix_qk_capture.cpp"
+      },
+      {
+        "sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\scripts\\baiying_guarded_inference.ps1"
+      },
+      {
+        "sha256": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+        "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\scripts\\baiying_boot_identity.ps1"
+      }
+    ],
+    "source_inventory_is_compiler_dependency_list": false,
+    "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+    "arguments": [
+      "-std=c++17",
+      "-O3",
+      "-DQRT_SM121_DPP_REDUCTION=1",
+      "-DQRT_SM121_COMPACT_NORMALIZE=1",
+      "-DQRT_CK_SM121_INTERPOLATED_EXP2=1",
+      "--offload-arch=gfx1151",
+      "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\tests\\native\\partial_wave_matrix_qk_capture.cpp",
+      "-o",
+      "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\build\\partial-wave-matrix-qk\\partial-wave-matrix-qk.exe"
+    ],
+    "command_file": "P:\\projects\\run-native-partial-wave-matrix-qk-r3.ps1",
+    "command_file_sha256": "3094da838d8aad54512ac36ac997e25c91c9b6c7aa7cb8026f301a884614d271",
+    "run_record_sha256": "8793d774f1b01f37907fa82533ea4d78ad939209965d5a39213f79147b756800",
+    "executable": {
+      "sha256": "c5b58282d2c542dfd8591618ca9ea295bc3bcf145ba85bccf58b5b6c7329330b",
+      "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\build\\partial-wave-matrix-qk\\partial-wave-matrix-qk.exe",
+      "bytes": 2140160
+    }
+  },
+  "resources_sha256": "cc954db7a66216ec659b60ccbd6bed11b65386a57936631d3ea7af022a02bb9a",
+  "resources": {
+    "source_commit": "5d63d5c5417483b6ebb2e204e93f01d83627fa4b",
+    "host": "BAIYING",
+    "executable": {
+      "sha256": "c5b58282d2c542dfd8591618ca9ea295bc3bcf145ba85bccf58b5b6c7329330b",
+      "file": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\build\\partial-wave-matrix-qk\\partial-wave-matrix-qk.exe",
+      "bytes": 2140160
+    },
+    "build_run_sha256": "8793d774f1b01f37907fa82533ea4d78ad939209965d5a39213f79147b756800",
+    "build_provenance_sha256": "ca60e928151980b4f96f98ccf5785d51cf46a056dfd06cefc2520a9f290503f6",
+    "source_manifest_sha256": "c9d5903095e636c9f4818fdfd5ebeae9f81b5ebeef6c5d6a414f36146e38f397",
+    "command_file": "P:\\projects\\run-native-partial-wave-matrix-qk-r3.ps1",
+    "command_file_sha256": "3094da838d8aad54512ac36ac997e25c91c9b6c7aa7cb8026f301a884614d271",
+    "compilation_inputs": 61,
+    "compile_wall_ms": 17250.149,
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "kernels": [
+      {
+        ".name": "_ZN20qrt_narrow_domain_qk6scoresILb1ELj2ELj4ELj64EEEvPKjS2_S2_S2_S2_S2_PfPjjjjj",
+        ".vgpr_count": 167,
+        ".sgpr_count": 44,
+        ".private_segment_fixed_size": 0,
+        ".group_segment_fixed_size": 24576,
+        ".vgpr_spill_count": 0,
+        ".sgpr_spill_count": 0,
+        ".wavefront_size": 32,
+        ".max_flat_workgroup_size": 1024
+      },
+      {
+        ".name": "_ZN26qrt_partial_wave_matrix_qk6scoresILb0EEEvNS_9WorkspaceEPfjjj",
+        ".vgpr_count": 196,
+        ".sgpr_count": 54,
+        ".private_segment_fixed_size": 0,
+        ".group_segment_fixed_size": 4,
+        ".vgpr_spill_count": 0,
+        ".sgpr_spill_count": 0,
+        ".wavefront_size": 32,
+        ".max_flat_workgroup_size": 128
+      },
+      {
+        ".name": "_ZN26qrt_partial_wave_matrix_qk6scoresILb1EEEvNS_9WorkspaceEPfjjj",
+        ".vgpr_count": 132,
+        ".sgpr_count": 33,
+        ".private_segment_fixed_size": 0,
+        ".group_segment_fixed_size": 4,
+        ".vgpr_spill_count": 0,
+        ".sgpr_spill_count": 0,
+        ".wavefront_size": 32,
+        ".max_flat_workgroup_size": 128
+      },
+      {
+        ".name": "_ZN18qrt_wave_matrix_qk6scoresILb1ELb0EEEvN27qrt_compact_matrix_queue_qk9WorkspaceEPfjjj",
+        ".vgpr_count": 89,
+        ".sgpr_count": 32,
+        ".private_segment_fixed_size": 0,
+        ".group_segment_fixed_size": 4,
+        ".vgpr_spill_count": 0,
+        ".sgpr_spill_count": 0,
+        ".wavefront_size": 32,
+        ".max_flat_workgroup_size": 128
+      },
+      {
+        ".name": "_ZN18qrt_wave_matrix_qk6scoresILb0ELb1EEEvN27qrt_compact_matrix_queue_qk9WorkspaceEPfjjj",
+        ".vgpr_count": 166,
+        ".sgpr_count": 50,
+        ".private_segment_fixed_size": 0,
+        ".group_segment_fixed_size": 4,
+        ".vgpr_spill_count": 0,
+        ".sgpr_spill_count": 0,
+        ".wavefront_size": 32,
+        ".max_flat_workgroup_size": 128
+      },
+      {
+        ".name": "_ZN18qrt_wave_matrix_qk6scoresILb0ELb0EEEvN27qrt_compact_matrix_queue_qk9WorkspaceEPfjjj",
+        ".vgpr_count": 140,
+        ".sgpr_count": 47,
+        ".private_segment_fixed_size": 0,
+        ".group_segment_fixed_size": 4,
+        ".vgpr_spill_count": 0,
+        ".sgpr_spill_count": 0,
+        ".wavefront_size": 32,
+        ".max_flat_workgroup_size": 128
+      },
+      {
+        ".name": "_ZN27qrt_compact_matrix_queue_qk6scoresILb1ELb0EEEvNS_9WorkspaceEPfjjj",
+        ".vgpr_count": 73,
+        ".sgpr_count": 49,
+        ".private_segment_fixed_size": 0,
+        ".group_segment_fixed_size": 28160,
+        ".vgpr_spill_count": 0,
+        ".sgpr_spill_count": 0,
+        ".wavefront_size": 32,
+        ".max_flat_workgroup_size": 256
+      }
+    ],
+    "prior_r2_resources_sha256": "d292bc484b4213ca87ff96660a28ab1ab5153487b75adce7eb9eb7a2edc239d1",
+    "comparison_with_prior_build": [
+      {
+        "name": "_ZN20qrt_narrow_domain_qk6scoresILb1ELj2ELj4ELj64EEEvPKjS2_S2_S2_S2_S2_PfPjjjjj",
+        "resources_equal": true
+      },
+      {
+        "name": "_ZN26qrt_partial_wave_matrix_qk6scoresILb0EEEvNS_9WorkspaceEPfjjj",
+        "resources_equal": true
+      },
+      {
+        "name": "_ZN26qrt_partial_wave_matrix_qk6scoresILb1EEEvNS_9WorkspaceEPfjjj",
+        "resources_equal": true
+      },
+      {
+        "name": "_ZN18qrt_wave_matrix_qk6scoresILb1ELb0EEEvN27qrt_compact_matrix_queue_qk9WorkspaceEPfjjj",
+        "resources_equal": true
+      },
+      {
+        "name": "_ZN18qrt_wave_matrix_qk6scoresILb0ELb1EEEvN27qrt_compact_matrix_queue_qk9WorkspaceEPfjjj",
+        "resources_equal": true
+      },
+      {
+        "name": "_ZN18qrt_wave_matrix_qk6scoresILb0ELb0EEEvN27qrt_compact_matrix_queue_qk9WorkspaceEPfjjj",
+        "resources_equal": true
+      },
+      {
+        "name": "_ZN27qrt_compact_matrix_queue_qk6scoresILb1ELb0EEEvNS_9WorkspaceEPfjjj",
+        "resources_equal": true
+      }
+    ],
+    "parser_sha256": "3a73e524f738a8f325ccd2b880c60886c28f9f26cf87b6cb5c61d47613f4413f",
+    "transfer": {
+      "command": [
+        "scp",
+        "-o",
+        "BatchMode=yes",
+        "-o",
+        "ConnectTimeout=10",
+        "baiying:P:/projects/AIMA-public-partial-wave-matrix-qk-20260921-r3/build/partial-wave-matrix-qk/partial-wave-matrix-qk.exe",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/partial-wave-matrix-qk-native-r3.exe"
+      ],
+      "returncode": 0,
+      "stderr": ""
+    },
+    "static_resources_not_measured_occupancy": true,
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "original_input_stage_sha256": "6f49d687d9371e87ac632b045d97338657f26a58f3b29bb8322ac6dd0136d752",
+  "original_reference_analysis_sha256": "0fbdd8be9b0cab0f0c8ea4506139ed22806f254366f2c60324d893e474f25a52",
+  "runs": {
+    "build": {
+      "host": "BAIYING",
+      "source_commit": "5d63d5c5417483b6ebb2e204e93f01d83627fa4b",
+      "wall_ms": 17250.149,
+      "run_record_sha256": "8793d774f1b01f37907fa82533ea4d78ad939209965d5a39213f79147b756800",
+      "command_file": "P:\\projects\\run-native-partial-wave-matrix-qk-r3.ps1",
+      "command_file_sha256": "3094da838d8aad54512ac36ac997e25c91c9b6c7aa7cb8026f301a884614d271",
+      "model": "none; generated attention operands or compiler",
+      "arguments": [
+        "-std=c++17",
+        "-O3",
+        "-DQRT_SM121_DPP_REDUCTION=1",
+        "-DQRT_SM121_COMPACT_NORMALIZE=1",
+        "-DQRT_CK_SM121_INTERPOLATED_EXP2=1",
+        "--offload-arch=gfx1151",
+        "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\tests\\native\\partial_wave_matrix_qk_capture.cpp",
+        "-o",
+        "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\build\\partial-wave-matrix-qk\\partial-wave-matrix-qk.exe"
+      ],
+      "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+      "exit_code": 0,
+      "reason": "completed",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "after_processes": [],
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dispatch_sha256": "f4f2e2e324b2948cff84cfc433a483ed9636f44ccc8cf925349f5529bd83e8c4"
+    },
+    "safety": {
+      "host": "BAIYING",
+      "source_commit": "5d63d5c5417483b6ebb2e204e93f01d83627fa4b",
+      "wall_ms": 17040.76,
+      "run_record_sha256": "f84b710ba8632085346133b4f2cc5e05834c6c540739f29c997362efd8340d85",
+      "command_file": "P:\\projects\\run-native-partial-wave-matrix-qk-r3.ps1",
+      "command_file_sha256": "3094da838d8aad54512ac36ac997e25c91c9b6c7aa7cb8026f301a884614d271",
+      "model": "none; generated attention operands or compiler",
+      "arguments": [
+        "safety",
+        "D:/projects/sm121-exp2-interpolated-b5752a88.bin",
+        "D:/projects/sm121-attention-rcp-d2e55754.bin"
+      ],
+      "executable": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\build\\partial-wave-matrix-qk\\partial-wave-matrix-qk.exe",
+      "exit_code": 0,
+      "reason": "completed",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "after_processes": [],
+      "stdout_sha256": "a8c9d80f81ecebb1e9a3048c08d8581f7d68b21d3d6cc65925a7ea223f0fb1b6",
+      "stderr_sha256": "92d43a0c5e9b18be40108a6d8af1dd88bfc81286bb74b2c5729cde0d38ed6a61",
+      "dispatch_sha256": "0440a9c26b029b21f0c86a44ed7a8dde6700cbcf598ae8b3b9b8aebd520f4e99"
+    },
+    "q8192": {
+      "host": "BAIYING",
+      "source_commit": "5d63d5c5417483b6ebb2e204e93f01d83627fa4b",
+      "wall_ms": 29738.393,
+      "run_record_sha256": "96d6f5d8baa7e57f5a240eea4e5c87b16862f8870e9af7a07af252bc03fca7eb",
+      "command_file": "P:\\projects\\run-native-partial-wave-matrix-qk-r3.ps1",
+      "command_file_sha256": "3094da838d8aad54512ac36ac997e25c91c9b6c7aa7cb8026f301a884614d271",
+      "model": "Qwen3.6-35B-A3B; original GB10 q8192 layer3 Q/K/V and context, no model load",
+      "arguments": [
+        "full8192",
+        "P:/projects/qrt-original-q8192-operands-20260921-r1/full-prefill-full-03-q-rope-bf16.bin",
+        "P:/projects/qrt-original-q8192-operands-20260921-r1/full-prefill-full-03-cache-k-bf16.bin",
+        "P:/projects/qrt-original-q8192-operands-20260921-r1/full-prefill-full-03-cache-v-bf16.bin",
+        "P:/projects/qrt-original-q8192-operands-20260921-r1/full-prefill-full-03-context-bf16.bin",
+        "D:/projects/sm121-exp2-interpolated-b5752a88.bin",
+        "D:/projects/sm121-attention-rcp-d2e55754.bin"
+      ],
+      "executable": "P:\\projects\\AIMA-public-partial-wave-matrix-qk-20260921-r3\\build\\partial-wave-matrix-qk\\partial-wave-matrix-qk.exe",
+      "exit_code": 0,
+      "reason": "completed",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "after_processes": [],
+      "stdout_sha256": "2489771c070236868a9b7c53945035ec892a35d6fdd4452dd9f8b9398a59b9d0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dispatch_sha256": "93571eeb32fbe491accd95939545ae6d010354961068634216cc88633e50ab99"
+    }
+  },
+  "comparisons": {
+    "safety": {
+      "sha256": "71b4add201d22e5fe58f51a82cf99c5318d6092743206caf75fae74268d55516",
+      "record": {
+        "action": "safety",
+        "source_commit": "5d63d5c5417483b6ebb2e204e93f01d83627fa4b",
+        "host": "BAIYING",
+        "source_manifest_sha256": "c9d5903095e636c9f4818fdfd5ebeae9f81b5ebeef6c5d6a414f36146e38f397",
+        "run_record_sha256": "f84b710ba8632085346133b4f2cc5e05834c6c540739f29c997362efd8340d85",
+        "raw_stdout_sha256": "a8c9d80f81ecebb1e9a3048c08d8581f7d68b21d3d6cc65925a7ea223f0fb1b6",
+        "stderr_sha256": "92d43a0c5e9b18be40108a6d8af1dd88bfc81286bb74b2c5729cde0d38ed6a61",
+        "reports": [
+          {
+            "kind": "partial_wave_matrix_qk_safety",
+            "cases": 560,
+            "shapes": 8,
+            "data_modes": 10,
+            "retained_control_callback_and_isolated_candidate": true,
+            "pre_replay_native_surfaces_and_complete_replay": true,
+            "domain_extremes_and_nearby_rejections": true,
+            "lossless_and_original_rows": true,
+            "forced_all_original_queue": false,
+            "forced_all_original_wave": true,
+            "forced_all_original_partial_wave": true,
+            "cpu_metadata_checked": true,
+            "reference_extent_faults_checked": 5,
+            "raw_bit_mismatches": 0,
+            "guards_pass": true,
+            "immutable_inputs": true
+          }
+        ],
+        "component_comparison": [],
+        "analyzer_sha256": "9a61c22abfce6d855bdab5c07f43447a9f7dedba7e7a8db9a665d1ee4b08ce6f",
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "release_qualified": false
+      }
+    },
+    "q8192": {
+      "sha256": "180f7693bb86d629df6696adbb5979f30858b8cf0f820f2eac922110477d71e7",
+      "record": {
+        "action": "q8192",
+        "source_commit": "5d63d5c5417483b6ebb2e204e93f01d83627fa4b",
+        "host": "BAIYING",
+        "source_manifest_sha256": "c9d5903095e636c9f4818fdfd5ebeae9f81b5ebeef6c5d6a414f36146e38f397",
+        "run_record_sha256": "96d6f5d8baa7e57f5a240eea4e5c87b16862f8870e9af7a07af252bc03fca7eb",
+        "raw_stdout_sha256": "2489771c070236868a9b7c53945035ec892a35d6fdd4452dd9f8b9398a59b9d0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reports": [
+          {
+            "kind": "partial_wave_matrix_qk_capture",
+            "tokens": 8192,
+            "source_capture_tokens": 8192,
+            "repeated_rows": 0,
+            "variant": 0,
+            "query_cells": 2,
+            "key_cells": 4,
+            "narrow_tiles": 260096,
+            "original_tiles": 6144,
+            "domain_classification_ms": 0.9115,
+            "retained_control_callback_and_isolated_candidate": true,
+            "pre_replay_native_surfaces_checked_on_warmup": true,
+            "cpu_metadata_checked": true,
+            "query_batch": 128,
+            "score_slots": 545259520,
+            "output_cells": 33554432,
+            "gb10_context_cells": 33554432,
+            "cpu_dots": 256,
+            "pv_candidates": 2694824,
+            "completed_attention_samples_ms": [
+              513.6633,
+              514.1399,
+              517.6084
+            ],
+            "median_completed_attention_ms": 514.1399,
+            "common_preparation_ms": 3.7029,
+            "raw_bit_mismatches": 0,
+            "gb10_context_mismatches": 0,
+            "all_attempts_checked": true,
+            "warmups_per_slab": 1,
+            "timed_attempts_per_slab": 3,
+            "original_qk_and_pv": true,
+            "reference_is_compute_input": false,
+            "redzones_and_unused_tails_pass": true,
+            "immutable_inputs": true,
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "performance_acceptance": false
+          },
+          {
+            "kind": "partial_wave_matrix_qk_capture",
+            "tokens": 8192,
+            "source_capture_tokens": 8192,
+            "repeated_rows": 0,
+            "variant": 1,
+            "query_cells": 2,
+            "key_cells": 2,
+            "narrow_tiles": 522240,
+            "original_tiles": 10240,
+            "domain_classification_ms": 2.076,
+            "retained_control_callback_and_isolated_candidate": true,
+            "pre_replay_native_surfaces_checked_on_warmup": true,
+            "cpu_metadata_checked": true,
+            "query_batch": 128,
+            "score_slots": 545259520,
+            "output_cells": 33554432,
+            "gb10_context_cells": 33554432,
+            "cpu_dots": 256,
+            "pv_candidates": 2694824,
+            "completed_attention_samples_ms": [
+              969.301,
+              956.6801,
+              975.1645
+            ],
+            "median_completed_attention_ms": 969.301,
+            "common_preparation_ms": 3.7029,
+            "raw_bit_mismatches": 0,
+            "gb10_context_mismatches": 0,
+            "all_attempts_checked": true,
+            "warmups_per_slab": 1,
+            "timed_attempts_per_slab": 3,
+            "original_qk_and_pv": true,
+            "reference_is_compute_input": false,
+            "redzones_and_unused_tails_pass": true,
+            "immutable_inputs": true,
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "performance_acceptance": false
+          },
+          {
+            "kind": "partial_wave_matrix_qk_capture",
+            "tokens": 8192,
+            "source_capture_tokens": 8192,
+            "repeated_rows": 0,
+            "variant": 2,
+            "query_cells": 1,
+            "key_cells": 8,
+            "narrow_tiles": 522240,
+            "original_tiles": 10240,
+            "domain_classification_ms": 2.076,
+            "retained_control_callback_and_isolated_candidate": true,
+            "pre_replay_native_surfaces_checked_on_warmup": true,
+            "cpu_metadata_checked": true,
+            "query_batch": 128,
+            "score_slots": 545259520,
+            "output_cells": 33554432,
+            "gb10_context_cells": 33554432,
+            "cpu_dots": 256,
+            "pv_candidates": 2694824,
+            "completed_attention_samples_ms": [
+              1022.9021,
+              1027.8821,
+              1010.9878
+            ],
+            "median_completed_attention_ms": 1022.9021,
+            "common_preparation_ms": 3.7029,
+            "raw_bit_mismatches": 0,
+            "gb10_context_mismatches": 0,
+            "all_attempts_checked": true,
+            "warmups_per_slab": 1,
+            "timed_attempts_per_slab": 3,
+            "original_qk_and_pv": true,
+            "reference_is_compute_input": false,
+            "redzones_and_unused_tails_pass": true,
+            "immutable_inputs": true,
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "performance_acceptance": false
+          },
+          {
+            "kind": "partial_wave_matrix_qk_capture",
+            "tokens": 8192,
+            "source_capture_tokens": 8192,
+            "repeated_rows": 0,
+            "variant": 3,
+            "query_cells": 1,
+            "key_cells": 8,
+            "narrow_tiles": 522240,
+            "original_tiles": 10240,
+            "domain_classification_ms": 2.076,
+            "retained_control_callback_and_isolated_candidate": true,
+            "pre_replay_native_surfaces_checked_on_warmup": true,
+            "cpu_metadata_checked": true,
+            "query_batch": 128,
+            "score_slots": 545259520,
+            "output_cells": 33554432,
+            "gb10_context_cells": 33554432,
+            "cpu_dots": 256,
+            "pv_candidates": 2694824,
+            "completed_attention_samples_ms": [
+              1463.0039,
+              1480.811,
+              1479.5366
+            ],
+            "median_completed_attention_ms": 1479.5366,
+            "common_preparation_ms": 3.7029,
+            "raw_bit_mismatches": 0,
+            "gb10_context_mismatches": 0,
+            "all_attempts_checked": true,
+            "warmups_per_slab": 1,
+            "timed_attempts_per_slab": 3,
+            "original_qk_and_pv": true,
+            "reference_is_compute_input": false,
+            "redzones_and_unused_tails_pass": true,
+            "immutable_inputs": true,
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "performance_acceptance": false
+          },
+          {
+            "kind": "partial_wave_matrix_qk_capture",
+            "tokens": 8192,
+            "source_capture_tokens": 8192,
+            "repeated_rows": 0,
+            "variant": 4,
+            "query_cells": 1,
+            "key_cells": 8,
+            "narrow_tiles": 522240,
+            "original_tiles": 10240,
+            "domain_classification_ms": 2.3146,
+            "retained_control_callback_and_isolated_candidate": true,
+            "pre_replay_native_surfaces_checked_on_warmup": true,
+            "cpu_metadata_checked": true,
+            "query_batch": 128,
+            "score_slots": 545259520,
+            "output_cells": 33554432,
+            "gb10_context_cells": 33554432,
+            "cpu_dots": 256,
+            "pv_candidates": 2694824,
+            "completed_attention_samples_ms": [
+              1598.0778,
+              1608.9774,
+              1608.9979
+            ],
+            "median_completed_attention_ms": 1608.9774,
+            "common_preparation_ms": 3.7029,
+            "raw_bit_mismatches": 0,
+            "gb10_context_mismatches": 0,
+            "all_attempts_checked": true,
+            "warmups_per_slab": 1,
+            "timed_attempts_per_slab": 3,
+            "original_qk_and_pv": true,
+            "reference_is_compute_input": false,
+            "redzones_and_unused_tails_pass": true,
+            "immutable_inputs": true,
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "performance_acceptance": false
+          }
+        ],
+        "component_comparison": [
+          {
+            "variant": 0,
+            "complete_component_ms": 518.7543000000001
+          },
+          {
+            "variant": 1,
+            "complete_component_ms": 975.0799000000001
+          },
+          {
+            "variant": 2,
+            "complete_component_ms": 1028.681
+          },
+          {
+            "variant": 3,
+            "complete_component_ms": 1485.3155
+          },
+          {
+            "variant": 4,
+            "complete_component_ms": 1614.9949
+          }
+        ],
+        "analyzer_sha256": "9a61c22abfce6d855bdab5c07f43447a9f7dedba7e7a8db9a665d1ee4b08ce6f",
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "release_qualified": false
+      }
+    }
+  },
+  "variants": [
+    {
+      "variant": 0,
+      "label": "retained narrow QK",
+      "complete_component_ms": 518.7543000000001,
+      "ratio_to_retained_control": 1.0
+    },
+    {
+      "variant": 1,
+      "label": "compact matrix queue",
+      "complete_component_ms": 975.0799000000001,
+      "ratio_to_retained_control": 1.87965651561828
+    },
+    {
+      "variant": 2,
+      "label": "wave matrix owner",
+      "complete_component_ms": 1028.681,
+      "ratio_to_retained_control": 1.9829830808149445
+    },
+    {
+      "variant": 3,
+      "label": "exact remainder wave owner",
+      "complete_component_ms": 1485.3155,
+      "ratio_to_retained_control": 2.86323506137684
+    },
+    {
+      "variant": 4,
+      "label": "partial coefficient wave owner",
+      "complete_component_ms": 1614.9949,
+      "ratio_to_retained_control": 3.1132173747764593
+    }
+  ],
+  "generated_gpu_cases": 560,
+  "reference_extent_fault_controls": 5,
+  "original_context_cells_per_variant": 33554432,
+  "score_slots_per_variant": 545259520,
+  "all_original_context_outputs_match": true,
+  "all_native_intermediate_bits_match": true,
+  "timing_scope": "Complete original q8192 attention: common preparation plus domain classification plus the median of three completed attention sequences, with one warmup per slab. Includes original QK, probability, original PV and exact replay; every attempt validates intermediate surfaces and all context cells.",
+  "decision": "Retain the current narrow-QK runtime route. None of the four isolated alternatives improves the complete original-q8192 component; preserve their results for broader redesign.",
+  "runtime_dispatch_changed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "c6ec568d3ca62518b3c9d8fc795fc4618037820e1ce4af2d20528fd0489224d3",
+    "original_json_bytes": 60721,
+    "source_revision": "5d63d5c5417483b6ebb2e204e93f01d83627fa4b",
+    "source_path": "benchmarks/correctness/partial-wave-matrix-qk-native-20260921.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 1
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}

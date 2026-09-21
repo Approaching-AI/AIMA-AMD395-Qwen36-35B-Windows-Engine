@@ -1,5 +1,33 @@
 # Partial-coefficient wave-owned projection
 
+The completed `5d63d5c` experiment passes all240 generated GPU configurations
+and the complete original q8192 QKV/OUT outputs on baiying. The candidate is
+slower for both operators and is not selected by the product runtime.
+
+| Full preparation and replay | Original staged2 ms | Wave candidate ms |
+| --- | ---: | ---: |
+| QKV, 67,108,864 original BF16 outputs | 41.2941 | 641.18 |
+| OUT, 16,777,216 original BF16 outputs | 152.258 | 598.795 |
+
+Every warmup and timed attempt matches all GB10 operator outputs, unrounded
+candidate bits, inactive outputs, guards and immutable inputs. Each median uses
+three rotated completed sequences and includes preparation, classification,
+bitmap work where used, unsupported-row replay and completion. OUT compares
+the original midpoint correction; the retained coarse-OUT provider was not
+measured here. No model is loaded by these component probes, and no inference,
+product performance or release gate is closed.
+
+The standalone and replay builds complete in4956.668ms and123435.977ms.
+All five native actions pass host checks and leave no process. QKV admits
+3,454,884 matrix candidates and retains872,632 original replays; OUT admits
+8,453,029 and retains1,026. Despite those admissions, this implementation adds
+599.8859ms for QKV and446.537ms for OUT within the measured component scope.
+[Commands, source/build bindings, original reference, all240 safety cases and
+complete timing evidence](../benchmarks/correctness/partial-wave-projection-native-20260921.json).
+
+The following design and preparation notes preserve the earlier sequence;
+statements about pending GPU execution below describe those preparation stages.
+
 This isolated replay replaces independent candidate dots with a wave-owned
 16x16 projection tile. Four IU8 matrix instructions form each exact signed
 coefficient product sum. Each lane retains eight separate carries and consumes
