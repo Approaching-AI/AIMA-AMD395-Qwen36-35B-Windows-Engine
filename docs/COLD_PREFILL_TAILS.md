@@ -153,6 +153,21 @@ The archive remains on the controller. The GPU worker requires completed long
 cleanup before transfer/extraction and keeps each expected output on the host.
 These GPU executions and later actual Windows operands remain unmeasured.
 
+The [stored-state and binary-mode diagnostic](../benchmarks/correctness/prefix256-step124-native-float-modes-20260921.json)
+finds five FP32 subnormal entries among 94,371,840 original before/after state
+elements. They occur only in layer 1 at 263290/263291; no nonfinite or negative
+zero values occur. All 530 kernel descriptors in the actual c268 DLL select
+FP32 denorm mode 3. LLVM documents this as preserving source and destination
+denormals in its [AMDGPU ABI](https://llvm.org/docs/AMDGPUUsage.html).
+The recurrence and two convolution machine-code bodies are byte-identical
+to their prepared probes. Bounded native disassembly covers all 24,616 bytes
+and finds no mode setters or indirect calls in these three kernels. Entry-mode
+flushing or an explicit mode change in these bodies is therefore unsupported
+as the explanation. This does not establish actual later Windows operands,
+all intermediate behavior or the cause of the token divergence. The first
+disassembly wrapper's missing exit code remains recorded; the corrected
+observer repeats only disassembly and captures exit 0.
+
 The [native recurrence replay preparation](../benchmarks/correctness/step124-gdn-native-prepared-20260921.json)
 binds those90 original rows to the existing GPU probe. All eight compilation
 inputs are identical to c268; the actual probe, seven preceding build/control
