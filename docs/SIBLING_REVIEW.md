@@ -2,12 +2,14 @@
 
 ## September 21 status
 
-The [API refresh](../benchmarks/correctness/linux-windows-release-review-refresh-20260921.json)
-at 2026-09-21T15:18:58Z rechecks the latest five releases: `.10`, `.9`, `.7`,
+The [API refresh](../benchmarks/correctness/linux-windows-release-review-refresh-20260921-r2.json)
+at 2026-09-21T18:16:13Z rechecks the latest five releases: `.10`, `.9`, `.7`,
 `.6` and `.5`. All five identities and bodies match the preceding review.
 The latest `.10` tag still resolves to `0522a57caf24bf21e0e6fcc5b234a7fc361fbc94`,
 with declared native source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
 The source review below remains applicable. This refresh executes no model.
+It preserves the earlier15:18 comparison and the intervening local receipt
+selection error; the corrected reader compares the successful published record.
 
 The current Windows whole provider and C CLI at `c2683cd` pass
 [ordinary and native controls](../benchmarks/correctness/single-tail-q1-native-20260921.json):
