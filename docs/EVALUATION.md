@@ -16,7 +16,17 @@ current public copies. Commands containing aliases require local substitution.
 Run tools/publish_evidence.py before publishing new reports and check the
 result with tools/public_hygiene.py.
 
-The latest [whole-provider build and q8192 regression](../benchmarks/correctness/residual-norm-mode-q8192-20260921.json)
+The newest [retired-reference-mode build and ordinary q8192 regression](../benchmarks/correctness/retired-reference-mode-q8192-20260921.json)
+pass at861238786053b26363ddb64418632a8f8ee7dce2. Whole DLL252f70d8 binds173
+sources; Windows/HIP build wall109966.979ms. All512 original outputs and
+callbacks match; first144/logit10.375/error0. Load21645.8589ms passes, while
+TTFT23382.8576ms and TPOT101.477052ms remain above their goals. All11 source
+inputs of the earlier native norm replay are unchanged and verified against
+this commit. Complete256k is now running with this binary; native retirement
+itself remains unqualified. This single control does not replace retained
+performance medians or qualify a release.
+
+The preceding [whole-provider build and q8192 regression](../benchmarks/correctness/residual-norm-mode-q8192-20260921.json)
 pass on baiying at source6a5da30. All512 output IDs and callbacks match GB10,
 first144/logit10.375/error0. Load21692.5148ms passes; TTFT23241.443799ms and
 TPOT100.232207ms do not meet the performance goals. DLL SHA256 is
@@ -42,8 +52,8 @@ scope, including requests whose initial prefix was shorter than262144 tokens.
 The scope is suspended during external callbacks. The actual coordinator
 covers60 crossings,8 resumed retired spans,8 ordinary failures and10
 cancellations. Nine local tests pass; controls reproduce both the previous
-prefix-only selection failure and callback mode leakage. This repair still
-requires a native build and original-model retirement verification.
+prefix-only selection failure and callback mode leakage. The Windows/HIP build and ordinary regression above now pass; original-model
+retirement verification remains open.
 
 The earlier9428e9e [full256k rerun](../benchmarks/correctness/segmented-prefix256k-postnorm-divergence-20260921.json)
 completed with exit6 after22614410.512ms and clean host state. All32
