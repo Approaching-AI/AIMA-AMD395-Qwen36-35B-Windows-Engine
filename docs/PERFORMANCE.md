@@ -55,6 +55,11 @@ diagnostics. Component correctness or timing alone does not qualify inference.
 
 ## Measured work and active experiments
 
+The [Linux core Windows prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md) evaluates a
+complete compute-core replacement after the component alternatives below proved
+slower. Its pinned source, OS adapters and local controls are prepared. It has
+no Windows build or product timing yet and does not replace any retained result.
+
 The last completed q8192 phase profile has the following top-level scopes.
 Its extra instrumentation makes its 27321.9776 ms TTFT diagnostic; it does
 not replace the uninstrumented median.
