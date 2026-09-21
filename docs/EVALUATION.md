@@ -36,6 +36,14 @@ be rebuilt. The two r1 plans below retain their original inputs but require
 new runtime bindings before execution; their old binaries do not include
 this fix.
 
+The [server source and preparation check](../benchmarks/correctness/cold-prefill-tail-server-prepared-20260921.json)
+binds 25 build inputs to the same cold-tail implementation. All54 existing
+Rust library tests and formatting pass on the Mac. Windows parsing and
+zero-dispatch prerequisite checks pass; no new server binary or HTTP model
+result exists yet. Both the server's static C core and normal product CLI
+must accompany the repaired DLL in the next package. Old R9 package bindings
+remain historical; archive, HTTP and soak acceptance requires the final files.
+
 The [prepared native retirement matrix](../benchmarks/correctness/native-mtp-retirement-prepared-20260921.json)
 uses existing original GB10 q262140/q262142/q262143 prompts, each with16
 outputs. Same-source native q7169/out32 and q8192/out512 controls precede the

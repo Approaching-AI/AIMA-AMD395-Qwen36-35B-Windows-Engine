@@ -45,6 +45,16 @@ diagnostic and does not establish a corresponding carry domain.
 [Inputs, source, commands and complete interval results](../benchmarks/correctness/separate-state-gdn-residual-domain-20260921.json)
 remain separate from native correctness or speed qualification.
 
+Two [follow-up admission audits](../benchmarks/correctness/separate-state-gdn-admission-followup-20260921.json)
+keep the existing product-exponent window. Aggregate operand ranges admit
+2912 of4096 original CTAs; individual K16 group checks admit3038. These add
+11 and137 CTAs over the existing2901 prediction. Both auditors pass their
+completed ASan/UBSan scans. The per-group predicate has no complete independent
+integer qualification, and neither audit measures native receipts or speed.
+The modest admission change does not yet justify adding checks inside every
+group. Measure the prepared split-kernel candidate first; a different domain
+design remains possible. Runtime and candidate kernel sources are unchanged.
+
 The host test runs the candidate bodies with64-thread transport and an
 independent wide integer reference. Seven cases cover partial chunks,
 late W/K rejection, excluded initial state, strong decay, subnormal operands,

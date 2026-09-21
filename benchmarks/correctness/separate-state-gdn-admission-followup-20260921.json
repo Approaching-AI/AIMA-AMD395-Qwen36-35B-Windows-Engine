@@ -1,0 +1,242 @@
+{
+  "kind": "separate_state_gdn_followup_admission_observations",
+  "utc": "2026-09-21T09:33:36.835310+00:00",
+  "source_commit": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+  "decision": {
+    "utc": "2026-09-21T08:55:31.181298+00:00",
+    "kind": "gdn_domain_followup_decision",
+    "original_narrow_admitted_ctas": 2901,
+    "aggregate_product_admitted_ctas": 2912,
+    "per_k16_sufficient_admitted_ctas": 3038,
+    "additional_aggregate_ctas": 11,
+    "additional_group_ctas": 137,
+    "total_ctas": 4096,
+    "original_capture_scope": "GB10 q7169 layer0 only; residual uses conservative intervals from BF16 Vnew, not captured unrounded residual values",
+    "analyses": [
+      {
+        "file": "gdn-product-domain-analysis-r1.json",
+        "sha256": "ee85239feb1c128aecadce208ed5460e5f6eb18038daa5d4c5cf5a8e5439922b",
+        "wall_seconds": 1.5460087079554796
+      },
+      {
+        "file": "gdn-group-domain-analysis-r1.json",
+        "sha256": "69ee7d51a80de4eea24cf71295e0fe508f04ea2f162e1f76f26c9e7e48ae9d10",
+        "wall_seconds": 7.797520583495498
+      }
+    ],
+    "decision": "Do not add either guard to runtime on this admission evidence. The aggregate gain is0.27 percentage points; per-K16 admission gains3.34 points but adds checks inside every group. First measure the already prepared separate-state fast/replay candidate and its resource use. These observations do not prohibit a different product-domain design.",
+    "limits": [
+      "No new native kernel implemented or dispatched",
+      "No complete integer arithmetic qualification of the per-group predicate",
+      "No native speed, register, occupancy or model result",
+      "One captured layer cannot establish whole-model admission"
+    ],
+    "source_files": [
+      {
+        "file": "audit_gdn_product_domain_r1.cpp",
+        "sha256": "b98ecf73ebf2e6e08973fee77ed362a729c1fe6f13a9444d37dd17a100d9be98"
+      },
+      {
+        "file": "audit_gdn_group_domain_r1.cpp",
+        "sha256": "2895f2f2786a9fdfac3960238818e433656679ee9865116a40ae7f1bda96d0e5"
+      }
+    ],
+    "runtime_changed": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "decision_sha256": "b5ac0acd5d9c06a7e27958e2dbbdbcc735a3d9fa5f8bacc86ed4cff7dd1313de",
+  "observations": [
+    {
+      "result": {
+        "utc": "2026-09-21T08:38:42.699664+00:00",
+        "host": "Jiawei-MacminideMac-mini.local",
+        "source_sha256": "b98ecf73ebf2e6e08973fee77ed362a729c1fe6f13a9444d37dd17a100d9be98",
+        "source_file": "audit_gdn_product_domain_r1.cpp",
+        "executable_sha256": "5f27b02fa60c803f49260db7f6769a9d70f8384e4b2c3b1b28465a81198712b7",
+        "included_auditor_sha256": "09fcef2ae1612b84a203e9371857b93f75d75adefced2b385a43c361cf5bcabc",
+        "original_input_analysis_sha256": "5c64b30cff3e8e8749a2d5b3253095f7d808cf040e885d0fb6ee1ed016f0429c",
+        "compile": {
+          "command": [
+            "c++",
+            "-std=c++17",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-ffp-contract=off",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/audit_gdn_product_domain_r1.cpp",
+            "-o",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/audit-gdn-product-domain-r1"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "command": [
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/audit-gdn-product-domain-r1",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/gdn-separate-replay-domain-audit-r1"
+        ],
+        "returncode": 0,
+        "stdout": "{\"kind\":\"original_gb10_gdn_product_domain_sufficient_audit\",\"exponent_pair_checks\":64516,\"operand_exponents\":[1,254],\"nonzero_product_exponent_sums\":[190,318],\"residual_interval_cells\":29364224,\"zero_intervals\":5045959,\"nonzero_intervals\":24318265,\"chunk_ctas\":{\"total\":57856,\"wh_not_certified\":17317,\"kv_not_certified\":14760,\"either_not_certified\":17441},\"full1024_segments\":{\"total\":3584,\"not_certified\":1120,\"admitted\":2464},\"all_segments\":{\"total\":4096,\"wh_not_certified\":1184,\"kv_not_certified\":1012,\"not_certified\":1184,\"admitted\":2912},\"not_certified_by_segment\":[160,160,160,160,160,160,160,64],\"unrounded_residual_observed\":false,\"aggregate_range_is_sufficient_only\":true,\"native_receipts_observed\":false,\"native_speed_observed\":false,\"inference_acceptance\":false}\n",
+        "stderr": "",
+        "wall_seconds": 1.5460087079554796,
+        "analysis": {
+          "kind": "original_gb10_gdn_product_domain_sufficient_audit",
+          "exponent_pair_checks": 64516,
+          "operand_exponents": [
+            1,
+            254
+          ],
+          "nonzero_product_exponent_sums": [
+            190,
+            318
+          ],
+          "residual_interval_cells": 29364224,
+          "zero_intervals": 5045959,
+          "nonzero_intervals": 24318265,
+          "chunk_ctas": {
+            "total": 57856,
+            "wh_not_certified": 17317,
+            "kv_not_certified": 14760,
+            "either_not_certified": 17441
+          },
+          "full1024_segments": {
+            "total": 3584,
+            "not_certified": 1120,
+            "admitted": 2464
+          },
+          "all_segments": {
+            "total": 4096,
+            "wh_not_certified": 1184,
+            "kv_not_certified": 1012,
+            "not_certified": 1184,
+            "admitted": 2912
+          },
+          "not_certified_by_segment": [
+            160,
+            160,
+            160,
+            160,
+            160,
+            160,
+            160,
+            64
+          ],
+          "unrounded_residual_observed": false,
+          "aggregate_range_is_sufficient_only": true,
+          "native_receipts_observed": false,
+          "native_speed_observed": false,
+          "inference_acceptance": false
+        }
+      },
+      "result_sha256": "ee85239feb1c128aecadce208ed5460e5f6eb18038daa5d4c5cf5a8e5439922b",
+      "source_file": "audit_gdn_product_domain_r1.cpp",
+      "source_sha256": "b98ecf73ebf2e6e08973fee77ed362a729c1fe6f13a9444d37dd17a100d9be98",
+      "source_text": "#define main prior_residual_audit_main\n#include \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tools/audit_gdn_replay_domain.cpp\"\n#undef main\n\n// This is only a sufficient admission audit. A failed aggregate range does\n// not establish that any particular paired product is outside the domain.\nstruct Range {\n    unsigned low=255,high=0;\n    bool normal=true,nonzero=false;\n    void word(unsigned value){\n        const unsigned magnitude=value&0x7fffu;\n        if(!magnitude)return;\n        const unsigned exponent=magnitude>>7u;\n        normal=normal && exponent && exponent<255u;\n        nonzero=true;low=std::min(low,exponent);high=std::max(high,exponent);\n    }\n    void interval(unsigned a,unsigned b){\n        require(a<=b && b<0x7f80u,\"invalid residual BF16 interval\");\n        if(!b)return;\n        // If zero is included, include every possible nonzero BF16 encoding\n        // above it as well. This deliberately overapproximates FTZ unions.\n        word(std::max(a,1u));word(b);\n    }\n};\nbool product_domain(const Range& a,const Range& b){\n    if(!a.normal || !b.normal)return false;\n    if(!a.nonzero || !b.nonzero)return true;\n    return a.low+b.low>=190u && a.high+b.high<=318u;\n}\nstd::array<unsigned,2> residual_interval(uint16_t value,float decay){\n    const unsigned magnitude=value&0x7fffu;\n    require(magnitude<0x7f80u && std::isfinite(decay) && decay>=0.0f && decay<=1.0f,\"residual source domain\");\n    const uint32_t center=magnitude<<16u;\n    const uint32_t left=center>=0x8000u?center-0x8000u:0u,right=center+0x8000u;\n    volatile float product_low=from(left)*decay,product_high=from(right)*decay;\n    unsigned a=rounded(product_low)&0x7fffu,b=rounded(product_high)&0x7fffu;\n    if((bits(product_low)&0x7f800000u)==0u || (bits(decay)&0x7f800000u)==0u)a=0u;\n    require(a<=b,\"nonmonotone residual interval\");\n    return {a,b};\n}\nint main(int argc,char** argv)try{\n    require(argc==2,\"requires verified original capture directory\");\n    require(std::fesetround(FE_TONEAREST)==0,\"rounding mode\");\n    unsigned exponent_checks=0;\n    for(unsigned a=1;a<255;++a)for(unsigned b=1;b<255;++b){\n        Range x,y;x.word(a<<7u);y.word(b<<7u);\n        require(product_domain(x,y)==(a+b>=190u && a+b<=318u),\"product domain pair\");\n        if(a>=95u && a<=159u && b>=95u && b<=159u)require(product_domain(x,y),\"old domain inclusion\");\n        ++exponent_checks;\n    }\n    Range zero,tiny,big;zero.word(0x8000u);tiny.word(1u);big.word(0x7f80u);\n    require(product_domain(zero,zero) && !product_domain(tiny,zero) && !product_domain(big,zero),\"excluded operand guard\");\n    const std::string root=argv[1];\n    const auto w=read<uint16_t>(root,\"full-w-bf16.bin\",size_t(tokens)*4096);\n    const auto k=read<uint16_t>(root,\"full-k-normalized-bf16.bin\",size_t(tokens)*2048);\n    const auto h=read<uint16_t>(root,\"full-chunk-state-bf16.bin\",size_t(chunks)*524288);\n    const auto v=read<uint16_t>(root,\"full-v-new-bf16.bin\",size_t(tokens)*4096);\n    const auto g=read<float>(root,\"full-g-cumsum-f32.bin\",size_t(tokens)*32);\n    const auto table=read<unsigned char>(root,\"sm121-exp2-negative-f490940d.bin\",qrt_sm121_exp2::table_bytes);\n    require(qrt_sm121_exp2::valid_layout(table.data(),table.size()),\"original table layout\");\n    std::vector<float> decay(size_t(tokens)*32);\n    for(unsigned row=0;row<tokens;++row)for(unsigned head=0;head<32;++head){\n        const unsigned last=std::min(tokens,((row/64)+1)*64)-1;\n        volatile float difference=g[size_t(last)*32+head]-g[size_t(row)*32+head];\n        volatile float argument=difference*1.4426950408889634074f;\n        decay[size_t(row)*32+head]=qrt_sm121_exp2::evaluate(table.data(),argument);\n    }\n    std::vector<Range> wr(chunks*32u),kr(chunks*32u),hr(chunks*32u*16u),vr(chunks*32u*16u);\n    for(size_t i=0;i<w.size();++i){const size_t row=i/128;wr[(row/32/64)*32+row%32].word(w[i]);}\n    for(size_t i=0;i<k.size();++i){const size_t row=i/128,at=(row/16/64)*32+(row%16)*2;kr[at].word(k[i]);kr[at+1].word(k[i]);}\n    for(size_t i=0;i<h.size();++i){const size_t column=i/128;hr[(column/128)*16+(column%128)/8].word(h[i]);}\n    size_t zero_intervals=0,nonzero_intervals=0;\n    for(size_t i=0;i<v.size();++i){\n        const size_t row=i/4096,head=(i/128)%32,column=i%128;\n        const auto interval=residual_interval(v[i],decay[row*32+head]);\n        (interval[1]?nonzero_intervals:zero_intervals)++;\n        vr[((row/64)*32+head)*16+column/8].interval(interval[0],interval[1]);\n    }\n    Flags failed_wh{},failed_kv{},failed{};\n    unsigned chunk_wh=0,chunk_kv=0,chunk_either=0;\n    for(unsigned at=0;at<chunks*32u;++at)for(unsigned col=0;col<16u;++col){\n        const bool wh=product_domain(wr[at],hr[at*16+col]),kv=product_domain(kr[at],vr[at*16+col]);\n        const uint16_t mask=uint16_t(1u<<col);\n        if(!wh){failed_wh[at]|=mask;++chunk_wh;}\n        if(!kv){failed_kv[at]|=mask;++chunk_kv;}\n        if(!wh || !kv){failed[at]|=mask;++chunk_either;}\n    }\n    const auto wh=fold(failed_wh),kv=fold(failed_kv),all=fold(failed);\n    unsigned full_bad=0;std::array<unsigned,segments> segment_bad{};\n    for(unsigned s=0;s<segments;++s)for(unsigned head=0;head<32u;++head){\n        segment_bad[s]+=pop(all[s*32+head]);if(s<7u)full_bad+=pop(all[s*32+head]);\n    }\n    std::printf(\"{\\\"kind\\\":\\\"original_gb10_gdn_product_domain_sufficient_audit\\\",\\\"exponent_pair_checks\\\":%u,\\\"operand_exponents\\\":[1,254],\\\"nonzero_product_exponent_sums\\\":[190,318],\\\"residual_interval_cells\\\":%zu,\\\"zero_intervals\\\":%zu,\\\"nonzero_intervals\\\":%zu,\\\"chunk_ctas\\\":{\\\"total\\\":57856,\\\"wh_not_certified\\\":%u,\\\"kv_not_certified\\\":%u,\\\"either_not_certified\\\":%u},\\\"full1024_segments\\\":{\\\"total\\\":3584,\\\"not_certified\\\":%u,\\\"admitted\\\":%u},\\\"all_segments\\\":{\\\"total\\\":4096,\\\"wh_not_certified\\\":%u,\\\"kv_not_certified\\\":%u,\\\"not_certified\\\":%u,\\\"admitted\\\":%u},\\\"not_certified_by_segment\\\":[\",exponent_checks,v.size(),zero_intervals,nonzero_intervals,chunk_wh,chunk_kv,chunk_either,full_bad,3584u-full_bad,count(wh),count(kv),count(all),4096u-count(all));\n    for(unsigned s=0;s<segments;++s)std::printf(\"%s%u\",s?\",\":\"\",segment_bad[s]);\n    std::printf(\"],\\\"unrounded_residual_observed\\\":false,\\\"aggregate_range_is_sufficient_only\\\":true,\\\"native_receipts_observed\\\":false,\\\"native_speed_observed\\\":false,\\\"inference_acceptance\\\":false}\\n\");\n    return 0;\n}catch(const std::exception& e){std::fprintf(stderr,\"%s\\n\",e.what());return 1;}\n"
+    },
+    {
+      "result": {
+        "utc": "2026-09-21T08:51:37.255972+00:00",
+        "host": "Jiawei-MacminideMac-mini.local",
+        "source_file": "audit_gdn_group_domain_r1.cpp",
+        "source_sha256": "2895f2f2786a9fdfac3960238818e433656679ee9865116a40ae7f1bda96d0e5",
+        "executable_sha256": "01d0e32bcbe46b7dcd9d8bbbcfe07ea9a7c07f8485f8aaec27a38acb869a3c8c",
+        "original_input_analysis_sha256": "5c64b30cff3e8e8749a2d5b3253095f7d808cf040e885d0fb6ee1ed016f0429c",
+        "compile": {
+          "command": [
+            "c++",
+            "-std=c++17",
+            "-O3",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-ffp-contract=off",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/audit_gdn_group_domain_r1.cpp",
+            "-o",
+            "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/audit-gdn-group-domain-r1"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "command": [
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/audit-gdn-group-domain-r1",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/gdn-separate-replay-domain-audit-r1"
+        ],
+        "returncode": 0,
+        "stdout": "{\"kind\":\"original_gb10_gdn_k16_group_domain_sufficient_audit\",\"workers\":4,\"chunk_ctas\":{\"total\":57856,\"wh_not_certified\":15564,\"kv_not_certified\":6650,\"either_not_certified\":15628},\"full1024_segments\":{\"total\":3584,\"not_certified\":1008,\"admitted\":2576},\"all_segments\":{\"total\":4096,\"wh_not_certified\":1058,\"kv_not_certified\":513,\"not_certified\":1058,\"admitted\":3038},\"not_certified_by_segment\":[144,144,144,144,144,144,144,50],\"actual_unrounded_residual_observed\":false,\"native_receipts_observed\":false,\"native_speed_observed\":false,\"inference_acceptance\":false}\n",
+        "stderr": "",
+        "wall_seconds": 7.797520583495498,
+        "analysis": {
+          "kind": "original_gb10_gdn_k16_group_domain_sufficient_audit",
+          "workers": 4,
+          "chunk_ctas": {
+            "total": 57856,
+            "wh_not_certified": 15564,
+            "kv_not_certified": 6650,
+            "either_not_certified": 15628
+          },
+          "full1024_segments": {
+            "total": 3584,
+            "not_certified": 1008,
+            "admitted": 2576
+          },
+          "all_segments": {
+            "total": 4096,
+            "wh_not_certified": 1058,
+            "kv_not_certified": 513,
+            "not_certified": 1058,
+            "admitted": 3038
+          },
+          "not_certified_by_segment": [
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            50
+          ],
+          "actual_unrounded_residual_observed": false,
+          "native_receipts_observed": false,
+          "native_speed_observed": false,
+          "inference_acceptance": false
+        }
+      },
+      "result_sha256": "69ee7d51a80de4eea24cf71295e0fe508f04ea2f162e1f76f26c9e7e48ae9d10",
+      "source_file": "audit_gdn_group_domain_r1.cpp",
+      "source_sha256": "2895f2f2786a9fdfac3960238818e433656679ee9865116a40ae7f1bda96d0e5",
+      "source_text": "#define main prior_residual_audit_main\n#include \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tools/audit_gdn_replay_domain.cpp\"\n#undef main\n#include <atomic>\n#include <thread>\n\nstruct Bounds{uint16_t low,high;};\nBounds interval(uint16_t value,float decay){\n    const unsigned magnitude=value&0x7fffu;\n    require(magnitude<0x7f80u && std::isfinite(decay) && decay>=0.0f && decay<=1.0f,\"residual domain\");\n    const uint32_t center=magnitude<<16u,left=center>=0x8000u?center-0x8000u:0u,right=center+0x8000u;\n    volatile float lo=from(left)*decay,hi=from(right)*decay;\n    unsigned a=rounded(lo)&0x7fffu,b=rounded(hi)&0x7fffu;\n    if((bits(lo)&0x7f800000u)==0u || (bits(decay)&0x7f800000u)==0u)a=0;\n    require(a<=b,\"nonmonotone interval\");return {uint16_t(a),uint16_t(b)};\n}\n// Sufficient domain for the unchanged [-64,64] product-group carry proof.\n// A subnormal input is permitted only when its contribution must truncate to\n// zero after original alignment, whether scalar multiplication uses FTZ or not.\nstruct Group{\n    int lower=-1000,upper=-1000,risk=-1000;\n    bool valid=true,nonzero=false;\n    void pair(uint16_t left,Bounds right){\n        const unsigned a=left&0x7fffu,l=right.low&0x7fffu,h=right.high&0x7fffu;\n        if(a>=0x7f80u || h>=0x7f80u){valid=false;return;}\n        if(!a || !h)return;\n        nonzero=true;\n        const int ae=int(std::max(1u,a>>7u)),he=int(std::max(1u,h>>7u));\n        upper=std::max(upper,ae+he-254);\n        if(a>=128u && l>=128u)lower=std::max(lower,int(a>>7u)+int(l>>7u)-254);\n        if(a<128u)risk=std::max(risk,ae+he-254);\n        if(l<128u)risk=std::max(risk,ae+1-254);\n    }\n    bool admitted()const{return valid && (!nonzero || (lower>=-64 && upper<=64 && risk<=lower-27));}\n};\nint main(int argc,char**argv)try{\n    require(argc==2,\"requires verified capture directory\");\n    require(std::fesetround(FE_TONEAREST)==0,\"rounding mode\");\n    const std::string root=argv[1];\n    const auto w=read<uint16_t>(root,\"full-w-bf16.bin\",size_t(tokens)*4096);\n    const auto k=read<uint16_t>(root,\"full-k-normalized-bf16.bin\",size_t(tokens)*2048);\n    const auto h=read<uint16_t>(root,\"full-chunk-state-bf16.bin\",size_t(chunks)*524288);\n    const auto v=read<uint16_t>(root,\"full-v-new-bf16.bin\",size_t(tokens)*4096);\n    const auto g=read<float>(root,\"full-g-cumsum-f32.bin\",size_t(tokens)*32);\n    const auto table=read<unsigned char>(root,\"sm121-exp2-negative-f490940d.bin\",qrt_sm121_exp2::table_bytes);\n    require(qrt_sm121_exp2::valid_layout(table.data(),table.size()),\"original table layout\");\n    std::vector<Bounds> residual(v.size());\n    for(unsigned row=0;row<tokens;++row)for(unsigned head=0;head<32u;++head){\n        const unsigned last=std::min(tokens,((row/64)+1)*64)-1;\n        volatile float difference=g[size_t(last)*32+head]-g[size_t(row)*32+head];\n        volatile float argument=difference*1.4426950408889634074f;\n        const float decay=qrt_sm121_exp2::evaluate(table.data(),argument);\n        for(unsigned col=0;col<128u;++col){const size_t i=(size_t(row)*32+head)*128+col;residual[i]=interval(v[i],decay);}\n    }\n    Flags failed_wh{},failed_kv{},failed{};\n    std::atomic<unsigned> next{0};std::array<std::thread,4> workers;\n    for(auto&worker:workers)worker=std::thread([&]{\n        for(unsigned at=next.fetch_add(1);at<chunks*32u;at=next.fetch_add(1)){\n            const unsigned chunk=at/32u,head=at%32u,first=chunk*64u,valid=std::min(64u,tokens-first);\n            for(unsigned block=0;block<16u;++block){\n                bool wh=true,kv=true;\n                for(unsigned col=block*8u;col<block*8u+8u && wh;++col)\n                    for(unsigned row=0;row<valid && wh;++row)for(unsigned base=0;base<128u && wh;base+=16u){\n                        Group group;\n                        for(unsigned j=0;j<16u;++j){\n                            const auto right=h[size_t(chunk)*524288u+(head*128u+col)*128u+base+j];\n                            group.pair(w[(size_t(first+row)*32u+head)*128u+base+j],{uint16_t(right&0x7fffu),uint16_t(right&0x7fffu)});\n                        }\n                        wh=group.admitted();\n                    }\n                for(unsigned col=block*8u;col<block*8u+8u && kv;++col)\n                    for(unsigned feature=0;feature<128u && kv;++feature)for(unsigned base=0;base<64u && kv;base+=16u){\n                        Group group;\n                        for(unsigned j=0;j<16u && base+j<valid;++j)\n                            group.pair(k[(size_t(first+base+j)*16u+head/2u)*128u+feature],residual[(size_t(first+base+j)*32u+head)*128u+col]);\n                        kv=group.admitted();\n                    }\n                const uint16_t mask=uint16_t(1u<<block);\n                if(!wh)failed_wh[at]|=mask;\n                if(!kv)failed_kv[at]|=mask;\n                if(!wh || !kv)failed[at]|=mask;\n            }\n        }\n    });\n    for(auto&worker:workers)worker.join();\n    const auto ws=fold(failed_wh),ks=fold(failed_kv),all=fold(failed);\n    unsigned full_bad=0;std::array<unsigned,segments> bad{};\n    for(unsigned s=0;s<segments;++s)for(unsigned head=0;head<32u;++head){bad[s]+=pop(all[s*32u+head]);if(s<7u)full_bad+=pop(all[s*32u+head]);}\n    std::printf(\"{\\\"kind\\\":\\\"original_gb10_gdn_k16_group_domain_sufficient_audit\\\",\\\"workers\\\":4,\\\"chunk_ctas\\\":{\\\"total\\\":57856,\\\"wh_not_certified\\\":%u,\\\"kv_not_certified\\\":%u,\\\"either_not_certified\\\":%u},\\\"full1024_segments\\\":{\\\"total\\\":3584,\\\"not_certified\\\":%u,\\\"admitted\\\":%u},\\\"all_segments\\\":{\\\"total\\\":4096,\\\"wh_not_certified\\\":%u,\\\"kv_not_certified\\\":%u,\\\"not_certified\\\":%u,\\\"admitted\\\":%u},\\\"not_certified_by_segment\\\":[\",count(failed_wh),count(failed_kv),count(failed),full_bad,3584u-full_bad,count(ws),count(ks),count(all),4096u-count(all));\n    for(unsigned s=0;s<segments;++s)std::printf(\"%s%u\",s?\",\":\"\",bad[s]);\n    std::printf(\"],\\\"actual_unrounded_residual_observed\\\":false,\\\"native_receipts_observed\\\":false,\\\"native_speed_observed\\\":false,\\\"inference_acceptance\\\":false}\\n\");\n    return 0;\n}catch(const std::exception&e){std::fprintf(stderr,\"%s\\n\",e.what());return 1;}\n"
+    }
+  ],
+  "original_residual_audit_sha256": "5c64b30cff3e8e8749a2d5b3253095f7d808cf040e885d0fb6ee1ed016f0429c",
+  "original_published_audit": {
+    "file": "benchmarks/correctness/separate-state-gdn-residual-domain-20260921.json",
+    "sha256": "e62c8f112b3a7c0be456e8545cc4e5a321f5eb91c86ed0342fcb7f460cdc5669"
+  },
+  "runtime_changed": false,
+  "native_executed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "scope": "Sufficient admission observations over one original GB10 layer and conservative scaled-residual intervals. No independent complete integer qualification of the per-K16 predicate and no new native kernel, receipt or timing. The existing a31 fast/replay candidate stays unchanged.",
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "27d2bf148df3c5d7ca9b9be566715f6e64e2589266e8d92d6f9b13304f9f3db2",
+    "original_json_bytes": 23512,
+    "source_revision": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+    "source_path": "benchmarks/correctness/separate-state-gdn-admission-followup-20260921.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 10
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}

@@ -1,0 +1,486 @@
+{
+  "kind": "cold_tail_current_server_local_tests_and_unrun_build",
+  "utc": "2026-09-21T09:23:27.499934+00:00",
+  "source_commit": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+  "server_build_manifest": {
+    "schema_version": 1,
+    "kind": "cold_tail_current_c_core_server_build_preparation",
+    "source_commit": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+    "repo": "D:/projects/AIMA-public-cold-prefill-tail-20260921-r1",
+    "source_sha256": {
+      "Cargo.lock": "89adc25be45d0b731d55bf3671284d228ae58a32a6a66714f6ac9ae3de8a04b5",
+      "Cargo.toml": "c4f9cf8436e44ecdd1b4db764fc9c5969245bdd28339b805fad5f9b94236d743",
+      "engine/qrt-cli/Cargo.toml": "bf1ad59c3f324baf14cc6ba7598b8a93751e44a8626678969605b4961243cee6",
+      "engine/qrt-server/Cargo.toml": "a27e5fd9c862b17eb580d9bbaba146a3428fb4d74cc6c4f1ac8027820b017ef9",
+      "engine/qrt-server/build.rs": "ac7ecdfbbe3207122327c2f9fdc84d650838850ad7066d4a6124694854f846c8",
+      "engine/qrt-server/src/api.rs": "abbd19bf8d3e1eba47a9aa72cf6877b452374724eb700c708d1eff6537a23bd5",
+      "engine/qrt-server/src/backend.rs": "f63db7637c263144b3f0009369a3c8d47c0bc10ac92af590e82a103fd47fcbd3",
+      "engine/qrt-server/src/chat.rs": "7f4384c169057bf3a6436c47b33c64a9bc84d606f8605474399021b758ef379b",
+      "engine/qrt-server/src/environment.rs": "609672b5077317c7ed5d290db9dc38e0e10120ef315cf57b9ccf3dbfd8f8001c",
+      "engine/qrt-server/src/lib.rs": "5bbd18a6af78f2a9e31584218a9c2a50ccbd7f29c6583d51d5f4c42849a37d93",
+      "engine/qrt-server/src/lifecycle.rs": "9739ed2353c173703a13385d2d60bf8f9a2416da529a87b6a8ac6797b6bf51ce",
+      "engine/qrt-server/src/main.rs": "b7f858794a3cd18ee18cbe64abe2c1f3d21ae4d72c4e43b0ccd8bb8147f2c4c1",
+      "engine/qrt-server/src/tokenizer.rs": "dd55911fbd658300aa90f117dea6595799917052e96f329d164fe8d0614ebd32",
+      "native/src/qrt.c": "941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957",
+      "native/src/qrt.h": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18",
+      "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+      "native/src/qrt_prefix_checkpoint.h": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+      "native/src/qrt_prefix_logit.h": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+      "native/src/qrt_server_bridge.c": "fdd1d51b2542e4702323edae8ba6fabbdd0264d10fd50c167f56c1b6083e3d12",
+      "native/src/qrt_server_bridge.h": "c9abb1593b531ac5afa1cdf821f432feb74f17f0acdd07c2ba83875721bd195c",
+      "native/src/qwen36_baseline.c": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061",
+      "native/src/qwen36_baseline.h": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42",
+      "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+      "scripts/baiying_build_qrt_server.ps1": "64011f0941f98a3e5b801c353148d0cf0ced3d81c37efe3e9a46e743d2be7b59",
+      "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7"
+    },
+    "c_compilation_inputs": [
+      "native/src/qrt.c",
+      "native/src/qrt.h",
+      "native/src/qrt_context_limits.h",
+      "native/src/qrt_prefix_checkpoint.h",
+      "native/src/qrt_prefix_logit.h",
+      "native/src/qrt_server_bridge.c",
+      "native/src/qrt_server_bridge.h",
+      "native/src/qwen36_baseline.c",
+      "native/src/qwen36_baseline.h"
+    ],
+    "rust_compilation_inputs": [
+      "engine/qrt-server/Cargo.toml",
+      "engine/qrt-server/build.rs",
+      "engine/qrt-server/src/api.rs",
+      "engine/qrt-server/src/backend.rs",
+      "engine/qrt-server/src/chat.rs",
+      "engine/qrt-server/src/environment.rs",
+      "engine/qrt-server/src/lib.rs",
+      "engine/qrt-server/src/lifecycle.rs",
+      "engine/qrt-server/src/main.rs",
+      "engine/qrt-server/src/tokenizer.rs"
+    ],
+    "workspace_manifests": [
+      "Cargo.toml",
+      "Cargo.lock",
+      "engine/qrt-cli/Cargo.toml"
+    ],
+    "script": "run-native-cold-prefill-tail-server-r2.ps1",
+    "dispatcher": "dispatch_cold_prefill_tail_server_r2.py",
+    "verifier": "cold_prefill_tail_server_evidence_r2.py",
+    "whole_source_manifest": "cold-prefill-tail-whole-source-r1.json",
+    "whole_source_manifest_sha256": "a48909cdf9be260967c6aa17940f6b843d29ba0df070a1aa29fb875fe1064715",
+    "whole_build_directory": "cold-prefill-tail-build-r1",
+    "whole_build_validator": "cold_prefill_tail_build_evidence_r1.py",
+    "whole_build_validator_sha256": "15485973a1c9be9023ba33c5766b2d1cad21f8dc64b20b3d094c6ebf787030bd",
+    "prior_server_manifest": "tool-text-parts-native-source-r2.json",
+    "prior_server_manifest_sha256": "3317452ae44cbff822a2d972c50278657005140e6770ee2643d57b21f410edf8",
+    "changed_compilation_inputs_from_prior_server": [
+      "native/src/qrt.c",
+      "native/src/qrt.h"
+    ],
+    "expected_library_tests": 54,
+    "compile_and_test_timeout_seconds": 900,
+    "native_timeout_seconds": 960,
+    "transport_timeout_seconds": 1050,
+    "build_directory": "cold-prefill-tail-server",
+    "run_directory": "cold-prefill-tail-server-build-r2",
+    "existing_checkout_required": true,
+    "completed_same_source_whole_build_required": true,
+    "prior_run_cleanup_required": true,
+    "model_success_required_to_build": false,
+    "model_loaded": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false,
+    "published": false,
+    "scope": "Rebuild Rust HTTP server and its statically linked C core after the a7 whole/CLI/probe build. The native build runs all existing server tests. This preparation does not bind an executable or supersede any final-artifact HTTP, prefix, context, soak or release gate.",
+    "generator": "prepare_cold_prefill_tail_server_r2.py",
+    "generator_sha256": "5605775ebee48dbb904ce0369ca863c840c601b6a9ba30511a29edf66f182287",
+    "supersedes_unrun_preparation": "cold-prefill-tail-server-source-r1.json",
+    "supersedes_sha256": "4251f9432fded5ef58d615a67f573694a0c4b42bfa957c4ba4a7284841b67afa",
+    "preparation_change": "Add explicit30-second child-process bounds to both remote Git reads. Native build inputs, tests, numerical settings and source commit are unchanged.",
+    "script_sha256": "a756fc87a12ddc4db0ee10747c6b81e5132b26a93f6e7918a69c96a64a9bff5b",
+    "dispatcher_sha256": "5974927d927c2de93be2f4228e84ffb6f8039dddcb1aaa01206564644cb98c05",
+    "verifier_sha256": "6f46ecde7589a6b25edcd2678d4cffa2b81e108fdc2e0595ba1f7bc4e48a231a"
+  },
+  "server_build_manifest_sha256": "da40e1bfa7e5bda2dd258be3a9e56a7f49ba33cf8ae811f1d5de656b06102f0c",
+  "prepared_checks": {
+    "kind": "cold_tail_server_build_preparation_checked",
+    "utc": "2026-09-21T09:21:52.262818+00:00",
+    "controller_host": "Jiawei-MacminideMac-mini.local",
+    "source_manifest": "cold-prefill-tail-server-source-r2.json",
+    "source_manifest_sha256": "da40e1bfa7e5bda2dd258be3a9e56a7f49ba33cf8ae811f1d5de656b06102f0c",
+    "source_commit": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+    "source_inputs_verified": 25,
+    "prerequisite_admission": {
+      "required_missing_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/cold-prefill-tail-build-r1/run-record.json",
+      "subprocess_calls": 0,
+      "remote_or_native_calls": 0,
+      "dispatch_stopped_before_creating_binding": true
+    },
+    "stage": {
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "parser": {
+      "command": [
+        "ssh",
+        "-o",
+        "BatchMode=yes",
+        "-o",
+        "ConnectTimeout=10",
+        "baiying",
+        "powershell.exe -NoLogo -NoProfile -NonInteractive -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAJABwAD0AJwBEADoALwBwAHIAbwBqAGUAYwB0AHMALwByAHUAbgAtAG4AYQB0AGkAdgBlAC0AYwBvAGwAZAAtAHAAcgBlAGYAaQBsAGwALQB0AGEAaQBsAC0AcwBlAHIAdgBlAHIALQByADIALgBwAHMAMQAnADsAaQBmACgAKABHAGUAdAAtAEYAaQBsAGUASABhAHMAaAAgAC0ATABpAHQAZQByAGEAbABQAGEAdABoACAAJABwACAALQBBAGwAZwBvAHIAaQB0AGgAbQAgAFMASABBADIANQA2ACkALgBIAGEAcwBoAC4AVABvAEwAbwB3AGUAcgBJAG4AdgBhAHIAaQBhAG4AdAAoACkAIAAtAG4AZQAgACcAYQA3ADUANgBmAGMAOAA3AGEAMQAyAGQAZABjADQAZABiADAAZQBlADEAMAA3ADQANwBjADYAYgA4ADEAZQA1ADEAMwAyAGIAMgA2AGEAOQAzAGYANgBlADcAOQAxADgAYQA2ADkAYwA5ADYAYQA2ADQAYQA5AGIAZgBmADUAYgAnACkAewB0AGgAcgBvAHcAIAAnAEgAYQBzAGgAIABtAGkAcwBtAGEAdABjAGgAJwB9ADsAJAB0AD0AJABuAHUAbABsADsAJABlAD0AJABuAHUAbABsADsAJABuAHUAbABsAD0AWwBNAGEAbgBhAGcAZQBtAGUAbgB0AC4AQQB1AHQAbwBtAGEAdABpAG8AbgAuAEwAYQBuAGcAdQBhAGcAZQAuAFAAYQByAHMAZQByAF0AOgA6AFAAYQByAHMAZQBGAGkAbABlACgAJABwACwAWwByAGUAZgBdACQAdAAsAFsAcgBlAGYAXQAkAGUAKQA7AGkAZgAoACQAZQAuAEMAbwB1AG4AdAApAHsAdABoAHIAbwB3ACAAKAAkAGUAfABPAHUAdAAtAFMAdAByAGkAbgBnACkAfQA7AFsARQBuAHYAaQByAG8AbgBtAGUAbgB0AF0AOgA6AE0AYQBjAGgAaQBuAGUATgBhAG0AZQA="
+      ],
+      "returncode": 0,
+      "stdout": "BAIYING\n",
+      "stderr": "#< CLIXML\n<Objs Version=\"1.1.0.1\" xmlns=\"http://schemas.microsoft.com/powershell/2004/04\"><Obj S=\"progress\" RefId=\"0\"><TN RefId=\"0\"><T>System.Management.Automation.PSCustomObject</T><T>System.Object</T></TN><MS><I64 N=\"SourceId\">1</I64><PR N=\"Record\"><AV>\ufffd\ufffd\ufffd\ufffd\u05fc\ufffd\ufffd\ufffd\u05f4\ufffd\u02b9\ufffd\ufffd\u0123\ufffd\u9863</AV><AI>0</AI><Nil /><PI>-1</PI><PC>-1</PC><T>Completed</T><SR>-1</SR><SD> </SD></PR></MS></Obj><Obj S=\"progress\" RefId=\"1\"><TNRef RefId=\"0\" /><MS><I64 N=\"SourceId\">2</I64><PR N=\"Record\"><AV>\ufffd\ufffd\ufffd\ufffd\u05fc\ufffd\ufffd\ufffd\u05f4\ufffd\u02b9\ufffd\ufffd\u0123\ufffd\u9863</AV><AI>0</AI><Nil /><PI>-1</PI><PC>-1</PC><T>Completed</T><SR>-1</SR><SD> </SD></PR></MS></Obj></Objs>"
+    },
+    "local_tests": {
+      "result": "cold-prefill-tail-server-local-r1/result.json",
+      "sha256": "29e179c06ce51c8b087ed77759ea951488daedb05facb1c0013cba41a87f9101",
+      "rust_library_tests_passed": 54,
+      "complete_logs": {
+        "format.stdout.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "format.stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "tests.stdout.txt": {
+          "bytes": 4434,
+          "sha256": "0de4f947ca72635eca11cb36cc75b90716e2d768c22f4ac4b4948dc6cdf50f06"
+        },
+        "tests.stderr.txt": {
+          "bytes": 4884,
+          "sha256": "a621f37290138782cc4343028bc1aed04ce5e57ef9bca0518193f12c5eafd0ab"
+        }
+      },
+      "source_closure_identical_between_local_r1_and_native_plan_r2": true
+    },
+    "prepared_r1_superseded_only_for_git_process_timeout": true,
+    "source_helper": {
+      "file": "check_cold_prefill_tail_server_prepared_r2.py",
+      "sha256": "09c8f127bd16067931f47e3393e297a04bc487c99357d18ffbaed308dd3815c2"
+    },
+    "native_build_dispatched": false,
+    "model_loaded": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false,
+    "scope": "Only one PowerShell command file was staged and parsed on baiying. All54 existing Rust library tests and format checks ran on the Mac with the exact25-input source closure. No Windows build, HTTP server, model or GPU process was launched by these checks."
+  },
+  "prepared_checks_sha256": "ecfa07c1485691f7fca7cba6024fa1e64121080494daba0ca4741d8294e459cf",
+  "local_test_result": {
+    "utc": "2026-09-21T09:18:59.558162+00:00",
+    "host": "Jiawei-MacminideMac-mini.local",
+    "source_commit": "313cd91bf37f95a0e08352a7fa6e1414c89f7cc8",
+    "source_manifest": "cold-prefill-tail-server-source-r1.json",
+    "source_manifest_sha256": "4251f9432fded5ef58d615a67f573694a0c4b42bfa957c4ba4a7284841b67afa",
+    "frozen_compilation_inputs_commit": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+    "frozen_inputs_identical": true,
+    "cargo_version": "cargo 1.95.0 (f2d3ce0bd 2026-03-21)",
+    "target_directory": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/cold-prefill-tail-server-local-r1/cargo-target",
+    "environment_overrides": {
+      "CARGO_TARGET_DIR": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/cold-prefill-tail-server-local-r1/cargo-target",
+      "CARGO_BUILD_JOBS": "2",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0"
+    },
+    "timeout_seconds_per_command": 600,
+    "commands": [
+      {
+        "name": "format",
+        "command": [
+          "cargo",
+          "fmt",
+          "--package",
+          "qrt-server",
+          "--",
+          "--check"
+        ],
+        "returncode": 0,
+        "timeout": false,
+        "wall_seconds": 0.5288297086954117,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "tests",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "qrt-server",
+          "--locked",
+          "--offline",
+          "--no-fail-fast"
+        ],
+        "returncode": 0,
+        "timeout": false,
+        "wall_seconds": 33.04724095854908,
+        "stdout_sha256": "0de4f947ca72635eca11cb36cc75b90716e2d768c22f4ac4b4948dc6cdf50f06",
+        "stderr_sha256": "a621f37290138782cc4343028bc1aed04ce5e57ef9bca0518193f12c5eafd0ab"
+      }
+    ],
+    "native_windows_build": false,
+    "model_loaded": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false,
+    "source_inputs_unchanged_after": true,
+    "all_commands_pass": true,
+    "local_disk_free_bytes_after": 1686466560
+  },
+  "local_test_result_sha256": "29e179c06ce51c8b087ed77759ea951488daedb05facb1c0013cba41a87f9101",
+  "complete_local_logs": [
+    {
+      "file": "format.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "text": ""
+    },
+    {
+      "file": "format.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "text": ""
+    },
+    {
+      "file": "tests.stdout.txt",
+      "sha256": "0de4f947ca72635eca11cb36cc75b90716e2d768c22f4ac4b4948dc6cdf50f06",
+      "bytes": 4434,
+      "text": "\nrunning 54 tests\ntest api::tests::admin_shutdown_requires_bearer_key_and_signals_once ... ok\ntest api::tests::eos_is_counted_but_not_decoded ... ok\ntest api::tests::completion_stream_ends_with_done ... ok\ntest api::tests::chat_stream_does_not_publish_tokens_after_eos ... ok\ntest api::tests::chat_completion_is_openai_shaped ... ok\ntest api::tests::completion_stream_does_not_publish_tokens_after_eos ... ok\ntest api::tests::duplicate_tool_results_fail_before_chat_or_tokenization ... ok\ntest api::tests::chat_completion_returns_structured_named_tool_call ... ok\ntest api::tests::chat_stream_usage_chunk_precedes_done ... ok\ntest api::tests::inference_queue_is_bounded_and_fifo ... ok\ntest api::tests::stop_is_not_streamed ... ok\ntest api::tests::thinking_defaults_aliases_conflicts_and_budget_are_explicit ... ok\ntest api::tests::shutdown_releases_waiters_and_rejects_new_requests ... ok\ntest api::tests::model_retrieve_is_openai_shaped ... ok\ntest api::tests::model_retrieve_unknown_model_returns_openai_error ... ok\ntest api::tests::duplicate_mutating_tools_are_suppressed_in_json_and_sse ... ok\ntest api::tests::exhausted_tools_return_an_error_even_if_tool_required ... ok\ntest api::tests::tpot_is_per_token_and_preserves_the_native_total ... ok\ntest api::tests::thinking_tokens_and_health_arrive_before_generation_finishes ... ok\ntest api::tests::tools_none_cannot_turn_literal_markup_into_an_executable_call ... ok\ntest backend::callback_tests::callback_cancels_when_stream_receiver_is_gone ... ok\ntest backend::callback_tests::callback_publishes_to_a_live_stream_receiver ... ok\ntest chat::tests::basic_non_thinking_prompt_matches_qwen_template ... ok\ntest chat::tests::developer_message_uses_qwen_system_slot ... ok\ntest api::tests::invalid_thinking_is_rejected_before_inference ... ok\ntest chat::tests::duplicate_tool_calls_are_canonical_and_keep_distinct_actions ... ok\ntest chat::tests::late_and_parallel_results_use_the_issuing_turn ... ok\ntest chat::tests::named_tool_choice_requires_function_type ... ok\ntest chat::tests::no_progress_policy_allows_one_retry_then_exposes_exhaustion ... ok\ntest chat::tests::failed_pending_and_claimed_repairs_do_not_reopen_the_window ... ok\ntest chat::tests::parses_xml_tool_call_and_reasoning ... ok\ntest chat::tests::renders_grouped_tool_responses ... ok\ntest chat::tests::completed_repairs_reopen_the_verification_retry_window ... ok\ntest chat::tests::reasoning_stream_preserves_all_delimiter_splits_and_final_parity ... ok\ntest chat::tests::result_replays_and_unbound_results_are_rejected_by_the_template ... ok\ntest chat::tests::tool_json_matches_huggingface_jinja_tojson ... ok\ntest chat::tests::status_only_and_failed_wrappers_do_not_confirm_repeated_progress ... ok\ntest api::tests::top_level_thinking_stream_nonstream_and_tokenizer_agree ... ok\ntest lifecycle::tests::env_value_unquoting_is_bounded ... ok\ntest api::tests::repaired_and_mixed_tool_calls_survive_json_and_sse ... ok\ntest chat::tests::useful_tool_results_and_parallel_policy_remain_distinct ... ok\ntest lifecycle::tests::health_response_binds_pid_and_model_identity ... ok\ntest lifecycle::tests::portable_profile_rejects_escaping_or_malformed_paths ... ok\ntest lifecycle::tests::stopped_state_binds_the_completed_service_instance ... ok\ntest chat::tests::useful_text_parts_and_json_data_arrays_remain_progress ... ok\ntest tokenizer::tests::vocabulary_size_and_decode_include_added_special_tokens ... ok\ntest lifecycle::tests::portable_profile_follows_a_moved_runtime_directory ... ok\ntest api::tests::tool_media_parts_are_rejected_before_chat_or_tokenization ... ok\ntest lifecycle::tests::packaged_smooth_tail_layout_requires_every_provider_and_kernel ... ok\ntest api::tests::completion_context_accepts_exact_limit_and_rejects_one_token_over ... ok\ntest api::tests::inference_queue_timeout_is_structured_and_recoverable ... ok\ntest api::tests::tool_text_part_failures_and_repairs_match_json_and_sse ... ok\ntest chat::tests::tool_text_parts_preserve_failures_empty_results_and_silent_repairs ... ok\ntest chat::tests::deeply_wrapped_tool_output_has_bounded_stack_and_preserves_payload ... ok\n\ntest result: ok. 54 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+    },
+    {
+      "file": "tests.stderr.txt",
+      "sha256": "a621f37290138782cc4343028bc1aed04ce5e57ef9bca0518193f12c5eafd0ab",
+      "bytes": 4884,
+      "text": "   Compiling proc-macro2 v1.0.107\n   Compiling unicode-ident v1.0.24\n   Compiling quote v1.0.47\n   Compiling libc v0.2.189\n   Compiling syn v3.0.3\n   Compiling syn v2.0.119\n   Compiling serde_core v1.0.229\n   Compiling itoa v1.0.18\n   Compiling pin-project-lite v0.2.17\n   Compiling futures-core v0.3.33\n   Compiling memchr v2.8.3\n   Compiling once_cell v1.21.4\n   Compiling serde v1.0.229\n   Compiling cfg-if v1.0.4\n   Compiling strsim v0.11.1\n   Compiling serde_derive v1.0.229\n   Compiling crossbeam-utils v0.8.22\n   Compiling errno v0.3.14\n   Compiling crossbeam-epoch v0.9.20\n   Compiling log v0.4.33\n   Compiling bytes v1.12.1\n   Compiling getrandom v0.3.4\n   Compiling zerocopy v0.8.55\n   Compiling ident_case v1.0.1\n   Compiling fnv v1.0.7\n   Compiling darling_core v0.20.11\n   Compiling http v1.5.0\n   Compiling signal-hook-registry v1.4.8\n   Compiling tracing-core v0.1.36\n   Compiling socket2 v0.6.5\n   Compiling mio v1.2.2\n   Compiling tokio-macros v2.7.2\n   Compiling shlex v2.0.1\n   Compiling find-msvc-tools v0.1.9\n   Compiling smallvec v1.15.2\n   Compiling crossbeam-deque v0.8.7\n   Compiling cc v1.4.0\n   Compiling tokio v1.53.1\n   Compiling http-body v1.1.0\n   Compiling darling_macro v0.20.11\n   Compiling aho-corasick v1.1.5\n   Compiling tracing-attributes v0.1.31\n   Compiling rustversion v1.0.23\n   Compiling pkg-config v0.3.33\n   Compiling regex-syntax v0.8.11\n   Compiling rayon-core v1.13.0\n   Compiling zmij v1.0.23\n   Compiling httparse v1.10.1\n   Compiling regex-automata v0.4.18\n   Compiling onig_sys v69.9.3\n   Compiling tracing v0.1.44\n   Compiling darling v0.20.11\n   Compiling either v1.17.0\n   Compiling version_check v0.9.5\n   Compiling tower-service v0.3.3\n   Compiling utf8parse v0.2.2\n   Compiling serde_json v1.0.151\n   Compiling ryu v1.0.23\n   Compiling derive_builder_core v0.20.2\n   Compiling anstyle-parse v1.0.0\n   Compiling ahash v0.8.12\n   Compiling ppv-lite86 v0.2.21\n   Compiling rand_core v0.9.5\n   Compiling futures-channel v0.3.33\n   Compiling paste v1.0.15\n   Compiling is_terminal_polyfill v1.70.2\n   Compiling esaxx-rs v0.1.10\n   Compiling anstyle-query v1.1.5\n   Compiling atomic-waker v1.1.2\n   Compiling sync_wrapper v1.0.2\n   Compiling futures-task v0.3.33\n   Compiling minimal-lexical v0.2.1\n   Compiling thiserror v2.0.19\n   Compiling colorchoice v1.0.5\n   Compiling slab v0.4.12\n   Compiling httpdate v1.0.3\n   Compiling tower-layer v0.3.3\n   Compiling percent-encoding v2.3.2\n   Compiling anstyle v1.0.14\n   Compiling anstream v1.0.0\n   Compiling form_urlencoded v1.2.2\n   Compiling hyper v1.11.0\n   Compiling futures-util v0.3.33\n   Compiling nom v7.1.3\n   Compiling rand_chacha v0.9.0\n   Compiling castaway v0.2.4\n   Compiling rayon v1.12.0\n   Compiling derive_builder_macro v0.20.2\n   Compiling itertools v0.14.0\n   Compiling http-body-util v0.1.4\n   Compiling monostate-impl v0.1.18\n   Compiling thiserror-impl v2.0.19\n   Compiling unicode-segmentation v1.13.3\n   Compiling base64 v0.13.1\n   Compiling anyhow v1.0.104\n   Compiling heck v0.5.0\n   Compiling lazy_static v1.5.0\n   Compiling pastey v0.2.3\n   Compiling bitflags v2.13.1\n   Compiling mime v0.3.17\n   Compiling clap_lex v1.1.0\n   Compiling static_assertions v1.1.0\n   Compiling macro_rules_attribute-proc_macro v0.2.3\n   Compiling compact_str v0.9.1\n   Compiling macro_rules_attribute v0.2.3\n   Compiling clap_builder v4.6.5\n   Compiling axum-core v0.5.6\n   Compiling onig v6.5.3\n   Compiling clap_derive v4.6.4\n   Compiling sharded-slab v0.1.7\n   Compiling spm_precompiled v0.1.4\n   Compiling rayon-cond v0.4.0\n   Compiling monostate v0.1.18\n   Compiling derive_builder v0.20.2\n   Compiling rand v0.9.5\n   Compiling tower v0.5.3\n   Compiling hyper-util v0.1.20\n   Compiling serde_urlencoded v0.7.1\n   Compiling matchers v0.2.0\n   Compiling regex v1.13.1\n   Compiling unicode-normalization-alignments v0.1.12\n   Compiling tracing-log v0.2.0\n   Compiling dary_heap v0.3.9\n   Compiling serde_path_to_error v0.1.20\n   Compiling thread_local v1.1.10\n   Compiling async-stream-impl v0.3.6\n   Compiling nu-ansi-term v0.50.3\n   Compiling matchit v0.8.4\n   Compiling unicode_categories v0.1.1\n   Compiling qrt-server v1.0.1 (<evidence-home-1>/projects/AIMA-public-r1191-candidate/engine/qrt-server)\n   Compiling tokenizers v0.22.2\n   Compiling axum v0.8.9\n   Compiling async-stream v0.3.6\n   Compiling tracing-subscriber v0.3.23\n   Compiling clap v4.6.5\n   Compiling tokio-stream v0.1.19\n    Finished `test` profile [unoptimized] target(s) in 31.85s\n     Running unittests src/lib.rs (<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/cold-prefill-tail-server-local-r1/cargo-target/debug/deps/qrt_server-ef68afe72c68c523)\n     Running unittests src/main.rs (<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/cold-prefill-tail-server-local-r1/cargo-target/debug/deps/qrt-495484d5b8be011c)\n   Doc-tests qrt_server\n"
+    }
+  ],
+  "local_manifest": {
+    "schema_version": 1,
+    "kind": "cold_tail_current_c_core_server_build_preparation",
+    "source_commit": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+    "repo": "D:/projects/AIMA-public-cold-prefill-tail-20260921-r1",
+    "source_sha256": {
+      "Cargo.lock": "89adc25be45d0b731d55bf3671284d228ae58a32a6a66714f6ac9ae3de8a04b5",
+      "Cargo.toml": "c4f9cf8436e44ecdd1b4db764fc9c5969245bdd28339b805fad5f9b94236d743",
+      "engine/qrt-cli/Cargo.toml": "bf1ad59c3f324baf14cc6ba7598b8a93751e44a8626678969605b4961243cee6",
+      "engine/qrt-server/Cargo.toml": "a27e5fd9c862b17eb580d9bbaba146a3428fb4d74cc6c4f1ac8027820b017ef9",
+      "engine/qrt-server/build.rs": "ac7ecdfbbe3207122327c2f9fdc84d650838850ad7066d4a6124694854f846c8",
+      "engine/qrt-server/src/api.rs": "abbd19bf8d3e1eba47a9aa72cf6877b452374724eb700c708d1eff6537a23bd5",
+      "engine/qrt-server/src/backend.rs": "f63db7637c263144b3f0009369a3c8d47c0bc10ac92af590e82a103fd47fcbd3",
+      "engine/qrt-server/src/chat.rs": "7f4384c169057bf3a6436c47b33c64a9bc84d606f8605474399021b758ef379b",
+      "engine/qrt-server/src/environment.rs": "609672b5077317c7ed5d290db9dc38e0e10120ef315cf57b9ccf3dbfd8f8001c",
+      "engine/qrt-server/src/lib.rs": "5bbd18a6af78f2a9e31584218a9c2a50ccbd7f29c6583d51d5f4c42849a37d93",
+      "engine/qrt-server/src/lifecycle.rs": "9739ed2353c173703a13385d2d60bf8f9a2416da529a87b6a8ac6797b6bf51ce",
+      "engine/qrt-server/src/main.rs": "b7f858794a3cd18ee18cbe64abe2c1f3d21ae4d72c4e43b0ccd8bb8147f2c4c1",
+      "engine/qrt-server/src/tokenizer.rs": "dd55911fbd658300aa90f117dea6595799917052e96f329d164fe8d0614ebd32",
+      "native/src/qrt.c": "941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957",
+      "native/src/qrt.h": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18",
+      "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+      "native/src/qrt_prefix_checkpoint.h": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+      "native/src/qrt_prefix_logit.h": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+      "native/src/qrt_server_bridge.c": "fdd1d51b2542e4702323edae8ba6fabbdd0264d10fd50c167f56c1b6083e3d12",
+      "native/src/qrt_server_bridge.h": "c9abb1593b531ac5afa1cdf821f432feb74f17f0acdd07c2ba83875721bd195c",
+      "native/src/qwen36_baseline.c": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061",
+      "native/src/qwen36_baseline.h": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42",
+      "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+      "scripts/baiying_build_qrt_server.ps1": "64011f0941f98a3e5b801c353148d0cf0ced3d81c37efe3e9a46e743d2be7b59",
+      "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7"
+    },
+    "c_compilation_inputs": [
+      "native/src/qrt.c",
+      "native/src/qrt.h",
+      "native/src/qrt_context_limits.h",
+      "native/src/qrt_prefix_checkpoint.h",
+      "native/src/qrt_prefix_logit.h",
+      "native/src/qrt_server_bridge.c",
+      "native/src/qrt_server_bridge.h",
+      "native/src/qwen36_baseline.c",
+      "native/src/qwen36_baseline.h"
+    ],
+    "rust_compilation_inputs": [
+      "engine/qrt-server/Cargo.toml",
+      "engine/qrt-server/build.rs",
+      "engine/qrt-server/src/api.rs",
+      "engine/qrt-server/src/backend.rs",
+      "engine/qrt-server/src/chat.rs",
+      "engine/qrt-server/src/environment.rs",
+      "engine/qrt-server/src/lib.rs",
+      "engine/qrt-server/src/lifecycle.rs",
+      "engine/qrt-server/src/main.rs",
+      "engine/qrt-server/src/tokenizer.rs"
+    ],
+    "workspace_manifests": [
+      "Cargo.toml",
+      "Cargo.lock",
+      "engine/qrt-cli/Cargo.toml"
+    ],
+    "script": "run-native-cold-prefill-tail-server-r1.ps1",
+    "dispatcher": "dispatch_cold_prefill_tail_server_r1.py",
+    "verifier": "cold_prefill_tail_server_evidence_r1.py",
+    "whole_source_manifest": "cold-prefill-tail-whole-source-r1.json",
+    "whole_source_manifest_sha256": "a48909cdf9be260967c6aa17940f6b843d29ba0df070a1aa29fb875fe1064715",
+    "whole_build_directory": "cold-prefill-tail-build-r1",
+    "whole_build_validator": "cold_prefill_tail_build_evidence_r1.py",
+    "whole_build_validator_sha256": "15485973a1c9be9023ba33c5766b2d1cad21f8dc64b20b3d094c6ebf787030bd",
+    "prior_server_manifest": "tool-text-parts-native-source-r2.json",
+    "prior_server_manifest_sha256": "3317452ae44cbff822a2d972c50278657005140e6770ee2643d57b21f410edf8",
+    "changed_compilation_inputs_from_prior_server": [
+      "native/src/qrt.c",
+      "native/src/qrt.h"
+    ],
+    "expected_library_tests": 54,
+    "compile_and_test_timeout_seconds": 900,
+    "native_timeout_seconds": 960,
+    "transport_timeout_seconds": 1050,
+    "build_directory": "cold-prefill-tail-server",
+    "run_directory": "cold-prefill-tail-server-build-r1",
+    "existing_checkout_required": true,
+    "completed_same_source_whole_build_required": true,
+    "prior_run_cleanup_required": true,
+    "model_success_required_to_build": false,
+    "model_loaded": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false,
+    "published": false,
+    "scope": "Rebuild Rust HTTP server and its statically linked C core after the a7 whole/CLI/probe build. The native build runs all existing server tests. This preparation does not bind an executable or supersede any final-artifact HTTP, prefix, context, soak or release gate.",
+    "generator": "prepare_cold_prefill_tail_server_r1.py",
+    "generator_sha256": "0c81b293b3b168080d96b8e0f91a2ebf2a6426442c7fbbef95bf5fc7b89184f0",
+    "script_sha256": "bf1cdaa80cb0edc3318c4e36170d0936da08dc8b92c5c1822d362ecccf379801",
+    "dispatcher_sha256": "cf94c84195cf9a3ae8bcac178598287b459b5ecd176c5cfda3e76e1b286412ea",
+    "verifier_sha256": "0a1e732121b9f5f1626b381f3094300eaad1058533fadddb704dce0041244424"
+  },
+  "local_manifest_sha256": "4251f9432fded5ef58d615a67f573694a0c4b42bfa957c4ba4a7284841b67afa",
+  "command_sources": [
+    {
+      "file": "run-native-cold-prefill-tail-server-r2.ps1",
+      "sha256": "a756fc87a12ddc4db0ee10747c6b81e5132b26a93f6e7918a69c96a64a9bff5b",
+      "source_text": "$ErrorActionPreference='Stop'\n$ProgressPreference='SilentlyContinue'\n[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\nfunction Verify-File([string]$Path,[string]$Sha){\n if((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Sha){throw ('Changed input: '+$Path)}\n}\nfunction Run-Git([string[]]$GitArguments){\n $psi=New-Object Diagnostics.ProcessStartInfo\n $psi.FileName='git.exe';$psi.UseShellExecute=$false;$psi.RedirectStandardOutput=$true;$psi.RedirectStandardError=$true\n $psi.Arguments=($GitArguments|ForEach-Object {'\"'+$_.Replace('\"','\\\"')+'\"'}) -join ' '\n $p=New-Object Diagnostics.Process;$p.StartInfo=$psi\n if(-not $p.Start()){throw 'Git did not start'}\n $outTask=$p.StandardOutput.ReadToEndAsync();$errTask=$p.StandardError.ReadToEndAsync()\n if(-not $p.WaitForExit(30000)){try{$p.Kill()}catch{};throw 'Git timeout'}\n $stdout=$outTask.GetAwaiter().GetResult();$stderr=$errTask.GetAwaiter().GetResult()\n if($p.ExitCode -ne 0){throw ('Git failed: '+$stderr)}\n return $stdout.Trim()\n}\n$manifest='D:/projects/cold-prefill-tail-server-source-r2.json'\n$bindingPath='D:/projects/cold-prefill-tail-server-build-binding-r2.json'\n$binding=[IO.File]::ReadAllText($bindingPath)|ConvertFrom-Json\nVerify-File $manifest $binding.source_manifest_sha256\n$m=[IO.File]::ReadAllText($manifest)|ConvertFrom-Json\nVerify-File $PSCommandPath $m.script_sha256\n$repo=$m.repo.Replace('/','\\')\n$sha=$m.source_commit\nif(-not(Test-Path -LiteralPath $repo -PathType Container)){throw 'The same-source whole build must create this checkout first'}\n$head=Run-Git -GitArguments @('-C',$repo,'rev-parse','HEAD')\nif($head -ne $sha){throw 'Source commit mismatch'}\n$dirty=Run-Git -GitArguments @('-C',$repo,'status','--porcelain')\nif($dirty){throw 'Dirty source checkout'}\nforeach($item in $m.source_sha256.PSObject.Properties){Verify-File (Join-Path $repo $item.Name) $item.Value}\n$priorPath=Join-Path $repo ('build/'+$m.whole_build_directory+'/run-record.json')\nVerify-File $priorPath $binding.whole_build_run_sha256\n$prior=[IO.File]::ReadAllText($priorPath)|ConvertFrom-Json\nif($prior.reason -ne 'completed' -or $prior.exit_code -ne 0 -or -not $prior.host_checks_pass -or @($prior.after_processes).Count -ne 0 -or $prior.spec.repo_commit -ne $sha){throw 'The whole build or cleanup did not pass'}\nforeach($check in $prior.host_checks.PSObject.Properties){if(-not $check.Value){throw 'A prior host check failed'}}\n$build=Join-Path $repo ('build/'+$m.build_directory)\n$out=Join-Path $repo ('build/'+$m.run_directory)\n$specPath=$out+'.json'\nforeach($path in @($build,$out,$specPath)){if(Test-Path -LiteralPath $path){throw ('Existing evidence: '+$path)}}\n$inputs=@()\nforeach($entry in $m.source_sha256.PSObject.Properties){$inputs+=@{file=$entry.Name;sha256=$entry.Value}}\n$spec=[ordered]@{\n executable='C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'\n arguments=@('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $repo 'scripts/baiying_build_qrt_server.ps1'),'-OutDir',$build,'-TimeoutSeconds',[string]$m.compile_and_test_timeout_seconds)\n working_directory=$repo;repo_commit=$sha;source_inputs=$inputs\n command_file=$PSCommandPath;command_file_sha256=$m.script_sha256\n source_manifest_sha256=$binding.source_manifest_sha256\n whole_build_run_sha256=$binding.whole_build_run_sha256\n model='none; Rust server and statically linked C core build and unit tests'\n model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false\n purpose='Build the HTTP server with the same cold-tail C core as the current product CLI; run all server unit tests. Final-artifact inference remains separate.'\n}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts/baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $m.native_timeout_seconds|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass -or @($r.after_processes).Count -ne 0){throw 'Native server build or cleanup failed'}\nforeach($check in $r.host_checks.PSObject.Properties){if(-not $check.Value){throw 'A server build host check failed'}}\n$meta=[IO.File]::ReadAllText((Join-Path $build 'build-provenance.json'))|ConvertFrom-Json\nif($meta.repo_commit -ne $sha -or $meta.dirty_tree -or -not $meta.tests_run -or $meta.validate_only -or $meta.timeout_seconds -ne $m.compile_and_test_timeout_seconds){throw 'Server build provenance mismatch'}\nif($meta.context_limits_header_sha256 -ne $m.source_sha256.'native/src/qrt_context_limits.h'){throw 'Server context header mismatch'}\nVerify-File $meta.executable $meta.executable_sha256\n$stdout=[IO.File]::ReadAllText((Join-Path $build 'build.stdout.txt'))\nif(-not $stdout.Contains(('test result: ok. '+$m.expected_library_tests+' passed; 0 failed;'))){throw 'Expected complete server unit-test result is missing'}\nforeach($item in $m.source_sha256.PSObject.Properties){Verify-File (Join-Path $repo $item.Name) $item.Value}\n"
+    },
+    {
+      "file": "dispatch_cold_prefill_tail_server_r2.py",
+      "sha256": "5974927d927c2de93be2f4228e84ffb6f8039dddcb1aaa01206564644cb98c05",
+      "source_text": "\"\"\"Dispatch the frozen server rebuild only after the same-source whole build.\"\"\"\nfrom pathlib import Path\nimport base64\nimport hashlib\nimport json\nimport socket\nimport subprocess\nimport time\n\nfrom cold_prefill_tail_build_evidence_r1 import validate_build as validate_whole\n\nB = Path(__file__).resolve().parent\nread = lambda p: json.loads(p.read_text(encoding='utf-8-sig'))\nsha = lambda p: hashlib.file_digest(p.open('rb'), 'sha256').hexdigest()\nassert socket.gethostname().split('.')[0].lower() != 'baiying'\nmanifest = B / 'cold-prefill-tail-server-source-r2.json'\nm = read(manifest)\n# No network or persistent dispatch output precedes this prerequisite.\nassert sha(B / m['whole_build_validator']) == m['whole_build_validator_sha256']\nwhole = validate_whole()\nassert whole['source_manifest_sha256'] == m['whole_source_manifest_sha256']\nassert whole['source_commit'] == m['source_commit'] and whole['repo'] == m['repo']\nfor key in ('script', 'dispatcher', 'verifier'):\n    assert sha(B / m[key]) == m[key + '_sha256']\nbinding = B / 'cold-prefill-tail-server-build-binding-r2.json'\nwith binding.open('x') as f:\n    json.dump(dict(source_manifest_sha256=sha(manifest), whole_build_run_sha256=whole['run_sha256'],\n                   whole_build_evidence=whole), f, indent=2)\n    f.write('\\n')\nd = B / m['run_directory']\nd.mkdir(exist_ok=False)\nopts = ['-o', 'BatchMode=yes', '-o', 'ConnectTimeout=10']\nsubprocess.run(['scp', *opts, str(manifest), str(binding), str(B / m['script']),\n                'baiying:D:/projects/'], check=True, timeout=45)\nps = (\"$ErrorActionPreference='Stop';$t=$null;$e=$null;\"\n      \"$null=[Management.Automation.Language.Parser]::ParseFile('D:/projects/\" + m['script'] +\n      \"',[ref]$t,[ref]$e);if($e.Count){throw ($e|Out-String)}\")\nparsed = subprocess.run(['ssh', *opts, 'baiying', 'powershell.exe -NoProfile -EncodedCommand ' +\n                         base64.b64encode(ps.encode('utf-16le')).decode()],\n                        capture_output=True, text=True, errors='replace', timeout=30)\nwith (d / 'script-parse.json').open('x') as f:\n    json.dump(dict(returncode=parsed.returncode, stdout=parsed.stdout, stderr=parsed.stderr), f, indent=2)\n    f.write('\\n')\nparsed.check_returncode()\ncommand = ['ssh', *opts, 'baiying', 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File D:/projects/' + m['script']]\nstart = time.monotonic()\ntry:\n    result = subprocess.run(command, capture_output=True, text=True, errors='replace', timeout=m['transport_timeout_seconds'])\n    record = dict(command=command, returncode=result.returncode, stdout=result.stdout, stderr=result.stderr,\n                  wall_seconds=time.monotonic() - start)\nexcept subprocess.TimeoutExpired as exc:\n    record = dict(command=command, returncode=None, timeout=True, wall_seconds=time.monotonic() - start,\n                  stdout=str(exc.stdout), stderr=str(exc.stderr))\n    with (d / 'dispatch.json').open('x') as f:\n        json.dump(record, f, indent=2)\n        f.write('\\n')\n    raise\nwith (d / 'dispatch.json').open('x') as f:\n    json.dump(record, f, indent=2)\n    f.write('\\n')\ntransfers = []\nfor directory, prefix, files in [\n    (m['run_directory'], '', ['run-record.json', 'product.stdout.jsonl', 'product.stderr.log',\n                              'preflight.json', 'launch.json', 'telemetry.jsonl']),\n    (m['build_directory'], 'server-', ['build-provenance.json', 'build.stdout.txt', 'build.stderr.txt',\n                                     'build-qrt-server.bat', 'qrt.exe']),\n]:\n    for file in files:\n        transfer = subprocess.run(['scp', *opts, 'baiying:' + m['repo'] + '/build/' + directory + '/' + file,\n                                   str(d / (prefix + file))], capture_output=True, text=True, errors='replace', timeout=45)\n        transfers.append(dict(file=prefix + file, returncode=transfer.returncode, stderr=transfer.stderr))\nwith (d / 'transfers.json').open('x') as f:\n    json.dump(transfers, f, indent=2)\n    f.write('\\n')\nif (d / 'run-record.json').is_file():\n    run = read(d / 'run-record.json')\n    print(json.dumps({k: run[k] for k in ('reason', 'exit_code', 'wall_ms', 'host_checks_pass')}), flush=True)\nif result.returncode:\n    print(result.stderr[-2500:], flush=True)\nresult.check_returncode()\nassert all(t['returncode'] == 0 for t in transfers)\nfrom cold_prefill_tail_server_evidence_r2 import validate_build\nprint(json.dumps(validate_build(), indent=2), flush=True)\n"
+    },
+    {
+      "file": "cold_prefill_tail_server_evidence_r2.py",
+      "sha256": "6f46ecde7589a6b25edcd2678d4cffa2b81e108fdc2e0595ba1f7bc4e48a231a",
+      "source_text": "from pathlib import Path\nimport hashlib\nimport json\nimport re\nimport struct\nimport subprocess\n\nfrom cold_prefill_tail_build_evidence_r1 import validate_build as validate_whole\n\nB = Path(__file__).resolve().parent\nP = Path('<evidence-home-1>/projects/AIMA-public-r1191-candidate')\nread = lambda p: json.loads(p.read_text(encoding='utf-8-sig'))\nsha = lambda p: hashlib.file_digest(p.open('rb'), 'sha256').hexdigest()\n\ndef validate_build():\n    mp = B / 'cold-prefill-tail-server-source-r2.json'\n    m = read(mp)\n    d = B / m['run_directory']\n    run = read(d / 'run-record.json')\n    whole = validate_whole()\n    assert whole['source_manifest_sha256'] == m['whole_source_manifest_sha256']\n    assert whole['source_commit'] == m['source_commit'] == 'a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3'\n    assert whole['repo'] == m['repo']\n    assert run['host'].lower() == 'baiying' and run['reason'] == 'completed' and run['exit_code'] == 0\n    assert run['host_checks_pass'] and all(run['host_checks'].values()) and not run['after_processes']\n    assert read(d / 'preflight.json')['pass'] and read(d / 'dispatch.json')['returncode'] == 0\n    assert read(d / 'script-parse.json')['returncode'] == 0\n    assert all(t['returncode'] == 0 for t in read(d / 'transfers.json'))\n    spec = run['spec']\n    assert spec['repo_commit'] == m['source_commit'] and spec['whole_build_run_sha256'] == whole['run_sha256']\n    assert spec['source_manifest_sha256'] == sha(mp) and spec['command_file_sha256'] == m['script_sha256']\n    assert {x['file']: x['sha256'] for x in spec['source_inputs']} == m['source_sha256']\n    for key in ('script', 'dispatcher', 'verifier'):\n        assert sha(B / m[key]) == m[key + '_sha256']\n    assert sha(B / m['whole_build_validator']) == m['whole_build_validator_sha256']\n    for name, digest in m['source_sha256'].items():\n        assert hashlib.sha256(subprocess.check_output(['git', 'show', m['source_commit'] + ':' + name],\n                                                     cwd=P, timeout=15)).hexdigest() == digest\n    meta = read(d / 'server-build-provenance.json')\n    assert meta['host'].lower() == 'baiying' and meta['repo_commit'] == m['source_commit']\n    assert not meta['dirty_tree'] and meta['tests_run'] and not meta['validate_only']\n    assert meta['timeout_seconds'] == m['compile_and_test_timeout_seconds'] == 900\n    assert meta['context_limits_header_sha256'] == m['source_sha256']['native/src/qrt_context_limits.h']\n    exe = d / 'server-qrt.exe'\n    assert sha(exe) == meta['executable_sha256']\n    pe = exe.read_bytes()\n    assert pe[:2] == b'MZ'\n    pe_offset = struct.unpack_from('<I', pe, 0x3c)[0]\n    assert pe[pe_offset:pe_offset + 4] == b'PE\\0\\0'\n    optional = pe_offset + 24\n    assert struct.unpack_from('<H', pe, optional)[0] == 0x20b\n    stack_reserve = struct.unpack_from('<Q', pe, optional + 72)[0]\n    assert stack_reserve == 268435456\n    stdout = (d / 'server-build.stdout.txt').read_text(encoding='utf-8-sig')\n    assert 'test result: ok. 54 passed; 0 failed;' in stdout\n    tests = re.findall(r'test result: (\\w+)\\. (\\d+) passed; (\\d+) failed;', stdout)\n    assert tests and all(kind == 'ok' and int(failed) == 0 for kind, _, failed in tests)\n    command_file = (d / 'server-build-qrt-server.bat').read_text(encoding='utf-8-sig')\n    assert 'fmt --package qrt-server -- --check' in command_file\n    assert 'test -p qrt-server --no-fail-fast' in command_file\n    assert 'build -p qrt-server --release' in command_file\n    return dict(source_commit=m['source_commit'], repo=m['repo'], source_manifest=mp.name,\n        source_manifest_sha256=sha(mp), source_inputs=len(m['source_sha256']),\n        run_directory=d.name, run_sha256=sha(d / 'run-record.json'),\n        build_metadata_sha256=sha(d / 'server-build-provenance.json'),\n        artifact=dict(path=meta['executable'], sha256=sha(exe), bytes=exe.stat().st_size),\n        command_file_sha256=sha(d / 'server-build-qrt-server.bat'),\n        stdout_sha256=sha(d / 'server-build.stdout.txt'), stderr_sha256=sha(d / 'server-build.stderr.txt'),\n        stack_reserve_bytes=stack_reserve, library_tests_passed=54, whole_build=whole,\n        model_loaded=False, inference_acceptance=False, performance_acceptance=False, release_qualified=False)\n"
+    },
+    {
+      "file": "prepare_cold_prefill_tail_server_r2.py",
+      "sha256": "5605775ebee48dbb904ce0369ca863c840c601b6a9ba30511a29edf66f182287",
+      "source_text": "\"\"\"Freeze a server rebuild containing the same C core as the cold-tail CLI.\"\"\"\nfrom pathlib import Path\nimport hashlib\nimport json\nimport re\nimport subprocess\n\nB = Path(__file__).resolve().parent\nP = Path('<evidence-home-1>/projects/AIMA-public-r1191-candidate')\nread = lambda p: json.loads(p.read_text(encoding='utf-8-sig'))\nsha = lambda p: hashlib.file_digest(p.open('rb'), 'sha256').hexdigest()\nwhole_path = B / 'cold-prefill-tail-whole-source-r1.json'\nwhole = read(whole_path)\ncommit = whole['source_commit']\nassert commit == 'a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3'\n\ndef git_bytes(name):\n    return subprocess.check_output(['git', 'show', commit + ':' + name], cwd=P, timeout=15)\n\ndef closure(names):\n    seen = set()\n    todo = [P / n for n in names]\n    while todo:\n        path = todo.pop().resolve()\n        if path in seen:\n            continue\n        assert path.is_relative_to(P)\n        seen.add(path)\n        for inc in re.findall(r'^\\s*#include \"([^\"\\n]+)\"', path.read_text(), re.M):\n            target = next((q for q in [(path.parent / inc).resolve(), (P / inc).resolve(),\n                                       (P / 'native/src' / inc).resolve()] if q.is_file()), None)\n            assert target, (path, inc)\n            todo.append(target)\n    return {str(p.relative_to(P)) for p in seen}\n\nc_inputs = closure(['native/src/qrt.c', 'native/src/qwen36_baseline.c', 'native/src/qrt_server_bridge.c'])\nrust_inputs = set(subprocess.check_output(\n    ['git', 'ls-tree', '-r', '--name-only', commit, '--', 'engine/qrt-server'],\n    cwd=P, text=True, timeout=15).splitlines())\nassert len(rust_inputs) == 10\nassert not any('include_str!' in (P / n).read_text() or 'include_bytes!' in (P / n).read_text()\n               for n in rust_inputs)\nnames = c_inputs | rust_inputs | {\n    'Cargo.toml', 'Cargo.lock', 'engine/qrt-cli/Cargo.toml',\n    'scripts/baiying_build_qrt_server.ps1', 'scripts/baiying_guarded_inference.ps1',\n    'scripts/baiying_boot_identity.ps1',\n}\nsources = {}\nfor name in sorted(names):\n    digest = hashlib.sha256(git_bytes(name)).hexdigest()\n    assert sha(P / name) == digest\n    sources[name] = digest\nfor name in c_inputs & set(whole['source_sha256']):\n    assert sources[name] == whole['source_sha256'][name]\nprior_path = B / 'tool-text-parts-native-source-r2.json'\nprior = read(prior_path)\nchanged = [n for n in sorted(c_inputs | rust_inputs) if prior['source_sha256'].get(n) != sources[n]]\nassert changed == ['native/src/qrt.c', 'native/src/qrt.h'], changed\n\nfor file in ('run-native-cold-prefill-tail-server-r2.ps1', 'dispatch_cold_prefill_tail_server_r2.py',\n             'cold_prefill_tail_server_evidence_r2.py'):\n    path = B / file\n    assert path.is_file()\n    if path.suffix == '.py':\n        compile(path.read_text(), str(path), 'exec')\n\nrecord = dict(schema_version=1, kind='cold_tail_current_c_core_server_build_preparation',\n    source_commit=commit, repo=whole['repo'], source_sha256=sources,\n    c_compilation_inputs=sorted(c_inputs), rust_compilation_inputs=sorted(rust_inputs),\n    workspace_manifests=['Cargo.toml', 'Cargo.lock', 'engine/qrt-cli/Cargo.toml'],\n    script='run-native-cold-prefill-tail-server-r2.ps1',\n    dispatcher='dispatch_cold_prefill_tail_server_r2.py',\n    verifier='cold_prefill_tail_server_evidence_r2.py',\n    whole_source_manifest=whole_path.name, whole_source_manifest_sha256=sha(whole_path),\n    whole_build_directory='cold-prefill-tail-build-r1',\n    whole_build_validator='cold_prefill_tail_build_evidence_r1.py',\n    whole_build_validator_sha256=sha(B / 'cold_prefill_tail_build_evidence_r1.py'),\n    prior_server_manifest=prior_path.name, prior_server_manifest_sha256=sha(prior_path),\n    changed_compilation_inputs_from_prior_server=changed,\n    expected_library_tests=54, compile_and_test_timeout_seconds=900,\n    native_timeout_seconds=960, transport_timeout_seconds=1050,\n    build_directory='cold-prefill-tail-server', run_directory='cold-prefill-tail-server-build-r2',\n    existing_checkout_required=True, completed_same_source_whole_build_required=True,\n    prior_run_cleanup_required=True, model_success_required_to_build=False,\n    model_loaded=False, inference_acceptance=False, performance_acceptance=False,\n    release_qualified=False, published=False,\n    scope='Rebuild Rust HTTP server and its statically linked C core after the a7 whole/CLI/probe build. '\n          'The native build runs all existing server tests. This preparation does not bind an executable '\n          'or supersede any final-artifact HTTP, prefix, context, soak or release gate.',\n    generator=Path(__file__).name, generator_sha256=sha(Path(__file__)),\n    supersedes_unrun_preparation='cold-prefill-tail-server-source-r1.json',\n    supersedes_sha256=sha(B / 'cold-prefill-tail-server-source-r1.json'),\n    preparation_change='Add explicit30-second child-process bounds to both remote Git reads. Native build inputs, tests, numerical settings and source commit are unchanged.')\nfor key in ('script', 'dispatcher', 'verifier'):\n    record[key + '_sha256'] = sha(B / record[key])\nout = B / 'cold-prefill-tail-server-source-r2.json'\nwith out.open('x') as f:\n    json.dump(record, f, indent=2)\n    f.write('\\n')\nprint(json.dumps(dict(file=out.name, sha256=sha(out), source_inputs=len(sources),\n                     c_inputs=len(c_inputs), rust_inputs=len(rust_inputs),\n                     changed=changed, native_dispatched=False)))\n"
+    }
+  ],
+  "ordinary_q8192_preparation": {
+    "kind": "unbound_cold_tail_ordinary_regression_helpers",
+    "source_commit": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+    "helpers": [
+      {
+        "file": "cold_prefill_tail_whole_evidence_r1.py",
+        "sha256": "16bb4d7c60b7d773bd7093ce1fde6e78c716f7ade8c4ec7628864147d3ceb8dd"
+      },
+      {
+        "file": "cold_prefill_tail_cli_evidence_r1.py",
+        "sha256": "6698ba61435aec27daae3651b84b08ee0af71e3b104753f100c9f795a749515a"
+      }
+    ],
+    "original_reference": "retired-reference-mode-q8192-product-source-r1.json",
+    "current_whole_and_cli_build_required": "cold-prefill-tail-whole-source-r1.json",
+    "generator": "prepare_cold_prefill_tail_q8192_r1.py",
+    "generator_sha256": "454953b5696ced8d8b12bc8af7e446f8a1c7a187c65f912467e74f2afd6d9fd9",
+    "binary_binding_complete": false,
+    "native_dispatched": false,
+    "inference_acceptance": false
+  },
+  "ordinary_q8192_preparation_sha256": "3ebf635c5569ee78abe251c80071ee27a7a2bdb48f648cf2a89ef283a401e7e3",
+  "unbound_native_and_ordinary_transport_checks": {
+    "kind": "unbound_cold_tail_transport_checks",
+    "utc": "2026-09-21T08:55:32.971935+00:00",
+    "controller_host": "Jiawei-MacminideMac-mini.local",
+    "native_transport_sha256": "8fe91bf7e43943d3c549b6911e4cd0db8ae92b9156c55d0afdcbc955c58f63ec",
+    "ordinary_helpers_sha256": "3ebf635c5569ee78abe251c80071ee27a7a2bdb48f648cf2a89ef283a401e7e3",
+    "missing_build_admission": [
+      {
+        "generator": "prepare_cold_prefill_tail_native_r1.py",
+        "generator_sha256": "5a376d5161a195792c59b3f029146f9665631ef0b1dca25dbbce78d2a860e5ea",
+        "missing_build_stops_binding": true,
+        "remote_or_native_calls": 0
+      },
+      {
+        "generator": "prepare_cold_prefill_tail_q8192_r1.py",
+        "generator_sha256": "454953b5696ced8d8b12bc8af7e446f8a1c7a187c65f912467e74f2afd6d9fd9",
+        "missing_build_stops_binding": true,
+        "remote_or_native_calls": 0
+      }
+    ],
+    "parser": {
+      "command": [
+        "ssh",
+        "-o",
+        "BatchMode=yes",
+        "-o",
+        "ConnectTimeout=10",
+        "baiying",
+        "powershell.exe -NoLogo -NoProfile -NonInteractive -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAJABwAD0AJwBEADoALwBwAHIAbwBqAGUAYwB0AHMALwByAHUAbgAtAGMAbwBsAGQALQB0AGEAaQBsAC0AbgBhAHQAaQB2AGUALQBtAHQAcAAtAHIAMQAuAHAAcwAxACcAOwBpAGYAKAAoAEcAZQB0AC0ARgBpAGwAZQBIAGEAcwBoACAALQBMAGkAdABlAHIAYQBsAFAAYQB0AGgAIAAkAHAAIAAtAEEAbABnAG8AcgBpAHQAaABtACAAUwBIAEEAMgA1ADYAKQAuAEgAYQBzAGgALgBUAG8ATABvAHcAZQByAEkAbgB2AGEAcgBpAGEAbgB0ACgAKQAgAC0AbgBlACAAJwAyADkAZQA0AGQANwBiADcAMQAwAGMANAA2ADgAOAA2ADYAZgBjAGIAOABhADAAMQBjAGYANAA5ADMANwA5ADAAZQBjAGYAMgBmAGYAOABmADUAMwAzADkANgAxAGIANgA4ADIAOAA1ADcAYgBjAGIAOQBlADAAZABjADQANwA4ACcAKQB7AHQAaAByAG8AdwAgACcASABhAHMAaAAgAG0AaQBzAG0AYQB0AGMAaAAnAH0AOwAkAHQAPQAkAG4AdQBsAGwAOwAkAGUAPQAkAG4AdQBsAGwAOwAkAG4AdQBsAGwAPQBbAE0AYQBuAGEAZwBlAG0AZQBuAHQALgBBAHUAdABvAG0AYQB0AGkAbwBuAC4ATABhAG4AZwB1AGEAZwBlAC4AUABhAHIAcwBlAHIAXQA6ADoAUABhAHIAcwBlAEYAaQBsAGUAKAAkAHAALABbAHIAZQBmAF0AJAB0ACwAWwByAGUAZgBdACQAZQApADsAaQBmACgAJABlAC4AQwBvAHUAbgB0ACkAewB0AGgAcgBvAHcAIAAoACQAZQB8AE8AdQB0AC0AUwB0AHIAaQBuAGcAKQB9ADsAWwBFAG4AdgBpAHIAbwBuAG0AZQBuAHQAXQA6ADoATQBhAGMAaABpAG4AZQBOAGEAbQBlAA=="
+      ],
+      "returncode": 0,
+      "stdout": "BAIYING\n",
+      "stderr": "#< CLIXML\n<Objs Version=\"1.1.0.1\" xmlns=\"http://schemas.microsoft.com/powershell/2004/04\"><Obj S=\"progress\" RefId=\"0\"><TN RefId=\"0\"><T>System.Management.Automation.PSCustomObject</T><T>System.Object</T></TN><MS><I64 N=\"SourceId\">1</I64><PR N=\"Record\"><AV>\ufffd\ufffd\ufffd\ufffd\u05fc\ufffd\ufffd\ufffd\u05f4\ufffd\u02b9\ufffd\ufffd\u0123\ufffd\u9863</AV><AI>0</AI><Nil /><PI>-1</PI><PC>-1</PC><T>Completed</T><SR>-1</SR><SD> </SD></PR></MS></Obj><Obj S=\"progress\" RefId=\"1\"><TNRef RefId=\"0\" /><MS><I64 N=\"SourceId\">2</I64><PR N=\"Record\"><AV>\ufffd\ufffd\ufffd\ufffd\u05fc\ufffd\ufffd\ufffd\u05f4\ufffd\u02b9\ufffd\ufffd\u0123\ufffd\u9863</AV><AI>0</AI><Nil /><PI>-1</PI><PC>-1</PC><T>Completed</T><SR>-1</SR><SD> </SD></PR></MS></Obj></Objs>"
+    },
+    "scope": "One native product command file was staged and parsed. Both plan generators stop before binary binding or dispatch until the completed new build exists.",
+    "native_dispatched": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "transport_checks_sha256": "f7dd196d49edd913641fb341722fade7ef6a4b9bda8995567709b45f79c0dba4",
+  "ordinary_transport_source_files": [
+    {
+      "file": "prepare_cold_prefill_tail_q8192_r1.py",
+      "sha256": "454953b5696ced8d8b12bc8af7e446f8a1c7a187c65f912467e74f2afd6d9fd9",
+      "source_text": "\"\"\"Bind the ordinary q8192 regression to both newly built cold-tail artifacts.\"\"\"\nfrom pathlib import Path\nimport copy\nimport hashlib\nimport json\nimport sys\n\nB = Path(__file__).resolve().parent\nread = lambda p: json.loads(p.read_text(encoding='utf-8-sig'))\nsha = lambda p: hashlib.file_digest(p.open('rb'), 'sha256').hexdigest()\nstem = 'cold-prefill-tail-q8192-product'\nwhole_helper = 'cold_prefill_tail_whole_evidence_r1.py'\ncli_helper = 'cold_prefill_tail_cli_evidence_r1.py'\n\ndef put(path, text):\n    if path.exists():\n        assert path.read_text() == text, path\n    else:\n        with path.open('x') as f:\n            f.write(text)\n\ndef prepare_helpers():\n    old = (B / 'retired_reference_mode_whole_evidence_r1.py').read_text()\n    text = old.replace('native_mtp_retired_reference_mode_build_evidence_r1', 'cold_prefill_tail_build_evidence_r1')\n    compile(text, whole_helper, 'exec')\n    put(B / whole_helper, text)\n    old = (B / 'prefix_owner_cli_evidence_r2.py').read_text()\n    text = old[:old.index('def validate_build():')] + '''def validate_build():\n    from cold_prefill_tail_build_evidence_r1 import validate_build as validate_combined_build\n    build=validate_combined_build()\n    d=B/build['run_directory'];meta=read(d/'cli-build-provenance.json')\n    compiled={x['path'].replace('\\\\\\\\','/').removeprefix(build['repo']+'/'):x['sha256'] for x in meta['sources']}\n    assert len(compiled)==8 and 'native/src/product_cli.c' in compiled and 'native/src/qrt.c' in compiled\n    return dict(source_record=build['source_manifest'],source_record_sha256=build['source_manifest_sha256'],\n        source_commit=build['source_commit'],repo=build['repo'],\n        executable=meta['executable'],executable_sha256=build['cli_executable_sha256'],executable_bytes=build['cli_executable_bytes'],\n        metadata_file=str((d/'cli-build-provenance.json').relative_to(B)),metadata_sha256=build['cli_metadata_sha256'],\n        build_run_file=str((d/'run-record.json').relative_to(B)),build_run_sha256=build['run_sha256'],compiled_sources=compiled)\n\n\n''' + old[old.index('def validate_cli('):]\n    compile(text, cli_helper, 'exec')\n    put(B / cli_helper, text)\n\ndef main():\n    prepare_helpers()\n    if sys.argv[1:] == ['--prepare-only']:\n        proof = dict(kind='unbound_cold_tail_ordinary_regression_helpers',\n            source_commit='a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3',\n            helpers=[dict(file=n, sha256=sha(B/n)) for n in (whole_helper,cli_helper)],\n            original_reference='retired-reference-mode-q8192-product-source-r1.json',\n            current_whole_and_cli_build_required='cold-prefill-tail-whole-source-r1.json',\n            generator=Path(__file__).name, generator_sha256=sha(Path(__file__)),\n            binary_binding_complete=False, native_dispatched=False, inference_acceptance=False)\n        path = B/'cold-prefill-tail-q8192-prepared-r1.json'\n        put(path,json.dumps(proof,indent=2)+'\\n')\n        print(json.dumps(dict(file=path.name,sha256=sha(path),binary_binding_complete=False)))\n        return\n    assert not sys.argv[1:]\n    from cold_prefill_tail_whole_evidence_r1 import validate_build\n    from cold_prefill_tail_cli_evidence_r1 import validate_build as validate_cli\n    whole,cli=validate_build(),validate_cli()\n    assert whole['source_commit']==cli['source_commit']=='a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3'\n    old_path=B/'retired-reference-mode-q8192-product-source-r1.json';old=read(old_path)\n    purpose='Ordinary MTP-disabled q8192/out512 regression on the repaired cold-tail whole DLL and same-source changed C product CLI. Original prompt IDs, all512 GB10 outputs, first-logit tolerance0.125, actual callbacks, exact dependency artifacts, identical numerical environment and host cleanup remain required. No retained performance or release claim follows from this single functional control.'\n    m=copy.deepcopy(old)\n    m.update(projection_provider=whole,projection_evidence_helper=whole_helper,projection_evidence_helper_sha256=sha(B/whole_helper),\n        combined_build_evidence_helper='cold_prefill_tail_build_evidence_r1.py',\n        combined_build_evidence_helper_sha256=sha(B/'cold_prefill_tail_build_evidence_r1.py'),\n        evidence_helper=cli_helper,evidence_helper_sha256=sha(B/cli_helper),cli_override=cli,\n        whole_artifact=whole['artifact'],whole_source_commit=whole['source_commit'],\n        whole_build_metadata_sha256=whole['build_metadata_sha256'],whole_build_run_sha256=whole['build_run_sha256'],\n        original_control_source=old_path.name,original_control_source_sha256=sha(old_path),\n        generator=Path(__file__).name,generator_sha256=sha(Path(__file__)),qualification_scope=purpose,\n        arithmetic_changed=False,cold_tail_runtime_changed=True,native_dispatched=False,performance_acceptance=False,release_qualified=False)\n    text=(B/old['script']).read_text()\n    assert sha(B/old['script'])==old['script_sha256']\n    changes={\n        'retired-reference-mode-q8192-product':stem,\n        old['projection_provider']['repo'].replace('/','\\\\'):whole['repo'].replace('/','\\\\'),\n        old['whole_source_commit']:whole['source_commit'],\n        'build\\\\native-mtp-retired-reference-mode-whole-provider':'build\\\\cold-prefill-tail-whole-provider',\n        'build\\\\native-mtp-retired-reference-mode-build-r1':'build\\\\cold-prefill-tail-build-r1',\n        old['whole_build_metadata_sha256']:whole['build_metadata_sha256'],\n        old['whole_build_run_sha256']:whole['build_run_sha256'],\n        old['whole_artifact']['sha256']:whole['artifact']['sha256'],\n        old['qualification_scope']:purpose,\n        old['cli_override']['repo'].replace('/','\\\\'):cli['repo'].replace('/','\\\\'),\n        old['cli_override']['source_commit']:cli['source_commit'],\n        'build\\\\prefix-owner-cli-build-r1':'build\\\\cold-prefill-tail-build-r1',\n        'build\\\\prefix-owner-cli':'build\\\\product-cli',\n        old['cli_override']['source_record']:cli['source_record'],\n        old['cli_override']['metadata_sha256']:cli['metadata_sha256'],\n        old['cli_override']['build_run_sha256']:cli['build_run_sha256'],\n        old['cli_override']['source_record_sha256']:cli['source_record_sha256'],\n        old['cli_override']['executable_sha256']:cli['executable_sha256'],\n        'Length -ne '+str(old['cli_override']['executable_bytes']):'Length -ne '+str(cli['executable_bytes']),\n    }\n    for before,after in sorted(changes.items(),key=lambda item:-len(item[0])):\n        assert before in text,before\n        text=text.replace(before,after)\n    m['script']='run-'+stem+'-r1.ps1';put(B/m['script'],text)\n    for key in ('dispatcher','analyzer'):\n        assert sha(B/old[key])==old[key+'_sha256']\n        text=(B/old[key]).read_text().replace('retired-reference-mode-q8192-product',stem)\n        text=text.replace('retired_reference_mode_whole_evidence_r1',whole_helper.removesuffix('.py'))\n        text=text.replace('prefix_owner_cli_evidence_r1',cli_helper.removesuffix('.py'))\n        text=text.replace('prefix_owner_cli_evidence_r2',cli_helper.removesuffix('.py'))\n        m[key]=('dispatch' if key=='dispatcher' else 'analyze')+'_cold_prefill_tail_q8192_r1.py'\n        compile(text,m[key],'exec');put(B/m[key],text)\n    for key in ('script','dispatcher','analyzer'):m[key+'_sha256']=sha(B/m[key])\n    path=B/(stem+'-source-r1.json');assert not path.exists();put(path,json.dumps(m,indent=2)+'\\n')\n    print(json.dumps(dict(file=path.name,sha256=sha(path),source_commit=whole['source_commit'],\n        whole_sha256=whole['artifact']['sha256'],cli_sha256=cli['executable_sha256'])))\n\nif __name__=='__main__':\n    main()\n"
+    },
+    {
+      "file": "cold_prefill_tail_whole_evidence_r1.py",
+      "sha256": "16bb4d7c60b7d773bd7093ce1fde6e78c716f7ade8c4ec7628864147d3ceb8dd",
+      "source_text": "import hashlib,json,math,re,subprocess\nfrom pathlib import Path\nfrom cold_prefill_tail_build_evidence_r1 import validate_build as validate_combined_build\nB=Path(__file__).resolve().parent\nP=Path('<evidence-home-1>/projects/AIMA-public-r1191-candidate')\nread=lambda p:json.loads(p.read_text(encoding='utf-8-sig'))\nsha=lambda p:hashlib.file_digest(p.open('rb'),'sha256').hexdigest()\n\ndef validate_build():\n    b=validate_combined_build()\n    return dict(source=b['source_manifest'],source_sha256=b['source_manifest_sha256'],\n        source_commit=b['source_commit'],repo=b['repo'],artifact=b['whole_artifact'],\n        build_metadata_sha256=b['whole_metadata_sha256'],build_run_sha256=b['run_sha256'],\n        local_include_files_verified=b['whole_compilation_inputs'],\n        local_build_inputs_verified=b['all_source_inputs'],\n        compiler_flags_match_retained_whole=b['compiler_flags_match_control'],combined_build=b)\n\ndef validate_runtime(source,spec,lines):\n    expected=validate_build();assert source['projection_provider']==expected\n    whole=spec['coarse_out_provider']\n    assert whole['commit']==expected['source_commit'] and whole['dll_sha256']==expected['artifact']['sha256']\n    assert whole['metadata_sha256']==expected['build_metadata_sha256'] and whole['build_run_sha256']==expected['build_run_sha256']\n    outliers=[]\n    for line in lines:\n        assert not line.startswith(('BATCH_MARK hawkeye_dispatch_invalid_clock ','BATCH_MARK hawkeye_dispatch_budget_exceeded '))\n        if not line.startswith('BATCH_MARK hawkeye_completed_latency '):continue\n        row=dict(re.findall(r'(\\w+)=([^ ]+)',line))\n        assert row['completed']=='1' and row['action']=='continue' and row['diagnostic_only']=='1'\n        assert row['numerical_correctness_claimed']=='0'\n        dispatch,correction=float(row['dispatch_ms']),float(row['correction_ms'])\n        nominal=float(row['nominal_dispatch_ms'])\n        assert nominal in (100,250) and float(row['nominal_correction_ms'])==10000\n        assert all(math.isfinite(x) and x>=0 for x in (dispatch,correction))\n        # Logs round to three decimals; a just-over-limit native interval can\n        # round back to its nominal value in diagnostic text.\n        assert dispatch>=nominal or correction>=10000\n        outliers.append(row)\n    storage=validate_storage(source,spec,lines)\n    return dict(build=expected,resident_ordered_storage=storage,completed_latency_outliers=outliers,\n        completed_latency_is_runtime_failure=False,hip_stream_completion_required=True,\n        pass_completed_interval_evidence=True)\n\n\ndef validate_storage(source, spec, lines):\n    options = ('QRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_TEXT_ONLY',\n               'QRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_ORDERED_FIXED')\n    assert source['resident_ordered_fixed'] and spec['resident_ordered_fixed'] == 1\n    assert source['resident_text_only'] and spec['resident_text_only'] == 1\n    assert source['resident_storage_options'] == list(options)\n    local_path = B/'resident-ordered-storage-local-r1/result.json'\n    marker_path = B/'resident-ordered-layout-markers-r1/result.json'\n    assert source['resident_ordered_local_layout_sha256'] == sha(local_path)\n    assert source['resident_ordered_marker_layout_sha256'] == sha(marker_path)\n    local, marker_source = read(local_path), read(marker_path)\n    assert all(c['returncode'] == 0 for c in marker_source['checks'])\n    assert marker_source['source_sha256'] == local['source_sha256']\n    assert marker_source['original_inventory_sha256'] == local['original_inventory_sha256']\n    prerequisite = source['resident_ordered_q8192_prerequisite']\n    if prerequisite:\n        directory = B/prerequisite['name']\n        assert sha(directory/'run-record.json') == prerequisite['run_record_sha256']\n        assert sha(directory/'boundary-analysis.json') == prerequisite['boundary_sha256']\n        gate, run = read(directory/'boundary-analysis.json'), read(directory/'run-record.json')\n        assert gate['gb10_gate']['qualified']\n        assert gate['projection_completion']['resident_ordered_storage']['allocation_activation_pass']\n        assert run['reason'] == 'completed' and run['exit_code'] == 0\n        assert run['host_checks_pass'] and all(run['host_checks'].values()) and not run['after_processes']\n\n    def markers(prefix):\n        return [dict(re.findall(r'(\\w+)=([^ ]+)', line)) for line in lines if line.startswith(prefix+' ')]\n\n    plans = markers('BATCH_MARK resident_model_ordered_storage_plan')\n    expected_plan = dict(fixed_tensors='611', fixed_tensor_bytes='3879589120',\n        fixed_bytes='3879600640', ordinary_bytes='65441632256', total_device_bytes='69321232896',\n        omitted_tensors='352', omitted_tensor_bytes='2582424032', original_disk_offsets='1',\n        shared_fixed_owner='1', quantized='0', numerical_correctness_claimed='0')\n    assert plans == [expected_plan]\n    layouts = markers('BATCH_MARK resident_model_ordered_shard_layout')\n    assert len(layouts) == 26\n    for observed, wanted in zip(layouts, marker_source['markers']):\n        expected = {k: str(v) for k, v in wanted.items() if k != 'kind'}\n        expected.update(original_disk_offsets='1', shared_fixed_owner='1', quantized='0')\n        assert observed == expected, (observed, expected)\n    assert not markers('BATCH_MARK resident_model_text_shard_layout')\n    loads = markers('BATCH_MARK resident_model_shard_store_preload')\n    assert loads and loads[0]['reused'] == '0' and all(r['reused'] == '1' for r in loads[1:])\n    expected_load = dict(failure_stage='none', shards='26', tensors='1045', file_bytes='71903776776',\n        device_bytes='69321232896', ordinary_device_bytes='69321232896', text_only='1',\n        ordered_fixed='1', ordered_fixed_device_bytes='3879600640', omitted_tensor_count='352',\n        omitted_tensor_bytes='2582424032', tensor_bytes='71903645408',\n        verification_samples='1665', verification_mismatches='0')\n    expected_load['pass'] = '1'\n    expected_load['include_mtp'] = '0'\n    zero = ('managed_bytes','managed_tail_shards_requested','managed_tail_shards_active','managed_shards',\n        'host_mapped_bytes','host_mapped_tail_shards_requested','host_mapped_tail_shards_active','host_mapped_shards',\n        'registered_host_bytes','registered_host_tail_shards_requested','registered_host_tail_shards_active','registered_host_shards',\n        'single_device_arena_requested','single_device_arena_active','single_device_arena_bytes',\n        'single_device_arena_quantized','single_device_arena_dflash_active','single_device_arena_mtp_active',\n        'single_device_arena_speculative_decode','host_backing_verification_samples')\n    expected_load.update({k: '0' for k in zero})\n    for observed in loads:\n        assert {k: observed[k] for k in expected_load} == expected_load\n    aliases = markers('BATCH_MARK q1_decode_order_fixed_bf16_arena_preload')\n    assert len(aliases) == 1\n    expected_alias = dict(requested='1', active='1', entries='611', source_bytes='3879589120',\n        arena_bytes='3879600640', entry_alignment_bytes='256', copy_kind='none', resident_storage_alias='1',\n        tensor_order='layer_then_runtime_kind_then_lm_head', routed_expert_weights_reordered='0',\n        failure_stage='none', weight_bits='16', quantized='0', dflash_active='0', mtp_active='0',\n        speculative_decode='0')\n    expected_alias['pass'] = '1'\n    assert {k: v for k, v in aliases[0].items() if k != 'elapsed_ms'} == expected_alias\n    assert math.isfinite(float(aliases[0]['elapsed_ms'])) and float(aliases[0]['elapsed_ms']) >= 0\n    consumers = markers('BATCH_MARK whole_repeated_layer_fixed_weight_preload')\n    assert len(consumers) == 1\n    expected_consumer = dict(entries='611', borrowed_entries='611', bytes='3879589120',\n        q1_decode_order_fixed_bf16_arena_requested='1', q1_decode_order_fixed_bf16_arena_active='1',\n        q1_decode_order_fixed_bf16_arena_entries='611', q1_decode_order_fixed_bf16_arena_bytes='3879600640',\n        q1_decode_order_fixed_bf16_owned_bytes='0', q1_decode_order_fixed_bf16_resident_alias='1',\n        q1_linear_rocblas_qkvz_ab_requested='1', q1_linear_rocblas_qkvz_ab_active='1',\n        q1_linear_rocblas_qkvz_ab_bytes='1416626176', q1_linear_rocblas_qkvz_ab_owned_bytes='0',\n        q1_linear_rocblas_qkvz_ab_decode_order_arena_alias='1')\n    assert {k: consumers[0][k] for k in expected_consumer} == expected_consumer\n    overrides = dict(x.split('=', 1) for x in spec['environment_options_overridden'])\n    assert all(overrides[option] == '1' for option in options)\n    return dict(plan_markers=plans, layout_markers=layouts, preload_markers=loads,\n        fixed_alias_markers=aliases, fixed_consumer_markers=consumers,\n        original_shard_bytes=71903776776, original_separate_fixed_bytes=3879600640,\n        actual_combined_device_allocation_bytes=69321232896, actual_allocation_reduction_bytes=6462144520,\n        ordinary_tensors=82, fixed_tensors=611, omitted_tensor_count=352, omitted_tensor_bytes=2582424032,\n        original_disk_offsets=True, shared_fixed_owner=True, verification_samples=1665,\n        verification_mismatches=0, quantized=False, physical_memory_reduction_established=False,\n        allocation_activation_pass=True)\n"
+    },
+    {
+      "file": "cold_prefill_tail_cli_evidence_r1.py",
+      "sha256": "6698ba61435aec27daae3651b84b08ee0af71e3b104753f100c9f795a749515a",
+      "source_text": "\"\"\"Verify the pinned native CLI and its comparison-only owner observation.\"\"\"\nimport hashlib\nimport json\nimport math\nimport struct\nimport subprocess\nfrom pathlib import Path\n\nB = Path(__file__).resolve().parent\nP = Path('<evidence-home-1>/projects/AIMA-public-r1191-candidate')\nread = lambda p: json.loads(p.read_text(encoding='utf-8-sig'))\nsha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()\n\n\ndef validate_build():\n    from cold_prefill_tail_build_evidence_r1 import validate_build as validate_combined_build\n    build=validate_combined_build()\n    d=B/build['run_directory'];meta=read(d/'cli-build-provenance.json')\n    compiled={x['path'].replace('\\\\','/').removeprefix(build['repo']+'/'):x['sha256'] for x in meta['sources']}\n    assert len(compiled)==8 and 'native/src/product_cli.c' in compiled and 'native/src/qrt.c' in compiled\n    return dict(source_record=build['source_manifest'],source_record_sha256=build['source_manifest_sha256'],\n        source_commit=build['source_commit'],repo=build['repo'],\n        executable=meta['executable'],executable_sha256=build['cli_executable_sha256'],executable_bytes=build['cli_executable_bytes'],\n        metadata_file=str((d/'cli-build-provenance.json').relative_to(B)),metadata_sha256=build['cli_metadata_sha256'],\n        build_run_file=str((d/'run-record.json').relative_to(B)),build_run_sha256=build['run_sha256'],compiled_sources=compiled)\n\n\ndef validate_cli(source, spec, executable_sha256=None):\n    build = validate_build()\n    assert source['cli_override'] == build\n    assert spec['packaged_cli_overridden'] is True\n    assert spec['cli_commit'] == build['source_commit']\n    assert spec['cli_sha256'] == build['executable_sha256']\n    assert spec['executable'].replace('\\\\', '/') == build['executable'].replace('\\\\', '/')\n    assert spec['cli_build_metadata_sha256'] == build['metadata_sha256']\n    assert spec['cli_build_run_sha256'] == build['build_run_sha256']\n    assert spec['cli_source_manifest_sha256'] == build['source_record_sha256']\n    if executable_sha256 is not None:\n        assert executable_sha256 == build['executable_sha256']\n    return build\n\n\ndef fnv_tokens(tokens):\n    # Preserve the existing CLI/oracle digest convention; it is not the standard FNV offset basis.\n    value = 1469598103934665603\n    for byte in struct.pack('<' + str(len(tokens)) + 'I', *tokens):\n        value = ((value ^ byte) * 1099511628211) & ((1 << 64) - 1)\n    return f'{value:016x}'\n\n\ndef validate_owner(source, spec, summary, directory, oracle_owner, owner_prompt):\n    \"\"\"Checks actual cold first token plus cached 31-token continuation, not cold out32 timing.\"\"\"\n    lines = (directory / 'product.stdout.jsonl').read_text().splitlines()\n    records = []\n    for index, line in enumerate(lines):\n        try:\n            row = json.loads(line)\n        except ValueError:\n            continue\n        records.append((index, row))\n    owner_rows = [(i, r) for i, r in records if r.get('type') == 'prefix_owner_continuation']\n    callback_rows = [(i, r) for i, r in records if r.get('type') == 'owner_token']\n    seed_rows = [(i, r) for i, r in records if r.get('type') == 'prefix_seed']\n    timed_rows = [(i, r) for i, r in records if r.get('type') == 'token']\n    assert len(owner_rows) == len(seed_rows) == 1 and len(callback_rows) == 31\n    assert len(timed_rows) == 512\n    oi, observed = owner_rows[0]\n    si, seed = seed_rows[0]\n    expected = oracle_owner['expected']['output_token_ids']\n    assert len(expected) == 32\n    prefix = len(owner_prompt)\n    assert prefix == 16384\n    expected_path = B / source['reference_data']['data_directory'] / 'long-prefix16384-owner-out32-expected.json'\n    assert sha(expected_path) == spec['owner_expected_file_sha256']\n    assert read(expected_path) == expected\n    assert spec['owner_reference_case_sha256'] == oracle_owner['capture_case_sha256']\n    args = spec['arguments']\n    assert args.count('--expected-owner-output') == 1\n    assert args[args.index('--expected-owner-output') + 1].replace('\\\\', '/').endswith('/' + expected_path.name)\n    assert '--checkpoint-owner' not in args\n    assert summary['prefix_owner_continuation_requested'] is True\n    assert summary['prefix_owner_continuation_tokens'] == 32\n    assert math.isfinite(summary['prefix_owner_continuation_ms']) and summary['prefix_owner_continuation_ms'] > 0\n    assert summary['prefix_owner_continuation_ms'] == observed['wall_ms']\n    assert observed['status'] == seed['status'] == 'pass'\n    assert observed['scope'] == 'cold_owner_first_token_then_restored_prefix_continuation'\n    assert observed['output_token_ids'] == expected\n    assert observed['owner_input_tokens'] == prefix and observed['input_tokens'] == prefix + 1\n    assert observed['suffix_tokens'] == 1\n    assert observed['owner_first_token'] == seed['owner_first_token'] == expected[0]\n    assert observed['output_tokens'] == observed['expected_output_tokens'] == 32\n    assert observed['provider_output_tokens'] == observed['stream_callback_count'] == 31\n    assert observed['provider_status'] == 0\n    for key in ('contract_pass', 'state_restored', 'input_unchanged', 'expected_output_tokens_match',\n                'stream_matches_output', 'callbacks_before_return', 'continuation_first_raw_logit_available'):\n        assert observed[key] is True, key\n    assert math.isfinite(observed['continuation_first_raw_logit'])\n    assert hashlib.sha256(struct.pack('<' + str(len(owner_prompt)) + 'I', *owner_prompt)).hexdigest() == oracle_owner['prompt']['u32le_sha256']\n    assert fnv_tokens(owner_prompt) == oracle_owner['prompt']['u32le_fnv1a64'] == observed['owner_prompt_token_ids_fnv1a64']\n    assert fnv_tokens(owner_prompt + [seed['owner_first_token']]) == observed['prompt_token_ids_fnv1a64']\n    assert fnv_tokens(expected) == oracle_owner['expected']['output_token_ids_u32le_fnv1a64'] == observed['output_token_ids_fnv1a64']\n    callbacks = [r for _, r in callback_rows]\n    assert [r['token_id'] for r in callbacks] == expected[1:]\n    assert [r['index'] for r in callbacks] == list(range(31))\n    assert [r['phase'] for r in callbacks] == ['prefill'] + ['decode'] * 30\n    assert all(r['request_index'] == 0 for r in callbacks)\n    assert all(math.isfinite(r['request_elapsed_ms']) and r['request_elapsed_ms'] >= 0 for r in callbacks)\n    assert all(a['request_elapsed_ms'] < b['request_elapsed_ms'] for a, b in zip(callbacks, callbacks[1:]))\n    assert callbacks[-1]['request_elapsed_ms'] <= observed['wall_ms']\n    assert si < callback_rows[0][0] < callback_rows[-1][0] < oi < timed_rows[0][0]\n    return dict(pass_boundary=True, reference_case_sha256=oracle_owner['capture_case_sha256'],\n        original_owner_prompt_sha256=oracle_owner['prompt']['u32le_sha256'],\n        comparison_only_expected_file_sha256=sha(expected_path), observation=observed,\n        actual_callbacks=callbacks, complete_cold_request_out32_measured=False,\n        continuation_logit_scope='Finite and bound by the CLI to actual output index1; no original GB10 raw logit at index1 is available. The original cold first logit is checked separately.',\n        timing_scope='Additional cached owner continuation wall is separate from cold seeding and timed suffix hit; this request changes warmup history and establishes no paired performance improvement.')\n"
+    }
+  ],
+  "native_whole_build_required_first": true,
+  "native_server_artifact_bound": false,
+  "native_http_checks_required": true,
+  "final_archive_and_soak_required": true,
+  "native_windows_build_completed": false,
+  "model_loaded": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "published": false,
+  "scope": "All54 existing Rust library tests and formatting pass on the Mac with the25 frozen compilation/build inputs. Server Rust code matches the previously qualified version; qrt.c and qrt.h changed. The planned900-second test/build and960-second guard are unrun and have no artifact binding. The r2 preparation adds30-second Git bounds while preserving r1 source/tests. Only its command file was parsed on baiying. Old R9 package source bindings remain historical and cannot qualify a package containing this repair.",
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "680273a7d98e9f5981e5c0cef4a499fba56b16a8fa8cd799502f1b2175c21acf",
+    "original_json_bytes": 81206,
+    "source_revision": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+    "source_path": "benchmarks/correctness/cold-prefill-tail-server-prepared-20260921.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 10
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}

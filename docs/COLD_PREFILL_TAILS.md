@@ -79,6 +79,23 @@ original reference files. Its binary binding remains pending until the actual
 build succeeds. Four same-build short controls precede the three retirement
 cases. An ordinary q8192 control is also required before performance claims.
 
+The [server rebuild preparation](../benchmarks/correctness/cold-prefill-tail-server-prepared-20260921.json)
+also binds the HTTP server's statically linked C core to a7e2092. Its 25
+source/build inputs include nine C inputs and ten Rust inputs. Rust sources
+match the prior qualified server; qrt.c and qrt.h have changed. All 54 existing
+Rust library tests and formatting pass on the Mac, with complete logs and
+unchanged source hashes. These tests do not exercise Windows model inference.
+
+The Windows server command parses. The dispatcher's missing-build check
+makes zero network or native calls before the same-source whole/CLI/probe
+build completes. Its
+test/build deadline is 900 seconds inside a 960-second guard and 1050-second
+transport bound; Git child processes have separate 30-second deadlines.
+The server executable remains unbuilt. The ordinary q8192 generator also
+stops before binding binaries until the new build exists. Earlier R9 package
+bindings refer to older components and must be replaced before packaging this
+repair. Final-artifact HTTP, prefix, context and one-hour soak checks remain open.
+
 Next validation uses the original q8191/out32 and q8193/out32 boundaries,
 same-build ordinary and native q8192 controls, then the three original native
 retirement cases. Host transport checks establish no native numerical,
