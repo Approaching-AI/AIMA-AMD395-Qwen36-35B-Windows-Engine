@@ -1,4 +1,5 @@
 #include "../../native/providers/moe_accumulator/sm121_compact_matrix_group.h"
+#include "../../native/providers/moe_accumulator/sm121_compact_matrix_metadata.h"
 #include "narrow_half_cases.h"
 #include <cassert>
 #include <cstdio>
@@ -45,7 +46,14 @@ int main(){
             }
             const auto expected=original::group_sum<26,-133>(terms,17u);
             float result=matrix::f32::alignment::from_bits(0x4f395819u);
-            if(matrix::accumulate(carried,pa[g],pb[g],mathematical,&result)){
+            const bool admitted=matrix::accumulate(carried,pa[g],pb[g],mathematical,&result);
+            namespace slim=qrt_sm121_compact_matrix_metadata;
+            float slim_result=matrix::f32::alignment::from_bits(0x4f395819u);
+            const bool slim_admitted=slim::accumulate(carried,slim::prepare(pa[g]),
+                slim::prepare(pb[g]),mathematical,&slim_result);
+            assert(slim_admitted==admitted);
+            assert(matrix::f32::bits(slim_result)==matrix::f32::bits(result));
+            if(admitted){
                 assert(matrix::f32::bits(result)==matrix::f32::bits(original::value_to_float(expected)));++accepted;
             }else{
                 assert(matrix::f32::bits(result)==0x4f395819u);++rejected;
@@ -58,5 +66,5 @@ int main(){
         }
     }
     assert(accepted&&rejected);
-    std::printf("{\"kind\":\"compact_matrix_group_host\",\"row_bytes\":60,\"lossless_words_and_trailing_metadata\":%llu,\"ordered_groups\":%llu,\"matrix_admitted_groups\":%llu,\"original_narrow_groups\":%llu,\"register_queue_sources_checked\":%llu,\"raw_carry_mismatches\":0,\"rejected_output_unchanged\":true,\"widths_through8192\":true}\n",(unsigned long long)metadata,(unsigned long long)groups,(unsigned long long)accepted,(unsigned long long)rejected,(unsigned long long)queue);
+    std::printf("{\"kind\":\"compact_matrix_group_host\",\"row_bytes\":60,\"broadcast_metadata_bytes\":32,\"all_group_metadata_carries_checked\":true,\"lossless_words_and_trailing_metadata\":%llu,\"ordered_groups\":%llu,\"matrix_admitted_groups\":%llu,\"original_narrow_groups\":%llu,\"register_queue_sources_checked\":%llu,\"raw_carry_mismatches\":0,\"rejected_output_unchanged\":true,\"widths_through8192\":true}\n",(unsigned long long)metadata,(unsigned long long)groups,(unsigned long long)accepted,(unsigned long long)rejected,(unsigned long long)queue);
 }

@@ -5,6 +5,18 @@
 #include "../../native/providers/ck_fmha/streamed_exact_attention.h"
 #include "../../native/providers/ck_fmha/fused_probability_pv.h"
 #include "../../native/providers/ck_fmha/compact_matrix_queue_qk.h"
+#ifdef QRT_WAVE_MATRIX_QK_CAPTURE
+#include "../../native/providers/ck_fmha/wave_matrix_qk.h"
+#define QRT_MATRIX_QK_LABEL "wave_matrix_qk"
+#define QRT_MATRIX_QK_MARKER "WAVE_MATRIX_QK"
+#define QRT_MATRIX_QK_QUEUE_CONTROL "false"
+#define QRT_MATRIX_QK_FORCE_FIELD ",\"forced_all_original_wave\":true"
+#else
+#define QRT_MATRIX_QK_LABEL "compact_matrix_queue_qk"
+#define QRT_MATRIX_QK_MARKER "COMPACT_MATRIX_QUEUE_QK"
+#define QRT_MATRIX_QK_QUEUE_CONTROL "true"
+#define QRT_MATRIX_QK_FORCE_FIELD ""
+#endif
 
 namespace {
 void immutable_transpose(Guarded& device,const std::vector<uint16_t>& source,unsigned tokens){
@@ -74,9 +86,15 @@ void producer(const uint16_t* q,const uint16_t* kt,const uint16_t* v,const uint1
         check(hipError_t(qrt_narrow_domain_qk::launch_workspace(&workspace,q,kt,scores,nullptr,start,count,stride,tokens)));
     }else{
         const auto workspace=domain.matrix_workspace(prepared,tokens);
+#ifdef QRT_WAVE_MATRIX_QK_CAPTURE
+        const auto launch=variant==1u?qrt_compact_matrix_queue_qk::launch<true>:
+            variant==2u?qrt_wave_matrix_qk::launch<false>:
+            variant==3u?qrt_wave_matrix_qk::launch<true>:nullptr;
+#else
         const auto launch=variant==1u?qrt_compact_matrix_queue_qk::launch<false>:
             variant==2u?qrt_compact_matrix_queue_qk::launch<true>:
             variant==3u?qrt_compact_matrix_queue_qk::launch<true,true>:nullptr;
+#endif
         if(!launch)throw std::runtime_error("invalid compact matrix QK variant");
         check(hipError_t(launch(&workspace,q,kt,scores,nullptr,start,count,stride,tokens)));
     }
@@ -158,9 +176,9 @@ void run_safety(const unsigned char* exp,const unsigned char* packed,const unsig
         native_control.guards();domain.verify();
         dq.immutable(q);dk.immutable(k);dv.immutable(v);prepared.verify();
         immutable_transpose(dt,k,n);immutable_transpose(vt,v,n);expected.guards();
-        std::fprintf(stderr,"COMPACT_MATRIX_QUEUE_QK_SAFETY tokens=%u start=%u queries=%u mode=%u pass=1\n",n,start,count,mode);
+        std::fprintf(stderr,QRT_MATRIX_QK_MARKER "_SAFETY tokens=%u start=%u queries=%u mode=%u pass=1\n",n,start,count,mode);
     }
-    std::printf("{\"kind\":\"compact_matrix_queue_qk_safety\",\"cases\":%u,\"shapes\":8,\"data_modes\":10,\"retained_control_callback_and_isolated_candidate\":true,\"pre_replay_native_surfaces_and_complete_replay\":true,\"domain_extremes_and_nearby_rejections\":true,\"lossless_and_original_rows\":true,\"forced_all_original_queue\":true,\"cpu_metadata_checked\":true,\"raw_bit_mismatches\":0,\"guards_pass\":true,\"immutable_inputs\":true}\n",cases);
+    std::printf("{\"kind\":\"" QRT_MATRIX_QK_LABEL "_safety\",\"cases\":%u,\"shapes\":8,\"data_modes\":10,\"retained_control_callback_and_isolated_candidate\":true,\"pre_replay_native_surfaces_and_complete_replay\":true,\"domain_extremes_and_nearby_rejections\":true,\"lossless_and_original_rows\":true,\"forced_all_original_queue\":" QRT_MATRIX_QK_QUEUE_CONTROL QRT_MATRIX_QK_FORCE_FIELD ",\"cpu_metadata_checked\":true,\"raw_bit_mismatches\":0,\"guards_pass\":true,\"immutable_inputs\":true}\n",cases);
 }
 
 void run_capture(unsigned tokens,const char* qfile,const char* kfile,const char* vfile,const char* reference_file,
@@ -224,7 +242,11 @@ void run_capture(unsigned tokens,const char* qfile,const char* kfile,const char*
     }
     for(unsigned variant=0;variant<3u;++variant){
         auto sorted=std::vector<double>(samples[variant],samples[variant]+3u);std::sort(sorted.begin(),sorted.end());
-        std::printf("{\"kind\":\"compact_matrix_queue_qk_capture\",\"tokens\":%u,\"source_capture_tokens\":7169,\"repeated_rows\":%u,\"variant\":%u,\"query_cells\":%u,\"key_cells\":%u,\"narrow_tiles\":%llu,\"original_tiles\":%llu,\"domain_classification_ms\":%.9f,\"retained_control_callback_and_isolated_candidate\":true,\"pre_replay_native_surfaces_checked_on_warmup\":true,\"cpu_metadata_checked\":true,\"query_batch\":128,\"score_slots\":%llu,\"output_cells\":%u,\"gb10_context_cells\":29364224,\"cpu_dots\":%u,\"pv_candidates\":%llu,\"completed_attention_samples_ms\":[%.9f,%.9f,%.9f],\"median_completed_attention_ms\":%.9f,\"common_preparation_ms\":%.9f,\"raw_bit_mismatches\":0,\"gb10_context_mismatches\":0,\"all_attempts_checked\":true,\"warmups_per_slab\":1,\"timed_attempts_per_slab\":3,\"original_qk_and_pv\":true,\"reference_is_compute_input\":false,\"redzones_and_unused_tails_pass\":true,\"immutable_inputs\":true,\"model_loaded\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",tokens,tokens-7169u,variant,2u,variant?2u:4u,(unsigned long long)fast_tiles[variant],(unsigned long long)slow_tiles[variant],domain.ms+(variant?domain.matrix_ms:0.0),(unsigned long long)score_cells,tokens*4096u,cpu_dots,(unsigned long long)candidates[variant],samples[variant][0],samples[variant][1],samples[variant][2],sorted[1],prepared.ms+transpose_ms);
+        unsigned query_cells=2u,key_cells=variant?2u:4u;
+#ifdef QRT_WAVE_MATRIX_QK_CAPTURE
+        if(variant==2u){query_cells=1u;key_cells=8u;}
+#endif
+        std::printf("{\"kind\":\"" QRT_MATRIX_QK_LABEL "_capture\",\"tokens\":%u,\"source_capture_tokens\":7169,\"repeated_rows\":%u,\"variant\":%u,\"query_cells\":%u,\"key_cells\":%u,\"narrow_tiles\":%llu,\"original_tiles\":%llu,\"domain_classification_ms\":%.9f,\"retained_control_callback_and_isolated_candidate\":true,\"pre_replay_native_surfaces_checked_on_warmup\":true,\"cpu_metadata_checked\":true,\"query_batch\":128,\"score_slots\":%llu,\"output_cells\":%u,\"gb10_context_cells\":29364224,\"cpu_dots\":%u,\"pv_candidates\":%llu,\"completed_attention_samples_ms\":[%.9f,%.9f,%.9f],\"median_completed_attention_ms\":%.9f,\"common_preparation_ms\":%.9f,\"raw_bit_mismatches\":0,\"gb10_context_mismatches\":0,\"all_attempts_checked\":true,\"warmups_per_slab\":1,\"timed_attempts_per_slab\":3,\"original_qk_and_pv\":true,\"reference_is_compute_input\":false,\"redzones_and_unused_tails_pass\":true,\"immutable_inputs\":true,\"model_loaded\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",tokens,tokens-7169u,variant,query_cells,key_cells,(unsigned long long)fast_tiles[variant],(unsigned long long)slow_tiles[variant],domain.ms+(variant?domain.matrix_ms:0.0),(unsigned long long)score_cells,tokens*4096u,cpu_dots,(unsigned long long)candidates[variant],samples[variant][0],samples[variant][1],samples[variant][2],sorted[1],prepared.ms+transpose_ms);
     }
 }
 } // namespace
@@ -247,4 +269,4 @@ int main(int argc,char** argv)try{
     if(safety_mode)run_safety(de.data(),dd.data(),dc.data());
     else run_capture(tokens,argv[2],argv[3],argv[4],argv[5],de.data(),dd.data(),dc.data());
     de.immutable(exp);dc.immutable(rcp);dd.immutable(packed);return 0;
-}catch(const std::exception& e){std::fprintf(stderr,"compact_matrix_queue_qk_error=%s\n",e.what());return 2;}
+}catch(const std::exception& e){std::fprintf(stderr,QRT_MATRIX_QK_LABEL "_error=%s\n",e.what());return 2;}
