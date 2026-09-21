@@ -147,9 +147,17 @@ This exposes addressable row storage before any GPU performance comparison.
 The revised candidate visits16 fixed exception slots, computing only selected
 original products; its forced replay expands original rows once per group
 and broadcasts those raw words. The [revised host audit](../benchmarks/correctness/partial-matrix-static-local-20260921.json)
-preserves all generated and sampled counts and exact endpoints under
-ASan/UBSan. Its native resource comparison remains pending. The first build
-and all original fallback paths remain available for comparison.
+preserves all generated and sampled counts and exact endpoints under ASan/UBSan.
+Its [native build and resource comparison](../benchmarks/correctness/partial-wave-matrix-static-native-20260921.json)
+at3badddb completes in41449.184 ms with the identical CPU guard,59 compilation
+inputs and passing host checks. Executable SHA256
+fcf7883061a8ed0a93ce0573935cf5a9cb524122532b02df026beaf60aadf5fc
+has zero private bytes and register spills in all seven selected kernels.
+The partial candidate uses196 VGPRs/4 shared bytes; its forced control uses132/4.
+All five prior controls retain their resources. Physical reserve stays above
+17804132352 bytes, and the long owner remains running. The unchanged560-case
+safety and five-variant GPU comparisons are still unrun. The first build
+and all original fallback paths remain available.
 
 The [native build record](../benchmarks/correctness/wave-matrix-qk-native-build-20260921.json)
 binds source804ccf4,56 compilation inputs, the original compiler flags and
