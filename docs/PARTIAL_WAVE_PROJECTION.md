@@ -71,3 +71,22 @@ remain open.
 receipt](../benchmarks/correctness/partial-wave-projection-local-20260921.json):
 70679bytes, SHA256
 `6d3719adc83d720c07d7f7885895726ba0990c9750ecc70a0cda1ff4c50b5365`.
+
+The native plan freezes source501569f, a26-file standalone quoted-include closure
+and an891-file source inventory. The inventory is explicitly not a preprocessed
+compiler dependency list. Read-only baiying checks verify the six existing input,
+weight and GB10-output tensors plus the unchanged execution guard; the native
+script parses. The result parser rejects53 damaged records. All five actions
+(build, safety, replay-build, QKV and OUT) reject the active owner before creating
+controller output directories or calling any subprocess. Positive parser rows
+are synthetic checks, not GPU measurements.
+
+The source bundle remains on the controller, and the experimental checkout has
+not been created on baiying. Compilation also waits for long-run cleanup because
+the physical reserve is near the existing12-GiB coexistence threshold. Native
+deadlines are240s for standalone compilation,300s for safety,330s for the replay
+build and300s per captured operator, with a480s transport deadline. All use the
+unchanged exclusive execution guard after cleanup.
+[Frozen plan, script, parser and prepared checks](../benchmarks/correctness/partial-wave-projection-prepared-20260921.json):
+154247bytes, SHA256
+`32e426f4e40599a91a5174d9155a088e1c1c6bed50e33788a0806277f5b5f2b8`.
