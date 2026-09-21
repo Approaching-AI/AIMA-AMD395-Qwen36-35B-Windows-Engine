@@ -134,3 +134,13 @@ Its336 generated configurations and rotated q7169/q8192 component comparisons
 are not yet compiled or executed on gfx1151. Native resources and timing will
 decide whether the extra retry work is worthwhile. None of these local results
 qualifies model inference, changes retained performance, or permits release.
+
+The [frozen native plan](../benchmarks/correctness/hybrid-state-gdn-prepared-20260921.json)
+binds428 inputs to sourcee14f64b52739a8f9aaa2c60b7f749dd3cf5f2b00. The command
+file parses on Windows; dispatch and resource collection both stop before
+any remote/native call while their prerequisites are absent. Compilation is
+bounded to180seconds, component execution to300, transport to420 and each Git
+child to30. The resource collector will inspect retained, fast, retry and
+replay kernels in the same executable after validating the actual build and
+all source hashes. Its existing retained-ELF parser check passes. No candidate
+resource count is available before compilation.

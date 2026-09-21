@@ -82,7 +82,9 @@ GB10 inputs additionally pass3670528 sampled residual comparisons and427924
 admitted K/V dot comparisons against the independent integer algorithm.
 The combined interval audit predicts3463/4096 admitted CTAs, versus2901 under
 the original narrow operand rule. The new336-case native fixture remains
-unbuilt. No actual admission receipts, resource improvement or speedup are
+unbuilt; its [prepared plan](../benchmarks/correctness/hybrid-state-gdn-prepared-20260921.json)
+freezes428 source inputs and passes Windows parsing and prerequisite checks.
+No actual admission receipts, resource improvement or speedup are
 claimed; this is a component experiment and does not enter runtime dispatch.
 
 The preceding [whole-provider build and q8192 regression](../benchmarks/correctness/residual-norm-mode-q8192-20260921.json)
