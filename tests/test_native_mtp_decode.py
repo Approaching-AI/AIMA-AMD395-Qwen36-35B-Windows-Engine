@@ -13,11 +13,12 @@ class NativeMtpDecodeTests(unittest.TestCase):
     def test_actual_request_commit_cancel_and_failures(self):
         whole = (ROOT / 'native/providers/whole_provider.cpp').read_text()
         coordinator = function(whole, 'bool run_qwen36_native_mtp_decode(')
+        prefix_logit = function(whole, 'bool store_qwen36_native_mtp_prefix_first_logit(')
         runtime = (ROOT / 'native/src/qrt.c').read_text()
         validator = function(runtime, 'static int qrt_qwen36_whole_provider_decode_result_valid(')
         with tempfile.TemporaryDirectory(prefix='qrt-native-mtp-decode-') as temporary:
             directory = Path(temporary)
-            (directory / 'native_mtp_decode_actual.h').write_text(coordinator + '\n' + validator)
+            (directory / 'native_mtp_decode_actual.h').write_text(coordinator + '\n' + prefix_logit + '\n' + validator)
             exe = directory / 'decode'
             built = subprocess.run([os.getenv('CXX', 'c++'), '-std=c++17', '-O1', '-Wall', '-Wextra', '-Werror',
                 '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-I', str(ROOT), '-I', str(directory),

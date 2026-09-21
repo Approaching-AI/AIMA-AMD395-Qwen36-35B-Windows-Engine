@@ -22450,6 +22450,9 @@ __device__ __forceinline__ float vllm_triton_reduce_sumsq(
 
 // Keep the existing 256-thread launch, with two logical four-value lanes per
 // physical thread. The shared tree follows the original 512-lane Q1 layout.
+// Use this only for the reference's non-speculative single-row continuation.
+// A Windows single-token call can emulate a row of its two-row MTP verifier;
+// that case still needs the original eight-value reduction.
 __device__ __forceinline__ float vllm_triton_q1_reduce_sumsq(
     const float values[8], float *partial, unsigned int lane
 ) {
@@ -22552,7 +22555,8 @@ __global__ void output_bf16_residual_postnorm_vllm_kernel(
     float *postnorm_outputs,
     unsigned int tokens,
     const uint8_t *gfx1151_sm121_rsqrt_correction,
-    uint16_t *postnorm_outputs_bf16
+    uint16_t *postnorm_outputs_bf16,
+    bool reference_single_row
 ) {
     __shared__ float partial[2u * kThreads];
     __shared__ float inv_shared;
@@ -22585,7 +22589,7 @@ __global__ void output_bf16_residual_postnorm_vllm_kernel(
         unrounded_values[item] = unrounded_value;
         residual_outputs[token_base + col] = value;
     }
-    const float sumsq = tokens == 1u
+    const float sumsq = reference_single_row && tokens == 1u
         ? vllm_triton_q1_reduce_sumsq(unrounded_values, partial, lane)
         : vllm_triton_reduce_sumsq(vllm_triton_lane8_sumsq(unrounded_values), partial, lane);
     if (lane == 0u) {
@@ -22622,7 +22626,8 @@ __global__ void q1_moe_sm121_tail_kernel(
     const uint16_t *down, const uint16_t *gate, const float *routed,
     const float *residual, float *output, const uint16_t *norm_weights,
     float *normalized, uint16_t *normalized_bf16,
-    const float *sigmoid, const unsigned char *rsqrt_table, bool next_norm
+    const float *sigmoid, const unsigned char *rsqrt_table, bool next_norm,
+    bool reference_single_row
 ) {
     __shared__ float partial[2u * kThreads];
     __shared__ float inverse;
@@ -22641,7 +22646,9 @@ __global__ void q1_moe_sm121_tail_kernel(
         output[col] = unrounded[j];
     }
     if (!next_norm) return;
-    const float sum = vllm_triton_q1_reduce_sumsq(unrounded, partial, lane);
+    const float sum = reference_single_row
+        ? vllm_triton_q1_reduce_sumsq(unrounded, partial, lane)
+        : vllm_triton_reduce_sumsq(vllm_triton_lane8_sumsq(unrounded), partial, lane);
     if (lane == 0u) inverse = qrt_sm121_rsqrt::evaluate(rsqrt_table,
         __fadd_rn(sum / float(QRT_QWEN36_HIDDEN_SIZE), QRT_QWEN36_RMS_NORM_EPSILON));
     __syncthreads();
@@ -34656,7 +34663,8 @@ __global__ void final_norm_unrounded_vllm_kernel(
     const uint16_t *norm_weights,
     float *outputs,
     unsigned int selected_token_count,
-    const uint8_t *gfx1151_sm121_rsqrt_correction
+    const uint8_t *gfx1151_sm121_rsqrt_correction,
+    bool reference_single_row
 ) {
     __shared__ float partial[2u * kThreads];
     __shared__ float inv_shared;
@@ -34673,7 +34681,7 @@ __global__ void final_norm_unrounded_vllm_kernel(
     for (unsigned int item = 0u; item < kValuesPerLane; ++item) {
         values[item] = selected_input[base + lane * kValuesPerLane + item];
     }
-    const float sumsq = selected_token_count == 1u
+    const float sumsq = reference_single_row && selected_token_count == 1u
         ? vllm_triton_q1_reduce_sumsq(values, partial, lane)
         : vllm_triton_reduce_sumsq(vllm_triton_lane8_sumsq(values), partial, lane);
     if (lane == 0u) {
@@ -59768,6 +59776,12 @@ struct Qwen36ResidentSessionState {
     size_t last_decode_top2_position =
         (std::numeric_limits<size_t>::max)();
     bool last_decode_top2_valid = false;
+    // Native Q2 exposes the selected logit, without claiming a top-two pair.
+    // Keep its exact position/token with the copyable transaction metadata.
+    size_t last_native_mtp_logit_position = (std::numeric_limits<size_t>::max)();
+    uint32_t last_native_mtp_logit_token = UINT_MAX;
+    float last_native_mtp_logit = 0.0f;
+    bool last_native_mtp_logit_valid = false;
     // A one-draft MTP step consumes the target model's post-final-norm hidden
     // row that produced current_token_id.  Capture only the single frontier
     // selected by the opt-in q65536 probe; keeping it in the copyable session
@@ -68881,6 +68895,7 @@ public:
             session.last_decode_top2_valid = false;
             session.last_decode_top2_position =
                 (std::numeric_limits<size_t>::max)();
+            session.last_native_mtp_logit_valid = false;
             session.q2_prefetched_valid = false;
             session.q2_prefetched_output_token_count = 0u;
             session.q2_prefetched_output_token_cursor = 0u;
@@ -111057,7 +111072,7 @@ bool run_final_norm(
                 final_norm_unrounded_vllm_kernel,
                 grid, block, 0, 0, device_input, device_weights, device_output,
                 static_cast<unsigned int>(run->selected_token_count),
-                device_gfx1151_sm121_rsqrt_correction);
+                device_gfx1151_sm121_rsqrt_correction, false);
         } else if (use_vllm_split_variance) {
             hipLaunchKernelGGL(
                 layer1_input_rmsnorm_vllm_split_variance_kernel,
@@ -124599,7 +124614,7 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                     device_post_attention,
                     target_token_count,
                     device_gfx1151_sm121_rsqrt_correction,
-                    nullptr
+                    nullptr, false
                 );
             } else {
                 hipLaunchKernelGGL(
@@ -124643,7 +124658,7 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                     device_post_attention,
                     target_token_count,
                     device_gfx1151_sm121_rsqrt_correction,
-                    nullptr
+                    nullptr, false
                 );
                 std::cerr
                     << "BATCH_MARK vllm_unrounded_residual_postnorm_hotpath"
@@ -135393,7 +135408,7 @@ bool run_full_attention_prefill_resident_core_for_targets(
                     device_post_attention,
                     target_tokens_u32,
                     device_gfx1151_sm121_rsqrt_correction,
-                    nullptr
+                    nullptr, false
                 );
             } else {
                 hipLaunchKernelGGL(
@@ -166380,7 +166395,8 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
                     dim3(1u), dim3(kThreads), 0, q1_decode_layer_stack_stream,
                     device_input, device_update_bf16, post_norm_weights,
                     device_residual, device_post_norm, 1u, q1_sm121_rsqrt_correction,
-                    publish_q1_moe_fused_input_bf16 ? device_norm_bf16 : nullptr);
+                    publish_q1_moe_fused_input_bf16 ? device_norm_bf16 : nullptr,
+                    q1_sm121_packed_dense);
             } else if (publish_q1_moe_fused_input_bf16) {
                 hipLaunchKernelGGL(
                     output_bf16_residual_postnorm_dual_kernel,
@@ -170242,7 +170258,7 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
                 down_projection, gate_logit_bf16, device_routed_output, device_residual, device_output,
                 q1_moe_next_input_rmsnorm_weights, device_router_logits, device_input_bf16,
                 q1_sm121_moe_tables.core.beta, q1_sm121_moe_tables.core.rsqrt,
-                use_q1_moe_next_input_rmsnorm_fused);
+                use_q1_moe_next_input_rmsnorm_fused, q1_sm121_packed_dense);
             ++kernel_launches;
             return check_launch(stage) && publish_q1_moe_next_input_rmsnorm_frontier();
         }
@@ -186581,7 +186597,8 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
                     dim3(1u), dim3(kThreads), 0, q1_decode_layer_stack_stream,
                     device_input, device_update_bf16, post_norm_weights,
                     device_residual, device_post_norm, 1u, q1_full_rsqrt_correction,
-                    publish_q1_moe_fused_input_bf16 ? device_norm_bf16 : nullptr);
+                    publish_q1_moe_fused_input_bf16 ? device_norm_bf16 : nullptr,
+                    q1_sm121_packed_dense);
             } else if (publish_q1_moe_fused_input_bf16) {
                 hipLaunchKernelGGL(
                     output_bf16_residual_postnorm_dual_kernel,
@@ -193197,6 +193214,7 @@ bool launch_qwen36_resident_decode_sm121_final_norm(
     const uint16_t *weights,
     float *output,
     hipStream_t stream,
+    bool reference_single_row,
     std::string *failure_stage,
     std::string *failure
 ) {
@@ -193213,7 +193231,7 @@ bool launch_qwen36_resident_decode_sm121_final_norm(
     hipLaunchKernelGGL(
         final_norm_unrounded_vllm_kernel,
         dim3(1u), dim3(kThreads), 0, stream,
-        input, weights, output, 1u, correction);
+        input, weights, output, 1u, correction, reference_single_row);
     return check_hip(hipGetLastError(), "qwen36_q1_sm121_final_norm",
                      failure_stage, failure);
 }
@@ -193417,7 +193435,7 @@ bool run_qwen36_resident_decode_dual_direct_output_plan(
                     workspace->device_hidden[0u],
                     workspace->device_direct_output_final_norm_weights,
                     workspace->device_norm_f32, hooks->shared_stream,
-                    failure_stage, failure)) {
+                    false, failure_stage, failure)) {
                 invalidate_pair();
                 return false;
             }
@@ -194302,6 +194320,8 @@ bool run_qwen36_resident_decode_direct_output_plan(
                 workspace->device_hidden[0u],
                 workspace->device_direct_output_final_norm_weights,
                 workspace->device_norm_f32, direct_output_stream,
+                qrt_sm121_q1_packed_runtime::applies_to_prefix(
+                    g_qwen36_resident_session.prefix_tokens),
                 failure_stage, failure)) {
             lease->invalidate();
             return false;
@@ -218720,6 +218740,11 @@ bool run_qwen36_native_mtp_decode(
                 output->token_end_elapsed_ns[output_index] = end;
                 output->token_step_elapsed_ns[output_index] = end-previous_end;
                 previous_end = end;
+                auto& current = g_qwen36_resident_session;
+                current.last_native_mtp_logit_position = batch.first_position + row;
+                current.last_native_mtp_logit_token = accepted.outputs[row];
+                current.last_native_mtp_logit = logits[row];
+                current.last_native_mtp_logit_valid = std::isfinite(logits[row]);
                 std::cerr << "BATCH_MARK qwen36_native_mtp_token output_index=" << output_index
                           << " position=" << batch.first_position+row << " input_token=" << batch.inputs[row]
                           << " output_token=" << accepted.outputs[row] << " output_logit=" << logits[row]
@@ -223099,6 +223124,19 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_checkpoint_query
     return 1;
 }
 
+bool store_qwen36_native_mtp_prefix_first_logit(
+    const qrt_qwen36_whole_provider_prefix_request_v1_t& request,
+    const Qwen36ResidentSessionState& session,
+    qrt_qwen36_resident_prefix_cache_result_v1_t* output
+) {
+    if (!output || !request.input_token_count || !session.last_native_mtp_logit_valid ||
+        session.last_native_mtp_logit_position != size_t(request.input_token_count) - 1u ||
+        session.last_native_mtp_logit_token != output->output_tokens[0] ||
+        !std::isfinite(session.last_native_mtp_logit)) return false;
+    qrt_prefix_first_logit_store(output->reserved, output->output_tokens[0], session.last_native_mtp_logit);
+    return true;
+}
+
 bool prepare_qwen36_native_mtp_prefix(
     const qrt_qwen36_whole_provider_prefix_request_v1_t& request,
     bool batch_suffix, qrt_sm121_mtp_runtime::PrefixPrefillSeed* seed,
@@ -223744,7 +223782,10 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
         out_result->teacher_forced_prediction_tokens[
             request->suffix_token_count - 1u
         ];
-    if (!q1024_owner_shape && !exact_low_margin_verifier_requested &&
+    const bool native_first_logit_stored = native_mtp_prefix_requested &&
+        store_qwen36_native_mtp_prefix_first_logit(
+            *request, g_qwen36_resident_session, out_result);
+    if (!native_first_logit_stored && !q1024_owner_shape && !exact_low_margin_verifier_requested &&
         g_qwen36_resident_session.last_decode_top2_valid &&
         g_qwen36_resident_session.last_decode_top2_position ==
             static_cast<size_t>(request->input_token_count) - 1u &&

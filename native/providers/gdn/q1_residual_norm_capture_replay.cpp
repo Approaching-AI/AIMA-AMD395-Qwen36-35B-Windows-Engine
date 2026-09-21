@@ -58,10 +58,13 @@ struct Device {
     }
 };
 __global__ void q1_residual_scalars(const float* sums, const unsigned char* correction,
-                                  const unsigned char* table, float* output) {
+                                  const unsigned char* table, float* output,
+                                  bool reference_single_row) {
     __shared__ float partial[512];const unsigned lane = threadIdx.x;
     float values[8];for (unsigned i=0;i<8u;++i) values[i]=sums[size_t(blockIdx.x)*2048u+lane*8u+i];
-    const float sum = vllm_triton_q1_reduce_sumsq(values,partial,lane);
+    const float sum = reference_single_row
+        ? vllm_triton_q1_reduce_sumsq(values,partial,lane)
+        : vllm_triton_reduce_sumsq(vllm_triton_lane8_sumsq(values),partial,lane);
     if (!lane) {
         const float variance = sum/2048.0f, total = __fadd_rn(variance,1.0e-6f);
         output[blockIdx.x*3u] = variance;
@@ -72,7 +75,9 @@ __global__ void q1_residual_scalars(const float* sums, const unsigned char* corr
 }
 
 int main(int argc,char** argv) try {
-    if (argc!=4) throw std::runtime_error("input_directory delta2_table original_rsqrt_table");
+    if (argc!=5 || (std::string(argv[4])!="1" && std::string(argv[4])!="2"))
+        throw std::runtime_error("input_directory delta2_table original_rsqrt_table reference_compute_rows(1|2)");
+    const bool reference_single_row = std::string(argv[4]) == "1";
     hipDeviceProp_t properties{};check(hipGetDeviceProperties(&properties,0));
     if (std::string(properties.gcnArchName).find("gfx1151")!=0) throw std::runtime_error("requires gfx1151");
     const std::string directory=argv[1];
@@ -103,16 +108,16 @@ int main(int argc,char** argv) try {
         const size_t at=row*width;
         hipLaunchKernelGGL(output_bf16_residual_postnorm_vllm_kernel,dim3(1),dim3(256),0,stream,
             dr.as<float>()+at,du.as<uint16_t>()+at,dw.as<uint16_t>()+at,dh.as<float>()+at,dn.as<float>()+at,
-            1u,dc.as<unsigned char>(),db.as<uint16_t>()+at);check(hipGetLastError());
+            1u,dc.as<unsigned char>(),db.as<uint16_t>()+at,reference_single_row);check(hipGetLastError());
         hipLaunchKernelGGL(final_norm_unrounded_vllm_kernel,dim3(1),dim3(256),0,stream,
-            ds.as<float>()+at,dw.as<uint16_t>()+at,df.as<float>()+at,1u,dc.as<unsigned char>());check(hipGetLastError());
+            ds.as<float>()+at,dw.as<uint16_t>()+at,df.as<float>()+at,1u,dc.as<unsigned char>(),reference_single_row);check(hipGetLastError());
         hipLaunchKernelGGL(q1_moe_sm121_tail_kernel,dim3(1),dim3(256),0,stream,
             du.as<uint16_t>()+at,dg.as<uint16_t>(),dz.as<float>()+at,dr.as<float>()+at,dmc.as<float>()+at,
-            dw.as<uint16_t>()+at,dm.as<float>()+at,dmb.as<uint16_t>()+at,dscale.as<float>(),dt.as<unsigned char>(),true);
+            dw.as<uint16_t>()+at,dm.as<float>()+at,dmb.as<uint16_t>()+at,dscale.as<float>(),dt.as<unsigned char>(),true,reference_single_row);
         check(hipGetLastError());
     }
     hipLaunchKernelGGL(q1_residual_scalars,dim3(rows),dim3(256),0,stream,
-        ds.as<float>(),dc.as<unsigned char>(),dt.as<unsigned char>(),dscalar.as<float>());check(hipGetLastError());
+        ds.as<float>(),dc.as<unsigned char>(),dt.as<unsigned char>(),dscalar.as<float>(),reference_single_row);check(hipGetLastError());
     check(hipStreamSynchronize(stream));completion_known=true;
     unsigned post=0,post_bf16=0,final=0,moe=0,moe_bf16=0,carrier=0,unrounded=0,var=0,inverse=0,table_difference=0,guards=0;
     const auto h=dh.download<float>(),n=dn.download<float>(),f=df.download<float>(),mt=dm.download<float>(),mc=dmc.download<float>();
@@ -132,6 +137,7 @@ int main(int argc,char** argv) try {
     check(hipStreamDestroy(stream));
     const bool passed=!(post+post_bf16+final+moe+moe_bf16+carrier+unrounded+table_difference+guards)&&unchanged;
     std::cout<<"{\"kind\":\"actual_q1_residual_norm_kernel_replay\",\"cases\":80,\"elements_per_surface\":163840,"
+        <<"\"reference_compute_rows\":"<<(reference_single_row?1:2)<<","
         <<"\"postnorm_f32_mismatches\":"<<post<<",\"postnorm_bf16_mismatches\":"<<post_bf16
         <<",\"finalnorm_mismatches\":"<<final<<",\"moe_norm_f32_mismatches\":"<<moe<<",\"moe_norm_bf16_mismatches\":"<<moe_bf16
         <<",\"rounded_carrier_mismatches\":"<<carrier<<",\"unrounded_carrier_mismatches\":"<<unrounded

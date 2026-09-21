@@ -22,7 +22,7 @@ void run_real_final_norm(const char *input_path, const char *weight_path,
     }
     const auto start = std::chrono::steady_clock::now();
     hipLaunchKernelGGL(final_norm_unrounded_vllm_kernel, dim3(1), dim3(kThreads),
-                      0, nullptr, di.data(), dw.data(), dout.data(), 1u, dc.data());
+                      0, nullptr, di.data(), dw.data(), dout.data(), 1u, dc.data(), false);
     hip_ok(hipGetLastError(), "final_norm_corrected_launch");
     dout.read(output);
     const double ms = std::chrono::duration<double, std::milli>(

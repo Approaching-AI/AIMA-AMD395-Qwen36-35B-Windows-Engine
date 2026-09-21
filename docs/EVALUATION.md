@@ -36,9 +36,10 @@ operator replay and local repair](../benchmarks/correctness/q1-residual-single-r
 identify a512-lane/four-values/16-warp reduction. Its actual SM121 cubin also
 contracts the fourth square/add into FMA, which PTX-only reconstruction missed.
 The production math helper now matches163840 original BF16 outputs and all80
-variance/inverse values over40 layers at two actual Windows positions. Q1
-postnorm, MoE next-input norm and final norm select that reduction; multi-row
-prefill and Q2 arithmetic are unchanged. Three local regressions pass. The
+variance/inverse values over40 layers at two actual Windows positions. The
+repair covers postnorm, MoE next-input norm and final norm. The initial
+single-token selection was too broad, as the regression below demonstrates.
+Three local regressions pass. The
 native probe extracts the actual kernels. Its [gfx1151 replay](../benchmarks/correctness/q1-residual-single-row-native-20260921.json)
 now passes all1146880 output/carrier values plus240 variance/inverse/table
 comparisons. All allocation guards and immutable inputs pass; original
@@ -61,8 +62,34 @@ the enclosing transaction before retiring its previous clones. The original
 prefix snapshot remains immutable. Six ASan/UBSan tests pass, covering three
 transaction levels, repeated accepted spans, full/partial prefixes, both KV
 layouts, late clone failure, cancellation, outer commit/rollback and unknown
-outer completion after an accepted inner span. Native product validation of
-this repair remains open.
+outer completion after an accepted inner span. The daf59fe native rerun now
+completes11 accepted inner handoffs and both outer rollbacks. Its initial512
+suffix outputs and32 original-owner outputs match GB10, with31 actual live
+owner callbacks. The probe then stops because native MTP did not publish the
+owner continuation's first logit. None of the four cancellation branches has
+run yet. Native exit6, wall240324.623ms and every cleanup check are retained.
+
+The same daf59fe DLL passes both short native MTP controls, but ordinary
+q8192/out512 regresses at output115 (196 instead of271). Its first logit remains
+10.375 and all callbacks match the generated outputs. Original GB10 captures
+explain the distinction: short decode transaction1 computes two target rows;
+the long-context transaction33 computes one after the drafter context limit.
+Repeating the original unmodified normalization with two rows gives zero
+differences from the former reduction across all80 operand sets/163840 values.
+The candidate now selects the four-value reduction for the reference's
+single-row route, retaining eight-value reduction for prefill and ordinary
+decode emulating the MTP verifier. Native validation of both selections and
+the repaired complete model runs remain open.
+
+The candidate also keeps native target top-one position, token and logit in
+the private transaction metadata. A prefix result receives that actual value
+only when its final input position and sampled token both match. It does not
+invent a top-two result or change the public ABI. Eight local regressions
+pass, including stale-position/token rejection, absent/nonfinite logits and
+existing transaction/cancellation cases. [Native controls, both failures,
+original row-shape evidence and candidate validation](../benchmarks/correctness/native-mtp-prefix-logit-and-norm-mode-local-20260921.json)
+are bound to their commands, model, source and binaries. Performance and
+release acceptance remain open.
 
 The latest [complete Windows Q2 target verification](../benchmarks/correctness/q2-complete-target-native-20260921.json)
 passes on baiying at source `69baaaa`. Starting from real token embeddings

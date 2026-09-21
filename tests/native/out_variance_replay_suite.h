@@ -3,7 +3,7 @@ namespace projection_safety_test {
 void variance_consumer(const float* residual,const uint16_t* update,const uint16_t* norm,const uint8_t* table,
  float* result,float* normalized,uint16_t* normalized_bf16,unsigned tokens) {
  hipLaunchKernelGGL(output_bf16_residual_postnorm_vllm_kernel,dim3(tokens),dim3(256u),0u,nullptr,
-     residual,update,norm,result,normalized,tokens,table,normalized_bf16);
+     residual,update,norm,result,normalized,tokens,table,normalized_bf16,false);
  hip_ok(hipGetLastError(),"variance_consumer");
 }
 

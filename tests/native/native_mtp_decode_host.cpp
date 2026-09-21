@@ -1,4 +1,5 @@
 #include "native/src/qrt.h"
+#include "native/src/qrt_prefix_logit.h"
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -60,10 +61,15 @@ struct Session {
     uint64_t generation=7u;std::string model_dir="original-model";
     size_t prefix_tokens=7u;uint32_t current_token_id=144u;
     bool valid=true,route_active=true,provider_completed=true,current_token_valid=true;
+    size_t last_native_mtp_logit_position=0;
+    uint32_t last_native_mtp_logit_token=0;
+    float last_native_mtp_logit=0.0f;
+    bool last_native_mtp_logit_valid=false;
     size_t committed_decode_token_count=0;
     std::vector<uint32_t> native_mtp_processed_inputs{1,2,3,4,5,6,7};
     qrt_sm121_mtp::RequestCheckpoint native_mtp_checkpoint{true,native_mtp_processed_inputs,current_token_id};
 } g_qwen36_resident_session;
+using Qwen36ResidentSessionState=Session;
 static std::atomic<bool> g_qwen36_resident_completion_unknown{false};
 class ScopedQwen36ResidentSessionShadowTransaction {
     Session saved=g_qwen36_resident_session;bool active=false;
@@ -274,6 +280,25 @@ int main(){
         const auto& s=g_qwen36_resident_session;
         assert(s.native_mtp_processed_inputs.size()==7u+capacity-1u&&s.native_mtp_checkpoint.valid);
         assert(s.native_mtp_checkpoint.inputs==s.native_mtp_processed_inputs&&s.native_mtp_checkpoint.current==s.current_token_id);
+        assert(s.last_native_mtp_logit_valid&&s.last_native_mtp_logit_position==7u+capacity-2u&&
+            s.last_native_mtp_logit_token==output.output_tokens[capacity-1u]);
+        qrt_qwen36_whole_provider_prefix_request_v1_t prefix{};
+        prefix.input_token_count=7u+capacity-1u;
+        qrt_qwen36_resident_prefix_cache_result_v1_t prefix_output{};
+        prefix_output.output_tokens[0]=output.output_tokens[capacity-1u];
+        assert(store_qwen36_native_mtp_prefix_first_logit(prefix,s,&prefix_output));
+        float logit=0.0f;
+        assert(qrt_prefix_first_logit_read(prefix_output.reserved,prefix_output.output_tokens[0],&logit));
+        assert(logit==(prefix_output.output_tokens[0]%2u?3.0f:2.0f));
+        ++prefix.input_token_count;
+        assert(!store_qwen36_native_mtp_prefix_first_logit(prefix,s,&prefix_output));
+        --prefix.input_token_count;++prefix_output.output_tokens[0];
+        assert(!store_qwen36_native_mtp_prefix_first_logit(prefix,s,&prefix_output));
+        --prefix_output.output_tokens[0];
+        auto absent=s;absent.last_native_mtp_logit_valid=false;
+        assert(!store_qwen36_native_mtp_prefix_first_logit(prefix,absent,&prefix_output));
+        absent.last_native_mtp_logit_valid=true;absent.last_native_mtp_logit=INFINITY;
+        assert(!store_qwen36_native_mtp_prefix_first_logit(prefix,absent,&prefix_output));
         assert(output.token_end_elapsed_ns[0]==0u&&output.token_step_elapsed_ns[0]==0u);
         uint64_t elapsed=0;for(unsigned i=1;i<capacity;++i){elapsed+=output.token_step_elapsed_ns[i];assert(elapsed==output.token_end_elapsed_ns[i]);}
         assert(elapsed==output.tpot_elapsed_ns&&elapsed<=output.wall_clock_ns);

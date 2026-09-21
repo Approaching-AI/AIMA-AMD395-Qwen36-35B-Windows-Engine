@@ -93,7 +93,7 @@ int main(int argc, char** argv) try {
             throw std::runtime_error("aggregate deadline exceeded");
         check(hipEventRecord(begin));
 #define LAUNCH(kernel, coefficients) hipLaunchKernelGGL(kernel, dim3(tokens), dim3(kThreads), 0, 0, \
-    dr.as<float>(), du.as<uint16_t>(), dw.as<uint16_t>(), dh.as<float>(), dout.as<float>(), unsigned(tokens), coefficients)
+    dr.as<float>(), du.as<uint16_t>(), dw.as<uint16_t>(), dh.as<float>(), dout.as<float>(), unsigned(tokens), coefficients, nullptr, false)
         // The captured full-attention call passed nullptr despite loading the
         // correction. Preserve that actual call as the baseline control.
         if (variant == 0) { LAUNCH(output_bf16_residual_postnorm_vllm_kernel, nullptr); }
