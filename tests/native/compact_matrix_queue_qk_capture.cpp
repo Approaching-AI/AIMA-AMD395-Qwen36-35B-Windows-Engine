@@ -5,6 +5,7 @@
 #include "../../native/providers/ck_fmha/streamed_exact_attention.h"
 #include "../../native/providers/ck_fmha/fused_probability_pv.h"
 #include "../../native/providers/ck_fmha/compact_matrix_queue_qk.h"
+#include <limits>
 #ifdef QRT_WAVE_MATRIX_QK_CAPTURE
 #include "../../native/providers/ck_fmha/wave_matrix_qk.h"
 #ifdef QRT_PARTIAL_WAVE_MATRIX_QK_CAPTURE
@@ -199,7 +200,46 @@ void replay(const uint16_t* v,const uint16_t* vt,AttentionOutputs& out,
         out.indices.as<unsigned>(),out.count.as<unsigned>(),nullptr,nullptr,vt,tokens,0u,nullptr,true)));
 }
 
+// The comparison extent is independent of the execution extent. Legacy
+// repeated-row inputs retain7169 reference rows; original q8192 uses all8192.
+__global__ void external_source_context(const float* output,const uint16_t* reference,
+    unsigned start,unsigned queries,unsigned source_tokens,unsigned* bad,unsigned* compared){
+    const unsigned first=blockIdx.x*blockDim.x,index=first+threadIdx.x;
+    const unsigned available=start<source_tokens?(source_tokens-start)*4096u:0u;
+    const unsigned valid=available<queries*4096u?available:queries*4096u;
+    if(!threadIdx.x&&first<valid)atomicAdd(compared,valid-first<blockDim.x?valid-first:blockDim.x);
+    if(index<queries*4096u){
+        const float value=output[index];
+        if(!isfinite(value)||(index<valid&&f32_to_bf16(value)!=reference[size_t(start)*4096u+index]))
+            atomicAdd(bad,1u);
+    }
+}
+
+void verify_reference_extent(){
+    std::vector<uint16_t> reference(8192u*4096u,0x3f80u);
+    std::vector<float> output(2u*4096u,1.0f);
+    Guarded dr(reference.size()*2u),dout(output.size()*4u),counts(8u);
+    dr.put(reference);dout.put(output);
+    auto verify=[&](unsigned source,unsigned mismatches,unsigned compared){
+        counts.put(std::vector<unsigned>{0u,0u});
+        hipLaunchKernelGGL(external_source_context,dim3(32u),dim3(256u),0u,nullptr,
+            dout.as<float>(),dr.as<uint16_t>(),8190u,2u,source,counts.as<unsigned>(),counts.as<unsigned>()+1u);
+        check(hipGetLastError());finish();
+        unsigned actual[2]{};check(hipMemcpy(actual,counts.data(),8u,hipMemcpyDeviceToHost));
+        if(actual[0]!=mismatches||actual[1]!=compared)throw std::runtime_error("source reference extent or final-row fault missed");
+        dr.immutable(reference);dout.immutable(output);counts.guards();
+    };
+    verify(8192u,0u,8192u);
+    reference.back()=0x4000u;dr.put(reference);
+    verify(8192u,1u,8192u); // The final feature of the final original row must fail.
+    verify(8191u,0u,4096u); // An explicitly shorter reference never qualifies the final row.
+    verify(7169u,0u,0u);    // The old repeated extension retains its original boundary.
+    output.back()=std::numeric_limits<float>::infinity();dout.put(output);
+    verify(7169u,1u,0u);    // Every executed row must still be finite.
+}
+
 void run_safety(const unsigned char* exp,const unsigned char* packed,const unsigned char* rcp){
+    verify_reference_extent();
     struct Shape{unsigned tokens,start,count;};
     const Shape shapes[]={{1,0,1},{17,0,17},{33,1,32},{65,17,33},{129,1,128},
         {257,127,128},{513,385,128},{8192,8064,128}};
@@ -264,15 +304,17 @@ void run_safety(const unsigned char* exp,const unsigned char* packed,const unsig
         immutable_transpose(dt,k,n);immutable_transpose(vt,v,n);expected.guards();
         std::fprintf(stderr,QRT_MATRIX_QK_MARKER "_SAFETY tokens=%u start=%u queries=%u mode=%u pass=1\n",n,start,count,mode);
     }
-    std::printf("{\"kind\":\"" QRT_MATRIX_QK_LABEL "_safety\",\"cases\":%u,\"shapes\":8,\"data_modes\":10,\"retained_control_callback_and_isolated_candidate\":true,\"pre_replay_native_surfaces_and_complete_replay\":true,\"domain_extremes_and_nearby_rejections\":true,\"lossless_and_original_rows\":true,\"forced_all_original_queue\":" QRT_MATRIX_QK_QUEUE_CONTROL QRT_MATRIX_QK_FORCE_FIELD ",\"cpu_metadata_checked\":true,\"raw_bit_mismatches\":0,\"guards_pass\":true,\"immutable_inputs\":true}\n",cases);
+    std::printf("{\"kind\":\"" QRT_MATRIX_QK_LABEL "_safety\",\"cases\":%u,\"shapes\":8,\"data_modes\":10,\"retained_control_callback_and_isolated_candidate\":true,\"pre_replay_native_surfaces_and_complete_replay\":true,\"domain_extremes_and_nearby_rejections\":true,\"lossless_and_original_rows\":true,\"forced_all_original_queue\":" QRT_MATRIX_QK_QUEUE_CONTROL QRT_MATRIX_QK_FORCE_FIELD ",\"cpu_metadata_checked\":true,\"reference_extent_faults_checked\":5,\"raw_bit_mismatches\":0,\"guards_pass\":true,\"immutable_inputs\":true}\n",cases);
 }
 
 void run_capture(unsigned tokens,const char* qfile,const char* kfile,const char* vfile,const char* reference_file,
-    const unsigned char* exp,const unsigned char* packed,const unsigned char* rcp){
-    auto q=read_words(qfile,7169u*4096u),k=read_words(kfile,7169u*512u),v=read_words(vfile,7169u*512u);
-    for(auto pair:{std::make_pair(&q,4096u),std::make_pair(&k,512u),std::make_pair(&v,512u)}){
+    const unsigned char* exp,const unsigned char* packed,const unsigned char* rcp,unsigned source_tokens=7169u){
+    if((source_tokens!=7169u&&source_tokens!=8192u)||source_tokens>tokens)
+        throw std::runtime_error("invalid original capture extent");
+    auto q=read_words(qfile,source_tokens*4096u),k=read_words(kfile,source_tokens*512u),v=read_words(vfile,source_tokens*512u);
+    if(tokens>source_tokens)for(auto pair:{std::make_pair(&q,4096u),std::make_pair(&k,512u),std::make_pair(&v,512u)}){
         const auto old=*pair.first;
-        pair.first->insert(pair.first->end(),old.begin(),old.begin()+size_t(tokens-7169u)*pair.second);
+        pair.first->insert(pair.first->end(),old.begin(),old.begin()+size_t(tokens-source_tokens)*pair.second);
     }
     Guarded dq(q.size()*2u),dk(k.size()*2u),dv(v.size()*2u),dt(k.size()*2u),vt(v.size()*2u);
     dq.put(q);dk.put(k);dv.put(v);
@@ -280,7 +322,8 @@ void run_capture(unsigned tokens,const char* qfile,const char* kfile,const char*
     const auto begin=std::chrono::steady_clock::now();
     check(hipError_t(transpose_keys(dv.as<uint16_t>(),vt.as<uint16_t>(),v.size(),tokens,nullptr)));finish();
     const double transpose_ms=elapsed(begin);
-    const auto reference=read_words(reference_file,7169u*4096u);Guarded dr(reference.size()*2u);dr.put(reference);
+    const auto reference=read_words(reference_file,source_tokens*4096u);Guarded dr(reference.size()*2u);dr.put(reference);
+    Guarded reference_count(4u);reference_count.put(std::vector<unsigned>{0u});
     NarrowDomain domain(dq.as<uint16_t>(),dk.as<uint16_t>(),q,k,prepared,tokens);
     AttentionOutputs expected(tokens),native_control(tokens),actual(tokens);Device bad(4u);check(hipMemset(bad.pointer,0,4u));
     constexpr unsigned variants=QRT_MATRIX_QK_CAPTURE_VARIANTS;
@@ -289,8 +332,8 @@ void run_capture(unsigned tokens,const char* qfile,const char* kfile,const char*
         const unsigned count=std::min(query_batch,tokens-start),stride=start+count;
         expected.reset();attention(dq.as<uint16_t>(),dt.as<uint16_t>(),dv.as<uint16_t>(),vt.as<uint16_t>(),prepared,
             expected,start,count,tokens,exp,nullptr,rcp,true,0u,nullptr);finish();
-        hipLaunchKernelGGL(external_context,dim3((count*4096u+255u)/256u),dim3(256u),0u,nullptr,
-            expected.output.as<float>(),dr.as<uint16_t>(),start,count,bad.as<unsigned>());check(hipGetLastError());
+        hipLaunchKernelGGL(external_source_context,dim3((count*4096u+255u)/256u),dim3(256u),0u,nullptr,
+            expected.output.as<float>(),dr.as<uint16_t>(),start,count,source_tokens,bad.as<unsigned>(),reference_count.as<unsigned>());check(hipGetLastError());
         hipLaunchKernelGGL(tensor_tails,dim3((expected.tensor.cells+2u*guard+255u)/256u),dim3(256u),0u,nullptr,
             expected.tensor.scores.as<uint32_t>(),expected.tensor.probability.as<uint16_t>(),expected.tensor.scales.as<uint32_t>(),
             expected.tensor.cells,expected.tensor.scale_cells,start,count,stride,bad.as<unsigned>());check(hipGetLastError());finish();
@@ -322,6 +365,9 @@ void run_capture(unsigned tokens,const char* qfile,const char* kfile,const char*
         score_cells+=size_t(count)*16u*stride;
     }
     dq.immutable(q);dk.immutable(k);dv.immutable(v);dr.immutable(reference);prepared.verify();domain.verify();
+    unsigned compared=0u;check(hipMemcpy(&compared,reference_count.data(),4u,hipMemcpyDeviceToHost));
+    if(compared!=source_tokens*4096u)throw std::runtime_error("incomplete original context comparison");
+    reference_count.guards();
     immutable_transpose(dt,k,tokens);immutable_transpose(vt,v,tokens);
     for(unsigned variant=1u;variant<variants;++variant){
         if(candidates[0]!=candidates[variant])throw std::runtime_error("original PV selection differs");
@@ -333,15 +379,16 @@ void run_capture(unsigned tokens,const char* qfile,const char* kfile,const char*
 #ifdef QRT_WAVE_MATRIX_QK_CAPTURE
         if(variant>=2u){query_cells=1u;key_cells=8u;}
 #endif
-        std::printf("{\"kind\":\"" QRT_MATRIX_QK_LABEL "_capture\",\"tokens\":%u,\"source_capture_tokens\":7169,\"repeated_rows\":%u,\"variant\":%u,\"query_cells\":%u,\"key_cells\":%u,\"narrow_tiles\":%llu,\"original_tiles\":%llu,\"domain_classification_ms\":%.9f,\"retained_control_callback_and_isolated_candidate\":true,\"pre_replay_native_surfaces_checked_on_warmup\":true,\"cpu_metadata_checked\":true,\"query_batch\":128,\"score_slots\":%llu,\"output_cells\":%u,\"gb10_context_cells\":29364224,\"cpu_dots\":%u,\"pv_candidates\":%llu,\"completed_attention_samples_ms\":[%.9f,%.9f,%.9f],\"median_completed_attention_ms\":%.9f,\"common_preparation_ms\":%.9f,\"raw_bit_mismatches\":0,\"gb10_context_mismatches\":0,\"all_attempts_checked\":true,\"warmups_per_slab\":1,\"timed_attempts_per_slab\":3,\"original_qk_and_pv\":true,\"reference_is_compute_input\":false,\"redzones_and_unused_tails_pass\":true,\"immutable_inputs\":true,\"model_loaded\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",tokens,tokens-7169u,variant,query_cells,key_cells,(unsigned long long)fast_tiles[variant],(unsigned long long)slow_tiles[variant],domain.ms+domain.matrix_preparation(variant),(unsigned long long)score_cells,tokens*4096u,cpu_dots,(unsigned long long)candidates[variant],samples[variant][0],samples[variant][1],samples[variant][2],sorted[1],prepared.ms+transpose_ms);
+        std::printf("{\"kind\":\"" QRT_MATRIX_QK_LABEL "_capture\",\"tokens\":%u,\"source_capture_tokens\":%u,\"repeated_rows\":%u,\"variant\":%u,\"query_cells\":%u,\"key_cells\":%u,\"narrow_tiles\":%llu,\"original_tiles\":%llu,\"domain_classification_ms\":%.9f,\"retained_control_callback_and_isolated_candidate\":true,\"pre_replay_native_surfaces_checked_on_warmup\":true,\"cpu_metadata_checked\":true,\"query_batch\":128,\"score_slots\":%llu,\"output_cells\":%u,\"gb10_context_cells\":%u,\"cpu_dots\":%u,\"pv_candidates\":%llu,\"completed_attention_samples_ms\":[%.9f,%.9f,%.9f],\"median_completed_attention_ms\":%.9f,\"common_preparation_ms\":%.9f,\"raw_bit_mismatches\":0,\"gb10_context_mismatches\":0,\"all_attempts_checked\":true,\"warmups_per_slab\":1,\"timed_attempts_per_slab\":3,\"original_qk_and_pv\":true,\"reference_is_compute_input\":false,\"redzones_and_unused_tails_pass\":true,\"immutable_inputs\":true,\"model_loaded\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",tokens,source_tokens,tokens-source_tokens,variant,query_cells,key_cells,(unsigned long long)fast_tiles[variant],(unsigned long long)slow_tiles[variant],domain.ms+domain.matrix_preparation(variant),(unsigned long long)score_cells,tokens*4096u,compared,cpu_dots,(unsigned long long)candidates[variant],samples[variant][0],samples[variant][1],samples[variant][2],sorted[1],prepared.ms+transpose_ms);
     }
 }
 } // namespace
 
 int main(int argc,char** argv)try{
-    if(argc!=4&&argc!=8)throw std::runtime_error("usage: safety EXP RCP | 7169|8192 Q K V GB10_CONTEXT EXP RCP");
+    if(argc!=4&&argc!=8)throw std::runtime_error("usage: safety EXP RCP | 7169|8192|full8192 Q K V GB10_CONTEXT EXP RCP");
     const bool safety_mode=argc==4&&!std::strcmp(argv[1],"safety");
-    const unsigned tokens=argc==8&&!std::strcmp(argv[1],"7169")?7169u:argc==8&&!std::strcmp(argv[1],"8192")?8192u:0u;
+    const bool full_capture=argc==8&&!std::strcmp(argv[1],"full8192");
+    const unsigned tokens=argc==8&&!std::strcmp(argv[1],"7169")?7169u:argc==8&&(!std::strcmp(argv[1],"8192")||full_capture)?8192u:0u;
     if(!safety_mode&&!tokens)throw std::runtime_error("invalid action");
     hipDeviceProp_t prop{};check(hipGetDeviceProperties(&prop,0));
     if(std::strncmp(prop.gcnArchName,"gfx1151",7u))throw std::runtime_error("requires gfx1151");
@@ -354,6 +401,6 @@ int main(int argc,char** argv)try{
     if(download<unsigned>(bad,1u)[0])throw std::runtime_error("complete EXP domain differs");
     std::vector<unsigned char> packed(delta::packed_bytes);check(hipMemcpy(packed.data(),dd.data(),packed.size(),hipMemcpyDeviceToHost));
     if(safety_mode)run_safety(de.data(),dd.data(),dc.data());
-    else run_capture(tokens,argv[2],argv[3],argv[4],argv[5],de.data(),dd.data(),dc.data());
+    else run_capture(tokens,argv[2],argv[3],argv[4],argv[5],de.data(),dd.data(),dc.data(),full_capture?8192u:7169u);
     de.immutable(exp);dc.immutable(rcp);dd.immutable(packed);return 0;
 }catch(const std::exception& e){std::fprintf(stderr,QRT_MATRIX_QK_LABEL "_error=%s\n",e.what());return 2;}

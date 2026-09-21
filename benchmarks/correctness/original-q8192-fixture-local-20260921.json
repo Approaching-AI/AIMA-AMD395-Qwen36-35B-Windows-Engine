@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "kind": "original_q8192_complete_reference_fixture_local_checks",
+  "base_commit": "ee0ff35549c445bb4a853d93e9636e22fe135bf9",
+  "source_sha256": {
+    "tests/native/compact_matrix_queue_qk_capture.cpp": "be80ed85c82b1c0138649455756f95b6df24f962dd7ab694bdf9d9285be599fe",
+    "tests/native/projection_real_replay.h": "0fd1e69d82d35477e32e127ba9521882a5711866bbd73f8c38bd3522de086a0d",
+    "tests/native/projection_safety_selftest.cpp": "f3270487f3cd578a46fd2bceaf53395d0530737081d712a60516f1988bb6d7d6"
+  },
+  "reference": "benchmarks/correctness/gb10-real-q8192-prefill-operands-20260921.json",
+  "reference_sha256": "0442a488f70679bb8d502a11dd55061a095a7877edbb42749927a2b8b9830a38",
+  "original_prompt_and_output_boundary": "All1216 original matrix output IDs and all first-token logits match the frozen GB10 reference; original q8192-out512 transaction only.",
+  "qk_host_sample": {
+    "source_sha256": "195200792f70d3d738882f027b50f5168249945beb98978c513030939091c81e",
+    "original_reference_analysis_sha256": "0fbdd8be9b0cab0f0c8ea4506139ed22806f254366f2c60324d893e474f25a52",
+    "inputs": [
+      {
+        "file": "qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-full-03-q-rope-bf16.bin",
+        "bytes": 67108864,
+        "sha256": "e29273ee25aecffe91f54b82f7d6ec75f16856ad2c83bc52eb7214bca83a0335",
+        "shape": [
+          8192,
+          4096
+        ],
+        "dtype": "bf16",
+        "transaction": 0
+      },
+      {
+        "file": "qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-full-03-cache-k-bf16.bin",
+        "bytes": 8388608,
+        "sha256": "56177136288727255bab9a4007078f8f392f37f46cdd5be2e91e85f8c6c2061e",
+        "shape": [
+          8192,
+          2,
+          256
+        ],
+        "dtype": "bf16",
+        "transaction": 0
+      }
+    ],
+    "compile_command": [
+      "c++",
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-I",
+      "<runtime-checkout>",
+      "<controller-evidence>/sample_original_q8192_qk_host_r1.cpp",
+      "-o",
+      "<controller-evidence>/original-q8192-qk-host-sample-r1/sample"
+    ],
+    "compile_returncode": 0,
+    "compile_stdout": "",
+    "compile_stderr": "",
+    "command": [
+      "<controller-evidence>/original-q8192-qk-host-sample-r1/sample",
+      "<controller-evidence>/qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-full-03-q-rope-bf16.bin",
+      "<controller-evidence>/qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-full-03-cache-k-bf16.bin",
+      "8192"
+    ],
+    "returncode": 0,
+    "stdout": "{\"kind\":\"captured_qk_partial_matrix_host_sample\",\"tokens\":8192,\"source_capture_tokens\":8192,\"repeated_rows\":0,\"eligible_query_rows\":131072,\"eligible_key_rows\":16384,\"query_samples\":128,\"heads\":16,\"keys_per_query_head\":32,\"sampled_dots\":65536,\"domain_eligible_dots\":65536,\"ordered_groups\":1048576,\"original_matrix_admitted\":708453,\"additional_remainder_admitted\":143942,\"additional_partial_admitted\":196181,\"partial_scalar_products\":219139,\"original_narrow_fallback\":0,\"lossless_prepared_words\":33554432,\"raw_carry_mismatches\":0,\"host_arithmetic_only\":true,\"gpu_executed\":false,\"inference_acceptance\":false}\n",
+    "stderr": "",
+    "result": {
+      "kind": "captured_qk_partial_matrix_host_sample",
+      "tokens": 8192,
+      "source_capture_tokens": 8192,
+      "repeated_rows": 0,
+      "eligible_query_rows": 131072,
+      "eligible_key_rows": 16384,
+      "query_samples": 128,
+      "heads": 16,
+      "keys_per_query_head": 32,
+      "sampled_dots": 65536,
+      "domain_eligible_dots": 65536,
+      "ordered_groups": 1048576,
+      "original_matrix_admitted": 708453,
+      "additional_remainder_admitted": 143942,
+      "additional_partial_admitted": 196181,
+      "partial_scalar_products": 219139,
+      "original_narrow_fallback": 0,
+      "lossless_prepared_words": 33554432,
+      "raw_carry_mismatches": 0,
+      "host_arithmetic_only": true,
+      "gpu_executed": false,
+      "inference_acceptance": false
+    },
+    "original_source_commit": "ee0ff35549c445bb4a853d93e9636e22fe135bf9",
+    "arithmetic_headers_unchanged": true,
+    "gpu_executed": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "qk_host_sample_sha256": "405054d332140fe58594d504e33d19725a8a7b726a217f9237e3b6808541a351",
+  "qk_quoted_include_binding": {
+    "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+    "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+    "native/providers/moe_accumulator/sm121_compact_integer_dot4.h": "dd88abde3847cc63159fd1884bbaa4e242266ed5cdd6dd6085b44d16fbbdc47e",
+    "native/providers/moe_accumulator/sm121_compact_matrix_group.h": "282151268703522059965ec017e02ed3c4c5705b26eaf3740273efda098c955d",
+    "native/providers/moe_accumulator/sm121_f32_carry.h": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+    "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+    "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+    "native/providers/moe_accumulator/sm121_integer_core.h": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+    "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+    "native/providers/moe_accumulator/sm121_matrix_remainder_group.h": "73b2ccad4a0c86b02ea0d6940b2ef43b6dca15c9e40ae80faeba9b69b3a8dd9a",
+    "native/providers/moe_accumulator/sm121_narrow_f32_carry.h": "85ab733dd564a8dbc5948f5700fcb6c66fbbc5239d0f55e405dbe7e4e210eca9",
+    "native/providers/moe_accumulator/sm121_packed_core_remainder.h": "4cbf70b4b423073560fdb8eec0333a15d463a74b1f09c79e123a6a6fc553d2e5",
+    "native/providers/moe_accumulator/sm121_partial_matrix_group.h": "1d76b5d19a6ad75c95a2161ecdf6e74eb3def2769b757dccc2efcc35adf126d7",
+    "native/providers/moe_accumulator/sm121_prepared_integer_pairs.h": "fc611756401aee8f4fcef546747a7510c1b60fa6a930b6aced3d3c1e02effe6c",
+    "native/providers/moe_accumulator/sm121_scalar_integer_core.h": "adf2dd5d24e98632ef0239d3ea40170c683e1d06b5902b5f08e0e578ae010d66",
+    "tests/native/narrow_half_cases.h": "4b430a1abcbd9aa4095888ee66e7490d9290987cea4b628b7e228a499e7ff654",
+    "tests/native/partial_matrix_group_host.cpp": "85657ffe38dc50858efd457c3e91450ac007ec1d90dd6380beaffad1c8f94c3b"
+  },
+  "quoted_include_binding_is_compiler_dependency_list": false,
+  "reference_extent_host_coordinate_mock": {
+    "original_source": "<runtime-checkout>/tests/native/compact_matrix_queue_qk_capture.cpp",
+    "original_source_sha256": "be80ed85c82b1c0138649455756f95b6df24f962dd7ab694bdf9d9285be599fe",
+    "extracted_kernel_sha256": "03ea60ecf1d7c1b8a3d02f2e3c50c411ce3304468a44d024a887eed0706f9be7",
+    "generated_source_sha256": "52318d886b4d4ecce9ae574b2536ca3f89ba32aa95f82f6d4f3a25a6e72e414a",
+    "compile_command": [
+      "c++",
+      "-std=c++17",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "build/recovery-20260910/original-q8192-reference-extent-host-r1/checker.cpp",
+      "-o",
+      "build/recovery-20260910/original-q8192-reference-extent-host-r1/checker"
+    ],
+    "compile_returncode": 0,
+    "compile_stdout": "",
+    "compile_stderr": "",
+    "command": [
+      "build/recovery-20260910/original-q8192-reference-extent-host-r1/checker"
+    ],
+    "returncode": 0,
+    "stdout": "{\"cases\":36,\"final_original_row_fault_rejected\":true,\"short_reference_extent_preserved\":true,\"nonfinite_unreferenced_row_rejected\":true,\"inputs_unchanged\":true,\"host_coordinate_mock_only\":true,\"gpu_executed\":false}\n",
+    "stderr": "",
+    "result": {
+      "cases": 36,
+      "final_original_row_fault_rejected": true,
+      "short_reference_extent_preserved": true,
+      "nonfinite_unreferenced_row_rejected": true,
+      "inputs_unchanged": true,
+      "host_coordinate_mock_only": true,
+      "gpu_executed": false
+    },
+    "gpu_executed": false
+  },
+  "reference_extent_mock_sha256": "f10dbb4f3f612437aeef2e4c14e1e0b7fe86cabff4151085f9495d89bde84f89",
+  "helper_sources": {
+    "sample_original_q8192_qk_host_r1.cpp": {
+      "sha256": "195200792f70d3d738882f027b50f5168249945beb98978c513030939091c81e",
+      "text": "// Reuse the independent original-group audit, including its lossless row,\n// prior-admission, fallback and untouched-rejection assertions.\n#define main generated_partial_matrix_audit_main\n#include \"tests/native/partial_matrix_group_host.cpp\"\n#undef main\n#include <fstream>\n#include <iostream>\n#include <stdexcept>\n\nstd::vector<uint16_t> read(const char* path, size_t count) {\n    std::ifstream f(path,std::ios::binary|std::ios::ate);\n    if (!f || f.tellg()!=std::streamoff(count*2u)) throw std::runtime_error(\"capture extent\");\n    std::vector<uint16_t> x(count); f.seekg(0); f.read(reinterpret_cast<char*>(x.data()),count*2u);\n    if (!f) throw std::runtime_error(\"capture read\");\n    return x;\n}\nint main(int argc,char** argv) try {\n    if (argc!=4) throw std::runtime_error(\"Q K full8192\");\n    const unsigned tokens=std::stoul(argv[3]);\n    if (tokens!=8192u && tokens!=8192u) throw std::runtime_error(\"shape\");\n    auto q=read(argv[1],8192u*4096u),k=read(argv[2],8192u*512u);\n    for (auto pair : {std::make_pair(&q,4096u),std::make_pair(&k,512u)}) {\n        const auto initial=*pair.first;\n        pair.first->insert(pair.first->end(),initial.begin(),initial.begin()+size_t(tokens-8192u)*pair.second);\n    }\n    uint64_t valid_q=0u,valid_k=0u;\n    for(unsigned side=0u;side<2u;++side){\n        const auto& values=side?k:q;\n        for(size_t row=0u;row<values.size()/256u;++row){\n            bool good=true;for(unsigned i=0u;i<256u;++i)good&=qrt_sm121_narrow_f32_carry::eligible(values[row*256u+i]);\n            (side?valid_k:valid_q)+=good;\n        }\n    }\n    Counts count; uint64_t dots=0,eligible=0;\n    for (unsigned sample=0;sample<128u;++sample) {\n        const unsigned query=32u+sample*(tokens-33u)/127u;\n        const unsigned prefix=(query/32u)*32u;\n        for (unsigned head=0;head<16u;++head) for (unsigned key_sample=0;key_sample<32u;++key_sample) {\n            const unsigned key=key_sample*prefix/32u;\n            const uint16_t* a=q.data()+(size_t(query)*16u+head)*256u;\n            const uint16_t* b=k.data()+(size_t(key)*2u+head/8u)*256u;\n            bool narrow=true;\n            for (unsigned i=0;i<256u;++i)\n                narrow &= qrt_sm121_narrow_f32_carry::eligible(a[i]) && qrt_sm121_narrow_f32_carry::eligible(b[i]);\n            ++dots; if (!narrow) continue; ++eligible;\n            original::Value carry{0u,-133,false}; float carried=0.0f;\n            for (unsigned g=0;g<16u;++g) carried=group(carried,carry,a+g*16u,b+g*16u,count);\n        }\n    }\n    std::cout << \"{\\\"kind\\\":\\\"captured_qk_partial_matrix_host_sample\\\",\\\"tokens\\\":\" << tokens\n        << \",\\\"source_capture_tokens\\\":8192,\\\"repeated_rows\\\":\" << tokens-8192u\n        << \",\\\"eligible_query_rows\\\":\"<<valid_q<<\",\\\"eligible_key_rows\\\":\"<<valid_k\n        << \",\\\"query_samples\\\":128,\\\"heads\\\":16,\\\"keys_per_query_head\\\":32,\\\"sampled_dots\\\":\" << dots\n        << \",\\\"domain_eligible_dots\\\":\" << eligible << \",\\\"ordered_groups\\\":\" << count.groups\n        << \",\\\"original_matrix_admitted\\\":\" << count.original_admitted\n        << \",\\\"additional_remainder_admitted\\\":\" << count.remainder_admitted\n        << \",\\\"additional_partial_admitted\\\":\" << count.partial_admitted\n        << \",\\\"partial_scalar_products\\\":\" << count.sparse_products\n        << \",\\\"original_narrow_fallback\\\":\" << count.rejected\n        << \",\\\"lossless_prepared_words\\\":\" << count.words\n        << \",\\\"raw_carry_mismatches\\\":0,\\\"host_arithmetic_only\\\":true,\\\"gpu_executed\\\":false,\\\"inference_acceptance\\\":false}\\n\";\n} catch (const std::exception& e) { std::cerr << e.what() << '\\n'; return 2; }\n"
+    },
+    "original-q8192-reference-extent-host-r1/checker.cpp": {
+      "sha256": "52318d886b4d4ecce9ae574b2536ca3f89ba32aa95f82f6d4f3a25a6e72e414a",
+      "text": "#include <algorithm>\n#include <cmath>\n#include <cstdint>\n#include <cstring>\n#include <iostream>\n#include <limits>\n#include <stdexcept>\n#include <vector>\n#define __global__\nstruct Dim {unsigned x;};\nDim blockIdx{},threadIdx{},blockDim{256u};\nusing std::isfinite;\nvoid atomicAdd(unsigned* p,unsigned v){*p+=v;}\nuint16_t f32_to_bf16(float value){uint32_t b;std::memcpy(&b,&value,4);return uint16_t((b+0x7fffu+((b>>16)&1u))>>16);}\n__global__ void external_source_context(const float* output,const uint16_t* reference,\n    unsigned start,unsigned queries,unsigned source_tokens,unsigned* bad,unsigned* compared){\n    const unsigned first=blockIdx.x*blockDim.x,index=first+threadIdx.x;\n    const unsigned available=start<source_tokens?(source_tokens-start)*4096u:0u;\n    const unsigned valid=available<queries*4096u?available:queries*4096u;\n    if(!threadIdx.x&&first<valid)atomicAdd(compared,valid-first<blockDim.x?valid-first:blockDim.x);\n    if(index<queries*4096u){\n        const float value=output[index];\n        if(!isfinite(value)||(index<valid&&f32_to_bf16(value)!=reference[size_t(start)*4096u+index]))\n            atomicAdd(bad,1u);\n    }\n}\n\nint main(){\n unsigned cases=0u;\n const unsigned shapes[][3]={{0,1,1},{0,2,1},{7168,2,7169},{7168,2,8192},{8190,2,8192},{8190,2,8191},{8190,2,7169},{8064,128,8192},{8064,128,7169}};\n for(const auto& s:shapes){\n  const unsigned start=s[0],queries=s[1],source=s[2];\n  const unsigned compared_rows=std::min(queries,start<source?source-start:0u);\n  for(unsigned fault=0u;fault<4u;++fault){\n   std::vector<uint16_t> reference(size_t(source)*4096u,0x3f80u);\n   std::vector<float> output(size_t(queries)*4096u,1.0f);\n   unsigned expected_bad=0u;\n   if(fault==1u&&compared_rows){reference[(size_t(start)+compared_rows)*4096u-1u]=0x4000u;expected_bad=1u;}\n   if(fault==2u){output.back()=std::numeric_limits<float>::infinity();expected_bad=1u;}\n   if(fault==3u){output.back()=2.0f;expected_bad=compared_rows==queries?1u:0u;}\n   const auto before_reference=reference;const auto before_output=output;\n   unsigned bad=0u,compared=0u;\n   for(blockIdx.x=0u;blockIdx.x<(queries*4096u+255u)/256u;++blockIdx.x)\n    for(threadIdx.x=0u;threadIdx.x<256u;++threadIdx.x)\n     external_source_context(output.data(),reference.data(),start,queries,source,&bad,&compared);\n   if(bad!=expected_bad||compared!=compared_rows*4096u||reference!=before_reference||output!=before_output)throw std::runtime_error(\"reference extent or fault control\");\n   ++cases;\n  }\n }\n std::cout<<\"{\\\"cases\\\":\"<<cases<<\",\\\"final_original_row_fault_rejected\\\":true,\\\"short_reference_extent_preserved\\\":true,\\\"nonfinite_unreferenced_row_rejected\\\":true,\\\"inputs_unchanged\\\":true,\\\"host_coordinate_mock_only\\\":true,\\\"gpu_executed\\\":false}\\n\";\n}\n"
+    }
+  },
+  "original_capture_tokens": 8192,
+  "repeated_rows": 0,
+  "planned_context_cells": 33554432,
+  "new_projection_modes": [
+    "--real-qkv-full-q8192",
+    "--real-out-full-q8192"
+  ],
+  "new_attention_mode": "full8192",
+  "planned_native_reference_extent_fault_controls": 5,
+  "scope": "Host arithmetic and extracted comparison-kernel coordinates only. Full native builds and GPU safety, context, projection, and performance checks remain unrun.",
+  "native_build_executed": false,
+  "gpu_executed": false,
+  "model_loaded": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "private_original_record_sha256": "fb73ead32425cbb680a44e2079be7a38f9f6017274ea86e86dbab41821e8f139"
+}

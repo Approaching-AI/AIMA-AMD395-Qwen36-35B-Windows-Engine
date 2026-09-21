@@ -12,8 +12,10 @@ template<class T> std::vector<T> read_replay_tensor(const char *path, size_t ele
 }
 
 void run_real_qkv(const char *input_path, const char *weight_path, const char *reference_path,
-                  unsigned int ppb, bool extend_q8192 = false, bool output_projection = false) {
-    constexpr unsigned int source_tokens = 7169u;
+                  unsigned int ppb, bool extend_q8192 = false, bool output_projection = false,
+                  bool original_q8192 = false) {
+    require(!original_q8192 || extend_q8192, "original q8192 capture requires the complete shape");
+    const unsigned source_tokens = original_q8192 ? 8192u : 7169u;
     const unsigned rows = output_projection ? 2048u : 8192u, k = output_projection ? 4096u : 2048u;
     const char* coarse_option = std::getenv("QRT_PROJECTION_SAFETY_COARSE_INTERVAL");
     const bool coarse_guard_model = coarse_option && !std::strcmp(coarse_option,"2");
@@ -64,7 +66,7 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     auto weights = read_replay_tensor<uint16_t>(weight_path, static_cast<size_t>(rows) * k, kBf16Guard);
     auto reference = read_replay_tensor<uint16_t>(reference_path,
         size_t(rows) * (output_projection ? tokens : source_tokens), kBf16Guard);
-    if (extend_q8192) {
+    if (extend_q8192 && !original_q8192) {
         // Projection rows are independent. Keep all original 7169 tokens and
         // repeat the first 1023 input rows to exercise the exact product shape.
         // The corresponding GB10 outputs are used only after GPU computation.
@@ -173,6 +175,7 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     }
     const unsigned int blocks = selected_hawkeye_correction_maximum_blocks_per_launch();
     std::cout << "{\"type\":\"" << (output_projection ? "real_out_selector" : "real_qkv_selector") << "\",\"elements\":" << elements
+              << ",\"source_capture_tokens\":" << source_tokens << ",\"repeated_rows\":" << tokens-source_tokens
               << ",\"initial_bf16_mismatches\":" << initial_mismatches
               << ",\"midpoint_misses\":" << midpoint_misses << ",\"bound_misses\":" << bound_misses
               << ",\"required_ppb_observed\":" << required_ppb << ",\"configured_ppb\":" << ppb

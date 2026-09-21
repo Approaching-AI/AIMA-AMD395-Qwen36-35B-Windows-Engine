@@ -86,6 +86,23 @@ Complete attention, metadata preparation and common preparation are reported
 separately; every required stage must be included in a comparison. One warmup
 and three rotated samples retain their numerical checks.
 
+The fixture now also accepts `full8192` with all original Q, K, V and context
+rows from the qualified `q8192-out512` GB10 transaction. This mode repeats no
+rows and compares all 33,554,432 context values. The comparison counts its
+actual reference extent separately from the executed shape; shorter historical
+captures keep their original boundary, while every executed output must remain
+finite. Five native fault controls cover the final original feature, a shorter
+reference and a nonfinite unreferenced output. Those GPU controls remain unrun.
+
+The extracted comparison kernel passes 36 controller execution-coordinate
+checks under ASan/UBSan. Sampling the original q8192 Q/K tensors also passes
+65,536 dots and all 1,048,576 ordered groups: 708,453 use the original matrix
+certificate, 143,942 use exact remainder correction and 196,181 use partial
+coefficients with 219,139 individually aligned original products. Every carry
+matches the independent original arithmetic. This sample does not compare
+external raw QK scores or establish GPU context correctness or performance.
+[Original-reference bindings, sample and comparison-scope checks](../benchmarks/correctness/original-q8192-fixture-local-20260921.json).
+
 The [remainder host audit](../benchmarks/correctness/wave-matrix-remainder-local-20260921.json)
 compares175680 ordered groups against the independent original integer model
 under ASan/UBSan. It preserves47104 existing admissions and adds14336 exact

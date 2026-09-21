@@ -57,6 +57,13 @@ qualified whole-model reference. These results do not replace the existing
 native fixtures or establish GPU behavior or performance.
 [Complete reference, raw-logit checks and host arithmetic evidence](../benchmarks/correctness/gb10-real-q8192-prefill-operands-20260921.json).
 
+The replay harness now accepts `--real-qkv-full-q8192` and
+`--real-out-full-q8192` for those complete original tensors. It requires all
+8,192 input and reference rows and reports zero repeated rows. The existing
+q7169 and repeated-row modes retain their shapes. Arithmetic, producer choices,
+candidate selection and timing scopes are unchanged. The complete native build
+and original-data GPU comparisons remain pending the long owner's cleanup.
+
 On the controller, ASan/UBSan sampling checks8192 dots per operator, with128 evenly
 spaced input rows and64 weight rows whose phase rotates between samples. This
 sample is independent of midpoint selection and is not a timing estimate.
