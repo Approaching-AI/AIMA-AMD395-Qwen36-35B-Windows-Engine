@@ -1,0 +1,56 @@
+{
+  "kind": "nested_resident_shadow_allocation_handoff_local_repair",
+  "source_base_commit": "a0d09426f313759a1e1c6f69568f40a698e6cea6",
+  "source_revision": "working-tree",
+  "failed_product_source_commit": "a7ba406e6edffce0090d0cca5b8239f2a5565450",
+  "failed_product_run_sha256": "ede55f9869bf5c90fc811ffc20e9012bad7cc06474abfa2854616556915721cb",
+  "failure": "A committed inner shadow freed allocations still recorded by the outer prefix shadow. Outer rollback tried to free those retired addresses and did not own the latest accepted clones.",
+  "repair": "Track scoped transactions per thread and actual session owner. Validate the complete parent allocation mapping, then hand accepted clones to the enclosing transaction before retiring its former clones. Original owner snapshots remain immutable.",
+  "source_sha256": {
+    "native/providers/whole_provider.cpp": "ff0b19b3b114fb8e16183be72392db9ab87434b8f9015ba155f8ed43942f9318",
+    "tests/test_model_prefix_checkpoint.py": "2eccce2bc6db4677c1a9a413119a87eab1f79bc4b7e067a7f5727db85089d02d"
+  },
+  "old_control_sha256": "a5f921ab28b3f46e53403a4adbb10a6c50291b3b050d7b30feb03f9940f8861c",
+  "old_control_assertion": "allocations.erase(p)==1",
+  "local_validation": {
+    "command": [
+      "python3.12",
+      "-m",
+      "unittest",
+      "tests.test_model_prefix_checkpoint",
+      "tests.test_q2_resident_cache",
+      "tests.test_native_mtp_decode",
+      "tests.test_prefix_decode_stream"
+    ],
+    "pythonpath": "tests",
+    "returncode": 0,
+    "seconds": 8.488573334179819,
+    "stdout": "",
+    "stderr": "......\n----------------------------------------------------------------------\nRan 6 tests in 8.457s\n\nOK\n",
+    "source_sha256": {
+      "native/providers/whole_provider.cpp": "ff0b19b3b114fb8e16183be72392db9ab87434b8f9015ba155f8ed43942f9318",
+      "tests/test_model_prefix_checkpoint.py": "2eccce2bc6db4677c1a9a413119a87eab1f79bc4b7e067a7f5727db85089d02d"
+    }
+  },
+  "asan_ubsan": true,
+  "regression": {
+    "success_cases": 6,
+    "three_nested_span_commits_per_case": true,
+    "three_transaction_depth": true,
+    "full_and_partial_prefixes": true,
+    "contiguous_and_separate_attention_tails": true,
+    "late_clone_failure_and_cancellation": true,
+    "outer_commit_and_rollback": true,
+    "unknown_outer_completion_after_inner_commit_cases": 4,
+    "actual_provider_transaction": true,
+    "gpu_api": "host allocation and deferred queue doubles"
+  },
+  "fixture_correction": {
+    "initial_attempt_sha256": "af939867bf46cc0673b5108794162dfb8996f4f1ec0e4903e3a240413263f4a5",
+    "reason": "Test retained an extra original metadata copy across teardown; release it before asserting that all fixture allocations are gone."
+  },
+  "repaired_native_execution": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

@@ -1,0 +1,478 @@
+{
+  "kind": "original_q1_residual_native_kernel_acceptance",
+  "host": "baiying",
+  "source_commit": "a0d09426f313759a1e1c6f69568f40a698e6cea6",
+  "model": "D:/models/Qwen3.6-35B-A3B; actual long-context operator operands",
+  "command_file": "run-q1-residual-native-r1.ps1",
+  "command_file_sha256": "05269236f87e0ff15c232cf57cb0ec5d2590a8cf670cd30718f9c1cf883e274f",
+  "source_manifest_sha256": "0e1bdcb2a0598f01972a72ebfe762f86e2727ac643cf1f33293a8f2d66db9708",
+  "manifest": {
+    "kind": "actual_q1_residual_kernel_native_replay_plan",
+    "source_commit": "a0d09426f313759a1e1c6f69568f40a698e6cea6",
+    "repo": "D:/projects/AIMA-public-q1-residual-20260921-r1",
+    "seed": "D:/projects/AIMA-public-native-mtp-target-rope-20260921-r1",
+    "bundle": "q1-residual-a0d0942.bundle",
+    "bundle_sha256": "5d8e358c69a3339d5f2758af0374d8184c403d3c2cd23bd6eeaecb9065ced0ba",
+    "data": "q1-residual-native-inputs-r1",
+    "input_sha256": {
+      "weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7",
+      "original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+      "inverse.f32.bin": "e5e2ca6043192b529b7f4cfbd76fbcf90c326d5eff9677e6714f00b3cb1be7a5",
+      "postnorm_live_extract.h": "f182abb3879aa18b69995c28cf79b3421d1e9dfed4b621f786db0a33857a2fbb",
+      "original-output.bf16.bin": "0bcfc9ee3ab0ba7df8a381beb4c6f95313c9fe5426e8bb61b8e398630c39640b",
+      "operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+      "variance.f32.bin": "615344604a3db0aa5d3b830314cab66145a162c3fa052624939ee583e5296182"
+    },
+    "source_sha256": {
+      "native/providers/gdn/q1_residual_norm_capture_replay.cpp": "25482f189ca4f2a9bc82683e892947c69b515189b91511b11316abd43ca148b9",
+      "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+      "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+      "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+      "native/providers/gdn/sm121_q1_residual_math.h": "f661aad36633ca4e3d2ccab7e720986c567d1431171a0bfc51a7bb040ccac7ae",
+      "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+      "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+      "native/providers/whole_provider.cpp": "5de24f6d1f6ce008973e44d00a8eb7bc6c5a8b3c2337b5eb121c8363c04cc8ab",
+      "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+      "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+      "scripts/prepare_native_postnorm_replay.py": "6d452dcb39a86e62bcb66d6f5222103a39e56a1100230cddfcd6e444443287d9"
+    },
+    "script": "run-q1-residual-native-r1.ps1",
+    "script_sha256": "05269236f87e0ff15c232cf57cb0ec5d2590a8cf670cd30718f9c1cf883e274f",
+    "model": "D:/models/Qwen3.6-35B-A3B; actual long-context operator operands",
+    "reference_host": "gb10-4t",
+    "reference_comparison_sha256": "b4d3238bf415d3791de614457c9122b96c2329eb843446900cf4fb5e71a46139",
+    "reference_input_manifest_sha256": "984a7c58a45a1ba606ae131b6b07f4a9cf6a294a866166fb982a3dea7b1f0b46",
+    "extraction_sha256": "42e370536a7fe7c6e1619c6d68dbaf9ce20e73a0ede249fe089cc44bcc8aebb2",
+    "correction": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+    "correction_sha256": "d7a59b3d92222932ddaa5af63e71d4cbbc55f529948f239924bc0f897c3891c7",
+    "rsqrt": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-rsqrt-positive-ca0230a8.bin",
+    "rsqrt_sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850",
+    "native_timeout_seconds": 120,
+    "transport_timeout_seconds": 300,
+    "expected_cases": 80,
+    "expected_values_per_surface": 163840,
+    "reference_is_compute_input": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false
+  },
+  "dispatch": {
+    "command": [
+      "ssh",
+      "-o",
+      "BatchMode=yes",
+      "-o",
+      "ConnectTimeout=10",
+      "baiying",
+      "powershell.exe -NoProfile -ExecutionPolicy Bypass -File D:/projects/run-q1-residual-native-r1.ps1"
+    ],
+    "returncode": 0,
+    "stdout": "{\"reason\":\"completed\",\"exit_code\":0,\"wall_ms\":2095.723,\"host_checks_pass\":true}\n{\"reason\":\"completed\",\"exit_code\":0,\"wall_ms\":395.065,\"host_checks_pass\":true}\n",
+    "stderr": "",
+    "seconds": 7.991747249849141
+  },
+  "native_runs": [
+    {
+      "phase": "build",
+      "record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-q1-residual-20260921-r1\\scripts\\baiying_guarded_inference.ps1",
+        "spec": {
+          "executable": "C:/Program Files/AMD/ROCm/7.1/bin/hipcc.exe",
+          "arguments": [
+            "-std=c++17",
+            "-O2",
+            "--offload-arch=gfx1151",
+            "-I",
+            "D:\\projects\\q1-residual-native-inputs-r1",
+            "-I",
+            "D:\\projects\\AIMA-public-q1-residual-20260921-r1\\native\\providers\\gdn",
+            "D:\\projects\\AIMA-public-q1-residual-20260921-r1\\native\\providers\\gdn\\q1_residual_norm_capture_replay.cpp",
+            "-o",
+            "D:\\projects\\AIMA-public-q1-residual-20260921-r1\\build\\q1-residual-native-r1\\q1-residual-replay.exe"
+          ],
+          "working_directory": "D:/projects/AIMA-public-q1-residual-20260921-r1",
+          "repo_commit": "a0d09426f313759a1e1c6f69568f40a698e6cea6",
+          "source_inputs": {
+            "native/providers/gdn/q1_residual_norm_capture_replay.cpp": "25482f189ca4f2a9bc82683e892947c69b515189b91511b11316abd43ca148b9",
+            "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+            "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+            "native/providers/gdn/sm121_q1_residual_math.h": "f661aad36633ca4e3d2ccab7e720986c567d1431171a0bfc51a7bb040ccac7ae",
+            "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+            "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+            "native/providers/whole_provider.cpp": "5de24f6d1f6ce008973e44d00a8eb7bc6c5a8b3c2337b5eb121c8363c04cc8ab",
+            "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+            "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+            "scripts/prepare_native_postnorm_replay.py": "6d452dcb39a86e62bcb66d6f5222103a39e56a1100230cddfcd6e444443287d9"
+          },
+          "input_files": {
+            "weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7",
+            "original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+            "inverse.f32.bin": "e5e2ca6043192b529b7f4cfbd76fbcf90c326d5eff9677e6714f00b3cb1be7a5",
+            "postnorm_live_extract.h": "f182abb3879aa18b69995c28cf79b3421d1e9dfed4b621f786db0a33857a2fbb",
+            "original-output.bf16.bin": "0bcfc9ee3ab0ba7df8a381beb4c6f95313c9fe5426e8bb61b8e398630c39640b",
+            "operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+            "variance.f32.bin": "615344604a3db0aa5d3b830314cab66145a162c3fa052624939ee583e5296182"
+          },
+          "command_file": "D:\\projects\\run-q1-residual-native-r1.ps1",
+          "command_file_sha256": "05269236f87e0ff15c232cf57cb0ec5d2590a8cf670cd30718f9c1cf883e274f",
+          "source_manifest_sha256": "0e1bdcb2a0598f01972a72ebfe762f86e2727ac643cf1f33293a8f2d66db9708",
+          "model": "D:/models/Qwen3.6-35B-A3B; actual long-context operator operands",
+          "reference_comparison_sha256": "b4d3238bf415d3791de614457c9122b96c2329eb843446900cf4fb5e71a46139",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "purpose": "build"
+        },
+        "preflight": {
+          "host": "BAIYING",
+          "utc": "2026-09-21T04:35:44.5203008Z",
+          "command_file": "D:\\projects\\AIMA-public-q1-residual-20260921-r1\\scripts\\baiying_guarded_inference.ps1",
+          "command_file_sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+          "spec": {
+            "executable": "C:/Program Files/AMD/ROCm/7.1/bin/hipcc.exe",
+            "arguments": [
+              "-std=c++17",
+              "-O2",
+              "--offload-arch=gfx1151",
+              "-I",
+              "D:\\projects\\q1-residual-native-inputs-r1",
+              "-I",
+              "D:\\projects\\AIMA-public-q1-residual-20260921-r1\\native\\providers\\gdn",
+              "D:\\projects\\AIMA-public-q1-residual-20260921-r1\\native\\providers\\gdn\\q1_residual_norm_capture_replay.cpp",
+              "-o",
+              "D:\\projects\\AIMA-public-q1-residual-20260921-r1\\build\\q1-residual-native-r1\\q1-residual-replay.exe"
+            ],
+            "working_directory": "D:/projects/AIMA-public-q1-residual-20260921-r1",
+            "repo_commit": "a0d09426f313759a1e1c6f69568f40a698e6cea6",
+            "source_inputs": {
+              "native/providers/gdn/q1_residual_norm_capture_replay.cpp": "25482f189ca4f2a9bc82683e892947c69b515189b91511b11316abd43ca148b9",
+              "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+              "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+              "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+              "native/providers/gdn/sm121_q1_residual_math.h": "f661aad36633ca4e3d2ccab7e720986c567d1431171a0bfc51a7bb040ccac7ae",
+              "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+              "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+              "native/providers/whole_provider.cpp": "5de24f6d1f6ce008973e44d00a8eb7bc6c5a8b3c2337b5eb121c8363c04cc8ab",
+              "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+              "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+              "scripts/prepare_native_postnorm_replay.py": "6d452dcb39a86e62bcb66d6f5222103a39e56a1100230cddfcd6e444443287d9"
+            },
+            "input_files": {
+              "weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7",
+              "original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+              "inverse.f32.bin": "e5e2ca6043192b529b7f4cfbd76fbcf90c326d5eff9677e6714f00b3cb1be7a5",
+              "postnorm_live_extract.h": "f182abb3879aa18b69995c28cf79b3421d1e9dfed4b621f786db0a33857a2fbb",
+              "original-output.bf16.bin": "0bcfc9ee3ab0ba7df8a381beb4c6f95313c9fe5426e8bb61b8e398630c39640b",
+              "operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+              "variance.f32.bin": "615344604a3db0aa5d3b830314cab66145a162c3fa052624939ee583e5296182"
+            },
+            "command_file": "D:\\projects\\run-q1-residual-native-r1.ps1",
+            "command_file_sha256": "05269236f87e0ff15c232cf57cb0ec5d2590a8cf670cd30718f9c1cf883e274f",
+            "source_manifest_sha256": "0e1bdcb2a0598f01972a72ebfe762f86e2727ac643cf1f33293a8f2d66db9708",
+            "model": "D:/models/Qwen3.6-35B-A3B; actual long-context operator operands",
+            "reference_comparison_sha256": "b4d3238bf415d3791de614457c9122b96c2329eb843446900cf4fb5e71a46139",
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "performance_acceptance": false,
+            "purpose": "build"
+          },
+          "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+          "input_fingerprints": {},
+          "boot": "2026-09-16T00:45:19.2304050+08:00",
+          "boot_identity": {
+            "kind": "kernel_general_boot_event",
+            "value": "124051:639250875618960311",
+            "record_id": 124051,
+            "utc": "2026-09-15T16:46:01.8960311Z",
+            "cim_boot": "2026-09-16T00:45:19.2304050+08:00"
+          },
+          "memory": {
+            "Length": 64,
+            "Load": 29,
+            "TotalPhysical": 33981009920,
+            "AvailablePhysical": 24017358848,
+            "TotalCommit": 156119142400,
+            "AvailableCommit": 146591973376,
+            "TotalVirtual": 140737488224256,
+            "AvailableVirtual": 138533471084544,
+            "AvailableExtendedVirtual": 0
+          },
+          "gpus": [
+            {
+              "Name": "AMD Radeon(TM) 8060S Graphics",
+              "Status": "OK",
+              "DriverVersion": "32.0.31036.15"
+            }
+          ],
+          "processes": [],
+          "checks": {
+            "no_engine_or_compiler": true,
+            "host_memory_reserve": true,
+            "commit_reserve": true,
+            "amd_gpu_ok": true,
+            "output_disk_reserve": true,
+            "source_commit_exact": true
+          },
+          "pass": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 2095.723,
+        "summary_present": false,
+        "cli_pass": false,
+        "summary": null,
+        "after_boot": "2026-09-16T00:45:19.2304050+08:00",
+        "after_boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "124051:639250875618960311",
+          "record_id": 124051,
+          "utc": "2026-09-15T16:46:01.8960311Z",
+          "cim_boot": "2026-09-16T00:45:19.2304050+08:00"
+        },
+        "boot_clock_text_unchanged": true,
+        "after_memory": {
+          "Length": 64,
+          "Load": 29,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24014520320,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 146575699968,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533463048192,
+          "AvailableExtendedVirtual": 0
+        },
+        "after_gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "after_processes": [],
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "numerical_acceptance_requires_external_oracle": true
+      },
+      "sha256": "778114faa8ee62b08125909aa9b28a2fedf672144f838f1a04fe5235afa08ad5",
+      "preflight_sha256": "ba3bdea2acbd23b92c5cd45c843214ac8070547e30a2338444d8c84a934d8ec4"
+    },
+    {
+      "phase": "replay",
+      "record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-q1-residual-20260921-r1\\scripts\\baiying_guarded_inference.ps1",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-q1-residual-20260921-r1\\build\\q1-residual-native-r1\\q1-residual-replay.exe",
+          "arguments": [
+            "D:\\projects\\q1-residual-native-inputs-r1",
+            "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+            "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-rsqrt-positive-ca0230a8.bin"
+          ],
+          "working_directory": "D:/projects/AIMA-public-q1-residual-20260921-r1",
+          "repo_commit": "a0d09426f313759a1e1c6f69568f40a698e6cea6",
+          "source_inputs": {
+            "native/providers/gdn/q1_residual_norm_capture_replay.cpp": "25482f189ca4f2a9bc82683e892947c69b515189b91511b11316abd43ca148b9",
+            "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+            "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+            "native/providers/gdn/sm121_q1_residual_math.h": "f661aad36633ca4e3d2ccab7e720986c567d1431171a0bfc51a7bb040ccac7ae",
+            "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+            "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+            "native/providers/whole_provider.cpp": "5de24f6d1f6ce008973e44d00a8eb7bc6c5a8b3c2337b5eb121c8363c04cc8ab",
+            "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+            "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+            "scripts/prepare_native_postnorm_replay.py": "6d452dcb39a86e62bcb66d6f5222103a39e56a1100230cddfcd6e444443287d9"
+          },
+          "input_files": {
+            "weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7",
+            "original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+            "inverse.f32.bin": "e5e2ca6043192b529b7f4cfbd76fbcf90c326d5eff9677e6714f00b3cb1be7a5",
+            "postnorm_live_extract.h": "f182abb3879aa18b69995c28cf79b3421d1e9dfed4b621f786db0a33857a2fbb",
+            "original-output.bf16.bin": "0bcfc9ee3ab0ba7df8a381beb4c6f95313c9fe5426e8bb61b8e398630c39640b",
+            "operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+            "variance.f32.bin": "615344604a3db0aa5d3b830314cab66145a162c3fa052624939ee583e5296182"
+          },
+          "command_file": "D:\\projects\\run-q1-residual-native-r1.ps1",
+          "command_file_sha256": "05269236f87e0ff15c232cf57cb0ec5d2590a8cf670cd30718f9c1cf883e274f",
+          "source_manifest_sha256": "0e1bdcb2a0598f01972a72ebfe762f86e2727ac643cf1f33293a8f2d66db9708",
+          "model": "D:/models/Qwen3.6-35B-A3B; actual long-context operator operands",
+          "reference_comparison_sha256": "b4d3238bf415d3791de614457c9122b96c2329eb843446900cf4fb5e71a46139",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "purpose": "replay",
+          "executable_sha256": "6a64e8fab3338d22a7714bd8a5d1b748b7bc190cdf6d2c3314878d0a3c9f191f"
+        },
+        "preflight": {
+          "host": "BAIYING",
+          "utc": "2026-09-21T04:35:46.9119820Z",
+          "command_file": "D:\\projects\\AIMA-public-q1-residual-20260921-r1\\scripts\\baiying_guarded_inference.ps1",
+          "command_file_sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+          "spec": {
+            "executable": "D:\\projects\\AIMA-public-q1-residual-20260921-r1\\build\\q1-residual-native-r1\\q1-residual-replay.exe",
+            "arguments": [
+              "D:\\projects\\q1-residual-native-inputs-r1",
+              "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+              "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-rsqrt-positive-ca0230a8.bin"
+            ],
+            "working_directory": "D:/projects/AIMA-public-q1-residual-20260921-r1",
+            "repo_commit": "a0d09426f313759a1e1c6f69568f40a698e6cea6",
+            "source_inputs": {
+              "native/providers/gdn/q1_residual_norm_capture_replay.cpp": "25482f189ca4f2a9bc82683e892947c69b515189b91511b11316abd43ca148b9",
+              "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+              "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+              "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+              "native/providers/gdn/sm121_q1_residual_math.h": "f661aad36633ca4e3d2ccab7e720986c567d1431171a0bfc51a7bb040ccac7ae",
+              "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+              "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+              "native/providers/whole_provider.cpp": "5de24f6d1f6ce008973e44d00a8eb7bc6c5a8b3c2337b5eb121c8363c04cc8ab",
+              "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+              "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+              "scripts/prepare_native_postnorm_replay.py": "6d452dcb39a86e62bcb66d6f5222103a39e56a1100230cddfcd6e444443287d9"
+            },
+            "input_files": {
+              "weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7",
+              "original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+              "inverse.f32.bin": "e5e2ca6043192b529b7f4cfbd76fbcf90c326d5eff9677e6714f00b3cb1be7a5",
+              "postnorm_live_extract.h": "f182abb3879aa18b69995c28cf79b3421d1e9dfed4b621f786db0a33857a2fbb",
+              "original-output.bf16.bin": "0bcfc9ee3ab0ba7df8a381beb4c6f95313c9fe5426e8bb61b8e398630c39640b",
+              "operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+              "variance.f32.bin": "615344604a3db0aa5d3b830314cab66145a162c3fa052624939ee583e5296182"
+            },
+            "command_file": "D:\\projects\\run-q1-residual-native-r1.ps1",
+            "command_file_sha256": "05269236f87e0ff15c232cf57cb0ec5d2590a8cf670cd30718f9c1cf883e274f",
+            "source_manifest_sha256": "0e1bdcb2a0598f01972a72ebfe762f86e2727ac643cf1f33293a8f2d66db9708",
+            "model": "D:/models/Qwen3.6-35B-A3B; actual long-context operator operands",
+            "reference_comparison_sha256": "b4d3238bf415d3791de614457c9122b96c2329eb843446900cf4fb5e71a46139",
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "performance_acceptance": false,
+            "purpose": "replay",
+            "executable_sha256": "6a64e8fab3338d22a7714bd8a5d1b748b7bc190cdf6d2c3314878d0a3c9f191f"
+          },
+          "executable_sha256": "6a64e8fab3338d22a7714bd8a5d1b748b7bc190cdf6d2c3314878d0a3c9f191f",
+          "input_fingerprints": {},
+          "boot": "2026-09-16T00:45:19.2304050+08:00",
+          "boot_identity": {
+            "kind": "kernel_general_boot_event",
+            "value": "124051:639250875618960311",
+            "record_id": 124051,
+            "utc": "2026-09-15T16:46:01.8960311Z",
+            "cim_boot": "2026-09-16T00:45:19.2304050+08:00"
+          },
+          "memory": {
+            "Length": 64,
+            "Load": 29,
+            "TotalPhysical": 33981009920,
+            "AvailablePhysical": 24017993728,
+            "TotalCommit": 156119142400,
+            "AvailableCommit": 146570600448,
+            "TotalVirtual": 140737488224256,
+            "AvailableVirtual": 138533462786048,
+            "AvailableExtendedVirtual": 0
+          },
+          "gpus": [
+            {
+              "Name": "AMD Radeon(TM) 8060S Graphics",
+              "Status": "OK",
+              "DriverVersion": "32.0.31036.15"
+            }
+          ],
+          "processes": [],
+          "checks": {
+            "no_engine_or_compiler": true,
+            "host_memory_reserve": true,
+            "commit_reserve": true,
+            "amd_gpu_ok": true,
+            "output_disk_reserve": true,
+            "source_commit_exact": true
+          },
+          "pass": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 395.065,
+        "summary_present": false,
+        "cli_pass": false,
+        "summary": null,
+        "after_boot": "2026-09-16T00:45:19.2304050+08:00",
+        "after_boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "124051:639250875618960311",
+          "record_id": 124051,
+          "utc": "2026-09-15T16:46:01.8960311Z",
+          "cim_boot": "2026-09-16T00:45:19.2304050+08:00"
+        },
+        "boot_clock_text_unchanged": true,
+        "after_memory": {
+          "Length": 64,
+          "Load": 29,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24003244032,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 146568822784,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533462114304,
+          "AvailableExtendedVirtual": 0
+        },
+        "after_gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "after_processes": [],
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "numerical_acceptance_requires_external_oracle": true
+      },
+      "sha256": "0f53e047663d37404cfcf1292cb723fa4800b0a1eb443be160965c3c5f98f721",
+      "preflight_sha256": "1ef6668211873a90b47da90841df98fdd710cfe46c4dc81b923ad64934d52c67"
+    }
+  ],
+  "result": {
+    "kind": "actual_q1_residual_norm_kernel_replay",
+    "cases": 80,
+    "elements_per_surface": 163840,
+    "postnorm_f32_mismatches": 0,
+    "postnorm_bf16_mismatches": 0,
+    "finalnorm_mismatches": 0,
+    "moe_norm_f32_mismatches": 0,
+    "moe_norm_bf16_mismatches": 0,
+    "rounded_carrier_mismatches": 0,
+    "unrounded_carrier_mismatches": 0,
+    "diagnostic_variance_mismatches": 0,
+    "diagnostic_inverse_mismatches": 0,
+    "rsqrt_table_disagreements": 0,
+    "guard_errors": 0,
+    "inputs_unchanged": true,
+    "passed": true,
+    "reference_is_compute_input": false,
+    "native_execution": true,
+    "inference_acceptance": false
+  },
+  "compared_surface_values": 1146880,
+  "additional_scalar_values": 240,
+  "original_reference_is_compute_input": false,
+  "whole_model_inference": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

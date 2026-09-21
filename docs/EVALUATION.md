@@ -39,8 +39,11 @@ The production math helper now matches163840 original BF16 outputs and all80
 variance/inverse values over40 layers at two actual Windows positions. Q1
 postnorm, MoE next-input norm and final norm select that reduction; multi-row
 prefill and Q2 arithmetic are unchanged. Three local regressions pass. The
-prepared native probe extracts the actual kernels; native numerical validation
-and complete repaired long-context inference remain open.
+native probe extracts the actual kernels. Its [gfx1151 replay](../benchmarks/correctness/q1-residual-single-row-native-20260921.json)
+now passes all1146880 output/carrier values plus240 variance/inverse/table
+comparisons. All allocation guards and immutable inputs pass; original
+reference outputs never feed a kernel. Complete repaired long-context inference
+remains open.
 
 The [real native MTP short controls](../benchmarks/correctness/native-mtp-short-controls-prefix-failure-20260921.json)
 at a7ba406 now pass q7169/out32 and q8192/out512, including every actual target
@@ -50,6 +53,16 @@ goals and are slower than ordinary decode. The16k-prefix attempt completes its
 initial511 target commits, then fails outer Shadow rollback with release
 status1. All host checks pass; the probe reports0 completed calls, leaving all
 cancellation/restored-owner branches unqualified. Native MTP remains opt-in.
+
+The [nested Shadow ownership repair](../benchmarks/correctness/nested-prefix-shadow-handoff-local-20260921.json)
+reproduces that double release with the actual provider transaction in a host
+regression. Accepted inner commits now transfer the latest clone ownership to
+the enclosing transaction before retiring its previous clones. The original
+prefix snapshot remains immutable. Six ASan/UBSan tests pass, covering three
+transaction levels, repeated accepted spans, full/partial prefixes, both KV
+layouts, late clone failure, cancellation, outer commit/rollback and unknown
+outer completion after an accepted inner span. Native product validation of
+this repair remains open.
 
 The latest [complete Windows Q2 target verification](../benchmarks/correctness/q2-complete-target-native-20260921.json)
 passes on baiying at source `69baaaa`. Starting from real token embeddings

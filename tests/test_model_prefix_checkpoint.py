@@ -357,6 +357,61 @@ int main(){
   assert(!release_qwen36_resident_session_locked());
   escaped.reset();recover_test_quarantine();teardown();
  }
+ // Accepted inner MTP spans replace the outer prefix branch's allocations.
+ // The outer rollback must free the latest branch, never a retired clone.
+ for(bool contiguous:{false,true})for(bool partial:{false,true})for(bool accept_outer:{false,true}) {
+  if(partial&&accept_outer)continue;
+  setup(contiguous);auto& s=g_qwen36_resident_session;auto original=s;
+  const auto base=allocations.size();std::string stage,error;
+  const size_t prefix=partial?128u:129u;std::vector<uint32_t> input(prefix,42);
+  const auto digest=qrt_fnv1a64_bytes(input.data(),input.size()*4u);
+  {
+   ScopedQwen36ResidentSessionShadowTransaction outer(s.generation,digest,&stage,&error,prefix,input.data());
+   assert(outer.ready());
+   for(unsigned span=0;span<3u;++span) {
+    ScopedQwen36ResidentSessionShadowTransaction inner(s.generation,s.prompt_token_ids_fnv1a64,&stage,&error);
+    assert(inner.ready());
+    {ScopedQwen36ResidentSessionShadowTransaction deep(s.generation,s.prompt_token_ids_fnv1a64,&stage,&error);
+     assert(deep.ready());std::memset(s.linear_layers[0].device_allocation,42+span,96);
+     ++s.committed_decode_token_count;assert(deep.commit(&stage,&error));}
+    assert(inner.commit(&stage,&error)&&allocations.size()==base+40u);
+   }
+   // A canceled later span restores the most recently accepted branch.
+   const auto accepted=s.linear_layers[0].device_allocation;
+   fail_alloc=alloc_calls+17u;
+   {ScopedQwen36ResidentSessionShadowTransaction failed(s.generation,s.prompt_token_ids_fnv1a64,&stage,&error);
+    assert(!failed.ready());}
+   fail_alloc=0;assert(s.linear_layers[0].device_allocation==accepted&&allocations.size()==base+40u);
+   {ScopedQwen36ResidentSessionShadowTransaction canceled(s.generation,s.prompt_token_ids_fnv1a64,&stage,&error);
+    assert(canceled.ready());std::memset(s.linear_layers[0].device_allocation,91,96);}
+   assert(s.linear_layers[0].device_allocation==accepted&&static_cast<unsigned char*>(accepted)[0]==44);
+   if(accept_outer)assert(outer.commit(&stage,&error));
+   else assert(outer.rollback("nested_span_completion"));
+  }
+  assert(allocations.size()==base&&s.valid);
+  if(accept_outer){assert(s.committed_decode_token_count==3u&&static_cast<unsigned char*>(s.linear_layers[0].device_allocation)[0]==44);}
+  else {assert(s.linear_layers[0].device_allocation==original.linear_layers[0].device_allocation&&
+    s.committed_decode_token_count==original.committed_decode_token_count&&s.prefix_tokens==original.prefix_tokens&&
+    s.native_mtp_checkpoint.retained==original.native_mtp_checkpoint.retained&&s.native_mtp_processed_inputs==original.native_mtp_processed_inputs);}
+  original={};teardown();
+ }
+ // A failed outer completion must retain the latest accepted clones, after
+ // the inner transaction has already retired the older branch allocations.
+ for(bool contiguous:{false,true})for(unsigned phase:{0u,1u}) {
+  setup(contiguous);auto& s=g_qwen36_resident_session;const auto base=allocations.size();
+  std::string stage,error;
+  {
+   ScopedQwen36ResidentSessionShadowTransaction outer(s.generation,s.prompt_token_ids_fnv1a64,&stage,&error);
+   assert(outer.ready());
+   {ScopedQwen36ResidentSessionShadowTransaction inner(s.generation,s.prompt_token_ids_fnv1a64,&stage,&error);
+    assert(inner.ready());++s.committed_decode_token_count;assert(inner.commit(&stage,&error));}
+   assert(allocations.size()==base+40u);other_stream_pending=true;fail_device_sync=true;
+   if(phase==0u)assert(!outer.rollback("nested_unknown_completion"));
+   else assert(!outer.commit(&stage,&error));
+  }
+  assert(g_qwen36_resident_completion_unknown&&!s.valid&&allocations.size()==base+40u);
+  recover_test_quarantine();assert(s.valid&&allocations.size()==base);teardown();
+ }
  assert(device_syncs>100u);
 }
 ''')

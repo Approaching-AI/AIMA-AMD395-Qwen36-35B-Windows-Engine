@@ -69093,6 +69093,9 @@ public:
         }
         ready_ = true;
         target_permit_->active.store(true,std::memory_order_release);
+        previous_transaction_ = active_transaction_;
+        active_transaction_ = this;
+        registered_transaction_ = true;
         std::cerr
             << "BATCH_MARK qwen36_resident_shadow_transaction_begin"
             << " generation=" << original_.generation
@@ -69119,6 +69122,11 @@ public:
     ~ScopedQwen36ResidentSessionShadowTransaction() {
         if (ready_) {
             (void)rollback("destructor");
+        }
+        if (registered_transaction_) {
+            auto** link = &active_transaction_;
+            while (*link && *link != this) link = &(*link)->previous_transaction_;
+            if (*link) *link = previous_transaction_;
         }
     }
 
@@ -69230,6 +69238,16 @@ public:
             return false;
         }
 
+        // An enclosing prefix transaction owns the allocations this commit
+        // retires. Transfer its rollback responsibility to the accepted clones
+        // before freeing those old allocations. Its original snapshot stays
+        // immutable, and canceled inner spans require no ownership transfer.
+        auto* parent = enclosing_transaction();
+        if (parent && !handoff_shadow_allocations(*parent)) {
+            set_failure("qwen36_resident_shadow_parent_ownership",
+                "nested shadow commit does not match its enclosing allocation owner", failure_stage, failure);
+            return false;
+        }
         hipError_t free_status = hipSuccess;
         for (unsigned int layer_index = 0u;
              layer_index < QRT_QWEN36_LAYER_COUNT;
@@ -69282,12 +69300,46 @@ public:
             << " committed_token_delta="
             << (committed_count - original_.committed_decode_token_count)
             << " shadow_bytes=" << shadow_bytes_
+            << " enclosing_shadow_handoff=" << (parent != nullptr ? 1 : 0)
             << " original_release_status=0"
             << std::endl;
         return true;
     }
 
 private:
+    ScopedQwen36ResidentSessionShadowTransaction* enclosing_transaction() const {
+        for (auto* parent = previous_transaction_; parent; parent = parent->previous_transaction_)
+            if (parent->ready_ && parent->session_owner_ == session_owner_) return parent;
+        return nullptr;
+    }
+
+    bool handoff_shadow_allocations(ScopedQwen36ResidentSessionShadowTransaction& parent) {
+        if (!parent.original_captured_ || parent.committed_ ||
+            &g_qwen36_resident_session != session_owner_ ||
+            parent.original_.generation != original_.generation) return false;
+        for (unsigned i = 0; i < QRT_QWEN36_LAYER_COUNT; ++i) {
+            if (original_.linear_layers[i].device_allocation != parent.shadow_linear_allocations_[i] ||
+                g_qwen36_resident_session.linear_layers[i].device_allocation != shadow_linear_allocations_[i])
+                return false;
+            const auto& old = original_.full_attention_layers[i];
+            const auto& live = g_qwen36_resident_session.full_attention_layers[i];
+            if (old.decode_tail_contiguous) {
+                if (old.device_allocation != parent.shadow_full_attention_allocations_[i] ||
+                    live.device_allocation != shadow_full_attention_allocations_[i]) return false;
+            } else if (old.device_decode_tail_allocation != parent.shadow_full_attention_tail_allocations_[i] ||
+                       live.device_decode_tail_allocation != shadow_full_attention_tail_allocations_[i]) return false;
+        }
+        // No allocation or failing operation occurs after validation starts
+        // publishing these owners. A later outer rollback frees the live clones.
+        for (unsigned i = 0; i < QRT_QWEN36_LAYER_COUNT; ++i) {
+            parent.shadow_linear_allocations_[i] = shadow_linear_allocations_[i];
+            if (original_.full_attention_layers[i].decode_tail_contiguous)
+                parent.shadow_full_attention_allocations_[i] = shadow_full_attention_allocations_[i];
+            else parent.shadow_full_attention_tail_allocations_[i] = shadow_full_attention_tail_allocations_[i];
+        }
+        return true;
+    }
+
     static void set_failure(
         std::string_view stage,
         std::string_view message,
@@ -69439,6 +69491,10 @@ private:
     }
 
     std::unique_lock<std::recursive_mutex> lock_;
+    static inline thread_local ScopedQwen36ResidentSessionShadowTransaction* active_transaction_ = nullptr;
+    ScopedQwen36ResidentSessionShadowTransaction* previous_transaction_ = nullptr;
+    Qwen36ResidentSessionState* session_owner_ = &g_qwen36_resident_session;
+    bool registered_transaction_ = false;
     Qwen36ResidentSessionState original_{};
     std::shared_ptr<Qwen36ResidentShadowQuarantine> quarantine_;
     std::shared_ptr<Qwen36TargetRollbackPermit> target_permit_;
