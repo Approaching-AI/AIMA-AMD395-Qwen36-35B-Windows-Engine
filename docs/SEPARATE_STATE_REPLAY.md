@@ -180,3 +180,13 @@ shape, provider probes and same-DLL real q8192/out512 comparisons remain
 pending. This default-off integration adds no new numerical, performance
 or release qualification. The separately frozen e14f64b fixture is still
 reproducible and need not be mistaken for a build of this provider.
+
+The [provider component plan](../benchmarks/correctness/state-replay-provider-prepared-20260921.json)
+freezes430 inputs at6003bcdee4be820c8901e11139ae64dabde32d4f. It includes the
+actual cooperative translation unit once with `-include`, avoiding duplicate
+header-defined HIP kernels, and uses the provider's `-O2` optimization. Both
+the command and builder parse on Windows. Five dispatch actions and resource
+collection stop with zero subprocess/network calls while prerequisites are
+missing. Synthetic report-format checks cover all six variant/owner rows.
+Native build/component/transport bounds remain180/300/420 seconds, with30-second
+Git children. No component has executed and no resource or speed result exists.

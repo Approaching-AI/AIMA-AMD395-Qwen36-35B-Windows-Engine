@@ -114,6 +114,11 @@ detected. [Exact local evidence](../benchmarks/correctness/state-replay-provider
 records the initial test-extraction error as well. Its Windows build, original
 captured component comparisons and same-DLL real q8192/out512 remain pending.
 No native speed or model qualification transfers from this preparation.
+Its [native component plan](../benchmarks/correctness/state-replay-provider-prepared-20260921.json)
+binds430 inputs at6003bcd, includes the actual cooperative translation unit
+once, and uses the provider's `-O2` flags. Two Windows parsing checks, six
+zero-dispatch admission checks and six synthetic report rows pass; native
+build, resources, generated/captured comparisons and product timing are pending.
 
 The preceding [whole-provider build and q8192 regression](../benchmarks/correctness/residual-norm-mode-q8192-20260921.json)
 pass on baiying at source6a5da30. All512 output IDs and callbacks match GB10,
