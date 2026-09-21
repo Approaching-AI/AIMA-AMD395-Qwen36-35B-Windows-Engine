@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "kind": "partial_wave_qk_host_coordinate_and_declared_matrix_model",
+  "source_commit": "25fa4401142f64cbd7a513e4ef5766ccadb889d6",
+  "reference": "benchmarks/correctness/gb10-real-q8192-prefill-operands-20260921.json",
+  "reference_sha256": "0442a488f70679bb8d502a11dd55061a095a7877edbb42749927a2b8b9830a38",
+  "prior_wave_model": "benchmarks/correctness/original-q8192-projection-followup-local-20260921.json",
+  "prior_wave_model_sha256": "4c33adc3e34aa815750186f24f7597ef4cd5865a6a1cb8780dbcd1fe8b012ad6",
+  "control": {
+    "source_commit": "25fa4401142f64cbd7a513e4ef5766ccadb889d6",
+    "original_kernel": "native/providers/ck_fmha/partial_wave_matrix_qk.h",
+    "original_kernel_sha256": "663618d9a658fa02f07e83b5ae2bcac5ae40b298fe040e6e1f6676b781179c09",
+    "extra_source_sha256": {
+      "native/providers/ck_fmha/compact_matrix_queue_qk.h": "57df1bb01313558d15bceac5fa9baebea60c697ccc7b60abd5fed71eaada9d72",
+      "native/providers/ck_fmha/blackwell_attention.h": "b8cefe638bfcc5c41ff73349624f65741395a383e4e6f72059882a7ae39a82ed"
+    },
+    "extracted_sources_sha256": {
+      "original_group.inc": "39634d1953eb65c8a4a908cc06831a89100026170b9ed2ed547509eb09068500",
+      "extracted_scores.inc": "d9e2ed42f58e96a9912ad36b059e12d33522f25bd598113299e4528bc10befeb",
+      "wave_model.inc": "ec92108747038cd12b868e0f3d3b1b74b95643a242fbbd48eb7ed8c4469c4be8",
+      "scale.inc": "6f6739612d6723fac46616f6b65b7c626ef1d03eca16dd502ab4e57bd6adaeb7"
+    },
+    "wave_model_derivation": {
+      "source_sha256": "c1b556735c1382a6354adc7241dd1d3c95efbccf3bbf2702f494fce05043edd8",
+      "before": "struct Dimension {unsigned x=0u;};",
+      "after": "struct Dimension {unsigned x=0u,y=0u,z=0u;};"
+    },
+    "source_sha256": "9b807b83ba3fd44eb86cc20a78e86279a65a77f0d5abfd3bf1f31d86eab66f9a",
+    "prior_model_sha256": "c101ae448436b67dc1955187f4b35801a86e31443b966d67e20c2793f1246376",
+    "original_q8192_sample_sha256": "405054d332140fe58594d504e33d19725a8a7b726a217f9237e3b6808541a351",
+    "original_q8192_reference_analysis_sha256": "0fbdd8be9b0cab0f0c8ea4506139ed22806f254366f2c60324d893e474f25a52",
+    "inputs": [
+      {
+        "file": "qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-full-03-q-rope-bf16.bin",
+        "bytes": 67108864,
+        "sha256": "e29273ee25aecffe91f54b82f7d6ec75f16856ad2c83bc52eb7214bca83a0335",
+        "shape": [
+          8192,
+          4096
+        ],
+        "dtype": "bf16",
+        "transaction": 0
+      },
+      {
+        "file": "qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-full-03-cache-k-bf16.bin",
+        "bytes": 8388608,
+        "sha256": "56177136288727255bab9a4007078f8f392f37f46cdd5be2e91e85f8c6c2061e",
+        "shape": [
+          8192,
+          2,
+          256
+        ],
+        "dtype": "bf16",
+        "transaction": 0
+      }
+    ],
+    "quoted_include_bindings": {
+      "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+      "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+      "native/providers/moe_accumulator/sm121_compact_integer_dot4.h": "dd88abde3847cc63159fd1884bbaa4e242266ed5cdd6dd6085b44d16fbbdc47e",
+      "native/providers/moe_accumulator/sm121_compact_matrix_group.h": "282151268703522059965ec017e02ed3c4c5705b26eaf3740273efda098c955d",
+      "native/providers/moe_accumulator/sm121_f32_carry.h": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+      "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+      "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+      "native/providers/moe_accumulator/sm121_integer_core.h": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+      "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+      "native/providers/moe_accumulator/sm121_matrix_remainder_group.h": "73b2ccad4a0c86b02ea0d6940b2ef43b6dca15c9e40ae80faeba9b69b3a8dd9a",
+      "native/providers/moe_accumulator/sm121_narrow_f32_carry.h": "85ab733dd564a8dbc5948f5700fcb6c66fbbc5239d0f55e405dbe7e4e210eca9",
+      "native/providers/moe_accumulator/sm121_packed_core_remainder.h": "4cbf70b4b423073560fdb8eec0333a15d463a74b1f09c79e123a6a6fc553d2e5",
+      "native/providers/moe_accumulator/sm121_partial_matrix_group.h": "1d76b5d19a6ad75c95a2161ecdf6e74eb3def2769b757dccc2efcc35adf126d7",
+      "native/providers/moe_accumulator/sm121_prepared_integer_pairs.h": "fc611756401aee8f4fcef546747a7510c1b60fa6a930b6aced3d3c1e02effe6c",
+      "native/providers/moe_accumulator/sm121_scalar_integer_core.h": "adf2dd5d24e98632ef0239d3ea40170c683e1d06b5902b5f08e0e578ae010d66"
+    },
+    "compile_command": [
+      "c++",
+      "-std=c++20",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-psabi",
+      "-Wno-unknown-pragmas",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-I",
+      "<runtime-checkout>",
+      "-I",
+      "<controller-evidence>/partial-wave-qk-host-coordinates-r1",
+      "<controller-evidence>/partial_wave_qk_host_coord_r1.cpp",
+      "-o",
+      "<controller-evidence>/partial-wave-qk-host-coordinates-r1/check"
+    ],
+    "compile_returncode": 0,
+    "compile_stdout": "",
+    "compile_stderr": "",
+    "compile_timeout_seconds": 45,
+    "execution_timeout_seconds": 180,
+    "host_execution_model_only": true,
+    "physical_wmma_semantics_verified": false,
+    "gpu_executed": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "command": [
+      "<controller-evidence>/partial-wave-qk-host-coordinates-r1/check",
+      "<controller-evidence>/qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-full-03-q-rope-bf16.bin",
+      "<controller-evidence>/qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-full-03-cache-k-bf16.bin"
+    ],
+    "returncode": 0,
+    "stdout": "{\"cases\":30,\"real_capture_cases\":2,\"checked_scores\":10240,\"real_capture_scores\":2048,\"inactive_cells\":36923424,\"rejected_tiles\":20,\"uniform_shuffles\":61440,\"modeled_matrix_instructions\":1280,\"raw_bit_mismatches\":0,\"redzones_pass\":true,\"immutable_metadata\":true,\"last_original_query\":8191,\"host_coordinates_and_declared_matrix_model_only\":true,\"physical_wmma_semantics_verified\":false,\"gpu_executed\":false}\n",
+    "stderr": "",
+    "result": {
+      "cases": 30,
+      "real_capture_cases": 2,
+      "checked_scores": 10240,
+      "real_capture_scores": 2048,
+      "inactive_cells": 36923424,
+      "rejected_tiles": 20,
+      "uniform_shuffles": 61440,
+      "modeled_matrix_instructions": 1280,
+      "raw_bit_mismatches": 0,
+      "redzones_pass": true,
+      "immutable_metadata": true,
+      "last_original_query": 8191,
+      "host_coordinates_and_declared_matrix_model_only": true,
+      "physical_wmma_semantics_verified": false,
+      "gpu_executed": false
+    }
+  },
+  "control_sha256": "0855e71c73e1cf4d40756405661564ee8a637b5046f3094d7b22cfd826a8df7b",
+  "faults": {
+    "positive_control_sha256": "0855e71c73e1cf4d40756405661564ee8a637b5046f3094d7b22cfd826a8df7b",
+    "faults": [
+      {
+        "name": "wrong_key_head",
+        "mutation": {
+          "before": "const unsigned head = blockIdx.y, kv = head/8u;",
+          "after": "const unsigned head = blockIdx.y, kv = (head/8u)^1u;"
+        },
+        "mutated_scores_sha256": "76d44cfe9ef7acc910178caf60c79aa9038fe5c755162dd7eb296a4aeed03aec",
+        "compile_command": [
+          "c++",
+          "-std=c++20",
+          "-O1",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-Wno-psabi",
+          "-Wno-unknown-pragmas",
+          "-fsanitize=address,undefined",
+          "-fno-sanitize-recover=all",
+          "-I",
+          "<runtime-checkout>",
+          "-I",
+          "<controller-evidence>/partial-wave-qk-host-coordinates-faults-r1/wrong_key_head",
+          "<controller-evidence>/partial_wave_qk_host_coord_r1.cpp",
+          "-o",
+          "<controller-evidence>/partial-wave-qk-host-coordinates-faults-r1/wrong_key_head/check"
+        ],
+        "compile_returncode": 0,
+        "compile_stdout": "",
+        "compile_stderr": "",
+        "command": [
+          "<controller-evidence>/partial-wave-qk-host-coordinates-faults-r1/wrong_key_head/check",
+          "<controller-evidence>/qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-full-03-q-rope-bf16.bin",
+          "<controller-evidence>/qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-full-03-cache-k-bf16.bin"
+        ],
+        "returncode": 2,
+        "stdout": "",
+        "stderr": "QK score differs\n"
+      },
+      {
+        "name": "wrong_output_head",
+        "mutation": {
+          "before": "(size_t(query_row)*16u+head)*stride+key_base+item*2u+lane/16u",
+          "after": "(size_t(query_row)*16u+(head^1u))*stride+key_base+item*2u+lane/16u"
+        },
+        "mutated_scores_sha256": "62e7cd27972cf47ece0b6487579f9ceb950f8467c8e1922582f901611494c7e6",
+        "compile_command": [
+          "c++",
+          "-std=c++20",
+          "-O1",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-Wno-psabi",
+          "-Wno-unknown-pragmas",
+          "-fsanitize=address,undefined",
+          "-fno-sanitize-recover=all",
+          "-I",
+          "<runtime-checkout>",
+          "-I",
+          "<controller-evidence>/partial-wave-qk-host-coordinates-faults-r1/wrong_output_head",
+          "<controller-evidence>/partial_wave_qk_host_coord_r1.cpp",
+          "-o",
+          "<controller-evidence>/partial-wave-qk-host-coordinates-faults-r1/wrong_output_head/check"
+        ],
+        "compile_returncode": 0,
+        "compile_stdout": "",
+        "compile_stderr": "",
+        "command": [
+          "<controller-evidence>/partial-wave-qk-host-coordinates-faults-r1/wrong_output_head/check",
+          "<controller-evidence>/qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-full-03-q-rope-bf16.bin",
+          "<controller-evidence>/qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-full-03-cache-k-bf16.bin"
+        ],
+        "returncode": 2,
+        "stdout": "",
+        "stderr": "inactive QK cell changed\n"
+      }
+    ],
+    "declared_model_miswiring_rejected": true,
+    "gpu_executed": false,
+    "physical_wmma_semantics_verified": false
+  },
+  "faults_sha256": "85e5daa83a5d489ceafc25e04817fffb0e7c8027a56b4a41ffbb271f2ca68541",
+  "helper_sources": {
+    "partial_wave_qk_host_coord_r1.cpp": {
+      "sha256": "9b807b83ba3fd44eb86cc20a78e86279a65a77f0d5abfd3bf1f31d86eab66f9a",
+      "text": "// Executes extracted QK ownership with host barriers and the declared scalar\n// matrix model. This is not a HIP execution or physical WMMA semantics test.\n#include \"wave_model.inc\"\n#include <fstream>\n#define __shared__ static\nthread_local std::barrier<>* block_barrier=nullptr;\nvoid __syncthreads(){block_barrier->arrive_and_wait();}\nvoid atomicAdd(unsigned* p,unsigned value){*p+=value;}\nnamespace qrt_blackwell_attention {\n#include \"scale.inc\"\n}\nnamespace qrt_compact_matrix_queue_qk {\nnamespace group=qrt_sm121_compact_matrix_group;\n#include \"original_group.inc\"\n}\nnamespace qrt_partial_wave_matrix_qk {\nnamespace partial=qrt_sm121_partial_matrix_group;\nnamespace group=qrt_sm121_compact_matrix_group;\nnamespace original=qrt_compact_matrix_queue_qk;\nusing Row=partial::Row;\nstruct Original {unsigned tokens;const unsigned *query_domain,*key_domain;unsigned* tile_counts;};\nstruct Workspace {Original original;const Row *query,*key;};\n#include \"extracted_scores.inc\"\n}\nnamespace partial=qrt_sm121_partial_matrix_group;\nnamespace original=qrt_q1_moe_hawkeye;\nconstexpr uint32_t sentinel=0x4f395819u;\nuint32_t bits(float x){uint32_t b;std::memcpy(&b,&x,4u);return b;}\nfloat from_bits(uint32_t b){float x;std::memcpy(&x,&b,4u);return x;}\nstd::vector<uint16_t> read(const char* file,size_t count){\n    std::ifstream f(file,std::ios::binary|std::ios::ate);\n    if(!f||f.tellg()!=std::streamoff(count*2u))throw std::runtime_error(\"capture extent\");\n    std::vector<uint16_t> data(count);f.seekg(0);f.read(reinterpret_cast<char*>(data.data()),std::streamsize(count*2u));\n    if(!f)throw std::runtime_error(\"capture read\");return data;\n}\nstruct Counts {uint64_t cases=0,real_cases=0,scores=0,real_scores=0,inactive=0,rejected_tiles=0,shuffles=0,matrices=0;};\ntemplate<bool Force>void check(unsigned tokens,unsigned start,unsigned count,unsigned qtile,unsigned ktile,unsigned head,\n    unsigned family,unsigned reject,Counts& counts,const std::vector<uint16_t>* real_q=nullptr,const std::vector<uint16_t>* real_k=nullptr){\n    const unsigned stride=start+count,qt=qtile*32u,kt=ktile*32u,kv=head/8u;\n    std::vector<uint16_t> queries,keys;\n    if(real_q){queries=*real_q;keys=*real_k;}\n    else{\n        queries.resize(size_t(tokens)*4096u);keys.resize(size_t(tokens)*512u);\n        for(unsigned side=0u;side<2u;++side){\n            auto& data=side?keys:queries;\n            for(size_t i=0u;i<data.size();++i){\n                const unsigned exponent=family?95u+unsigned((i*19u+i/256u+side*17u)%65u):127u;\n                data[i]=uint16_t(((i+side)&1u?0x8000u:0u)|(exponent<<7u)|((i*13u+side*7u)%128u));\n                if(i%31u==0u)data[i]=uint16_t(i&1u?0x8000u:0u);\n            }\n        }\n    }\n    std::vector<partial::Row> qp(size_t(tokens)*16u*16u),kp(size_t(tokens)*2u*16u);\n    std::vector<unsigned> qf(size_t(tokens)*16u,1u),kf(size_t(tokens)*2u,1u);\n    for(unsigned row=0u;row<32u&&start+qt+row<tokens;++row){\n        const size_t offset=(size_t(start+qt+row)*16u+head)*256u;\n        for(unsigned group=0u;group<16u;++group)qp[(size_t(start+qt+row)*16u+head)*16u+group]=partial::prepare(queries.data()+offset+group*16u);\n        for(unsigned i=0u;i<256u;++i)qf[(start+qt+row)*16u+head]&=qrt_sm121_narrow_f32_carry::eligible(queries[offset+i]);\n    }\n    for(unsigned row=0u;row<32u&&kt+row<tokens;++row){\n        const size_t offset=(size_t(kt+row)*2u+kv)*256u;\n        for(unsigned group=0u;group<16u;++group)kp[(size_t(kv)*16u+group)*tokens+kt+row]=partial::prepare(keys.data()+offset+group*16u);\n        for(unsigned i=0u;i<256u;++i)kf[(kt+row)*2u+kv]&=qrt_sm121_narrow_f32_carry::eligible(keys[offset+i]);\n    }\n    if(reject==1u)qf[(start+qt+31u)*16u+head]=0u;\n    if(reject==2u)kf[(kt+31u)*2u+kv]=0u;\n    const auto qf_before=qf,kf_before=kf;\n    const auto qp_before=qp,kp_before=kp;\n    const size_t cells=size_t(count)*16u*stride;\n    std::vector<float> output(cells+16u,from_bits(sentinel));\n    unsigned statistics[4]={sentinel,0u,0u,sentinel};\n    qrt_partial_wave_matrix_qk::Workspace work{{tokens,qf.data(),kf.data(),statistics+1u},qp.data(),kp.data()};\n    Wave waves[4];std::barrier<> cta{128};std::vector<std::thread> workers;\n    for(unsigned thread=0u;thread<128u;++thread)workers.emplace_back([&,thread]{\n        threadIdx.x=thread;blockIdx.x=ktile;blockIdx.y=head;blockIdx.z=qtile;\n        wave=&waves[thread/32u];block_barrier=&cta;\n        qrt_partial_wave_matrix_qk::scores<Force>(work,output.data()+8u,start,count,stride);\n    });\n    for(auto& worker:workers)worker.join();\n    bool admitted=qt+32u<=count&&kt+32u<=stride&&kt+31u<=start+qt;\n    if(admitted)for(unsigned i=0u;i<32u;++i)admitted&=qf[(start+qt+i)*16u+head]&&kf[(kt+i)*2u+kv];\n    if(statistics[0]!=sentinel||statistics[3]!=sentinel||statistics[1]!=0u||statistics[2]!=unsigned(admitted))throw std::runtime_error(\"tile counter differs\");\n    if(!admitted)++counts.rejected_tiles;\n    for(unsigned row=0u;row<count;++row)for(unsigned h=0u;h<16u;++h)for(unsigned key=0u;key<stride;++key){\n        const size_t cell=(size_t(row)*16u+h)*stride+key;\n        if(!admitted||row<qt||row>=qt+32u||h!=head||key<kt||key>=kt+32u){\n            if(bits(output[8u+cell])!=sentinel)throw std::runtime_error(\"inactive QK cell changed\");\n            ++counts.inactive;continue;\n        }\n        original::Value carry{0u,-133,false};\n        for(unsigned g=0u;g<16u;++g){\n            original::Value terms[17];terms[0]=carry;\n            for(unsigned i=0u;i<16u;++i)terms[i+1u]=original::multiply_bf16(\n                queries[(size_t(start+row)*16u+head)*256u+g*16u+i],\n                keys[(size_t(key)*2u+kv)*256u+g*16u+i],-133);\n            carry=original::group_sum<26,-133>(terms,17u);\n        }\n        if(bits(output[8u+cell])!=bits(original::value_to_float(carry)*qrt_blackwell_attention::kExactScale))throw std::runtime_error(\"QK score differs\");\n        ++counts.scores;if(real_q)++counts.real_scores;\n    }\n    for(unsigned i=0u;i<8u;++i)if(bits(output[i])!=sentinel||bits(output[8u+cells+i])!=sentinel)throw std::runtime_error(\"QK redzone changed\");\n    if(qf!=qf_before||kf!=kf_before||std::memcmp(qp.data(),qp_before.data(),qp.size()*sizeof(partial::Row))||\n        std::memcmp(kp.data(),kp_before.data(),kp.size()*sizeof(partial::Row)))throw std::runtime_error(\"QK metadata changed\");\n    for(const auto& w:waves){counts.shuffles+=w.shuffles;counts.matrices+=w.matrices;}\n    ++counts.cases;if(real_q)++counts.real_cases;\n}\nint main(int argc,char** argv)try{\n    if(argc!=3)throw std::runtime_error(\"original q8192 Q K\");\n    Counts counts;\n    for(unsigned family=0u;family<2u;++family)for(unsigned reject=0u;reject<3u;++reject){\n        check<false>(128u,64u,64u,0u,0u,1u,family,reject,counts);\n        check<true>(128u,64u,64u,0u,0u,1u,family,reject,counts);\n        check<false>(128u,64u,64u,1u,2u,9u,family,reject,counts);\n        check<true>(128u,64u,64u,1u,2u,9u,family,reject,counts);\n    }\n    check<false>(128u,0u,64u,0u,0u,1u,0u,0u,counts);\n    check<true>(128u,0u,64u,0u,0u,1u,0u,0u,counts);\n    check<false>(128u,64u,33u,1u,0u,9u,0u,0u,counts);\n    check<true>(128u,64u,33u,1u,0u,9u,0u,0u,counts);\n    const auto q=read(argv[1],8192u*4096u),k=read(argv[2],8192u*512u);\n    check<false>(8192u,8064u,128u,3u,254u,15u,0u,0u,counts,&q,&k);\n    check<true>(8192u,8064u,128u,3u,254u,15u,0u,0u,counts,&q,&k);\n    std::cout<<\"{\\\"cases\\\":\"<<counts.cases<<\",\\\"real_capture_cases\\\":\"<<counts.real_cases<<\",\\\"checked_scores\\\":\"<<counts.scores\n      <<\",\\\"real_capture_scores\\\":\"<<counts.real_scores<<\",\\\"inactive_cells\\\":\"<<counts.inactive<<\",\\\"rejected_tiles\\\":\"<<counts.rejected_tiles\n      <<\",\\\"uniform_shuffles\\\":\"<<counts.shuffles<<\",\\\"modeled_matrix_instructions\\\":\"<<counts.matrices\n      <<\",\\\"raw_bit_mismatches\\\":0,\\\"redzones_pass\\\":true,\\\"immutable_metadata\\\":true,\\\"last_original_query\\\":8191\"\n      <<\",\\\"host_coordinates_and_declared_matrix_model_only\\\":true,\\\"physical_wmma_semantics_verified\\\":false,\\\"gpu_executed\\\":false}\\n\";\n}catch(const std::exception& e){std::cerr<<e.what()<<'\\n';return 2;}\n"
+    },
+    "check_partial_wave_qk_host_coord_r1.py": {
+      "sha256": "99f93fa7b6aedc7efdb18e78953fa42c2a4d5843c0557e60fb85545be502f63a",
+      "text": "from pathlib import Path\nimport hashlib\nimport json\nimport subprocess\n\nB=Path(__file__).resolve().parent\nP=Path('<runtime-checkout>')\nsha=lambda p:hashlib.file_digest(p.open('rb'),'sha256').hexdigest()\nread=lambda p:json.loads(p.read_text())\nprior_path=B/'partial-wave-projection-host-coordinates-r1/comparison.json'\nprior=read(prior_path)\nprior_source=B/'partial_wave_projection_host_coord_r1.cpp'\nassert sha(prior_source)==prior['source_sha256'] and prior['returncode']==0\nd=B/'partial-wave-qk-host-coordinates-r1';d.mkdir()\nmodel=prior_source.read_text().split('namespace qrt_sm121_partial_wave_projection {')[0]\nbefore='struct Dimension {unsigned x=0u;};';after='struct Dimension {unsigned x=0u,y=0u,z=0u;};'\nassert model.count(before)==1\n(d/'wave_model.inc').write_text(model.replace(before,after))\nkernel=P/'native/providers/ck_fmha/partial_wave_matrix_qk.h';text=kernel.read_text()\n(d/'extracted_scores.inc').write_text(text[text.index('__device__ __forceinline__ Row broadcast'):text.index('template<bool ForceOriginal = false>\\ninline int launch')])\noriginal=P/'native/providers/ck_fmha/compact_matrix_queue_qk.h';text=original.read_text()\n(d/'original_group.inc').write_text(text[text.index('__device__ __forceinline__ float original_group'):text.index('template<bool Force>\\n__device__ __forceinline__ bool matrix_step')])\nscale=P/'native/providers/ck_fmha/blackwell_attention.h'\nline=next(line for line in scale.read_text().splitlines() if line.startswith('constexpr float kExactScale ='))\n(d/'scale.inc').write_text(line+'\\n')\nsample_path=B/'original-q8192-qk-host-sample-r1/comparison.json';sample=read(sample_path)\nfor item in sample['inputs']:assert sha(B/item['file'])==item['sha256']\nsource=B/'partial_wave_qk_host_coord_r1.cpp'\ncommand=['c++','-std=c++20','-O1','-Wall','-Wextra','-Werror','-Wno-psabi','-Wno-unknown-pragmas',\n '-fsanitize=address,undefined','-fno-sanitize-recover=all','-I',str(P),'-I',str(d),str(source),'-o',str(d/'check')]\nr=subprocess.run(command,capture_output=True,text=True,timeout=45)\nrecord=dict(source_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=P,text=True,timeout=10).strip(),\n original_kernel=str(kernel.relative_to(P)),original_kernel_sha256=sha(kernel),\n extra_source_sha256={str(p.relative_to(P)):sha(p) for p in (original,scale)},\n extracted_sources_sha256={p.name:sha(p) for p in d.glob('*.inc')},wave_model_derivation=dict(source_sha256=sha(prior_source),before=before,after=after),\n source_sha256=sha(source),prior_model_sha256=sha(prior_path),original_q8192_sample_sha256=sha(sample_path),\n original_q8192_reference_analysis_sha256=sample['original_reference_analysis_sha256'],inputs=sample['inputs'],\n quoted_include_bindings=prior['quoted_include_bindings'],\n compile_command=command,compile_returncode=r.returncode,compile_stdout=r.stdout,compile_stderr=r.stderr,\n compile_timeout_seconds=45,execution_timeout_seconds=180,\n host_execution_model_only=True,physical_wmma_semantics_verified=False,gpu_executed=False,inference_acceptance=False,performance_acceptance=False)\ntry:\n if r.returncode:raise RuntimeError('Compile failed: '+r.stderr[-4000:])\n cmd=[str(d/'check'),*[str(B/item['file']) for item in sample['inputs']]]\n try:run=subprocess.run(cmd,capture_output=True,text=True,timeout=180)\n except subprocess.TimeoutExpired as error:\n  record.update(command=cmd,returncode=None,timeout=True,stdout=str(error.stdout),stderr=str(error.stderr));raise\n record.update(command=cmd,returncode=run.returncode,stdout=run.stdout,stderr=run.stderr)\n if run.returncode:raise RuntimeError('Coordinate model failed: '+run.stderr[-4000:])\n result=json.loads(run.stdout);record['result']=result\n assert result['cases']==30 and result['raw_bit_mismatches']==0 and result['real_capture_scores']==2048\nfinally:\n out=d/'comparison.json'\n with out.open('x')as f:json.dump(record,f,indent=2,allow_nan=False);f.write('\\n')\nprint(json.dumps(dict(file=str(out.relative_to(B)),sha256=sha(out),result=result)),flush=True)\n"
+    },
+    "check_partial_wave_qk_host_coord_faults_r1.py": {
+      "sha256": "d87c636ba5a6504e8ef41affc654a9bf44045677036ddab8514fae1d9c066545",
+      "text": "from pathlib import Path\nimport hashlib\nimport json\nimport subprocess\n\nB=Path(__file__).resolve().parent\nsha=lambda p:hashlib.file_digest(p.open('rb'),'sha256').hexdigest()\nread=lambda p:json.loads(p.read_text())\ncontrol=B/'partial-wave-qk-host-coordinates-r1';proof=read(control/'comparison.json')\nassert proof['returncode']==0 and proof['result']['cases']==30\ntext=(control/'extracted_scores.inc').read_text()\nmutations=[('wrong_key_head','const unsigned head = blockIdx.y, kv = head/8u;',\n            'const unsigned head = blockIdx.y, kv = (head/8u)^1u;'),\n           ('wrong_output_head','(size_t(query_row)*16u+head)*stride+key_base+item*2u+lane/16u',\n            '(size_t(query_row)*16u+(head^1u))*stride+key_base+item*2u+lane/16u')]\nroot=B/'partial-wave-qk-host-coordinates-faults-r1';root.mkdir()\nrecords=[]\nfor name,before,after in mutations:\n assert text.count(before)==1\n d=root/name;d.mkdir()\n for file in control.glob('*.inc'):\n  (d/file.name).write_text(text.replace(before,after) if file.name=='extracted_scores.inc' else file.read_text())\n cmd=[str(d) if part==str(control) else str(d/'check') if part==str(control/'check') else part for part in proof['compile_command']]\n c=subprocess.run(cmd,capture_output=True,text=True,timeout=45)\n item=dict(name=name,mutation=dict(before=before,after=after),mutated_scores_sha256=sha(d/'extracted_scores.inc'),\n           compile_command=cmd,compile_returncode=c.returncode,compile_stdout=c.stdout,compile_stderr=c.stderr)\n records.append(item)\n if c.returncode:raise RuntimeError(c.stderr[-2500:])\n cmd=[str(d/'check'),*proof['command'][1:]]\n r=subprocess.run(cmd,capture_output=True,text=True,timeout=45)\n item.update(command=cmd,returncode=r.returncode,stdout=r.stdout,stderr=r.stderr)\n assert r.returncode==2 and ('QK score differs' in r.stderr or 'inactive QK cell changed' in r.stderr),item\nrecord=dict(positive_control_sha256=sha(control/'comparison.json'),faults=records,\n            declared_model_miswiring_rejected=True,gpu_executed=False,physical_wmma_semantics_verified=False)\nout=root/'comparison.json'\nwith out.open('x')as f:json.dump(record,f,indent=2);f.write('\\n')\nprint(json.dumps(dict(file=str(out.relative_to(B)),sha256=sha(out),rejected=[dict(name=x['name'],returncode=x['returncode'],stderr=x['stderr']) for x in records])),flush=True)\n"
+    }
+  },
+  "extracted_sources": {
+    "original_group.inc": {
+      "sha256": "39634d1953eb65c8a4a908cc06831a89100026170b9ed2ed547509eb09068500",
+      "text": "__device__ __forceinline__ float original_group(float carry,const uint32_t* a,const uint32_t* b){\n    qrt_sm121_float_alignment::Group values;\n    values.maximum=-133;\n#pragma unroll\n    for(unsigned pair=0u;pair<8u;++pair){\n        const uint32_t x=a[pair],y=b[pair];\n#pragma unroll\n        for(unsigned j=0u;j<2u;++j){\n            const uint16_t left=uint16_t(x>>(16u*j)),right=uint16_t(y>>(16u*j));\n            values.products[2u*pair+j]=group::f32::alignment::from_bits(uint32_t(left)<<16u)*\n                group::f32::alignment::from_bits(uint32_t(right)<<16u);\n            const int exponent=(left&0x7fffu)&&(right&0x7fffu)?\n                int((left>>7u)&255u)+int((right>>7u)&255u)-254:-133;\n            values.maximum=values.maximum>exponent?values.maximum:exponent;\n        }\n        if(!pair)values.first_negative=((x^y)&0x8000u)!=0u;\n    }\n    return qrt_sm121_narrow_f32_carry::accumulate(carry,values);\n}\n\n"
+    },
+    "extracted_scores.inc": {
+      "sha256": "d9e2ed42f58e96a9912ad36b059e12d33522f25bd598113299e4528bc10befeb",
+      "text": "__device__ __forceinline__ Row broadcast(const Row& row, unsigned source) {\n    Row result;\n    result.common.encoded.control = __shfl(row.common.encoded.control,source);\n    result.exceptions = __shfl(row.exceptions,source);\n#pragma unroll\n    for (unsigned i = 0u; i < 4u; ++i)\n        result.common.encoded.exponents[i] = __shfl(row.common.encoded.exponents[i],source);\n#pragma unroll\n    for (unsigned i = 0u; i < 2u; ++i)\n        result.common.trailing[i] = __shfl(row.common.trailing[i],source);\n#pragma unroll\n    for (unsigned i = 0u; i < 8u; ++i)\n        result.common.encoded.pairs[i] = __shfl(row.common.encoded.pairs[i],source);\n    return result;\n}\n__device__ __forceinline__ void digits(const Row& row, I4& high, I4& low) {\n#pragma unroll\n    for (unsigned i = 0u; i < 4u; ++i) {\n        const uint32_t a = partial::coefficient_pair(row,2u*i);\n        const uint32_t b = partial::coefficient_pair(row,2u*i+1u);\n        low[i] = int((a & 0x00ff00ffu) | ((b & 0x00ff00ffu) << 8u));\n        high[i] = int(((a >> 8u) & 0x00ff00ffu) | (b & 0xff00ff00u));\n    }\n}\n\ntemplate<bool ForceOriginal = false>\n__global__ __launch_bounds__(128) void scores(Workspace w, float* output,\n    unsigned start, unsigned count, unsigned stride) {\n    const unsigned tid = threadIdx.x, lane = tid%32u, wave = tid/32u;\n    const unsigned head = blockIdx.y, kv = head/8u;\n    const unsigned qt = blockIdx.z*32u, kt = blockIdx.x*32u, tokens = w.original.tokens;\n    const bool interior = qt+32u <= count && kt+32u <= stride && kt+31u <= start+qt;\n    if (!interior) return;\n    __shared__ unsigned admitted;\n    if (wave == 0u) {\n        const bool bad = !w.original.query_domain[(start+qt+lane)*16u+head] ||\n            !w.original.key_domain[(kt+lane)*2u+kv];\n        const unsigned mask = __ballot(bad);\n        if (!lane) admitted = mask == 0u;\n    }\n    __syncthreads();\n    if (!admitted) return;\n    if (!tid) atomicAdd(w.original.tile_counts+1u,1u);\n    const unsigned query_row = qt+(wave/2u)*16u+lane%16u;\n    const unsigned key_base = kt+(wave%2u)*16u;\n    F8 carries{};\n#pragma unroll 1\n    for (unsigned g = 0u; g < 16u; ++g) {\n        const Row a = w.query[(size_t(start+query_row)*16u+head)*16u+g];\n        const Row b = w.key[(size_t(kv)*16u+g)*tokens+key_base+lane%16u];\n        if constexpr (ForceOriginal) {\n            // This safety path needs only the original words. Expand once\n            // per input row, retaining the established raw-row shuffle owner.\n            uint32_t a_raw[8], b_raw[8];\n#pragma unroll\n            for (unsigned pair = 0u; pair < 8u; ++pair) {\n                a_raw[pair] = uint32_t(partial::original(a,pair*2u)) |\n                    (uint32_t(partial::original(a,pair*2u+1u)) << 16u);\n                b_raw[pair] = uint32_t(partial::original(b,pair*2u)) |\n                    (uint32_t(partial::original(b,pair*2u+1u)) << 16u);\n            }\n#pragma unroll\n            for (unsigned item = 0u; item < 8u; ++item) {\n                uint32_t key_raw[8];\n#pragma unroll\n                for (unsigned pair = 0u; pair < 8u; ++pair)\n                    key_raw[pair] = __shfl(b_raw[pair],item*2u+lane/16u);\n                carries[item] = original::original_group(carries[item],a_raw,key_raw);\n            }\n            continue;\n        }\n        I8 hh{}, hl{}, lh{}, ll{};\n        if constexpr (!ForceOriginal) {\n            I4 ah{}, al{}, bh{}, bl{};\n            digits(a,ah,al); digits(b,bh,bl);\n            const I8 zero{};\n            hh = __builtin_amdgcn_wmma_i32_16x16x16_iu8_w32(true,bh,true,ah,zero,false);\n            hl = __builtin_amdgcn_wmma_i32_16x16x16_iu8_w32(true,bh,false,al,zero,false);\n            lh = __builtin_amdgcn_wmma_i32_16x16x16_iu8_w32(false,bl,true,ah,zero,false);\n            ll = __builtin_amdgcn_wmma_i32_16x16x16_iu8_w32(false,bl,false,al,zero,false);\n        }\n#pragma unroll\n        for (unsigned item = 0u; item < 8u; ++item) {\n            // Every lane supplies every source before any sparse correction\n            // or fallback diverges. Sources always belong to this wave.\n            const Row key = broadcast(b,item*2u+lane/16u);\n            bool accepted = false;\n            if constexpr (!ForceOriginal) {\n                const int64_t mathematical = int64_t(hh[item])*65536 +\n                    (int64_t(hl[item])+lh[item])*256 + ll[item];\n                float updated;\n                accepted = partial::accumulate(carries[item],a,key,mathematical,&updated);\n                if (accepted) carries[item] = updated;\n            }\n            if (!accepted) {\n                uint32_t a_raw[8], b_raw[8];\n#pragma unroll\n                for (unsigned pair = 0u; pair < 8u; ++pair) {\n                    a_raw[pair] = uint32_t(partial::original(a,pair*2u)) |\n                        (uint32_t(partial::original(a,pair*2u+1u)) << 16u);\n                    b_raw[pair] = uint32_t(partial::original(key,pair*2u)) |\n                        (uint32_t(partial::original(key,pair*2u+1u)) << 16u);\n                }\n                carries[item] = original::original_group(carries[item],a_raw,b_raw);\n            }\n        }\n    }\n#pragma unroll\n    for (unsigned item = 0u; item < 8u; ++item)\n        output[(size_t(query_row)*16u+head)*stride+key_base+item*2u+lane/16u] =\n            carries[item]*qrt_blackwell_attention::kExactScale;\n}\n\n"
+    },
+    "wave_model.inc": {
+      "sha256": "ec92108747038cd12b868e0f3d3b1b74b95643a242fbbd48eb7ed8c4469c4be8",
+      "text": "// Controller execution-coordinate model. Matrix instructions use a declared\n// scalar 16x16x16 model; this cannot establish physical WMMA lane semantics.\n#include <algorithm>\n#include <array>\n#include <atomic>\n#include <barrier>\n#include <cstdint>\n#include <cstring>\n#include <iostream>\n#include <stdexcept>\n#include <thread>\n#include <vector>\n#include \"native/providers/moe_accumulator/sm121_partial_matrix_group.h\"\n\nusing I4=int __attribute__((ext_vector_type(4)));\nusing I8=int __attribute__((ext_vector_type(8)));\nusing F8=float __attribute__((ext_vector_type(8)));\nstruct Dimension {unsigned x=0u,y=0u,z=0u;};\nthread_local Dimension threadIdx,blockIdx;\nstruct Wave {\n    std::barrier<> sync{32};\n    uint32_t words[32]{};\n    unsigned kinds[32]{};\n    I4 left[32]{},right[32]{};\n    unsigned signs[32]{};\n    uint64_t shuffles=0u,ballots=0u,matrices=0u;\n};\nthread_local Wave* wave=nullptr;\nvoid enter(unsigned kind){\n    wave->kinds[threadIdx.x%32u]=kind;\n    wave->sync.arrive_and_wait();\n    for(unsigned lane=0u;lane<32u;++lane)if(wave->kinds[lane]!=kind)std::terminate();\n}\nunsigned __ballot(bool value){\n    const unsigned lane=threadIdx.x%32u;\n    wave->words[lane]=value;\n    enter(1u);\n    unsigned mask=0u;for(unsigned source=0u;source<32u;++source)mask|=wave->words[source]<<source;\n    if(!lane)++wave->ballots;\n    wave->sync.arrive_and_wait();\n    return mask;\n}\nuint32_t __shfl(uint32_t value,unsigned source){\n    if(source>=32u)std::terminate();\n    const unsigned lane=threadIdx.x%32u;\n    wave->words[lane]=value;\n    enter(2u);\n    const auto result=wave->words[source];\n    if(!lane)++wave->shuffles;\n    wave->sync.arrive_and_wait();\n    return result;\n}\nI8 modeled_wmma(bool signed_left,I4 left,bool signed_right,I4 right,I8 accumulator,bool clamp){\n    const unsigned lane=threadIdx.x%32u;\n    wave->left[lane]=left;wave->right[lane]=right;\n    wave->signs[lane]=unsigned(signed_left)|unsigned(signed_right)<<1u|unsigned(clamp)<<2u;\n    enter(3u);\n    for(unsigned source=0u;source<32u;++source){\n        if(wave->signs[source]!=wave->signs[lane]||clamp)std::terminate();\n        for(unsigned word=0u;word<4u;++word){\n            if(wave->left[source][word]!=wave->left[source%16u][word]||\n               wave->right[source][word]!=wave->right[source%16u][word])std::terminate();\n        }\n    }\n    auto byte=[](int value,unsigned index,bool sign){\n        const unsigned part=(uint32_t(value)>>(index*8u))&255u;\n        return sign&&part>=128u?int(part)-256:int(part);\n    };\n    I8 result{};\n    for(unsigned item=0u;item<8u;++item){\n        const unsigned row=item*2u+lane/16u,column=lane%16u;\n        int sum=accumulator[item];\n        for(unsigned k=0u;k<16u;++k)sum+=byte(wave->left[row][k/4u],k%4u,signed_left)*\n                                               byte(wave->right[column][k/4u],k%4u,signed_right);\n        result[item]=sum;\n    }\n    if(!lane)++wave->matrices;\n    wave->sync.arrive_and_wait();\n    return result;\n}\n#define __device__\n#define __global__\n#define __forceinline__ inline\n#define __launch_bounds__(...)\n#define __builtin_amdgcn_wmma_i32_16x16x16_iu8_w32 modeled_wmma\n"
+    },
+    "scale.inc": {
+      "sha256": "6f6739612d6723fac46616f6b65b7c626ef1d03eca16dd502ab4e57bd6adaeb7",
+      "text": "constexpr float kExactScale = 0.0625f;\n"
+    }
+  },
+  "conclusion": "The unchanged extracted scores kernel passes30 ASan/UBSan host coordinate cases with four modeled waves and a128-thread block barrier. All10240 selected scores match original integer arithmetic, including2048 scores using the qualified original q8192 tensors through query8191. Causal/partial/domain rejection leaves outputs untouched;36923424 inactive cells and all guards/metadata check. Deliberately wrong KV-head and output-head indices reject. The scalar matrix model does not verify physical WMMA semantics, the narrow/fallback kernels, complete GPU attention, or model/performance acceptance.",
+  "gpu_executed": false,
+  "physical_wmma_semantics_verified": false,
+  "complete_attention_executed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "private_original_record_sha256": "a6b3accc9be675b699ce4d57926d70604f45cafc89c2d3a1734e4d6c56a8fa10"
+}

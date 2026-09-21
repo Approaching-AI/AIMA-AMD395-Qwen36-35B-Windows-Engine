@@ -113,6 +113,16 @@ attention actions. Native script parsing passes; actual compilation and GPU
 execution remain pending. The shared original tensor archive remains local.
 [Frozen r3 plan and shared-input preparation](../benchmarks/correctness/original-q8192-native-prepared-20260921.json).
 
+The unchanged extracted partial QK owner passes30 ASan/UBSan controller
+coordinate cases using four modeled waves and a128-thread block barrier.
+All10,240 selected scores match independent original integer arithmetic;
+2,048 use the original q8192 tensors through query8191. All36,923,424 inactive
+cells, metadata and redzones remain unchanged. Causal edges, partial tiles
+and domain rejection leave the tile for the original producer. Wrong KV-head
+and output-head indices are both detected. The scalar matrix model does not
+verify physical WMMA semantics, complete GPU attention or its fallback kernels.
+[Host ownership checks and deliberately damaged controls](../benchmarks/correctness/partial-wave-qk-coordinate-local-20260921.json).
+
 The [remainder host audit](../benchmarks/correctness/wave-matrix-remainder-local-20260921.json)
 compares175680 ordered groups against the independent original integer model
 under ASan/UBSan. It preserves47104 existing admissions and adds14336 exact
