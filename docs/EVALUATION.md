@@ -23,6 +23,15 @@ TPOT100.232207ms do not meet the performance goals. DLL SHA256 is
 `393cb7ceb8353b0d590894628f577d23efdc854f67d2e03a71f483b8132128bd`.
 The combined whole/probe build binds173 source inputs. This functional run
 does not replace the23353.80795ms retained median or qualify long contexts.
+The [retired native MTP row-mode regression](../benchmarks/correctness/native-mtp-retired-reference-mode-local-20260921.json)
+now selects the original single-row route from the validated retired target
+scope, including requests whose initial prefix was shorter than262144 tokens.
+The scope is suspended during external callbacks. The actual coordinator
+covers60 crossings,8 resumed retired spans,8 ordinary failures and10
+cancellations. Nine local tests pass; controls reproduce both the previous
+prefix-only selection failure and callback mode leakage. This repair still
+requires a native build and original-model retirement verification.
+
 The earlier9428e9e [full256k rerun](../benchmarks/correctness/segmented-prefix256k-postnorm-divergence-20260921.json)
 completed with exit6 after22614410.512ms and clean host state. All32
 owner chunks complete, and suffix first248045/logit5.78125 is exact. The first99

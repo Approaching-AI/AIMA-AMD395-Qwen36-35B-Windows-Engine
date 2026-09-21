@@ -12,6 +12,7 @@
 #include <vector>
 #include "native/providers/mtp_decode_rows.h"
 #include "native/providers/native_mtp_target_stream.h"
+#include "native_mtp_row_mode_actual.h"
 using hipError_t=int;
 constexpr int hipSuccess=0;
 struct Step {int status=0;const char* stage="complete";bool completion_unknown=false;};
@@ -203,6 +204,7 @@ static int qrt_qwen36_whole_provider_decode_v1(const qrt_qwen36_whole_provider_d
     qrt_qwen36_whole_provider_decode_result_v1_t* output){
     assert(Qwen36NativeTargetOnly::matches(request)&&!pins&&!targets);
     auto copy=*request;assert(!Qwen36NativeTargetOnly::matches(&copy));
+    assert(qrt_sm121_q1_packed_runtime::applies_to_prefix(g_qwen36_resident_session.prefix_tokens));
     ++ordinary_calls;
     if(fails("ordinary_before"))return 0;
     auto& s=g_qwen36_resident_session;
@@ -232,13 +234,18 @@ static int qrt_qwen36_whole_provider_decode_v1(const qrt_qwen36_whole_provider_d
 static std::vector<uint32_t> emitted;
 static std::vector<uint64_t> emitted_steps,emitted_ends;
 static int emit(void*,uint64_t generation,uint32_t index,uint32_t token,uint64_t elapsed,uint64_t end){
+    assert(!Qwen36NativeTargetOnly::single_row_reference());
+    assert(!qrt_sm121_q1_packed_runtime::applies_to_prefix(8192u));
     ++callbacks;assert(generation==7u&&index==callbacks&&end>0u&&target_committed==drafter_committed);
     assert(elapsed>0u&&end-(emitted_ends.empty()?0u:emitted_ends.back())==elapsed);
     emitted_steps.push_back(elapsed);emitted_ends.push_back(end);
     emitted.push_back(token);return index!=cancel_at;
 }
 static void reset_case(){
-    assert(!pins&&!targets);g_qwen36_resident_session={};g_qwen36_resident_completion_unknown=false;
+    assert(!pins&&!targets&&!Qwen36NativeTargetOnly::single_row_reference());
+    assert(!qrt_sm121_q1_packed_runtime::applies_to_prefix(262143u));
+    assert(qrt_sm121_q1_packed_runtime::applies_to_prefix(262144u));
+    g_qwen36_resident_session={};g_qwen36_resident_completion_unknown=false;
     batch_index=rollbacks=commits=aborts=callbacks=cancel_at=target_committed=drafter_committed=0u;
     fault_stage.clear();fault_unknown=throw_prepare=false;fault_batch=1u;clock_tick=10;
     force_reject=false;ordinary_calls=ordinary_tokens=0;

@@ -14,6 +14,10 @@ public:
     static bool matches(const qrt_qwen36_whole_provider_decode_request_v1_t* request){
         return request && request==active_;
     }
+    // Constructed only after the coordinator verifies an immutable retired
+    // checkpoint. The next target step has the reference's one-row layout,
+    // including when the rejected second row retired MTP below its limit.
+    static bool single_row_reference(){return active_!=nullptr;}
 private:
     inline static thread_local const qrt_qwen36_whole_provider_decode_request_v1_t* active_=nullptr;
     const qrt_qwen36_whole_provider_decode_request_v1_t* prior_;
@@ -73,6 +77,9 @@ private:
         output_.token_end_elapsed_ns[at]=elapsed;previous_=elapsed;
         steps_[index]=step;ends_[index]=end;producer_end_=end;++emitted_;in_callback_=true;
         int accepted=1;
+        // External callbacks may enter another engine or prefix operation.
+        // They cannot inherit this private target's numerical row mode.
+        Qwen36NativeTargetOnly suspend_target_only(nullptr);
         try{if(request_.emit_callback)accepted=request_.emit_callback(request_.emit_user_data,generation,at,token,duration,elapsed);}
         catch(...){in_callback_=false;return reject("retired target callback threw");}
         in_callback_=false;

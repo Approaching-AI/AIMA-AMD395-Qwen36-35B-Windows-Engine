@@ -1,0 +1,86 @@
+{
+  "kind": "native_mtp_retired_reference_mode_local_fix",
+  "source_base_commit": "6a5da300aae444d25541138c5f20423958d25f19",
+  "candidate_source_sha256": {
+    "native/providers/native_mtp_target_stream.h": "c599fc3de1e079271ea92acf439d2b82d5895c3f39091f3e984aed674651cef1",
+    "native/providers/sm121_q1_packed_runtime.h": "c8a1b052f8bebf5bed89637541e378ceab89255b61f5bb165e5b58e8f10a910f",
+    "tests/test_native_mtp_decode.py": "1f52630a9057a2f79676959a8bca47966933ceaacfd699dafd1db3fd0e3b2499",
+    "tests/native/native_mtp_decode_host.cpp": "f07dd672894fa6765e3d5641af0a786df925858cb9793d1db3015978de5ae56a"
+  },
+  "diagnosis": "All 7 packed decode call sites previously selected reference layout from the initial prefix length. An MTP request that began earlier must switch after its original scheduled pair retires the drafter, including rejection leaving the actual processed frontier at262143.",
+  "fix": "The existing exact-request target-only scope selects packed recurrence, projections, segmented attention, postnorm, MoE next-input norm and final norm for retired native target continuation. The scope is suspended during external callbacks and restored on success, cancellation and exceptions. No exported ABI or numerical kernel changes.",
+  "actual_coordinator_cases": {
+    "crossings": 60,
+    "resumed_retired": 8,
+    "ordinary_failures": 8,
+    "cancellations": 10
+  },
+  "local_tests": {
+    "passed": 9,
+    "first_group_passed": 5,
+    "first_group_record_sha256": "74496cdc6859fe45af258474643dee3cbe566fd479dcce85710077615afeeaff",
+    "import_errors": 2,
+    "import_cause": "Two existing test modules require tests on PYTHONPATH; production source unchanged.",
+    "retry": {
+      "command": [
+        "python3.12",
+        "-m",
+        "unittest",
+        "tests.test_model_prefix_checkpoint",
+        "tests.test_final_norm_reference"
+      ],
+      "environment_overrides": {
+        "PYTHONPATH": "<evidence-home-1>/projects/AIMA-public-r1191-candidate/tests:<evidence-home-1>/projects/AIMA-public-r1191-candidate"
+      },
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "....\n----------------------------------------------------------------------\nRan 4 tests in 4.133s\n\nOK\n",
+      "wall_seconds": 4.16351112537086,
+      "retries_only_prior_import_failures": true,
+      "prior_record": "native-mtp-retired-reference-mode-local-r1.json",
+      "source_changed_since_prior_run": false
+    },
+    "retry_sha256": "d843344cca89c19281be44d97364ef88c9b46d5769c4110cb68e612fceed7db6",
+    "all_requested_modules_pass": true
+  },
+  "regression_controls": [
+    {
+      "case": "previous_prefix_only_selection",
+      "compile_returncode": 0,
+      "returncode": -6,
+      "assertion": "Assertion failed: (qrt_sm121_q1_packed_runtime::applies_to_prefix(g_qwen36_resident_session.prefix_tokens)), function qrt_qwen36_whole_provider_decode_v1, file native_mtp_decode_host.cpp, line 207.",
+      "regression_detected": true,
+      "selector_sha256": "5234b00082abc902e8d42e07152975c82514614933a9878798b4328ac74d1ffc",
+      "stream_header_sha256": "c599fc3de1e079271ea92acf439d2b82d5895c3f39091f3e984aed674651cef1"
+    },
+    {
+      "case": "callback_mode_leak",
+      "compile_returncode": 0,
+      "returncode": -6,
+      "assertion": "Assertion failed: (!Qwen36NativeTargetOnly::single_row_reference()), function emit, file native_mtp_decode_host.cpp, line 237.",
+      "regression_detected": true,
+      "selector_sha256": "1142cfc3de24e2b3507f1c738de1459de3f7d432f5121e5adf5ca21e7aed3b8c",
+      "stream_header_sha256": "6e2f620e3566bd991cbf6bc5857f6bea503bbcec8c426989f1fb698b5f61e75f"
+    }
+  ],
+  "regression_raw_sha256": "09aafb9e1c1a887568000fc79b2f672ccf92398df3b7fb5d82feb089125c45ff",
+  "native_build_qualified": false,
+  "native_retirement_qualified": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "packed_route_call_sites": 7,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "e9d6c7e325a0591e4fb224f3ec7ec501ff642909ac3c63bb6cb7246086c3d006",
+    "original_json_bytes": 3958,
+    "source_revision": "6a5da300aae444d25541138c5f20423958d25f19",
+    "source_path": "benchmarks/correctness/native-mtp-retired-reference-mode-local-20260921.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 2
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}

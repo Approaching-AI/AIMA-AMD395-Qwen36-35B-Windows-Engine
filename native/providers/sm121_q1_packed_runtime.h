@@ -1,6 +1,7 @@
 #ifndef QRT_SM121_Q1_PACKED_RUNTIME_H
 #define QRT_SM121_Q1_PACKED_RUNTIME_H
 #include "sm121_q1_attention_runtime.h"
+#include "native_mtp_target_stream.h"
 
 namespace qrt_sm121_q1_packed_runtime {
 struct Tables {
@@ -11,9 +12,12 @@ struct Tables {
 // The reference target allows extended context, while its MTP drafter retains
 // the model's 262144-token limit. Requests starting at that limit or beyond
 // use the original non-speculative packed recurrence for their continuation.
+// A request that began earlier switches when its actual MTP checkpoint retires;
+// the scheduled two-row extent may retire it after accepting only the first row.
 constexpr size_t reference_draft_context_limit = 262144u;
 inline bool applies_to_prefix(size_t prefix_tokens) {
-    return prefix_tokens >= reference_draft_context_limit;
+    return prefix_tokens >= reference_draft_context_limit ||
+        Qwen36NativeTargetOnly::single_row_reference();
 }
 
 inline hipError_t prepare(Tables* output) {
