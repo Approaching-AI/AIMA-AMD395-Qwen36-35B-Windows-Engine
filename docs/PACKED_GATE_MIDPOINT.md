@@ -46,5 +46,10 @@ The whole provider, same-source CLI and prefix probe also compile successfully
 on baiying in121916.409ms. Compiler flags are unchanged; the packed gate
 header is the only changed input among173.
 [Full build provenance](../benchmarks/correctness/packed-gate-midpoint-build-20260922.json).
-Original-model continuation qualification is still required. No new inference, performance or release acceptance is claimed.
+The ordinary q8192 and four native-MTP short model controls now pass all1,120
+original output IDs, callbacks and first logits. Ordinary q8192 load is
+21517.6512ms, TTFT23272.0441ms and TPOT101.032956ms.
+[Original-model short controls](../benchmarks/correctness/packed-gate-midpoint-products-20260922.json).
+The complete256k continuation is running and remains unqualified. No retained
+performance or release acceptance is claimed.
 [Native failure, causal replay and candidate checks](../benchmarks/correctness/layer5-small-gate-midpoint-diagnosis-20260922.json).

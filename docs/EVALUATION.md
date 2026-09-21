@@ -18,37 +18,30 @@ normalizes three later reports while preserving their original bytes at the
 recorded repository revision. Run tools/publish_evidence.py before publishing
 new reports and check the result with tools/public_hygiene.py.
 
-## Current measured state — September 21
+## Current measured state — September 22
 
-The [c268 native evidence](../benchmarks/correctness/single-tail-q1-native-20260921.json)
-qualifies the repaired cold one-input tail against the original GB10 q8193
-prompt and all 32 output tokens. Actual input 63 at position 8192 produces
-220 / 9.75. Its one private cold q1 operation publishes the actual normalized
-row into MTP state, then 31 native continuation commits reproduce the original
-output and callback sequence. The same-source q7169/out32, q8191/out32 and
-native q8192/out512 cases also pass, totaling 608 native output observations.
-No ordinary generated-token commits occur in these four cases.
+The [356 native evidence](../benchmarks/correctness/packed-gate-midpoint-products-20260922.json)
+qualifies the packed gate midpoint repair on the original short model gates.
+Native q7169/out32, q8191/out32, q8192/out512 and q8193/out32 match all608
+original outputs, first logits and callbacks. The cold8192+1 bridge still uses
+actual input63 at position8192 and produces220/9.75, followed by31 native
+continuation commits. No ordinary generated-token commits occur in those cases.
 
-The ordinary q8192/out512 control passes all original prompt IDs, 512 output
-IDs, 512 callbacks and first token 144 / 10.375, with zero first-logit error.
-Load is 21496.2425 ms; TTFT is 23134.0106 ms and TPOT is 101.444817 ms.
-These timings do not replace retained medians. TTFT must first fall below
-10000 ms. The retained targets remain 1506.407263 tok/s, 4187.415605 ms TTFT
-and 35.502151 ms TPOT; model plus engine loading must remain at most 30000 ms.
+The ordinary q8192/out512 control passes the original prompt IDs, all512
+outputs and callbacks, and first token144/logit10.375 with zero logit error.
+Load is21517.6512ms; TTFT23272.0441ms and TPOT101.032956ms. These individual
+functional timings do not replace retained medians. TTFT must first fall below
+10000ms. Retained targets remain1506.407263tok/s,4187.415605ms TTFT and
+35.502151ms TPOT; model plus engine loading must remain at most30000ms.
 
-The whole DLL, CLI and prefix probe build on baiying from
-`c2683cd5cb55478099f1adffe47b98e5cef79fba`, verifying 173 inputs in
-119915.977 ms. Whole SHA256 starts `84e3cedc`; CLI SHA256 starts `813dd56d`.
-The same-source server verifies 25 source/build inputs and passes all 54 Rust
-tests plus formatting on Windows. It builds in 49708.972 ms, with executable
-SHA256 starting `57a40483` and a 268435456-byte PE stack reserve. All builds
-and model runs have passing host checks and complete process cleanup.
-
-The initial whole build and ordinary control launch no compiler/model process
-because the output-disk reserve check fails. Source and output relocation to
-P preserves every verified file and the unchanged 10 GiB guard. The ordinary
-retry preserves its working directory, dependencies and numerical environment.
-Both failed preflights remain bound to the successful evidence.
+Whole provider, CLI and prefix probe build on baiying from
+`35607853eb03487b443ddfed8529b8da5539de86` in121916.409ms. The packed gate
+header is the only changed input among173; compiler flags are unchanged.
+Whole DLL SHA256 starts `81aba6f6`; CLI SHA256 starts `c9195709`.
+[Build provenance](../benchmarks/correctness/packed-gate-midpoint-build-20260922.json).
+All completed builds and short runs pass host checks and process cleanup.
+The preceding c268 server passed54 Rust tests, but server/package qualification
+with the repaired provider remains open. The complete256k rerun is now active.
 
 The [cold-tail implementation and diagnosis](COLD_PREFILL_TAILS.md) describe
 the failed earlier batch route, the real q1 bridge and per-call numeric
@@ -99,8 +92,11 @@ that measured error into offline recurrence reproduces all four captured
 native state endpoints bitwise. Source `3560785` resolves exact BF16 midpoints
 for the32-row packed gate family. It passes37 local controls and actual
 Windows GPU replay:615 cases,4,664 configurations and7,477,772 element
-comparisons, including all7,936 unique original history A/B outputs. Complete
-model requalification remains pending. [Diagnosis and repair scope](PACKED_GATE_MIDPOINT.md).
+comparisons, including all7,936 unique original history A/B outputs. The new
+whole provider and same-source CLI also pass all1,120 original outputs and
+callbacks across ordinary q8192 and native q7169/q8191/q8192/q8193, with exact
+first logits. The complete256k continuation is active and still unqualified.
+[Diagnosis and repair scope](PACKED_GATE_MIDPOINT.md).
 
 The three native retirement cases and final portable archive remain open.
 The actual whole DLL, CLI and static-C-core server must be bound together for

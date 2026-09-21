@@ -1,6 +1,6 @@
 # Real-model performance
 
-Updated September 21, 2026. The current corrected Windows runtime passes the
+Updated September 22, 2026. The current corrected Windows runtime passes the
 short functional cases below, but its q8192 TTFT remains above the required
 10-second boundary. No new release is qualified. All measurements use the real
 BF16 model on baiying, Ryzen AI Max+ 395 (`gfx1151`), at batch size 1.
@@ -8,23 +8,23 @@ Model and engine loading are measured separately from TTFT.
 
 ## Current runtime
 
-Whole provider and CLI source `c2683cd5cb55478099f1adffe47b98e5cef79fba`
-repair the cold final one-input chunk. The ordinary route and four opt-in
+Whole provider and CLI source `35607853eb03487b443ddfed8529b8da5539de86`
+resolve packed gate midpoint rounding and retain the cold final one-input repair. The ordinary route and four opt-in
 native-MTP controls reproduce all 1,120 original GB10 outputs, their callback
 sequences and first logits with zero first-logit error. These are individual
 functional runs, not a new paired performance comparison.
 
 | Case | Output IDs and callbacks | Load ms | TTFT ms | TPOT ms |
 | --- | ---: | ---: | ---: | ---: |
-| Ordinary q8192 | 512 / 512 | 21496.2425 | 23134.0106 | 101.444817 |
-| Native-MTP q7169 | 32 / 32 | 21466.160699 | 25633.5616 | 232.199542 |
-| Native-MTP q8191 | 32 / 32 | 21452.8289 | 29500.1411 | 262.295171 |
-| Native-MTP q8192 | 512 / 512 | 21460.0423 | 24529.5116 | 240.159437 |
-| Native-MTP q8193 | 32 / 32 | 21749.386 | 25665.424 | 240.513768 |
+| Ordinary q8192 | 512 / 512 | 21517.6512 | 23272.0441 | 101.032956 |
+| Native-MTP q7169 | 32 / 32 | 21467.8422 | 25719.9802 | 256.743619 |
+| Native-MTP q8191 | 32 / 32 | 21484.663701 | 29573.382701 | 284.850855 |
+| Native-MTP q8192 | 512 / 512 | 21438.5739 | 24491.133999 | 252.530466 |
+| Native-MTP q8193 | 32 / 32 | 21471.6946 | 25659.4965 | 221.823958 |
 
 Each run binds its command, original prompt, model path, source, actual output
 IDs, first logit, host checks and completed cleanup in the
-[native evidence](../benchmarks/correctness/single-tail-q1-native-20260921.json).
+[native evidence](../benchmarks/correctness/packed-gate-midpoint-products-20260922.json).
 Native MTP remains opt-in. The
 [cold-tail diagnosis](COLD_PREFILL_TAILS.md) records the earlier failures and
 the scope of the repair.
@@ -32,14 +32,14 @@ the scope of the repair.
 The latest correctness-attached paired q8192 median remains 23353.80795 ms
 for the earlier narrow-QK control. Its same-DLL OFF/ON/ON/OFF comparison
 improves 24087.2361 to 23353.80795 ms, with all 2,048 original output IDs
-passing. That result does not substitute for a new c268 comparison.
+passing. That result does not substitute for a new356 comparison.
 [Original paired evidence and component bindings](NARROW_DOMAIN_QK.md).
 
 ## Immutable targets
 
 | Requirement | Target | Current evidence |
 | --- | ---: | --- |
-| First q8192 performance boundary | TTFT below 10000 ms | Open; latest ordinary control is 23134.0106 ms |
+| First q8192 performance boundary | TTFT below 10000 ms | Open; latest ordinary control is 23272.0441 ms |
 | Retained q8192 TTFT | At most 4187.415605 ms | Open |
 | Retained prefill throughput | At least 1506.407263 tok/s | Open |
 | Retained TPOT | At most 35.502151 ms/token | Open |
@@ -108,7 +108,8 @@ comparisons first differ in layer5's incoming recurrent state, head13. The
 90-case GPU replay on original reference operands passes both state layouts.
 The earlier cause is now traced to a BF16 midpoint in B/head13 at263238.
 The [repair](PACKED_GATE_MIDPOINT.md) passes actual original-operand GPU
-components; a new whole-model run remains required. Native wall is
+components and the five short model controls. The complete256k rerun is
+active and remains unqualified. Native wall is
 22598962.712 ms with clean host checks. No256k or performance acceptance is
 claimed. [Completed run and actual state evidence](../benchmarks/correctness/single-tail-q1-prefix256k-step124-native-20260921.json).
 [Prior failure](../benchmarks/correctness/retired-reference-mode-prefix256k-20260921.json)
