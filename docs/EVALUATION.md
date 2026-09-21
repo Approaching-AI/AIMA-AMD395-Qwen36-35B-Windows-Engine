@@ -52,6 +52,16 @@ portable options before staging; expected269 runtime artifacts and285 release
 files remain planned counts. No new archive, relocated model run or release
 qualification has been produced.
 
+The [final-package regression preparation](../benchmarks/correctness/cold-tail-package-regressions-prepared-20260921.json)
+preserves45 protocol,15 saved-prefix and55 control-plane HTTP requests, the
+13-case cold matrix with1856 original outputs, and the full3600-second soak.
+All use one validated archive and matching whole/CLI/server source. Twenty
+missing-binding paths make zero subprocess or network calls; twelve injected
+faults in historical stage records are rejected. Four command files parse
+on Windows. These are preparation checks, not new package inference results.
+The soak waits for offline replay of both HTTP and all13 cold cases on its
+actual artifact set; original tokens, logits, clocks and cleanup checks remain.
+
 The [prepared native retirement matrix](../benchmarks/correctness/native-mtp-retirement-prepared-20260921.json)
 uses existing original GB10 q262140/q262142/q262143 prompts, each with16
 outputs. Same-source native q7169/out32 and q8192/out512 controls precede the

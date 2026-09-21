@@ -115,6 +115,30 @@ archive tests; all context, native retirement, HTTP, soak, load and performance
 requirements remain open. This preparation does not reuse the stale R9 binary
 bindings or claim that the active861 full256k run qualifies the repaired C core.
 
+The [final-archive regression preparation](../benchmarks/correctness/cold-tail-package-regressions-prepared-20260921.json)
+now covers all three HTTP suites, all13 cold CLI cases and the complete
+one-hour same-process soak. Their shared validator requires actual component
+builds, matching archive inventories, relocation and the numerical profile.
+It checks the repaired whole DLL, CLI and static-C-core server together.
+Historical R6 stage records are only a positive control for this validator;
+twelve in-memory faults are rejected. All20 missing-binding paths stop before
+any subprocess or network call. Four Windows command files parse successfully.
+
+The HTTP workers preserve the original45 protocol,15 saved-prefix and55
+control-plane requests. The CLI matrix retains all1856 original output IDs,
+first logits within0.125 and actual callback order. The soak retains its full
+3600-second active window,4200-second controller,120-second request bounds,
+4500-second native guard and original resource/cleanup checks. Its preparation
+requires offline replay of both the same-archive HTTP results and all13 cold
+cases before binding. No executable hashes, requests or model results are
+created by these preparations.
+
+After actual staging, the checks and matrix generators create their bound
+plans. Run the three HTTP actions and their analyzer, and all13 CLI cases
+with the short/cold analyzers. Their completed evidence then supplies the
+soak generator. The source report retains the exact generator, worker,
+dispatcher and analyzer files. Earlier unrun package scripts remain historical.
+
 Next validation uses the original q8191/out32 and q8193/out32 boundaries,
 same-build ordinary and native q8192 controls, then the three original native
 retirement cases. Host transport checks establish no native numerical,
