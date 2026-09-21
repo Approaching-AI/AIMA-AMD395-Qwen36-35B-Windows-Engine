@@ -2,8 +2,8 @@
 
 This component keeps the matrix result and its ordered carries in the wave
 that computes them. It is isolated from runtime dispatch. The native Windows
-build at804ccf4 passes. A subsequent exact-remainder variant passes host
-arithmetic checks and awaits native compilation. GPU numerical behavior,
+build at804ccf4 passes. The subsequent exact-remainder variant atb9ff29d also
+passes host arithmetic checks and native compilation. GPU numerical behavior,
 the complete q8192 component and the original-model boundary remain unmeasured.
 
 The preceding [compact matrix queue](COMPACT_MATRIX_QUEUE_QK.md) passes its
@@ -83,6 +83,23 @@ variants in one executable: retained narrow, old matrix queue, original wave
 owner and exact-remainder wave owner. Forced original-wave replay remains a
 fifth safety variant, giving400 generated cases with the same complete checks.
 
+The [remainder build and captured-operand audit](../benchmarks/correctness/wave-matrix-remainder-native-20260921.json)
+binds sourceb9ff29d and57 compilation inputs to executable SHA256
+fd6070ed104b3eb0c22f63109bf5ef24ddfa3d80e44d35a493eee2b5fd885701.
+The baiying CPU compiler completes in41929.904 ms, retaining the declared long
+owner and all host checks. Physical reserve stays above20070580224 bytes.
+No GPU fixture executes during this build.
+
+An ASan/UBSan host sample checks65536 original-operand dots/1048576 ordered
+groups per shape. At q7169, the original certificate admits706470 groups,
+the remainder path adds142166 and199940 retain fallback. At q8192, the counts
+are706919,140449 and201208. Every carry matches the independent original
+integer arithmetic; all remaining fallbacks involve an unsupported compact
+row. The q8192 extension still repeats captured rows. The historical producer
+exits6; only its independently GB10-matched Q/K surfaces qualify as inputs.
+Its downstream mismatch is preserved, and these samples establish neither
+GPU numerical correctness nor an inference or speed result.
+
 The [native build record](../benchmarks/correctness/wave-matrix-qk-native-build-20260921.json)
 binds source804ccf4,56 compilation inputs, the original compiler flags and
 executable SHA256be45deaa2893604679cf3134d61649fd05d837999767a20ac1893a90947cb128.
@@ -99,6 +116,7 @@ zero private memory and zero reported register spills.
 | Retained narrow control | 167 | 24576 |
 | Earlier compact matrix wave queue | 73 | 28160 |
 | New matrix wave owner | 140 | 4 |
+| Exact-remainder matrix wave owner | 166 | 4 |
 | Forced original-wave safety | 89 | 4 |
 
 These compiled resources do not establish measured occupancy or a speedup.
