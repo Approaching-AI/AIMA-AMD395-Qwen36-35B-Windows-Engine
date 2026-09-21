@@ -35,6 +35,13 @@ actual position and tokens; available logits require matching computation
 layout, without requiring identical draft acceptance counts. These cases
 are unrun and establish no new native retirement qualification.
 
+The [prepared short tail controls](../benchmarks/correctness/native-mtp-tail-prepared-20260921.json)
+reuse original q8191/out32 and q8193/out32 tokens and first logits. The latter
+requires the actual8192+1 cold chunk sequence, followed by31 native target
+commits and all32 live outputs. Their observer passes two prior real logs,
+two synthetic tail sequences and16 deliberate corruptions. PowerShell parsing
+and the active-process admission check pass; neither model case has run yet.
+
 Sourcea31b364 adds an isolated [separate GDN state/replay experiment](SEPARATE_STATE_REPLAY.md).
 The [host and original-operand evidence](../benchmarks/correctness/separate-state-gdn-local-20260921.json)
 checks18 fast and10 replayed CTAs, including6 partial-output replays, with
