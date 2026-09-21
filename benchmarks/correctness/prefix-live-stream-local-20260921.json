@@ -1,0 +1,147 @@
+{
+  "kind": "prefix_live_decode_stream_local_validation",
+  "utc": "2026-09-21T01:36:48.239066+00:00",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "source_base_commit": "6137e029dd9273f028c156cc23a707796894ed42",
+  "source_revision_suffix": "working-tree",
+  "source_sha256": {
+    "native/providers/whole_provider.cpp": "8d97d51723365d94768d0a5d6c7e9bddeb549262f97c4a5635491e3a95f931bb",
+    "native/providers/prefix_decode_stream.h": "53044fd6ca5d9f08c1d96192132463c322e6a189b811bbda3d73e2c5e777f0ce",
+    "native/src/qrt.h": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18",
+    "tests/test_prefix_decode_stream.py": "36d876532c75b15963ddf280dbb88c4412c11de2f68f3214dfa71a55debd1862",
+    "tests/native/prefix_decode_stream_host.cpp": "d9bea41b4451acce4d29afe2f20a7ea37efbc69a3231b4364611c2daab70e291",
+    "tests/native/prefix_legacy_decode_span_fixture.inc": "7ba808c4c5d4282b166cc4944b2a1f4bd5bf8c3a8aedc14fed7393742b835e43"
+  },
+  "tests": {
+    "host": "Jiawei-MacminideMac-mini.local",
+    "start_utc": "2026-09-21T01:35:05.034651+00:00",
+    "source_base_commit": "6137e029dd9273f028c156cc23a707796894ed42",
+    "source_sha256": {
+      "native/providers/whole_provider.cpp": "8d97d51723365d94768d0a5d6c7e9bddeb549262f97c4a5635491e3a95f931bb",
+      "native/providers/prefix_decode_stream.h": "53044fd6ca5d9f08c1d96192132463c322e6a189b811bbda3d73e2c5e777f0ce",
+      "native/src/qrt.h": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18",
+      "tests/test_prefix_decode_stream.py": "36d876532c75b15963ddf280dbb88c4412c11de2f68f3214dfa71a55debd1862",
+      "tests/native/prefix_decode_stream_host.cpp": "d9bea41b4451acce4d29afe2f20a7ea37efbc69a3231b4364611c2daab70e291",
+      "tests/native/prefix_legacy_decode_span_fixture.inc": "7ba808c4c5d4282b166cc4944b2a1f4bd5bf8c3a8aedc14fed7393742b835e43"
+    },
+    "environment_overrides": {
+      "PYTHONPATH": "tests"
+    },
+    "command": [
+      "python3.12",
+      "-m",
+      "unittest",
+      "tests.test_prefix_decode_stream",
+      "tests.test_bounded_prefill_suffix",
+      "tests.test_model_prefix_checkpoint",
+      "tests.test_native_mtp_decode"
+    ],
+    "elapsed_seconds": 6.087234042584896,
+    "returncode": 0,
+    "stdout": "cold_prefill_suffix: clocks, hidden seed, boundaries, cancellation, ownership and logit ABI pass\n",
+    "stderr": "......\n----------------------------------------------------------------------\nRan 6 tests in 6.059s\n\nOK\n"
+  },
+  "tests_file": "prefix-live-stream-local-tests-r2.json",
+  "tests_sha256": "42ab5d21f7bd72bd326ee1ff8cde11b4b9996c67acc6a36f9755f44d71f55c33",
+  "actual_implementation": {
+    "span_loop": "qrt_qwen36_whole_provider_prefix_v1",
+    "adapter": "Qwen36PrefixDecodeStream",
+    "synchronous_forwarding": true,
+    "callback_after_producer_commits": true,
+    "output_index_and_elapsed_offset_preserved": true,
+    "returned_tokens_and_clocks_match_callbacks": true,
+    "cancel_stops_future_publications": true,
+    "complete_request_keeps_original_shadow_rollback": true,
+    "abi_layout_changed": false,
+    "numerical_kernels_changed": false
+  },
+  "negative_control": {
+    "source_commit": "6137e029dd9273f028c156cc23a707796894ed42",
+    "source_path": "native/providers/whole_provider.cpp",
+    "fixture": "tests/native/prefix_legacy_decode_span_fixture.inc",
+    "fixture_sha256": "7ba808c4c5d4282b166cc4944b2a1f4bd5bf8c3a8aedc14fed7393742b835e43",
+    "copied_span_sha256": "2f35198cd4a1bda4e6c66466a3754dad5c35d2d176b6cb93d13a2505fe704a08",
+    "unchanged_span_verified_against_git_object": true,
+    "output_capacity": 65,
+    "decode_spans": 2,
+    "late_callbacks": 64,
+    "observation": "The real old loop emits after its decoder returned; the first span has already produced 63 subsequent tokens."
+  },
+  "coverage": {
+    "successful_cases": 15,
+    "capacities": [
+      1,
+      2,
+      32,
+      64,
+      65,
+      128,
+      512
+    ],
+    "streaming_on_and_off": true,
+    "single_token_diagnostic_spans": true,
+    "cancellation_indices": [
+      1,
+      2,
+      62,
+      63,
+      64,
+      65,
+      127,
+      511
+    ],
+    "malformed_or_failed_producers": [
+      "wrong generation",
+      "skipped index",
+      "out-of-vocabulary token",
+      "zero step",
+      "nonmonotonic end",
+      "global end overflow",
+      "missing callback",
+      "duplicate callback",
+      "returned token mismatch",
+      "returned clock mismatch",
+      "producer ignores cancellation",
+      "producer failure",
+      "callback exception",
+      "callback reentry"
+    ],
+    "callback_observes_current_producer_count_before_later_tokens": true,
+    "host_owner_values_compared_after_completion_and_failure": 40,
+    "bridge_harness_owner": "host cache test double with the actual provider rollback lambda",
+    "related_tests": [
+      "actual C core bounded-prefill stream bridge",
+      "actual Shadow checkpoint host tests",
+      "native MTP coordinator and C result validator"
+    ]
+  },
+  "earlier_attempt": {
+    "file": "prefix-live-stream-local-tests-r1.json",
+    "sha256": "48fc2b1c6ac676a4f9edcdf40abba4a6d7d3fc2bbd0a90420eb54352c9738ced",
+    "returncode": 1,
+    "causes": [
+      "negative-control include name shadowed the generated include containing the rollback lambda",
+      "two existing test modules require PYTHONPATH=tests"
+    ],
+    "corrections": [
+      "distinct frozen fixture filename",
+      "explicit PYTHONPATH for the focused command"
+    ]
+  },
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "native_execution": false,
+  "model_inference": false,
+  "gb10_token_gate_passed_by_native_change": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "pending": [
+    "Windows whole build",
+    "actual model prefix callbacks during decode",
+    "original GB10 continuation and first-logit comparison",
+    "cancelled prefix followed by restored-owner continuation"
+  ]
+}

@@ -5034,8 +5034,9 @@ typedef qrt_qwen36_whole_provider_decode_emit_callback_v1_t
  * provider owns a copy-on-write transaction and must restore the base session
  * before returning, including on a numerical or callback failure.  A non-null
  * callback publishes output zero immediately after suffix TTFT and publishes
- * each later decode span before the next span starts.  The core validates the
- * complete cached-prefix token identity before invoking it.
+ * each later decoded token synchronously as it is produced. Returning zero
+ * cancels the remaining decode and restores the original prefix owner. The
+ * core validates the complete cached-prefix token identity before invoking it.
  */
 typedef struct qrt_qwen36_whole_provider_prefix_request_v1_t {
     uint32_t struct_size;

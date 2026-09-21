@@ -221,6 +221,24 @@ Its host syntax passes. This prefix API is not yet selected by the whole
 runtime; Windows arithmetic, live prefix continuation and release remain
 unqualified. The six-case cold native plan remains frozen at e7880fc.
 
+The [prefix streaming regression](../benchmarks/correctness/prefix-live-stream-local-20260921.json)
+reproduces delayed delivery in the actual prefix decode loop: each span finishes
+up to63 subsequent tokens before forwarding them. The prefix loop now binds
+the decoder's synchronous callback, offsets its indices/clocks and checks the
+returned sequence against the published sequence. Cancellation stops further
+publication and follows the existing rollback path. ABI layouts and numerical
+kernels are unchanged.
+
+Six focused local tests pass in6.059s under ASan/UBSan. The actual span loop and
+rollback lambda exercise15 successful cases, eight cancellation positions and
+14 malformed/failing producers. The old loop is retained as a negative control:
+all64 callbacks after its first output are late in a65-output request. Cache
+values in this new liveness harness are host test doubles; related checks use
+the actual Shadow, C streaming bridge and MTP result validator. Windows build,
+real-model callback arrival, original GB10 outputs/logits and owner continuation
+after cancellation remain pending. This local result does not qualify inference,
+performance or release.
+
 The native cache-publication probe is prepared in
 tools/q2_cache_publication_hip_probe.cpp. It evaluates the complete original
 q8192 target pair, then checks accepted1/2 rows with BF16/FP32 tails and both

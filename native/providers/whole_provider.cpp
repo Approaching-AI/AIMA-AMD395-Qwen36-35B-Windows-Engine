@@ -21,6 +21,7 @@
 
 #include "qrt.h"
 #include "qrt_prefix_logit.h"
+#include "prefix_decode_stream.h"
 #include "qrt_prefix_checkpoint.h"
 #include "prefix_checkpoint_policy.h"
 #include "resident_text_shard_layout.h"
@@ -223615,6 +223616,10 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
                 decode_request.initial_output_token_id;
             g_qwen36_resident_session.current_token_valid = true;
         }
+        Qwen36PrefixDecodeStream live_stream(*request,*out_result,completed_output_tokens,
+            span_decode_tokens,provider_decode_end_ns);
+        if(!live_stream.bind(&decode_request))
+            return rollback_failure(QRT_STATUS_UNSUPPORTED,"qwen36_resident_prefix_stream_contract",live_stream.failure());
         const int decode_ok = qrt_qwen36_whole_provider_decode_v1(
             &decode_request,
             &decode_result
@@ -223640,6 +223645,8 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
                     : "resident prefix request could not generate its requested continuation with exact per-token timing"
             );
         }
+        if(!live_stream.complete(decode_result))
+            return rollback_failure(QRT_STATUS_UNSUPPORTED,"qwen36_resident_prefix_stream_contract",live_stream.failure());
         const uint32_t output_base = completed_output_tokens;
         std::copy_n(
             decode_result.output_tokens + 1u,
@@ -223679,30 +223686,6 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
             );
         }
         provider_decode_end_ns += decode_result.tpot_elapsed_ns;
-        if (request->emit_callback != nullptr) {
-            for (uint32_t span_index = 0u;
-                 span_index < span_decode_tokens;
-                 ++span_index) {
-                const uint32_t output_index =
-                    output_base + span_index;
-                if (!request->emit_callback(
-                        request->emit_user_data,
-                        request->expected_session_generation,
-                        output_index,
-                        out_result->output_tokens[output_index],
-                        out_result
-                            ->output_token_step_elapsed_ns[output_index],
-                        out_result
-                            ->output_token_end_elapsed_ns[output_index]
-                    )) {
-                    return rollback_failure(
-                        QRT_STATUS_UNSUPPORTED,
-                        "qwen36_resident_prefix_decode_callback_cancelled",
-                        "resident prefix request callback cancelled a copy-on-write decode span"
-                    );
-                }
-            }
-        }
         completed_output_tokens += span_decode_tokens;
     }
     out_result->decode_elapsed_ns =
