@@ -13,8 +13,10 @@ and every embedded artifact hash. Numerical results are unchanged. The
 [September21 publication audit](../benchmarks/correctness/public-evidence-path-redaction-20260921.json)
 retains all40 original reports and removes6343 personal home prefixes from
 current public copies. Commands containing aliases require local substitution.
-Run tools/publish_evidence.py before publishing new reports and check the
-result with tools/public_hygiene.py.
+The [follow-up path view receipt](../benchmarks/correctness/public-evidence-home-path-views-20260922.json)
+normalizes three later reports while preserving their original bytes at the
+recorded repository revision. Run tools/publish_evidence.py before publishing
+new reports and check the result with tools/public_hygiene.py.
 
 ## Current measured state — September 21
 
@@ -87,6 +89,11 @@ consecutive original continuation inputs for exactly one linear layer, within
 the existing1GiB maximum. All40 observer/token-matrix unit tests pass; default
 cases retain their selection and512MiB limit. The layer5 history capture and
 sequential replay are the next diagnostic, with inference acceptance unchanged.
+The first history capture stops at the immutable q7169 control:220/9.375 rather
+than82/9.25. Its remaining31 outputs and all412 shared observation files match
+the earlier rejected control. The unchanged configuration's retry reproduces all608 original outputs and
+full first logits; the continuous observations are being independently qualified. This failure is retained and
+never used to alter the original oracle. [Rejected reference evidence](../benchmarks/correctness/gb10-layer5-history-control-rejection-20260921.json).
 
 The three native retirement cases and final portable archive remain open.
 The actual whole DLL, CLI and static-C-core server must be bound together for
