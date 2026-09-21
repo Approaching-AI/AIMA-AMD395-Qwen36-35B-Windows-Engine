@@ -1,0 +1,2108 @@
+{
+  "kind": "packed_gate_midpoint_native_whole_build",
+  "host": "baiying",
+  "source_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+  "model": "none; Windows compilation only",
+  "command_file": "P:/projects/run-native-packed-gate-midpoint-r1.ps1",
+  "validated_build": {
+    "source_manifest": "packed-gate-midpoint-whole-source-r1.json",
+    "source_manifest_sha256": "42b224f40bf79d0b021cd67fdbf65e7c70ec4a3e5c61c49fc4f926daec420bdb",
+    "source_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+    "repo": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1",
+    "run_directory": "packed-gate-midpoint-whole-build-r1",
+    "run_sha256": "cdf23e7d8bbdb07ac0da4690829f4aa8dbf28292e0d96fc14eedd2e345b9231e",
+    "whole_metadata_sha256": "35711d255702d4b10c5e20346fa7871aba0090263ab4acdaeecfcf199d377499",
+    "whole_artifact": {
+      "name": "qrt_qwen36_whole_provider.dll",
+      "bytes": 14068736,
+      "sha256": "81aba6f6956c415ea48ed60d1199a9f64a6eb0ef04dc96ad176f5b876f3b0e83"
+    },
+    "whole_artifacts": [
+      {
+        "name": "qrt_qwen36_whole_provider.dll",
+        "bytes": 14068736,
+        "sha256": "81aba6f6956c415ea48ed60d1199a9f64a6eb0ef04dc96ad176f5b876f3b0e83"
+      },
+      {
+        "name": "q1_moe_avx512bf16_host_provider.obj",
+        "bytes": 183170,
+        "sha256": "831e912266e6738812d3eae9a74dd32201b06e25e80f61c52b9f6cbf02bb3345"
+      }
+    ],
+    "probe_metadata_sha256": "b1822022ae37d0130045e6cf9980d38f8e53122864c000bb889fed1556c6fca8",
+    "probe_executable_sha256": "c0b5c16bac2a0d0eb2bb54b234ac63fe02b683f76dcba8ca7ef0e612fd7cd31d",
+    "probe_executable_bytes": 956416,
+    "cli_metadata_sha256": "2f789b8274d71acb9368d801344135505e703d22f3a01f6421e5d64ec7d8ddf6",
+    "cli_executable_sha256": "c919570991729fc9632d63426a3da1a46721d3e8a852de8e74fa0b585e11e9dd",
+    "cli_executable_bytes": 949760,
+    "cli_path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/product-cli/qrt-product.exe",
+    "whole_compilation_inputs": 167,
+    "probe_compilation_inputs": 10,
+    "cli_compilation_inputs": 8,
+    "all_source_inputs": 173,
+    "compiler_flags_match_control": true
+  },
+  "source_manifest": {
+    "compile_timeout_seconds": 240,
+    "probe_compile_timeout_seconds": 180,
+    "cli_compile_timeout_seconds": 180,
+    "native_timeout_seconds": 660,
+    "transport_timeout_seconds": 750,
+    "native_mtp_dispatch_default_enabled": false,
+    "kind": "native_packed_gate_midpoint_whole_build",
+    "source_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+    "prerequisite_commit": "c2683cd5cb55478099f1adffe47b98e5cef79fba",
+    "repo": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1",
+    "seed": "P:/projects/AIMA-public-single-tail-q1-20260921-r1",
+    "bundle": "packed-gate-midpoint-3560785.bundle",
+    "bundle_sha256": "92a8c361bba631311782a0c8d60db738677f28078aa06313b3bdea90ef2ea737",
+    "script": "run-native-packed-gate-midpoint-r1.ps1",
+    "script_sha256": "a539948ee16355627801ccfb333b0f3030917872a1f89be5a625c19069988df6",
+    "dispatcher": "dispatch_packed_gate_midpoint_whole_r1.py",
+    "dispatcher_sha256": "3ab084c1964113ca8329c7c1fefd05104541d300f0a7a68497fb703194d0e340",
+    "build_commands": "run-packed-gate-midpoint-build-commands-r1.ps1",
+    "build_commands_sha256": "9d1dce437921424dab798f1896790d85c240d48806830c3f3f9d0a60075b426e",
+    "source_sha256": {
+      "native/providers/ck_fmha/blackwell_attention.h": "b8cefe638bfcc5c41ff73349624f65741395a383e4e6f72059882a7ae39a82ed",
+      "native/providers/ck_fmha/float_pv_replay.h": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+      "native/providers/ck_fmha/inplace_probability_storage.h": "71d5c98c594c813b590aa6c5b8ae96cadaf4d0edfd08d9c7894feee7fc8ad64c",
+      "native/providers/ck_fmha/long_attention_layout.h": "b94f16310020a757076e6f9bd7d97bea81f91d90567e006a419d5de4acfd1f19",
+      "native/providers/ck_fmha/packed_probability_storage.h": "5bb63c12db0afdf2e7aa86e47f50fb90b827f1936321e352afeac6577330999e",
+      "native/providers/final_query_liveness.h": "f7df422413398f445e02be25fc3de3839f7f3075b9fedcdcaeba7482598be0d6",
+      "native/providers/gate_input_capture.h": "a3efc27b99d604f5284edbc85c040535d783fb24e8b209beab89d48649b578b2",
+      "native/providers/gdn/conv_consumer_audit.h": "db409421ee2f3d31238e07347d260c44307b7bdda11487d566eb1f971b011747",
+      "native/providers/gdn/conv_consumer_interval.h": "83074ab596ffa85f889d83ce10235b2ac5824e2755271bb86a3954b0b0f0a6b8",
+      "native/providers/gdn/fla_checkpoint.h": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+      "native/providers/gdn/gb10_gate_lookup.h": "926729def66c5c32cc95c4fc2ebf7dc0f5b5de7d83f368a863343f4e97bdfe2c",
+      "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+      "native/providers/gdn/sm121_bf16_fma.h": "2c1e66061c5a36f231c4e35eadc23ca86b0e647b57ab70c5e9adc51048dbd1ad",
+      "native/providers/gdn/sm121_exp2_interpolated.h": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+      "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+      "native/providers/gdn/sm121_mtp_attention.h": "472b1822f19ca1fa6fa1fa63d0e8e151e2b5ec574f1b6c0621c5ef10cab7344a",
+      "native/providers/gdn/sm121_mtp_cache_snapshot.h": "a17077d41b0bfbf715095f43fd2138dd4389bc5f4508820c3a5bcba2b3b7968a",
+      "native/providers/gdn/sm121_mtp_drafter.h": "1d30e81258d926bab4db6463ec07df735078e47fe02f009c3f7df5ce3d89bd85",
+      "native/providers/gdn/sm121_mtp_frontier.h": "3cfa529c7856f90541821a0faf071450474171e3b85f2c14e7c54b22623f07f5",
+      "native/providers/gdn/sm121_mtp_gate.h": "41e052dc237375567a8a11b95d41b4eb8cfa75ac6b984c9bcd7735be7e02da9f",
+      "native/providers/gdn/sm121_mtp_gate_math.h": "95c79544165c6aefbc99f47e25625b20f009789f566e27ebe1bdbfe1486a9111",
+      "native/providers/gdn/sm121_mtp_head.h": "dfd332895bb383467e5df5fea66fce18aa1bcf903337c4dd3c3eeab07864370c",
+      "native/providers/gdn/sm121_mtp_head_math.h": "5aa79376f2ad30440ae91cbbd22b6792eebf0273ce68df2f7fddbe8022925766",
+      "native/providers/gdn/sm121_mtp_kv.h": "ff2c7cb575c063384cf48bc6aeaf296ff095db86ef38c8bf02183475697d470a",
+      "native/providers/gdn/sm121_mtp_kv_math.h": "b4cd662fe69172accc1b24c0e724462f822704835ac1d6d4cfa10c55f0caca72",
+      "native/providers/gdn/sm121_mtp_math.h": "0e58296175341d4ded1b69c5318808246721623b25b15404d00b6074d74ebddf",
+      "native/providers/gdn/sm121_mtp_model_weights.h": "570bc401f4474b2200b5200ba929a8a47615542ff06537e597e02f5ee8bb692d",
+      "native/providers/gdn/sm121_mtp_moe.h": "df38e91dae5bc127961813be746da1d5bd8ce8dc0e2fb01782f3aeac896cb52d",
+      "native/providers/gdn/sm121_mtp_moe_layout.h": "aa25ff78b71bd698db2745b2e7a84cfebd565b9d143a81bc4f7e7a302617ff1f",
+      "native/providers/gdn/sm121_mtp_moe_math.h": "1bca67f5dd6a672d0f0d79f90bf0d3a992c6908dea235b3b028efa29900fb349",
+      "native/providers/gdn/sm121_mtp_projection.h": "ffae24eed114ae3c4e53b6d59087fc54570bea49a9de9ffc0f997be71ef8bcf0",
+      "native/providers/gdn/sm121_mtp_prompt_cache.h": "28aca81bc55485ebefaba7cca4e1f91512b4c55710909b86cc14482f070ab147",
+      "native/providers/gdn/sm121_mtp_query.h": "1e66f7eb11d9c2f00b9a3b9a856fff403aeaf57f804b1bac399b3f4461c1b918",
+      "native/providers/gdn/sm121_mtp_query_math.h": "83e9e334131e3c335ab3795865f4f4013f27f963b839c260d44aaa5fa20631f9",
+      "native/providers/gdn/sm121_mtp_request.h": "7cc613959087ad2fc5906e39ee4b2aef387f942876805e23fec468a8ebb02d9d",
+      "native/providers/gdn/sm121_mtp_resident_weights.h": "cad93791a1cca014a862291070db296069abe4e267e79e58ae705269209be68d",
+      "native/providers/gdn/sm121_mtp_residual.h": "135dadcfe48e69232e2254380f55a0891cbd0ce72e3c4ea296167ec6af51273f",
+      "native/providers/gdn/sm121_mtp_residual_math.h": "778b44d6f983e682409dc64aa50d1548d9dffc047d50012204c2ab135b69ac48",
+      "native/providers/gdn/sm121_mtp_target_inputs.h": "20c0733c8156b15feff6667d58e8918b7ba9b92eafdafb72360b16df4a836750",
+      "native/providers/gdn/sm121_q1_attention.h": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+      "native/providers/gdn/sm121_q1_full.h": "047b04ec6738d66c2c86c68b8e3b676ca4ad035f9ceab72a2ebce3c876321747",
+      "native/providers/gdn/sm121_q1_gdn.h": "a85bcd2eae346a31ccb4075e4bb5897d0d238513344322bb4d12059d9734287e",
+      "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+      "native/providers/gdn/sm121_q1_residual_math.h": "f661aad36633ca4e3d2ccab7e720986c567d1431171a0bfc51a7bb040ccac7ae",
+      "native/providers/gdn/sm121_q1_segmented_attention.h": "b8eb2d30d6a01588d9b33491020afa368d7323a1ccb83e10ad3d22c66062454e",
+      "native/providers/gdn/sm121_q1_segmented_attention_math.h": "8f2e9d5f9ada32bfa30c0079c70f4747d9bf843316c6b074d28ac5f6d90ea74e",
+      "native/providers/gdn/sm121_q2_attention_block.h": "ec58287e49bed021a881349eaf36084d40e416e00a08383455a2ef96bd1d3a20",
+      "native/providers/gdn/sm121_q2_attention_block_layout.h": "26101eed3fa24e5f15ce52e8af0be9ac3b1318bba09e0f21406e1a16bee19f93",
+      "native/providers/gdn/sm121_q2_attention_layer.h": "19990d6045e91cb5ed45e01f834ff840faf7977a3e6d2fff3d06ba7aa8ca4fbc",
+      "native/providers/gdn/sm121_q2_cache_lifetime.h": "af19d7d4d43e88e48059641294bf9fb10686751d0c94508f2990781be601c034",
+      "native/providers/gdn/sm121_q2_cache_view.h": "4246d746ac25eb861b70df83c595bc2aea43ecffb8e3960c1dfab7bd49cbfd93",
+      "native/providers/gdn/sm121_q2_convolution_math.h": "c0dc62f02ce91448dc87d25f6377b3a3c1bb1a25dc767992229b7c44589bad05",
+      "native/providers/gdn/sm121_q2_gated_math.h": "6e99b4da7db63da3c5a155c955efd4458a6919659ce4c36a37e9e582ca08a68c",
+      "native/providers/gdn/sm121_q2_head.h": "40e2ad91de2d422ddfa9bdc54a52a0ac199f21f3013d818594c34148237f4ab1",
+      "native/providers/gdn/sm121_q2_linear.h": "40e918be89d89b8e64439eb944aaa28e8c6c74b25f7184e58dda3c300305d7eb",
+      "native/providers/gdn/sm121_q2_linear_block.h": "101dfd651b6267b00215a9b2527b6d4658be3dc2e7ffce5084ecff61ed69a498",
+      "native/providers/gdn/sm121_q2_linear_block_layout.h": "decb961cc0248bacb8cd9b075bb594979b1923586210af431df738db0a410972",
+      "native/providers/gdn/sm121_q2_linear_layer.h": "e0d2301b0e0e8967f86754e4dd1b585ff339d0116af4207389d1b80eee16d193",
+      "native/providers/gdn/sm121_q2_linear_layout.h": "132fe8b0d6ba42b4b32ea3c7334d0dbe9f9df77bf109134df96146806580625f",
+      "native/providers/gdn/sm121_q2_model_weights.h": "c354449793917dea1e5c19b912c57a7149ae6908238f5681fe34b2bb721eece8",
+      "native/providers/gdn/sm121_q2_publication.h": "eb28a72ed4e4857c4b79e91ff56598674d92e5e695cea1a2d10902ff0bc76675",
+      "native/providers/gdn/sm121_q2_recurrent.h": "e698eb964e34d3b158019f5a43e01325b07c3ebcb3c7815f1f803fbe5b71ce18",
+      "native/providers/gdn/sm121_q2_recurrent_layout.h": "c898e2c0304c59fb76e74606f31204133ff8bf8b03c80ccd443196b22f3a4c22",
+      "native/providers/gdn/sm121_q2_recurrent_math.h": "666cbbcf9ec5e440c5bd109d6f6a4e86a892e1d26e44b1111df8425c4e94e045",
+      "native/providers/gdn/sm121_q2_resident_cache.h": "5a1fd21cb72f5ae4cc17b8b3025ad2796ea2228011d4cfa738ec191a6d733c3d",
+      "native/providers/gdn/sm121_q2_resident_weights.h": "465a50e34b50ffde6a3a9ee8db8924223013e2991795e59f390cc3060c25c8e8",
+      "native/providers/gdn/sm121_q2_target.h": "3bb9e6606bbfad2ae2a82ed4648bbc131d64d37026ec6045f116fbf9789ec260",
+      "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+      "native/providers/gdn/sm121_silu_table.h": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+      "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+      "native/providers/hawkeye_dispatch_policy.h": "4fd95a932236498d6a2d7e5a0dc2523f2ead1dfdaff1c147acfa357e1645b0fe",
+      "native/providers/moe_accumulator/bf16_absolute_product_matrix.h": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+      "native/providers/moe_accumulator/bf16_absolute_product_views.h": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+      "native/providers/moe_accumulator/bf16_midpoint_selector.h": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+      "native/providers/moe_accumulator/bf16_positive_sum_bound.h": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+      "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+      "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+      "native/providers/moe_accumulator/sm121_coarse_projection_bound.h": "4dddf8106a4ab91ba4beaca6a2e3ce9046902b2c646f8b8bb4201efedc7001d8",
+      "native/providers/moe_accumulator/sm121_coarse_projection_matrix.h": "314582249a1b628d894308872db7dfafb2dd1607dfaefdf816187eff73d179da",
+      "native/providers/moe_accumulator/sm121_domain_coarse_bound.h": "dc608a780d0d201f2ecc7a56a5aff1e7710e41bb575ca4384c07f2f7694b59ab",
+      "native/providers/moe_accumulator/sm121_dot_certificate.h": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+      "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+      "native/providers/moe_accumulator/sm121_float_subgroup.h": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+      "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+      "native/providers/moe_accumulator/sm121_integer_core.h": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+      "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+      "native/providers/moe_accumulator/sm121_lane_reduce.h": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+      "native/providers/moe_accumulator/sm121_mantissa_parts.h": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+      "native/providers/moe_accumulator/sm121_native_product.h": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+      "native/providers/moe_accumulator/sm121_packed_dense.h": "830df979e34c89d3f377c73f548f8c1742d4ebc4775239ec3d366904d4b3b71c",
+      "native/providers/moe_accumulator/sm121_paired_products.h": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+      "native/providers/moe_accumulator/sm121_prefill_projection.h": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+      "native/providers/moe_accumulator/sm121_prepared_bf16.h": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+      "native/providers/moe_accumulator/sm121_prepared_integer_pairs.h": "fc611756401aee8f4fcef546747a7510c1b60fa6a930b6aced3d3c1e02effe6c",
+      "native/providers/moe_accumulator/sm121_prepared_projection.h": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+      "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+      "native/providers/moe_accumulator/sm121_pv_final_bound.h": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+      "native/providers/moe_accumulator/sm121_q1_moe.h": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+      "native/providers/moe_accumulator/sm121_replay_partition.h": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+      "native/providers/moe_accumulator/sm121_router_exp.h": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+      "native/providers/moe_accumulator/sm121_scalar_projection.h": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+      "native/providers/moe_accumulator/sm121_scaled_fallback.h": "4374eb6599d630475e23bf49a45484441a541d827325a8eef3b737da941e1f69",
+      "native/providers/moe_accumulator/sm121_scaled_half_products.h": "5433e85786b3a9b17fb1e55376a9c05b32725c34c8e8016c32204178b1566202",
+      "native/providers/moe_accumulator/sm121_scaled_half_projection.h": "6d0b6f1a250b79acd364bf5c490abd04d1686e1ff684ed2d26b7bb451ae6df12",
+      "native/providers/moe_accumulator/sm121_scaled_projection.h": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+      "native/providers/moe_accumulator/sm121_scaled_significand.h": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+      "native/providers/moe_accumulator/sm121_shared_gate.h": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+      "native/providers/moe_accumulator/sm121_staged_half_projection.h": "a6e580c1e4e8a27a8f5502bdd9e2e71c60a0029b0c3cb28efb9342c28635f672",
+      "native/providers/moe_accumulator/sm121_strided_pair.h": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+      "native/providers/moe_accumulator/sm121_subgroup.h": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+      "native/providers/moe_accumulator/sm121_wave16.h": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+      "native/providers/moe_accumulator/sm121_wmma_operand_load.h": "acfb766ac78697c80546290e42737372fd48241c24114f98418250794e1404e9",
+      "native/providers/mtp_decode_rows.h": "3a31b73c78d944a233d56c95d35a5fce0d15d49bfe11645074f5f32e6b9c6ecf",
+      "native/providers/mtp_draft_schedule.h": "d10f10fdff0e6b8821940fedbfc8377e4c16c808e24328751d4c9f44254e0452",
+      "native/providers/mtp_prompt_inputs.h": "efe6546dd434745bc351385e9a879373222423f7342c31dd19d4418161856a7b",
+      "native/providers/mtp_target_rows.h": "1633bc23812e7fafd3cc2f05c5e4042e7e101ecf4139a0a10c23177d7557bd86",
+      "native/providers/mtp_target_rows_trace.h": "73bea7c4050dfd99704de4efe8fa5b7fe8879abfc5d78e551d53b99454e6b495",
+      "native/providers/native_mtp_target_stream.h": "da5e4652fa6a19fb53477d8f96073d5c7a4de4635a3968b42ebe040e42faa3fb",
+      "native/providers/out_consumer_interval.h": "1c579d476b6db75c2795aa56cda0f3225819e6fc6a8fefdb8fcd2470dd341c5f",
+      "native/providers/out_residual_filter.h": "8151d33f76740a0e860d1b3f58f5a3f46b6bf010abd90c109ab5438e693031a6",
+      "native/providers/prefill_chunks.h": "f295f1096f2217230ad47a8724ed62db8e368cebe116bef8d5a430b95b65b3d7",
+      "native/providers/prefix_attention_capture.h": "3763cfdc9dff959e2d1ba22406015ef84bba0d5e402f2b791072266620f258dc",
+      "native/providers/prefix_batch_suffix.h": "dcac9d1e8566aef72c8e615881333f995e9b3a981b0a0b792b5b8b8be02915a4",
+      "native/providers/prefix_checkpoint_policy.h": "62e74eef22d494c18398a52007a990999d5ca482c6dbc3ea037f896c6c3bede8",
+      "native/providers/prefix_decode_stream.h": "53044fd6ca5d9f08c1d96192132463c322e6a189b811bbda3d73e2c5e777f0ce",
+      "native/providers/prefix_linear_capture.h": "9e010a541163b8eb12a3a321aa820f1e4e4649749fefee7a503d664c48e521f9",
+      "native/providers/projection_output_policy.h": "1f14f99e1b1edd8337a6d15f4e5296a8b34c41689bb49ac79a4eda9dcecc308f",
+      "native/providers/projection_row_identity.h": "f4a056b58e8bc3062bc9f82ca11b1eb53eb482995b640212fc67b6c5dbf37901",
+      "native/providers/projection_row_reuse_audit.h": "50628cd45a74a7c02248e28339e4a524e9f592e9273f614703a9270c7dc6b73c",
+      "native/providers/q1_moe_avx512bf16_host_provider.cpp": "db74aaeb28b5122e7df11786bb4606077bce71db71da4ef67a2597d92db25abd",
+      "native/providers/q1_moe_avx512bf16_host_provider.h": "e6323a6b623de3772bfceae73381be30669a6dea83aea5921165583430a99a39",
+      "native/providers/q1_trace_policy.h": "40a7afa5743f5fa7832f9b0c6719ffb25c8b0277ae3e1ad84eeb698b90b3a0d9",
+      "native/providers/q8192_coarse_out.h": "fa48e3cc69dff9535a9804ed00dcc144f8e87f29d322205ff5831065ab58f7ca",
+      "native/providers/q8192_matrix_producer_policy.h": "199a0c78a10fb1abdb2a18e13e04661001d03ac214209a3fd8ba58329c2e461c",
+      "native/providers/q8192_out_consumer_audit.h": "4a054b929924934afb32188e3590fc50ffb5f42546bd8b31b68be0d86bf56e66",
+      "native/providers/q8192_out_l1_policy.h": "73c0e7482b43ec342e88c245808e03d326abea742721b013a6ee12bc7bc0eb06",
+      "native/providers/q8192_out_l1_replay.h": "91d2c8106fb46a4eaf7fb65fa339fcb123c34adbe63859899479a61930f87bff",
+      "native/providers/q8192_out_l1_shadow_audit.h": "04ee940136402bf3b75625c1842667da0cb346811ad7bdb91bfc9ad06298243c",
+      "native/providers/q8192_out_matrix_shadow_audit.h": "3557c298731928d506dd57ca3cd5097d8e0fda8cd37dba48331c64da22f7f36d",
+      "native/providers/q8192_out_variance_budget_audit.h": "9208c9a19b67ab50cac61036e4134e6458590bc8b6c26bff328804fc8c4b16e4",
+      "native/providers/q8192_out_variance_queue.h": "dc4eb76e33ab53461492b71be6b55fb0d55e383c3eac89882d93249fefe6b15c",
+      "native/providers/q8192_out_variance_replay.h": "59a7a4b08a5b9b58f6ef9ff2155b61805026792c175a1092097b4489d7a5defc",
+      "native/providers/resident_fixed_weight_order.h": "49e95ef881294ea5e43b3c902cc3a4835e4fffbfd77a3e2351fb0a862a83b8d9",
+      "native/providers/resident_ordered_shard_layout.h": "1f19c84b603029eb464762c39fe17641e638bb39d2132718165bf23c33519030",
+      "native/providers/resident_text_shard_layout.h": "daad07e6262ea4b9f46e9ee1c7bdc380d87a72282c68042e95f1e82035110f11",
+      "native/providers/sm121_attention_capacity.h": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+      "native/providers/sm121_mtp_prefill_probe.h": "28cd20c68cc5b4c59d5d40c869bde85513cc9cde9364f41ed8b5a209a8122335",
+      "native/providers/sm121_mtp_prefix_seed.h": "be6411cb46241e94010fe20458e85fd4c683611ff4a2f37eb63c821431f54ccc",
+      "native/providers/sm121_mtp_request_seed.h": "f281d9f09c9e74e452a062f277d8e00c6547b6a88e4b7f66f4959185c6f2d4eb",
+      "native/providers/sm121_mtp_runtime_tables.h": "acf7f7537c3996a65620df8b235685fc8c1bd7b882c5888124331d12222ae199",
+      "native/providers/sm121_q1_attention_runtime.h": "91557c7401b763d56246f514faab776f8660df3c2ad645146377f7a6d856e51c",
+      "native/providers/sm121_q1_full_runtime.h": "31b1fb88735d75ffd83e8b195efac2683ab10af9c3d10aa5aab49f69ae74ad49",
+      "native/providers/sm121_q1_moe_runtime.h": "deed90cf331e9f37ebf9e4aa484dc7bba6e1165d61347cfd899ea8d817f7302d",
+      "native/providers/sm121_q1_packed_runtime.h": "c8a1b052f8bebf5bed89637541e378ceab89255b61f5bb165e5b58e8f10a910f",
+      "native/providers/sm121_q1_runtime.h": "2f0a5400cd97d0510c72fdb1ac43dd6bcd692b1d7bcf0eb9b2eff68d38b0d7f5",
+      "native/providers/sm121_rope_cache.h": "5f200ce6a37b1406af02b83bd28581bf0f00a2c4fdb4c70e5067e6598d0e44a3",
+      "native/providers/sm121_silu_runtime.h": "9aa14e2ba76a96767efaeedb843bc0d48dd0faeb2ba017348f4902a59927d272",
+      "native/providers/triton_moe/routed_consumer_interval.h": "d81e7b4a654a443cf35c8473ae110ecc104d7e94b75ce6e74ad11ebf4c6cb29c",
+      "native/providers/whole_provider.cpp": "6e6ec321900230542b7dfbfabb98b44a8745d389d03ef489faa55c42bea47adf",
+      "native/src/product_cli.c": "e937d3ea5fcb6e4752487e15fc4ad38ca1c5f6f738c1a944dcfdf809708c319e",
+      "native/src/qrt.c": "941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957",
+      "native/src/qrt.h": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18",
+      "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+      "native/src/qrt_prefix_checkpoint.h": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+      "native/src/qrt_prefix_logit.h": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+      "native/src/qrt_qwen36_q1024_owner.h": "50e57d93aa2f2d8d3c2d07b14a8539e682eace19c2614c7c21d85f3630e68e44",
+      "native/src/qwen36_baseline.c": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061",
+      "native/src/qwen36_baseline.h": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42",
+      "scripts/baiying_build_whole_provider.ps1": "89b361bb9c7f14de028cb43cb6eede9b16f0a944472b702f66bcefeb2e711e6c",
+      "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+      "scripts/build-product-cli.ps1": "5d0a7a989d4c252d70a98c300e8f33818bc5b5a89e0a120ed918d1bf008e0ee9",
+      "tools/prefix_stream_observer.h": "2e7a84519586006314825a835f869d2758d58b6af5011b7879bbb6813a3f9633",
+      "tools/prefix_stream_product_probe.c": "a870eb239fb818c9d589d58678c3cb5b425acf65a7f437ea828039060091ad18"
+    },
+    "guard_boot_sha256": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+    "whole_compilation_inputs": 167,
+    "probe_compilation_inputs": 10,
+    "cli_compilation_inputs": 8,
+    "local_compilation_inputs": 170,
+    "prior_completed_run": "build/single-tail-q1-build-r2/run-record.json",
+    "prior_completed_run_sha256": "87cd447d5cbad28be30b1aeb035bb03719f8eded345bcaa1459fb7a628156762",
+    "active_run_must_finish_before_dispatch": "single-tail-q1-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+    "active_run_remote_directory": "P:/projects/AIMA-public-single-tail-q1-20260921-r1/build/single-tail-q1-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+    "active_launch_sha256": "1254fdb84cf0555f5b5b70c751dd5a9711cfcb81a3747a69a98c11f84d2af568",
+    "active_run_model_success_required": false,
+    "active_run_cleanup_required": true,
+    "source_comparison": {
+      "previous_manifest": "single-tail-q1-whole-source-r2.json",
+      "previous_manifest_sha256": "2ad442095947ebf83203350781ab1191cc62f94368366625ad2982246653e58a",
+      "changed": [
+        "native/providers/moe_accumulator/sm121_packed_dense.h"
+      ]
+    },
+    "component_validation": [
+      {
+        "action": "focused",
+        "comparison_sha256": "323767aff7aa409b99e26f74e143f2fd839e57fa0956349e3e447578e54e730c",
+        "run_sha256": "1f90fac8ffc625a20232d6c168566183cce64151cbdabe974a91082ea2933d8a"
+      },
+      {
+        "action": "history",
+        "comparison_sha256": "ce12aee4a414a14981fc4456ff32e6d65109814636028e9390eb5f259fbed701",
+        "run_sha256": "6e583a145dcf823d80fa8a9271e7ad98b6659d0357088a06f20ff09fa82def3d"
+      },
+      {
+        "action": "original",
+        "comparison_sha256": "9d9e4b9ad3a8650e5b361ed240c7c98bc5a449c80c5113f74a899a3928260f44",
+        "run_sha256": "e367f7f6e9960decb26ef581d6efbb9c61c30c9e307def9fa62b4169615f5a9b"
+      }
+    ],
+    "component_source_manifest": "packed-gate-midpoint-native-source-r1.json",
+    "component_source_manifest_sha256": "f785e2a50a2774ee97e3384fb546ad7274f8f741d85e1556ea0cdbb26957f837",
+    "compiler_commands_unchanged": true,
+    "intended_followup": "Unchanged original short controls and full256k continuation, retirement and package gates.",
+    "native_dispatched": false,
+    "model_loaded": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false,
+    "generator": "prepare_packed_gate_midpoint_whole_r1.py",
+    "generator_sha256": "bb4ea5f4280e2502b1b3c56ed1790ce64fdbdeb5faaccebcf88eaa1a39d06a85",
+    "build_evidence_helper": "packed_gate_midpoint_build_evidence_r1.py",
+    "build_evidence_helper_sha256": "0bc8d22b772a8046f6880d2eff008f8674eaf5cbef5615f712d287f10ed0d367"
+  },
+  "source_manifest_sha256": "42b224f40bf79d0b021cd67fdbf65e7c70ec4a3e5c61c49fc4f926daec420bdb",
+  "run_record": {
+    "schema_version": 1,
+    "host": "BAIYING",
+    "command_file": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\scripts\\baiying_guarded_inference.ps1",
+    "spec": {
+      "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "arguments": [
+        "-NoLogo",
+        "-NoProfile",
+        "-NonInteractive",
+        "-File",
+        "P:\\projects\\run-packed-gate-midpoint-build-commands-r1.ps1",
+        "-Repo",
+        "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1",
+        "-WholeOut",
+        "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\build\\packed-gate-midpoint-whole-provider"
+      ],
+      "working_directory": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1",
+      "repo_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+      "source_inputs": [
+        {
+          "sha256": "b8cefe638bfcc5c41ff73349624f65741395a383e4e6f72059882a7ae39a82ed",
+          "file": "native/providers/ck_fmha/blackwell_attention.h"
+        },
+        {
+          "sha256": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+          "file": "native/providers/ck_fmha/float_pv_replay.h"
+        },
+        {
+          "sha256": "71d5c98c594c813b590aa6c5b8ae96cadaf4d0edfd08d9c7894feee7fc8ad64c",
+          "file": "native/providers/ck_fmha/inplace_probability_storage.h"
+        },
+        {
+          "sha256": "b94f16310020a757076e6f9bd7d97bea81f91d90567e006a419d5de4acfd1f19",
+          "file": "native/providers/ck_fmha/long_attention_layout.h"
+        },
+        {
+          "sha256": "5bb63c12db0afdf2e7aa86e47f50fb90b827f1936321e352afeac6577330999e",
+          "file": "native/providers/ck_fmha/packed_probability_storage.h"
+        },
+        {
+          "sha256": "f7df422413398f445e02be25fc3de3839f7f3075b9fedcdcaeba7482598be0d6",
+          "file": "native/providers/final_query_liveness.h"
+        },
+        {
+          "sha256": "a3efc27b99d604f5284edbc85c040535d783fb24e8b209beab89d48649b578b2",
+          "file": "native/providers/gate_input_capture.h"
+        },
+        {
+          "sha256": "db409421ee2f3d31238e07347d260c44307b7bdda11487d566eb1f971b011747",
+          "file": "native/providers/gdn/conv_consumer_audit.h"
+        },
+        {
+          "sha256": "83074ab596ffa85f889d83ce10235b2ac5824e2755271bb86a3954b0b0f0a6b8",
+          "file": "native/providers/gdn/conv_consumer_interval.h"
+        },
+        {
+          "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+          "file": "native/providers/gdn/fla_checkpoint.h"
+        },
+        {
+          "sha256": "926729def66c5c32cc95c4fc2ebf7dc0f5b5de7d83f368a863343f4e97bdfe2c",
+          "file": "native/providers/gdn/gb10_gate_lookup.h"
+        },
+        {
+          "sha256": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+          "file": "native/providers/gdn/sm121_attention_rcp.h"
+        },
+        {
+          "sha256": "2c1e66061c5a36f231c4e35eadc23ca86b0e647b57ab70c5e9adc51048dbd1ad",
+          "file": "native/providers/gdn/sm121_bf16_fma.h"
+        },
+        {
+          "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+          "file": "native/providers/gdn/sm121_exp2_interpolated.h"
+        },
+        {
+          "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+          "file": "native/providers/gdn/sm121_exp2_table.h"
+        },
+        {
+          "sha256": "472b1822f19ca1fa6fa1fa63d0e8e151e2b5ec574f1b6c0621c5ef10cab7344a",
+          "file": "native/providers/gdn/sm121_mtp_attention.h"
+        },
+        {
+          "sha256": "a17077d41b0bfbf715095f43fd2138dd4389bc5f4508820c3a5bcba2b3b7968a",
+          "file": "native/providers/gdn/sm121_mtp_cache_snapshot.h"
+        },
+        {
+          "sha256": "1d30e81258d926bab4db6463ec07df735078e47fe02f009c3f7df5ce3d89bd85",
+          "file": "native/providers/gdn/sm121_mtp_drafter.h"
+        },
+        {
+          "sha256": "3cfa529c7856f90541821a0faf071450474171e3b85f2c14e7c54b22623f07f5",
+          "file": "native/providers/gdn/sm121_mtp_frontier.h"
+        },
+        {
+          "sha256": "41e052dc237375567a8a11b95d41b4eb8cfa75ac6b984c9bcd7735be7e02da9f",
+          "file": "native/providers/gdn/sm121_mtp_gate.h"
+        },
+        {
+          "sha256": "95c79544165c6aefbc99f47e25625b20f009789f566e27ebe1bdbfe1486a9111",
+          "file": "native/providers/gdn/sm121_mtp_gate_math.h"
+        },
+        {
+          "sha256": "dfd332895bb383467e5df5fea66fce18aa1bcf903337c4dd3c3eeab07864370c",
+          "file": "native/providers/gdn/sm121_mtp_head.h"
+        },
+        {
+          "sha256": "5aa79376f2ad30440ae91cbbd22b6792eebf0273ce68df2f7fddbe8022925766",
+          "file": "native/providers/gdn/sm121_mtp_head_math.h"
+        },
+        {
+          "sha256": "ff2c7cb575c063384cf48bc6aeaf296ff095db86ef38c8bf02183475697d470a",
+          "file": "native/providers/gdn/sm121_mtp_kv.h"
+        },
+        {
+          "sha256": "b4cd662fe69172accc1b24c0e724462f822704835ac1d6d4cfa10c55f0caca72",
+          "file": "native/providers/gdn/sm121_mtp_kv_math.h"
+        },
+        {
+          "sha256": "0e58296175341d4ded1b69c5318808246721623b25b15404d00b6074d74ebddf",
+          "file": "native/providers/gdn/sm121_mtp_math.h"
+        },
+        {
+          "sha256": "570bc401f4474b2200b5200ba929a8a47615542ff06537e597e02f5ee8bb692d",
+          "file": "native/providers/gdn/sm121_mtp_model_weights.h"
+        },
+        {
+          "sha256": "df38e91dae5bc127961813be746da1d5bd8ce8dc0e2fb01782f3aeac896cb52d",
+          "file": "native/providers/gdn/sm121_mtp_moe.h"
+        },
+        {
+          "sha256": "aa25ff78b71bd698db2745b2e7a84cfebd565b9d143a81bc4f7e7a302617ff1f",
+          "file": "native/providers/gdn/sm121_mtp_moe_layout.h"
+        },
+        {
+          "sha256": "1bca67f5dd6a672d0f0d79f90bf0d3a992c6908dea235b3b028efa29900fb349",
+          "file": "native/providers/gdn/sm121_mtp_moe_math.h"
+        },
+        {
+          "sha256": "ffae24eed114ae3c4e53b6d59087fc54570bea49a9de9ffc0f997be71ef8bcf0",
+          "file": "native/providers/gdn/sm121_mtp_projection.h"
+        },
+        {
+          "sha256": "28aca81bc55485ebefaba7cca4e1f91512b4c55710909b86cc14482f070ab147",
+          "file": "native/providers/gdn/sm121_mtp_prompt_cache.h"
+        },
+        {
+          "sha256": "1e66f7eb11d9c2f00b9a3b9a856fff403aeaf57f804b1bac399b3f4461c1b918",
+          "file": "native/providers/gdn/sm121_mtp_query.h"
+        },
+        {
+          "sha256": "83e9e334131e3c335ab3795865f4f4013f27f963b839c260d44aaa5fa20631f9",
+          "file": "native/providers/gdn/sm121_mtp_query_math.h"
+        },
+        {
+          "sha256": "7cc613959087ad2fc5906e39ee4b2aef387f942876805e23fec468a8ebb02d9d",
+          "file": "native/providers/gdn/sm121_mtp_request.h"
+        },
+        {
+          "sha256": "cad93791a1cca014a862291070db296069abe4e267e79e58ae705269209be68d",
+          "file": "native/providers/gdn/sm121_mtp_resident_weights.h"
+        },
+        {
+          "sha256": "135dadcfe48e69232e2254380f55a0891cbd0ce72e3c4ea296167ec6af51273f",
+          "file": "native/providers/gdn/sm121_mtp_residual.h"
+        },
+        {
+          "sha256": "778b44d6f983e682409dc64aa50d1548d9dffc047d50012204c2ab135b69ac48",
+          "file": "native/providers/gdn/sm121_mtp_residual_math.h"
+        },
+        {
+          "sha256": "20c0733c8156b15feff6667d58e8918b7ba9b92eafdafb72360b16df4a836750",
+          "file": "native/providers/gdn/sm121_mtp_target_inputs.h"
+        },
+        {
+          "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+          "file": "native/providers/gdn/sm121_q1_attention.h"
+        },
+        {
+          "sha256": "047b04ec6738d66c2c86c68b8e3b676ca4ad035f9ceab72a2ebce3c876321747",
+          "file": "native/providers/gdn/sm121_q1_full.h"
+        },
+        {
+          "sha256": "a85bcd2eae346a31ccb4075e4bb5897d0d238513344322bb4d12059d9734287e",
+          "file": "native/providers/gdn/sm121_q1_gdn.h"
+        },
+        {
+          "sha256": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+          "file": "native/providers/gdn/sm121_q1_math.h"
+        },
+        {
+          "sha256": "f661aad36633ca4e3d2ccab7e720986c567d1431171a0bfc51a7bb040ccac7ae",
+          "file": "native/providers/gdn/sm121_q1_residual_math.h"
+        },
+        {
+          "sha256": "b8eb2d30d6a01588d9b33491020afa368d7323a1ccb83e10ad3d22c66062454e",
+          "file": "native/providers/gdn/sm121_q1_segmented_attention.h"
+        },
+        {
+          "sha256": "8f2e9d5f9ada32bfa30c0079c70f4747d9bf843316c6b074d28ac5f6d90ea74e",
+          "file": "native/providers/gdn/sm121_q1_segmented_attention_math.h"
+        },
+        {
+          "sha256": "ec58287e49bed021a881349eaf36084d40e416e00a08383455a2ef96bd1d3a20",
+          "file": "native/providers/gdn/sm121_q2_attention_block.h"
+        },
+        {
+          "sha256": "26101eed3fa24e5f15ce52e8af0be9ac3b1318bba09e0f21406e1a16bee19f93",
+          "file": "native/providers/gdn/sm121_q2_attention_block_layout.h"
+        },
+        {
+          "sha256": "19990d6045e91cb5ed45e01f834ff840faf7977a3e6d2fff3d06ba7aa8ca4fbc",
+          "file": "native/providers/gdn/sm121_q2_attention_layer.h"
+        },
+        {
+          "sha256": "af19d7d4d43e88e48059641294bf9fb10686751d0c94508f2990781be601c034",
+          "file": "native/providers/gdn/sm121_q2_cache_lifetime.h"
+        },
+        {
+          "sha256": "4246d746ac25eb861b70df83c595bc2aea43ecffb8e3960c1dfab7bd49cbfd93",
+          "file": "native/providers/gdn/sm121_q2_cache_view.h"
+        },
+        {
+          "sha256": "c0dc62f02ce91448dc87d25f6377b3a3c1bb1a25dc767992229b7c44589bad05",
+          "file": "native/providers/gdn/sm121_q2_convolution_math.h"
+        },
+        {
+          "sha256": "6e99b4da7db63da3c5a155c955efd4458a6919659ce4c36a37e9e582ca08a68c",
+          "file": "native/providers/gdn/sm121_q2_gated_math.h"
+        },
+        {
+          "sha256": "40e2ad91de2d422ddfa9bdc54a52a0ac199f21f3013d818594c34148237f4ab1",
+          "file": "native/providers/gdn/sm121_q2_head.h"
+        },
+        {
+          "sha256": "40e918be89d89b8e64439eb944aaa28e8c6c74b25f7184e58dda3c300305d7eb",
+          "file": "native/providers/gdn/sm121_q2_linear.h"
+        },
+        {
+          "sha256": "101dfd651b6267b00215a9b2527b6d4658be3dc2e7ffce5084ecff61ed69a498",
+          "file": "native/providers/gdn/sm121_q2_linear_block.h"
+        },
+        {
+          "sha256": "decb961cc0248bacb8cd9b075bb594979b1923586210af431df738db0a410972",
+          "file": "native/providers/gdn/sm121_q2_linear_block_layout.h"
+        },
+        {
+          "sha256": "e0d2301b0e0e8967f86754e4dd1b585ff339d0116af4207389d1b80eee16d193",
+          "file": "native/providers/gdn/sm121_q2_linear_layer.h"
+        },
+        {
+          "sha256": "132fe8b0d6ba42b4b32ea3c7334d0dbe9f9df77bf109134df96146806580625f",
+          "file": "native/providers/gdn/sm121_q2_linear_layout.h"
+        },
+        {
+          "sha256": "c354449793917dea1e5c19b912c57a7149ae6908238f5681fe34b2bb721eece8",
+          "file": "native/providers/gdn/sm121_q2_model_weights.h"
+        },
+        {
+          "sha256": "eb28a72ed4e4857c4b79e91ff56598674d92e5e695cea1a2d10902ff0bc76675",
+          "file": "native/providers/gdn/sm121_q2_publication.h"
+        },
+        {
+          "sha256": "e698eb964e34d3b158019f5a43e01325b07c3ebcb3c7815f1f803fbe5b71ce18",
+          "file": "native/providers/gdn/sm121_q2_recurrent.h"
+        },
+        {
+          "sha256": "c898e2c0304c59fb76e74606f31204133ff8bf8b03c80ccd443196b22f3a4c22",
+          "file": "native/providers/gdn/sm121_q2_recurrent_layout.h"
+        },
+        {
+          "sha256": "666cbbcf9ec5e440c5bd109d6f6a4e86a892e1d26e44b1111df8425c4e94e045",
+          "file": "native/providers/gdn/sm121_q2_recurrent_math.h"
+        },
+        {
+          "sha256": "5a1fd21cb72f5ae4cc17b8b3025ad2796ea2228011d4cfa738ec191a6d733c3d",
+          "file": "native/providers/gdn/sm121_q2_resident_cache.h"
+        },
+        {
+          "sha256": "465a50e34b50ffde6a3a9ee8db8924223013e2991795e59f390cc3060c25c8e8",
+          "file": "native/providers/gdn/sm121_q2_resident_weights.h"
+        },
+        {
+          "sha256": "3bb9e6606bbfad2ae2a82ed4648bbc131d64d37026ec6045f116fbf9789ec260",
+          "file": "native/providers/gdn/sm121_q2_target.h"
+        },
+        {
+          "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+          "file": "native/providers/gdn/sm121_rsqrt_table.h"
+        },
+        {
+          "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+          "file": "native/providers/gdn/sm121_silu_table.h"
+        },
+        {
+          "sha256": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+          "file": "native/providers/gdn/sm121_sqrt_table.h"
+        },
+        {
+          "sha256": "4fd95a932236498d6a2d7e5a0dc2523f2ead1dfdaff1c147acfa357e1645b0fe",
+          "file": "native/providers/hawkeye_dispatch_policy.h"
+        },
+        {
+          "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+          "file": "native/providers/moe_accumulator/bf16_absolute_product_matrix.h"
+        },
+        {
+          "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+          "file": "native/providers/moe_accumulator/bf16_absolute_product_views.h"
+        },
+        {
+          "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+          "file": "native/providers/moe_accumulator/bf16_midpoint_selector.h"
+        },
+        {
+          "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+          "file": "native/providers/moe_accumulator/bf16_positive_sum_bound.h"
+        },
+        {
+          "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+          "file": "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
+        },
+        {
+          "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+          "file": "native/providers/moe_accumulator/sm121_canonical_normalize.h"
+        },
+        {
+          "sha256": "4dddf8106a4ab91ba4beaca6a2e3ce9046902b2c646f8b8bb4201efedc7001d8",
+          "file": "native/providers/moe_accumulator/sm121_coarse_projection_bound.h"
+        },
+        {
+          "sha256": "314582249a1b628d894308872db7dfafb2dd1607dfaefdf816187eff73d179da",
+          "file": "native/providers/moe_accumulator/sm121_coarse_projection_matrix.h"
+        },
+        {
+          "sha256": "dc608a780d0d201f2ecc7a56a5aff1e7710e41bb575ca4384c07f2f7694b59ab",
+          "file": "native/providers/moe_accumulator/sm121_domain_coarse_bound.h"
+        },
+        {
+          "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+          "file": "native/providers/moe_accumulator/sm121_dot_certificate.h"
+        },
+        {
+          "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+          "file": "native/providers/moe_accumulator/sm121_float_alignment.h"
+        },
+        {
+          "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+          "file": "native/providers/moe_accumulator/sm121_float_subgroup.h"
+        },
+        {
+          "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+          "file": "native/providers/moe_accumulator/sm121_group16_modulo.h"
+        },
+        {
+          "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+          "file": "native/providers/moe_accumulator/sm121_integer_core.h"
+        },
+        {
+          "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+          "file": "native/providers/moe_accumulator/sm121_integer_parts.h"
+        },
+        {
+          "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+          "file": "native/providers/moe_accumulator/sm121_lane_reduce.h"
+        },
+        {
+          "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+          "file": "native/providers/moe_accumulator/sm121_mantissa_parts.h"
+        },
+        {
+          "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+          "file": "native/providers/moe_accumulator/sm121_native_product.h"
+        },
+        {
+          "sha256": "830df979e34c89d3f377c73f548f8c1742d4ebc4775239ec3d366904d4b3b71c",
+          "file": "native/providers/moe_accumulator/sm121_packed_dense.h"
+        },
+        {
+          "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+          "file": "native/providers/moe_accumulator/sm121_paired_products.h"
+        },
+        {
+          "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+          "file": "native/providers/moe_accumulator/sm121_prefill_projection.h"
+        },
+        {
+          "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+          "file": "native/providers/moe_accumulator/sm121_prepared_bf16.h"
+        },
+        {
+          "sha256": "fc611756401aee8f4fcef546747a7510c1b60fa6a930b6aced3d3c1e02effe6c",
+          "file": "native/providers/moe_accumulator/sm121_prepared_integer_pairs.h"
+        },
+        {
+          "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+          "file": "native/providers/moe_accumulator/sm121_prepared_projection.h"
+        },
+        {
+          "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+          "file": "native/providers/moe_accumulator/sm121_pv_error_bound.h"
+        },
+        {
+          "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+          "file": "native/providers/moe_accumulator/sm121_pv_final_bound.h"
+        },
+        {
+          "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+          "file": "native/providers/moe_accumulator/sm121_q1_moe.h"
+        },
+        {
+          "sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+          "file": "native/providers/moe_accumulator/sm121_replay_partition.h"
+        },
+        {
+          "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+          "file": "native/providers/moe_accumulator/sm121_router_exp.h"
+        },
+        {
+          "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+          "file": "native/providers/moe_accumulator/sm121_scalar_projection.h"
+        },
+        {
+          "sha256": "4374eb6599d630475e23bf49a45484441a541d827325a8eef3b737da941e1f69",
+          "file": "native/providers/moe_accumulator/sm121_scaled_fallback.h"
+        },
+        {
+          "sha256": "5433e85786b3a9b17fb1e55376a9c05b32725c34c8e8016c32204178b1566202",
+          "file": "native/providers/moe_accumulator/sm121_scaled_half_products.h"
+        },
+        {
+          "sha256": "6d0b6f1a250b79acd364bf5c490abd04d1686e1ff684ed2d26b7bb451ae6df12",
+          "file": "native/providers/moe_accumulator/sm121_scaled_half_projection.h"
+        },
+        {
+          "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+          "file": "native/providers/moe_accumulator/sm121_scaled_projection.h"
+        },
+        {
+          "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+          "file": "native/providers/moe_accumulator/sm121_scaled_significand.h"
+        },
+        {
+          "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+          "file": "native/providers/moe_accumulator/sm121_shared_gate.h"
+        },
+        {
+          "sha256": "a6e580c1e4e8a27a8f5502bdd9e2e71c60a0029b0c3cb28efb9342c28635f672",
+          "file": "native/providers/moe_accumulator/sm121_staged_half_projection.h"
+        },
+        {
+          "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+          "file": "native/providers/moe_accumulator/sm121_strided_pair.h"
+        },
+        {
+          "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+          "file": "native/providers/moe_accumulator/sm121_subgroup.h"
+        },
+        {
+          "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+          "file": "native/providers/moe_accumulator/sm121_wave16.h"
+        },
+        {
+          "sha256": "acfb766ac78697c80546290e42737372fd48241c24114f98418250794e1404e9",
+          "file": "native/providers/moe_accumulator/sm121_wmma_operand_load.h"
+        },
+        {
+          "sha256": "3a31b73c78d944a233d56c95d35a5fce0d15d49bfe11645074f5f32e6b9c6ecf",
+          "file": "native/providers/mtp_decode_rows.h"
+        },
+        {
+          "sha256": "d10f10fdff0e6b8821940fedbfc8377e4c16c808e24328751d4c9f44254e0452",
+          "file": "native/providers/mtp_draft_schedule.h"
+        },
+        {
+          "sha256": "efe6546dd434745bc351385e9a879373222423f7342c31dd19d4418161856a7b",
+          "file": "native/providers/mtp_prompt_inputs.h"
+        },
+        {
+          "sha256": "1633bc23812e7fafd3cc2f05c5e4042e7e101ecf4139a0a10c23177d7557bd86",
+          "file": "native/providers/mtp_target_rows.h"
+        },
+        {
+          "sha256": "73bea7c4050dfd99704de4efe8fa5b7fe8879abfc5d78e551d53b99454e6b495",
+          "file": "native/providers/mtp_target_rows_trace.h"
+        },
+        {
+          "sha256": "da5e4652fa6a19fb53477d8f96073d5c7a4de4635a3968b42ebe040e42faa3fb",
+          "file": "native/providers/native_mtp_target_stream.h"
+        },
+        {
+          "sha256": "1c579d476b6db75c2795aa56cda0f3225819e6fc6a8fefdb8fcd2470dd341c5f",
+          "file": "native/providers/out_consumer_interval.h"
+        },
+        {
+          "sha256": "8151d33f76740a0e860d1b3f58f5a3f46b6bf010abd90c109ab5438e693031a6",
+          "file": "native/providers/out_residual_filter.h"
+        },
+        {
+          "sha256": "f295f1096f2217230ad47a8724ed62db8e368cebe116bef8d5a430b95b65b3d7",
+          "file": "native/providers/prefill_chunks.h"
+        },
+        {
+          "sha256": "3763cfdc9dff959e2d1ba22406015ef84bba0d5e402f2b791072266620f258dc",
+          "file": "native/providers/prefix_attention_capture.h"
+        },
+        {
+          "sha256": "dcac9d1e8566aef72c8e615881333f995e9b3a981b0a0b792b5b8b8be02915a4",
+          "file": "native/providers/prefix_batch_suffix.h"
+        },
+        {
+          "sha256": "62e74eef22d494c18398a52007a990999d5ca482c6dbc3ea037f896c6c3bede8",
+          "file": "native/providers/prefix_checkpoint_policy.h"
+        },
+        {
+          "sha256": "53044fd6ca5d9f08c1d96192132463c322e6a189b811bbda3d73e2c5e777f0ce",
+          "file": "native/providers/prefix_decode_stream.h"
+        },
+        {
+          "sha256": "9e010a541163b8eb12a3a321aa820f1e4e4649749fefee7a503d664c48e521f9",
+          "file": "native/providers/prefix_linear_capture.h"
+        },
+        {
+          "sha256": "1f14f99e1b1edd8337a6d15f4e5296a8b34c41689bb49ac79a4eda9dcecc308f",
+          "file": "native/providers/projection_output_policy.h"
+        },
+        {
+          "sha256": "f4a056b58e8bc3062bc9f82ca11b1eb53eb482995b640212fc67b6c5dbf37901",
+          "file": "native/providers/projection_row_identity.h"
+        },
+        {
+          "sha256": "50628cd45a74a7c02248e28339e4a524e9f592e9273f614703a9270c7dc6b73c",
+          "file": "native/providers/projection_row_reuse_audit.h"
+        },
+        {
+          "sha256": "db74aaeb28b5122e7df11786bb4606077bce71db71da4ef67a2597d92db25abd",
+          "file": "native/providers/q1_moe_avx512bf16_host_provider.cpp"
+        },
+        {
+          "sha256": "e6323a6b623de3772bfceae73381be30669a6dea83aea5921165583430a99a39",
+          "file": "native/providers/q1_moe_avx512bf16_host_provider.h"
+        },
+        {
+          "sha256": "40a7afa5743f5fa7832f9b0c6719ffb25c8b0277ae3e1ad84eeb698b90b3a0d9",
+          "file": "native/providers/q1_trace_policy.h"
+        },
+        {
+          "sha256": "fa48e3cc69dff9535a9804ed00dcc144f8e87f29d322205ff5831065ab58f7ca",
+          "file": "native/providers/q8192_coarse_out.h"
+        },
+        {
+          "sha256": "199a0c78a10fb1abdb2a18e13e04661001d03ac214209a3fd8ba58329c2e461c",
+          "file": "native/providers/q8192_matrix_producer_policy.h"
+        },
+        {
+          "sha256": "4a054b929924934afb32188e3590fc50ffb5f42546bd8b31b68be0d86bf56e66",
+          "file": "native/providers/q8192_out_consumer_audit.h"
+        },
+        {
+          "sha256": "73c0e7482b43ec342e88c245808e03d326abea742721b013a6ee12bc7bc0eb06",
+          "file": "native/providers/q8192_out_l1_policy.h"
+        },
+        {
+          "sha256": "91d2c8106fb46a4eaf7fb65fa339fcb123c34adbe63859899479a61930f87bff",
+          "file": "native/providers/q8192_out_l1_replay.h"
+        },
+        {
+          "sha256": "04ee940136402bf3b75625c1842667da0cb346811ad7bdb91bfc9ad06298243c",
+          "file": "native/providers/q8192_out_l1_shadow_audit.h"
+        },
+        {
+          "sha256": "3557c298731928d506dd57ca3cd5097d8e0fda8cd37dba48331c64da22f7f36d",
+          "file": "native/providers/q8192_out_matrix_shadow_audit.h"
+        },
+        {
+          "sha256": "9208c9a19b67ab50cac61036e4134e6458590bc8b6c26bff328804fc8c4b16e4",
+          "file": "native/providers/q8192_out_variance_budget_audit.h"
+        },
+        {
+          "sha256": "dc4eb76e33ab53461492b71be6b55fb0d55e383c3eac89882d93249fefe6b15c",
+          "file": "native/providers/q8192_out_variance_queue.h"
+        },
+        {
+          "sha256": "59a7a4b08a5b9b58f6ef9ff2155b61805026792c175a1092097b4489d7a5defc",
+          "file": "native/providers/q8192_out_variance_replay.h"
+        },
+        {
+          "sha256": "49e95ef881294ea5e43b3c902cc3a4835e4fffbfd77a3e2351fb0a862a83b8d9",
+          "file": "native/providers/resident_fixed_weight_order.h"
+        },
+        {
+          "sha256": "1f19c84b603029eb464762c39fe17641e638bb39d2132718165bf23c33519030",
+          "file": "native/providers/resident_ordered_shard_layout.h"
+        },
+        {
+          "sha256": "daad07e6262ea4b9f46e9ee1c7bdc380d87a72282c68042e95f1e82035110f11",
+          "file": "native/providers/resident_text_shard_layout.h"
+        },
+        {
+          "sha256": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+          "file": "native/providers/sm121_attention_capacity.h"
+        },
+        {
+          "sha256": "28cd20c68cc5b4c59d5d40c869bde85513cc9cde9364f41ed8b5a209a8122335",
+          "file": "native/providers/sm121_mtp_prefill_probe.h"
+        },
+        {
+          "sha256": "be6411cb46241e94010fe20458e85fd4c683611ff4a2f37eb63c821431f54ccc",
+          "file": "native/providers/sm121_mtp_prefix_seed.h"
+        },
+        {
+          "sha256": "f281d9f09c9e74e452a062f277d8e00c6547b6a88e4b7f66f4959185c6f2d4eb",
+          "file": "native/providers/sm121_mtp_request_seed.h"
+        },
+        {
+          "sha256": "acf7f7537c3996a65620df8b235685fc8c1bd7b882c5888124331d12222ae199",
+          "file": "native/providers/sm121_mtp_runtime_tables.h"
+        },
+        {
+          "sha256": "91557c7401b763d56246f514faab776f8660df3c2ad645146377f7a6d856e51c",
+          "file": "native/providers/sm121_q1_attention_runtime.h"
+        },
+        {
+          "sha256": "31b1fb88735d75ffd83e8b195efac2683ab10af9c3d10aa5aab49f69ae74ad49",
+          "file": "native/providers/sm121_q1_full_runtime.h"
+        },
+        {
+          "sha256": "deed90cf331e9f37ebf9e4aa484dc7bba6e1165d61347cfd899ea8d817f7302d",
+          "file": "native/providers/sm121_q1_moe_runtime.h"
+        },
+        {
+          "sha256": "c8a1b052f8bebf5bed89637541e378ceab89255b61f5bb165e5b58e8f10a910f",
+          "file": "native/providers/sm121_q1_packed_runtime.h"
+        },
+        {
+          "sha256": "2f0a5400cd97d0510c72fdb1ac43dd6bcd692b1d7bcf0eb9b2eff68d38b0d7f5",
+          "file": "native/providers/sm121_q1_runtime.h"
+        },
+        {
+          "sha256": "5f200ce6a37b1406af02b83bd28581bf0f00a2c4fdb4c70e5067e6598d0e44a3",
+          "file": "native/providers/sm121_rope_cache.h"
+        },
+        {
+          "sha256": "9aa14e2ba76a96767efaeedb843bc0d48dd0faeb2ba017348f4902a59927d272",
+          "file": "native/providers/sm121_silu_runtime.h"
+        },
+        {
+          "sha256": "d81e7b4a654a443cf35c8473ae110ecc104d7e94b75ce6e74ad11ebf4c6cb29c",
+          "file": "native/providers/triton_moe/routed_consumer_interval.h"
+        },
+        {
+          "sha256": "6e6ec321900230542b7dfbfabb98b44a8745d389d03ef489faa55c42bea47adf",
+          "file": "native/providers/whole_provider.cpp"
+        },
+        {
+          "sha256": "e937d3ea5fcb6e4752487e15fc4ad38ca1c5f6f738c1a944dcfdf809708c319e",
+          "file": "native/src/product_cli.c"
+        },
+        {
+          "sha256": "941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957",
+          "file": "native/src/qrt.c"
+        },
+        {
+          "sha256": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18",
+          "file": "native/src/qrt.h"
+        },
+        {
+          "sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+          "file": "native/src/qrt_context_limits.h"
+        },
+        {
+          "sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+          "file": "native/src/qrt_prefix_checkpoint.h"
+        },
+        {
+          "sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+          "file": "native/src/qrt_prefix_logit.h"
+        },
+        {
+          "sha256": "50e57d93aa2f2d8d3c2d07b14a8539e682eace19c2614c7c21d85f3630e68e44",
+          "file": "native/src/qrt_qwen36_q1024_owner.h"
+        },
+        {
+          "sha256": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061",
+          "file": "native/src/qwen36_baseline.c"
+        },
+        {
+          "sha256": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42",
+          "file": "native/src/qwen36_baseline.h"
+        },
+        {
+          "sha256": "89b361bb9c7f14de028cb43cb6eede9b16f0a944472b702f66bcefeb2e711e6c",
+          "file": "scripts/baiying_build_whole_provider.ps1"
+        },
+        {
+          "sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+          "file": "scripts/baiying_guarded_inference.ps1"
+        },
+        {
+          "sha256": "5d0a7a989d4c252d70a98c300e8f33818bc5b5a89e0a120ed918d1bf008e0ee9",
+          "file": "scripts/build-product-cli.ps1"
+        },
+        {
+          "sha256": "2e7a84519586006314825a835f869d2758d58b6af5011b7879bbb6813a3f9633",
+          "file": "tools/prefix_stream_observer.h"
+        },
+        {
+          "sha256": "a870eb239fb818c9d589d58678c3cb5b425acf65a7f437ea828039060091ad18",
+          "file": "tools/prefix_stream_product_probe.c"
+        }
+      ],
+      "command_file": "P:\\projects\\run-native-packed-gate-midpoint-r1.ps1",
+      "command_file_sha256": "a539948ee16355627801ccfb333b0f3030917872a1f89be5a625c19069988df6",
+      "source_manifest_sha256": "42b224f40bf79d0b021cd67fdbf65e7c70ec4a3e5c61c49fc4f926daec420bdb",
+      "model": "none; native whole-provider compile",
+      "model_loaded": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "purpose": "Compile the packed gate midpoint repair, plus same-source CLI and prefix probe. Native MTP dispatch remains opt-in; no build qualifies inference or performance."
+    },
+    "preflight": {
+      "host": "BAIYING",
+      "utc": "2026-09-21T22:19:36.5735168Z",
+      "command_file": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\scripts\\baiying_guarded_inference.ps1",
+      "command_file_sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+      "spec": {
+        "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "arguments": [
+          "-NoLogo",
+          "-NoProfile",
+          "-NonInteractive",
+          "-File",
+          "P:\\projects\\run-packed-gate-midpoint-build-commands-r1.ps1",
+          "-Repo",
+          "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1",
+          "-WholeOut",
+          "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\build\\packed-gate-midpoint-whole-provider"
+        ],
+        "working_directory": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1",
+        "repo_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+        "source_inputs": [
+          {
+            "sha256": "b8cefe638bfcc5c41ff73349624f65741395a383e4e6f72059882a7ae39a82ed",
+            "file": "native/providers/ck_fmha/blackwell_attention.h"
+          },
+          {
+            "sha256": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+            "file": "native/providers/ck_fmha/float_pv_replay.h"
+          },
+          {
+            "sha256": "71d5c98c594c813b590aa6c5b8ae96cadaf4d0edfd08d9c7894feee7fc8ad64c",
+            "file": "native/providers/ck_fmha/inplace_probability_storage.h"
+          },
+          {
+            "sha256": "b94f16310020a757076e6f9bd7d97bea81f91d90567e006a419d5de4acfd1f19",
+            "file": "native/providers/ck_fmha/long_attention_layout.h"
+          },
+          {
+            "sha256": "5bb63c12db0afdf2e7aa86e47f50fb90b827f1936321e352afeac6577330999e",
+            "file": "native/providers/ck_fmha/packed_probability_storage.h"
+          },
+          {
+            "sha256": "f7df422413398f445e02be25fc3de3839f7f3075b9fedcdcaeba7482598be0d6",
+            "file": "native/providers/final_query_liveness.h"
+          },
+          {
+            "sha256": "a3efc27b99d604f5284edbc85c040535d783fb24e8b209beab89d48649b578b2",
+            "file": "native/providers/gate_input_capture.h"
+          },
+          {
+            "sha256": "db409421ee2f3d31238e07347d260c44307b7bdda11487d566eb1f971b011747",
+            "file": "native/providers/gdn/conv_consumer_audit.h"
+          },
+          {
+            "sha256": "83074ab596ffa85f889d83ce10235b2ac5824e2755271bb86a3954b0b0f0a6b8",
+            "file": "native/providers/gdn/conv_consumer_interval.h"
+          },
+          {
+            "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+            "file": "native/providers/gdn/fla_checkpoint.h"
+          },
+          {
+            "sha256": "926729def66c5c32cc95c4fc2ebf7dc0f5b5de7d83f368a863343f4e97bdfe2c",
+            "file": "native/providers/gdn/gb10_gate_lookup.h"
+          },
+          {
+            "sha256": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+            "file": "native/providers/gdn/sm121_attention_rcp.h"
+          },
+          {
+            "sha256": "2c1e66061c5a36f231c4e35eadc23ca86b0e647b57ab70c5e9adc51048dbd1ad",
+            "file": "native/providers/gdn/sm121_bf16_fma.h"
+          },
+          {
+            "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+            "file": "native/providers/gdn/sm121_exp2_interpolated.h"
+          },
+          {
+            "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "file": "native/providers/gdn/sm121_exp2_table.h"
+          },
+          {
+            "sha256": "472b1822f19ca1fa6fa1fa63d0e8e151e2b5ec574f1b6c0621c5ef10cab7344a",
+            "file": "native/providers/gdn/sm121_mtp_attention.h"
+          },
+          {
+            "sha256": "a17077d41b0bfbf715095f43fd2138dd4389bc5f4508820c3a5bcba2b3b7968a",
+            "file": "native/providers/gdn/sm121_mtp_cache_snapshot.h"
+          },
+          {
+            "sha256": "1d30e81258d926bab4db6463ec07df735078e47fe02f009c3f7df5ce3d89bd85",
+            "file": "native/providers/gdn/sm121_mtp_drafter.h"
+          },
+          {
+            "sha256": "3cfa529c7856f90541821a0faf071450474171e3b85f2c14e7c54b22623f07f5",
+            "file": "native/providers/gdn/sm121_mtp_frontier.h"
+          },
+          {
+            "sha256": "41e052dc237375567a8a11b95d41b4eb8cfa75ac6b984c9bcd7735be7e02da9f",
+            "file": "native/providers/gdn/sm121_mtp_gate.h"
+          },
+          {
+            "sha256": "95c79544165c6aefbc99f47e25625b20f009789f566e27ebe1bdbfe1486a9111",
+            "file": "native/providers/gdn/sm121_mtp_gate_math.h"
+          },
+          {
+            "sha256": "dfd332895bb383467e5df5fea66fce18aa1bcf903337c4dd3c3eeab07864370c",
+            "file": "native/providers/gdn/sm121_mtp_head.h"
+          },
+          {
+            "sha256": "5aa79376f2ad30440ae91cbbd22b6792eebf0273ce68df2f7fddbe8022925766",
+            "file": "native/providers/gdn/sm121_mtp_head_math.h"
+          },
+          {
+            "sha256": "ff2c7cb575c063384cf48bc6aeaf296ff095db86ef38c8bf02183475697d470a",
+            "file": "native/providers/gdn/sm121_mtp_kv.h"
+          },
+          {
+            "sha256": "b4cd662fe69172accc1b24c0e724462f822704835ac1d6d4cfa10c55f0caca72",
+            "file": "native/providers/gdn/sm121_mtp_kv_math.h"
+          },
+          {
+            "sha256": "0e58296175341d4ded1b69c5318808246721623b25b15404d00b6074d74ebddf",
+            "file": "native/providers/gdn/sm121_mtp_math.h"
+          },
+          {
+            "sha256": "570bc401f4474b2200b5200ba929a8a47615542ff06537e597e02f5ee8bb692d",
+            "file": "native/providers/gdn/sm121_mtp_model_weights.h"
+          },
+          {
+            "sha256": "df38e91dae5bc127961813be746da1d5bd8ce8dc0e2fb01782f3aeac896cb52d",
+            "file": "native/providers/gdn/sm121_mtp_moe.h"
+          },
+          {
+            "sha256": "aa25ff78b71bd698db2745b2e7a84cfebd565b9d143a81bc4f7e7a302617ff1f",
+            "file": "native/providers/gdn/sm121_mtp_moe_layout.h"
+          },
+          {
+            "sha256": "1bca67f5dd6a672d0f0d79f90bf0d3a992c6908dea235b3b028efa29900fb349",
+            "file": "native/providers/gdn/sm121_mtp_moe_math.h"
+          },
+          {
+            "sha256": "ffae24eed114ae3c4e53b6d59087fc54570bea49a9de9ffc0f997be71ef8bcf0",
+            "file": "native/providers/gdn/sm121_mtp_projection.h"
+          },
+          {
+            "sha256": "28aca81bc55485ebefaba7cca4e1f91512b4c55710909b86cc14482f070ab147",
+            "file": "native/providers/gdn/sm121_mtp_prompt_cache.h"
+          },
+          {
+            "sha256": "1e66f7eb11d9c2f00b9a3b9a856fff403aeaf57f804b1bac399b3f4461c1b918",
+            "file": "native/providers/gdn/sm121_mtp_query.h"
+          },
+          {
+            "sha256": "83e9e334131e3c335ab3795865f4f4013f27f963b839c260d44aaa5fa20631f9",
+            "file": "native/providers/gdn/sm121_mtp_query_math.h"
+          },
+          {
+            "sha256": "7cc613959087ad2fc5906e39ee4b2aef387f942876805e23fec468a8ebb02d9d",
+            "file": "native/providers/gdn/sm121_mtp_request.h"
+          },
+          {
+            "sha256": "cad93791a1cca014a862291070db296069abe4e267e79e58ae705269209be68d",
+            "file": "native/providers/gdn/sm121_mtp_resident_weights.h"
+          },
+          {
+            "sha256": "135dadcfe48e69232e2254380f55a0891cbd0ce72e3c4ea296167ec6af51273f",
+            "file": "native/providers/gdn/sm121_mtp_residual.h"
+          },
+          {
+            "sha256": "778b44d6f983e682409dc64aa50d1548d9dffc047d50012204c2ab135b69ac48",
+            "file": "native/providers/gdn/sm121_mtp_residual_math.h"
+          },
+          {
+            "sha256": "20c0733c8156b15feff6667d58e8918b7ba9b92eafdafb72360b16df4a836750",
+            "file": "native/providers/gdn/sm121_mtp_target_inputs.h"
+          },
+          {
+            "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+            "file": "native/providers/gdn/sm121_q1_attention.h"
+          },
+          {
+            "sha256": "047b04ec6738d66c2c86c68b8e3b676ca4ad035f9ceab72a2ebce3c876321747",
+            "file": "native/providers/gdn/sm121_q1_full.h"
+          },
+          {
+            "sha256": "a85bcd2eae346a31ccb4075e4bb5897d0d238513344322bb4d12059d9734287e",
+            "file": "native/providers/gdn/sm121_q1_gdn.h"
+          },
+          {
+            "sha256": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+            "file": "native/providers/gdn/sm121_q1_math.h"
+          },
+          {
+            "sha256": "f661aad36633ca4e3d2ccab7e720986c567d1431171a0bfc51a7bb040ccac7ae",
+            "file": "native/providers/gdn/sm121_q1_residual_math.h"
+          },
+          {
+            "sha256": "b8eb2d30d6a01588d9b33491020afa368d7323a1ccb83e10ad3d22c66062454e",
+            "file": "native/providers/gdn/sm121_q1_segmented_attention.h"
+          },
+          {
+            "sha256": "8f2e9d5f9ada32bfa30c0079c70f4747d9bf843316c6b074d28ac5f6d90ea74e",
+            "file": "native/providers/gdn/sm121_q1_segmented_attention_math.h"
+          },
+          {
+            "sha256": "ec58287e49bed021a881349eaf36084d40e416e00a08383455a2ef96bd1d3a20",
+            "file": "native/providers/gdn/sm121_q2_attention_block.h"
+          },
+          {
+            "sha256": "26101eed3fa24e5f15ce52e8af0be9ac3b1318bba09e0f21406e1a16bee19f93",
+            "file": "native/providers/gdn/sm121_q2_attention_block_layout.h"
+          },
+          {
+            "sha256": "19990d6045e91cb5ed45e01f834ff840faf7977a3e6d2fff3d06ba7aa8ca4fbc",
+            "file": "native/providers/gdn/sm121_q2_attention_layer.h"
+          },
+          {
+            "sha256": "af19d7d4d43e88e48059641294bf9fb10686751d0c94508f2990781be601c034",
+            "file": "native/providers/gdn/sm121_q2_cache_lifetime.h"
+          },
+          {
+            "sha256": "4246d746ac25eb861b70df83c595bc2aea43ecffb8e3960c1dfab7bd49cbfd93",
+            "file": "native/providers/gdn/sm121_q2_cache_view.h"
+          },
+          {
+            "sha256": "c0dc62f02ce91448dc87d25f6377b3a3c1bb1a25dc767992229b7c44589bad05",
+            "file": "native/providers/gdn/sm121_q2_convolution_math.h"
+          },
+          {
+            "sha256": "6e99b4da7db63da3c5a155c955efd4458a6919659ce4c36a37e9e582ca08a68c",
+            "file": "native/providers/gdn/sm121_q2_gated_math.h"
+          },
+          {
+            "sha256": "40e2ad91de2d422ddfa9bdc54a52a0ac199f21f3013d818594c34148237f4ab1",
+            "file": "native/providers/gdn/sm121_q2_head.h"
+          },
+          {
+            "sha256": "40e918be89d89b8e64439eb944aaa28e8c6c74b25f7184e58dda3c300305d7eb",
+            "file": "native/providers/gdn/sm121_q2_linear.h"
+          },
+          {
+            "sha256": "101dfd651b6267b00215a9b2527b6d4658be3dc2e7ffce5084ecff61ed69a498",
+            "file": "native/providers/gdn/sm121_q2_linear_block.h"
+          },
+          {
+            "sha256": "decb961cc0248bacb8cd9b075bb594979b1923586210af431df738db0a410972",
+            "file": "native/providers/gdn/sm121_q2_linear_block_layout.h"
+          },
+          {
+            "sha256": "e0d2301b0e0e8967f86754e4dd1b585ff339d0116af4207389d1b80eee16d193",
+            "file": "native/providers/gdn/sm121_q2_linear_layer.h"
+          },
+          {
+            "sha256": "132fe8b0d6ba42b4b32ea3c7334d0dbe9f9df77bf109134df96146806580625f",
+            "file": "native/providers/gdn/sm121_q2_linear_layout.h"
+          },
+          {
+            "sha256": "c354449793917dea1e5c19b912c57a7149ae6908238f5681fe34b2bb721eece8",
+            "file": "native/providers/gdn/sm121_q2_model_weights.h"
+          },
+          {
+            "sha256": "eb28a72ed4e4857c4b79e91ff56598674d92e5e695cea1a2d10902ff0bc76675",
+            "file": "native/providers/gdn/sm121_q2_publication.h"
+          },
+          {
+            "sha256": "e698eb964e34d3b158019f5a43e01325b07c3ebcb3c7815f1f803fbe5b71ce18",
+            "file": "native/providers/gdn/sm121_q2_recurrent.h"
+          },
+          {
+            "sha256": "c898e2c0304c59fb76e74606f31204133ff8bf8b03c80ccd443196b22f3a4c22",
+            "file": "native/providers/gdn/sm121_q2_recurrent_layout.h"
+          },
+          {
+            "sha256": "666cbbcf9ec5e440c5bd109d6f6a4e86a892e1d26e44b1111df8425c4e94e045",
+            "file": "native/providers/gdn/sm121_q2_recurrent_math.h"
+          },
+          {
+            "sha256": "5a1fd21cb72f5ae4cc17b8b3025ad2796ea2228011d4cfa738ec191a6d733c3d",
+            "file": "native/providers/gdn/sm121_q2_resident_cache.h"
+          },
+          {
+            "sha256": "465a50e34b50ffde6a3a9ee8db8924223013e2991795e59f390cc3060c25c8e8",
+            "file": "native/providers/gdn/sm121_q2_resident_weights.h"
+          },
+          {
+            "sha256": "3bb9e6606bbfad2ae2a82ed4648bbc131d64d37026ec6045f116fbf9789ec260",
+            "file": "native/providers/gdn/sm121_q2_target.h"
+          },
+          {
+            "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+            "file": "native/providers/gdn/sm121_rsqrt_table.h"
+          },
+          {
+            "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+            "file": "native/providers/gdn/sm121_silu_table.h"
+          },
+          {
+            "sha256": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+            "file": "native/providers/gdn/sm121_sqrt_table.h"
+          },
+          {
+            "sha256": "4fd95a932236498d6a2d7e5a0dc2523f2ead1dfdaff1c147acfa357e1645b0fe",
+            "file": "native/providers/hawkeye_dispatch_policy.h"
+          },
+          {
+            "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+            "file": "native/providers/moe_accumulator/bf16_absolute_product_matrix.h"
+          },
+          {
+            "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+            "file": "native/providers/moe_accumulator/bf16_absolute_product_views.h"
+          },
+          {
+            "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+            "file": "native/providers/moe_accumulator/bf16_midpoint_selector.h"
+          },
+          {
+            "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+            "file": "native/providers/moe_accumulator/bf16_positive_sum_bound.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+            "file": "native/providers/moe_accumulator/sm121_canonical_normalize.h"
+          },
+          {
+            "sha256": "4dddf8106a4ab91ba4beaca6a2e3ce9046902b2c646f8b8bb4201efedc7001d8",
+            "file": "native/providers/moe_accumulator/sm121_coarse_projection_bound.h"
+          },
+          {
+            "sha256": "314582249a1b628d894308872db7dfafb2dd1607dfaefdf816187eff73d179da",
+            "file": "native/providers/moe_accumulator/sm121_coarse_projection_matrix.h"
+          },
+          {
+            "sha256": "dc608a780d0d201f2ecc7a56a5aff1e7710e41bb575ca4384c07f2f7694b59ab",
+            "file": "native/providers/moe_accumulator/sm121_domain_coarse_bound.h"
+          },
+          {
+            "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+            "file": "native/providers/moe_accumulator/sm121_dot_certificate.h"
+          },
+          {
+            "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+            "file": "native/providers/moe_accumulator/sm121_float_alignment.h"
+          },
+          {
+            "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+            "file": "native/providers/moe_accumulator/sm121_float_subgroup.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "native/providers/moe_accumulator/sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+            "file": "native/providers/moe_accumulator/sm121_integer_core.h"
+          },
+          {
+            "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+            "file": "native/providers/moe_accumulator/sm121_integer_parts.h"
+          },
+          {
+            "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+            "file": "native/providers/moe_accumulator/sm121_lane_reduce.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "native/providers/moe_accumulator/sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "native/providers/moe_accumulator/sm121_native_product.h"
+          },
+          {
+            "sha256": "830df979e34c89d3f377c73f548f8c1742d4ebc4775239ec3d366904d4b3b71c",
+            "file": "native/providers/moe_accumulator/sm121_packed_dense.h"
+          },
+          {
+            "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+            "file": "native/providers/moe_accumulator/sm121_paired_products.h"
+          },
+          {
+            "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+            "file": "native/providers/moe_accumulator/sm121_prefill_projection.h"
+          },
+          {
+            "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+            "file": "native/providers/moe_accumulator/sm121_prepared_bf16.h"
+          },
+          {
+            "sha256": "fc611756401aee8f4fcef546747a7510c1b60fa6a930b6aced3d3c1e02effe6c",
+            "file": "native/providers/moe_accumulator/sm121_prepared_integer_pairs.h"
+          },
+          {
+            "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+            "file": "native/providers/moe_accumulator/sm121_prepared_projection.h"
+          },
+          {
+            "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+            "file": "native/providers/moe_accumulator/sm121_pv_error_bound.h"
+          },
+          {
+            "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+            "file": "native/providers/moe_accumulator/sm121_pv_final_bound.h"
+          },
+          {
+            "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+            "file": "native/providers/moe_accumulator/sm121_q1_moe.h"
+          },
+          {
+            "sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+            "file": "native/providers/moe_accumulator/sm121_replay_partition.h"
+          },
+          {
+            "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+            "file": "native/providers/moe_accumulator/sm121_router_exp.h"
+          },
+          {
+            "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+            "file": "native/providers/moe_accumulator/sm121_scalar_projection.h"
+          },
+          {
+            "sha256": "4374eb6599d630475e23bf49a45484441a541d827325a8eef3b737da941e1f69",
+            "file": "native/providers/moe_accumulator/sm121_scaled_fallback.h"
+          },
+          {
+            "sha256": "5433e85786b3a9b17fb1e55376a9c05b32725c34c8e8016c32204178b1566202",
+            "file": "native/providers/moe_accumulator/sm121_scaled_half_products.h"
+          },
+          {
+            "sha256": "6d0b6f1a250b79acd364bf5c490abd04d1686e1ff684ed2d26b7bb451ae6df12",
+            "file": "native/providers/moe_accumulator/sm121_scaled_half_projection.h"
+          },
+          {
+            "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+            "file": "native/providers/moe_accumulator/sm121_scaled_projection.h"
+          },
+          {
+            "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+            "file": "native/providers/moe_accumulator/sm121_scaled_significand.h"
+          },
+          {
+            "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+            "file": "native/providers/moe_accumulator/sm121_shared_gate.h"
+          },
+          {
+            "sha256": "a6e580c1e4e8a27a8f5502bdd9e2e71c60a0029b0c3cb28efb9342c28635f672",
+            "file": "native/providers/moe_accumulator/sm121_staged_half_projection.h"
+          },
+          {
+            "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+            "file": "native/providers/moe_accumulator/sm121_strided_pair.h"
+          },
+          {
+            "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+            "file": "native/providers/moe_accumulator/sm121_subgroup.h"
+          },
+          {
+            "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+            "file": "native/providers/moe_accumulator/sm121_wave16.h"
+          },
+          {
+            "sha256": "acfb766ac78697c80546290e42737372fd48241c24114f98418250794e1404e9",
+            "file": "native/providers/moe_accumulator/sm121_wmma_operand_load.h"
+          },
+          {
+            "sha256": "3a31b73c78d944a233d56c95d35a5fce0d15d49bfe11645074f5f32e6b9c6ecf",
+            "file": "native/providers/mtp_decode_rows.h"
+          },
+          {
+            "sha256": "d10f10fdff0e6b8821940fedbfc8377e4c16c808e24328751d4c9f44254e0452",
+            "file": "native/providers/mtp_draft_schedule.h"
+          },
+          {
+            "sha256": "efe6546dd434745bc351385e9a879373222423f7342c31dd19d4418161856a7b",
+            "file": "native/providers/mtp_prompt_inputs.h"
+          },
+          {
+            "sha256": "1633bc23812e7fafd3cc2f05c5e4042e7e101ecf4139a0a10c23177d7557bd86",
+            "file": "native/providers/mtp_target_rows.h"
+          },
+          {
+            "sha256": "73bea7c4050dfd99704de4efe8fa5b7fe8879abfc5d78e551d53b99454e6b495",
+            "file": "native/providers/mtp_target_rows_trace.h"
+          },
+          {
+            "sha256": "da5e4652fa6a19fb53477d8f96073d5c7a4de4635a3968b42ebe040e42faa3fb",
+            "file": "native/providers/native_mtp_target_stream.h"
+          },
+          {
+            "sha256": "1c579d476b6db75c2795aa56cda0f3225819e6fc6a8fefdb8fcd2470dd341c5f",
+            "file": "native/providers/out_consumer_interval.h"
+          },
+          {
+            "sha256": "8151d33f76740a0e860d1b3f58f5a3f46b6bf010abd90c109ab5438e693031a6",
+            "file": "native/providers/out_residual_filter.h"
+          },
+          {
+            "sha256": "f295f1096f2217230ad47a8724ed62db8e368cebe116bef8d5a430b95b65b3d7",
+            "file": "native/providers/prefill_chunks.h"
+          },
+          {
+            "sha256": "3763cfdc9dff959e2d1ba22406015ef84bba0d5e402f2b791072266620f258dc",
+            "file": "native/providers/prefix_attention_capture.h"
+          },
+          {
+            "sha256": "dcac9d1e8566aef72c8e615881333f995e9b3a981b0a0b792b5b8b8be02915a4",
+            "file": "native/providers/prefix_batch_suffix.h"
+          },
+          {
+            "sha256": "62e74eef22d494c18398a52007a990999d5ca482c6dbc3ea037f896c6c3bede8",
+            "file": "native/providers/prefix_checkpoint_policy.h"
+          },
+          {
+            "sha256": "53044fd6ca5d9f08c1d96192132463c322e6a189b811bbda3d73e2c5e777f0ce",
+            "file": "native/providers/prefix_decode_stream.h"
+          },
+          {
+            "sha256": "9e010a541163b8eb12a3a321aa820f1e4e4649749fefee7a503d664c48e521f9",
+            "file": "native/providers/prefix_linear_capture.h"
+          },
+          {
+            "sha256": "1f14f99e1b1edd8337a6d15f4e5296a8b34c41689bb49ac79a4eda9dcecc308f",
+            "file": "native/providers/projection_output_policy.h"
+          },
+          {
+            "sha256": "f4a056b58e8bc3062bc9f82ca11b1eb53eb482995b640212fc67b6c5dbf37901",
+            "file": "native/providers/projection_row_identity.h"
+          },
+          {
+            "sha256": "50628cd45a74a7c02248e28339e4a524e9f592e9273f614703a9270c7dc6b73c",
+            "file": "native/providers/projection_row_reuse_audit.h"
+          },
+          {
+            "sha256": "db74aaeb28b5122e7df11786bb4606077bce71db71da4ef67a2597d92db25abd",
+            "file": "native/providers/q1_moe_avx512bf16_host_provider.cpp"
+          },
+          {
+            "sha256": "e6323a6b623de3772bfceae73381be30669a6dea83aea5921165583430a99a39",
+            "file": "native/providers/q1_moe_avx512bf16_host_provider.h"
+          },
+          {
+            "sha256": "40a7afa5743f5fa7832f9b0c6719ffb25c8b0277ae3e1ad84eeb698b90b3a0d9",
+            "file": "native/providers/q1_trace_policy.h"
+          },
+          {
+            "sha256": "fa48e3cc69dff9535a9804ed00dcc144f8e87f29d322205ff5831065ab58f7ca",
+            "file": "native/providers/q8192_coarse_out.h"
+          },
+          {
+            "sha256": "199a0c78a10fb1abdb2a18e13e04661001d03ac214209a3fd8ba58329c2e461c",
+            "file": "native/providers/q8192_matrix_producer_policy.h"
+          },
+          {
+            "sha256": "4a054b929924934afb32188e3590fc50ffb5f42546bd8b31b68be0d86bf56e66",
+            "file": "native/providers/q8192_out_consumer_audit.h"
+          },
+          {
+            "sha256": "73c0e7482b43ec342e88c245808e03d326abea742721b013a6ee12bc7bc0eb06",
+            "file": "native/providers/q8192_out_l1_policy.h"
+          },
+          {
+            "sha256": "91d2c8106fb46a4eaf7fb65fa339fcb123c34adbe63859899479a61930f87bff",
+            "file": "native/providers/q8192_out_l1_replay.h"
+          },
+          {
+            "sha256": "04ee940136402bf3b75625c1842667da0cb346811ad7bdb91bfc9ad06298243c",
+            "file": "native/providers/q8192_out_l1_shadow_audit.h"
+          },
+          {
+            "sha256": "3557c298731928d506dd57ca3cd5097d8e0fda8cd37dba48331c64da22f7f36d",
+            "file": "native/providers/q8192_out_matrix_shadow_audit.h"
+          },
+          {
+            "sha256": "9208c9a19b67ab50cac61036e4134e6458590bc8b6c26bff328804fc8c4b16e4",
+            "file": "native/providers/q8192_out_variance_budget_audit.h"
+          },
+          {
+            "sha256": "dc4eb76e33ab53461492b71be6b55fb0d55e383c3eac89882d93249fefe6b15c",
+            "file": "native/providers/q8192_out_variance_queue.h"
+          },
+          {
+            "sha256": "59a7a4b08a5b9b58f6ef9ff2155b61805026792c175a1092097b4489d7a5defc",
+            "file": "native/providers/q8192_out_variance_replay.h"
+          },
+          {
+            "sha256": "49e95ef881294ea5e43b3c902cc3a4835e4fffbfd77a3e2351fb0a862a83b8d9",
+            "file": "native/providers/resident_fixed_weight_order.h"
+          },
+          {
+            "sha256": "1f19c84b603029eb464762c39fe17641e638bb39d2132718165bf23c33519030",
+            "file": "native/providers/resident_ordered_shard_layout.h"
+          },
+          {
+            "sha256": "daad07e6262ea4b9f46e9ee1c7bdc380d87a72282c68042e95f1e82035110f11",
+            "file": "native/providers/resident_text_shard_layout.h"
+          },
+          {
+            "sha256": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+            "file": "native/providers/sm121_attention_capacity.h"
+          },
+          {
+            "sha256": "28cd20c68cc5b4c59d5d40c869bde85513cc9cde9364f41ed8b5a209a8122335",
+            "file": "native/providers/sm121_mtp_prefill_probe.h"
+          },
+          {
+            "sha256": "be6411cb46241e94010fe20458e85fd4c683611ff4a2f37eb63c821431f54ccc",
+            "file": "native/providers/sm121_mtp_prefix_seed.h"
+          },
+          {
+            "sha256": "f281d9f09c9e74e452a062f277d8e00c6547b6a88e4b7f66f4959185c6f2d4eb",
+            "file": "native/providers/sm121_mtp_request_seed.h"
+          },
+          {
+            "sha256": "acf7f7537c3996a65620df8b235685fc8c1bd7b882c5888124331d12222ae199",
+            "file": "native/providers/sm121_mtp_runtime_tables.h"
+          },
+          {
+            "sha256": "91557c7401b763d56246f514faab776f8660df3c2ad645146377f7a6d856e51c",
+            "file": "native/providers/sm121_q1_attention_runtime.h"
+          },
+          {
+            "sha256": "31b1fb88735d75ffd83e8b195efac2683ab10af9c3d10aa5aab49f69ae74ad49",
+            "file": "native/providers/sm121_q1_full_runtime.h"
+          },
+          {
+            "sha256": "deed90cf331e9f37ebf9e4aa484dc7bba6e1165d61347cfd899ea8d817f7302d",
+            "file": "native/providers/sm121_q1_moe_runtime.h"
+          },
+          {
+            "sha256": "c8a1b052f8bebf5bed89637541e378ceab89255b61f5bb165e5b58e8f10a910f",
+            "file": "native/providers/sm121_q1_packed_runtime.h"
+          },
+          {
+            "sha256": "2f0a5400cd97d0510c72fdb1ac43dd6bcd692b1d7bcf0eb9b2eff68d38b0d7f5",
+            "file": "native/providers/sm121_q1_runtime.h"
+          },
+          {
+            "sha256": "5f200ce6a37b1406af02b83bd28581bf0f00a2c4fdb4c70e5067e6598d0e44a3",
+            "file": "native/providers/sm121_rope_cache.h"
+          },
+          {
+            "sha256": "9aa14e2ba76a96767efaeedb843bc0d48dd0faeb2ba017348f4902a59927d272",
+            "file": "native/providers/sm121_silu_runtime.h"
+          },
+          {
+            "sha256": "d81e7b4a654a443cf35c8473ae110ecc104d7e94b75ce6e74ad11ebf4c6cb29c",
+            "file": "native/providers/triton_moe/routed_consumer_interval.h"
+          },
+          {
+            "sha256": "6e6ec321900230542b7dfbfabb98b44a8745d389d03ef489faa55c42bea47adf",
+            "file": "native/providers/whole_provider.cpp"
+          },
+          {
+            "sha256": "e937d3ea5fcb6e4752487e15fc4ad38ca1c5f6f738c1a944dcfdf809708c319e",
+            "file": "native/src/product_cli.c"
+          },
+          {
+            "sha256": "941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957",
+            "file": "native/src/qrt.c"
+          },
+          {
+            "sha256": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18",
+            "file": "native/src/qrt.h"
+          },
+          {
+            "sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+            "file": "native/src/qrt_context_limits.h"
+          },
+          {
+            "sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+            "file": "native/src/qrt_prefix_checkpoint.h"
+          },
+          {
+            "sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+            "file": "native/src/qrt_prefix_logit.h"
+          },
+          {
+            "sha256": "50e57d93aa2f2d8d3c2d07b14a8539e682eace19c2614c7c21d85f3630e68e44",
+            "file": "native/src/qrt_qwen36_q1024_owner.h"
+          },
+          {
+            "sha256": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061",
+            "file": "native/src/qwen36_baseline.c"
+          },
+          {
+            "sha256": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42",
+            "file": "native/src/qwen36_baseline.h"
+          },
+          {
+            "sha256": "89b361bb9c7f14de028cb43cb6eede9b16f0a944472b702f66bcefeb2e711e6c",
+            "file": "scripts/baiying_build_whole_provider.ps1"
+          },
+          {
+            "sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+            "file": "scripts/baiying_guarded_inference.ps1"
+          },
+          {
+            "sha256": "5d0a7a989d4c252d70a98c300e8f33818bc5b5a89e0a120ed918d1bf008e0ee9",
+            "file": "scripts/build-product-cli.ps1"
+          },
+          {
+            "sha256": "2e7a84519586006314825a835f869d2758d58b6af5011b7879bbb6813a3f9633",
+            "file": "tools/prefix_stream_observer.h"
+          },
+          {
+            "sha256": "a870eb239fb818c9d589d58678c3cb5b425acf65a7f437ea828039060091ad18",
+            "file": "tools/prefix_stream_product_probe.c"
+          }
+        ],
+        "command_file": "P:\\projects\\run-native-packed-gate-midpoint-r1.ps1",
+        "command_file_sha256": "a539948ee16355627801ccfb333b0f3030917872a1f89be5a625c19069988df6",
+        "source_manifest_sha256": "42b224f40bf79d0b021cd67fdbf65e7c70ec4a3e5c61c49fc4f926daec420bdb",
+        "model": "none; native whole-provider compile",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "purpose": "Compile the packed gate midpoint repair, plus same-source CLI and prefix probe. Native MTP dispatch remains opt-in; no build qualifies inference or performance."
+      },
+      "executable_sha256": "8bb6fa8c283b4d92120b1ef249a9b311b0f804d4cabbe9981159976c8be76a5e",
+      "input_fingerprints": {},
+      "boot": "2026-09-16T00:45:12.1210600+08:00",
+      "boot_identity": {
+        "kind": "kernel_general_boot_event",
+        "value": "124051:639250875618960311",
+        "record_id": 124051,
+        "utc": "2026-09-15T16:46:01.8960311Z",
+        "cim_boot": "2026-09-16T00:45:12.1210600+08:00"
+      },
+      "memory": {
+        "Length": 64,
+        "Load": 29,
+        "TotalPhysical": 33981009920,
+        "AvailablePhysical": 23877398528,
+        "TotalCommit": 156119142400,
+        "AvailableCommit": 146269630464,
+        "TotalVirtual": 140737488224256,
+        "AvailableVirtual": 138533470461952,
+        "AvailableExtendedVirtual": 0
+      },
+      "gpus": [
+        {
+          "Name": "AMD Radeon(TM) 8060S Graphics",
+          "Status": "OK",
+          "DriverVersion": "32.0.31036.15"
+        }
+      ],
+      "processes": [],
+      "checks": {
+        "no_engine_or_compiler": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true,
+        "output_disk_reserve": true,
+        "source_commit_exact": true
+      },
+      "pass": true
+    },
+    "reason": "completed",
+    "exit_code": 0,
+    "wall_ms": 121916.409,
+    "summary_present": false,
+    "cli_pass": false,
+    "summary": null,
+    "after_boot": "2026-09-16T00:45:12.1210600+08:00",
+    "after_boot_identity": {
+      "kind": "kernel_general_boot_event",
+      "value": "124051:639250875618960311",
+      "record_id": 124051,
+      "utc": "2026-09-15T16:46:01.8960311Z",
+      "cim_boot": "2026-09-16T00:45:12.1210600+08:00"
+    },
+    "boot_clock_text_unchanged": true,
+    "after_memory": {
+      "Length": 64,
+      "Load": 30,
+      "TotalPhysical": 33981009920,
+      "AvailablePhysical": 23647973376,
+      "TotalCommit": 156119142400,
+      "AvailableCommit": 146062761984,
+      "TotalVirtual": 140737488224256,
+      "AvailableVirtual": 138533468987392,
+      "AvailableExtendedVirtual": 0
+    },
+    "after_gpus": [
+      {
+        "Name": "AMD Radeon(TM) 8060S Graphics",
+        "Status": "OK",
+        "DriverVersion": "32.0.31036.15"
+      }
+    ],
+    "after_processes": [],
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "host_checks_pass": true,
+    "numerical_acceptance_requires_external_oracle": true
+  },
+  "run_record_sha256": "cdf23e7d8bbdb07ac0da4690829f4aa8dbf28292e0d96fc14eedd2e345b9231e",
+  "metadata": {
+    "build-provenance.json": {
+      "sha256": "35711d255702d4b10c5e20346fa7871aba0090263ab4acdaeecfcf199d377499",
+      "record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "execution": "local_windows_process",
+        "repo_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+        "dirty_tree": false,
+        "command_file": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\scripts\\baiying_build_whole_provider.ps1",
+        "offload_arch": "gfx1151",
+        "gpu_execution_mode": "default",
+        "device_mode_arguments": [],
+        "w8a8_group_size": 128,
+        "q8192_weight_int8_scale_fp16": false,
+        "compile_timeout_seconds": 240,
+        "source_path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\providers\\whole_provider.cpp",
+        "source_sha256": "6e6ec321900230542b7dfbfabb98b44a8745d389d03ef489faa55c42bea47adf",
+        "projection_safety_test": false,
+        "hawkeye_device_replay_test_header_sha256": null,
+        "attention_admission_replay": false,
+        "compile_source_path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\providers\\whole_provider.cpp",
+        "compile_source_sha256": "6e6ec321900230542b7dfbfabb98b44a8745d389d03ef489faa55c42bea47adf",
+        "hawkeye_dispatch_policy_sha256": "4fd95a932236498d6a2d7e5a0dc2523f2ead1dfdaff1c147acfa357e1645b0fe",
+        "hawkeye_completed_latency_is_runtime_failure": false,
+        "hawkeye_completion_requires_stream_sync": true,
+        "hawkeye_nominal_dispatch_ms": 100,
+        "hawkeye_nominal_device_window_ms": 250,
+        "hawkeye_nominal_matrix_window_ms": 250,
+        "hawkeye_nominal_correction_ms": 10000,
+        "gate_input_capture_sha256": "a3efc27b99d604f5284edbc85c040535d783fb24e8b209beab89d48649b578b2",
+        "gb10_gate_lookup_sha256": "926729def66c5c32cc95c4fc2ebf7dc0f5b5de7d83f368a863343f4e97bdfe2c",
+        "projection_output_policy_sha256": "1f14f99e1b1edd8337a6d15f4e5296a8b34c41689bb49ac79a4eda9dcecc308f",
+        "q8192_matrix_producer_policy_sha256": "199a0c78a10fb1abdb2a18e13e04661001d03ac214209a3fd8ba58329c2e461c",
+        "q8192_out_matrix_shadow_audit_sha256": "3557c298731928d506dd57ca3cd5097d8e0fda8cd37dba48331c64da22f7f36d",
+        "q8192_out_l1_policy_sha256": "73c0e7482b43ec342e88c245808e03d326abea742721b013a6ee12bc7bc0eb06",
+        "q8192_out_l1_shadow_audit_sha256": "04ee940136402bf3b75625c1842667da0cb346811ad7bdb91bfc9ad06298243c",
+        "context_limits_header_sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+        "qrt_header_path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qrt.h",
+        "qrt_header_sha256": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18",
+        "prefix_logit_header_sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+        "prefix_checkpoint_header_sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+        "prefix_checkpoint_policy_sha256": "62e74eef22d494c18398a52007a990999d5ca482c6dbc3ea037f896c6c3bede8",
+        "attention_capacity_header_sha256": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+        "sm121_rope_cache_header_sha256": "5f200ce6a37b1406af02b83bd28581bf0f00a2c4fdb4c70e5067e6598d0e44a3",
+        "sm121_q1_full_runtime_header_sha256": "31b1fb88735d75ffd83e8b195efac2683ab10af9c3d10aa5aab49f69ae74ad49",
+        "prefix_batch_suffix_header_sha256": "dcac9d1e8566aef72c8e615881333f995e9b3a981b0a0b792b5b8b8be02915a4",
+        "prefill_chunks_header_sha256": "f295f1096f2217230ad47a8724ed62db8e368cebe116bef8d5a430b95b65b3d7",
+        "fla_checkpoint_header_sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+        "sm121_q1_gdn_header_sha256": "a85bcd2eae346a31ccb4075e4bb5897d0d238513344322bb4d12059d9734287e",
+        "q1_moe_avx512bf16_host_provider_source_path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\providers\\q1_moe_avx512bf16_host_provider.cpp",
+        "q1_moe_avx512bf16_host_provider_source_sha256": "db74aaeb28b5122e7df11786bb4606077bce71db71da4ef67a2597d92db25abd",
+        "q1_moe_avx512bf16_host_provider_header_path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\providers\\q1_moe_avx512bf16_host_provider.h",
+        "q1_moe_avx512bf16_host_provider_header_sha256": "e6323a6b623de3772bfceae73381be30669a6dea83aea5921165583430a99a39",
+        "q1_moe_hawkeye_bf16_accumulator_header_path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h",
+        "q1_moe_hawkeye_bf16_accumulator_header_sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+        "sm121_wave16_header_sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+        "sm121_group16_modulo_header_sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+        "sm121_native_product_header_sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+        "sm121_mantissa_parts_header_sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+        "sm121_integer_parts_header_sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+        "hawkeye_replay_lanes": 4,
+        "sm121_dpp_reduction": true,
+        "sm121_compact_normalize": true,
+        "sm121_canonical_normalize_header_sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+        "sm121_lane_reduce_header_sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+        "sm121_prefill_projection_header_sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+        "sm121_float_alignment_header_sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+        "sm121_scalar_projection_header_sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+        "sm121_scaled_fallback_header_sha256": "4374eb6599d630475e23bf49a45484441a541d827325a8eef3b737da941e1f69",
+        "sm121_staged_half_projection_header_sha256": "a6e580c1e4e8a27a8f5502bdd9e2e71c60a0029b0c3cb28efb9342c28635f672",
+        "sm121_scaled_half_projection_header_sha256": "6d0b6f1a250b79acd364bf5c490abd04d1686e1ff684ed2d26b7bb451ae6df12",
+        "sm121_scaled_half_products_header_sha256": "5433e85786b3a9b17fb1e55376a9c05b32725c34c8e8016c32204178b1566202",
+        "sm121_scaled_projection_header_sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+        "sm121_scaled_significand_header_sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+        "sm121_replay_partition_header_sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+        "sm121_float_subgroup_header_sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+        "sm121_subgroup_header_sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+        "sm121_paired_products_header_sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+        "bf16_midpoint_selector_header_sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+        "hipcc": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "clang": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\clang++.exe",
+        "rocm_root": "C:\\Program Files\\AMD\\ROCm\\7.1",
+        "hipblaslt_import_source": "C:\\Program Files\\AMD\\ROCm\\7.1\\lib\\libhipblaslt.dll.a",
+        "hipblaslt_import_source_sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+        "host_compile": {
+          "completed": true,
+          "timed_out": false,
+          "exit_code": 0,
+          "wall_ms": 1453.3431
+        },
+        "provider_compile": {
+          "completed": true,
+          "timed_out": false,
+          "exit_code": 0,
+          "wall_ms": 97779.6835
+        },
+        "host_compile_arguments": [
+          "-std=c++17",
+          "-O3",
+          "-mavx512f",
+          "-mavx512bf16",
+          "-ffp-contract=off",
+          "-c",
+          "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\providers\\q1_moe_avx512bf16_host_provider.cpp",
+          "-o",
+          "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\build\\packed-gate-midpoint-whole-provider\\q1_moe_avx512bf16_host_provider.obj"
+        ],
+        "provider_compile_arguments": [
+          "-DQRT_PREFILL_HAWKEYE_REPLAY_LANES=4",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "-DQRT_QWEN36_W8A8_GROUP_SIZE=128",
+          "-DQRT_QWEN36_Q8192_WEIGHT_INT8_FP16_SCALES=0",
+          "-DQRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER=1",
+          "-DQRT_ENABLE_HIPBLASLT_RESIDENT_MATRIX_PROVIDER=1",
+          "-DQRT_ENABLE_ROCBLAS_FULL_ATTENTION_BMM=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_MOE_BATCHED=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_MOE_ROUTER=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_LINEAR_QKVZ=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_LINEAR_OUT=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_FULL_Q=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_LM_HEAD=1",
+          "-I",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\include",
+          "-L",
+          "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\build\\packed-gate-midpoint-whole-provider",
+          "-I",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\include",
+          "-L",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\lib",
+          "-std=c++17",
+          "-O2",
+          "--offload-arch=gfx1151",
+          "-DQRT_STATIC=1",
+          "-I",
+          "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src",
+          "-I",
+          "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\providers",
+          "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\providers\\whole_provider.cpp",
+          "-o",
+          "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\build\\packed-gate-midpoint-whole-provider\\qrt_qwen36_whole_provider.dll",
+          "-lrocblas",
+          "-lhipblaslt",
+          "-Xlinker",
+          "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\build\\packed-gate-midpoint-whole-provider\\q1_moe_avx512bf16_host_provider.obj",
+          "-shared"
+        ],
+        "artifacts": [
+          {
+            "name": "qrt_qwen36_whole_provider.dll",
+            "bytes": 14068736,
+            "sha256": "81aba6f6956c415ea48ed60d1199a9f64a6eb0ef04dc96ad176f5b876f3b0e83"
+          },
+          {
+            "name": "q1_moe_avx512bf16_host_provider.obj",
+            "bytes": 183170,
+            "sha256": "831e912266e6738812d3eae9a74dd32201b06e25e80f61c52b9f6cbf02bb3345"
+          }
+        ]
+      }
+    },
+    "cli-build-provenance.json": {
+      "sha256": "2f789b8274d71acb9368d801344135505e703d22f3a01f6421e5d64ec7d8ddf6",
+      "record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "repo_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+        "dirty_tree": false,
+        "command_file": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\build\\product-cli\\build-product-cli.bat",
+        "command_file_sha256": "d6f5cb8b6c5d18328ec4e37d6e5d8632ca2dec45b0dc4f4147ab5a9691bd8aae",
+        "build_script": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\scripts\\build-product-cli.ps1",
+        "build_script_sha256": "5d0a7a989d4c252d70a98c300e8f33818bc5b5a89e0a120ed918d1bf008e0ee9",
+        "timeout_seconds": 180,
+        "stack_reserve_bytes": 268435456,
+        "prefix_stream_probe": false,
+        "wall_ms": 11385.9757,
+        "sources": [
+          {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qrt.c",
+            "sha256": "941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957"
+          },
+          {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qwen36_baseline.c",
+            "sha256": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061"
+          },
+          {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\product_cli.c",
+            "sha256": "e937d3ea5fcb6e4752487e15fc4ad38ca1c5f6f738c1a944dcfdf809708c319e"
+          },
+          {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qrt.h",
+            "sha256": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18"
+          },
+          {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qrt_context_limits.h",
+            "sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00"
+          },
+          {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qrt_prefix_logit.h",
+            "sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf"
+          },
+          {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qrt_prefix_checkpoint.h",
+            "sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289"
+          },
+          {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qwen36_baseline.h",
+            "sha256": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42"
+          }
+        ],
+        "executable": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\build\\product-cli\\qrt-product.exe",
+        "executable_bytes": 949760,
+        "executable_sha256": "c919570991729fc9632d63426a3da1a46721d3e8a852de8e74fa0b585e11e9dd",
+        "compiler_stdout_sha256": "8cbf9b011b4c9d1528d8a0c337b6bddb2dbb86a6d34fdf2bf312ffbc06b78edb",
+        "compiler_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "probe-build-provenance.json": {
+      "sha256": "b1822022ae37d0130045e6cf9980d38f8e53122864c000bb889fed1556c6fca8",
+      "record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "repo_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+        "dirty_tree": false,
+        "command_file": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\build\\prefix-stream-probe\\build-product-cli.bat",
+        "command_file_sha256": "ca471058b4e4d8df638398095b7165e6f56b222a66db4661a6911d9a1546bfab",
+        "build_script": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\scripts\\build-product-cli.ps1",
+        "build_script_sha256": "5d0a7a989d4c252d70a98c300e8f33818bc5b5a89e0a120ed918d1bf008e0ee9",
+        "timeout_seconds": 180,
+        "stack_reserve_bytes": 268435456,
+        "prefix_stream_probe": true,
+        "wall_ms": 10548.9856,
+        "sources": [
+          {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qrt.c",
+            "sha256": "941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957"
+          },
+          {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qwen36_baseline.c",
+            "sha256": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061"
+          },
+          {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\tools\\prefix_stream_product_probe.c",
+            "sha256": "a870eb239fb818c9d589d58678c3cb5b425acf65a7f437ea828039060091ad18"
+          },
+          {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qrt.h",
+            "sha256": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18"
+          },
+          {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qrt_context_limits.h",
+            "sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00"
+          },
+          {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qrt_prefix_logit.h",
+            "sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf"
+          },
+          {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qrt_prefix_checkpoint.h",
+            "sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289"
+          },
+          {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qwen36_baseline.h",
+            "sha256": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42"
+          },
+          {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\product_cli.c",
+            "sha256": "e937d3ea5fcb6e4752487e15fc4ad38ca1c5f6f738c1a944dcfdf809708c319e"
+          },
+          {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\tools\\prefix_stream_observer.h",
+            "sha256": "2e7a84519586006314825a835f869d2758d58b6af5011b7879bbb6813a3f9633"
+          }
+        ],
+        "executable": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\build\\prefix-stream-probe\\qrt-prefix-stream-probe.exe",
+        "executable_bytes": 956416,
+        "executable_sha256": "c0b5c16bac2a0d0eb2bb54b234ac63fe02b683f76dcba8ca7ef0e612fd7cd31d",
+        "compiler_stdout_sha256": "364ad2a7975e02cdb24a68f04d405b2ac3346d41aad0ad3bcd4a18ce13b25a04",
+        "compiler_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "native_build_passed": true,
+  "model_loaded": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

@@ -105,8 +105,10 @@ The preceding whole `8612387` 256k run completes all owner chunks but first
 differs at suffix output index 124: 8984 instead of 4980. The completed c268
 rerun reproduces all512 of those outputs. Its1257 same-history surface
 comparisons first differ in layer5's incoming recurrent state, head13. The
-90-case GPU replay on original reference operands passes both state layouts;
-the earlier accumulated difference remains under diagnosis. Native wall is
+90-case GPU replay on original reference operands passes both state layouts.
+The earlier cause is now traced to a BF16 midpoint in B/head13 at263238.
+The [repair](PACKED_GATE_MIDPOINT.md) passes actual original-operand GPU
+components; a new whole-model run remains required. Native wall is
 22598962.712 ms with clean host checks. No256k or performance acceptance is
 claimed. [Completed run and actual state evidence](../benchmarks/correctness/single-tail-q1-prefix256k-step124-native-20260921.json).
 [Prior failure](../benchmarks/correctness/retired-reference-mode-prefix256k-20260921.json)

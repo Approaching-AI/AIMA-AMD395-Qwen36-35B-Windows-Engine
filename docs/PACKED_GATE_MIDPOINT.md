@@ -34,7 +34,17 @@ contains no token, position, layer, head or reference selectors.
 The actual edited header passes all7,936 original A/B endpoints across124
 steps; it changes only the one failed output. ASan/UBSan checks also pass37
 exact dyadic midpoint, carrier and cancellation controls, including four
-failures of the old rounding. Windows compilation, fixed GPU replay and the
-full original-model continuation are still required. No new inference,
-performance or release acceptance is claimed.
+failures of the old rounding. Source `35607853eb03487b443ddfed8529b8da5539de86`
+then compiles and passes actual gfx1151 GPU replay on baiying: focused A/B/QKV,
+all248 history projections and364 prior projection/shared-activation cases.
+All615 cases,4,664 configurations and7,477,772 element comparisons match the
+original operands bitwise, including the corrected B/head13 value. Guards,
+immutable inputs and host cleanup pass.
+[Fixed native component evidence](../benchmarks/correctness/packed-gate-midpoint-native-20260922.json).
+
+The whole provider, same-source CLI and prefix probe also compile successfully
+on baiying in121916.409ms. Compiler flags are unchanged; the packed gate
+header is the only changed input among173.
+[Full build provenance](../benchmarks/correctness/packed-gate-midpoint-build-20260922.json).
+Original-model continuation qualification is still required. No new inference, performance or release acceptance is claimed.
 [Native failure, causal replay and candidate checks](../benchmarks/correctness/layer5-small-gate-midpoint-diagnosis-20260922.json).

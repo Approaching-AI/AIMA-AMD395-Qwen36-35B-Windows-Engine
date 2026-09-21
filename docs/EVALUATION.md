@@ -82,26 +82,25 @@ state owners preserve after263290 exactly as before263291, as does GB10.
 
 The actual GPU recurrence replay separately passes90 original-operand cases
 and180 state layouts:94371840 FP32 state and737280 BF16 core values match
-bitwise, with all guards and cleanup passing in25792.138 ms. These original
-operands do not reproduce the earlier native accumulation history. The cause
-before263290 remains open. A bounded observer can now select up to128
-consecutive original continuation inputs for exactly one linear layer, within
-the existing1GiB maximum. All40 observer/token-matrix unit tests pass; default
-cases retain their selection and512MiB limit. The layer5 history capture and
-sequential replay are the next diagnostic, with inference acceptance unchanged.
-The first history capture stops at the immutable q7169 control:220/9.375 rather
-than82/9.25. Its remaining31 outputs and all412 shared observation files match
-the earlier rejected control. The unchanged configuration's retry reproduces all608 original outputs and
-full first logits; the continuous observations are being independently qualified. This failure is retained and
-never used to alter the original oracle. [Rejected reference evidence](../benchmarks/correctness/gb10-layer5-history-control-rejection-20260921.json).
+bitwise, with all guards and cleanup passing in25792.138 ms. Those independent
+operands do not reproduce the earlier native accumulation history.
 
-The continuous reference and replay now localize the earlier cause to the
-packed B projection at263238, layer5/head13: native BF16 `0xbebc` instead of
-original `0xbebd`. The actual GPU reproduces the error with original operands.
-Injecting only that measured error into offline recurrence reproduces all four
-captured native state endpoints bitwise. A shape-based BF16 midpoint repair
-passes all7,936 original gate endpoints and37 local controls; native compilation
-and whole-model requalification remain pending. [Diagnosis and repair scope](PACKED_GATE_MIDPOINT.md).
+The bounded layer5 capture now supplies124 consecutive original transitions,
+with all123 state links exact. It reproduces all608 original outputs and full
+first logits; all33,098 files are verified. The first attempt's q7169 control
+failure remains preserved and never changes the oracle.
+[Qualified continuous reference](../benchmarks/correctness/gb10-layer5-recurrent-history-20260921.json),
+[rejected attempt](../benchmarks/correctness/gb10-layer5-history-control-rejection-20260921.json).
+
+The continuous reference and replay localize the earlier cause to the packed
+B projection at263238, layer5/head13: native BF16 `0xbebc` instead of original
+`0xbebd`. The GPU reproduces the error with original operands. Injecting only
+that measured error into offline recurrence reproduces all four captured
+native state endpoints bitwise. Source `3560785` resolves exact BF16 midpoints
+for the32-row packed gate family. It passes37 local controls and actual
+Windows GPU replay:615 cases,4,664 configurations and7,477,772 element
+comparisons, including all7,936 unique original history A/B outputs. Complete
+model requalification remains pending. [Diagnosis and repair scope](PACKED_GATE_MIDPOINT.md).
 
 The three native retirement cases and final portable archive remain open.
 The actual whole DLL, CLI and static-C-core server must be bound together for
