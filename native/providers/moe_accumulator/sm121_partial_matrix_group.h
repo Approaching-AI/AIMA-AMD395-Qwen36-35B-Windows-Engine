@@ -115,10 +115,11 @@ QRT_PARTIAL_MATRIX_INLINE bool accumulate(float carry, const Row& a, const Row& 
     // Sparse exceptions are typically the small-magnitude terms. Only these
     // products expand to FP32; BF16 products and power-of-two alignment remain
     // exact in the complete narrow domain, as in the original narrow producer.
-    uint32_t remaining = exceptions & active;
-    while (remaining) {
-        const unsigned i = unsigned(__builtin_ctz(remaining));
-        remaining &= remaining - 1u;
+    const uint32_t remaining = exceptions & active;
+    // Fixed slots let the GPU keep the encoded row in registers. A dynamic
+    // set-bit index makes these otherwise small arrays addressable/private.
+#pragma unroll
+    for (unsigned i = 0u; i < 16u; ++i) if (remaining & (1u << i)) {
         const float x = group::f32::alignment::from_bits(uint32_t(original(a, i)) << 16u);
         const float y = group::f32::alignment::from_bits(uint32_t(original(b, i)) << 16u);
         const float product = x * y;

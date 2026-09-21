@@ -77,6 +77,27 @@ __global__ __launch_bounds__(128) void scores(Workspace w, float* output,
     for (unsigned g = 0u; g < 16u; ++g) {
         const Row a = w.query[(size_t(start+query_row)*16u+head)*16u+g];
         const Row b = w.key[(size_t(kv)*16u+g)*tokens+key_base+lane%16u];
+        if constexpr (ForceOriginal) {
+            // This safety path needs only the original words. Expand once
+            // per input row, retaining the established raw-row shuffle owner.
+            uint32_t a_raw[8], b_raw[8];
+#pragma unroll
+            for (unsigned pair = 0u; pair < 8u; ++pair) {
+                a_raw[pair] = uint32_t(partial::original(a,pair*2u)) |
+                    (uint32_t(partial::original(a,pair*2u+1u)) << 16u);
+                b_raw[pair] = uint32_t(partial::original(b,pair*2u)) |
+                    (uint32_t(partial::original(b,pair*2u+1u)) << 16u);
+            }
+#pragma unroll
+            for (unsigned item = 0u; item < 8u; ++item) {
+                uint32_t key_raw[8];
+#pragma unroll
+                for (unsigned pair = 0u; pair < 8u; ++pair)
+                    key_raw[pair] = __shfl(b_raw[pair],item*2u+lane/16u);
+                carries[item] = original::original_group(carries[item],a_raw,key_raw);
+            }
+            continue;
+        }
         I8 hh{}, hl{}, lh{}, ll{};
         if constexpr (!ForceOriginal) {
             I4 ah{}, al{}, bh{}, bl{};

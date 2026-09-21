@@ -132,8 +132,24 @@ variants and adds the partial wave owner. Safety also keeps forced original
 wave replay and adds forced original partial-row replay, giving560 generated
 cases. CPU metadata, original raw scores and consumer surfaces, GB10 context,
 all candidate sets, immutable inputs and redzones remain checked. Each variant
-reports its own complete metadata preparation cost. Native compilation and
-these complete GPU comparisons remain pending for the partial owner.
+reports its own complete metadata preparation cost. These complete GPU
+comparisons remain pending for the partial owner.
+
+The [first partial native build](../benchmarks/correctness/partial-wave-matrix-native-20260921.json)
+at719fae8 compiles in47944.706 ms with59 compilation inputs and all host checks,
+preserving the long owner. Executable SHA256
+05d7aaa0e8cf5dfc69257834a69bec0ab387ac05217f31b0794bb938688b5f98
+contains172 VGPRs and132 private bytes per lane for the partial candidate.
+Its forced original partial-row control uses256 VGPRs,140 private bytes and81
+reported VGPR spills. All five prior control kernels retain their resources.
+This exposes addressable row storage before any GPU performance comparison.
+
+The revised candidate visits16 fixed exception slots, computing only selected
+original products; its forced replay expands original rows once per group
+and broadcasts those raw words. The [revised host audit](../benchmarks/correctness/partial-matrix-static-local-20260921.json)
+preserves all generated and sampled counts and exact endpoints under
+ASan/UBSan. Its native resource comparison remains pending. The first build
+and all original fallback paths remain available for comparison.
 
 The [native build record](../benchmarks/correctness/wave-matrix-qk-native-build-20260921.json)
 binds source804ccf4,56 compilation inputs, the original compiler flags and
