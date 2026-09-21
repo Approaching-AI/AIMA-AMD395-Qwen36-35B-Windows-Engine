@@ -45,6 +45,45 @@ QRT_PACKED_DENSE_HD inline float lane_dot(const Input* input,
     return sum;
 }
 
+QRT_PACKED_DENSE_HD inline double midpoint_add(double a, double b) {
+#if defined(__HIP_DEVICE_COMPILE__)
+    double result;
+    asm("v_add_f64 %0, %1, %2" : "=v"(result) : "v"(a), "v"(b));
+    return result;
+#else
+    volatile double result = a + b;
+    return result;
+#endif
+}
+
+// A32-row gate's FP32 reduction can lose a small product and land exactly
+// on a BF16 midpoint. Resolve that ambiguity before BF16 rounding, rather
+// than rounding the already-rounded FP32 midpoint a second time. Other
+// endpoints retain the original reduction. This depends only on shape and
+// arithmetic, never on layer, head, position, token or reference values.
+template<class Input>
+QRT_PACKED_DENSE_HD inline uint16_t gate_midpoint(float sum,
+    const Input* input, const uint16_t* weight) {
+    const uint32_t bits = qrt_sm121_exp2::bits(sum);
+    if ((bits & 0xffffu) != 0x8000u || (bits & 0x7f800000u) == 0x7f800000u)
+        return qrt_sm121_q1::bf16(sum);
+    double precise = 0.0, correction = 0.0;
+    for (unsigned i = 0; i < 2048u; ++i) {
+        const double product = double(operand(input[i])) * double(operand(weight[i]));
+        const double next = midpoint_add(precise, product);
+        const double residual = std::abs(precise) >= std::abs(product)
+            ? midpoint_add(midpoint_add(precise, -next), product)
+            : midpoint_add(midpoint_add(product, -next), precise);
+        correction = midpoint_add(correction, residual);
+        precise = next;
+    }
+    precise = midpoint_add(precise, correction);
+    if (precise == double(sum)) return qrt_sm121_q1::bf16(sum);
+    const uint16_t base = static_cast<uint16_t>(bits >> 16u);
+    const bool next = (bits >> 31u) ? precise < double(sum) : precise > double(sum);
+    return static_cast<uint16_t>(base + unsigned(next));
+}
+
 #if defined(__HIPCC__) || defined(__CUDACC__)
 template<unsigned K, class Input>
 __device__ inline float dot(const Input* input, const uint16_t* weight) {
@@ -68,7 +107,11 @@ __global__ void projection(const Input* input, const uint16_t* weights,
     const size_t query = cell / columns;
     const float sum = dot<K>(input + query * K, weights + size_t(column) * K);
     if (threadIdx.x % lanes<K> == 0u) {
-        const uint16_t rounded = qrt_sm121_q1::bf16(sum);
+        uint16_t rounded = qrt_sm121_q1::bf16(sum);
+        if constexpr (K == 2048u) {
+            if (columns == 32u)
+                rounded = gate_midpoint(sum, input + query * K, weights + size_t(column) * K);
+        }
         if constexpr (std::is_same<Output,uint16_t>::value) output[cell] = rounded;
         else output[cell] = qrt_sm121_q1::widen(rounded);
     }

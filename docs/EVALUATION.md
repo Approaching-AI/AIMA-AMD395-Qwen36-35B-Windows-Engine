@@ -95,6 +95,14 @@ the earlier rejected control. The unchanged configuration's retry reproduces all
 full first logits; the continuous observations are being independently qualified. This failure is retained and
 never used to alter the original oracle. [Rejected reference evidence](../benchmarks/correctness/gb10-layer5-history-control-rejection-20260921.json).
 
+The continuous reference and replay now localize the earlier cause to the
+packed B projection at263238, layer5/head13: native BF16 `0xbebc` instead of
+original `0xbebd`. The actual GPU reproduces the error with original operands.
+Injecting only that measured error into offline recurrence reproduces all four
+captured native state endpoints bitwise. A shape-based BF16 midpoint repair
+passes all7,936 original gate endpoints and37 local controls; native compilation
+and whole-model requalification remain pending. [Diagnosis and repair scope](PACKED_GATE_MIDPOINT.md).
+
 The three native retirement cases and final portable archive remain open.
 The actual whole DLL, CLI and static-C-core server must be bound together for
 the final 45 protocol, 15 prefix and 55 control-plane requests, the 13 cold
