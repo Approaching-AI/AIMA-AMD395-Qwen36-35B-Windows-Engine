@@ -16,14 +16,15 @@ current public copies. Commands containing aliases require local substitution.
 Run tools/publish_evidence.py before publishing new reports and check the
 result with tools/public_hygiene.py.
 
-The latest [whole-provider build and q8192 regression](../benchmarks/correctness/segmented-attention-whole-q8192-20260921.json)
-pass on baiying at source9428e9e. All512 output IDs and callbacks match GB10,
-first144/logit10.375/error0. Load21718.0055ms passes; TTFT23554.1578ms and
-TPOT100.697048ms do not meet the performance goals. DLL SHA256 is
-`b6952c58eb18b4d7308e11ed881c8da01344618c31c447b80daa4d54731e5f7b`.
-It binds143 compilation files/145 inputs and includes the actual long-context
-segmented-attention dispatch. The [full256k rerun](../benchmarks/correctness/segmented-prefix256k-postnorm-divergence-20260921.json)
-has completed with exit6 after22614410.512ms and clean host state. All32
+The latest [whole-provider build and q8192 regression](../benchmarks/correctness/residual-norm-mode-q8192-20260921.json)
+pass on baiying at source6a5da30. All512 output IDs and callbacks match GB10,
+first144/logit10.375/error0. Load21692.5148ms passes; TTFT23241.443799ms and
+TPOT100.232207ms do not meet the performance goals. DLL SHA256 is
+`393cb7ceb8353b0d590894628f577d23efdc854f67d2e03a71f483b8132128bd`.
+The combined whole/probe build binds173 source inputs. This functional run
+does not replace the23353.80795ms retained median or qualify long contexts.
+The earlier9428e9e [full256k rerun](../benchmarks/correctness/segmented-prefix256k-postnorm-divergence-20260921.json)
+completed with exit6 after22614410.512ms and clean host state. All32
 owner chunks complete, and suffix first248045/logit5.78125 is exact. The first99
 outputs match, then index99 is1 instead of328;397/512 positions differ.
 Prefix restoration passes, but owner32 and the second suffix are not executed.
@@ -78,8 +79,12 @@ Repeating the original unmodified normalization with two rows gives zero
 differences from the former reduction across all80 operand sets/163840 values.
 The candidate now selects the four-value reduction for the reference's
 single-row route, retaining eight-value reduction for prefill and ordinary
-decode emulating the MTP verifier. Native validation of both selections and
-the repaired complete model runs remain open.
+decode emulating the MTP verifier. Its [native three-kernel replay in both
+modes](../benchmarks/correctness/residual-norm-reference-modes-native-20260921.json)
+passes2293760 output/carrier values and480 variance/inverse/table comparisons.
+All input guards, immutability and host cleanup checks pass. The same-source
+ordinary q8192 model regression above now passes; complete repaired long
+contexts and the remaining native MTP prefix branches are still open.
 
 The candidate also keeps native target top-one position, token and logit in
 the private transaction metadata. A prefix result receives that actual value

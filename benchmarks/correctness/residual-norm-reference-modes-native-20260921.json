@@ -1,0 +1,2445 @@
+{
+  "kind": "actual_native_residual_norm_reference_row_modes",
+  "host": "baiying",
+  "source_commit": "6a5da300aae444d25541138c5f20423958d25f19",
+  "model": "D:/models/Qwen3.6-35B-A3B; actual long-context operator operands",
+  "command_file": "D:/projects/run-residual-norm-modes-native-r1.ps1",
+  "manifest": {
+    "kind": "actual_reference_row_modes_residual_kernel_native_plan",
+    "source_commit": "6a5da300aae444d25541138c5f20423958d25f19",
+    "repo": "D:/projects/AIMA-public-native-mtp-norm-mode-logit-20260921-r1",
+    "whole_build_manifest_sha256": "48efe4adecc61f64751bcedf75b29061ae7dcf7b19fce2ff8f0d22fe539d6422",
+    "data": "residual-norm-modes-native-inputs-r1",
+    "input_sha256": {
+      "postnorm_live_extract.h": "f68268f096378beb6a266e6f52e41d08d4bfae0a28a554b4f0007ef560add671",
+      "q1/inverse.f32.bin": "e5e2ca6043192b529b7f4cfbd76fbcf90c326d5eff9677e6714f00b3cb1be7a5",
+      "q1/operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+      "q1/original-output.bf16.bin": "0bcfc9ee3ab0ba7df8a381beb4c6f95313c9fe5426e8bb61b8e398630c39640b",
+      "q1/original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+      "q1/variance.f32.bin": "615344604a3db0aa5d3b830314cab66145a162c3fa052624939ee583e5296182",
+      "q1/weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7",
+      "q2/inverse.f32.bin": "48f6d69c85944f2d15fba90de8708b15f0d0ee71969a6446ba15ad9a45df45c3",
+      "q2/operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+      "q2/original-output.bf16.bin": "052b9950fdfa47d268f4af10e0477a5071e512d74bc9e3dccdb6fe5529f1df41",
+      "q2/original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+      "q2/variance.f32.bin": "64d31bcb8b793c15798882303d91c5208c63d5b34ee99a3833d9e2b9f4be8345",
+      "q2/weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7"
+    },
+    "source_sha256": {
+      "native/providers/gdn/q1_residual_norm_capture_replay.cpp": "686a3eb626bd1221fb5cb4c602245e248a99606a4aefe781283a46c6136c1b7e",
+      "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+      "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+      "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+      "native/providers/gdn/sm121_q1_residual_math.h": "f661aad36633ca4e3d2ccab7e720986c567d1431171a0bfc51a7bb040ccac7ae",
+      "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+      "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+      "native/providers/whole_provider.cpp": "e5334aeda0a6a576ab33ccec8264feedee3ec6018a3d93a1d144180f88e37dc3",
+      "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+      "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+      "scripts/prepare_native_postnorm_replay.py": "6d452dcb39a86e62bcb66d6f5222103a39e56a1100230cddfcd6e444443287d9"
+    },
+    "script": "run-residual-norm-modes-native-r1.ps1",
+    "script_sha256": "a296be4056ee777cee006324d3668990650b9960a87c2cd37e87e7c44207e381",
+    "references": {
+      "q1": {
+        "directory": "qrt-gb10-postnorm-matrix-20260921-r1",
+        "comparison_sha256": "b4d3238bf415d3791de614457c9122b96c2329eb843446900cf4fb5e71a46139",
+        "input_manifest_sha256": "984a7c58a45a1ba606ae131b6b07f4a9cf6a294a866166fb982a3dea7b1f0b46",
+        "dispatch_sha256": "a6465d935c0338d915cd61d23ec66254e493efb85b12e2e33da31dbc2a6f1284",
+        "reference_compute_rows": 1
+      },
+      "q2": {
+        "directory": "qrt-gb10-postnorm-two-row-matrix-20260921-r1",
+        "comparison_sha256": "7b64fca85060a5ec594f8116e27702640dd03ec1433772168d911c460ce6a4cf",
+        "input_manifest_sha256": "8afe22db079000101fd4ce86e8d6c2ece1973bd1b6bd825a7c6f863275559f3b",
+        "dispatch_sha256": "44c526f6674332f73219589318bc7f1e863d91ff32c42f693b5ec07ee414bf34",
+        "reference_compute_rows": 2
+      }
+    },
+    "extraction_sha256": "05a0fc74c0a943fe86fa2311d38e04d513b4e74ecdc562c82ce68d44d3c5cbc4",
+    "model": "D:/models/Qwen3.6-35B-A3B; actual long-context operator operands",
+    "reference_host": "gb10-4t",
+    "native_timeout_seconds": 120,
+    "transport_timeout_seconds": 420,
+    "expected_cases": 80,
+    "expected_values_per_surface": 163840,
+    "reference_is_compute_input": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false,
+    "correction": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+    "correction_sha256": "d7a59b3d92222932ddaa5af63e71d4cbbc55f529948f239924bc0f897c3891c7",
+    "rsqrt": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-rsqrt-positive-ca0230a8.bin",
+    "rsqrt_sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850",
+    "dispatcher": "dispatch_residual_norm_modes_native_r1.py",
+    "dispatcher_sha256": "ff144d56bd47d5e5bbfee6860c21dbb04ed3be5906632fbe406cadf07dd441f0",
+    "generator": "prepare_residual_norm_modes_native_r1.py",
+    "generator_sha256": "bb5ecd66cd6113941e49808ddb7ef94aad93e3d1f4efdf19e25baebdb74f3b18",
+    "pre_dispatch_manifest_repair": {
+      "initial_manifest": "residual-norm-modes-native-source-r1-initial.json",
+      "initial_manifest_sha256": "bb4900012c0eb09149554bf5153cb973f2398ffab8c84ec3af1a8c28a14fc99e",
+      "reason": "Include the generated extraction header dependency closure recursively before dispatch; no native build or run used the incomplete initial manifest."
+    }
+  },
+  "source_manifest_sha256": "a70b345a440fd8bea3d8d725db4cc998363e592bc56f14a8534ddd263efa5a02",
+  "whole_build": {
+    "source_manifest": "native-mtp-norm-mode-logit-whole-source-r1.json",
+    "source_manifest_sha256": "48efe4adecc61f64751bcedf75b29061ae7dcf7b19fce2ff8f0d22fe539d6422",
+    "source_commit": "6a5da300aae444d25541138c5f20423958d25f19",
+    "repo": "D:/projects/AIMA-public-native-mtp-norm-mode-logit-20260921-r1",
+    "run_directory": "native-mtp-norm-mode-logit-build-r1",
+    "run_sha256": "9fc3d49433b6c68a44091b5591b400ef292af2755d7ef617644c922a59dafae9",
+    "whole_metadata_sha256": "6f1eed0cb6b91db675a252aceddc85882ee9201ca3d834c4e8aec2523ed12544",
+    "whole_artifact": {
+      "name": "qrt_qwen36_whole_provider.dll",
+      "bytes": 14062592,
+      "sha256": "393cb7ceb8353b0d590894628f577d23efdc854f67d2e03a71f483b8132128bd"
+    },
+    "whole_artifacts": [
+      {
+        "name": "qrt_qwen36_whole_provider.dll",
+        "bytes": 14062592,
+        "sha256": "393cb7ceb8353b0d590894628f577d23efdc854f67d2e03a71f483b8132128bd"
+      },
+      {
+        "name": "q1_moe_avx512bf16_host_provider.obj",
+        "bytes": 183170,
+        "sha256": "24b2ea5c86913a84c51392d9be3500d8ad3bfddc024c7e52f9458c4c35a5edae"
+      }
+    ],
+    "probe_metadata_sha256": "7e821fcb9d48e76d71f0b4c9802ef06961e65ffc3dd11908c49dcf915ee8dd69",
+    "probe_executable_sha256": "15d977ee68a2eea3f5ee84f0d380c7353afba4d132f41d2a0d9aeb162b29851a",
+    "probe_executable_bytes": 955904,
+    "whole_compilation_inputs": 167,
+    "probe_compilation_inputs": 10,
+    "all_source_inputs": 173,
+    "compiler_flags_match_control": true
+  },
+  "native_runs": {
+    "build": {
+      "record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-native-mtp-norm-mode-logit-20260921-r1\\scripts\\baiying_guarded_inference.ps1",
+        "spec": {
+          "executable": "C:/Program Files/AMD/ROCm/7.1/bin/hipcc.exe",
+          "arguments": [
+            "-std=c++17",
+            "-O2",
+            "--offload-arch=gfx1151",
+            "-I",
+            "D:\\projects\\residual-norm-modes-native-inputs-r1",
+            "-I",
+            "D:\\projects\\AIMA-public-native-mtp-norm-mode-logit-20260921-r1\\native\\providers\\gdn",
+            "D:\\projects\\AIMA-public-native-mtp-norm-mode-logit-20260921-r1\\native\\providers\\gdn\\q1_residual_norm_capture_replay.cpp",
+            "-o",
+            "D:\\projects\\AIMA-public-native-mtp-norm-mode-logit-20260921-r1\\build\\residual-norm-modes-native-r1\\residual-norm-modes-replay.exe"
+          ],
+          "working_directory": "D:/projects/AIMA-public-native-mtp-norm-mode-logit-20260921-r1",
+          "repo_commit": "6a5da300aae444d25541138c5f20423958d25f19",
+          "source_inputs": {
+            "native/providers/gdn/q1_residual_norm_capture_replay.cpp": "686a3eb626bd1221fb5cb4c602245e248a99606a4aefe781283a46c6136c1b7e",
+            "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+            "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+            "native/providers/gdn/sm121_q1_residual_math.h": "f661aad36633ca4e3d2ccab7e720986c567d1431171a0bfc51a7bb040ccac7ae",
+            "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+            "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+            "native/providers/whole_provider.cpp": "e5334aeda0a6a576ab33ccec8264feedee3ec6018a3d93a1d144180f88e37dc3",
+            "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+            "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+            "scripts/prepare_native_postnorm_replay.py": "6d452dcb39a86e62bcb66d6f5222103a39e56a1100230cddfcd6e444443287d9"
+          },
+          "input_files": {
+            "postnorm_live_extract.h": "f68268f096378beb6a266e6f52e41d08d4bfae0a28a554b4f0007ef560add671",
+            "q1/inverse.f32.bin": "e5e2ca6043192b529b7f4cfbd76fbcf90c326d5eff9677e6714f00b3cb1be7a5",
+            "q1/operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+            "q1/original-output.bf16.bin": "0bcfc9ee3ab0ba7df8a381beb4c6f95313c9fe5426e8bb61b8e398630c39640b",
+            "q1/original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+            "q1/variance.f32.bin": "615344604a3db0aa5d3b830314cab66145a162c3fa052624939ee583e5296182",
+            "q1/weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7",
+            "q2/inverse.f32.bin": "48f6d69c85944f2d15fba90de8708b15f0d0ee71969a6446ba15ad9a45df45c3",
+            "q2/operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+            "q2/original-output.bf16.bin": "052b9950fdfa47d268f4af10e0477a5071e512d74bc9e3dccdb6fe5529f1df41",
+            "q2/original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+            "q2/variance.f32.bin": "64d31bcb8b793c15798882303d91c5208c63d5b34ee99a3833d9e2b9f4be8345",
+            "q2/weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7"
+          },
+          "command_file": "D:\\projects\\run-residual-norm-modes-native-r1.ps1",
+          "command_file_sha256": "a296be4056ee777cee006324d3668990650b9960a87c2cd37e87e7c44207e381",
+          "source_manifest_sha256": "a70b345a440fd8bea3d8d725db4cc998363e592bc56f14a8534ddd263efa5a02",
+          "model": "D:/models/Qwen3.6-35B-A3B; actual long-context operator operands",
+          "reference": null,
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "purpose": "build"
+        },
+        "preflight": {
+          "host": "BAIYING",
+          "utc": "2026-09-21T05:18:35.9017556Z",
+          "command_file": "D:\\projects\\AIMA-public-native-mtp-norm-mode-logit-20260921-r1\\scripts\\baiying_guarded_inference.ps1",
+          "command_file_sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+          "spec": {
+            "executable": "C:/Program Files/AMD/ROCm/7.1/bin/hipcc.exe",
+            "arguments": [
+              "-std=c++17",
+              "-O2",
+              "--offload-arch=gfx1151",
+              "-I",
+              "D:\\projects\\residual-norm-modes-native-inputs-r1",
+              "-I",
+              "D:\\projects\\AIMA-public-native-mtp-norm-mode-logit-20260921-r1\\native\\providers\\gdn",
+              "D:\\projects\\AIMA-public-native-mtp-norm-mode-logit-20260921-r1\\native\\providers\\gdn\\q1_residual_norm_capture_replay.cpp",
+              "-o",
+              "D:\\projects\\AIMA-public-native-mtp-norm-mode-logit-20260921-r1\\build\\residual-norm-modes-native-r1\\residual-norm-modes-replay.exe"
+            ],
+            "working_directory": "D:/projects/AIMA-public-native-mtp-norm-mode-logit-20260921-r1",
+            "repo_commit": "6a5da300aae444d25541138c5f20423958d25f19",
+            "source_inputs": {
+              "native/providers/gdn/q1_residual_norm_capture_replay.cpp": "686a3eb626bd1221fb5cb4c602245e248a99606a4aefe781283a46c6136c1b7e",
+              "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+              "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+              "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+              "native/providers/gdn/sm121_q1_residual_math.h": "f661aad36633ca4e3d2ccab7e720986c567d1431171a0bfc51a7bb040ccac7ae",
+              "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+              "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+              "native/providers/whole_provider.cpp": "e5334aeda0a6a576ab33ccec8264feedee3ec6018a3d93a1d144180f88e37dc3",
+              "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+              "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+              "scripts/prepare_native_postnorm_replay.py": "6d452dcb39a86e62bcb66d6f5222103a39e56a1100230cddfcd6e444443287d9"
+            },
+            "input_files": {
+              "postnorm_live_extract.h": "f68268f096378beb6a266e6f52e41d08d4bfae0a28a554b4f0007ef560add671",
+              "q1/inverse.f32.bin": "e5e2ca6043192b529b7f4cfbd76fbcf90c326d5eff9677e6714f00b3cb1be7a5",
+              "q1/operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+              "q1/original-output.bf16.bin": "0bcfc9ee3ab0ba7df8a381beb4c6f95313c9fe5426e8bb61b8e398630c39640b",
+              "q1/original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+              "q1/variance.f32.bin": "615344604a3db0aa5d3b830314cab66145a162c3fa052624939ee583e5296182",
+              "q1/weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7",
+              "q2/inverse.f32.bin": "48f6d69c85944f2d15fba90de8708b15f0d0ee71969a6446ba15ad9a45df45c3",
+              "q2/operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+              "q2/original-output.bf16.bin": "052b9950fdfa47d268f4af10e0477a5071e512d74bc9e3dccdb6fe5529f1df41",
+              "q2/original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+              "q2/variance.f32.bin": "64d31bcb8b793c15798882303d91c5208c63d5b34ee99a3833d9e2b9f4be8345",
+              "q2/weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7"
+            },
+            "command_file": "D:\\projects\\run-residual-norm-modes-native-r1.ps1",
+            "command_file_sha256": "a296be4056ee777cee006324d3668990650b9960a87c2cd37e87e7c44207e381",
+            "source_manifest_sha256": "a70b345a440fd8bea3d8d725db4cc998363e592bc56f14a8534ddd263efa5a02",
+            "model": "D:/models/Qwen3.6-35B-A3B; actual long-context operator operands",
+            "reference": null,
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "performance_acceptance": false,
+            "purpose": "build"
+          },
+          "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+          "input_fingerprints": {},
+          "boot": "2026-09-16T00:45:19.2304050+08:00",
+          "boot_identity": {
+            "kind": "kernel_general_boot_event",
+            "value": "124051:639250875618960311",
+            "record_id": 124051,
+            "utc": "2026-09-15T16:46:01.8960311Z",
+            "cim_boot": "2026-09-16T00:45:19.2304050+08:00"
+          },
+          "memory": {
+            "Length": 64,
+            "Load": 28,
+            "TotalPhysical": 33981009920,
+            "AvailablePhysical": 24164163584,
+            "TotalCommit": 156119142400,
+            "AvailableCommit": 146592256000,
+            "TotalVirtual": 140737488224256,
+            "AvailableVirtual": 138533475246080,
+            "AvailableExtendedVirtual": 0
+          },
+          "gpus": [
+            {
+              "Name": "AMD Radeon(TM) 8060S Graphics",
+              "Status": "OK",
+              "DriverVersion": "32.0.31036.15"
+            }
+          ],
+          "processes": [],
+          "checks": {
+            "no_engine_or_compiler": true,
+            "host_memory_reserve": true,
+            "commit_reserve": true,
+            "amd_gpu_ok": true,
+            "output_disk_reserve": true,
+            "source_commit_exact": true
+          },
+          "pass": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 2110.842,
+        "summary_present": false,
+        "cli_pass": false,
+        "summary": null,
+        "after_boot": "2026-09-16T00:45:19.2304050+08:00",
+        "after_boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "124051:639250875618960311",
+          "record_id": 124051,
+          "utc": "2026-09-15T16:46:01.8960311Z",
+          "cim_boot": "2026-09-16T00:45:19.2304050+08:00"
+        },
+        "boot_clock_text_unchanged": true,
+        "after_memory": {
+          "Length": 64,
+          "Load": 28,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24133984256,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 146565181440,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533463015424,
+          "AvailableExtendedVirtual": 0
+        },
+        "after_gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "after_processes": [],
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "numerical_acceptance_requires_external_oracle": true
+      },
+      "files": {
+        "product.stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "product.stdout.jsonl": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "launch.json": {
+          "bytes": 131,
+          "sha256": "0152f325f49ab69577110f4a7b6ae2013b805082667891833368de5e0ca20746"
+        },
+        "preflight.json": {
+          "bytes": 7369,
+          "sha256": "97dc69b322e1e2369ec082cd5ab96ba6c0e2e7e27efae2f5b89116bcd42bd069"
+        },
+        "run-record.json": {
+          "bytes": 16678,
+          "sha256": "595e3dc853e7ea6d27bc4cca54c9edc452e31ad774ab6c7461e74f5bfe639bf3"
+        }
+      }
+    },
+    "q1": {
+      "record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-native-mtp-norm-mode-logit-20260921-r1\\scripts\\baiying_guarded_inference.ps1",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-native-mtp-norm-mode-logit-20260921-r1\\build\\residual-norm-modes-native-r1\\residual-norm-modes-replay.exe",
+          "arguments": [
+            "D:\\projects\\residual-norm-modes-native-inputs-r1\\q1",
+            "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+            "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-rsqrt-positive-ca0230a8.bin",
+            "1"
+          ],
+          "working_directory": "D:/projects/AIMA-public-native-mtp-norm-mode-logit-20260921-r1",
+          "repo_commit": "6a5da300aae444d25541138c5f20423958d25f19",
+          "source_inputs": {
+            "native/providers/gdn/q1_residual_norm_capture_replay.cpp": "686a3eb626bd1221fb5cb4c602245e248a99606a4aefe781283a46c6136c1b7e",
+            "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+            "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+            "native/providers/gdn/sm121_q1_residual_math.h": "f661aad36633ca4e3d2ccab7e720986c567d1431171a0bfc51a7bb040ccac7ae",
+            "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+            "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+            "native/providers/whole_provider.cpp": "e5334aeda0a6a576ab33ccec8264feedee3ec6018a3d93a1d144180f88e37dc3",
+            "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+            "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+            "scripts/prepare_native_postnorm_replay.py": "6d452dcb39a86e62bcb66d6f5222103a39e56a1100230cddfcd6e444443287d9"
+          },
+          "input_files": {
+            "postnorm_live_extract.h": "f68268f096378beb6a266e6f52e41d08d4bfae0a28a554b4f0007ef560add671",
+            "q1/inverse.f32.bin": "e5e2ca6043192b529b7f4cfbd76fbcf90c326d5eff9677e6714f00b3cb1be7a5",
+            "q1/operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+            "q1/original-output.bf16.bin": "0bcfc9ee3ab0ba7df8a381beb4c6f95313c9fe5426e8bb61b8e398630c39640b",
+            "q1/original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+            "q1/variance.f32.bin": "615344604a3db0aa5d3b830314cab66145a162c3fa052624939ee583e5296182",
+            "q1/weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7",
+            "q2/inverse.f32.bin": "48f6d69c85944f2d15fba90de8708b15f0d0ee71969a6446ba15ad9a45df45c3",
+            "q2/operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+            "q2/original-output.bf16.bin": "052b9950fdfa47d268f4af10e0477a5071e512d74bc9e3dccdb6fe5529f1df41",
+            "q2/original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+            "q2/variance.f32.bin": "64d31bcb8b793c15798882303d91c5208c63d5b34ee99a3833d9e2b9f4be8345",
+            "q2/weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7"
+          },
+          "command_file": "D:\\projects\\run-residual-norm-modes-native-r1.ps1",
+          "command_file_sha256": "a296be4056ee777cee006324d3668990650b9960a87c2cd37e87e7c44207e381",
+          "source_manifest_sha256": "a70b345a440fd8bea3d8d725db4cc998363e592bc56f14a8534ddd263efa5a02",
+          "model": "D:/models/Qwen3.6-35B-A3B; actual long-context operator operands",
+          "reference": {
+            "directory": "qrt-gb10-postnorm-matrix-20260921-r1",
+            "comparison_sha256": "b4d3238bf415d3791de614457c9122b96c2329eb843446900cf4fb5e71a46139",
+            "input_manifest_sha256": "984a7c58a45a1ba606ae131b6b07f4a9cf6a294a866166fb982a3dea7b1f0b46",
+            "dispatch_sha256": "a6465d935c0338d915cd61d23ec66254e493efb85b12e2e33da31dbc2a6f1284",
+            "reference_compute_rows": 1
+          },
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "purpose": "q1",
+          "executable_sha256": "3ec20d86e22f6b85370791d83650bfb1cf3ee6d35b7b856f3badd6eb71602309"
+        },
+        "preflight": {
+          "host": "BAIYING",
+          "utc": "2026-09-21T05:18:38.3080281Z",
+          "command_file": "D:\\projects\\AIMA-public-native-mtp-norm-mode-logit-20260921-r1\\scripts\\baiying_guarded_inference.ps1",
+          "command_file_sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+          "spec": {
+            "executable": "D:\\projects\\AIMA-public-native-mtp-norm-mode-logit-20260921-r1\\build\\residual-norm-modes-native-r1\\residual-norm-modes-replay.exe",
+            "arguments": [
+              "D:\\projects\\residual-norm-modes-native-inputs-r1\\q1",
+              "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+              "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-rsqrt-positive-ca0230a8.bin",
+              "1"
+            ],
+            "working_directory": "D:/projects/AIMA-public-native-mtp-norm-mode-logit-20260921-r1",
+            "repo_commit": "6a5da300aae444d25541138c5f20423958d25f19",
+            "source_inputs": {
+              "native/providers/gdn/q1_residual_norm_capture_replay.cpp": "686a3eb626bd1221fb5cb4c602245e248a99606a4aefe781283a46c6136c1b7e",
+              "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+              "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+              "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+              "native/providers/gdn/sm121_q1_residual_math.h": "f661aad36633ca4e3d2ccab7e720986c567d1431171a0bfc51a7bb040ccac7ae",
+              "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+              "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+              "native/providers/whole_provider.cpp": "e5334aeda0a6a576ab33ccec8264feedee3ec6018a3d93a1d144180f88e37dc3",
+              "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+              "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+              "scripts/prepare_native_postnorm_replay.py": "6d452dcb39a86e62bcb66d6f5222103a39e56a1100230cddfcd6e444443287d9"
+            },
+            "input_files": {
+              "postnorm_live_extract.h": "f68268f096378beb6a266e6f52e41d08d4bfae0a28a554b4f0007ef560add671",
+              "q1/inverse.f32.bin": "e5e2ca6043192b529b7f4cfbd76fbcf90c326d5eff9677e6714f00b3cb1be7a5",
+              "q1/operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+              "q1/original-output.bf16.bin": "0bcfc9ee3ab0ba7df8a381beb4c6f95313c9fe5426e8bb61b8e398630c39640b",
+              "q1/original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+              "q1/variance.f32.bin": "615344604a3db0aa5d3b830314cab66145a162c3fa052624939ee583e5296182",
+              "q1/weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7",
+              "q2/inverse.f32.bin": "48f6d69c85944f2d15fba90de8708b15f0d0ee71969a6446ba15ad9a45df45c3",
+              "q2/operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+              "q2/original-output.bf16.bin": "052b9950fdfa47d268f4af10e0477a5071e512d74bc9e3dccdb6fe5529f1df41",
+              "q2/original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+              "q2/variance.f32.bin": "64d31bcb8b793c15798882303d91c5208c63d5b34ee99a3833d9e2b9f4be8345",
+              "q2/weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7"
+            },
+            "command_file": "D:\\projects\\run-residual-norm-modes-native-r1.ps1",
+            "command_file_sha256": "a296be4056ee777cee006324d3668990650b9960a87c2cd37e87e7c44207e381",
+            "source_manifest_sha256": "a70b345a440fd8bea3d8d725db4cc998363e592bc56f14a8534ddd263efa5a02",
+            "model": "D:/models/Qwen3.6-35B-A3B; actual long-context operator operands",
+            "reference": {
+              "directory": "qrt-gb10-postnorm-matrix-20260921-r1",
+              "comparison_sha256": "b4d3238bf415d3791de614457c9122b96c2329eb843446900cf4fb5e71a46139",
+              "input_manifest_sha256": "984a7c58a45a1ba606ae131b6b07f4a9cf6a294a866166fb982a3dea7b1f0b46",
+              "dispatch_sha256": "a6465d935c0338d915cd61d23ec66254e493efb85b12e2e33da31dbc2a6f1284",
+              "reference_compute_rows": 1
+            },
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "performance_acceptance": false,
+            "purpose": "q1",
+            "executable_sha256": "3ec20d86e22f6b85370791d83650bfb1cf3ee6d35b7b856f3badd6eb71602309"
+          },
+          "executable_sha256": "3ec20d86e22f6b85370791d83650bfb1cf3ee6d35b7b856f3badd6eb71602309",
+          "input_fingerprints": {},
+          "boot": "2026-09-16T00:45:19.2304050+08:00",
+          "boot_identity": {
+            "kind": "kernel_general_boot_event",
+            "value": "124051:639250875618960311",
+            "record_id": 124051,
+            "utc": "2026-09-15T16:46:01.8960311Z",
+            "cim_boot": "2026-09-16T00:45:19.2304050+08:00"
+          },
+          "memory": {
+            "Length": 64,
+            "Load": 28,
+            "TotalPhysical": 33981009920,
+            "AvailablePhysical": 24135421952,
+            "TotalCommit": 156119142400,
+            "AvailableCommit": 146561589248,
+            "TotalVirtual": 140737488224256,
+            "AvailableVirtual": 138533462753280,
+            "AvailableExtendedVirtual": 0
+          },
+          "gpus": [
+            {
+              "Name": "AMD Radeon(TM) 8060S Graphics",
+              "Status": "OK",
+              "DriverVersion": "32.0.31036.15"
+            }
+          ],
+          "processes": [],
+          "checks": {
+            "no_engine_or_compiler": true,
+            "host_memory_reserve": true,
+            "commit_reserve": true,
+            "amd_gpu_ok": true,
+            "output_disk_reserve": true,
+            "source_commit_exact": true
+          },
+          "pass": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 403.572,
+        "summary_present": false,
+        "cli_pass": false,
+        "summary": null,
+        "after_boot": "2026-09-16T00:45:19.2304050+08:00",
+        "after_boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "124051:639250875618960311",
+          "record_id": 124051,
+          "utc": "2026-09-15T16:46:01.8960311Z",
+          "cim_boot": "2026-09-16T00:45:19.2304050+08:00"
+        },
+        "boot_clock_text_unchanged": true,
+        "after_memory": {
+          "Length": 64,
+          "Load": 29,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24124403712,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 146556743680,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533462081536,
+          "AvailableExtendedVirtual": 0
+        },
+        "after_gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "after_processes": [],
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "numerical_acceptance_requires_external_oracle": true
+      },
+      "files": {
+        "product.stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "product.stdout.jsonl": {
+          "bytes": 563,
+          "sha256": "2cd1ad833caab678d3b86c440e1dd8ca471bd2f870a04215e6805144b12e0cc0"
+        },
+        "launch.json": {
+          "bytes": 131,
+          "sha256": "ae596f764b5c1b76d9f30c95a3e41f1c4f91077930bccf343cc475ad0457f8bc"
+        },
+        "preflight.json": {
+          "bytes": 7919,
+          "sha256": "ad91bda2039bc11be901218598df2987c89e27e1312f6285972bab721ce3968a"
+        },
+        "run-record.json": {
+          "bytes": 17795,
+          "sha256": "7bbd5c144a26bb8dd1782f47725eeaf968571768411531645405fa8d65594847"
+        }
+      }
+    },
+    "q2": {
+      "record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-native-mtp-norm-mode-logit-20260921-r1\\scripts\\baiying_guarded_inference.ps1",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-native-mtp-norm-mode-logit-20260921-r1\\build\\residual-norm-modes-native-r1\\residual-norm-modes-replay.exe",
+          "arguments": [
+            "D:\\projects\\residual-norm-modes-native-inputs-r1\\q2",
+            "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+            "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-rsqrt-positive-ca0230a8.bin",
+            "2"
+          ],
+          "working_directory": "D:/projects/AIMA-public-native-mtp-norm-mode-logit-20260921-r1",
+          "repo_commit": "6a5da300aae444d25541138c5f20423958d25f19",
+          "source_inputs": {
+            "native/providers/gdn/q1_residual_norm_capture_replay.cpp": "686a3eb626bd1221fb5cb4c602245e248a99606a4aefe781283a46c6136c1b7e",
+            "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+            "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+            "native/providers/gdn/sm121_q1_residual_math.h": "f661aad36633ca4e3d2ccab7e720986c567d1431171a0bfc51a7bb040ccac7ae",
+            "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+            "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+            "native/providers/whole_provider.cpp": "e5334aeda0a6a576ab33ccec8264feedee3ec6018a3d93a1d144180f88e37dc3",
+            "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+            "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+            "scripts/prepare_native_postnorm_replay.py": "6d452dcb39a86e62bcb66d6f5222103a39e56a1100230cddfcd6e444443287d9"
+          },
+          "input_files": {
+            "postnorm_live_extract.h": "f68268f096378beb6a266e6f52e41d08d4bfae0a28a554b4f0007ef560add671",
+            "q1/inverse.f32.bin": "e5e2ca6043192b529b7f4cfbd76fbcf90c326d5eff9677e6714f00b3cb1be7a5",
+            "q1/operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+            "q1/original-output.bf16.bin": "0bcfc9ee3ab0ba7df8a381beb4c6f95313c9fe5426e8bb61b8e398630c39640b",
+            "q1/original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+            "q1/variance.f32.bin": "615344604a3db0aa5d3b830314cab66145a162c3fa052624939ee583e5296182",
+            "q1/weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7",
+            "q2/inverse.f32.bin": "48f6d69c85944f2d15fba90de8708b15f0d0ee71969a6446ba15ad9a45df45c3",
+            "q2/operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+            "q2/original-output.bf16.bin": "052b9950fdfa47d268f4af10e0477a5071e512d74bc9e3dccdb6fe5529f1df41",
+            "q2/original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+            "q2/variance.f32.bin": "64d31bcb8b793c15798882303d91c5208c63d5b34ee99a3833d9e2b9f4be8345",
+            "q2/weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7"
+          },
+          "command_file": "D:\\projects\\run-residual-norm-modes-native-r1.ps1",
+          "command_file_sha256": "a296be4056ee777cee006324d3668990650b9960a87c2cd37e87e7c44207e381",
+          "source_manifest_sha256": "a70b345a440fd8bea3d8d725db4cc998363e592bc56f14a8534ddd263efa5a02",
+          "model": "D:/models/Qwen3.6-35B-A3B; actual long-context operator operands",
+          "reference": {
+            "directory": "qrt-gb10-postnorm-two-row-matrix-20260921-r1",
+            "comparison_sha256": "7b64fca85060a5ec594f8116e27702640dd03ec1433772168d911c460ce6a4cf",
+            "input_manifest_sha256": "8afe22db079000101fd4ce86e8d6c2ece1973bd1b6bd825a7c6f863275559f3b",
+            "dispatch_sha256": "44c526f6674332f73219589318bc7f1e863d91ff32c42f693b5ec07ee414bf34",
+            "reference_compute_rows": 2
+          },
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "purpose": "q2",
+          "executable_sha256": "3ec20d86e22f6b85370791d83650bfb1cf3ee6d35b7b856f3badd6eb71602309"
+        },
+        "preflight": {
+          "host": "BAIYING",
+          "utc": "2026-09-21T05:18:38.9252122Z",
+          "command_file": "D:\\projects\\AIMA-public-native-mtp-norm-mode-logit-20260921-r1\\scripts\\baiying_guarded_inference.ps1",
+          "command_file_sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+          "spec": {
+            "executable": "D:\\projects\\AIMA-public-native-mtp-norm-mode-logit-20260921-r1\\build\\residual-norm-modes-native-r1\\residual-norm-modes-replay.exe",
+            "arguments": [
+              "D:\\projects\\residual-norm-modes-native-inputs-r1\\q2",
+              "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+              "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-rsqrt-positive-ca0230a8.bin",
+              "2"
+            ],
+            "working_directory": "D:/projects/AIMA-public-native-mtp-norm-mode-logit-20260921-r1",
+            "repo_commit": "6a5da300aae444d25541138c5f20423958d25f19",
+            "source_inputs": {
+              "native/providers/gdn/q1_residual_norm_capture_replay.cpp": "686a3eb626bd1221fb5cb4c602245e248a99606a4aefe781283a46c6136c1b7e",
+              "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+              "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+              "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+              "native/providers/gdn/sm121_q1_residual_math.h": "f661aad36633ca4e3d2ccab7e720986c567d1431171a0bfc51a7bb040ccac7ae",
+              "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+              "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+              "native/providers/whole_provider.cpp": "e5334aeda0a6a576ab33ccec8264feedee3ec6018a3d93a1d144180f88e37dc3",
+              "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+              "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+              "scripts/prepare_native_postnorm_replay.py": "6d452dcb39a86e62bcb66d6f5222103a39e56a1100230cddfcd6e444443287d9"
+            },
+            "input_files": {
+              "postnorm_live_extract.h": "f68268f096378beb6a266e6f52e41d08d4bfae0a28a554b4f0007ef560add671",
+              "q1/inverse.f32.bin": "e5e2ca6043192b529b7f4cfbd76fbcf90c326d5eff9677e6714f00b3cb1be7a5",
+              "q1/operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+              "q1/original-output.bf16.bin": "0bcfc9ee3ab0ba7df8a381beb4c6f95313c9fe5426e8bb61b8e398630c39640b",
+              "q1/original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+              "q1/variance.f32.bin": "615344604a3db0aa5d3b830314cab66145a162c3fa052624939ee583e5296182",
+              "q1/weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7",
+              "q2/inverse.f32.bin": "48f6d69c85944f2d15fba90de8708b15f0d0ee71969a6446ba15ad9a45df45c3",
+              "q2/operands.bin": "f2b07ac47d8accb50ab7a4fb4b98579ca9634a6ad36e40646fd4eb95f1727600",
+              "q2/original-output.bf16.bin": "052b9950fdfa47d268f4af10e0477a5071e512d74bc9e3dccdb6fe5529f1df41",
+              "q2/original-residual.bf16.bin": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462",
+              "q2/variance.f32.bin": "64d31bcb8b793c15798882303d91c5208c63d5b34ee99a3833d9e2b9f4be8345",
+              "q2/weights.bf16.bin": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7"
+            },
+            "command_file": "D:\\projects\\run-residual-norm-modes-native-r1.ps1",
+            "command_file_sha256": "a296be4056ee777cee006324d3668990650b9960a87c2cd37e87e7c44207e381",
+            "source_manifest_sha256": "a70b345a440fd8bea3d8d725db4cc998363e592bc56f14a8534ddd263efa5a02",
+            "model": "D:/models/Qwen3.6-35B-A3B; actual long-context operator operands",
+            "reference": {
+              "directory": "qrt-gb10-postnorm-two-row-matrix-20260921-r1",
+              "comparison_sha256": "7b64fca85060a5ec594f8116e27702640dd03ec1433772168d911c460ce6a4cf",
+              "input_manifest_sha256": "8afe22db079000101fd4ce86e8d6c2ece1973bd1b6bd825a7c6f863275559f3b",
+              "dispatch_sha256": "44c526f6674332f73219589318bc7f1e863d91ff32c42f693b5ec07ee414bf34",
+              "reference_compute_rows": 2
+            },
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "performance_acceptance": false,
+            "purpose": "q2",
+            "executable_sha256": "3ec20d86e22f6b85370791d83650bfb1cf3ee6d35b7b856f3badd6eb71602309"
+          },
+          "executable_sha256": "3ec20d86e22f6b85370791d83650bfb1cf3ee6d35b7b856f3badd6eb71602309",
+          "input_fingerprints": {},
+          "boot": "2026-09-16T00:45:19.2304050+08:00",
+          "boot_identity": {
+            "kind": "kernel_general_boot_event",
+            "value": "124051:639250875618960311",
+            "record_id": 124051,
+            "utc": "2026-09-15T16:46:01.8960311Z",
+            "cim_boot": "2026-09-16T00:45:19.2304050+08:00"
+          },
+          "memory": {
+            "Length": 64,
+            "Load": 29,
+            "TotalPhysical": 33981009920,
+            "AvailablePhysical": 24124563456,
+            "TotalCommit": 156119142400,
+            "AvailableCommit": 146556928000,
+            "TotalVirtual": 140737488224256,
+            "AvailableVirtual": 138533462081536,
+            "AvailableExtendedVirtual": 0
+          },
+          "gpus": [
+            {
+              "Name": "AMD Radeon(TM) 8060S Graphics",
+              "Status": "OK",
+              "DriverVersion": "32.0.31036.15"
+            }
+          ],
+          "processes": [],
+          "checks": {
+            "no_engine_or_compiler": true,
+            "host_memory_reserve": true,
+            "commit_reserve": true,
+            "amd_gpu_ok": true,
+            "output_disk_reserve": true,
+            "source_commit_exact": true
+          },
+          "pass": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 160.042,
+        "summary_present": false,
+        "cli_pass": false,
+        "summary": null,
+        "after_boot": "2026-09-16T00:45:19.2304050+08:00",
+        "after_boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "124051:639250875618960311",
+          "record_id": 124051,
+          "utc": "2026-09-15T16:46:01.8960311Z",
+          "cim_boot": "2026-09-16T00:45:19.2304050+08:00"
+        },
+        "boot_clock_text_unchanged": true,
+        "after_memory": {
+          "Length": 64,
+          "Load": 28,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24128995328,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 146554978304,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533462016000,
+          "AvailableExtendedVirtual": 0
+        },
+        "after_gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "after_processes": [],
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "numerical_acceptance_requires_external_oracle": true
+      },
+      "files": {
+        "product.stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "product.stdout.jsonl": {
+          "bytes": 563,
+          "sha256": "b6b8655757a918e0bee09895e78682efbb7e0ee8a9d1384868e4f0dc22d77d58"
+        },
+        "launch.json": {
+          "bytes": 132,
+          "sha256": "801cbac0b6d09b5e5f2271edd3ec8b7ab4ef5878078084e7b3b589db58db1806"
+        },
+        "preflight.json": {
+          "bytes": 7927,
+          "sha256": "25277766df776ab5c65f3eece91433c1994bcf208cfeeba690cdf8c858dec8ab"
+        },
+        "run-record.json": {
+          "bytes": 17811,
+          "sha256": "44d880b2b6c9da9cb88cd7ce1f9721cbd0f26f80c9d5aa9e5e165a6818a9b876"
+        }
+      }
+    }
+  },
+  "results": {
+    "q1": {
+      "kind": "actual_q1_residual_norm_kernel_replay",
+      "cases": 80,
+      "elements_per_surface": 163840,
+      "reference_compute_rows": 1,
+      "postnorm_f32_mismatches": 0,
+      "postnorm_bf16_mismatches": 0,
+      "finalnorm_mismatches": 0,
+      "moe_norm_f32_mismatches": 0,
+      "moe_norm_bf16_mismatches": 0,
+      "rounded_carrier_mismatches": 0,
+      "unrounded_carrier_mismatches": 0,
+      "diagnostic_variance_mismatches": 0,
+      "diagnostic_inverse_mismatches": 0,
+      "rsqrt_table_disagreements": 0,
+      "guard_errors": 0,
+      "inputs_unchanged": true,
+      "passed": true,
+      "reference_is_compute_input": false,
+      "native_execution": true,
+      "inference_acceptance": false
+    },
+    "q2": {
+      "kind": "actual_q1_residual_norm_kernel_replay",
+      "cases": 80,
+      "elements_per_surface": 163840,
+      "reference_compute_rows": 2,
+      "postnorm_f32_mismatches": 0,
+      "postnorm_bf16_mismatches": 0,
+      "finalnorm_mismatches": 0,
+      "moe_norm_f32_mismatches": 0,
+      "moe_norm_bf16_mismatches": 0,
+      "rounded_carrier_mismatches": 0,
+      "unrounded_carrier_mismatches": 0,
+      "diagnostic_variance_mismatches": 0,
+      "diagnostic_inverse_mismatches": 0,
+      "rsqrt_table_disagreements": 0,
+      "guard_errors": 0,
+      "inputs_unchanged": true,
+      "passed": true,
+      "reference_is_compute_input": false,
+      "native_execution": true,
+      "inference_acceptance": false
+    }
+  },
+  "original_references": {
+    "q1": {
+      "comparison": {
+        "kind": "original_gemma_single_row_residual_matrix_replay",
+        "host": "aitopatom-66c4",
+        "input_manifest_sha256": "984a7c58a45a1ba606ae131b6b07f4a9cf6a294a866166fb982a3dea7b1f0b46",
+        "source_sha256": "8b4e0b93d1d76f0394bb28f40528bdfb250e16f22a83add184d3c2651f915623",
+        "torch_version": "2.10.0a0+a36e1d39eb.nv26.01.42222806",
+        "device": "NVIDIA GB10",
+        "command": "python3 /work/replay_gb10_postnorm_matrix_r1.py",
+        "model": "/model",
+        "cases": [
+          {
+            "name": "position263168-layer0",
+            "original_observer_exact": true,
+            "original_output_sha256": "6717585f25e764380b8531d40a1497c6d96a5db86769bdb2f41a134a140d9496",
+            "native_mismatches": 0,
+            "variance_bits": 974349466,
+            "inverse_bits": 1109953154
+          },
+          {
+            "name": "position263168-layer1",
+            "original_observer_exact": true,
+            "original_output_sha256": "d0810338476ddd299d94486a60d376ccb091388ead396f1c77a1ea207c357f9d",
+            "native_mismatches": 0,
+            "variance_bits": 978458670,
+            "inverse_bits": 1108161698
+          },
+          {
+            "name": "position263168-layer2",
+            "original_observer_exact": true,
+            "original_output_sha256": "41b425669bacdab08e35971fdc66ac0d86372bd41b62697fa70b72b924476ffd",
+            "native_mismatches": 0,
+            "variance_bits": 978237649,
+            "inverse_bits": 1108236784
+          },
+          {
+            "name": "position263168-layer3",
+            "original_observer_exact": true,
+            "original_output_sha256": "1925061073a4086f6053a7dc216128beb3563770a955885a723f4ce3da6e9bc4",
+            "native_mismatches": 0,
+            "variance_bits": 981251538,
+            "inverse_bits": 1107346305
+          },
+          {
+            "name": "position263168-layer4",
+            "original_observer_exact": true,
+            "original_output_sha256": "03d3ce70bd25c40acd3a215b8b3144e006e0ed4ac5d25a27b48816daca8fd649",
+            "native_mismatches": 0,
+            "variance_bits": 980275611,
+            "inverse_bits": 1107606212
+          },
+          {
+            "name": "position263168-layer5",
+            "original_observer_exact": true,
+            "original_output_sha256": "f824b669ee5283ce59def9f0d82dad110363ad8de9f62211ea2bbf147fad0c49",
+            "native_mismatches": 0,
+            "variance_bits": 980200874,
+            "inverse_bits": 1107627120
+          },
+          {
+            "name": "position263168-layer6",
+            "original_observer_exact": true,
+            "original_output_sha256": "f05e774354818b2e3434dcbbc010030497c9e5aa0c69555bf01d2e0f919528f5",
+            "native_mismatches": 0,
+            "variance_bits": 979170733,
+            "inverse_bits": 1107931582
+          },
+          {
+            "name": "position263168-layer7",
+            "original_observer_exact": true,
+            "original_output_sha256": "c69d3a23e3bca7a93e7e073e40a67df5b073bd0e5e86eabf584b4d7ac173c7db",
+            "native_mismatches": 0,
+            "variance_bits": 982133482,
+            "inverse_bits": 1106659497
+          },
+          {
+            "name": "position263168-layer8",
+            "original_observer_exact": true,
+            "original_output_sha256": "18cc544686eef112d59608e3a1a75569411fce130e1d92e4b1014fcd1cca818b",
+            "native_mismatches": 0,
+            "variance_bits": 983644572,
+            "inverse_bits": 1105461846
+          },
+          {
+            "name": "position263168-layer9",
+            "original_observer_exact": true,
+            "original_output_sha256": "6da593ce2e6a664bb77ad564d33106cb4cfc9f75e2eff9df1e9377f70475b6b0",
+            "native_mismatches": 1,
+            "variance_bits": 985483018,
+            "inverse_bits": 1104310971
+          },
+          {
+            "name": "position263168-layer10",
+            "original_observer_exact": true,
+            "original_output_sha256": "e0ce86ae1ddf7f32103aba7ceff5fe3e8e77aed99bfe0d8c8c9d56313d64bd69",
+            "native_mismatches": 0,
+            "variance_bits": 989646408,
+            "inverse_bits": 1102453941
+          },
+          {
+            "name": "position263168-layer11",
+            "original_observer_exact": true,
+            "original_output_sha256": "2127a2537be2dd14505b9d625fccc0b66defd2f04236ac29f78a146691f22b15",
+            "native_mismatches": 0,
+            "variance_bits": 990645681,
+            "inverse_bits": 1101857690
+          },
+          {
+            "name": "position263168-layer12",
+            "original_observer_exact": true,
+            "original_output_sha256": "6d7527779664946346583b0fa1c84233085043b05204aeb78778ac9846a53c03",
+            "native_mismatches": 0,
+            "variance_bits": 990583500,
+            "inverse_bits": 1101896275
+          },
+          {
+            "name": "position263168-layer13",
+            "original_observer_exact": true,
+            "original_output_sha256": "84698df76665191e167e6b8d1c9653540ee1ec5ba0f90230ce02d74395f4d386",
+            "native_mismatches": 0,
+            "variance_bits": 990854556,
+            "inverse_bits": 1101730892
+          },
+          {
+            "name": "position263168-layer14",
+            "original_observer_exact": true,
+            "original_output_sha256": "44f275a7d41c5c9cd8e9fe5d317a911066c4aa356a41556cfedcc6027e32b3b5",
+            "native_mismatches": 0,
+            "variance_bits": 994523384,
+            "inverse_bits": 1100026603
+          },
+          {
+            "name": "position263168-layer15",
+            "original_observer_exact": true,
+            "original_output_sha256": "0fee8a82fd0a687462cde68a0d138fe511fe6d412fbf0ed3209a5272e1ac3121",
+            "native_mismatches": 0,
+            "variance_bits": 992249802,
+            "inverse_bits": 1100980693
+          },
+          {
+            "name": "position263168-layer16",
+            "original_observer_exact": true,
+            "original_output_sha256": "682052783d2a3fff98e2b2f0b16ee04a63244ab79d8d576a50b466c2612d243b",
+            "native_mismatches": 0,
+            "variance_bits": 991378562,
+            "inverse_bits": 1101430621
+          },
+          {
+            "name": "position263168-layer17",
+            "original_observer_exact": true,
+            "original_output_sha256": "db2932f6ad082027a0613a04e342f8f2a94397d7b301f9eff8d923632014e286",
+            "native_mismatches": 0,
+            "variance_bits": 992046856,
+            "inverse_bits": 1101080516
+          },
+          {
+            "name": "position263168-layer18",
+            "original_observer_exact": true,
+            "original_output_sha256": "24b977f9808a3a9cba2ccf7ff27d7941bbb9fce5fdb438c3b565809af911da36",
+            "native_mismatches": 0,
+            "variance_bits": 994528766,
+            "inverse_bits": 1100024645
+          },
+          {
+            "name": "position263168-layer19",
+            "original_observer_exact": true,
+            "original_output_sha256": "c55d35447038bbf27488cca49b16ef32ce2667c8fdab01a580fd1363765eaeb5",
+            "native_mismatches": 0,
+            "variance_bits": 996573579,
+            "inverse_bits": 1099358119
+          },
+          {
+            "name": "position263168-layer20",
+            "original_observer_exact": true,
+            "original_output_sha256": "6d46811b5c53451dc219ca8afb1dca28560b1b20c57dbcbfdd76a5389dc4f484",
+            "native_mismatches": 0,
+            "variance_bits": 998664160,
+            "inverse_bits": 1098500973
+          },
+          {
+            "name": "position263168-layer21",
+            "original_observer_exact": true,
+            "original_output_sha256": "19937dfa6fbb17866452358f45fd72747218ef5ece11c54021975831d2a5a699",
+            "native_mismatches": 0,
+            "variance_bits": 998298539,
+            "inverse_bits": 1098851596
+          },
+          {
+            "name": "position263168-layer22",
+            "original_observer_exact": true,
+            "original_output_sha256": "31ff9f8312ae868aa2d2ce6b274bfefd8b51e93921e4a03193a34035e31da546",
+            "native_mismatches": 0,
+            "variance_bits": 999541032,
+            "inverse_bits": 1097742500
+          },
+          {
+            "name": "position263168-layer23",
+            "original_observer_exact": true,
+            "original_output_sha256": "ba4910b782298c3919a6d74dbc37ea23a491c2c32a1b533fcd063807c912708e",
+            "native_mismatches": 0,
+            "variance_bits": 1000662612,
+            "inverse_bits": 1096910342
+          },
+          {
+            "name": "position263168-layer24",
+            "original_observer_exact": true,
+            "original_output_sha256": "dbe5a87a3ea29e228a181db1f2ed78f7faef003b6003e11356582dcf570e363e",
+            "native_mismatches": 0,
+            "variance_bits": 1000339169,
+            "inverse_bits": 1097136564
+          },
+          {
+            "name": "position263168-layer25",
+            "original_observer_exact": true,
+            "original_output_sha256": "59ffd25be5a8f01f186a21063a4608b94fd486bd8b8ce5a672b15fa668a0859d",
+            "native_mismatches": 0,
+            "variance_bits": 1002055996,
+            "inverse_bits": 1096040916
+          },
+          {
+            "name": "position263168-layer26",
+            "original_observer_exact": true,
+            "original_output_sha256": "bae70c6435b827e20be79f2594aabf0cd95f548a56e72aa4cb9770cbbfc08bb0",
+            "native_mismatches": 0,
+            "variance_bits": 1004273492,
+            "inverse_bits": 1094926714
+          },
+          {
+            "name": "position263168-layer27",
+            "original_observer_exact": true,
+            "original_output_sha256": "5b82596eb47af0c6be71ff74ffa951b540ac8fad791d00e1860a9104076266fe",
+            "native_mismatches": 0,
+            "variance_bits": 1005045200,
+            "inverse_bits": 1094597463
+          },
+          {
+            "name": "position263168-layer28",
+            "original_observer_exact": true,
+            "original_output_sha256": "dc72f0738e0b38b4404ac5f12fbc686a252a35cf298b227ba6072fe0503d1430",
+            "native_mismatches": 0,
+            "variance_bits": 1006297439,
+            "inverse_bits": 1094113367
+          },
+          {
+            "name": "position263168-layer29",
+            "original_observer_exact": true,
+            "original_output_sha256": "5cee3035abc6bf900f5a309db1883237ce6e4bd565c3a1ef4baf9b6f0237363f",
+            "native_mismatches": 0,
+            "variance_bits": 1004159526,
+            "inverse_bits": 1094977582
+          },
+          {
+            "name": "position263168-layer30",
+            "original_observer_exact": true,
+            "original_output_sha256": "dce70fa2799517feca447e419c0c5f23a46b969f92c2ae485cb2f429e0e01f82",
+            "native_mismatches": 0,
+            "variance_bits": 1007635366,
+            "inverse_bits": 1093342062
+          },
+          {
+            "name": "position263168-layer31",
+            "original_observer_exact": true,
+            "original_output_sha256": "290baeb5996198e5b299e76f76069e96c0f185ae5bd9fb265db17febecf7af4f",
+            "native_mismatches": 0,
+            "variance_bits": 1007051292,
+            "inverse_bits": 1093707827
+          },
+          {
+            "name": "position263168-layer32",
+            "original_observer_exact": true,
+            "original_output_sha256": "a2c14e0767c68698f90906b936baeb137cbbf1382e8b6df9698518a3933ab00b",
+            "native_mismatches": 0,
+            "variance_bits": 1009912671,
+            "inverse_bits": 1092188758
+          },
+          {
+            "name": "position263168-layer33",
+            "original_observer_exact": true,
+            "original_output_sha256": "aed95769f0490f148655c8f0e98e7c26de37c4ac9ea67439541b4151533316a1",
+            "native_mismatches": 0,
+            "variance_bits": 1010463449,
+            "inverse_bits": 1091959475
+          },
+          {
+            "name": "position263168-layer34",
+            "original_observer_exact": true,
+            "original_output_sha256": "0cfdc139694c948353ad52cee684749d75283cac04c3fd97982b6e2f630cc86b",
+            "native_mismatches": 0,
+            "variance_bits": 1010308453,
+            "inverse_bits": 1092022407
+          },
+          {
+            "name": "position263168-layer35",
+            "original_observer_exact": true,
+            "original_output_sha256": "479f82af3cd83ab62595b46bd8e0db056190a7271349e70b0551f4a3e042ff8d",
+            "native_mismatches": 0,
+            "variance_bits": 1012725272,
+            "inverse_bits": 1091159349
+          },
+          {
+            "name": "position263168-layer36",
+            "original_observer_exact": true,
+            "original_output_sha256": "7755f90fc4209bad18207d3a79401b2a54c34438b3ef94f5bf5f69ccbe28b741",
+            "native_mismatches": 0,
+            "variance_bits": 1015668476,
+            "inverse_bits": 1089906815
+          },
+          {
+            "name": "position263168-layer37",
+            "original_observer_exact": true,
+            "original_output_sha256": "09b42c93f2ba8e82eaae6fb0cd332a9ccb182392927865000632e4ca1130eefa",
+            "native_mismatches": 0,
+            "variance_bits": 1018879675,
+            "inverse_bits": 1087626812
+          },
+          {
+            "name": "position263168-layer38",
+            "original_observer_exact": true,
+            "original_output_sha256": "db392c6845c46d51b23d95c07c7aea038e27903f8d0edc6ee713a164aeb3b80d",
+            "native_mismatches": 0,
+            "variance_bits": 1028034169,
+            "inverse_bits": 1083266788
+          },
+          {
+            "name": "position263168-layer39",
+            "original_observer_exact": true,
+            "original_output_sha256": "b1e3bc4f5c07db631910eb351b3e440d8dc3091eca0bea02b6e267134edd3bdc",
+            "native_mismatches": 0,
+            "variance_bits": 1032731640,
+            "inverse_bits": 1081268693
+          },
+          {
+            "name": "position263415-layer0",
+            "original_observer_exact": true,
+            "original_output_sha256": "cd860464c5c6313386d0749c0b86e39f479b1425e85246f9154d8157ac4f3b77",
+            "native_mismatches": 0,
+            "variance_bits": 973543366,
+            "inverse_bits": 1110444111
+          },
+          {
+            "name": "position263415-layer1",
+            "original_observer_exact": true,
+            "original_output_sha256": "59f235fc73a0fac2f563aaa82ec385a4392a7bb636c74f2f203a2c52497b72da",
+            "native_mismatches": 0,
+            "variance_bits": 980732492,
+            "inverse_bits": 1107481588
+          },
+          {
+            "name": "position263415-layer2",
+            "original_observer_exact": true,
+            "original_output_sha256": "c368b7706cdd94369ff47d5812c11af9867585521e817d7a8d2c44e18c83cf15",
+            "native_mismatches": 0,
+            "variance_bits": 984181136,
+            "inverse_bits": 1105096585
+          },
+          {
+            "name": "position263415-layer3",
+            "original_observer_exact": true,
+            "original_output_sha256": "31f97a8113606e9430ed845a2c0b0af3a24db5da2af650b9e63dd23facf3a5d1",
+            "native_mismatches": 0,
+            "variance_bits": 986417110,
+            "inverse_bits": 1103819609
+          },
+          {
+            "name": "position263415-layer4",
+            "original_observer_exact": true,
+            "original_output_sha256": "ea706026d8d1d074b76f6fc91634ff4661b207b231e5fc70531420d7e8f314b6",
+            "native_mismatches": 0,
+            "variance_bits": 984375873,
+            "inverse_bits": 1104970496
+          },
+          {
+            "name": "position263415-layer5",
+            "original_observer_exact": true,
+            "original_output_sha256": "bfc8a2eb9bdd19bde424fb0b9980078f931ceb7660bf154df2ae608d54a82049",
+            "native_mismatches": 0,
+            "variance_bits": 988939341,
+            "inverse_bits": 1102716926
+          },
+          {
+            "name": "position263415-layer6",
+            "original_observer_exact": true,
+            "original_output_sha256": "0f7e3d119095a9f4baf1bbecb79ad2c652d25e5315f1f18924557b4e9bd5f1ad",
+            "native_mismatches": 0,
+            "variance_bits": 990342813,
+            "inverse_bits": 1102049431
+          },
+          {
+            "name": "position263415-layer7",
+            "original_observer_exact": true,
+            "original_output_sha256": "96e6dfc267b89e044ca8b3662e40a13186e520725e9ae7e0ac97ba88978a88c5",
+            "native_mismatches": 0,
+            "variance_bits": 989403385,
+            "inverse_bits": 1102542402
+          },
+          {
+            "name": "position263415-layer8",
+            "original_observer_exact": true,
+            "original_output_sha256": "b4e47e2dd822bd901b172ba39f13e70215149d572b0f4d453add8c1f9756e103",
+            "native_mismatches": 0,
+            "variance_bits": 991274274,
+            "inverse_bits": 1101488458
+          },
+          {
+            "name": "position263415-layer9",
+            "original_observer_exact": true,
+            "original_output_sha256": "d1e8ee37b2111f10cc4d4c2035a630c497664f7e95e585037f5ab03a09bf427f",
+            "native_mismatches": 0,
+            "variance_bits": 990794924,
+            "inverse_bits": 1101766658
+          },
+          {
+            "name": "position263415-layer10",
+            "original_observer_exact": true,
+            "original_output_sha256": "0b654d46116e225c683b818162b16395cf8fac8b4e7924847163bad1dd90d1d2",
+            "native_mismatches": 0,
+            "variance_bits": 993329173,
+            "inverse_bits": 1100493550
+          },
+          {
+            "name": "position263415-layer11",
+            "original_observer_exact": true,
+            "original_output_sha256": "dad6b51638fdb0948204496db507fa3fbb326e74ded4208d841924167de4655a",
+            "native_mismatches": 0,
+            "variance_bits": 993608859,
+            "inverse_bits": 1100378040
+          },
+          {
+            "name": "position263415-layer12",
+            "original_observer_exact": true,
+            "original_output_sha256": "8765011a18ae622ff53dd47e4f1b5a6565dd852b322bb549b0669a35d66c9ac3",
+            "native_mismatches": 0,
+            "variance_bits": 994475063,
+            "inverse_bits": 1100044240
+          },
+          {
+            "name": "position263415-layer13",
+            "original_observer_exact": true,
+            "original_output_sha256": "82f5b7b8f17d902ba7f2c88dcc4bf5852dc2cb78cc674eb06b30b74f62f25491",
+            "native_mismatches": 0,
+            "variance_bits": 997160408,
+            "inverse_bits": 1099191327
+          },
+          {
+            "name": "position263415-layer14",
+            "original_observer_exact": true,
+            "original_output_sha256": "5fda139143c718b95efda9d7b28b2abb66ca2a202a10e4f7139de43d0a08d5c6",
+            "native_mismatches": 0,
+            "variance_bits": 996279612,
+            "inverse_bits": 1099445372
+          },
+          {
+            "name": "position263415-layer15",
+            "original_observer_exact": true,
+            "original_output_sha256": "de119357de0c952d00b1ce0c2ecad5bae4deba6b18183548d1238589323348c9",
+            "native_mismatches": 0,
+            "variance_bits": 998103570,
+            "inverse_bits": 1098941980
+          },
+          {
+            "name": "position263415-layer16",
+            "original_observer_exact": true,
+            "original_output_sha256": "ab54102e465bc668e8f2237efe432f4630cb35cd2c58330b7a7df02b2a1ce7ac",
+            "native_mismatches": 0,
+            "variance_bits": 998773795,
+            "inverse_bits": 1098400059
+          },
+          {
+            "name": "position263415-layer17",
+            "original_observer_exact": true,
+            "original_output_sha256": "f23d0bb3d94f0d7c33a8493acaa2b5654b1a5589a3092deff29d26d0588146fa",
+            "native_mismatches": 0,
+            "variance_bits": 999347604,
+            "inverse_bits": 1097900736
+          },
+          {
+            "name": "position263415-layer18",
+            "original_observer_exact": true,
+            "original_output_sha256": "88abd0592f0df2aa07b826c169d3ea77cb3d23444d9c6f8ce7c0b21581059057",
+            "native_mismatches": 0,
+            "variance_bits": 1000732908,
+            "inverse_bits": 1096862514
+          },
+          {
+            "name": "position263415-layer19",
+            "original_observer_exact": true,
+            "original_output_sha256": "70c61a572978726bb51bb3fabbbac5ba58bcda8b0d794fc995e4237141516b39",
+            "native_mismatches": 0,
+            "variance_bits": 1006231595,
+            "inverse_bits": 1094137429
+          },
+          {
+            "name": "position263415-layer20",
+            "original_observer_exact": true,
+            "original_output_sha256": "44135f19c1e4881de12d89deaac1bb02609f2f22025b4d7b4ec96a5d82df14ed",
+            "native_mismatches": 0,
+            "variance_bits": 1007874984,
+            "inverse_bits": 1093201722
+          },
+          {
+            "name": "position263415-layer21",
+            "original_observer_exact": true,
+            "original_output_sha256": "ce76fad989e9e734ac118189791687cd1546add3d8b9f314f8d5ada49f6e8d29",
+            "native_mismatches": 0,
+            "variance_bits": 1006193226,
+            "inverse_bits": 1094151519
+          },
+          {
+            "name": "position263415-layer22",
+            "original_observer_exact": true,
+            "original_output_sha256": "896aa4e73294df53574f0784a5dce82c4fcd0802122411a4ee5270d4278e7dfb",
+            "native_mismatches": 0,
+            "variance_bits": 1007757812,
+            "inverse_bits": 1093269685
+          },
+          {
+            "name": "position263415-layer23",
+            "original_observer_exact": true,
+            "original_output_sha256": "23fbeec7d4068dbda32bff5f84bb92d17b95847df7678214288494ab94be05bb",
+            "native_mismatches": 0,
+            "variance_bits": 1008986461,
+            "inverse_bits": 1092613379
+          },
+          {
+            "name": "position263415-layer24",
+            "original_observer_exact": true,
+            "original_output_sha256": "45370968cd07b8ada127d804b417871a429c2c4541eea098b6ff471815ebff36",
+            "native_mismatches": 0,
+            "variance_bits": 1010169124,
+            "inverse_bits": 1092080024
+          },
+          {
+            "name": "position263415-layer25",
+            "original_observer_exact": true,
+            "original_output_sha256": "3592ad2887999d377b075c331b616f2f5bf7665be32675ba04c05162726a26a6",
+            "native_mismatches": 0,
+            "variance_bits": 1012519852,
+            "inverse_bits": 1091224074
+          },
+          {
+            "name": "position263415-layer26",
+            "original_observer_exact": true,
+            "original_output_sha256": "520f804fcf99d378f173b7d369fe9be19da1bc16c2799f2f975514cbd7a6f4d1",
+            "native_mismatches": 0,
+            "variance_bits": 1012963120,
+            "inverse_bits": 1091086106
+          },
+          {
+            "name": "position263415-layer27",
+            "original_observer_exact": true,
+            "original_output_sha256": "c6af6753091d9b225a58a61f4de92cecc70c2b450845736b945eea78b188887d",
+            "native_mismatches": 0,
+            "variance_bits": 1015837819,
+            "inverse_bits": 1089757439
+          },
+          {
+            "name": "position263415-layer28",
+            "original_observer_exact": true,
+            "original_output_sha256": "fe0808036c4e5fa93dfdbf03cfd8e0981f583ab1b4c726440d6bd69ec9433434",
+            "native_mismatches": 0,
+            "variance_bits": 1016597448,
+            "inverse_bits": 1089134908
+          },
+          {
+            "name": "position263415-layer29",
+            "original_observer_exact": true,
+            "original_output_sha256": "273e60cc5a9dc7fec49224f02100017b29ce126f9d6b673621acb301604ac114",
+            "native_mismatches": 0,
+            "variance_bits": 1017942210,
+            "inverse_bits": 1088190819
+          },
+          {
+            "name": "position263415-layer30",
+            "original_observer_exact": true,
+            "original_output_sha256": "b599bb062cc5909af5cdb79f1c38f727aed2048e618aedef88711cefa1a9f11c",
+            "native_mismatches": 0,
+            "variance_bits": 1018963259,
+            "inverse_bits": 1087579673
+          },
+          {
+            "name": "position263415-layer31",
+            "original_observer_exact": true,
+            "original_output_sha256": "3853e46f4a3329e18b4306b51c0e98298a869029ca2d407e468928858ce3753a",
+            "native_mismatches": 0,
+            "variance_bits": 1022412746,
+            "inverse_bits": 1085974090
+          },
+          {
+            "name": "position263415-layer32",
+            "original_observer_exact": true,
+            "original_output_sha256": "f3da9668f3ea4a90dc012115c50fe2b9e4def0d999bfc69adc33b4a6116a5d60",
+            "native_mismatches": 0,
+            "variance_bits": 1022262462,
+            "inverse_bits": 1086032755
+          },
+          {
+            "name": "position263415-layer33",
+            "original_observer_exact": true,
+            "original_output_sha256": "635077114ce1befa955c2747ae391afc7e9c4af8caeda31dbfc12caab640e671",
+            "native_mismatches": 0,
+            "variance_bits": 1025141951,
+            "inverse_bits": 1084542368
+          },
+          {
+            "name": "position263415-layer34",
+            "original_observer_exact": true,
+            "original_output_sha256": "e2e959d81cf4a66de9e4a2f1d07a4b08c6fd85b9399c51a37c87bb72ef2426ad",
+            "native_mismatches": 0,
+            "variance_bits": 1025907762,
+            "inverse_bits": 1084155558
+          },
+          {
+            "name": "position263415-layer35",
+            "original_observer_exact": true,
+            "original_output_sha256": "d4de37d5ad511023b1cf3f03edbd385de26247764046d86d5f446ae8a3430373",
+            "native_mismatches": 0,
+            "variance_bits": 1029691109,
+            "inverse_bits": 1082712757
+          },
+          {
+            "name": "position263415-layer36",
+            "original_observer_exact": true,
+            "original_output_sha256": "5f4c5e6c7e0a32bd81cc79827edd7e82bc1c00f5fd46e03c86354a4d675bb337",
+            "native_mismatches": 0,
+            "variance_bits": 1030623674,
+            "inverse_bits": 1082440527
+          },
+          {
+            "name": "position263415-layer37",
+            "original_observer_exact": true,
+            "original_output_sha256": "5b85d9fb3bd2033f018a8b3cce0545bbd746d1cdfc2d13934d00140c7d33abf5",
+            "native_mismatches": 0,
+            "variance_bits": 1032877580,
+            "inverse_bits": 1081145550
+          },
+          {
+            "name": "position263415-layer38",
+            "original_observer_exact": true,
+            "original_output_sha256": "9940c6faeaff08bce2a549a0c38b620c9a2ca0eb1c68b2114c5700a6c627fe07",
+            "native_mismatches": 0,
+            "variance_bits": 1034808458,
+            "inverse_bits": 1079745927
+          },
+          {
+            "name": "position263415-layer39",
+            "original_observer_exact": true,
+            "original_output_sha256": "b9e080c08fd83568ef89b6d893529fe423cde1ef186b721ed2ad57c8bde5b756",
+            "native_mismatches": 0,
+            "variance_bits": 1034179312,
+            "inverse_bits": 1080160374
+          }
+        ],
+        "files": {
+          "original-output.bf16.bin": {
+            "bytes": 327680,
+            "sha256": "0bcfc9ee3ab0ba7df8a381beb4c6f95313c9fe5426e8bb61b8e398630c39640b"
+          },
+          "original-residual.bf16.bin": {
+            "bytes": 327680,
+            "sha256": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462"
+          },
+          "weights.bf16.bin": {
+            "bytes": 327680,
+            "sha256": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7"
+          },
+          "variance.f32.bin": {
+            "bytes": 320,
+            "sha256": "615344604a3db0aa5d3b830314cab66145a162c3fa052624939ee583e5296182"
+          },
+          "inverse.f32.bin": {
+            "bytes": 320,
+            "sha256": "e5e2ca6043192b529b7f4cfbd76fbcf90c326d5eff9677e6714f00b3cb1be7a5"
+          }
+        },
+        "compiler_artifacts": [
+          {
+            "original": "inductor/3e/c3ely6pywy44hzyaj27jxqsaekmahzlgs7flgdlmlosfno5sdpjh.py",
+            "file": "inductor-0.py",
+            "bytes": 11438,
+            "sha256": "54d0a34fb0d9f40dbd1b5012f2417553ee04d8fbbe72cb675eaa3405409e907c"
+          },
+          {
+            "original": "inductor/3j/c3jpc2335v3vixkidvsqlqo7icb4rwcl74bmoi73aaydvuvq4ito.py",
+            "file": "inductor-1.py",
+            "bytes": 10704,
+            "sha256": "0dabfb69e03696d3e45e20feb68bf1ee4a0e069d07f57b0523f748443c4595e5"
+          },
+          {
+            "original": "inductor/mg/cmgejsan3mjopme36qhedv6b2b2gqszgpxth3wn5imiwvdllpnhb.py",
+            "file": "inductor-2.py",
+            "bytes": 4193,
+            "sha256": "c1404b3d482528f6f04dfdab0ca9ad94195a80b051239906c1ce1afbb13264d0"
+          },
+          {
+            "original": "inductor/vk/cvkomsv27gbnf32yp66tjqneni7dgx5dlv3wbwfkpg7nynq7wkmi.py",
+            "file": "inductor-3.py",
+            "bytes": 4531,
+            "sha256": "9741451b9c4eb02aab6a0224c65e28ffbffe4b27682fc2c1ffcf4ea7f804ac49"
+          },
+          {
+            "original": "triton/UUO7JTZOP5DN765EIXKAFMC4CWITIU5SRKEOH3IMMX2M54SP2IMA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+            "file": "triton-4.ptx",
+            "bytes": 21226,
+            "sha256": "5a5d4df71bafd10f784a3ff2a6f6d457b3cac8d62a22086ebbc20ae934a2e88d"
+          },
+          {
+            "original": "triton/UUO7JTZOP5DN765EIXKAFMC4CWITIU5SRKEOH3IMMX2M54SP2IMA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ttgir",
+            "file": "triton-5.ttgir",
+            "bytes": 10013,
+            "sha256": "2235aa588f7ada8c99605ed1c66f862bca78cda7a4b77c49411f25ebe48ac040"
+          },
+          {
+            "original": "triton/UUO7JTZOP5DN765EIXKAFMC4CWITIU5SRKEOH3IMMX2M54SP2IMA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ttir",
+            "file": "triton-6.ttir",
+            "bytes": 9158,
+            "sha256": "3549676f693e5fa9e87fca5aeed9d051dd15f4fd1779383b34775410e19ae1ed"
+          },
+          {
+            "original": "triton/WDXGFM46JMKCESBM2CLPUB2LAUPYDQWKOONQXMNBRCWPKEJIFUEA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+            "file": "triton-7.ptx",
+            "bytes": 22131,
+            "sha256": "847e18e972fa09d1c8536ecf2cd61c7b4c1f804af812b8bfe825414c3e7334e8"
+          },
+          {
+            "original": "triton/WDXGFM46JMKCESBM2CLPUB2LAUPYDQWKOONQXMNBRCWPKEJIFUEA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ttgir",
+            "file": "triton-8.ttgir",
+            "bytes": 11874,
+            "sha256": "69074383bbbb3a7df0f9fed91be989ea433bddc6084d90cd7cfd0af389d1ce56"
+          },
+          {
+            "original": "triton/WDXGFM46JMKCESBM2CLPUB2LAUPYDQWKOONQXMNBRCWPKEJIFUEA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ttir",
+            "file": "triton-9.ttir",
+            "bytes": 10196,
+            "sha256": "5d3d4fb1fcfb2fc394aa742d1b5d6f53751bc9b7b77dc81313be18a6acb3e5b4"
+          }
+        ],
+        "seconds": 1.76822844799608,
+        "original_inputs_unchanged": true,
+        "expected_is_compute_input": false,
+        "whole_model_inference": false,
+        "inference_acceptance": false
+      },
+      "dispatch": {
+        "host": "aitopatom-66c4",
+        "source_commit": "f963ff0c890dd94e0167057b19428e539e097628",
+        "command": [
+          "docker",
+          "run",
+          "--name",
+          "qrt-gb10-postnorm-matrix-20260921-r1",
+          "--hostname",
+          "aitopatom-66c4",
+          "--gpus",
+          "all",
+          "--network",
+          "none",
+          "--memory",
+          "8g",
+          "--shm-size",
+          "1g",
+          "--cpus",
+          "4",
+          "-v",
+          "<evidence-home-1>/qrt-gb10-postnorm-matrix-20260921-r1:/work",
+          "-v",
+          "<evidence-home-1>/qrt-gb10-prefix256-attention-20260921-r2:/reference:ro",
+          "-v",
+          "/mnt/data/models/Qwen3.6-35B-A3B:/model:ro",
+          "-w",
+          "/work",
+          "--entrypoint",
+          "timeout",
+          "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+          "--signal=TERM",
+          "--kill-after=5",
+          "300",
+          "python3",
+          "/work/replay_gb10_postnorm_matrix_r1.py"
+        ],
+        "command_file": "<evidence-home-1>/qrt-gb10-postnorm-matrix-20260921-r1/run.py",
+        "command_file_sha256": "32a44c6ef612192fb44edf14a0855e0c4e18bb724f6b14e9144e31619e43f9bf",
+        "returncode": 0,
+        "reason": "completed",
+        "wall_seconds": 8.319070913014002,
+        "container_status": "false 0",
+        "gpu_processes_after": "",
+        "host_cleanup_pass": true
+      }
+    },
+    "q2": {
+      "comparison": {
+        "kind": "original_gemma_two_row_residual_matrix_replay",
+        "host": "aitopatom-66c4",
+        "reference_compute_rows": 2,
+        "reported_rows_per_case": 1,
+        "duplicated_compute_rows_bit_exact": true,
+        "input_manifest_sha256": "8afe22db079000101fd4ce86e8d6c2ece1973bd1b6bd825a7c6f863275559f3b",
+        "source_sha256": "8b4e0b93d1d76f0394bb28f40528bdfb250e16f22a83add184d3c2651f915623",
+        "torch_version": "2.10.0a0+a36e1d39eb.nv26.01.42222806",
+        "device": "NVIDIA GB10",
+        "command": "python3 /work/replay_gb10_postnorm_two_row_matrix_r1.py",
+        "model": "/model",
+        "cases": [
+          {
+            "name": "position263168-layer0",
+            "original_observer_exact": true,
+            "original_output_sha256": "6717585f25e764380b8531d40a1497c6d96a5db86769bdb2f41a134a140d9496",
+            "native_mismatches": 0,
+            "variance_bits": 974349466,
+            "inverse_bits": 1109953154
+          },
+          {
+            "name": "position263168-layer1",
+            "original_observer_exact": true,
+            "original_output_sha256": "d0810338476ddd299d94486a60d376ccb091388ead396f1c77a1ea207c357f9d",
+            "native_mismatches": 0,
+            "variance_bits": 978458670,
+            "inverse_bits": 1108161698
+          },
+          {
+            "name": "position263168-layer2",
+            "original_observer_exact": true,
+            "original_output_sha256": "41b425669bacdab08e35971fdc66ac0d86372bd41b62697fa70b72b924476ffd",
+            "native_mismatches": 0,
+            "variance_bits": 978237648,
+            "inverse_bits": 1108236784
+          },
+          {
+            "name": "position263168-layer3",
+            "original_observer_exact": true,
+            "original_output_sha256": "1925061073a4086f6053a7dc216128beb3563770a955885a723f4ce3da6e9bc4",
+            "native_mismatches": 0,
+            "variance_bits": 981251540,
+            "inverse_bits": 1107346304
+          },
+          {
+            "name": "position263168-layer4",
+            "original_observer_exact": true,
+            "original_output_sha256": "03d3ce70bd25c40acd3a215b8b3144e006e0ed4ac5d25a27b48816daca8fd649",
+            "native_mismatches": 0,
+            "variance_bits": 980275612,
+            "inverse_bits": 1107606212
+          },
+          {
+            "name": "position263168-layer5",
+            "original_observer_exact": true,
+            "original_output_sha256": "f824b669ee5283ce59def9f0d82dad110363ad8de9f62211ea2bbf147fad0c49",
+            "native_mismatches": 0,
+            "variance_bits": 980200874,
+            "inverse_bits": 1107627120
+          },
+          {
+            "name": "position263168-layer6",
+            "original_observer_exact": true,
+            "original_output_sha256": "f05e774354818b2e3434dcbbc010030497c9e5aa0c69555bf01d2e0f919528f5",
+            "native_mismatches": 0,
+            "variance_bits": 979170732,
+            "inverse_bits": 1107931582
+          },
+          {
+            "name": "position263168-layer7",
+            "original_observer_exact": true,
+            "original_output_sha256": "c69d3a23e3bca7a93e7e073e40a67df5b073bd0e5e86eabf584b4d7ac173c7db",
+            "native_mismatches": 0,
+            "variance_bits": 982133482,
+            "inverse_bits": 1106659497
+          },
+          {
+            "name": "position263168-layer8",
+            "original_observer_exact": true,
+            "original_output_sha256": "18cc544686eef112d59608e3a1a75569411fce130e1d92e4b1014fcd1cca818b",
+            "native_mismatches": 0,
+            "variance_bits": 983644572,
+            "inverse_bits": 1105461846
+          },
+          {
+            "name": "position263168-layer9",
+            "original_observer_exact": true,
+            "original_output_sha256": "2fd27a776b427d2add674d99898a8304f69f67042b30340764060385ad7d70ce",
+            "native_mismatches": 0,
+            "variance_bits": 985483019,
+            "inverse_bits": 1104310970
+          },
+          {
+            "name": "position263168-layer10",
+            "original_observer_exact": true,
+            "original_output_sha256": "e0ce86ae1ddf7f32103aba7ceff5fe3e8e77aed99bfe0d8c8c9d56313d64bd69",
+            "native_mismatches": 0,
+            "variance_bits": 989646407,
+            "inverse_bits": 1102453941
+          },
+          {
+            "name": "position263168-layer11",
+            "original_observer_exact": true,
+            "original_output_sha256": "2127a2537be2dd14505b9d625fccc0b66defd2f04236ac29f78a146691f22b15",
+            "native_mismatches": 0,
+            "variance_bits": 990645680,
+            "inverse_bits": 1101857690
+          },
+          {
+            "name": "position263168-layer12",
+            "original_observer_exact": true,
+            "original_output_sha256": "6d7527779664946346583b0fa1c84233085043b05204aeb78778ac9846a53c03",
+            "native_mismatches": 0,
+            "variance_bits": 990583500,
+            "inverse_bits": 1101896275
+          },
+          {
+            "name": "position263168-layer13",
+            "original_observer_exact": true,
+            "original_output_sha256": "84698df76665191e167e6b8d1c9653540ee1ec5ba0f90230ce02d74395f4d386",
+            "native_mismatches": 0,
+            "variance_bits": 990854556,
+            "inverse_bits": 1101730892
+          },
+          {
+            "name": "position263168-layer14",
+            "original_observer_exact": true,
+            "original_output_sha256": "44f275a7d41c5c9cd8e9fe5d317a911066c4aa356a41556cfedcc6027e32b3b5",
+            "native_mismatches": 0,
+            "variance_bits": 994523384,
+            "inverse_bits": 1100026603
+          },
+          {
+            "name": "position263168-layer15",
+            "original_observer_exact": true,
+            "original_output_sha256": "0fee8a82fd0a687462cde68a0d138fe511fe6d412fbf0ed3209a5272e1ac3121",
+            "native_mismatches": 0,
+            "variance_bits": 992249802,
+            "inverse_bits": 1100980693
+          },
+          {
+            "name": "position263168-layer16",
+            "original_observer_exact": true,
+            "original_output_sha256": "682052783d2a3fff98e2b2f0b16ee04a63244ab79d8d576a50b466c2612d243b",
+            "native_mismatches": 0,
+            "variance_bits": 991378562,
+            "inverse_bits": 1101430621
+          },
+          {
+            "name": "position263168-layer17",
+            "original_observer_exact": true,
+            "original_output_sha256": "db2932f6ad082027a0613a04e342f8f2a94397d7b301f9eff8d923632014e286",
+            "native_mismatches": 0,
+            "variance_bits": 992046855,
+            "inverse_bits": 1101080516
+          },
+          {
+            "name": "position263168-layer18",
+            "original_observer_exact": true,
+            "original_output_sha256": "24b977f9808a3a9cba2ccf7ff27d7941bbb9fce5fdb438c3b565809af911da36",
+            "native_mismatches": 0,
+            "variance_bits": 994528766,
+            "inverse_bits": 1100024645
+          },
+          {
+            "name": "position263168-layer19",
+            "original_observer_exact": true,
+            "original_output_sha256": "c55d35447038bbf27488cca49b16ef32ce2667c8fdab01a580fd1363765eaeb5",
+            "native_mismatches": 0,
+            "variance_bits": 996573579,
+            "inverse_bits": 1099358119
+          },
+          {
+            "name": "position263168-layer20",
+            "original_observer_exact": true,
+            "original_output_sha256": "6d46811b5c53451dc219ca8afb1dca28560b1b20c57dbcbfdd76a5389dc4f484",
+            "native_mismatches": 0,
+            "variance_bits": 998664160,
+            "inverse_bits": 1098500973
+          },
+          {
+            "name": "position263168-layer21",
+            "original_observer_exact": true,
+            "original_output_sha256": "19937dfa6fbb17866452358f45fd72747218ef5ece11c54021975831d2a5a699",
+            "native_mismatches": 0,
+            "variance_bits": 998298538,
+            "inverse_bits": 1098851597
+          },
+          {
+            "name": "position263168-layer22",
+            "original_observer_exact": true,
+            "original_output_sha256": "31ff9f8312ae868aa2d2ce6b274bfefd8b51e93921e4a03193a34035e31da546",
+            "native_mismatches": 0,
+            "variance_bits": 999541032,
+            "inverse_bits": 1097742500
+          },
+          {
+            "name": "position263168-layer23",
+            "original_observer_exact": true,
+            "original_output_sha256": "ba4910b782298c3919a6d74dbc37ea23a491c2c32a1b533fcd063807c912708e",
+            "native_mismatches": 0,
+            "variance_bits": 1000662613,
+            "inverse_bits": 1096910341
+          },
+          {
+            "name": "position263168-layer24",
+            "original_observer_exact": true,
+            "original_output_sha256": "dbe5a87a3ea29e228a181db1f2ed78f7faef003b6003e11356582dcf570e363e",
+            "native_mismatches": 0,
+            "variance_bits": 1000339168,
+            "inverse_bits": 1097136565
+          },
+          {
+            "name": "position263168-layer25",
+            "original_observer_exact": true,
+            "original_output_sha256": "59ffd25be5a8f01f186a21063a4608b94fd486bd8b8ce5a672b15fa668a0859d",
+            "native_mismatches": 0,
+            "variance_bits": 1002055995,
+            "inverse_bits": 1096040916
+          },
+          {
+            "name": "position263168-layer26",
+            "original_observer_exact": true,
+            "original_output_sha256": "bae70c6435b827e20be79f2594aabf0cd95f548a56e72aa4cb9770cbbfc08bb0",
+            "native_mismatches": 0,
+            "variance_bits": 1004273492,
+            "inverse_bits": 1094926714
+          },
+          {
+            "name": "position263168-layer27",
+            "original_observer_exact": true,
+            "original_output_sha256": "5b82596eb47af0c6be71ff74ffa951b540ac8fad791d00e1860a9104076266fe",
+            "native_mismatches": 0,
+            "variance_bits": 1005045200,
+            "inverse_bits": 1094597463
+          },
+          {
+            "name": "position263168-layer28",
+            "original_observer_exact": true,
+            "original_output_sha256": "dc72f0738e0b38b4404ac5f12fbc686a252a35cf298b227ba6072fe0503d1430",
+            "native_mismatches": 0,
+            "variance_bits": 1006297438,
+            "inverse_bits": 1094113367
+          },
+          {
+            "name": "position263168-layer29",
+            "original_observer_exact": true,
+            "original_output_sha256": "5cee3035abc6bf900f5a309db1883237ce6e4bd565c3a1ef4baf9b6f0237363f",
+            "native_mismatches": 0,
+            "variance_bits": 1004159524,
+            "inverse_bits": 1094977583
+          },
+          {
+            "name": "position263168-layer30",
+            "original_observer_exact": true,
+            "original_output_sha256": "dce70fa2799517feca447e419c0c5f23a46b969f92c2ae485cb2f429e0e01f82",
+            "native_mismatches": 0,
+            "variance_bits": 1007635366,
+            "inverse_bits": 1093342062
+          },
+          {
+            "name": "position263168-layer31",
+            "original_observer_exact": true,
+            "original_output_sha256": "290baeb5996198e5b299e76f76069e96c0f185ae5bd9fb265db17febecf7af4f",
+            "native_mismatches": 0,
+            "variance_bits": 1007051292,
+            "inverse_bits": 1093707827
+          },
+          {
+            "name": "position263168-layer32",
+            "original_observer_exact": true,
+            "original_output_sha256": "a2c14e0767c68698f90906b936baeb137cbbf1382e8b6df9698518a3933ab00b",
+            "native_mismatches": 0,
+            "variance_bits": 1009912671,
+            "inverse_bits": 1092188758
+          },
+          {
+            "name": "position263168-layer33",
+            "original_observer_exact": true,
+            "original_output_sha256": "aed95769f0490f148655c8f0e98e7c26de37c4ac9ea67439541b4151533316a1",
+            "native_mismatches": 0,
+            "variance_bits": 1010463450,
+            "inverse_bits": 1091959474
+          },
+          {
+            "name": "position263168-layer34",
+            "original_observer_exact": true,
+            "original_output_sha256": "0cfdc139694c948353ad52cee684749d75283cac04c3fd97982b6e2f630cc86b",
+            "native_mismatches": 0,
+            "variance_bits": 1010308452,
+            "inverse_bits": 1092022408
+          },
+          {
+            "name": "position263168-layer35",
+            "original_observer_exact": true,
+            "original_output_sha256": "479f82af3cd83ab62595b46bd8e0db056190a7271349e70b0551f4a3e042ff8d",
+            "native_mismatches": 0,
+            "variance_bits": 1012725270,
+            "inverse_bits": 1091159350
+          },
+          {
+            "name": "position263168-layer36",
+            "original_observer_exact": true,
+            "original_output_sha256": "7755f90fc4209bad18207d3a79401b2a54c34438b3ef94f5bf5f69ccbe28b741",
+            "native_mismatches": 0,
+            "variance_bits": 1015668476,
+            "inverse_bits": 1089906815
+          },
+          {
+            "name": "position263168-layer37",
+            "original_observer_exact": true,
+            "original_output_sha256": "09b42c93f2ba8e82eaae6fb0cd332a9ccb182392927865000632e4ca1130eefa",
+            "native_mismatches": 0,
+            "variance_bits": 1018879675,
+            "inverse_bits": 1087626812
+          },
+          {
+            "name": "position263168-layer38",
+            "original_observer_exact": true,
+            "original_output_sha256": "db392c6845c46d51b23d95c07c7aea038e27903f8d0edc6ee713a164aeb3b80d",
+            "native_mismatches": 0,
+            "variance_bits": 1028034169,
+            "inverse_bits": 1083266788
+          },
+          {
+            "name": "position263168-layer39",
+            "original_observer_exact": true,
+            "original_output_sha256": "b1e3bc4f5c07db631910eb351b3e440d8dc3091eca0bea02b6e267134edd3bdc",
+            "native_mismatches": 0,
+            "variance_bits": 1032731640,
+            "inverse_bits": 1081268693
+          },
+          {
+            "name": "position263415-layer0",
+            "original_observer_exact": true,
+            "original_output_sha256": "cd860464c5c6313386d0749c0b86e39f479b1425e85246f9154d8157ac4f3b77",
+            "native_mismatches": 0,
+            "variance_bits": 973543367,
+            "inverse_bits": 1110444111
+          },
+          {
+            "name": "position263415-layer1",
+            "original_observer_exact": true,
+            "original_output_sha256": "59f235fc73a0fac2f563aaa82ec385a4392a7bb636c74f2f203a2c52497b72da",
+            "native_mismatches": 0,
+            "variance_bits": 980732492,
+            "inverse_bits": 1107481588
+          },
+          {
+            "name": "position263415-layer2",
+            "original_observer_exact": true,
+            "original_output_sha256": "c368b7706cdd94369ff47d5812c11af9867585521e817d7a8d2c44e18c83cf15",
+            "native_mismatches": 0,
+            "variance_bits": 984181137,
+            "inverse_bits": 1105096584
+          },
+          {
+            "name": "position263415-layer3",
+            "original_observer_exact": true,
+            "original_output_sha256": "31f97a8113606e9430ed845a2c0b0af3a24db5da2af650b9e63dd23facf3a5d1",
+            "native_mismatches": 0,
+            "variance_bits": 986417110,
+            "inverse_bits": 1103819609
+          },
+          {
+            "name": "position263415-layer4",
+            "original_observer_exact": true,
+            "original_output_sha256": "ea706026d8d1d074b76f6fc91634ff4661b207b231e5fc70531420d7e8f314b6",
+            "native_mismatches": 0,
+            "variance_bits": 984375872,
+            "inverse_bits": 1104970496
+          },
+          {
+            "name": "position263415-layer5",
+            "original_observer_exact": true,
+            "original_output_sha256": "bfc8a2eb9bdd19bde424fb0b9980078f931ceb7660bf154df2ae608d54a82049",
+            "native_mismatches": 0,
+            "variance_bits": 988939340,
+            "inverse_bits": 1102716926
+          },
+          {
+            "name": "position263415-layer6",
+            "original_observer_exact": true,
+            "original_output_sha256": "0f7e3d119095a9f4baf1bbecb79ad2c652d25e5315f1f18924557b4e9bd5f1ad",
+            "native_mismatches": 0,
+            "variance_bits": 990342813,
+            "inverse_bits": 1102049431
+          },
+          {
+            "name": "position263415-layer7",
+            "original_observer_exact": true,
+            "original_output_sha256": "96e6dfc267b89e044ca8b3662e40a13186e520725e9ae7e0ac97ba88978a88c5",
+            "native_mismatches": 0,
+            "variance_bits": 989403385,
+            "inverse_bits": 1102542402
+          },
+          {
+            "name": "position263415-layer8",
+            "original_observer_exact": true,
+            "original_output_sha256": "b4e47e2dd822bd901b172ba39f13e70215149d572b0f4d453add8c1f9756e103",
+            "native_mismatches": 0,
+            "variance_bits": 991274274,
+            "inverse_bits": 1101488458
+          },
+          {
+            "name": "position263415-layer9",
+            "original_observer_exact": true,
+            "original_output_sha256": "d1e8ee37b2111f10cc4d4c2035a630c497664f7e95e585037f5ab03a09bf427f",
+            "native_mismatches": 0,
+            "variance_bits": 990794923,
+            "inverse_bits": 1101766658
+          },
+          {
+            "name": "position263415-layer10",
+            "original_observer_exact": true,
+            "original_output_sha256": "0b654d46116e225c683b818162b16395cf8fac8b4e7924847163bad1dd90d1d2",
+            "native_mismatches": 0,
+            "variance_bits": 993329174,
+            "inverse_bits": 1100493550
+          },
+          {
+            "name": "position263415-layer11",
+            "original_observer_exact": true,
+            "original_output_sha256": "dad6b51638fdb0948204496db507fa3fbb326e74ded4208d841924167de4655a",
+            "native_mismatches": 0,
+            "variance_bits": 993608860,
+            "inverse_bits": 1100378040
+          },
+          {
+            "name": "position263415-layer12",
+            "original_observer_exact": true,
+            "original_output_sha256": "8765011a18ae622ff53dd47e4f1b5a6565dd852b322bb549b0669a35d66c9ac3",
+            "native_mismatches": 0,
+            "variance_bits": 994475064,
+            "inverse_bits": 1100044240
+          },
+          {
+            "name": "position263415-layer13",
+            "original_observer_exact": true,
+            "original_output_sha256": "82f5b7b8f17d902ba7f2c88dcc4bf5852dc2cb78cc674eb06b30b74f62f25491",
+            "native_mismatches": 0,
+            "variance_bits": 997160407,
+            "inverse_bits": 1099191328
+          },
+          {
+            "name": "position263415-layer14",
+            "original_observer_exact": true,
+            "original_output_sha256": "5fda139143c718b95efda9d7b28b2abb66ca2a202a10e4f7139de43d0a08d5c6",
+            "native_mismatches": 0,
+            "variance_bits": 996279611,
+            "inverse_bits": 1099445373
+          },
+          {
+            "name": "position263415-layer15",
+            "original_observer_exact": true,
+            "original_output_sha256": "de119357de0c952d00b1ce0c2ecad5bae4deba6b18183548d1238589323348c9",
+            "native_mismatches": 0,
+            "variance_bits": 998103570,
+            "inverse_bits": 1098941980
+          },
+          {
+            "name": "position263415-layer16",
+            "original_observer_exact": true,
+            "original_output_sha256": "ab54102e465bc668e8f2237efe432f4630cb35cd2c58330b7a7df02b2a1ce7ac",
+            "native_mismatches": 0,
+            "variance_bits": 998773796,
+            "inverse_bits": 1098400058
+          },
+          {
+            "name": "position263415-layer17",
+            "original_observer_exact": true,
+            "original_output_sha256": "f23d0bb3d94f0d7c33a8493acaa2b5654b1a5589a3092deff29d26d0588146fa",
+            "native_mismatches": 0,
+            "variance_bits": 999347604,
+            "inverse_bits": 1097900736
+          },
+          {
+            "name": "position263415-layer18",
+            "original_observer_exact": true,
+            "original_output_sha256": "88abd0592f0df2aa07b826c169d3ea77cb3d23444d9c6f8ce7c0b21581059057",
+            "native_mismatches": 0,
+            "variance_bits": 1000732909,
+            "inverse_bits": 1096862514
+          },
+          {
+            "name": "position263415-layer19",
+            "original_observer_exact": true,
+            "original_output_sha256": "70c61a572978726bb51bb3fabbbac5ba58bcda8b0d794fc995e4237141516b39",
+            "native_mismatches": 0,
+            "variance_bits": 1006231596,
+            "inverse_bits": 1094137429
+          },
+          {
+            "name": "position263415-layer20",
+            "original_observer_exact": true,
+            "original_output_sha256": "44135f19c1e4881de12d89deaac1bb02609f2f22025b4d7b4ec96a5d82df14ed",
+            "native_mismatches": 0,
+            "variance_bits": 1007874984,
+            "inverse_bits": 1093201722
+          },
+          {
+            "name": "position263415-layer21",
+            "original_observer_exact": true,
+            "original_output_sha256": "ce76fad989e9e734ac118189791687cd1546add3d8b9f314f8d5ada49f6e8d29",
+            "native_mismatches": 0,
+            "variance_bits": 1006193224,
+            "inverse_bits": 1094151520
+          },
+          {
+            "name": "position263415-layer22",
+            "original_observer_exact": true,
+            "original_output_sha256": "896aa4e73294df53574f0784a5dce82c4fcd0802122411a4ee5270d4278e7dfb",
+            "native_mismatches": 0,
+            "variance_bits": 1007757812,
+            "inverse_bits": 1093269685
+          },
+          {
+            "name": "position263415-layer23",
+            "original_observer_exact": true,
+            "original_output_sha256": "23fbeec7d4068dbda32bff5f84bb92d17b95847df7678214288494ab94be05bb",
+            "native_mismatches": 0,
+            "variance_bits": 1008986461,
+            "inverse_bits": 1092613379
+          },
+          {
+            "name": "position263415-layer24",
+            "original_observer_exact": true,
+            "original_output_sha256": "45370968cd07b8ada127d804b417871a429c2c4541eea098b6ff471815ebff36",
+            "native_mismatches": 0,
+            "variance_bits": 1010169123,
+            "inverse_bits": 1092080024
+          },
+          {
+            "name": "position263415-layer25",
+            "original_observer_exact": true,
+            "original_output_sha256": "3592ad2887999d377b075c331b616f2f5bf7665be32675ba04c05162726a26a6",
+            "native_mismatches": 0,
+            "variance_bits": 1012519852,
+            "inverse_bits": 1091224074
+          },
+          {
+            "name": "position263415-layer26",
+            "original_observer_exact": true,
+            "original_output_sha256": "520f804fcf99d378f173b7d369fe9be19da1bc16c2799f2f975514cbd7a6f4d1",
+            "native_mismatches": 0,
+            "variance_bits": 1012963121,
+            "inverse_bits": 1091086105
+          },
+          {
+            "name": "position263415-layer27",
+            "original_observer_exact": true,
+            "original_output_sha256": "c6af6753091d9b225a58a61f4de92cecc70c2b450845736b945eea78b188887d",
+            "native_mismatches": 0,
+            "variance_bits": 1015837820,
+            "inverse_bits": 1089757438
+          },
+          {
+            "name": "position263415-layer28",
+            "original_observer_exact": true,
+            "original_output_sha256": "fe0808036c4e5fa93dfdbf03cfd8e0981f583ab1b4c726440d6bd69ec9433434",
+            "native_mismatches": 0,
+            "variance_bits": 1016597448,
+            "inverse_bits": 1089134908
+          },
+          {
+            "name": "position263415-layer29",
+            "original_observer_exact": true,
+            "original_output_sha256": "273e60cc5a9dc7fec49224f02100017b29ce126f9d6b673621acb301604ac114",
+            "native_mismatches": 0,
+            "variance_bits": 1017942210,
+            "inverse_bits": 1088190819
+          },
+          {
+            "name": "position263415-layer30",
+            "original_observer_exact": true,
+            "original_output_sha256": "b599bb062cc5909af5cdb79f1c38f727aed2048e618aedef88711cefa1a9f11c",
+            "native_mismatches": 0,
+            "variance_bits": 1018963260,
+            "inverse_bits": 1087579672
+          },
+          {
+            "name": "position263415-layer31",
+            "original_observer_exact": true,
+            "original_output_sha256": "3853e46f4a3329e18b4306b51c0e98298a869029ca2d407e468928858ce3753a",
+            "native_mismatches": 0,
+            "variance_bits": 1022412746,
+            "inverse_bits": 1085974090
+          },
+          {
+            "name": "position263415-layer32",
+            "original_observer_exact": true,
+            "original_output_sha256": "f3da9668f3ea4a90dc012115c50fe2b9e4def0d999bfc69adc33b4a6116a5d60",
+            "native_mismatches": 0,
+            "variance_bits": 1022262464,
+            "inverse_bits": 1086032755
+          },
+          {
+            "name": "position263415-layer33",
+            "original_observer_exact": true,
+            "original_output_sha256": "635077114ce1befa955c2747ae391afc7e9c4af8caeda31dbfc12caab640e671",
+            "native_mismatches": 0,
+            "variance_bits": 1025141950,
+            "inverse_bits": 1084542369
+          },
+          {
+            "name": "position263415-layer34",
+            "original_observer_exact": true,
+            "original_output_sha256": "e2e959d81cf4a66de9e4a2f1d07a4b08c6fd85b9399c51a37c87bb72ef2426ad",
+            "native_mismatches": 0,
+            "variance_bits": 1025907762,
+            "inverse_bits": 1084155558
+          },
+          {
+            "name": "position263415-layer35",
+            "original_observer_exact": true,
+            "original_output_sha256": "d4de37d5ad511023b1cf3f03edbd385de26247764046d86d5f446ae8a3430373",
+            "native_mismatches": 0,
+            "variance_bits": 1029691108,
+            "inverse_bits": 1082712758
+          },
+          {
+            "name": "position263415-layer36",
+            "original_observer_exact": true,
+            "original_output_sha256": "5f4c5e6c7e0a32bd81cc79827edd7e82bc1c00f5fd46e03c86354a4d675bb337",
+            "native_mismatches": 0,
+            "variance_bits": 1030623674,
+            "inverse_bits": 1082440527
+          },
+          {
+            "name": "position263415-layer37",
+            "original_observer_exact": true,
+            "original_output_sha256": "5b85d9fb3bd2033f018a8b3cce0545bbd746d1cdfc2d13934d00140c7d33abf5",
+            "native_mismatches": 0,
+            "variance_bits": 1032877580,
+            "inverse_bits": 1081145550
+          },
+          {
+            "name": "position263415-layer38",
+            "original_observer_exact": true,
+            "original_output_sha256": "9940c6faeaff08bce2a549a0c38b620c9a2ca0eb1c68b2114c5700a6c627fe07",
+            "native_mismatches": 0,
+            "variance_bits": 1034808458,
+            "inverse_bits": 1079745927
+          },
+          {
+            "name": "position263415-layer39",
+            "original_observer_exact": true,
+            "original_output_sha256": "b9e080c08fd83568ef89b6d893529fe423cde1ef186b721ed2ad57c8bde5b756",
+            "native_mismatches": 0,
+            "variance_bits": 1034179312,
+            "inverse_bits": 1080160374
+          }
+        ],
+        "files": {
+          "original-output.bf16.bin": {
+            "bytes": 327680,
+            "sha256": "052b9950fdfa47d268f4af10e0477a5071e512d74bc9e3dccdb6fe5529f1df41"
+          },
+          "original-residual.bf16.bin": {
+            "bytes": 327680,
+            "sha256": "a16e9c82192918ab0db15cb944f13e7b85ed4cecb2c82108f9fa13e150eee462"
+          },
+          "weights.bf16.bin": {
+            "bytes": 327680,
+            "sha256": "5698ab9630783f4688800352f937766977ba3f6416966ba52d33586f60b9a2b7"
+          },
+          "variance.f32.bin": {
+            "bytes": 320,
+            "sha256": "64d31bcb8b793c15798882303d91c5208c63d5b34ee99a3833d9e2b9f4be8345"
+          },
+          "inverse.f32.bin": {
+            "bytes": 320,
+            "sha256": "48f6d69c85944f2d15fba90de8708b15f0d0ee71969a6446ba15ad9a45df45c3"
+          }
+        },
+        "compiler_artifacts": [
+          {
+            "original": "inductor/4y/c4ynah42vhcsvvg3cv52wx53wwwzm6ghko2wccdvxpqvvmx77mnx.py",
+            "file": "inductor-0.py",
+            "bytes": 10708,
+            "sha256": "6ff348b190b3b56c955ba8e09a218f35649d777326f079bb130ff7d3455d0974"
+          },
+          {
+            "original": "inductor/cr/ccrcum32gekeemvwvkz4mm5ypo73eltogexz6h3b6alg6v6oq5ga.py",
+            "file": "inductor-1.py",
+            "bytes": 4437,
+            "sha256": "a333bf21584c597dce9aa35db3df620d229a2f111c0d70cfe725fd6deccd7e91"
+          },
+          {
+            "original": "inductor/j7/cj7nshpym7dlzgurrdn5joppb2y3qlgqaq7uwbwhspp2hueslifk.py",
+            "file": "inductor-2.py",
+            "bytes": 11383,
+            "sha256": "7e5129295823372d10174b5f9d2863b96ebf60fa83d4b6014f0914d653bcf4fa"
+          },
+          {
+            "original": "inductor/zi/czilvgvyamoklwjdrf3ehsihhcqnlhuzwbwsopfmvyiar6oskrbj.py",
+            "file": "inductor-3.py",
+            "bytes": 4197,
+            "sha256": "1a012621cb748be19e0a94548f556a878606c8b62e3c54eced0035e9e491ec9e"
+          },
+          {
+            "original": "triton/NK5PM7GUF26ILQSDIW6Y2HLXDDI4WYI2ZLXFXCJF23WINKRFGBNQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+            "file": "triton-4.ptx",
+            "bytes": 28154,
+            "sha256": "b9b1ec939568000e2b935cc2f6cf4a7ae1f1f47a15e7734830c4bfe85926fad6"
+          },
+          {
+            "original": "triton/NK5PM7GUF26ILQSDIW6Y2HLXDDI4WYI2ZLXFXCJF23WINKRFGBNQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ttgir",
+            "file": "triton-5.ttgir",
+            "bytes": 16596,
+            "sha256": "02ce527a75e1c44ed9225e3bb21dc7950259464084317a66a3fee9c0078834af"
+          },
+          {
+            "original": "triton/NK5PM7GUF26ILQSDIW6Y2HLXDDI4WYI2ZLXFXCJF23WINKRFGBNQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ttir",
+            "file": "triton-6.ttir",
+            "bytes": 13097,
+            "sha256": "006e30c9ee2c80c1a462c1e1714633c553bd3dc1c2291fe94ec2a112192f267a"
+          },
+          {
+            "original": "triton/Q7YWN6YA7DAXQZ35NDFJSMSE2VEZWEGPIKZFT4DWKHLRKH4RPVBA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+            "file": "triton-7.ptx",
+            "bytes": 26176,
+            "sha256": "4f30e0e8ccf7ecd772e247ad653ec48861cbfab24b28cf431930eb504ab747b6"
+          },
+          {
+            "original": "triton/Q7YWN6YA7DAXQZ35NDFJSMSE2VEZWEGPIKZFT4DWKHLRKH4RPVBA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ttgir",
+            "file": "triton-8.ttgir",
+            "bytes": 13592,
+            "sha256": "8472e4b9ea91bac2f3c245dfb875bc61069827dd2502900de72e411a1ea658c3"
+          },
+          {
+            "original": "triton/Q7YWN6YA7DAXQZ35NDFJSMSE2VEZWEGPIKZFT4DWKHLRKH4RPVBA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ttir",
+            "file": "triton-9.ttir",
+            "bytes": 11863,
+            "sha256": "222506320fe09634c400b50b47389deb5e7c68db79f983cdc5d383241974f84e"
+          }
+        ],
+        "seconds": 1.863069331040606,
+        "original_inputs_unchanged": true,
+        "expected_is_compute_input": false,
+        "whole_model_inference": false,
+        "inference_acceptance": false
+      },
+      "dispatch": {
+        "host": "aitopatom-66c4",
+        "source_commit": "f963ff0c890dd94e0167057b19428e539e097628",
+        "command": [
+          "docker",
+          "run",
+          "--name",
+          "qrt-gb10-postnorm-two-row-matrix-20260921-r1",
+          "--hostname",
+          "aitopatom-66c4",
+          "--gpus",
+          "all",
+          "--network",
+          "none",
+          "--memory",
+          "8g",
+          "--shm-size",
+          "1g",
+          "--cpus",
+          "4",
+          "-v",
+          "<evidence-home-1>/qrt-gb10-postnorm-two-row-matrix-20260921-r1:/work",
+          "-v",
+          "<evidence-home-1>/qrt-gb10-prefix256-attention-20260921-r2:/reference:ro",
+          "-v",
+          "/mnt/data/models/Qwen3.6-35B-A3B:/model:ro",
+          "-w",
+          "/work",
+          "--entrypoint",
+          "timeout",
+          "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+          "--signal=TERM",
+          "--kill-after=5",
+          "300",
+          "python3",
+          "/work/replay_gb10_postnorm_two_row_matrix_r1.py"
+        ],
+        "command_file": "<evidence-home-1>/qrt-gb10-postnorm-two-row-matrix-20260921-r1/run.py",
+        "command_file_sha256": "285131e445a6af77f2e1f524d1a2c7d6ca4a34cf31a1ea793637e46c6bd364d8",
+        "returncode": 0,
+        "reason": "completed",
+        "wall_seconds": 8.275749573949724,
+        "container_status": "false 0",
+        "gpu_processes_after": "",
+        "host_cleanup_pass": true
+      }
+    }
+  },
+  "compared_surface_values": 2293760,
+  "additional_scalar_values": 480,
+  "original_reference_is_compute_input": false,
+  "whole_model_inference": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "270427e079a3e432ce888cc5b05d4cc4d40bdf75e0eaec8454aabb3ee9f0f586",
+    "original_json_bytes": 116700,
+    "source_revision": "6a5da300aae444d25541138c5f20423958d25f19",
+    "source_path": "benchmarks/correctness/residual-norm-reference-modes-native-20260921.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 6
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}
