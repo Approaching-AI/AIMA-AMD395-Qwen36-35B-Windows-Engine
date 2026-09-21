@@ -246,6 +246,21 @@ retirement crossing remain unsupported by this opt-in route. No numerical
 kernel changes, Windows execution, real-model qualification or release claim
 is included. All previously prepared native source plans remain unchanged.
 
+The [prepared integrated native plan](../benchmarks/correctness/native-mtp-prefix-runtime-prepared-20260921.json)
+binds0edb356,165 whole compilation inputs, the10-input streaming probe and
+171 combined source/build inputs. The runtime profile differs from the
+qualified control only by enabling cold chunks/native MTP and supplying the
+original sigmoid table. Accepted-cache publication, six cold MTP component
+cases and prefix repair must first pass their1,283,162,148 original comparisons.
+The same new DLL must then pass q7169/out32 and q8192/out512 before the16k
+prefix streaming/cancellation probe. In addition to every original token,
+first logit and1247 callbacks, that probe checks all1753 actual native target
+commit markers and six paired suffix checkpoint publications. These counts
+are requirements, not observed results. The build and three model dispatches
+stop locally while the256k task remains active; three Windows wrapper scripts
+pass read-only parsing. No new native job has started. Earlier frozen plans
+remain available, and no correctness, performance or release gate changes.
+
 The [prefix streaming regression](../benchmarks/correctness/prefix-live-stream-local-20260921.json)
 reproduces delayed delivery in the actual prefix decode loop: each span finishes
 up to63 subsequent tokens before forwarding them. The prefix loop now binds
