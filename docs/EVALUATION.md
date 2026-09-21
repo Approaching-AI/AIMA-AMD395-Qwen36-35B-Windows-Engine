@@ -22,17 +22,37 @@ sources; Windows/HIP build wall109966.979ms. All512 original outputs and
 callbacks match; first144/logit10.375/error0. Load21645.8589ms passes, while
 TTFT23382.8576ms and TPOT101.477052ms remain above their goals. All11 source
 inputs of the earlier native norm replay are unchanged and verified against
-this commit. Complete256k is now running with this binary; native retirement
-itself remains unqualified. This single control does not replace retained
-performance medians or qualify a release.
+this commit. This single control does not replace retained performance medians
+or qualify a release.
+
+The [completed256k continuation](../benchmarks/correctness/retired-reference-mode-prefix256k-20260921.json)
+fails after all32 owner chunks complete. The owner first token16/logit24.375
+and initial suffix first token248045/logit5.78125 match GB10 exactly. The
+suffix emits512 tokens: its first124 match, then output index124 is8984
+instead of4980;364 outputs differ in total. Native exit6 and wall22587473.609ms
+are retained with passing host checks and no remaining process. The timed
+live continuation, restored-owner continuation, second suffix and negative
+guards were not reached. No complete256k or native retirement pass is claimed.
+
+At matching-history position263168, both diagnostic comparisons are now
+bit-exact:232 surfaces in the attention/carrier report and556 in the linear
+report, with zero BF16 or F32-bit differences. These populations overlap.
+All1559 native files are verified. Position263415 follows the token divergence
+and cannot qualify a same-history comparison. The first divergent output is
+computed at input position263291; its cause remains unresolved.
 
 The [cold final-chunk repair](COLD_PREFILL_TAILS.md) now admits actual tails
 from1 through8192 tokens, preserves untouched convolution ring slots for
 tails shorter than4, and routes native MTP around the C cold-suffix shortcut.
 All23 related local tests, C smoke and seven transaction cases pass; three
-old-code controls reproduce the respective failures. Windows compilation
-and original-model checks remain pending. Both the DLL and product CLI must
-be rebuilt. The two r1 plans below retain their original inputs but require
+old-code controls reproduce the respective failures. The same-source Windows
+DLL, CLI and prefix-probe build now passes in121777.354ms. The first attempt
+launched no compiler because only its10GiB disk preflight failed; its record
+is preserved. After verified diagnostic archival, r2 uses the identical173
+source inputs and compilation commands. The [ordinary original-model regression](../benchmarks/correctness/cold-prefill-tail-q8192-20260921.json)
+also passes: all512 token IDs and callbacks match, first144/logit10.375/error0,
+load21630.589501ms, TTFT23349.126501ms and TPOT101.333687ms. Load meets its
+bound; the TTFT and retained-performance goals remain open. The two r1 plans below retain their original inputs but require
 new runtime bindings before execution; their old binaries do not include
 this fix.
 

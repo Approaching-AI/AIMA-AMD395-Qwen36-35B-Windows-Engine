@@ -181,12 +181,15 @@ pending. This default-off integration adds no new numerical, performance
 or release qualification. The separately frozen e14f64b fixture is still
 reproducible and need not be mistaken for a build of this provider.
 
-The [provider component plan](../benchmarks/correctness/state-replay-provider-prepared-20260921.json)
-freezes430 inputs at6003bcdee4be820c8901e11139ae64dabde32d4f. It includes the
-actual cooperative translation unit once with `-include`, avoiding duplicate
-header-defined HIP kernels, and uses the provider's `-O2` optimization. Both
-the command and builder parse on Windows. Five dispatch actions and resource
-collection stop with zero subprocess/network calls while prerequisites are
-missing. Synthetic report-format checks cover all six variant/owner rows.
+The [initial provider component plan](../benchmarks/correctness/state-replay-provider-prepared-20260921.json)
+freezes430 inputs at6003bcdee4be820c8901e11139ae64dabde32d4f. Its Windows
+build failed in104.766ms: hipcc inserted `-x hip` between `-include` and the
+cooperative `.cpp` path, so clang treated `hip` as an input file. No GPU
+component executed; the completed exit1 record and clean host state are
+preserved. The fixture now includes the actual cooperative implementation
+in its source file, keeping one translation unit without that compiler argument.
+The numerical provider sources remain unchanged. A new native build is required.
+
+The original parsing and missing-prerequisite checks remain preparation evidence.
 Native build/component/transport bounds remain180/300/420 seconds, with30-second
-Git children. No component has executed and no resource or speed result exists.
+Git children. No resource or native speed result exists yet.
