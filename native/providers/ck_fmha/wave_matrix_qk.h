@@ -1,6 +1,7 @@
 #pragma once
 #include "compact_matrix_queue_qk.h"
 #include "../moe_accumulator/sm121_compact_matrix_metadata.h"
+#include "../moe_accumulator/sm121_matrix_remainder_group.h"
 
 // Isolated matrix-QK replacement. Each wave keeps its complete16x16 output
 // tile and eight ordered carries per lane. Matrix results never enter LDS;
@@ -37,7 +38,7 @@ __device__ __forceinline__ void digits(const group::Row& row, I4& high, I4& low)
     }
 }
 
-template<bool ForceOriginal = false>
+template<bool ForceOriginal = false, bool CorrectRemainder = false>
 __global__ __launch_bounds__(128) void scores(Workspace w, float* output,
     unsigned start, unsigned count, unsigned stride) {
     const unsigned tid = threadIdx.x, lane = tid % 32u, wave = tid / 32u;
@@ -87,8 +88,9 @@ __global__ __launch_bounds__(128) void scores(Workspace w, float* output,
         for (unsigned pair = 0u; pair < 8u; ++pair) {
             a_raw[pair] = uint32_t(group::compact::original(a.encoded, pair*2u)) |
                 (uint32_t(group::compact::original(a.encoded, pair*2u+1u)) << 16u);
-            b_raw[pair] = uint32_t(group::compact::original(b.encoded, pair*2u)) |
-                (uint32_t(group::compact::original(b.encoded, pair*2u+1u)) << 16u);
+            if constexpr (!CorrectRemainder || ForceOriginal)
+                b_raw[pair] = uint32_t(group::compact::original(b.encoded, pair*2u)) |
+                    (uint32_t(group::compact::original(b.encoded, pair*2u+1u)) << 16u);
         }
 #pragma unroll
         for (unsigned item = 0u; item < 8u; ++item) {
@@ -99,14 +101,34 @@ __global__ __launch_bounds__(128) void scores(Workspace w, float* output,
                 const int64_t mathematical = int64_t(hh[item])*65536 +
                     (int64_t(hl[item]) + lh[item])*256 + ll[item];
                 float updated;
-                accepted = metadata::accumulate(carries[item], a_metadata,
-                    key_metadata, mathematical, &updated);
-                if (accepted) carries[item] = updated;
+                if constexpr (CorrectRemainder) {
+                    auto key_group = metadata::expand(key_metadata);
+#pragma unroll
+                    for (unsigned pair = 0u; pair < 8u; ++pair)
+                        key_group.encoded.pairs[pair] = __shfl(b.encoded.pairs[pair], source);
+                    accepted = qrt_sm121_matrix_remainder_group::accumulate(
+                        carries[item], a, key_group, mathematical, &updated);
+                    if (accepted) carries[item] = updated;
+                    else {
+                        // All key shuffles above are uniform. Only the local
+                        // fallback consumers expand their original BF16 row.
+                        uint32_t key_raw[8];
+#pragma unroll
+                        for (unsigned pair = 0u; pair < 8u; ++pair)
+                            key_raw[pair] = uint32_t(group::compact::original(key_group.encoded, pair*2u)) |
+                                (uint32_t(group::compact::original(key_group.encoded, pair*2u+1u)) << 16u);
+                        carries[item] = original::original_group(carries[item], a_raw, key_raw);
+                    }
+                } else {
+                    accepted = metadata::accumulate(carries[item], a_metadata,
+                        key_metadata, mathematical, &updated);
+                    if (accepted) carries[item] = updated;
+                }
             }
             // All source lanes participate in every shuffle when any output
             // in the wave rejects. Divergent consumers cannot read inactive
             // source lanes. Rejection keeps the incoming carry untouched.
-            if (__ballot(!accepted)) {
+            if constexpr (!CorrectRemainder || ForceOriginal) if (__ballot(!accepted)) {
                 uint32_t key_raw[8];
 #pragma unroll
                 for (unsigned pair = 0u; pair < 8u; ++pair)
@@ -124,7 +146,7 @@ __global__ __launch_bounds__(128) void scores(Workspace w, float* output,
     }
 }
 
-template<bool ForceOriginal = false>
+template<bool ForceOriginal = false, bool CorrectRemainder = false>
 inline int launch(const void* state, const uint16_t* query,
     const uint16_t* transposed_key, float* output, hipStream_t stream,
     unsigned start, unsigned count, unsigned stride, unsigned key_stride) {
@@ -135,7 +157,7 @@ inline int launch(const void* state, const uint16_t* query,
         start >= o.tokens || count > o.tokens-start || stride != start+count || key_stride != o.tokens)
         return int(hipErrorInvalidValue);
     const dim3 grid((stride+31u)/32u,16u,(count+31u)/32u);
-    hipLaunchKernelGGL((scores<ForceOriginal>),grid,dim3(128u),0u,stream,w,output,start,count,stride);
+    hipLaunchKernelGGL((scores<ForceOriginal,CorrectRemainder>),grid,dim3(128u),0u,stream,w,output,start,count,stride);
     auto status = hipGetLastError();
     if (status != hipSuccess) return int(status);
     hipLaunchKernelGGL((qrt_narrow_domain_qk::scores<false,2u,2u,64u>),grid,dim3(256u),0u,stream,

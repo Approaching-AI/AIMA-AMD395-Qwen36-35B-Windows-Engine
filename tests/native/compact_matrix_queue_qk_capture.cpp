@@ -7,8 +7,15 @@
 #include "../../native/providers/ck_fmha/compact_matrix_queue_qk.h"
 #ifdef QRT_WAVE_MATRIX_QK_CAPTURE
 #include "../../native/providers/ck_fmha/wave_matrix_qk.h"
+#ifdef QRT_WAVE_MATRIX_REMAINDER_QK_CAPTURE
+#define QRT_MATRIX_QK_LABEL "wave_matrix_remainder_qk"
+#define QRT_MATRIX_QK_MARKER "WAVE_MATRIX_REMAINDER_QK"
+#define QRT_MATRIX_QK_CAPTURE_VARIANTS 4u
+#define QRT_MATRIX_QK_SAFETY_VARIANTS 5u
+#else
 #define QRT_MATRIX_QK_LABEL "wave_matrix_qk"
 #define QRT_MATRIX_QK_MARKER "WAVE_MATRIX_QK"
+#endif
 #define QRT_MATRIX_QK_QUEUE_CONTROL "false"
 #define QRT_MATRIX_QK_FORCE_FIELD ",\"forced_all_original_wave\":true"
 #else
@@ -16,6 +23,10 @@
 #define QRT_MATRIX_QK_MARKER "COMPACT_MATRIX_QUEUE_QK"
 #define QRT_MATRIX_QK_QUEUE_CONTROL "true"
 #define QRT_MATRIX_QK_FORCE_FIELD ""
+#endif
+#ifndef QRT_MATRIX_QK_CAPTURE_VARIANTS
+#define QRT_MATRIX_QK_CAPTURE_VARIANTS 3u
+#define QRT_MATRIX_QK_SAFETY_VARIANTS 4u
 #endif
 
 namespace {
@@ -89,7 +100,12 @@ void producer(const uint16_t* q,const uint16_t* kt,const uint16_t* v,const uint1
 #ifdef QRT_WAVE_MATRIX_QK_CAPTURE
         const auto launch=variant==1u?qrt_compact_matrix_queue_qk::launch<true>:
             variant==2u?qrt_wave_matrix_qk::launch<false>:
+#ifdef QRT_WAVE_MATRIX_REMAINDER_QK_CAPTURE
+            variant==3u?qrt_wave_matrix_qk::launch<false,true>:
+            variant==4u?qrt_wave_matrix_qk::launch<true>:nullptr;
+#else
             variant==3u?qrt_wave_matrix_qk::launch<true>:nullptr;
+#endif
 #else
         const auto launch=variant==1u?qrt_compact_matrix_queue_qk::launch<false>:
             variant==2u?qrt_compact_matrix_queue_qk::launch<true>:
@@ -166,7 +182,7 @@ void run_safety(const unsigned char* exp,const unsigned char* packed,const unsig
             expected,start,count,n,exp,nullptr,rcp,true,0u,nullptr);finish();
         producer(dq.as<uint16_t>(),dt.as<uint16_t>(),dv.as<uint16_t>(),vt.as<uint16_t>(),
             prepared,domain,native_control,start,count,n,exp,packed,rcp,0u);finish();
-        for(unsigned variant=0u;variant<4u;++variant){
+        for(unsigned variant=0u;variant<QRT_MATRIX_QK_SAFETY_VARIANTS;++variant){
             actual.reset();producer(dq.as<uint16_t>(),dt.as<uint16_t>(),dv.as<uint16_t>(),vt.as<uint16_t>(),
                 prepared,domain,actual,start,count,n,exp,packed,rcp,variant);finish();
             compare(native_control,actual,bad);
@@ -197,7 +213,8 @@ void run_capture(unsigned tokens,const char* qfile,const char* kfile,const char*
     const auto reference=read_words(reference_file,7169u*4096u);Guarded dr(reference.size()*2u);dr.put(reference);
     NarrowDomain domain(dq.as<uint16_t>(),dk.as<uint16_t>(),q,k,prepared,tokens);
     AttentionOutputs expected(tokens),native_control(tokens),actual(tokens);Device bad(4u);check(hipMemset(bad.pointer,0,4u));
-    double samples[3][3]{};uint64_t candidates[3]{},fast_tiles[3]{},slow_tiles[3]{},score_cells=0u;unsigned cpu_dots=0u;
+    constexpr unsigned variants=QRT_MATRIX_QK_CAPTURE_VARIANTS;
+    double samples[variants][3]{};uint64_t candidates[variants]{},fast_tiles[variants]{},slow_tiles[variants]{},score_cells=0u;unsigned cpu_dots=0u;
     for(unsigned start=0;start<tokens;start+=query_batch){
         const unsigned count=std::min(query_batch,tokens-start),stride=start+count;
         expected.reset();attention(dq.as<uint16_t>(),dt.as<uint16_t>(),dv.as<uint16_t>(),vt.as<uint16_t>(),prepared,
@@ -210,8 +227,8 @@ void run_capture(unsigned tokens,const char* qfile,const char* kfile,const char*
         if(download<unsigned>(bad,1u)[0])throw std::runtime_error("control differs from GB10 or writes unused tails");
         native_control.reset();producer(dq.as<uint16_t>(),dt.as<uint16_t>(),dv.as<uint16_t>(),vt.as<uint16_t>(),
             prepared,domain,native_control,start,count,tokens,exp,packed,rcp,0u);finish();
-        for(unsigned attempt=0;attempt<4u;++attempt)for(unsigned position=0;position<3u;++position){
-            const unsigned variant=(position+start/query_batch+attempt)%3u;
+        for(unsigned attempt=0;attempt<4u;++attempt)for(unsigned position=0;position<variants;++position){
+            const unsigned variant=(position+start/query_batch+attempt)%variants;
             actual.reset();finish();const auto timed=std::chrono::steady_clock::now();
             producer(dq.as<uint16_t>(),dt.as<uint16_t>(),dv.as<uint16_t>(),vt.as<uint16_t>(),prepared,domain,
                 actual,start,count,tokens,exp,packed,rcp,variant);
@@ -236,15 +253,15 @@ void run_capture(unsigned tokens,const char* qfile,const char* kfile,const char*
     }
     dq.immutable(q);dk.immutable(k);dv.immutable(v);dr.immutable(reference);prepared.verify();domain.verify();
     immutable_transpose(dt,k,tokens);immutable_transpose(vt,v,tokens);
-    for(unsigned variant=1u;variant<3u;++variant){
+    for(unsigned variant=1u;variant<variants;++variant){
         if(candidates[0]!=candidates[variant])throw std::runtime_error("original PV selection differs");
         if(!fast_tiles[variant] || !slow_tiles[variant])throw std::runtime_error("domain split not exercised");
     }
-    for(unsigned variant=0;variant<3u;++variant){
+    for(unsigned variant=0;variant<variants;++variant){
         auto sorted=std::vector<double>(samples[variant],samples[variant]+3u);std::sort(sorted.begin(),sorted.end());
         unsigned query_cells=2u,key_cells=variant?2u:4u;
 #ifdef QRT_WAVE_MATRIX_QK_CAPTURE
-        if(variant==2u){query_cells=1u;key_cells=8u;}
+        if(variant>=2u){query_cells=1u;key_cells=8u;}
 #endif
         std::printf("{\"kind\":\"" QRT_MATRIX_QK_LABEL "_capture\",\"tokens\":%u,\"source_capture_tokens\":7169,\"repeated_rows\":%u,\"variant\":%u,\"query_cells\":%u,\"key_cells\":%u,\"narrow_tiles\":%llu,\"original_tiles\":%llu,\"domain_classification_ms\":%.9f,\"retained_control_callback_and_isolated_candidate\":true,\"pre_replay_native_surfaces_checked_on_warmup\":true,\"cpu_metadata_checked\":true,\"query_batch\":128,\"score_slots\":%llu,\"output_cells\":%u,\"gb10_context_cells\":29364224,\"cpu_dots\":%u,\"pv_candidates\":%llu,\"completed_attention_samples_ms\":[%.9f,%.9f,%.9f],\"median_completed_attention_ms\":%.9f,\"common_preparation_ms\":%.9f,\"raw_bit_mismatches\":0,\"gb10_context_mismatches\":0,\"all_attempts_checked\":true,\"warmups_per_slab\":1,\"timed_attempts_per_slab\":3,\"original_qk_and_pv\":true,\"reference_is_compute_input\":false,\"redzones_and_unused_tails_pass\":true,\"immutable_inputs\":true,\"model_loaded\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",tokens,tokens-7169u,variant,query_cells,key_cells,(unsigned long long)fast_tiles[variant],(unsigned long long)slow_tiles[variant],domain.ms+(variant?domain.matrix_ms:0.0),(unsigned long long)score_cells,tokens*4096u,cpu_dots,(unsigned long long)candidates[variant],samples[variant][0],samples[variant][1],samples[variant][2],sorted[1],prepared.ms+transpose_ms);
     }

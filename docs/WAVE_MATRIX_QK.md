@@ -2,8 +2,9 @@
 
 This component keeps the matrix result and its ordered carries in the wave
 that computes them. It is isolated from runtime dispatch. The native Windows
-build passes; GPU numerical behavior, the complete q8192 component and the
-original-model boundary remain unmeasured.
+build at804ccf4 passes. A subsequent exact-remainder variant passes host
+arithmetic checks and awaits native compilation. GPU numerical behavior,
+the complete q8192 component and the original-model boundary remain unmeasured.
 
 The preceding [compact matrix queue](COMPACT_MATRIX_QUEUE_QK.md) passes its
 numerical checks but costs 989.6595 ms for complete q8192 attention plus
@@ -38,6 +39,16 @@ This differs from the earlier scalar direct/wave-queue variants in both
 matrix ownership and data exchange. It adds no reference operand and removes
 no original candidate, numerical bound or fallback.
 
+An additional isolated variant retains the original certificate first. For
+otherwise rejected positive shifts through16 bits, it subtracts the signed
+discarded residue of every original coefficient product from the exact matrix
+sum before alignment. This preserves per-product truncation; it does not
+round the uncorrected complete dot as one value. The existing compact integer
+calculation supplies the residue formula. Unsupported rows and wider shifts
+keep the original fallback, and the original certificate keeps its admissions.
+All encoded-key shuffles execute uniformly before any fallback consumer.
+This variant remains outside product dispatch.
+
 ## Verification
 
 The host audit compares the compact metadata view with the full row and the
@@ -60,6 +71,17 @@ extra outputs against original arithmetic. It is not a new real-model prompt.
 Complete attention, metadata preparation and common preparation are reported
 separately; every required stage must be included in a comparison. One warmup
 and three rotated samples retain their numerical checks.
+
+The [remainder host audit](../benchmarks/correctness/wave-matrix-remainder-local-20260921.json)
+compares175680 ordered groups against the independent original integer model
+under ASan/UBSan. It preserves47104 existing admissions and adds14336 exact
+remainder admissions, leaving114240 original fallbacks; all raw carries match.
+The original compact-metadata and queue-source test also passes unchanged.
+These generated distributions do not predict model-data admission or speed.
+`tests/native/wave_matrix_remainder_qk_capture.cpp` keeps all four timed
+variants in one executable: retained narrow, old matrix queue, original wave
+owner and exact-remainder wave owner. Forced original-wave replay remains a
+fifth safety variant, giving400 generated cases with the same complete checks.
 
 The [native build record](../benchmarks/correctness/wave-matrix-qk-native-build-20260921.json)
 binds source804ccf4,56 compilation inputs, the original compiler flags and

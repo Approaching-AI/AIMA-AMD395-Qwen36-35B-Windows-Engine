@@ -118,6 +118,14 @@ each original transaction's operator selection. The older double-round RoPE
 control also matches these particular rows. These component results do not
 establish the Windows operands, accumulated state or cause of the divergence.
 
+The [native recurrence replay preparation](../benchmarks/correctness/step124-gdn-native-prepared-20260921.json)
+binds those90 original rows to the existing GPU probe. All eight compilation
+inputs are identical to c268; the actual probe, seven preceding build/control
+records and35 parameter/arithmetic tables verify on baiying. Both scripts
+parse,20 damaged-report controls reject and active-owner admission refuses
+to launch. The planned180 layout comparisons remain unrun. Reference operands
+are inputs only to this isolated component comparison.
+
 The original native q262140/q262142/q262143 retirement cases remain unrun.
 The [current package preparation](../benchmarks/correctness/single-tail-package-prepared-20260921.json)
 now binds the actual c268 whole DLL, CLI and static-C-core server together

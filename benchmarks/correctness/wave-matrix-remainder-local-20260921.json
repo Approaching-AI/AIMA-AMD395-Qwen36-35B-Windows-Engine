@@ -1,0 +1,88 @@
+{
+  "kind": "matrix_remainder_group_completed_host_audit",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "source_parent_commit": "71c3f4d44a13d899a78b16b6873c32a4f3653e40",
+  "source_sha256": {
+    "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+    "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+    "native/providers/moe_accumulator/sm121_compact_integer_dot4.h": "dd88abde3847cc63159fd1884bbaa4e242266ed5cdd6dd6085b44d16fbbdc47e",
+    "native/providers/moe_accumulator/sm121_compact_matrix_group.h": "282151268703522059965ec017e02ed3c4c5705b26eaf3740273efda098c955d",
+    "native/providers/moe_accumulator/sm121_compact_matrix_metadata.h": "8edf086d07924971a1e815d334db809fd834dc8a101453c6d82451601ca95e61",
+    "native/providers/moe_accumulator/sm121_f32_carry.h": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+    "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+    "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+    "native/providers/moe_accumulator/sm121_integer_core.h": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+    "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+    "native/providers/moe_accumulator/sm121_matrix_remainder_group.h": "73b2ccad4a0c86b02ea0d6940b2ef43b6dca15c9e40ae80faeba9b69b3a8dd9a",
+    "native/providers/moe_accumulator/sm121_narrow_f32_carry.h": "85ab733dd564a8dbc5948f5700fcb6c66fbbc5239d0f55e405dbe7e4e210eca9",
+    "native/providers/moe_accumulator/sm121_packed_core_remainder.h": "4cbf70b4b423073560fdb8eec0333a15d463a74b1f09c79e123a6a6fc553d2e5",
+    "native/providers/moe_accumulator/sm121_prepared_integer_pairs.h": "fc611756401aee8f4fcef546747a7510c1b60fa6a930b6aced3d3c1e02effe6c",
+    "native/providers/moe_accumulator/sm121_scalar_integer_core.h": "adf2dd5d24e98632ef0239d3ea40170c683e1d06b5902b5f08e0e578ae010d66",
+    "tests/native/compact_matrix_group_host.cpp": "fe3a1aff6267d6761b2fed2759c0b110ebc146072d825d651152297c22c5aadd",
+    "tests/native/matrix_remainder_group_host.cpp": "e4d9a9eb195fa69217499e558f9d9db711f63bf4d33826ed03e198f0caa5917e",
+    "tests/native/narrow_half_cases.h": "4b430a1abcbd9aa4095888ee66e7490d9290987cea4b628b7e228a499e7ff654",
+    "tests/test_compact_matrix_group.py": "559ac382cc4a673ca68e5ea2ebe58e2e40f7c07904735bae149b4fd8612f64ab"
+  },
+  "command": [
+    "python3.12",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_compact_matrix_group.py",
+    "-v"
+  ],
+  "compiler_flags": [
+    "-std=c++17",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all"
+  ],
+  "returncode": 0,
+  "tests": 2,
+  "unittest_reported_seconds": 2.601,
+  "results": [
+    {
+      "kind": "matrix_remainder_group_host",
+      "ordered_groups": 175680,
+      "original_matrix_admitted": 47104,
+      "additional_remainder_admitted": 14336,
+      "original_narrow_fallback": 114240,
+      "raw_carry_mismatches": 0,
+      "all_original_admissions_preserved": true,
+      "rejected_output_unchanged": true,
+      "widths_through8192": true
+    },
+    {
+      "kind": "compact_matrix_group_host",
+      "row_bytes": 60,
+      "broadcast_metadata_bytes": 32,
+      "all_group_metadata_carries_checked": true,
+      "lossless_words_and_trailing_metadata": 7495680,
+      "ordered_groups": 175680,
+      "matrix_admitted_groups": 47104,
+      "original_narrow_groups": 128576,
+      "register_queue_sources_checked": 1048156,
+      "raw_carry_mismatches": 0,
+      "rejected_output_unchanged": true,
+      "widths_through8192": true
+    }
+  ],
+  "evidence_origin": {
+    "completed_exec_session": 60636,
+    "final_chunk": "5e3890",
+    "captured_result_preserved_without_reexecution": true,
+    "temporary_test_executables_not_retained": true
+  },
+  "gpu_compiled": false,
+  "gpu_executed": false,
+  "runtime_dispatch_changed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}
