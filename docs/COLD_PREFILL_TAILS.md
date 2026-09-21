@@ -129,6 +129,16 @@ completed861 diagnostic whose263168 convolution surfaces separately match;
 its later token failure remains recorded. This checks supplied original
 operands on the controller, not later actual Windows state or GPU execution.
 
+`tools/q1_convolution_hip_probe.cpp` prepares the corresponding actual HIP
+comparison. Both ring storage types check full outputs and widened carriers,
+active history, stored current values, unowned slots and redzones. Expected
+output/history remain on the host. The [observer validation](../benchmarks/correctness/step124-convolution-probe-local-20260921.json)
+uses a controller execution mock under ASan/UBSan: one original input passes
+and eight injected faults reject. An initial observer missed input changes
+that were restored by the next invocation; the probe now verifies immutable
+inputs after every invocation. Both old negative controls remain recorded.
+The mock is excluded from native compilation. GPU execution remains pending.
+
 The [native recurrence replay preparation](../benchmarks/correctness/step124-gdn-native-prepared-20260921.json)
 binds those90 original rows to the existing GPU probe. All eight compilation
 inputs are identical to c268; the actual probe, seven preceding build/control

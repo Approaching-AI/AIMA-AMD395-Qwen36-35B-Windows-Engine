@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "kind": "step124_convolution_gpu_probe_host_observer_validation",
+  "proof": {
+    "kind": "q1_convolution_probe_observer_host_mock",
+    "host": "Jiawei-MacminideMac-mini.local",
+    "source_parent_commit": "3d162d9bc59cd9e3a37ba6fadaa7385438e5c596",
+    "source_inputs": {
+      "native/providers/gdn/sm121_attention_rcp.h": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6",
+      "native/providers/gdn/sm121_exp2_table.h": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+      "native/providers/gdn/sm121_q1_gdn.h": "a85bcd2eae346a31ccb4075e4bb5897d0d238513344322bb4d12059d9734287e",
+      "native/providers/gdn/sm121_q1_math.h": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+      "native/providers/gdn/sm121_rsqrt_table.h": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+      "native/providers/gdn/sm121_silu_table.h": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+      "native/providers/gdn/sm121_sqrt_table.h": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1",
+      "tools/q1_convolution_hip_probe.cpp": "e215e49fa5be6e52965258a9333d82cbf562ca9109e2a216a03d66300aaaf697"
+    },
+    "mock_sha256": "5db46dfee40236c2c0348cc4d1afb154d297ce89d9e04163f15b8756949e0a0d",
+    "compiler_command": [
+      "c++",
+      "-std=c++17",
+      "-O2",
+      "-ffp-contract=off",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-I",
+      "<controller-evidence>/convolution-probe-host-r2/include",
+      "<runtime-checkout>/tools/q1_convolution_hip_probe.cpp",
+      "-o",
+      "<controller-evidence>/convolution-probe-host-r2/probe-host-mock"
+    ],
+    "executable_sha256": "0c7bbfe22ee0cd0c8c3cc7a341b3b3589f0843286794aef61c9ae7a7f109634b",
+    "observer_sha256": "c89c854539c06976ddf5a437aeffe1941faccaa82b4ae2360d1f4e54a8c182f5",
+    "original_reference_arithmetic_proof_sha256": "bd1a8c4c74087be1fa0f94ce0389dc72de678bce6ab3c8c1f52636d52ed27d5c",
+    "selected": {
+      "position": 263291,
+      "layer": 0
+    },
+    "prior_negative_controls_sha256": "1faa44413820e93c9a6e4ed19a6258e135de8488510628bbf34ea84767d4a129",
+    "positive_cases": 1,
+    "rejected_faults": 8,
+    "results": [
+      {
+        "fault": "none",
+        "command": [
+          "<controller-evidence>/convolution-probe-host-r2/probe-host-mock",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-qkv-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-before-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-after-bf16.bin",
+          "<controller-evidence>/retired-reference-mode-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1/observations/linear.txn1.pos263168.layer0.conv_weights_bf16.bin",
+          "<controller-evidence>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-decode-output-bf16.bin",
+          "263291"
+        ],
+        "returncode": 0,
+        "stdout": "{\"kind\":\"original_q1_convolution_native_replay\",\"ring_storage\":\"bf16\",\"position\":263291,\"output_cells\":8192,\"active_history_cells\":24576,\"output_bf16_mismatches\":0,\"output_f32_carrier_bit_mismatches\":0,\"active_history_bf16_mismatches\":0,\"stored_current_mismatches\":0,\"unowned_ring_mismatches\":0,\"guard_mismatches\":0,\"reference_padding_unchanged\":true,\"current_input_immutable\":true,\"out_of_range_block_checked\":true,\"passed\":true,\"inference_acceptance\":false}\n{\"kind\":\"original_q1_convolution_native_replay\",\"ring_storage\":\"f32\",\"position\":263291,\"output_cells\":8192,\"active_history_cells\":24576,\"output_bf16_mismatches\":0,\"output_f32_carrier_bit_mismatches\":0,\"active_history_bf16_mismatches\":0,\"stored_current_mismatches\":0,\"unowned_ring_mismatches\":0,\"guard_mismatches\":0,\"reference_padding_unchanged\":true,\"current_input_immutable\":true,\"out_of_range_block_checked\":true,\"passed\":true,\"inference_acceptance\":false}\n{\"kind\":\"original_q1_convolution_native_inputs\",\"immutable_inputs\":true,\"reference_output_is_compute_input\":false,\"inference_acceptance\":false}\n",
+        "stderr": "",
+        "required_outcome": "original reference matches",
+        "passed": true
+      },
+      {
+        "fault": "carrier",
+        "command": [
+          "<controller-evidence>/convolution-probe-host-r2/probe-host-mock",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-qkv-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-before-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-after-bf16.bin",
+          "<controller-evidence>/retired-reference-mode-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1/observations/linear.txn1.pos263168.layer0.conv_weights_bf16.bin",
+          "<controller-evidence>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-decode-output-bf16.bin",
+          "263291"
+        ],
+        "returncode": 1,
+        "stdout": "{\"kind\":\"original_q1_convolution_native_replay\",\"ring_storage\":\"bf16\",\"position\":263291,\"output_cells\":8192,\"active_history_cells\":24576,\"output_bf16_mismatches\":0,\"output_f32_carrier_bit_mismatches\":1,\"active_history_bf16_mismatches\":0,\"stored_current_mismatches\":0,\"unowned_ring_mismatches\":0,\"guard_mismatches\":0,\"reference_padding_unchanged\":true,\"current_input_immutable\":true,\"out_of_range_block_checked\":true,\"passed\":false,\"inference_acceptance\":false}\n{\"kind\":\"original_q1_convolution_native_replay\",\"ring_storage\":\"f32\",\"position\":263291,\"output_cells\":8192,\"active_history_cells\":24576,\"output_bf16_mismatches\":0,\"output_f32_carrier_bit_mismatches\":1,\"active_history_bf16_mismatches\":0,\"stored_current_mismatches\":0,\"unowned_ring_mismatches\":0,\"guard_mismatches\":0,\"reference_padding_unchanged\":true,\"current_input_immutable\":true,\"out_of_range_block_checked\":true,\"passed\":false,\"inference_acceptance\":false}\n{\"kind\":\"original_q1_convolution_native_inputs\",\"immutable_inputs\":true,\"reference_output_is_compute_input\":false,\"inference_acceptance\":false}\n",
+        "stderr": "",
+        "required_outcome": "fault rejected",
+        "passed": true
+      },
+      {
+        "fault": "ring_guard",
+        "command": [
+          "<controller-evidence>/convolution-probe-host-r2/probe-host-mock",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-qkv-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-before-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-after-bf16.bin",
+          "<controller-evidence>/retired-reference-mode-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1/observations/linear.txn1.pos263168.layer0.conv_weights_bf16.bin",
+          "<controller-evidence>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-decode-output-bf16.bin",
+          "263291"
+        ],
+        "returncode": 1,
+        "stdout": "{\"kind\":\"original_q1_convolution_native_replay\",\"ring_storage\":\"bf16\",\"position\":263291,\"output_cells\":8192,\"active_history_cells\":24576,\"output_bf16_mismatches\":0,\"output_f32_carrier_bit_mismatches\":0,\"active_history_bf16_mismatches\":0,\"stored_current_mismatches\":0,\"unowned_ring_mismatches\":0,\"guard_mismatches\":1,\"reference_padding_unchanged\":true,\"current_input_immutable\":true,\"out_of_range_block_checked\":true,\"passed\":false,\"inference_acceptance\":false}\n{\"kind\":\"original_q1_convolution_native_replay\",\"ring_storage\":\"f32\",\"position\":263291,\"output_cells\":8192,\"active_history_cells\":24576,\"output_bf16_mismatches\":0,\"output_f32_carrier_bit_mismatches\":0,\"active_history_bf16_mismatches\":0,\"stored_current_mismatches\":0,\"unowned_ring_mismatches\":0,\"guard_mismatches\":1,\"reference_padding_unchanged\":true,\"current_input_immutable\":true,\"out_of_range_block_checked\":true,\"passed\":false,\"inference_acceptance\":false}\n{\"kind\":\"original_q1_convolution_native_inputs\",\"immutable_inputs\":true,\"reference_output_is_compute_input\":false,\"inference_acceptance\":false}\n",
+        "stderr": "",
+        "required_outcome": "fault rejected",
+        "passed": true
+      },
+      {
+        "fault": "output_guard",
+        "command": [
+          "<controller-evidence>/convolution-probe-host-r2/probe-host-mock",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-qkv-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-before-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-after-bf16.bin",
+          "<controller-evidence>/retired-reference-mode-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1/observations/linear.txn1.pos263168.layer0.conv_weights_bf16.bin",
+          "<controller-evidence>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-decode-output-bf16.bin",
+          "263291"
+        ],
+        "returncode": 1,
+        "stdout": "{\"kind\":\"original_q1_convolution_native_replay\",\"ring_storage\":\"bf16\",\"position\":263291,\"output_cells\":8192,\"active_history_cells\":24576,\"output_bf16_mismatches\":0,\"output_f32_carrier_bit_mismatches\":0,\"active_history_bf16_mismatches\":0,\"stored_current_mismatches\":0,\"unowned_ring_mismatches\":0,\"guard_mismatches\":1,\"reference_padding_unchanged\":true,\"current_input_immutable\":true,\"out_of_range_block_checked\":true,\"passed\":false,\"inference_acceptance\":false}\n{\"kind\":\"original_q1_convolution_native_replay\",\"ring_storage\":\"f32\",\"position\":263291,\"output_cells\":8192,\"active_history_cells\":24576,\"output_bf16_mismatches\":0,\"output_f32_carrier_bit_mismatches\":0,\"active_history_bf16_mismatches\":0,\"stored_current_mismatches\":0,\"unowned_ring_mismatches\":0,\"guard_mismatches\":1,\"reference_padding_unchanged\":true,\"current_input_immutable\":true,\"out_of_range_block_checked\":true,\"passed\":false,\"inference_acceptance\":false}\n{\"kind\":\"original_q1_convolution_native_inputs\",\"immutable_inputs\":true,\"reference_output_is_compute_input\":false,\"inference_acceptance\":false}\n",
+        "stderr": "",
+        "required_outcome": "fault rejected",
+        "passed": true
+      },
+      {
+        "fault": "stored_current",
+        "command": [
+          "<controller-evidence>/convolution-probe-host-r2/probe-host-mock",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-qkv-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-before-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-after-bf16.bin",
+          "<controller-evidence>/retired-reference-mode-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1/observations/linear.txn1.pos263168.layer0.conv_weights_bf16.bin",
+          "<controller-evidence>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-decode-output-bf16.bin",
+          "263291"
+        ],
+        "returncode": 1,
+        "stdout": "{\"kind\":\"original_q1_convolution_native_replay\",\"ring_storage\":\"bf16\",\"position\":263291,\"output_cells\":8192,\"active_history_cells\":24576,\"output_bf16_mismatches\":0,\"output_f32_carrier_bit_mismatches\":0,\"active_history_bf16_mismatches\":1,\"stored_current_mismatches\":1,\"unowned_ring_mismatches\":0,\"guard_mismatches\":0,\"reference_padding_unchanged\":true,\"current_input_immutable\":true,\"out_of_range_block_checked\":true,\"passed\":false,\"inference_acceptance\":false}\n{\"kind\":\"original_q1_convolution_native_replay\",\"ring_storage\":\"f32\",\"position\":263291,\"output_cells\":8192,\"active_history_cells\":24576,\"output_bf16_mismatches\":0,\"output_f32_carrier_bit_mismatches\":0,\"active_history_bf16_mismatches\":1,\"stored_current_mismatches\":1,\"unowned_ring_mismatches\":0,\"guard_mismatches\":0,\"reference_padding_unchanged\":true,\"current_input_immutable\":true,\"out_of_range_block_checked\":true,\"passed\":false,\"inference_acceptance\":false}\n{\"kind\":\"original_q1_convolution_native_inputs\",\"immutable_inputs\":true,\"reference_output_is_compute_input\":false,\"inference_acceptance\":false}\n",
+        "stderr": "",
+        "required_outcome": "fault rejected",
+        "passed": true
+      },
+      {
+        "fault": "unowned_ring",
+        "command": [
+          "<controller-evidence>/convolution-probe-host-r2/probe-host-mock",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-qkv-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-before-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-after-bf16.bin",
+          "<controller-evidence>/retired-reference-mode-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1/observations/linear.txn1.pos263168.layer0.conv_weights_bf16.bin",
+          "<controller-evidence>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-decode-output-bf16.bin",
+          "263291"
+        ],
+        "returncode": 1,
+        "stdout": "{\"kind\":\"original_q1_convolution_native_replay\",\"ring_storage\":\"bf16\",\"position\":263291,\"output_cells\":8192,\"active_history_cells\":24576,\"output_bf16_mismatches\":0,\"output_f32_carrier_bit_mismatches\":0,\"active_history_bf16_mismatches\":0,\"stored_current_mismatches\":0,\"unowned_ring_mismatches\":1,\"guard_mismatches\":0,\"reference_padding_unchanged\":true,\"current_input_immutable\":true,\"out_of_range_block_checked\":true,\"passed\":false,\"inference_acceptance\":false}\n{\"kind\":\"original_q1_convolution_native_replay\",\"ring_storage\":\"f32\",\"position\":263291,\"output_cells\":8192,\"active_history_cells\":24576,\"output_bf16_mismatches\":0,\"output_f32_carrier_bit_mismatches\":0,\"active_history_bf16_mismatches\":0,\"stored_current_mismatches\":0,\"unowned_ring_mismatches\":1,\"guard_mismatches\":0,\"reference_padding_unchanged\":true,\"current_input_immutable\":true,\"out_of_range_block_checked\":true,\"passed\":false,\"inference_acceptance\":false}\n{\"kind\":\"original_q1_convolution_native_inputs\",\"immutable_inputs\":true,\"reference_output_is_compute_input\":false,\"inference_acceptance\":false}\n",
+        "stderr": "",
+        "required_outcome": "fault rejected",
+        "passed": true
+      },
+      {
+        "fault": "input_current",
+        "command": [
+          "<controller-evidence>/convolution-probe-host-r2/probe-host-mock",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-qkv-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-before-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-after-bf16.bin",
+          "<controller-evidence>/retired-reference-mode-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1/observations/linear.txn1.pos263168.layer0.conv_weights_bf16.bin",
+          "<controller-evidence>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-decode-output-bf16.bin",
+          "263291"
+        ],
+        "returncode": 2,
+        "stdout": "",
+        "stderr": "immutable input changed\n",
+        "required_outcome": "fault rejected",
+        "passed": true
+      },
+      {
+        "fault": "input_weight",
+        "command": [
+          "<controller-evidence>/convolution-probe-host-r2/probe-host-mock",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-qkv-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-before-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-after-bf16.bin",
+          "<controller-evidence>/retired-reference-mode-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1/observations/linear.txn1.pos263168.layer0.conv_weights_bf16.bin",
+          "<controller-evidence>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-decode-output-bf16.bin",
+          "263291"
+        ],
+        "returncode": 2,
+        "stdout": "{\"kind\":\"original_q1_convolution_native_replay\",\"ring_storage\":\"bf16\",\"position\":263291,\"output_cells\":8192,\"active_history_cells\":24576,\"output_bf16_mismatches\":0,\"output_f32_carrier_bit_mismatches\":0,\"active_history_bf16_mismatches\":0,\"stored_current_mismatches\":0,\"unowned_ring_mismatches\":0,\"guard_mismatches\":0,\"reference_padding_unchanged\":true,\"current_input_immutable\":true,\"out_of_range_block_checked\":true,\"passed\":true,\"inference_acceptance\":false}\n",
+        "stderr": "immutable input changed\n",
+        "required_outcome": "fault rejected",
+        "passed": true
+      },
+      {
+        "fault": "input_table",
+        "command": [
+          "<controller-evidence>/convolution-probe-host-r2/probe-host-mock",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-qkv-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-before-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-after-bf16.bin",
+          "<controller-evidence>/retired-reference-mode-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1/observations/linear.txn1.pos263168.layer0.conv_weights_bf16.bin",
+          "<controller-evidence>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-decode-output-bf16.bin",
+          "263291"
+        ],
+        "returncode": 2,
+        "stdout": "{\"kind\":\"original_q1_convolution_native_replay\",\"ring_storage\":\"bf16\",\"position\":263291,\"output_cells\":8192,\"active_history_cells\":24576,\"output_bf16_mismatches\":0,\"output_f32_carrier_bit_mismatches\":0,\"active_history_bf16_mismatches\":0,\"stored_current_mismatches\":0,\"unowned_ring_mismatches\":0,\"guard_mismatches\":0,\"reference_padding_unchanged\":true,\"current_input_immutable\":true,\"out_of_range_block_checked\":true,\"passed\":true,\"inference_acceptance\":false}\n",
+        "stderr": "immutable input changed\n",
+        "required_outcome": "fault rejected",
+        "passed": true
+      }
+    ],
+    "host_execution_mock_only": true,
+    "native_hip_compiled": false,
+    "gpu_executed": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false
+  },
+  "proof_sha256": "a6707ac8c3041dc22c828022c856417e65b0e3c04c82d4617a70fa8380dd9c5a",
+  "preserved_old_negative_controls": {
+    "kind": "convolution_probe_old_observer_transient_mutation_negative_controls",
+    "source_sha256": "7cc2f02199475fc95c89b76e872f3b895646610ca8a0f8d78fa60e31357e48ec",
+    "executable_sha256": "26d719b9d9694995a0201fb6628d11f84a22f85d82141327a0fc16e7ccfa92c8",
+    "mock_sha256": "5db46dfee40236c2c0348cc4d1afb154d297ce89d9e04163f15b8756949e0a0d",
+    "results": [
+      {
+        "fault": "input_weight",
+        "command": [
+          "<controller-evidence>/convolution-probe-host-r1/probe-host-mock",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-qkv-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-before-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-after-bf16.bin",
+          "<controller-evidence>/retired-reference-mode-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1/observations/linear.txn1.pos263168.layer0.conv_weights_bf16.bin",
+          "<controller-evidence>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-decode-output-bf16.bin",
+          "263291"
+        ],
+        "returncode": 0,
+        "stdout": "{\"kind\":\"original_q1_convolution_native_replay\",\"ring_storage\":\"bf16\",\"position\":263291,\"output_cells\":8192,\"active_history_cells\":24576,\"output_bf16_mismatches\":0,\"output_f32_carrier_bit_mismatches\":0,\"active_history_bf16_mismatches\":0,\"stored_current_mismatches\":0,\"unowned_ring_mismatches\":0,\"guard_mismatches\":0,\"reference_padding_unchanged\":true,\"current_input_immutable\":true,\"out_of_range_block_checked\":true,\"passed\":true,\"inference_acceptance\":false}\n{\"kind\":\"original_q1_convolution_native_replay\",\"ring_storage\":\"f32\",\"position\":263291,\"output_cells\":8192,\"active_history_cells\":24576,\"output_bf16_mismatches\":0,\"output_f32_carrier_bit_mismatches\":0,\"active_history_bf16_mismatches\":0,\"stored_current_mismatches\":0,\"unowned_ring_mismatches\":0,\"guard_mismatches\":0,\"reference_padding_unchanged\":true,\"current_input_immutable\":true,\"out_of_range_block_checked\":true,\"passed\":true,\"inference_acceptance\":false}\n{\"kind\":\"original_q1_convolution_native_inputs\",\"immutable_inputs\":true,\"reference_output_is_compute_input\":false,\"inference_acceptance\":false}\n",
+        "stderr": "",
+        "incorrectly_accepted_transient_mutation": true
+      },
+      {
+        "fault": "input_table",
+        "command": [
+          "<controller-evidence>/convolution-probe-host-r1/probe-host-mock",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-qkv-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-before-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-history-after-bf16.bin",
+          "<controller-evidence>/retired-reference-mode-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1/observations/linear.txn1.pos263168.layer0.conv_weights_bf16.bin",
+          "<controller-evidence>/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin",
+          "<controller-evidence>/qrt-gb10-prefix256-step124-20260921-r2/capture/long-prefix262144-suffix1024-out512/txn0156-linear-00-conv-decode-output-bf16.bin",
+          "263291"
+        ],
+        "returncode": 0,
+        "stdout": "{\"kind\":\"original_q1_convolution_native_replay\",\"ring_storage\":\"bf16\",\"position\":263291,\"output_cells\":8192,\"active_history_cells\":24576,\"output_bf16_mismatches\":0,\"output_f32_carrier_bit_mismatches\":0,\"active_history_bf16_mismatches\":0,\"stored_current_mismatches\":0,\"unowned_ring_mismatches\":0,\"guard_mismatches\":0,\"reference_padding_unchanged\":true,\"current_input_immutable\":true,\"out_of_range_block_checked\":true,\"passed\":true,\"inference_acceptance\":false}\n{\"kind\":\"original_q1_convolution_native_replay\",\"ring_storage\":\"f32\",\"position\":263291,\"output_cells\":8192,\"active_history_cells\":24576,\"output_bf16_mismatches\":0,\"output_f32_carrier_bit_mismatches\":0,\"active_history_bf16_mismatches\":0,\"stored_current_mismatches\":0,\"unowned_ring_mismatches\":0,\"guard_mismatches\":0,\"reference_padding_unchanged\":true,\"current_input_immutable\":true,\"out_of_range_block_checked\":true,\"passed\":true,\"inference_acceptance\":false}\n{\"kind\":\"original_q1_convolution_native_inputs\",\"immutable_inputs\":true,\"reference_output_is_compute_input\":false,\"inference_acceptance\":false}\n",
+        "stderr": "",
+        "incorrectly_accepted_transient_mutation": true
+      }
+    ],
+    "host_mock_only": true,
+    "gpu_executed": false,
+    "observer_qualified": false,
+    "inference_acceptance": false
+  },
+  "old_negative_controls_sha256": "1faa44413820e93c9a6e4ed19a6258e135de8488510628bbf34ea84767d4a129",
+  "original_arithmetic_evidence": {
+    "file": "benchmarks/correctness/prefix256-step124-convolution-host-20260921.json",
+    "sha256": "0957740b92a8dfb66d1de9ebc15262bd5049a578c93b401e818fce6a03338c92"
+  },
+  "helper_sources": {
+    "convolution_probe_hip_mock_r1.h": {
+      "sha256": "5db46dfee40236c2c0348cc4d1afb154d297ce89d9e04163f15b8756949e0a0d",
+      "text": "#pragma once\n// Controller-only probe-observer validation. Never compiled into native HIP.\n#include <cstdlib>\n#include <cstring>\n#include <cstdint>\n#include <string>\n#include <type_traits>\n#define __device__\n#define __global__\n#define __shared__ static\ninline void __syncthreads() {}\nstruct dim3 { unsigned x,y,z; dim3(unsigned a=1,unsigned b=1,unsigned c=1):x(a),y(b),z(c){} };\ninline dim3 blockIdx,blockDim,threadIdx;\nusing hipError_t=int;using hipEvent_t=int*;\nconstexpr int hipSuccess=0,hipErrorNotReady=1,hipMemcpyHostToDevice=2,hipMemcpyDeviceToHost=3,hipEventDisableTiming=4;\nstruct hipDeviceProp_t { char gcnArchName[64]; };\ninline const char* hipGetErrorString(int) { return \"controller HIP mock error\"; }\ninline int hipMalloc(void** p,size_t n) { *p=std::malloc(n);return *p?0:2; }\ninline int hipFree(void* p) { std::free(p);return 0; }\ninline int hipMemcpy(void* to,const void* from,size_t n,int) { std::memcpy(to,from,n);return 0; }\ninline int hipGetDeviceProperties(hipDeviceProp_t* p,int) { std::strcpy(p->gcnArchName,\"gfx1151-controller-mock\");return 0; }\ninline int hipGetLastError() { return 0; }\ninline int hipEventCreateWithFlags(hipEvent_t* e,unsigned) { *e=new int(0);return 0; }\ninline int hipEventRecord(hipEvent_t,void*) { return 0; }\ninline int hipEventQuery(hipEvent_t) { return 0; }\ninline int hipEventDestroy(hipEvent_t e) { delete e;return 0; }\ntemplate<class T> void qrt_mock_fault(const float* current,T* ring,const uint16_t* weights,\n    float* output,size_t position,const unsigned char* silu) {\n    const char* value=std::getenv(\"QRT_CONVOLUTION_TEST_FAULT\");const std::string fault=value?value:\"\";\n    if(fault==\"carrier\") { uint32_t bits;std::memcpy(&bits,output,4);bits^=1u;std::memcpy(output,&bits,4); }\n    if(fault==\"ring_guard\") ring[-1]=T(0);\n    if(fault==\"output_guard\") output[-1]=0.0f;\n    if(fault==\"stored_current\") ring[(position%4u)*8192u]=T(0);\n    if(fault==\"unowned_ring\") ring[((position+1u)%4u)*8192u]=T(0);\n    if(fault==\"input_current\") const_cast<float*>(current)[0]+=1.0f;\n    if(fault==\"input_weight\") const_cast<uint16_t*>(weights)[0]^=1u;\n    if(fault==\"input_table\") const_cast<unsigned char*>(silu)[0]^=1u;\n}\n#define hipLaunchKernelGGL(kernel,grid,block,shared,stream,...) do { \\\n    const dim3 qrt_mock_grid=(grid);blockDim=(block); \\\n    for(blockIdx.x=0;blockIdx.x<qrt_mock_grid.x;++blockIdx.x) \\\n        for(threadIdx.x=0;threadIdx.x<blockDim.x;++threadIdx.x) kernel(__VA_ARGS__); \\\n    qrt_mock_fault(__VA_ARGS__); \\\n} while(false)\n"
+    },
+    "check_convolution_probe_host_r2.py": {
+      "sha256": "c89c854539c06976ddf5a437aeffe1941faccaa82b4ae2360d1f4e54a8c182f5",
+      "text": "from pathlib import Path\nimport hashlib,json,os,re,shutil,socket,subprocess\n\nB=Path(__file__).resolve().parent;P=Path('<runtime-checkout>')\nread=lambda p:json.loads(p.read_text(encoding='utf-8-sig'))\nsha=lambda p:hashlib.file_digest(p.open('rb'),'sha256').hexdigest()\nproof_path=B/'step124-convolution-host-r1/comparison.json';proof=read(proof_path)\nassert proof['summary']['output_bf16_mismatches']==proof['summary']['active_history_bf16_mismatches']==0\nrow=next(r for r in proof['results'] if r['position']==263291 and r['layer']==0)\n# The previously verified command names immutable original operands.\nold=row['command_receipt']['command'];args=old[1:8]\nfor item in proof['verified_current_header_inputs']:assert sha(P/item['file'])==item['sha256']\nfor label,path in zip(('qkv','before','after','weights','silu','expected'),args[:6]):assert Path(path).is_file(),label\nD=B/'convolution-probe-host-r2';D.mkdir();include=D/'include/hip';include.mkdir(parents=True)\nmock=B/'convolution_probe_hip_mock_r1.h';shutil.copyfile(mock,include/'hip_runtime.h')\nsource=P/'tools/q1_convolution_hip_probe.cpp';exe=D/'probe-host-mock'\ncommand=['c++','-std=c++17','-O2','-ffp-contract=off','-Wall','-Wextra','-Werror','-fsanitize=address,undefined',\n    '-fno-sanitize-recover=all','-I',str(D/'include'),str(source),'-o',str(exe)]\ncompiled=subprocess.run(command,capture_output=True,text=True,timeout=45)\nwith (D/'compile.json').open('x') as f:json.dump(dict(command=command,returncode=compiled.returncode,stdout=compiled.stdout,stderr=compiled.stderr),f,indent=2);f.write('\\n')\ncompiled.check_returncode()\nresults=[]\nfor fault in ('none','carrier','ring_guard','output_guard','stored_current','unowned_ring','input_current','input_weight','input_table'):\n    env=dict(os.environ);env['QRT_CONVOLUTION_TEST_FAULT']='' if fault=='none' else fault\n    cmd=[str(exe),*args];p=subprocess.run(cmd,capture_output=True,text=True,env=env,timeout=20)\n    rows=[json.loads(line) for line in p.stdout.splitlines() if line.startswith('{')]\n    with (D/(fault+'.json')).open('x') as f:json.dump(dict(command=cmd,returncode=p.returncode,stdout=p.stdout,stderr=p.stderr),f,indent=2);f.write('\\n')\n    accepted=fault=='none' and p.returncode==0 and len(rows)==3 and all(x.get('passed',True) for x in rows)\n    if fault=='none':assert accepted\n    else:assert p.returncode in (1,2), (fault,p.stdout,p.stderr)\n    if fault=='carrier':assert all(x['output_bf16_mismatches']==0 and x['output_f32_carrier_bit_mismatches']==1 for x in rows[:2])\n    if fault in ('ring_guard','output_guard'):assert all(x['guard_mismatches']==1 for x in rows[:2])\n    if fault=='stored_current':assert all(x['stored_current_mismatches']==1 for x in rows[:2])\n    if fault=='unowned_ring':assert all(x['unowned_ring_mismatches']==1 for x in rows[:2])\n    if fault.startswith('input_'):assert 'immutable input changed' in p.stderr\n    results.append(dict(fault=fault,command=cmd,returncode=p.returncode,stdout=p.stdout,stderr=p.stderr,\n        required_outcome='original reference matches' if fault=='none' else 'fault rejected',passed=True))\n    print(json.dumps(dict(fault=fault,returncode=p.returncode,observer_check_passed=True)),flush=True)\ntodo=[source];seen=set()\nwhile todo:\n    p=todo.pop().resolve()\n    if p in seen:continue\n    seen.add(p)\n    for inc in re.findall(r'^\\s*#include \"([^\"\\n]+)\"',p.read_text(),re.M):todo.append((p.parent/inc).resolve())\nrecord=dict(kind='q1_convolution_probe_observer_host_mock',host=socket.gethostname(),\n    source_parent_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=P,text=True,timeout=10).strip(),\n    source_inputs={str(p.relative_to(P)):sha(p) for p in sorted(seen)},\n    mock_sha256=sha(mock),compiler_command=command,executable_sha256=sha(exe),observer_sha256=sha(Path(__file__)),\n    original_reference_arithmetic_proof_sha256=sha(proof_path),selected=dict(position=263291,layer=0),\n    prior_negative_controls_sha256=sha(B/'convolution-probe-host-r1/old-observer-negative-controls.json'),positive_cases=1,rejected_faults=8,results=results,\n    host_execution_mock_only=True,native_hip_compiled=False,gpu_executed=False,\n    inference_acceptance=False,performance_acceptance=False,release_qualified=False)\nout=D/'comparison.json'\nwith out.open('x') as f:json.dump(record,f,indent=2,allow_nan=False);f.write('\\n')\nprint(json.dumps(dict(file=str(out.relative_to(B)),sha256=sha(out),inputs=len(seen))),flush=True)\n"
+    }
+  },
+  "decision": "The new actual-HIP convolution probe checks both ring storage types, complete widened output and active history, stored current values, unowned slots, redzones and immutable inputs. An ASan/UBSan controller HIP execution mock reproduces one qualified original input and rejects eight faults. The initial observer missed two transient input changes across layouts; each invocation now verifies inputs before the next. These are observer checks only. Native compilation and GPU execution remain pending; no mock is included in the native probe.",
+  "host_execution_mock_only": true,
+  "native_hip_compiled": false,
+  "gpu_executed": false,
+  "model_loaded": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "published": false,
+  "private_original_record_sha256": "81d90eb52ca3dcd9247741b7cc5bf4203c7de757bc88b62726e406bc6d1323c6"
+}
