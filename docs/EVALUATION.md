@@ -26,6 +26,25 @@ this commit. Complete256k is now running with this binary; native retirement
 itself remains unqualified. This single control does not replace retained
 performance medians or qualify a release.
 
+The [prepared native retirement matrix](../benchmarks/correctness/native-mtp-retirement-prepared-20260921.json)
+uses existing original GB10 q262140/q262142/q262143 prompts, each with16
+outputs. Same-source native q7169/out32 and q8192/out512 controls precede the
+long cases. Its observer passes two prior real logs, six synthetic crossings
+and72 deliberately broken records. Native and ordinary rows are joined by
+actual position and tokens; available logits require matching computation
+layout, without requiring identical draft acceptance counts. These cases
+are unrun and establish no new native retirement qualification.
+
+Sourcea31b364 adds an isolated [separate GDN state/replay experiment](SEPARATE_STATE_REPLAY.md).
+The [host and original-operand evidence](../benchmarks/correctness/separate-state-gdn-local-20260921.json)
+checks18 fast and10 replayed CTAs, including6 partial-output replays, with
+independent integer endpoints and ASan/UBSan. Two broken ownership variants
+are rejected. The W/K/H audit alone excludes31.4% of full-segment CTAs in the
+captured first layer; residual admission and native performance are unmeasured.
+The prepared425-input native fixture compares the complete retained chain
+with separate fast and replay kernels. Runtime dispatch, retained timings
+and every product acceptance threshold remain unchanged.
+
 The preceding [whole-provider build and q8192 regression](../benchmarks/correctness/residual-norm-mode-q8192-20260921.json)
 pass on baiying at source6a5da30. All512 output IDs and callbacks match GB10,
 first144/logit10.375/error0. Load21692.5148ms passes; TTFT23241.443799ms and

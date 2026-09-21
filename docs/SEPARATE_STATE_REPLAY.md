@@ -50,3 +50,7 @@ changes.
 
 Run the local ownership test with
 `python3.12 -m unittest tests.test_fla_separate_state`.
+
+[Source hashes, host commands, negative controls, original operand audit and
+the unrun native plan](../benchmarks/correctness/separate-state-gdn-local-20260921.json)
+are recorded separately from any native inference or performance acceptance.
