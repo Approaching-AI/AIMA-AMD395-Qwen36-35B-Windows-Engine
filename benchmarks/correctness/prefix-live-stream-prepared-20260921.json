@@ -1,0 +1,142 @@
+{
+  "kind": "prefix_stream_native_build_and_product_preparation",
+  "utc": "2026-09-21T02:09:52.766427+00:00",
+  "controller_host": "Jiawei-MacminideMac-mini.local",
+  "source_commit": "ec72eded228ff6faa9cdfebd8575a6feddc7dac3",
+  "model": "D:/models/Qwen3.6-35B-A3B",
+  "acceptance_host": "baiying",
+  "whole_build": {
+    "manifest": "prefix-live-stream-whole-source-r1.json",
+    "sha256": "b9d394c1137bce03355f453371dd748fd2341504ca9043d4b023f13290a1e0cd",
+    "script": "run-native-prefix-live-stream-r1.ps1",
+    "script_sha256": "81f233556c134e1598228bf7839cbb92011bfa925c245916f585bcb39653930a",
+    "compilation_inputs": 164,
+    "probe_compilation_inputs": 10,
+    "all_source_inputs": 170,
+    "whole_compile_timeout_seconds": 240,
+    "probe_compile_timeout_seconds": 180,
+    "native_timeout_seconds": 480,
+    "whole_kernel_compiler_flags_unchanged": true,
+    "default_native_mtp_decode": false
+  },
+  "product": {
+    "manifest": "prefix-live-stream-product-source-r1.json",
+    "sha256": "5c1fb8e907b375985dcadcf4ee3b2894af6a5e52f28b5ccabeb04534a6f170f3",
+    "script": "run-prefix-live-stream-product-r1.ps1",
+    "script_sha256": "3cbce30ec416cd30062ca7bec8beb5746220ac11ddb8996dc5ee1388cf7d8b89",
+    "profile_sha256": "f97e2c4ba7c4a7b27a1d3eb5c8f651a9edf6feaa5680e06bbf04c145a2c372d3",
+    "control_run_sha256": "7d1a550f2a6e7754dc68410e9ab9e32d0640f50093d0fceb3907dbbe7d6850b2",
+    "profile_overrides": {
+      "QRT_QWEN36_CHUNKED_PREFILL": "1",
+      "QRT_QWEN36_MTP_NATIVE_DECODE": "0"
+    },
+    "actual_prompt_tokens": 17408,
+    "prefix_tokens": 16384,
+    "suffix_tokens": 1024,
+    "output_tokens": 512,
+    "owner_continuation_tokens": 32,
+    "expected_public_prefix_calls": 10,
+    "expected_callback_observations": 1247,
+    "cancel_output_indices": [
+      0,
+      1,
+      64,
+      511
+    ],
+    "original_owner_continuations": 5,
+    "owner_continuations_after_cancel": 4,
+    "native_timeout_seconds": 1200,
+    "reference_oracle_sha256": "f3157aaa64ff6ba141366cd490be3a569e4e532d0f26103f65d6f79bb1a779a5",
+    "first_logit_tolerance": 0.125,
+    "original_expected_tokens_comparison_only": true,
+    "reference_activations_used": false,
+    "actual_clock_check": "Per decode span, callback delivery covers at least90% of producer elapsed time, allowing5ms clock/scheduling skew.",
+    "cancellation_logit_comparability": "Original prompt, model, source and restored owner match both complete512-token golden comparisons in the same process; canceled-call logits are not separately observed.",
+    "complete_512_token_suffix_comparisons": 2,
+    "qualified_auxiliary_dependency_files": 43,
+    "portable_artifact_inventory": 268,
+    "diagnostic_timing_only": true
+  },
+  "dispatch_admission_and_windows_parser": {
+    "kind": "prefix_stream_prepared_dispatch_admission_and_windows_parser",
+    "controller_host": "Jiawei-MacminideMac-mini.local",
+    "admission_checks": [
+      {
+        "command": [
+          "python3.12",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/dispatch_prefix_live_stream_build_r1.py"
+        ],
+        "returncode": 1,
+        "stderr": "The original full256k native task is still active; no remote action was attempted.\n",
+        "remote_action_attempted": false
+      },
+      {
+        "command": [
+          "python3.12",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/dispatch_prefix_live_stream_product_r1.py"
+        ],
+        "returncode": 1,
+        "stderr": "The original full256k native task is still active; no remote action was attempted.\n",
+        "remote_action_attempted": false
+      }
+    ],
+    "source_manifests": {
+      "prefix-live-stream-whole-source-r1.json": "b9d394c1137bce03355f453371dd748fd2341504ca9043d4b023f13290a1e0cd",
+      "prefix-live-stream-product-source-r1.json": "5c1fb8e907b375985dcadcf4ee3b2894af6a5e52f28b5ccabeb04534a6f170f3"
+    },
+    "parser_host": "baiying",
+    "parser_command": [
+      "ssh",
+      "-o",
+      "BatchMode=yes",
+      "-o",
+      "ConnectTimeout=10",
+      "baiying",
+      "powershell.exe -NoLogo -NoProfile -NonInteractive -Command -"
+    ],
+    "parser_stdin_sha256": "a50fdb09abbdcb655e4b05e93cbf98aef92a8f47267c28b3c48c7a5f619977f8",
+    "script_sha256": {
+      "run-native-prefix-live-stream-r1.ps1": "81f233556c134e1598228bf7839cbb92011bfa925c245916f585bcb39653930a",
+      "run-prefix-live-stream-build-commands-r1.ps1": "9f6a98f0625199796fb8776fb1153950f25a1424081e3570ba7248ac1fc73141",
+      "run-prefix-live-stream-product-r1.ps1": "3cbce30ec416cd30062ca7bec8beb5746220ac11ddb8996dc5ee1388cf7d8b89"
+    },
+    "returncode": 0,
+    "stdout": "[{\"token_count\":1260,\"errors\":[],\"file\":\"run-native-prefix-live-stream-r1.ps1\"},{\"token_count\":67,\"errors\":[],\"file\":\"run-prefix-live-stream-build-commands-r1.ps1\"},{\"token_count\":1028,\"errors\":[],\"file\":\"run-prefix-live-stream-product-r1.ps1\"}]\n",
+    "stderr": "",
+    "wall_seconds": 0.8735372917726636,
+    "scope": "Read-only ParseInput over supplied script text. Both dispatchers stop locally before remote action while the full256k job is active.",
+    "native_build": false,
+    "model_loaded": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false
+  },
+  "parser_record_sha256": "2ca2af6e1f60d8aa455db1c6d3aaf729e1533c8f8109601fe48c90380967f3e5",
+  "frozen_other_plans_unchanged": [
+    "native-mtp-request-whole-source-r4.json",
+    "mtp-chunked-request-native-source-r1.json",
+    "mtp-prefix-request-native-source-r1.json"
+  ],
+  "active_original_full256k_launch_sha256": "9b9229821a96934a0ac33bf86780b3c973aff2028db32059da5ae2aee45da66c",
+  "active_original_full256k_cleanup_required": true,
+  "preparation_correction": "The product script uses a task-specific runtimeEnvPath variable; the initial unexecuted manifest and parser record remain preserved locally.",
+  "native_build": false,
+  "model_loaded": false,
+  "native_execution": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "590ada8bbcf229c4dd4d583a03f8b29c270b3c5403f3a45248cd71c29a0ad27e",
+    "original_json_bytes": 6116,
+    "source_revision": "ec72eded228ff6faa9cdfebd8575a6feddc7dac3",
+    "source_path": "build/recovery-20260910/prefix-live-stream-prepared-20260921.raw.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 2
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "kind": "prefix_stream_product_probe_local_validation",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "utc": "2026-09-21T01:47:47.411834+00:00",
+  "source_base_commit": "6f6b396743c88bc2f26e4b87cbcf82826c5a053b",
+  "source_revision_suffix": "working-tree",
+  "source_sha256": {
+    "tools/prefix_stream_product_probe.c": "a870eb239fb818c9d589d58678c3cb5b425acf65a7f437ea828039060091ad18",
+    "tools/prefix_stream_observer.h": "2e7a84519586006314825a835f869d2758d58b6af5011b7879bbb6813a3f9633",
+    "tests/test_prefix_stream_observer.py": "8e000f894c6dcd3a8affad8e4b84167b996ee4eef82460c40cd1c8498d37c1f9",
+    "tests/native/prefix_stream_probe_backend.c": "92acfea6bf59d0d3b55eca0be408d7ee38bbd3b39efd8de18011c221672b1493",
+    "native/src/product_cli.c": "e937d3ea5fcb6e4752487e15fc4ad38ca1c5f6f738c1a944dcfdf809708c319e",
+    "native/src/qrt.h": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18",
+    "scripts/build-product-cli.ps1": "5d0a7a989d4c252d70a98c300e8f33818bc5b5a89e0a120ed918d1bf008e0ee9"
+  },
+  "test_execution": {
+    "command": [
+      "python3.12",
+      "-m",
+      "unittest",
+      "tests.test_prefix_stream_observer"
+    ],
+    "tool_session_id": 51747,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "...\n----------------------------------------------------------------------\nRan 3 tests in 1.555s\n\nOK\n"
+  },
+  "actual_probe_host_syntax": true,
+  "observer_sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "host_only_probe_flow": {
+    "successful_api_calls": 10,
+    "cancellations": [
+      0,
+      1,
+      64,
+      511
+    ],
+    "cancel_callback_counts": [
+      1,
+      2,
+      65,
+      512
+    ],
+    "owner_continuations": 5,
+    "owner_continuations_after_cancel": 4,
+    "rejected": [
+      "changed owner continuation after cancel",
+      "changed cancellation token",
+      "ignored cancellation",
+      "missing restore",
+      "wrong restored count"
+    ]
+  },
+  "observer": {
+    "positive_512_output_live_fixture": true,
+    "buffered_65_output_control_rejected": true,
+    "exact_buffered_span": [
+      1,
+      63
+    ],
+    "cancellation_positions": [
+      0,
+      1,
+      64,
+      511
+    ],
+    "malformed_events_rejected": 12,
+    "per_span_minimum_production_duration_fraction": 0.9,
+    "clock_scheduling_allowance_ns": 5000000,
+    "diagnostic_timing_only": true
+  },
+  "production_boundaries": {
+    "reuses_actual_product_cli": true,
+    "local_model_backend": "host fixture only; no model arithmetic",
+    "expected_ids_comparison_only": true,
+    "owner_prompt_uses_actual_seed_output": true,
+    "model_loading_stubbed_in_local_flow_test": true,
+    "native_build_switch": "scripts/build-product-cli.ps1 -PrefixStreamProbe",
+    "windows_build_pending": true,
+    "real_model_tokens_generated": false,
+    "fixture_token_ids_generated": true
+  },
+  "native_execution": false,
+  "model_inference": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "builder_windows_parse": {
+    "controller_host": "Jiawei-MacminideMac-mini.local",
+    "parser_host": "baiying",
+    "command": [
+      "ssh",
+      "-o",
+      "BatchMode=yes",
+      "-o",
+      "ConnectTimeout=10",
+      "baiying",
+      "powershell.exe -NoLogo -NoProfile -NonInteractive -Command -"
+    ],
+    "stdin_sha256": "678817244d808a06295e0eaa6b087d987a977efabf15514f76912a07d567fcde",
+    "script_sha256": "5d0a7a989d4c252d70a98c300e8f33818bc5b5a89e0a120ed918d1bf008e0ee9",
+    "returncode": 0,
+    "stdout": "{\"token_count\":1162,\"errors\":[],\"file\":\"scripts/build-product-cli.ps1\"}\n",
+    "stderr": "",
+    "elapsed_seconds": 1.1557525005191565,
+    "read_only_parse_input": true,
+    "native_build": false
+  },
+  "builder_windows_parse_sha256": "0ca052ff08d6aaccf94fd8a729fdc297a0cf29b4162d2ee2c55130195bbcd2e4"
+}
