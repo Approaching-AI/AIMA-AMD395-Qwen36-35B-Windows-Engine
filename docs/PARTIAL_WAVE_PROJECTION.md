@@ -120,3 +120,18 @@ unchanged exclusive execution guard after cleanup.
 [Frozen plan, script, parser and prepared checks](../benchmarks/correctness/partial-wave-projection-prepared-20260921.json):
 154247bytes, SHA256
 `32e426f4e40599a91a5174d9155a088e1c1c6bed50e33788a0806277f5b5f2b8`.
+
+The next plan uses source `5d63d5c` and the complete original q8192 capture.
+Projection plan r2 and attention plan r3 share eight verified tensors plus a
+manifest: 419,434,109 raw bytes, 339,667,106 compressed bytes. QKV and OUT now
+require their original 8,192 reference rows and zero repeats. All nine staging,
+build and GPU actions reject the active long owner before any subprocess or
+output directory. All execution retains the existing exclusive host guard.
+
+The updated parsers reject 55 projection and 28 attention faults, including
+the old reference extent. Four native scripts parse and seven existing native
+weight/table/guard/prerequisite files match. Parsing passes over stdin after
+the first read-only command exceeds Windows' command-line limit; that failed
+attempt is preserved. No input archive or source bundle was uploaded, no new
+checkout exists and no new native build or GPU comparison ran.
+[Complete-original-data native plans and preparation checks](../benchmarks/correctness/original-q8192-native-prepared-20260921.json).

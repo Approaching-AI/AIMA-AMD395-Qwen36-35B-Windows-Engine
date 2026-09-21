@@ -103,6 +103,16 @@ matches the independent original arithmetic. This sample does not compare
 external raw QK scores or establish GPU context correctness or performance.
 [Original-reference bindings, sample and comparison-scope checks](../benchmarks/correctness/original-q8192-fixture-local-20260921.json).
 
+The corresponding r3 native plan freezes source `5d63d5c` and all 59 quoted
+include files plus two host guard files. It requires a new build, the existing
+560 generated cases plus five reference-extent fault controls, and the complete
+original q8192 comparison with all five timed variants. All compilation now
+waits for the long owner's cleanup and uses the unchanged exclusive host guard.
+Preparation rejects 28 damaged attention records and all three premature
+attention actions. Native script parsing passes; actual compilation and GPU
+execution remain pending. The shared original tensor archive remains local.
+[Frozen r3 plan and shared-input preparation](../benchmarks/correctness/original-q8192-native-prepared-20260921.json).
+
 The [remainder host audit](../benchmarks/correctness/wave-matrix-remainder-local-20260921.json)
 compares175680 ordered groups against the independent original integer model
 under ASan/UBSan. It preserves47104 existing admissions and adds14336 exact
