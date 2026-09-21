@@ -222,6 +222,29 @@ def extra_prefill_positions(case, prompt_tokens):
     return set(plan.get(case, []))
 
 
+def recurrent_observation_window(case, prompt_tokens):
+    """Bound a consecutive diagnostic window within an original continuation."""
+    value = os.environ.get('QRT_GB10_CASE_RECURRENT_WINDOWS')
+    if value is None:
+        return None
+    plans = json.loads(value)
+    if not isinstance(plans, dict) or not 1 <= len(plans) <= 12:
+        raise ValueError('invalid case-specific recurrent window plan')
+    for name, plan in plans.items():
+        match = re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}-out([1-9][0-9]*)', name)
+        if (match is None or not 2 <= int(match.group(1)) <= 512 or
+                not isinstance(plan, dict) or set(plan) != {'layer', 'first_offset', 'tokens'} or
+                any(type(plan[key]) is not int for key in plan) or
+                not 0 <= plan['layer'] < 40 or plan['layer'] % 4 == 3 or
+                plan['first_offset'] < 0 or not 1 <= plan['tokens'] <= 128 or
+                plan['first_offset'] + plan['tokens'] > int(match.group(1)) - 1):
+            raise ValueError('invalid bounded original recurrent window')
+    plan = plans.get(case)
+    if plan is not None and (type(prompt_tokens) is not int or not 1 <= prompt_tokens <= 263168):
+        raise ValueError('invalid recurrent window prompt extent')
+    return plan
+
+
 def observation_positions(case, prompt_tokens):
     selected = {prompt_tokens - 1, prompt_tokens,
                 prompt_tokens + full_cache_observation_offset(case)}
@@ -266,6 +289,10 @@ def observation_positions(case, prompt_tokens):
                 raise ValueError('invalid case-specific continuation offsets')
             if name == case:
                 selected.update(prompt_tokens + offset for offset in offsets)
+    recurrent_window = recurrent_observation_window(case, prompt_tokens)
+    if recurrent_window is not None:
+        first = prompt_tokens + recurrent_window['first_offset']
+        selected.update(range(first, first + recurrent_window['tokens']))
     window = full_prefill_linear_window(case, prompt_tokens)
     if window is not None:
         # A middle original transaction has no sampled logit row. Select its
@@ -432,6 +459,16 @@ def full_prefill_attention_window(case, prompt_tokens):
 
 
 def observation_byte_limit(attention_window, case=None, prompt_tokens=0):
+    if case is not None:
+        recurrent_window = recurrent_observation_window(case, prompt_tokens)
+        if recurrent_window is not None:
+            if (linear_observation_layers(case) != [recurrent_window['layer']] or
+                    attention_window is not None or case_full_cache_observation(case) is not None or
+                    full_prefill_linear_window(case, prompt_tokens) is not None):
+                raise ValueError('recurrent window requires exactly its one linear layer and no full prefill/cache copy')
+            # Up to128 before/after FP32 states plus bounded selected-row
+            # observations fit the existing1GiB ceiling. Default cases retain512MiB.
+            return 1024 << 20
     # One original 8192-row attention transaction plus its complete logical KV
     # history needs more than the selected-row ceiling. Other cases keep it.
     if attention_window is not None:
@@ -490,6 +527,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         self._qrt_boundary_active = None
         self._qrt_boundary_selected = selected
         self._qrt_boundary_prompt_tokens = prompt_tokens
+        self._qrt_boundary_recurrent_window = recurrent_observation_window(case, prompt_tokens)
         self._qrt_boundary_linear_layers = linear_observation_layers(case)
         full_linear_window = full_prefill_linear_window(case, prompt_tokens)
         full_linear_core_only = full_prefill_linear_core_only()
@@ -1096,6 +1134,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 instance_present=instance is not None,entries=sorted(entries,key=lambda row:row['key']),
                 cache_modified=False,tactics_overridden=False)
         record["runtime_boundaries"] = dict(layer_container=layer_container, selected_positions=sorted(selected),
+            recurrent_window=self._qrt_boundary_recurrent_window,
             model_sources=[dict(file=str(path), sha256=file_sha(path)) for path in sorted({
                 Path(inspect.getsourcefile(type(layers[0]))),
                 Path(inspect.getsourcefile(layers[0].forward)),
@@ -1196,6 +1235,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
             full_attention_layers=list(self._qrt_boundary_full_layers),
             full_attention_cache_required=self._qrt_boundary_full_cache_required,
             selected_positions=sorted(self._qrt_boundary_selected),
+            recurrent_window=self._qrt_boundary_recurrent_window,
             original_methods_returned_unchanged=True, diagnostic_only=True)
         if window is not None:
             boundaries['full_prefill_linear_window'] = window

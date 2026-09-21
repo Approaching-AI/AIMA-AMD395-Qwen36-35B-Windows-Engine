@@ -74,10 +74,10 @@ preserves the commands, outputs and invalid negative event clocks.
 The active structural candidates share original K16 work among wave-owned
 matrix tiles for [QK](WAVE_MATRIX_QK.md) and
 [projection](PARTIAL_WAVE_PROJECTION.md). Source `5d63d5c` fixtures consume
-the complete original q8192 reference with zero repeated rows. Shared staging,
-new builds, generated GPU safety and complete operator comparisons remain
-pending the active long run's cleanup. Host arithmetic and coordinate checks
-pass; they do not establish GPU behavior, speed or product correctness.
+the complete original q8192 reference with zero repeated rows. Native execution
+has started after long-run cleanup; complete original-data operator comparisons
+remain unqualified. Host arithmetic and coordinate checks do not establish
+GPU speed or product correctness.
 [Frozen native plans and exact pending scope](../benchmarks/correctness/original-q8192-native-prepared-20260921.json).
 
 Existing slower candidates and failed attempts remain available in the
@@ -93,10 +93,13 @@ TTFT is 62731.6067 ms and TPOT is 588.789589 ms, so the retained prefix targets
 remain open. [Exact source and original-model boundary](../benchmarks/correctness/rope-single-round-prefix128k-product-20260919.json).
 
 The preceding whole `8612387` 256k run completes all owner chunks but first
-differs at suffix output index 124: 8984 instead of 4980. The c268 rerun is
-active with output-only observations at positions 263290 and 263291. It has
-no completed continuation result yet. No 256k acceptance or performance is
-inferred from partial progress.
+differs at suffix output index 124: 8984 instead of 4980. The completed c268
+rerun reproduces all512 of those outputs. Its1257 same-history surface
+comparisons first differ in layer5's incoming recurrent state, head13. The
+90-case GPU replay on original reference operands passes both state layouts;
+the earlier accumulated difference remains under diagnosis. Native wall is
+22598962.712 ms with clean host checks. No256k or performance acceptance is
+claimed. [Completed run and actual state evidence](../benchmarks/correctness/single-tail-q1-prefix256k-step124-native-20260921.json).
 [Prior failure](../benchmarks/correctness/retired-reference-mode-prefix256k-20260921.json)
 and [qualified same-history reference](../benchmarks/correctness/gb10-prefix256-step124-reference-20260921.json).
 

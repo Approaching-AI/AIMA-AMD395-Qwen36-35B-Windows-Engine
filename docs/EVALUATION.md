@@ -59,16 +59,34 @@ The previous [complete 256K owner run](../benchmarks/correctness/retired-referen
 matches its owner first token and the first 124 suffix outputs, then emits
 8984 instead of 4980 at output index 124. The [qualified original reference](../benchmarks/correctness/gb10-prefix256-step124-reference-20260921.json)
 reproduces all 608 original outputs and full first-logit anchors. At position
-263291, input 471 produces 4980 / 26.625. The c268 long run now observes that
-position and its predecessor 263290, using the original complete prompt and
-512-token continuation. It started on baiying at 14:39:52 UTC with PID 6948,
-a 28800-second process deadline and output on P. No result is qualified yet.
+263291, input 471 produces 4980 / 26.625. The
+[completed c268 run](../benchmarks/correctness/single-tail-q1-prefix256k-step124-native-20260921.json)
+reproduces the same512 outputs and the same index124 failure. Native wall is
+22598962.712 ms, exit6; all host checks pass and no process remains. The owner
+first16/24.375 and suffix first248045/5.78125 match. The initial retry reports
+its contract and restoration checks passing; the later owner32, timed512,
+second suffix and negative branches are not reached.
 
 The new operand comparator verifies the actual generated history before each
 comparison. Its old native control matches all 628 available surfaces at
 position 263168 against the new reference, with zero F32-bit or BF16 differences.
-All 1400 reference files at the two new positions verify. Neither check
-qualifies the still-uncaptured native operands at the later positions.
+The completed new comparison verifies all1559 native files and compares1257
+surfaces at263290/input257 and263291/input471 with matching actual histories.
+All compared upstream surfaces through layer4 and layer5's current inputs,
+projections and convolution match. The first difference is layer5's incoming
+FP32 recurrent state, confined to head13; the other31 heads match. Its core
+then differs by one/eight BF16 values at the two positions. All30 native
+state owners preserve after263290 exactly as before263291, as does GB10.
+
+The actual GPU recurrence replay separately passes90 original-operand cases
+and180 state layouts:94371840 FP32 state and737280 BF16 core values match
+bitwise, with all guards and cleanup passing in25792.138 ms. These original
+operands do not reproduce the earlier native accumulation history. The cause
+before263290 remains open. A bounded observer can now select up to128
+consecutive original continuation inputs for exactly one linear layer, within
+the existing1GiB maximum. All40 observer/token-matrix unit tests pass; default
+cases retain their selection and512MiB limit. The layer5 history capture and
+sequential replay are the next diagnostic, with inference acceptance unchanged.
 
 The three native retirement cases and final portable archive remain open.
 The actual whole DLL, CLI and static-C-core server must be bound together for

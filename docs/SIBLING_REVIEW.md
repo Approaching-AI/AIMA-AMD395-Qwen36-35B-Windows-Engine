@@ -22,10 +22,13 @@ TTFT23134.0106 ms. The below10000-ms requirement and retained target remain open
 
 The preceding [complete256k diagnostic](../benchmarks/correctness/retired-reference-mode-prefix256k-20260921.json)
 first differs at generated index124 after the original owner and suffix
-prefill. The c268 rerun is active with output-only observations immediately
-before and at that step. Its continuation, owner restoration and negative
-branches have no completed new result yet. Reference operands never enter
-native inference. Earlier128k qualification remains tied to its declared build.
+prefill. The [completed c268 rerun](../benchmarks/correctness/single-tail-q1-prefix256k-step124-native-20260921.json)
+reproduces the same failure. Its1257 same-history comparisons first differ in
+layer5's incoming recurrent state, head13. All90 original-operand GPU recurrence
+cases pass both state layouts; the earlier origin remains open. Later owner32,
+timed continuation and negative branches are not reached. Reference operands
+never enter native inference. Earlier128k qualification remains tied to its
+declared build.
 
 The same c268 server passes its native build and all54 Rust tests. Its new
 HTTP matrix, final archive inventory,13-case cold matrix and one-hour soak

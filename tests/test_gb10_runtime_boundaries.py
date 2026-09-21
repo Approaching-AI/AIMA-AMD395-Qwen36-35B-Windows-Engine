@@ -16,7 +16,7 @@ from capture_gb10_runtime_boundaries import (  # noqa: E402
     observation_byte_limit, linear_observation_layers,
     full_prefill_linear_core_only, full_prefill_linear_labels, product_prefill_operands,
     observation_positions, observation_timeout_seconds, prepared_token_ids, qualify_transaction,
-    recurrent_state_selection, selected_prefill_moe_observation,
+    recurrent_observation_window, recurrent_state_selection, selected_prefill_moe_observation,
     short_prefill_moe_observation, target_rows,
     observe_original_moe_routed, prefill_moe_routed_rows_enabled, observe_original_attention_owner,
 )
@@ -24,6 +24,63 @@ from capture_gb10_token_matrix import qualify_runtime_capture  # noqa: E402
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_recurrent_window_keeps_original_history_and_other_cases(self):
+        case = 'long-prefix262144-suffix1024-out512'
+        plan = dict(layer=5, first_offset=0, tokens=124)
+        env = {'QRT_GB10_CASE_RECURRENT_WINDOWS': json.dumps({case: plan}),
+               'QRT_GB10_CASE_BOUNDARY_LINEAR_LAYERS': json.dumps({case: [5]})}
+        with patch.dict(os.environ, env, clear=True):
+            self.assertEqual(recurrent_observation_window(case, 263168), plan)
+            self.assertEqual(observation_positions(case, 263168), {263167} | set(range(263168, 263292)))
+            self.assertEqual(observation_byte_limit(None, case, 263168), 1024 << 20)
+            self.assertEqual(linear_observation_layers(case), [5])
+            self.assertIsNone(recurrent_observation_window('q7169-out32', 7169))
+            self.assertEqual(observation_positions('q7169-out32', 7169), {7168, 7169})
+            self.assertEqual(observation_byte_limit(None, 'q7169-out32', 7169), 512 << 20)
+            for invalid in (0, 263169, True, 263168.0):
+                with self.assertRaises(ValueError):
+                    recurrent_observation_window(case, invalid)
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertIsNone(recurrent_observation_window(case, 263168))
+            self.assertEqual(observation_positions(case, 263168), {263167, 263168})
+            self.assertEqual(observation_byte_limit(None, case, 263168), 512 << 20)
+
+    def test_recurrent_window_rejects_unbounded_or_nonoriginal_rows(self):
+        case = 'long-prefix262144-suffix1024-out512'
+        good = dict(layer=5, first_offset=0, tokens=124)
+        bad = [[], {}, {case: []}, {case: dict(good, extra=1)}, {'not-a-case': good}]
+        for key, values in [('layer', [-1, 3, 40, True, 5.0]),
+                            ('first_offset', [-1, 500, True, 0.0]),
+                            ('tokens', [0, 129, True, 124.0])]:
+            bad.extend({case: dict(good, **{key: value})} for value in values)
+        for plan in bad:
+            with self.subTest(plan=plan), patch.dict(os.environ,
+                    {'QRT_GB10_CASE_RECURRENT_WINDOWS': json.dumps(plan)}, clear=True):
+                with self.assertRaises(ValueError):
+                    observation_positions(case, 263168)
+        with patch.dict(os.environ, {'QRT_GB10_CASE_RECURRENT_WINDOWS':
+                json.dumps({'q8192-out32': dict(layer=5, first_offset=30, tokens=1)})}, clear=True):
+            self.assertEqual(observation_positions('q8192-out32', 8192), {8191, 8192, 8222})
+
+    def test_recurrent_window_requires_one_layer_and_excludes_bulk_captures(self):
+        case = 'long-prefix262144-suffix1024-out512'
+        env = {'QRT_GB10_CASE_RECURRENT_WINDOWS': json.dumps({case: dict(layer=5, first_offset=0, tokens=124)})}
+        for layers in (None, [0], [0, 5]):
+            current = dict(env)
+            if layers is not None:
+                current['QRT_GB10_CASE_BOUNDARY_LINEAR_LAYERS'] = json.dumps({case: layers})
+            with self.subTest(layers=layers), patch.dict(os.environ, current, clear=True):
+                with self.assertRaises(ValueError):
+                    observation_byte_limit(None, case, 263168)
+        env['QRT_GB10_CASE_BOUNDARY_LINEAR_LAYERS'] = json.dumps({case: [5]})
+        with patch.dict(os.environ, env, clear=True):
+            with self.assertRaises(ValueError):
+                observation_byte_limit(dict(layer=3, first_position=0, tokens=8192), case, 263168)
+        env['QRT_GB10_CASE_FULL_CACHE'] = json.dumps({case: dict(offset=0, row=0)})
+        with patch.dict(os.environ, env, clear=True):
+            with self.assertRaises(ValueError):
+                observation_byte_limit(None, case, 263168)
+
     def test_product_prefill_operands_bind_the_original_complete_q8192_transaction(self):
         key = 'QRT_GB10_FULL_PREFILL_PRODUCT_OPERANDS'
         case = 'q8192-out512'

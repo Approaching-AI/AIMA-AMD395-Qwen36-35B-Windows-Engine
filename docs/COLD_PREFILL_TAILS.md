@@ -104,10 +104,22 @@ actual original-model runs establish the token boundary.
 
 The previous complete 256K owner run matches the first 124 suffix outputs,
 then emits 8984 instead of 4980. The qualified original reference supplies
-input 471 at position 263291. The new output-only capture targets this point
-and position 263290 on c268. Its comparator first checks the actual generated
-history; an old native control matches all 628 compared surfaces at position
-263168 against the new reference. That control does not qualify later steps.
+input471 at position263291. The completed c268 run reproduces the same512
+outputs and the same index124 failure, with all host checks and cleanup passing.
+Its1257 same-history surface comparisons first differ in layer5's incoming
+recurrent state at both263290 and263291. The difference is confined to head13;
+the other31 heads and all compared upstream inputs match. The two core rows
+differ in one/eight BF16 values. All30 layers preserve the completed state
+between those two steps. An actual90-case/180-layout GPU replay matches all
+original state and core values, so it does not yet explain the earlier native
+accumulation. [Complete run, localization and GPU replay](../benchmarks/correctness/single-tail-q1-prefix256k-step124-native-20260921.json).
+
+The reference observer now supports a bounded consecutive continuation window
+for one linear layer. It permits at most128 original input positions, excludes
+simultaneous full-cache/prefill copies, and retains the1GiB maximum artifact
+ceiling. Defaults remain unchanged. All40 observer and token-matrix unit tests
+pass. A124-input layer5 capture will support a sequential recurrence replay;
+that history is not captured or qualified yet.
 
 An [offline arithmetic replay](../benchmarks/correctness/prefix256-step124-arithmetic-host-20260921.json)
 uses independently qualified GB10 operands at263168,263290 and263291 with the

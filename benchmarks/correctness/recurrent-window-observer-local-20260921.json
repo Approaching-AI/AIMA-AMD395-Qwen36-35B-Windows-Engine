@@ -1,0 +1,55 @@
+{
+  "kind": "bounded_original_recurrent_window_observer_validation",
+  "parent_commit": "46420c3fb53b4aa0251330bfdfd36e6775de7752",
+  "controller_os": "Darwin",
+  "controller_arch": "arm64",
+  "source_files": {
+    "scripts/capture_gb10_runtime_boundaries.py": "314a06f9654caedff041f3ae92b15a90f0221a18e085ced96b83b7a676618052",
+    "tests/test_gb10_runtime_boundaries.py": "3b8f40ff0c7b0194f71e81347d40c6a58ff6516059ac7eaf79591e3710e5a5a8"
+  },
+  "checks": [
+    {
+      "command": [
+        "python3.12",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_gb10_runtime_boundaries.py"
+      ],
+      "returncode": 0,
+      "tests": 33
+    },
+    {
+      "command": [
+        "python3.12",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_gb10_token_matrix.py"
+      ],
+      "returncode": 0,
+      "tests": 7
+    }
+  ],
+  "original_model_calls_unchanged": true,
+  "window_maximum_inputs": 128,
+  "window_linear_layers": 1,
+  "window_maximum_bytes": 1073741824,
+  "default_maximum_bytes": 536870912,
+  "planned_case": "long-prefix262144-suffix1024-out512",
+  "planned_window": {
+    "layer": 5,
+    "first_offset": 0,
+    "tokens": 124
+  },
+  "reference_capture_executed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}
