@@ -8,10 +8,17 @@
 #include "../../native/providers/moe_accumulator/sm121_subgroup.h"
 #include <array>
 #include <string>
+#ifdef QRT_GDN_PROVIDER_REPLAY
+#include "../../native/providers/gdn/blackwell_cooperative.h"
+#endif
 #ifdef QRT_GDN_HYBRID_RETRY
 #include "../../native/providers/gdn/hybrid_state_replay.h"
 constexpr unsigned state_variants=3u;
+#ifdef QRT_GDN_PROVIDER_REPLAY
+constexpr const char* state_component="state_replay_provider_component";
+#else
 constexpr const char* state_component="hybrid_state_gdn_component";
+#endif
 #else
 constexpr unsigned state_variants=2u;
 constexpr const char* state_component="separate_state_gdn_component";
@@ -37,11 +44,15 @@ void paired_launch(unsigned variant,unsigned count,Device& q,Device& k,Device& v
 #define QRT_SEPARATE_STATE_ARGS k.data<uint16_t>()+size_t(offset)*2048u,actual_u+size_t(offset)*4096u,w.data<uint16_t>()+size_t(offset)*4096u,g.data<float>()+size_t(offset)*32u,h.data<uint16_t>()+size_t(offset/64u)*state_cells,vn.data<uint16_t>()+size_t(offset)*4096u,state.data<float>(),n,exp
   if(variant){
    auto* flags=receipts.data<uint32_t>()+size_t(offset/1024u)*512u;
+#ifdef QRT_GDN_PROVIDER_REPLAY
+   check(qrt_fla_blackwell_cooperative::state_replay(QRT_SEPARATE_STATE_ARGS,nullptr,flags,int(variant)));
+#else
    hipLaunchKernelGGL((qrt_fla_separate_state::fast_kernel<8u>),dim3(16u,32u),dim3(256u),0u,nullptr,QRT_SEPARATE_STATE_ARGS,flags);check(hipGetLastError());
 #ifdef QRT_GDN_HYBRID_RETRY
    if(variant==2u){hipLaunchKernelGGL((qrt_fla_hybrid_state::retry_kernel<8u>),dim3(16u,32u),dim3(256u),0u,nullptr,QRT_SEPARATE_STATE_ARGS,flags);check(hipGetLastError());}
 #endif
    hipLaunchKernelGGL((qrt_fla_separate_state::replay_kernel<8u>),dim3(16u,32u),dim3(256u),0u,nullptr,QRT_SEPARATE_STATE_ARGS,flags);
+#endif
   }
   else{hipLaunchKernelGGL((lifetime::state_kernel<8u>),dim3(16u,32u),dim3(256u),0u,nullptr,QRT_SEPARATE_STATE_ARGS);}
   check(hipGetLastError());

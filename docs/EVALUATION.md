@@ -103,7 +103,17 @@ the original narrow operand rule. The new336-case native fixture remains
 unbuilt; its [prepared plan](../benchmarks/correctness/hybrid-state-gdn-prepared-20260921.json)
 freezes428 source inputs and passes Windows parsing and prerequisite checks.
 No actual admission receipts, resource improvement or speedup are
-claimed; this is a component experiment and does not enter runtime dispatch.
+claimed; that frozen source is a component experiment without runtime dispatch.
+
+The subsequent [default-off provider integration](SEPARATE_STATE_REPLAY.md#default-off-provider-submission)
+exposes the same arithmetic as `QRT_FLA_GDN_STATE_REPLAY=1/2`, with the retained
+route at0. It reuses2048 bytes of existing temporary storage and preserves
+checkpoint export. Local tests pass104 wrapper and320 caller cases plus seven
+related regressions; missing initialization and swallowed launch failures are
+detected. [Exact local evidence](../benchmarks/correctness/state-replay-provider-local-20260921.json)
+records the initial test-extraction error as well. Its Windows build, original
+captured component comparisons and same-DLL real q8192/out512 remain pending.
+No native speed or model qualification transfers from this preparation.
 
 The preceding [whole-provider build and q8192 regression](../benchmarks/correctness/residual-norm-mode-q8192-20260921.json)
 pass on baiying at source6a5da30. All512 output IDs and callbacks match GB10,

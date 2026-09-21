@@ -4,6 +4,8 @@
 #include "blackwell_lifetime_matrices.h"
 #include "paired_score_matrices.h"
 #include "paired_score_policy.h"
+#include "hybrid_state_replay.h"
+#include "state_replay_policy.h"
 #include "fused_state_output.h"
 #include "interval_matrices.h"
 #include "coarse_interval_policy.h"
@@ -333,6 +335,47 @@ hipError_t state_checkpoints(const uint16_t* k, const uint16_t* u, const uint16_
         0u, stream, k, u, w, g, h, v_new, state, count, table, checkpoints);
     return hipGetLastError();
 }
+hipError_t state_replay(const uint16_t* k, const uint16_t* u, const uint16_t* w, const float* g,
+                 uint16_t* h, uint16_t* v_new, float* state, unsigned count,
+                 const unsigned char* table, hipStream_t stream, unsigned* receipts, int mode) {
+    if (!k || !u || !w || !g || !h || !v_new || !state || !table || !receipts ||
+        !count || count > 1024u || (mode != 1 && mode != 2) ||
+        reinterpret_cast<uintptr_t>(receipts) % alignof(unsigned)) return hipErrorInvalidValue;
+    // Preserve segment()'s alias checks and reject every overlap with the
+    // separate receipt allocation, including interior and overflowing spans.
+    const void* inputs[] = {k, u, w, g, state};
+    for (const void* input : inputs)
+        if (static_cast<void*>(h) == input || static_cast<void*>(v_new) == input)
+            return hipErrorInvalidValue;
+    if (h == v_new || static_cast<void*>(state) == k || static_cast<void*>(state) == u ||
+        static_cast<void*>(state) == w || state == g) return hipErrorInvalidValue;
+    const void* buffers[] = {k, u, w, g, h, v_new, state, table};
+    const uint64_t spans[] = {uint64_t(count) * 2048u * 2u,
+        uint64_t(count) * 4096u * 2u, uint64_t(count) * 4096u * 2u,
+        uint64_t(count) * 32u * 4u, uint64_t((count + 63u) / 64u) * 524288u * 2u,
+        uint64_t(count) * 4096u * 2u, qrt_fla_checkpoint::kStateBytes,
+        qrt_sm121_exp2::table_bytes};
+    for (unsigned i = 0u; i < 8u; ++i)
+        if (qrt_fla_checkpoint::overlaps(receipts, qrt_fla_state_replay_policy::receipt_bytes,
+                                        buffers[i], spans[i])) return hipErrorInvalidValue;
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_fla_separate_state::fast_kernel<8u>),
+        dim3(16u, 32u), dim3(threads), 0u, stream,
+        k, u, w, g, h, v_new, state, count, table, receipts);
+    hipError_t status = hipGetLastError();
+    if (status != hipSuccess) return status;
+    if (mode == 2) {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_fla_hybrid_state::retry_kernel<8u>),
+            dim3(16u, 32u), dim3(threads), 0u, stream,
+            k, u, w, g, h, v_new, state, count, table, receipts);
+        status = hipGetLastError();
+        if (status != hipSuccess) return status;
+    }
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_fla_separate_state::replay_kernel<8u>),
+        dim3(16u, 32u), dim3(threads), 0u, stream,
+        k, u, w, g, h, v_new, state, count, table, receipts);
+    return hipGetLastError();
+}
+
 hipError_t state_output(const uint16_t* q,const uint16_t* k,const uint16_t* u,const uint16_t* w,
  const float* g,uint16_t* scores,float* output,uint16_t* h,uint16_t* v_new,float* state,
  unsigned count,unsigned columns,const unsigned char* table,hipStream_t stream){

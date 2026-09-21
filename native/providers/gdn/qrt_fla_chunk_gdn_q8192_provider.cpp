@@ -3,6 +3,7 @@
 #include "blackwell_state.h"
 #include "blackwell_wu_output.h"
 #include "blackwell_cooperative.h"
+#include "state_replay_policy.h"
 #include "fused_state_output_policy.h"
 #include "blackwell_l2norm.h"
 #include "blackwell_inverse.h"
@@ -597,17 +598,32 @@ bool launch_blackwell_state(const uint16_t* k, const uint16_t* u, const uint16_t
         valid_tokens <= tokens - static_cast<int32_t>(kChunk) || valid_tokens > tokens) {
         set_error_text("Blackwell state requires checked chunk-aligned segment pointers"); return false;
     }
+    const int replay_mode = qrt_fla_state_replay_policy::mode();
+    if (replay_mode < 0) { set_error_text("Invalid QRT_FLA_GDN_STATE_REPLAY mode"); return false; }
     if (!ensure_blackwell_state_scratch()) return false;
     float sequence_ms = 0.0f;
     if (blackwell_batched_enabled()) {
+        const bool replay = qrt_fla_state_replay_policy::selected(
+            replay_mode, checkpoints.count, static_cast<unsigned>(valid_tokens));
         if (!launch_blackwell_math("blackwell_state_segment", stream, [&] {
             if (checkpoints.count)
                 return qrt_fla_blackwell_cooperative::state_checkpoints(k, u, w, g, h, v_new, state,
                     static_cast<unsigned>(valid_tokens), qrt_fla_blackwell_state::exp2_table_device(), stream, checkpoints);
+            // Batched state never uses the legacy temporary FP32 state. Its
+            // first 2 KiB can hold receipts until this segment completes.
+            // Pipeline slots already own separate temporary allocations.
+            if (replay)
+                return qrt_fla_blackwell_cooperative::state_replay(k, u, w, g, h, v_new, state,
+                    static_cast<unsigned>(valid_tokens), qrt_fla_blackwell_state::exp2_table_device(), stream,
+                    reinterpret_cast<unsigned*>(g_state.blackwell_temporary_state), replay_mode);
             return qrt_fla_blackwell_state::segment(k, u, w, g, h, v_new, state,
                 static_cast<unsigned>(valid_tokens), stream);
         }, &sequence_ms)) return false;
-        if (!BlackwellSegmentGuard::active) std::fprintf(stderr, "FLA_STATE route=blackwell_persistent_value_rows tokens=%d chunks=%u calls=1 sequence_ms=%.6f guard_ms=100 cooperative_lanes=%u\n",
+        if (replay && !BlackwellSegmentGuard::active) std::fprintf(stderr,
+            "FLA_STATE_REPLAY mode=%d tokens=%d calls=%u receipt_bytes=%u sequence_ms=%.6f additional_device_bytes=0 segment_completion_required=1\n",
+            replay_mode, valid_tokens, replay_mode == 2 ? 3u : 2u, qrt_fla_state_replay_policy::receipt_bytes,
+            static_cast<double>(sequence_ms));
+        if (!replay && !BlackwellSegmentGuard::active) std::fprintf(stderr, "FLA_STATE route=blackwell_persistent_value_rows tokens=%d chunks=%u calls=1 sequence_ms=%.6f guard_ms=100 cooperative_lanes=%u\n",
             tokens, static_cast<unsigned>(tokens / kChunk), static_cast<double>(sequence_ms),
             qrt_fla_blackwell_cooperative::enabled() ? 4u : 16u);
         return true;

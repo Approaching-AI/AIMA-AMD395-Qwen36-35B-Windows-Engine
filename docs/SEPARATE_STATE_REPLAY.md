@@ -144,3 +144,39 @@ child to30. The resource collector will inspect retained, fast, retry and
 replay kernels in the same executable after validating the actual build and
 all source hashes. Its existing retained-ELF parser check passes. No candidate
 resource count is available before compilation.
+
+## Default-off provider submission
+
+`QRT_FLA_GDN_STATE_REPLAY` now exposes mode1 (fast/replay) and mode2
+(fast/hybrid retry/replay) in the provider. Mode0 remains the default. Selection
+requires the existing paired scalar configuration, no coarse or fused-state
+override, at most1024 actual tokens and no internal checkpoint export. A
+checkpoint-bearing segment retains its original state-capture implementation.
+This includes ordinary and seeded segments; no reference activation enters
+the candidate.
+
+The batched route reuses the first2048 bytes of its otherwise unused legacy
+temporary state for512 completion receipts. Every pipeline slot already owns
+a separate allocation. No device allocation or storage-reporting change is
+needed. Fast initialization precedes retry/replay on the caller's stream;
+every launch error stops the remaining chain, and the existing segment owner
+retains responsibility for completion and error cleanup. The wrapper checks
+receipt overlap with all operands, outputs, FP32 state and exponential table.
+
+The [local submission evidence](../benchmarks/correctness/state-replay-provider-local-20260921.json)
+passes104 wrapper cases and320 actual-provider caller cases under ASan/UBSan,
+including launch failures, receipt aliases, partial chunks, disabled mode and
+checkpoint fallback. Two broken chains are detected. Seven existing state,
+checkpoint, pipeline and completion tests also pass. An initial test-only
+extraction error stopped compilation at the default aggregate argument; the
+corrected extractor removes only that unused default. The failed log remains
+preserved. No production arithmetic changed during that correction.
+
+`state_replay_provider_selftest.cpp` uses the actual submission wrapper in
+the three-variant complete-chain fixture. The arithmetic kernels remain
+identical to the previously checked hybrid source. Windows compilation,
+all336 generated configurations, original q7169 operands, q8192 component
+shape, provider probes and same-DLL real q8192/out512 comparisons remain
+pending. This default-off integration adds no new numerical, performance
+or release qualification. The separately frozen e14f64b fixture is still
+reproducible and need not be mistaken for a build of this provider.

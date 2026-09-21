@@ -33,5 +33,10 @@ hipError_t state_output(const uint16_t* q,const uint16_t* k,const uint16_t* u,co
 hipError_t state_checkpoints(const uint16_t*, const uint16_t*, const uint16_t*, const float*,
                  uint16_t*, uint16_t*, float*, unsigned, const unsigned char*, hipStream_t,
                  qrt_fla_checkpoint::Segment);
+// Internal bounded experiment. The caller owns 512 disjoint receipt words
+// until the stream completes. Checkpoint exports retain state_checkpoints.
+hipError_t state_replay(const uint16_t*, const uint16_t*, const uint16_t*, const float*,
+                 uint16_t*, uint16_t*, float*, unsigned, const unsigned char*, hipStream_t,
+                 unsigned*, int);
 }
 #endif
