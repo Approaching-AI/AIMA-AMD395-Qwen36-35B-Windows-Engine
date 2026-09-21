@@ -101,6 +101,15 @@ public:
     size_t tokens() const { return saved_ ? saved_->state.inputs.size() : 0u; }
     size_t allocated_bytes() const { return saved_ ? saved_->cache.allocated_bytes() : 0u; }
     size_t model_pack_bytes() const { return saved_ ? saved_->state.binding.allocated_bytes() : 0u; }
+    // Read the actual retained producer profile only after matching the
+    // independent target frontier. Decode and partial-prefill checkpoints
+    // have no complete cold history and cannot repair a new prompt suffix.
+    bool prefill_profile(const TargetFrontier& actual, bool* split1024) const {
+        if (!split1024 || !matches(actual) || !saved_->state.prefill ||
+            !saved_->state.prefill->complete(actual.processed_count)) return false;
+        *split1024 = saved_->state.prefill->split1024;
+        return true;
+    }
 private:
     friend class Request;
     std::shared_ptr<const mtp_request_detail::Saved> saved_;

@@ -165,6 +165,7 @@ static hipError_t prepare(qrt_sm121_mtp::DrafterTables* out,unsigned last) {
 }
 #include "sm121_mtp_prefill_probe.h"
 #include "sm121_mtp_request_seed.h"
+#include "sm121_mtp_prefix_seed.h"
 struct LeasedWeights final:qrt_sm121_mtp::ModelWeightSource {
     std::array<std::vector<uint16_t>,4> packed_parts;
     uint64_t generation=10;
@@ -413,6 +414,7 @@ static void test_checkpoints() {
 #include "mtp_request_host.inc"
 #include "mtp_chunked_request_host.inc"
 #include "mtp_prefix_request_host.inc"
+#include "mtp_prefix_runtime_host.inc"
 int main(int argc,char** argv){
     assert(argc==2);
     using qrt_sm121_mtp::Drafter;
@@ -425,6 +427,8 @@ int main(int argc,char** argv){
     test_chunked_seed_runtime();
     test_explicit_prefill_norm_order();
     test_prefix_request();
+    test_prefix_runtime();
+    test_prefix_entry();
     test_prefill_request_probe(argv[1]);
     for(unsigned fail=1;fail<=25u;++fail){
         reset();{Drafter d;assert(d.reserve(8,2)==hipSuccess&&allocations.size()==25u);auto* old=d.cache_data();

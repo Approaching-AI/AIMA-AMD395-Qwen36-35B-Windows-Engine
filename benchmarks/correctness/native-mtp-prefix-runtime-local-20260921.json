@@ -1,0 +1,160 @@
+{
+  "kind": "native_mtp_prefix_runtime_local_validation",
+  "utc": "2026-09-21T02:43:06.255711+00:00",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "source_base_commit": "3809e3c33db1d2fac3f3ab4a9f33e99e7459ea14",
+  "source_revision_suffix": "working-tree",
+  "source_sha256": {
+    "native/providers/sm121_mtp_prefix_seed.h": "be6411cb46241e94010fe20458e85fd4c683611ff4a2f37eb63c821431f54ccc",
+    "tests/native/mtp_prefix_runtime_host.inc": "6a6129b64e3514caecfc6c43b31c5599632d59a343173e55f54fdede5bb4e9b2",
+    "native/providers/gdn/sm121_mtp_request.h": "1fe25ff85218835711cdb958caf373986316abde570195e6c998ab50b89ae09e",
+    "native/providers/whole_provider.cpp": "b8a54e6daf61dbcbe3dd85b88536fa2a9a57461bfdd5be53e42639dfdff334c8",
+    "tests/native/mtp_drafter_host.cpp": "4ca8f87b96e5d16992ec66b02ba3590131187bdbfac94516dac37ba361604b5b",
+    "tests/test_mtp_drafter.py": "c00ca2b21e2886da27b0db9c0133f3e152c1faaa20327b682e8c18808918b1bd",
+    "tests/test_mtp_native_prefill_integration.py": "0fe68095f90808882a1d81ab6d393aa67d3d8c78f02b9d0185d13a591b7f8a14"
+  },
+  "patch_sha256": "296c8e707bd6dbc32f079bf44b96d9f5c64a9abb8b474679fab40155b0b63a77",
+  "implementation": {
+    "actual_whole_provider_entry_branch": true,
+    "actual_request_prefix_repair": true,
+    "native_decode_environment": "QRT_QWEN36_MTP_NATIVE_DECODE=1",
+    "default_native_decode_enabled": false,
+    "admitted_suffixes": [
+      "1024 actual prompt inputs after a complete cold prefix aligned to 8192",
+      "one actual next input equal to the untouched owner sample"
+    ],
+    "actual_prefix_identity": [
+      "independent target owner",
+      "generation",
+      "current model source epoch",
+      "all processed prompt token IDs",
+      "actual target sample"
+    ],
+    "prefill_norm_profile": "retained cold checkpoint profile after exact target-frontier match",
+    "capture_scope": "one matching suffix prefill; ends before decode or rollback",
+    "paired_publication": "actual target suffix completes, then private MTP seam repairs, append, proposal and immutable checkpoint save; only then replace live checkpoint and inputs",
+    "extra_persistent_checkpoint": false,
+    "existing_shadow_copies_both_target_and_mtp": true,
+    "no_numerical_kernel_change": true,
+    "known_failure": "outer target Shadow restores original owner; published MTP checkpoint is unchanged",
+    "unknown_completion": "private producer owners quarantine; actual provider marks resident completion unknown and invalidates the live target",
+    "reference_tokens_or_hidden_used_by_runtime_compute": false,
+    "deferred": [
+      "partial owner checkpoints",
+      "arbitrary forced single-token suffix different from actual owner sample",
+      "cold prompt lengths at or above 262144",
+      "drafter retirement crossing",
+      "native HIP and whole-model qualification"
+    ]
+  },
+  "regressions": {
+    "new_runtime_successes": 5,
+    "aligned_prefix_lengths": [
+      8192,
+      16384
+    ],
+    "prefill_norm_profiles": [
+      1024,
+      2048
+    ],
+    "admission_declines_before_gpu_submission": 26,
+    "failed_target_publications_before_mtp_gpu_submission": 10,
+    "unknown_completion_fences_covering_extend_and_save": 12,
+    "actual_entry_branch_cases": 5,
+    "actual_entry_cases": [
+      "completed suffix and paired checkpoint",
+      "target failure and saved metadata rollback",
+      "completed private MTP producer failure and saved metadata rollback",
+      "owner single-token continuation leaves checkpoint intact before decode",
+      "teacher-forced diagnostic rejection before target work"
+    ],
+    "new_test_target_backend": "synthetic host metadata and actual PrefillRows; no numerical model backend",
+    "companion_actual_shadow_and_stream_checks": true
+  },
+  "local_tests": {
+    "kind": "mtp_prefix_runtime_local_validation",
+    "utc": "2026-09-21T02:40:55.658918+00:00",
+    "host": "Jiawei-MacminideMac-mini.local",
+    "source_base_commit": "3809e3c33db1d2fac3f3ab4a9f33e99e7459ea14",
+    "source_revision": "working-tree",
+    "cwd": "<evidence-home-1>/projects/AIMA-public-r1191-candidate",
+    "command": [
+      "<evidence-home-1>/.local/bin/python3.12",
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/run_mtp_prefix_runtime_local_r2.py"
+    ],
+    "test_modules": [
+      "tests.test_mtp_drafter",
+      "tests.test_mtp_native_prefill_integration",
+      "tests.test_prefill_chunks",
+      "tests.test_model_prefix_checkpoint",
+      "tests.test_native_mtp_decode",
+      "tests.test_prefix_decode_stream"
+    ],
+    "changed_source_sha256": {
+      "native/providers/sm121_mtp_prefix_seed.h": "be6411cb46241e94010fe20458e85fd4c683611ff4a2f37eb63c821431f54ccc",
+      "tests/native/mtp_prefix_runtime_host.inc": "6a6129b64e3514caecfc6c43b31c5599632d59a343173e55f54fdede5bb4e9b2",
+      "native/providers/gdn/sm121_mtp_request.h": "1fe25ff85218835711cdb958caf373986316abde570195e6c998ab50b89ae09e",
+      "native/providers/whole_provider.cpp": "b8a54e6daf61dbcbe3dd85b88536fa2a9a57461bfdd5be53e42639dfdff334c8",
+      "tests/native/mtp_drafter_host.cpp": "4ca8f87b96e5d16992ec66b02ba3590131187bdbfac94516dac37ba361604b5b",
+      "tests/test_mtp_drafter.py": "c00ca2b21e2886da27b0db9c0133f3e152c1faaa20327b682e8c18808918b1bd",
+      "tests/test_mtp_native_prefill_integration.py": "0fe68095f90808882a1d81ab6d393aa67d3d8c78f02b9d0185d13a591b7f8a14"
+    },
+    "patch_sha256": "296c8e707bd6dbc32f079bf44b96d9f5c64a9abb8b474679fab40155b0b63a77",
+    "wall_seconds": 47.70872600004077,
+    "test_methods": 9,
+    "exit_code": 0,
+    "output": ".........\n----------------------------------------------------------------------\nRan 9 tests in 47.697s\n\nOK\n",
+    "actual_request_child_results": [
+      {
+        "command": [
+          "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/tmp4r_nyhfm/test",
+          "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/tmp4r_nyhfm"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "abef8c1b2d3c6266bcdc22df4b88b9ea479fc9e30e454a1311e26149ba44bc6c",
+        "stderr_sha256": "0c9a401de4174632f3c96495ecab0725deb1f3ae52637c1449e9dfab65bb0185",
+        "markers": [
+          "native MTP plain seed cases=5 completion_fences=6 pass",
+          "native MTP chunked seed cases=5 invalid_frontiers=10 retry_failures=7 completion_fences=7 pass",
+          "native MTP chunked runtime completion_fences=9 pass",
+          "native MTP explicit prefill norm cases=2 profiles=2 pass",
+          "native MTP prefix repairs cases=9 invalid_frontiers=14 retry_failures=12 completion_fences=11 pass",
+          "native MTP prefix runtime cases=5 invalid_frontiers=26 failed_publications=10 completion_fences=12 pass",
+          "native MTP actual prefix entry cases=5 pass"
+        ],
+        "failure_stderr": null
+      }
+    ],
+    "asan_ubsan": true,
+    "native_execution": false,
+    "real_model_inference": false,
+    "performance_qualified": false,
+    "release_qualified": false
+  },
+  "local_tests_file": "mtp-prefix-runtime-local-tests-r2.json",
+  "local_tests_sha256": "f811182c1236f2482e6f74777773be82460cf46e0da9c170ffd0ead58287bfbb",
+  "original_context_reference": {
+    "file": "benchmarks/correctness/mtp-chunked-prefill-original-20260921.json",
+    "sha256": "4ed85ad0c7fbb3c49eba8fc2fcc3c4443490cf3705492488268ad55f886c8a4b",
+    "actual_prior_original_model_capture": true,
+    "this_runtime_execution_qualified": false
+  },
+  "native_execution": false,
+  "real_model_inference_qualified": false,
+  "performance_qualified": false,
+  "release_qualified": false,
+  "frozen_native_plans_changed": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "2c0572446a6fbf73a7b3bd641b70c943378dc3dbf1d4293eaea664c28770f8d7",
+    "original_json_bytes": 7631,
+    "source_revision": "3809e3c33db1d2fac3f3ab4a9f33e99e7459ea14-plus-working-tree",
+    "source_path": "build/recovery-20260910/native-mtp-prefix-runtime-local-20260921.raw.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 3
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}

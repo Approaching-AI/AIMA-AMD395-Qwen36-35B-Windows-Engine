@@ -52,6 +52,7 @@
 #include "gdn/sm121_q2_resident_cache.h"
 #include "sm121_mtp_prefill_probe.h"
 #include "sm121_mtp_request_seed.h"
+#include "sm121_mtp_prefix_seed.h"
 #include "q1_trace_policy.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "moe_accumulator/sm121_wave16.h"
@@ -160552,7 +160553,11 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
     const bool mtp_chunked_inner = mtp_native_decode_requested && g_qwen36_chunked_prefill_total_tokens &&
         g_qwen36_chunked_prefill_total_tokens < qrt_mtp_draft_schedule::reference_drafter_limit &&
         qrt_mtp_target_rows::Scope::active;
-    const bool mtp_native_request_seed = (mtp_native_decode_requested && !mtp_chunked_outer && !mtp_chunked_inner) ||
+    const bool mtp_prefix_inner = mtp_native_decode_requested && ScopedQwen36PrefixBatchSuffix::active &&
+        !g_qwen36_chunked_prefill_total_tokens && qrt_sm121_mtp_runtime::PrefixPrefillSeed::captures(
+            request->resident_engine,request->input_tokens,request->input_token_count,
+            ScopedQwen36PrefixBatchSuffix::active->prefix);
+    const bool mtp_native_request_seed = (mtp_native_decode_requested && !mtp_chunked_outer && !mtp_chunked_inner && !mtp_prefix_inner) ||
         env_flag_enabled("QRT_QWEN36_MTP_NATIVE_REQUEST_SEED");
     if (mtp_native_request_seed && ((!mtp_native_decode_requested && !mtp_native_probe_requested) || !request->resident_engine ||
             !request->output_token_capacity)) {
@@ -160568,7 +160573,7 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
             "native MTP prefill diagnostics require one complete q7169/q8192 prompt and original resident MTP weights", start_ns);
         return 0;
     }
-    if (mtp_native_decode_requested && !mtp_chunked_outer && !mtp_chunked_inner &&
+    if (mtp_native_decode_requested && !mtp_chunked_outer && !mtp_chunked_inner && !mtp_prefix_inner &&
         (!request->input_token_count || request->input_token_count > qrt_mtp_target_rows::maximum_batch_rows ||
          ScopedQwen36PrefixBatchSuffix::active || g_qwen36_chunked_prefill_total_tokens)) {
         qrt_qwen36_whole_provider_set_failure(out_result,"mtp_native_prefill_request",
@@ -222953,6 +222958,80 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_checkpoint_query
     return 1;
 }
 
+bool prepare_qwen36_native_mtp_prefix(
+    const qrt_qwen36_whole_provider_prefix_request_v1_t& request,
+    bool batch_suffix, qrt_sm121_mtp_runtime::PrefixPrefillSeed* seed,
+    std::string* failure_stage, std::string* failure
+) {
+    const auto fail = [&](const char* stage,const char* message) {
+        *failure_stage=stage;*failure=message;return false;
+    };
+    // The enclosing Shadow holds the actual target lock. Full-owner hits are
+    // admitted only at the untouched cold frontier; partial checkpoints have
+    // already cleared their unrelated native MTP state.
+    const auto& session=g_qwen36_resident_session;
+    if (!seed || !session.valid || !session.provider_completed || !session.current_token_valid ||
+        session.generation!=request.expected_session_generation ||
+        session.prefix_tokens!=request.expected_prefix_token_count ||
+        session.committed_decode_token_count || !request.input_tokens || !request.suffix_tokens ||
+        session.native_mtp_processed_inputs.size()!=session.prefix_tokens ||
+        request.input_token_count!=session.prefix_tokens+request.suffix_token_count ||
+        request.output_token_capacity>512u || !request.output_token_capacity ||
+        request.input_token_count>262144u-request.output_token_capacity-2u ||
+        !std::equal(session.native_mtp_processed_inputs.begin(),session.native_mtp_processed_inputs.end(),
+            request.input_tokens))
+        return fail("mtp_native_prefix_frontier","native MTP prefix reuse requires the exact untouched target owner before drafter retirement");
+    if ((!batch_suffix && (request.suffix_token_count!=1u || request.suffix_tokens[0]!=session.current_token_id)) ||
+        (batch_suffix && request.suffix_token_count!=1024u))
+        return fail("mtp_native_prefix_suffix","native MTP prefix reuse requires the owner's next token or a complete 1024-token prompt suffix");
+    const auto source=acquire_qwen36_mtp_model_weight_source(session.model_dir,failure_stage,failure);
+    if (!source) return false;
+    const qrt_sm121_mtp::TargetFrontier actual{session.owner_engine,session.generation,source->epoch(),
+        session.native_mtp_processed_inputs.data(),session.native_mtp_processed_inputs.size(),session.current_token_id};
+    if (!session.native_mtp_checkpoint.matches(actual))
+        return fail("mtp_native_prefix_checkpoint","native MTP checkpoint does not match the independent target frontier");
+    if (!batch_suffix) return true;
+    const auto prepared=seed->begin(session.native_mtp_checkpoint,source,actual,request.input_tokens,
+        request.input_token_count,request.input_token_count+request.output_token_capacity);
+    if (prepared.status!=hipSuccess) return fail(prepared.stage,"native MTP prefix capture could not bind the original cold checkpoint");
+    return true;
+}
+
+bool finish_qwen36_native_mtp_prefix(
+    const qrt_qwen36_whole_provider_prefix_request_v1_t& request,
+    qrt_sm121_mtp_runtime::PrefixPrefillSeed& seed,
+    std::string* failure_stage, std::string* failure
+) {
+    seed.end_capture();
+    auto& session=g_qwen36_resident_session;
+    if (!session.valid || !session.provider_completed || !session.current_token_valid ||
+        session.generation!=request.expected_session_generation ||
+        session.prefix_tokens!=request.expected_prefix_token_count ||
+        session.committed_decode_token_count!=request.suffix_token_count ||
+        !session.last_decode_top2_valid || session.last_decode_top2_position+1u!=request.input_token_count) {
+        *failure_stage="mtp_native_prefix_target";
+        *failure="native MTP prefix append requires the completed actual target suffix";
+        return false;
+    }
+    const qrt_sm121_mtp::TargetFrontier actual{session.owner_engine,session.generation,seed.epoch(),
+        request.input_tokens,request.input_token_count,session.current_token_id};
+    const auto saved=seed.finish(actual,&session.native_mtp_checkpoint,&session.native_mtp_processed_inputs);
+    if (saved.status!=hipSuccess) {
+        if (saved.completion_unknown) {
+            g_qwen36_resident_completion_unknown=true;
+            session.valid=false;session.route_active=false;
+        }
+        *failure_stage=saved.stage;*failure="native MTP prefix repair or paired checkpoint publication failed";
+        return false;
+    }
+    std::cerr << "BATCH_MARK qwen36_mtp_native_prefix_seed generation=" << session.generation
+              << " prefix_tokens=" << session.prefix_tokens << " suffix_tokens=" << request.suffix_token_count
+              << " processed_tokens=" << session.native_mtp_processed_inputs.size()
+              << " actual_target_hidden=1 immutable_source=1 paired_checkpoint=1 reference_input=0"
+              << " numerical_correctness_claimed=0" << std::endl;
+    return true;
+}
+
 QRT_PREFILL_DESCRIPTOR_BATCH_HIP_EXPORT int
 QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
     const qrt_qwen36_whole_provider_prefix_request_v1_t *request,
@@ -223235,11 +223314,25 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
             "the gb10 teacher-forced continuation must cover every requested output token"
         );
     }
+    const bool native_mtp_prefix_requested=raw_env_flag_enabled("QRT_QWEN36_MTP_NATIVE_DECODE");
+    qrt_sm121_mtp_runtime::PrefixPrefillSeed native_mtp_prefix;
+    if (native_mtp_prefix_requested) {
+        if (gb10_continuation_teacher_forced)
+            return rollback_failure(QRT_STATUS_INVALID_ARGUMENT,"mtp_native_prefix_reference_input",
+                "native MTP prefix continuation requires its actual paired checkpoint");
+        if (!prepare_qwen36_native_mtp_prefix(*request,batch_suffix_requested,&native_mtp_prefix,&failure_stage,&failure))
+            return rollback_failure(QRT_STATUS_UNSUPPORTED,failure_stage,failure);
+    }
     if (batch_suffix_requested) {
-        if (!run_qwen36_resident_batch_suffix(*request, out_result->teacher_forced_prediction_tokens,
-                &failure_stage, &failure)) {
+        const bool suffix_ok=run_qwen36_resident_batch_suffix(*request,out_result->teacher_forced_prediction_tokens,
+            &failure_stage,&failure);
+        native_mtp_prefix.end_capture();
+        if (!suffix_ok) {
             return rollback_failure(QRT_STATUS_UNSUPPORTED, failure_stage, failure);
         }
+        if (native_mtp_prefix_requested &&
+            !finish_qwen36_native_mtp_prefix(*request,native_mtp_prefix,&failure_stage,&failure))
+            return rollback_failure(QRT_STATUS_UNSUPPORTED,failure_stage,failure);
     } else if (q1024_owner_shape) {
         qrt_qwen36_q1024_owner_result_v1_t owner_result{};
         if (!run_qwen36_resident_q1024_suffix_owner(
@@ -223331,7 +223424,7 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
             bool suffix_fla_complete = false;
             const int decode_ok = [&] {
                 ScopedQwen36PrefixFlaSingleSuffix suffix_math(
-                    raw_env_flag_enabled("QRT_QWEN36_PREFIX_FLA_SINGLE_SUFFIX"),
+                    !native_mtp_prefix_requested && raw_env_flag_enabled("QRT_QWEN36_PREFIX_FLA_SINGLE_SUFFIX"),
                     request->expected_prefix_token_count, request->suffix_token_count);
                 const int ok = qrt_qwen36_whole_provider_decode_v1(&decode_request, &decode_result);
                 suffix_fla_complete = suffix_math.complete();
@@ -223365,7 +223458,7 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
     const bool exact_prefill_verify_all_requested =
         raw_env_flag_enabled("QRT_QWEN36_Q1_EXACT_PREFILL_VERIFY_ALL");
     const bool exact_low_margin_verifier_requested =
-        !batch_suffix_requested && !q1024_owner_shape && !gb10_continuation_teacher_forced &&
+        !native_mtp_prefix_requested && !batch_suffix_requested && !q1024_owner_shape && !gb10_continuation_teacher_forced &&
         (exact_prefill_verify_all_requested ||
          raw_env_flag_enabled(
              "QRT_QWEN36_Q1_EXACT_LOW_MARGIN_PREFILL_VERIFY"
@@ -223809,14 +223902,16 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
         << " minimum_output_tokens=" << minimum_output_tokens
         << " generation_stop_token_ids=248044,248046"
         << " weight_bits=16 quantized=0 dflash_active=0 mtp_active="
-        << (raw_env_flag_enabled(
+        << (native_mtp_prefix_requested || raw_env_flag_enabled(
                 "QRT_QWEN36_Q1_MTP_TOP2_ARBITRATION"
             ) ? 1 : 0)
+        << " native_mtp=" << (native_mtp_prefix_requested ? 1 : 0)
         << " mtp_top2_arbitration="
         << (raw_env_flag_enabled(
                 "QRT_QWEN36_Q1_MTP_TOP2_ARBITRATION"
             ) ? 1 : 0)
-        << " speculative_decode=0 numerical_correctness_claimed=0"
+        << " speculative_decode=" << (native_mtp_prefix_requested ? 1 : 0)
+        << " numerical_correctness_claimed=0"
         << std::endl;
     return 1;
 }

@@ -155,7 +155,7 @@ and seven completion failures. The complete runtime helper covers all nine
 completion failures; the actual cold coordinator covers four failed stages,
 unknown completion and callback cancellation. ASan/UBSan uses host protocol
 doubles, not Windows kernels. Cold admission remains below262144; retirement
-crossing and prefix-suffix reseeding remain open. The frozen first native MTP
+crossing and native prefix-suffix qualification remain open. The frozen first native MTP
 build stays at490370a; this subsequent integration needs a separate Windows
 build and original-model comparison before correctness or release acceptance.
 
@@ -217,9 +217,34 @@ fences. Deferred writes under ASan/UBSan verify both the unchanged source and
 its restored checkpoint. The native component probe now also prepares the
 original16k-to17k comparison, including every fork/source KV cell, complete
 draft logits and both restored next proposals on default/nonblocking streams.
-Its host syntax passes. This prefix API is not yet selected by the whole
-runtime; Windows arithmetic, live prefix continuation and release remain
+Its host syntax passes. The subsequent runtime integration below selects this
+prefix API; Windows arithmetic, live prefix continuation and release remain
 unqualified. The six-case cold native plan remains frozen at e7880fc.
+
+The [local whole-runtime prefix integration](../benchmarks/correctness/native-mtp-prefix-runtime-local-20260921.json)
+connects actual1024-token suffix prefill to the paired MTP checkpoint when
+native decode is explicitly enabled. It validates the untouched target owner,
+current model epoch, complete processed IDs and actual target sample before
+capturing suffix hidden rows. The retained checkpoint supplies its own norm
+profile. Changed chunk seams, actual suffix append, proposal and paired save
+complete before replacing the live MTP state or publishing caller output.
+The capture ends before decode or rollback. An owner continuation whose next
+input equals its actual sample directly uses the matching checkpoint. Existing
+Shadow copies already preserve both target and MTP state, so this adds no
+second persistent checkpoint. Native decode remains disabled by default.
+
+Nine local regressions pass under ASan/UBSan in47.697s. The new runtime harness
+checks five successful paths,26 invalid admissions, ten failed target
+publications and all12 completion fences through repair and checkpoint save.
+Five actual entry-branch cases cover success, completed target/MTP failures,
+owner continuation and reference-input rejection. These tests use synthetic
+target rows and host state; related tests exercise the actual Shadow and
+streaming bridge. Known failures restore the owner through the existing
+transaction, while unknown completion quarantines producers and invalidates
+the target. Partial checkpoints, differing single-token teacher inputs and
+retirement crossing remain unsupported by this opt-in route. No numerical
+kernel changes, Windows execution, real-model qualification or release claim
+is included. All previously prepared native source plans remain unchanged.
 
 The [prefix streaming regression](../benchmarks/correctness/prefix-live-stream-local-20260921.json)
 reproduces delayed delivery in the actual prefix decode loop: each span finishes

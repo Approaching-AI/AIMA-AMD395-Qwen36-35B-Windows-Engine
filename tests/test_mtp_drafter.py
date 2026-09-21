@@ -4,6 +4,7 @@ import json
 import subprocess
 import tempfile
 import unittest
+from tests.test_attention_workspace import function
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -30,22 +31,35 @@ class MtpDrafterTests(unittest.TestCase):
             probe = probe.replace('#include "mtp_target_rows_trace.h"',
                 '#include "native/providers/mtp_target_rows_trace.h"')
             (directory / 'sm121_mtp_prefill_probe.h').write_text(probe)
-            seed = (ROOT / 'native/providers/sm121_mtp_request_seed.h').read_text()
-            seed = '\n'.join(line for line in seed.splitlines() if not line.startswith('#include "')) + '\n'
-            (directory / 'sm121_mtp_request_seed.h').write_text(seed)
+            for name in ('sm121_mtp_request_seed.h', 'sm121_mtp_prefix_seed.h'):
+                seed = (ROOT / 'native/providers' / name).read_text()
+                seed = '\n'.join(line for line in seed.splitlines() if not line.startswith('#include "')) + '\n'
+                (directory / name).write_text(seed)
+            whole = (ROOT / 'native/providers/whole_provider.cpp').read_text()
+            (directory / 'mtp_prefix_provider_functions.inc').write_text('\n'.join(
+                function(whole, name) for name in (
+                    'bool prepare_qwen36_native_mtp_prefix(', 'bool finish_qwen36_native_mtp_prefix(')))
+            start = whole.index('    const char *mtp_target_trace_prefix =')
+            end = whole.index('\n    qrt_qwen36_prefill_descriptor_batch_timing_t preload_timing', start)
+            (directory / 'mtp_prefix_prefill_admission.inc').write_text(whole[start:end])
+            start = whole.index('    const bool native_mtp_prefix_requested=')
+            end = whole.index('    } else if (q1024_owner_shape) {', start)
+            (directory / 'mtp_prefix_entry_branch.inc').write_text(whole[start:end] + '    }\n')
             exe = directory / 'test'
             build = subprocess.run(['c++', '-std=c++17', '-O1', '-Wall', '-Wextra', '-Werror',
                 '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-I', str(directory),
                 '-I', str(ROOT), str(ROOT / 'tests/native/mtp_drafter_host.cpp'), '-o', str(exe)],
                 capture_output=True, text=True, timeout=60)
             self.assertEqual(build.returncode, 0, build.stderr)
-            run = subprocess.run([str(exe), str(directory)], capture_output=True, text=True, timeout=60)
+            run = subprocess.run([str(exe), str(directory)], capture_output=True, text=True, timeout=90)
             self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
             self.assertIn('native MTP plain seed cases=5 completion_fences=6 pass', run.stdout)
             self.assertIn('native MTP chunked seed cases=5 invalid_frontiers=10 retry_failures=7 completion_fences=7 pass', run.stdout)
             self.assertIn('native MTP chunked runtime completion_fences=9 pass', run.stdout)
             self.assertIn('native MTP explicit prefill norm cases=2 profiles=2 pass', run.stdout)
             self.assertIn('native MTP prefix repairs cases=9 invalid_frontiers=14 retry_failures=12 completion_fences=11 pass', run.stdout)
+            self.assertIn('native MTP prefix runtime cases=5 invalid_frontiers=26 failed_publications=10 completion_fences=12 pass', run.stdout)
+            self.assertIn('native MTP actual prefix entry cases=5 pass', run.stdout)
             for rows in (7169, 8192):
                 prefix = directory / f'prefill-{rows}'
                 record = json.loads(prefix.with_suffix('.json').read_text())

@@ -79,6 +79,9 @@ std::shared_ptr<Source> acquire_qwen36_mtp_model_weight_source(const char* model
  return std::make_shared<Source>();
 }
 namespace qrt_sm121_mtp_runtime {
+// This cold-prefill fixture does not own a prefix capture. The actual
+// PrefixPrefillSeed and its provider admission run in test_mtp_drafter.
+struct PrefixPrefillSeed {static bool captures(const void*,const uint32_t*,size_t,size_t){return false;}};
 struct SeedResult{int status=0;const char* stage="actual_seed_without_trace";bool completion_unknown=false;};
 SeedResult seed_prefill_request(const qrt_mtp_target_rows::PrefillRows& batch,std::shared_ptr<Source> source,
  const qrt_sm121_mtp::TargetFrontier& actual,unsigned capacity,qrt_sm121_mtp::RequestCheckpoint* output){
