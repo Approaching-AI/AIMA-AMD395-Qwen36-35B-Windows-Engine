@@ -1,0 +1,557 @@
+{
+  "schema_version": 1,
+  "kind": "original_q8192_rejected_projection_rows_and_host_wave_coordinates",
+  "source_commit": "b25df94da0b718dfbb8dca877b1e3520a187312b",
+  "reference": "benchmarks/correctness/gb10-real-q8192-prefill-operands-20260921.json",
+  "reference_sha256": "0442a488f70679bb8d502a11dd55061a095a7877edbb42749927a2b8b9830a38",
+  "rejected_rows": {
+    "source_sha256": "613026c16519ef732fd678aea58cf8fbcb23a56fc6a65f3a737af5b7b2eae49a",
+    "source_commit": "b25df94da0b718dfbb8dca877b1e3520a187312b",
+    "quoted_include_bindings": {
+      "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+      "native/providers/moe_accumulator/sm121_f32_carry.h": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+      "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+      "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+      "native/providers/moe_accumulator/sm121_narrow_f32_carry.h": "85ab733dd564a8dbc5948f5700fcb6c66fbbc5239d0f55e405dbe7e4e210eca9"
+    },
+    "quoted_includes_are_compiler_dependency_list": false,
+    "prior_sample_sha256": "36e7ef98c64728fcafd72fe80052ae28eeb537de260090983354a6cf3f8a5996",
+    "reference": {
+      "file": "qrt-gb10-real-q8192-prefill-20260921-r1/boundary-analysis.json",
+      "sha256": "0fbdd8be9b0cab0f0c8ea4506139ed22806f254366f2c60324d893e474f25a52"
+    },
+    "compile_command": [
+      "c++",
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-I",
+      "<runtime-checkout>",
+      "<controller-evidence>/audit_original_q8192_rejected_rows_r1.cpp",
+      "-o",
+      "<controller-evidence>/original-q8192-rejected-rows-host-r1/audit"
+    ],
+    "compile_returncode": 0,
+    "compile_stdout": "",
+    "compile_stderr": "",
+    "compile_timeout_seconds": 45,
+    "run_timeout_seconds": 90,
+    "runs": [
+      {
+        "command": [
+          "<controller-evidence>/original-q8192-rejected-rows-host-r1/audit",
+          "qkv",
+          "<controller-evidence>/qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-layer-00-input-rmsnorm-bf16.bin",
+          "<controller-evidence>/layer0-weights-r1/qkv.bin",
+          "<controller-evidence>/qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-linear-00-qkv-bf16.bin"
+        ],
+        "returncode": 0,
+        "stdout": "{\"mode\":\"qkv\",\"source_tokens\":8192,\"repeated_rows\":0,\"rejected_input_rows\":[],\"rejected_weight_rows\":[143,146,152,169,170,182,186,215,241,242,248,1026,1027,1033,1035,1039,1044,1045,1046,1049,1056,1059,1064,1067,1078,1080,1085,1090,1091,1094,1102,1110,1112,1118,1122,1126,1128,1130,1136,1161,1162,1193,1200,1210,1212,1220,1225,1243,1246,1248,1249,1255,1261,1264,1275,1278,2191,2194,2200,2217,2218,2230,2234,2263,2289,2290,2296,3074,3075,3081,3083,3087,3092,3093,3094,3097,3104,3107,3112,3115,3126,3128,3133,3138,3139,3142,3150,3158,3160,3166,3170,3174,3176,3178,3184,3209,3210,3241,3248,3258,3260,3268,3273,3291,3294,3296,3297,3303,3309,3312,3323,3326],\"invalid_input_cells\":0,\"invalid_weight_cells\":229376,\"complete_rejected_input_outputs\":0,\"sampled_tokens_per_rejected_weight\":16,\"verified_dots\":1792,\"ordered_groups\":229376,\"gb10_bf16_mismatches\":0,\"nonfinite_outputs\":0,\"host_arithmetic_only\":true,\"gpu_executed\":false}\n",
+        "stderr": "",
+        "result": {
+          "mode": "qkv",
+          "source_tokens": 8192,
+          "repeated_rows": 0,
+          "rejected_input_rows": [],
+          "rejected_weight_rows": [
+            143,
+            146,
+            152,
+            169,
+            170,
+            182,
+            186,
+            215,
+            241,
+            242,
+            248,
+            1026,
+            1027,
+            1033,
+            1035,
+            1039,
+            1044,
+            1045,
+            1046,
+            1049,
+            1056,
+            1059,
+            1064,
+            1067,
+            1078,
+            1080,
+            1085,
+            1090,
+            1091,
+            1094,
+            1102,
+            1110,
+            1112,
+            1118,
+            1122,
+            1126,
+            1128,
+            1130,
+            1136,
+            1161,
+            1162,
+            1193,
+            1200,
+            1210,
+            1212,
+            1220,
+            1225,
+            1243,
+            1246,
+            1248,
+            1249,
+            1255,
+            1261,
+            1264,
+            1275,
+            1278,
+            2191,
+            2194,
+            2200,
+            2217,
+            2218,
+            2230,
+            2234,
+            2263,
+            2289,
+            2290,
+            2296,
+            3074,
+            3075,
+            3081,
+            3083,
+            3087,
+            3092,
+            3093,
+            3094,
+            3097,
+            3104,
+            3107,
+            3112,
+            3115,
+            3126,
+            3128,
+            3133,
+            3138,
+            3139,
+            3142,
+            3150,
+            3158,
+            3160,
+            3166,
+            3170,
+            3174,
+            3176,
+            3178,
+            3184,
+            3209,
+            3210,
+            3241,
+            3248,
+            3258,
+            3260,
+            3268,
+            3273,
+            3291,
+            3294,
+            3296,
+            3297,
+            3303,
+            3309,
+            3312,
+            3323,
+            3326
+          ],
+          "invalid_input_cells": 0,
+          "invalid_weight_cells": 229376,
+          "complete_rejected_input_outputs": 0,
+          "sampled_tokens_per_rejected_weight": 16,
+          "verified_dots": 1792,
+          "ordered_groups": 229376,
+          "gb10_bf16_mismatches": 0,
+          "nonfinite_outputs": 0,
+          "host_arithmetic_only": true,
+          "gpu_executed": false
+        }
+      },
+      {
+        "command": [
+          "<controller-evidence>/original-q8192-rejected-rows-host-r1/audit",
+          "out",
+          "<controller-evidence>/qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-full-03-gated-bf16.bin",
+          "<controller-evidence>/qrt-gb10-dense-out-20260915-r1/output/out-weight-bf16.bin",
+          "<controller-evidence>/qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-full-03-output-bf16.bin"
+        ],
+        "returncode": 0,
+        "stdout": "{\"mode\":\"out\",\"source_tokens\":8192,\"repeated_rows\":0,\"rejected_input_rows\":[558],\"rejected_weight_rows\":[],\"invalid_input_cells\":1,\"invalid_weight_cells\":0,\"complete_rejected_input_outputs\":2048,\"sampled_tokens_per_rejected_weight\":16,\"verified_dots\":2048,\"ordered_groups\":524288,\"gb10_bf16_mismatches\":0,\"nonfinite_outputs\":0,\"host_arithmetic_only\":true,\"gpu_executed\":false}\n",
+        "stderr": "",
+        "result": {
+          "mode": "out",
+          "source_tokens": 8192,
+          "repeated_rows": 0,
+          "rejected_input_rows": [
+            558
+          ],
+          "rejected_weight_rows": [],
+          "invalid_input_cells": 1,
+          "invalid_weight_cells": 0,
+          "complete_rejected_input_outputs": 2048,
+          "sampled_tokens_per_rejected_weight": 16,
+          "verified_dots": 2048,
+          "ordered_groups": 524288,
+          "gb10_bf16_mismatches": 0,
+          "nonfinite_outputs": 0,
+          "host_arithmetic_only": true,
+          "gpu_executed": false
+        }
+      }
+    ],
+    "tensors": {
+      "qkv": [
+        {
+          "file": "qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-layer-00-input-rmsnorm-bf16.bin",
+          "bytes": 33554432,
+          "sha256": "5c8600a7469ddd8d272592522877e81523df2a9c4028da3d98fab6a9c8bfe295",
+          "shape": [
+            8192,
+            2048
+          ],
+          "dtype": "bf16",
+          "transaction": 0
+        },
+        {
+          "file": "layer0-weights-r1/qkv.bin",
+          "sha256": "b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f",
+          "bytes": 33554432
+        },
+        {
+          "file": "qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-linear-00-qkv-bf16.bin",
+          "bytes": 134217728,
+          "sha256": "ce1e3b04150516fdd640b062562bbdf506e6bbe7745186bd6c5917a3cd021fda",
+          "shape": [
+            8192,
+            8192
+          ],
+          "dtype": "bf16",
+          "transaction": 0
+        }
+      ],
+      "out": [
+        {
+          "file": "qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-full-03-gated-bf16.bin",
+          "bytes": 67108864,
+          "sha256": "db8b3faf10131e233f36dc0fefc612570d8e8ec57dd4711264158c34deac5de9",
+          "shape": [
+            8192,
+            4096
+          ],
+          "dtype": "bf16",
+          "transaction": 0
+        },
+        {
+          "file": "qrt-gb10-dense-out-20260915-r1/output/out-weight-bf16.bin",
+          "sha256": "f4cb470eeff400e05add65afc846ca49ae934455237609da4e3a2d58380f02ab",
+          "bytes": 16777216
+        },
+        {
+          "file": "qrt-gb10-real-q8192-prefill-20260921-r1/capture/q8192-out512/txn0000-full-prefill-full-03-output-bf16.bin",
+          "bytes": 33554432,
+          "sha256": "b7db19a4d09fed5da5fbd539559a6314cac054e77bdcaf254bbcf4d1adc8b6e4",
+          "shape": [
+            8192,
+            2048
+          ],
+          "dtype": "bf16",
+          "transaction": 0
+        }
+      ]
+    },
+    "host_arithmetic_only": true,
+    "gpu_executed": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "rejected_rows_sha256": "a99cc0018feda770b318634d6eb000d1fa410c7735147331757c2c0950b47951",
+  "rejected_operand_classification": [
+    {
+      "mode": "qkv",
+      "invalid_biased_exponents": {
+        "4": 216676,
+        "50": 540,
+        "48": 1101,
+        "45": 155,
+        "47": 558,
+        "49": 1286,
+        "46": 285,
+        "51": 29,
+        "43": 54,
+        "44": 69,
+        "42": 175,
+        "41": 1012,
+        "40": 1185,
+        "38": 428,
+        "39": 861,
+        "37": 213,
+        "36": 127,
+        "35": 62,
+        "32": 10,
+        "34": 28,
+        "33": 11,
+        "30": 3,
+        "28": 137,
+        "6": 12,
+        "5": 399,
+        "27": 933,
+        "19": 20,
+        "21": 61,
+        "25": 841,
+        "26": 1286,
+        "24": 432,
+        "23": 222,
+        "20": 31,
+        "22": 115,
+        "16": 3,
+        "18": 6,
+        "29": 4,
+        "11": 1,
+        "17": 4,
+        "7": 1
+      },
+      "first_examples": [
+        {
+          "row_zero_based": 143,
+          "column_zero_based": 0,
+          "bf16_bits": "0x8220"
+        },
+        {
+          "row_zero_based": 143,
+          "column_zero_based": 1,
+          "bf16_bits": "0x220"
+        },
+        {
+          "row_zero_based": 143,
+          "column_zero_based": 2,
+          "bf16_bits": "0x8220"
+        },
+        {
+          "row_zero_based": 143,
+          "column_zero_based": 3,
+          "bf16_bits": "0x220"
+        },
+        {
+          "row_zero_based": 143,
+          "column_zero_based": 4,
+          "bf16_bits": "0x8220"
+        }
+      ]
+    },
+    {
+      "mode": "out",
+      "invalid_biased_exponents": {
+        "94": 1
+      },
+      "first_examples": [
+        {
+          "row_zero_based": 558,
+          "column_zero_based": 2123,
+          "bf16_bits": "0x2f75"
+        }
+      ]
+    }
+  ],
+  "host_wave_coordinates": {
+    "source_commit": "b25df94da0b718dfbb8dca877b1e3520a187312b",
+    "original_kernel": "native/providers/moe_accumulator/sm121_partial_wave_projection.h",
+    "original_kernel_sha256": "30bc0c07fbc59fff0b0939e29401e728e699b25c1ef1d9ff58442af9cf02a1bd",
+    "extracted_replay_sha256": "f8d37a139086c30382e7db6696938accd0bf69a060c51d06f0b2974b97e31064",
+    "source_sha256": "c1b556735c1382a6354adc7241dd1d3c95efbccf3bbf2702f494fce05043edd8",
+    "quoted_include_bindings": {
+      "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+      "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+      "native/providers/moe_accumulator/sm121_compact_integer_dot4.h": "dd88abde3847cc63159fd1884bbaa4e242266ed5cdd6dd6085b44d16fbbdc47e",
+      "native/providers/moe_accumulator/sm121_compact_matrix_group.h": "282151268703522059965ec017e02ed3c4c5705b26eaf3740273efda098c955d",
+      "native/providers/moe_accumulator/sm121_f32_carry.h": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+      "native/providers/moe_accumulator/sm121_float_alignment.h": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+      "native/providers/moe_accumulator/sm121_group16_modulo.h": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+      "native/providers/moe_accumulator/sm121_integer_core.h": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+      "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+      "native/providers/moe_accumulator/sm121_matrix_remainder_group.h": "73b2ccad4a0c86b02ea0d6940b2ef43b6dca15c9e40ae80faeba9b69b3a8dd9a",
+      "native/providers/moe_accumulator/sm121_narrow_f32_carry.h": "85ab733dd564a8dbc5948f5700fcb6c66fbbc5239d0f55e405dbe7e4e210eca9",
+      "native/providers/moe_accumulator/sm121_packed_core_remainder.h": "4cbf70b4b423073560fdb8eec0333a15d463a74b1f09c79e123a6a6fc553d2e5",
+      "native/providers/moe_accumulator/sm121_partial_matrix_group.h": "1d76b5d19a6ad75c95a2161ecdf6e74eb3def2769b757dccc2efcc35adf126d7",
+      "native/providers/moe_accumulator/sm121_prepared_integer_pairs.h": "fc611756401aee8f4fcef546747a7510c1b60fa6a930b6aced3d3c1e02effe6c",
+      "native/providers/moe_accumulator/sm121_scalar_integer_core.h": "adf2dd5d24e98632ef0239d3ea40170c683e1d06b5902b5f08e0e578ae010d66"
+    },
+    "compile_command": [
+      "c++",
+      "-std=c++20",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-psabi",
+      "-Wno-unknown-pragmas",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-I",
+      "<runtime-checkout>",
+      "-I",
+      "<controller-evidence>/partial-wave-projection-host-coordinates-r1",
+      "<controller-evidence>/partial_wave_projection_host_coord_r1.cpp",
+      "-o",
+      "<controller-evidence>/partial-wave-projection-host-coordinates-r1/check"
+    ],
+    "compile_returncode": 0,
+    "compile_stdout": "",
+    "compile_stderr": "",
+    "compile_timeout_seconds": 45,
+    "execution_timeout_seconds": 180,
+    "host_execution_model_only": true,
+    "physical_wmma_semantics_verified": false,
+    "gpu_executed": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "command": [
+      "<controller-evidence>/partial-wave-projection-host-coordinates-r1/check"
+    ],
+    "returncode": 0,
+    "stdout": "{\"cases\":72,\"selected_outputs\":6670,\"ordered_carries\":32362,\"inactive_outputs\":13868,\"uniform_shuffles\":30336,\"uniform_ballots\":216,\"modeled_matrix_instructions\":632,\"raw_bit_mismatches\":0,\"redzones_pass\":true,\"immutable_inputs\":true,\"host_coordinates_and_declared_matrix_model_only\":true,\"physical_wmma_semantics_verified\":false,\"gpu_executed\":false}\n",
+    "stderr": "",
+    "result": {
+      "cases": 72,
+      "selected_outputs": 6670,
+      "ordered_carries": 32362,
+      "inactive_outputs": 13868,
+      "uniform_shuffles": 30336,
+      "uniform_ballots": 216,
+      "modeled_matrix_instructions": 632,
+      "raw_bit_mismatches": 0,
+      "redzones_pass": true,
+      "immutable_inputs": true,
+      "host_coordinates_and_declared_matrix_model_only": true,
+      "physical_wmma_semantics_verified": false,
+      "gpu_executed": false
+    }
+  },
+  "host_wave_coordinates_sha256": "c101ae448436b67dc1955187f4b35801a86e31443b966d67e20c2793f1246376",
+  "host_wave_faults": {
+    "positive_control_sha256": "c101ae448436b67dc1955187f4b35801a86e31443b966d67e20c2793f1246376",
+    "faults": [
+      {
+        "name": "wrong_broadcast_row",
+        "mutation": {
+          "before": "broadcast(b,item*2u+lane/16u)",
+          "after": "broadcast(b,(item*2u+lane/16u)^1u)"
+        },
+        "mutated_replay_sha256": "3d97c4aa0cb368f5f5470017ed73aa6bffc57ec1caa96550c2e098b11f32c84e",
+        "compile_command": [
+          "c++",
+          "-std=c++20",
+          "-O1",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-Wno-psabi",
+          "-Wno-unknown-pragmas",
+          "-fsanitize=address,undefined",
+          "-fno-sanitize-recover=all",
+          "-I",
+          "<runtime-checkout>",
+          "-I",
+          "<controller-evidence>/partial-wave-projection-host-coordinates-faults-r1/wrong_broadcast_row",
+          "<controller-evidence>/partial_wave_projection_host_coord_r1.cpp",
+          "-o",
+          "<controller-evidence>/partial-wave-projection-host-coordinates-faults-r1/wrong_broadcast_row/check"
+        ],
+        "compile_returncode": 0,
+        "compile_stdout": "",
+        "compile_stderr": "",
+        "command": [
+          "<controller-evidence>/partial-wave-projection-host-coordinates-faults-r1/wrong_broadcast_row/check"
+        ],
+        "returncode": 2,
+        "stdout": "",
+        "stderr": "ordered carry differs\n"
+      },
+      {
+        "name": "wrong_output_cell",
+        "mutation": {
+          "before": "output[size_t(token)*rows+first_row+item*2u+lane/16u]",
+          "after": "output[size_t(token)*rows+first_row+item*2u+lane/16u+1u]"
+        },
+        "mutated_replay_sha256": "8fe3645e16e95ddba6b8813bef618ba3597a09ec9f9490cd9a2799db74360706",
+        "compile_command": [
+          "c++",
+          "-std=c++20",
+          "-O1",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-Wno-psabi",
+          "-Wno-unknown-pragmas",
+          "-fsanitize=address,undefined",
+          "-fno-sanitize-recover=all",
+          "-I",
+          "<runtime-checkout>",
+          "-I",
+          "<controller-evidence>/partial-wave-projection-host-coordinates-faults-r1/wrong_output_cell",
+          "<controller-evidence>/partial_wave_projection_host_coord_r1.cpp",
+          "-o",
+          "<controller-evidence>/partial-wave-projection-host-coordinates-faults-r1/wrong_output_cell/check"
+        ],
+        "compile_returncode": 0,
+        "compile_stdout": "",
+        "compile_stderr": "",
+        "command": [
+          "<controller-evidence>/partial-wave-projection-host-coordinates-faults-r1/wrong_output_cell/check"
+        ],
+        "returncode": 2,
+        "stdout": "",
+        "stderr": "output differs\n"
+      }
+    ],
+    "declared_model_miswiring_rejected": true,
+    "gpu_executed": false,
+    "physical_wmma_semantics_verified": false
+  },
+  "host_wave_faults_sha256": "e406ceb56c8ce6b7d364e13eb132b28d09e28f49d3b8576f04031f343bd9a7d9",
+  "helper_sources": {
+    "audit_original_q8192_rejected_rows_r1.cpp": {
+      "sha256": "613026c16519ef732fd678aea58cf8fbcb23a56fc6a65f3a737af5b7b2eae49a",
+      "text": "#include \"native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h\"\n#include \"native/providers/moe_accumulator/sm121_narrow_f32_carry.h\"\n#include <algorithm>\n#include <cstdint>\n#include <cstring>\n#include <fstream>\n#include <iostream>\n#include <stdexcept>\n#include <string>\n#include <vector>\n\nnamespace original=qrt_q1_moe_hawkeye;\nstd::vector<uint16_t> read(const char* file,size_t cells){\n    std::ifstream stream(file,std::ios::binary|std::ios::ate);\n    if(!stream||stream.tellg()!=std::streamoff(cells*2u))throw std::runtime_error(\"tensor extent\");\n    std::vector<uint16_t> values(cells);stream.seekg(0);\n    stream.read(reinterpret_cast<char*>(values.data()),std::streamsize(cells*2u));\n    if(!stream)throw std::runtime_error(\"tensor read\");\n    return values;\n}\nuint32_t bits(float value){uint32_t word;std::memcpy(&word,&value,4u);return word;}\nint main(int argc,char** argv)try{\n    if(argc!=5)throw std::runtime_error(\"qkv|out INPUT WEIGHT REFERENCE\");\n    const std::string mode=argv[1];\n    if(mode!=\"qkv\"&&mode!=\"out\")throw std::runtime_error(\"mode\");\n    const unsigned rows=mode==\"qkv\"?8192u:2048u,width=mode==\"qkv\"?2048u:4096u;\n    const auto inputs=read(argv[2],size_t(8192u)*width);\n    const auto weights=read(argv[3],size_t(rows)*width);\n    const auto reference=read(argv[4],size_t(8192u)*rows);\n    std::vector<unsigned> rejected_inputs,rejected_weights;\n    unsigned invalid_input_cells=0u,invalid_weight_cells=0u;\n    for(unsigned side=0;side<2u;++side){\n        const auto& values=side?weights:inputs;\n        const unsigned count=side?rows:8192u;\n        for(unsigned row=0;row<count;++row){\n            unsigned invalid=0u;\n            for(unsigned k=0;k<width;++k)invalid+=!qrt_sm121_narrow_f32_carry::eligible(values[size_t(row)*width+k]);\n            if(invalid)(side?rejected_weights:rejected_inputs).push_back(row);\n            (side?invalid_weight_cells:invalid_input_cells)+=invalid;\n        }\n    }\n    uint64_t dots=0u,groups=0u,finite_failures=0u;\n    auto dot=[&](unsigned token,unsigned row){\n        const uint16_t* a=inputs.data()+size_t(token)*width;\n        const uint16_t* b=weights.data()+size_t(row)*width;\n        original::Value carry{0u,-133,false};\n        for(unsigned group=0;group<width/16u;++group){\n            original::Value terms[17];terms[0]=carry;\n            for(unsigned i=0;i<16u;++i)terms[i+1u]=original::multiply_bf16(a[group*16u+i],b[group*16u+i],-133);\n            carry=original::group_sum<26,-133>(terms,17u);++groups;\n        }\n        const auto word=bits(original::value_to_float(carry));\n        finite_failures+=((word>>23u)&255u)==255u;\n        const uint16_t rounded=uint16_t((word+0x7fffu+((word>>16u)&1u))>>16u);\n        if(rounded!=reference[size_t(token)*rows+row]){\n            std::cerr<<\"mismatch token=\"<<token<<\" row=\"<<row<<\" actual=\"<<rounded<<\" expected=\"<<reference[size_t(token)*rows+row]<<'\\n';\n            throw std::runtime_error(\"original rejected-row endpoint differs from GB10\");\n        }\n        ++dots;\n    };\n    for(unsigned token:rejected_inputs)for(unsigned row=0;row<rows;++row)dot(token,row);\n    for(unsigned row:rejected_weights)for(unsigned sample=0;sample<16u;++sample){\n        const unsigned token=sample*8191u/15u;\n        if(std::find(rejected_inputs.begin(),rejected_inputs.end(),token)==rejected_inputs.end())dot(token,row);\n    }\n    if(finite_failures)throw std::runtime_error(\"nonfinite output\");\n    std::cout<<\"{\\\"mode\\\":\\\"\"<<mode<<\"\\\",\\\"source_tokens\\\":8192,\\\"repeated_rows\\\":0,\\\"rejected_input_rows\\\":[\";\n    for(size_t i=0;i<rejected_inputs.size();++i)std::cout<<(i?\",\":\"\")<<rejected_inputs[i];\n    std::cout<<\"],\\\"rejected_weight_rows\\\":[\";\n    for(size_t i=0;i<rejected_weights.size();++i)std::cout<<(i?\",\":\"\")<<rejected_weights[i];\n    std::cout<<\"],\\\"invalid_input_cells\\\":\"<<invalid_input_cells<<\",\\\"invalid_weight_cells\\\":\"<<invalid_weight_cells\n             <<\",\\\"complete_rejected_input_outputs\\\":\"<<uint64_t(rejected_inputs.size())*rows\n             <<\",\\\"sampled_tokens_per_rejected_weight\\\":16,\\\"verified_dots\\\":\"<<dots<<\",\\\"ordered_groups\\\":\"<<groups\n             <<\",\\\"gb10_bf16_mismatches\\\":0,\\\"nonfinite_outputs\\\":0,\\\"host_arithmetic_only\\\":true,\\\"gpu_executed\\\":false}\\n\";\n}catch(const std::exception& e){std::cerr<<e.what()<<'\\n';return 2;}\n"
+    },
+    "audit_original_q8192_rejected_rows_r1.py": {
+      "sha256": "6818660286fcf8a1731b01fdc94e2f3e922b04e7ea9fbb1d4c6b01c9109c8626",
+      "text": "from pathlib import Path\nimport hashlib\nimport json\nimport re\nimport subprocess\n\nB=Path(__file__).resolve().parent\nP=Path('<runtime-checkout>')\nread=lambda p:json.loads(p.read_text(encoding='utf-8-sig'))\nsha=lambda p:hashlib.file_digest(p.open('rb'),'sha256').hexdigest()\nsource=B/'audit_original_q8192_rejected_rows_r1.cpp'\nprior_path=B/'original-q8192-projection-host-sample-r1/comparison.json'\nprior=read(prior_path)\nd=B/'original-q8192-rejected-rows-host-r1'\nd.mkdir()\ntodo=[P/'native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h',\n      P/'native/providers/moe_accumulator/sm121_narrow_f32_carry.h'];seen=set()\nwhile todo:\n    p=todo.pop().resolve()\n    if p in seen:continue\n    assert p.is_relative_to(P);seen.add(p)\n    for inc in re.findall(r'^\\s*#include \"([^\"\\n]+)\"',p.read_text(),re.M):todo.append((p.parent/inc).resolve())\ninputs={str(p.relative_to(P)):sha(p) for p in sorted(seen)}\ncommand=['c++','-std=c++17','-O2','-Wall','-Wextra','-Werror','-fsanitize=address,undefined',\n         '-fno-sanitize-recover=all','-I',str(P),str(source),'-o',str(d/'audit')]\ncompiled=subprocess.run(command,capture_output=True,text=True,timeout=45)\nrecord=dict(source_sha256=sha(source),source_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=P,text=True,timeout=10).strip(),\n    quoted_include_bindings=inputs,quoted_includes_are_compiler_dependency_list=False,\n    prior_sample_sha256=sha(prior_path),reference=prior['reference'],\n    compile_command=command,compile_returncode=compiled.returncode,compile_stdout=compiled.stdout,compile_stderr=compiled.stderr,\n    compile_timeout_seconds=45,run_timeout_seconds=90,runs=[],tensors=prior['tensors'],\n    host_arithmetic_only=True,gpu_executed=False,inference_acceptance=False,performance_acceptance=False)\nout=d/'comparison.json'\ntry:\n    compiled.check_returncode()\n    for mode in ('qkv','out'):\n        tensors=prior['tensors'][mode]\n        for tensor in tensors:\n            assert (B/tensor['file']).stat().st_size==tensor['bytes'] and sha(B/tensor['file'])==tensor['sha256']\n        cmd=[str(d/'audit'),mode,*[str(B/t['file']) for t in tensors]]\n        r=subprocess.run(cmd,capture_output=True,text=True,timeout=90)\n        entry=dict(command=cmd,returncode=r.returncode,stdout=r.stdout,stderr=r.stderr)\n        record['runs'].append(entry);r.check_returncode()\n        result=json.loads(r.stdout);entry['result']=result\n        assert result['gb10_bf16_mismatches']==0 and result['repeated_rows']==0\n        assert len(result['rejected_input_rows'])==(1 if mode=='out' else 0)\n        assert len(result['rejected_weight_rows'])==(112 if mode=='qkv' else 0)\n        assert result['verified_dots']==(2048 if mode=='out' else 1792)\nfinally:\n    with out.open('x') as f:json.dump(record,f,indent=2,allow_nan=False);f.write('\\n')\nprint(json.dumps(dict(file=str(out.relative_to(B)),sha256=sha(out),results=[r['result'] for r in record['runs']])),flush=True)\n"
+    },
+    "partial_wave_projection_host_coord_r1.cpp": {
+      "sha256": "c1b556735c1382a6354adc7241dd1d3c95efbccf3bbf2702f494fce05043edd8",
+      "text": "// Controller execution-coordinate model. Matrix instructions use a declared\n// scalar 16x16x16 model; this cannot establish physical WMMA lane semantics.\n#include <algorithm>\n#include <array>\n#include <atomic>\n#include <barrier>\n#include <cstdint>\n#include <cstring>\n#include <iostream>\n#include <stdexcept>\n#include <thread>\n#include <vector>\n#include \"native/providers/moe_accumulator/sm121_partial_matrix_group.h\"\n\nusing I4=int __attribute__((ext_vector_type(4)));\nusing I8=int __attribute__((ext_vector_type(8)));\nusing F8=float __attribute__((ext_vector_type(8)));\nstruct Dimension {unsigned x=0u;};\nthread_local Dimension threadIdx,blockIdx;\nstruct Wave {\n    std::barrier<> sync{32};\n    uint32_t words[32]{};\n    unsigned kinds[32]{};\n    I4 left[32]{},right[32]{};\n    unsigned signs[32]{};\n    uint64_t shuffles=0u,ballots=0u,matrices=0u;\n};\nthread_local Wave* wave=nullptr;\nvoid enter(unsigned kind){\n    wave->kinds[threadIdx.x%32u]=kind;\n    wave->sync.arrive_and_wait();\n    for(unsigned lane=0u;lane<32u;++lane)if(wave->kinds[lane]!=kind)std::terminate();\n}\nunsigned __ballot(bool value){\n    const unsigned lane=threadIdx.x%32u;\n    wave->words[lane]=value;\n    enter(1u);\n    unsigned mask=0u;for(unsigned source=0u;source<32u;++source)mask|=wave->words[source]<<source;\n    if(!lane)++wave->ballots;\n    wave->sync.arrive_and_wait();\n    return mask;\n}\nuint32_t __shfl(uint32_t value,unsigned source){\n    if(source>=32u)std::terminate();\n    const unsigned lane=threadIdx.x%32u;\n    wave->words[lane]=value;\n    enter(2u);\n    const auto result=wave->words[source];\n    if(!lane)++wave->shuffles;\n    wave->sync.arrive_and_wait();\n    return result;\n}\nI8 modeled_wmma(bool signed_left,I4 left,bool signed_right,I4 right,I8 accumulator,bool clamp){\n    const unsigned lane=threadIdx.x%32u;\n    wave->left[lane]=left;wave->right[lane]=right;\n    wave->signs[lane]=unsigned(signed_left)|unsigned(signed_right)<<1u|unsigned(clamp)<<2u;\n    enter(3u);\n    for(unsigned source=0u;source<32u;++source){\n        if(wave->signs[source]!=wave->signs[lane]||clamp)std::terminate();\n        for(unsigned word=0u;word<4u;++word){\n            if(wave->left[source][word]!=wave->left[source%16u][word]||\n               wave->right[source][word]!=wave->right[source%16u][word])std::terminate();\n        }\n    }\n    auto byte=[](int value,unsigned index,bool sign){\n        const unsigned part=(uint32_t(value)>>(index*8u))&255u;\n        return sign&&part>=128u?int(part)-256:int(part);\n    };\n    I8 result{};\n    for(unsigned item=0u;item<8u;++item){\n        const unsigned row=item*2u+lane/16u,column=lane%16u;\n        int sum=accumulator[item];\n        for(unsigned k=0u;k<16u;++k)sum+=byte(wave->left[row][k/4u],k%4u,signed_left)*\n                                               byte(wave->right[column][k/4u],k%4u,signed_right);\n        result[item]=sum;\n    }\n    if(!lane)++wave->matrices;\n    wave->sync.arrive_and_wait();\n    return result;\n}\n#define __device__\n#define __global__\n#define __forceinline__ inline\n#define __launch_bounds__(...)\n#define __builtin_amdgcn_wmma_i32_16x16x16_iu8_w32 modeled_wmma\nnamespace qrt_sm121_partial_wave_projection {\nnamespace partial=qrt_sm121_partial_matrix_group;\nnamespace group=qrt_sm121_compact_matrix_group;\nusing Row=partial::Row;\n#include \"extracted_replay.inc\"\n}\n\nnamespace partial=qrt_sm121_partial_matrix_group;\nnamespace original=qrt_q1_moe_hawkeye;\nuint32_t float_bits(float x){uint32_t b;std::memcpy(&b,&x,4u);return b;}\nfloat as_float(uint32_t b){float x;std::memcpy(&x,&b,4u);return x;}\nconstexpr uint32_t untouched=0x4f395819u;\nstruct Count {uint64_t cases=0,selected=0,carries=0,inactive=0,shuffles=0,ballots=0,matrices=0;};\ntemplate<bool Force>void check(unsigned rows,unsigned tokens,unsigned width,unsigned family,unsigned pattern,Count& counts){\n    const unsigned groups=width/16u;\n    std::vector<uint16_t> weights(size_t(rows)*width),inputs(size_t(tokens)*width);\n    for(unsigned side=0u;side<2u;++side){\n        auto& raw=side?inputs:weights;\n        for(size_t i=0u;i<raw.size();++i){\n            unsigned exponent=family==0u?127u:(95u+unsigned((i*17u+(i/width)*7u+side*19u)%65u));\n            raw[i]=uint16_t(((i+side)&1u?0x8000u:0u)|(exponent<<7u)|((i*13u+side*11u)%128u));\n            if(i%29u==0u)raw[i]=uint16_t(i&1u?0x8000u:0u);\n        }\n        if(family==2u)raw.back()=0x2f01u; // Unsupported final group, retained inactive here.\n    }\n    std::vector<partial::Row> wp(size_t(rows)*groups),xp(size_t(tokens)*groups);\n    std::vector<unsigned> wf(rows,1u),xf(tokens,1u);\n    for(unsigned side=0u;side<2u;++side){\n        const auto& raw=side?inputs:weights;auto& packed=side?xp:wp;auto& flags=side?xf:wf;\n        const unsigned count=side?tokens:rows;\n        for(unsigned row=0u;row<count;++row)for(unsigned group=0u;group<groups;++group){\n            packed[size_t(group)*count+row]=partial::prepare(raw.data()+size_t(row)*width+group*16u);\n            for(unsigned i=0u;i<16u;++i)flags[row]&=qrt_sm121_narrow_f32_carry::eligible(raw[size_t(row)*width+group*16u+i]);\n        }\n    }\n    const auto wp_before=wp,xp_before=xp;const auto wf_before=wf,xf_before=xf;\n    const size_t cells=size_t(rows)*tokens;\n    std::vector<unsigned> bitmap((cells+31u)/32u,0u);\n    for(size_t cell=0u;cell<cells;++cell){\n        const unsigned row=unsigned(cell%rows),token=unsigned(cell/rows);\n        const bool selected=pattern==2u||(pattern==1u&&((row%16u==15u&&token%16u==7u)||cell==0u||cell==cells-1u));\n        if(selected)bitmap[cell/32u]|=1u<<(cell%32u);\n    }\n    const auto bitmap_before=bitmap;\n    std::vector<float> outputs(cells+16u,as_float(untouched));\n    std::vector<uint32_t> trace(cells*groups+16u,untouched);\n    const unsigned tiles=((rows+15u)/16u)*((tokens+15u)/16u);\n    // Include unused final waves of the final CTA to exercise uniform returns.\n    for(unsigned tile=0u;tile<((tiles+3u)/4u)*4u;++tile){\n        Wave model;std::vector<std::thread> workers;\n        for(unsigned lane=0u;lane<32u;++lane)workers.emplace_back([&,lane]{\n            threadIdx.x=(tile%4u)*32u+lane;blockIdx.x=tile/4u;wave=&model;\n            qrt_sm121_partial_wave_projection::replay<true,Force>(wp.data(),xp.data(),wf.data(),xf.data(),\n                bitmap.data(),outputs.data()+8u,trace.data()+8u,rows,tokens,width);\n        });\n        for(auto& worker:workers)worker.join();\n        counts.shuffles+=model.shuffles;counts.ballots+=model.ballots;counts.matrices+=model.matrices;\n    }\n    for(size_t cell=0u;cell<cells;++cell){\n        const unsigned row=unsigned(cell%rows),token=unsigned(cell/rows);\n        const bool selected=((bitmap[cell/32u]>>(cell%32u))&1u)&&wf[row]&&xf[token];\n        if(!selected){\n            if(float_bits(outputs[cell+8u])!=untouched)throw std::runtime_error(\"inactive output changed\");\n            for(unsigned group=0u;group<groups;++group)if(trace[8u+cell*groups+group]!=untouched)throw std::runtime_error(\"inactive trace changed\");\n            ++counts.inactive;continue;\n        }\n        original::Value carry{0u,-133,false};\n        for(unsigned group=0u;group<groups;++group){\n            original::Value terms[17];terms[0]=carry;\n            for(unsigned i=0u;i<16u;++i)terms[i+1u]=original::multiply_bf16(\n                inputs[size_t(token)*width+group*16u+i],weights[size_t(row)*width+group*16u+i],-133);\n            carry=original::group_sum<26,-133>(terms,17u);\n            if(trace[8u+cell*groups+group]!=float_bits(original::value_to_float(carry)))throw std::runtime_error(\"ordered carry differs\");\n            ++counts.carries;\n        }\n        if(float_bits(outputs[8u+cell])!=float_bits(original::value_to_float(carry)))throw std::runtime_error(\"output differs\");\n        ++counts.selected;\n    }\n    for(unsigned i=0u;i<8u;++i)if(float_bits(outputs[i])!=untouched||float_bits(outputs[8u+cells+i])!=untouched||\n        trace[i]!=untouched||trace[8u+cells*groups+i]!=untouched)throw std::runtime_error(\"redzone changed\");\n    if(wf!=wf_before||xf!=xf_before||bitmap!=bitmap_before||\n        std::memcmp(wp.data(),wp_before.data(),wp.size()*sizeof(partial::Row))||\n        std::memcmp(xp.data(),xp_before.data(),xp.size()*sizeof(partial::Row)))throw std::runtime_error(\"input changed\");\n    ++counts.cases;\n}\nint main()try{\n    Count counts;\n    const unsigned shapes[][3]={{1u,1u,16u},{17u,19u,32u},{33u,17u,16u},{16u,16u,272u}};\n    for(const auto& s:shapes)for(unsigned family=0u;family<3u;++family)for(unsigned pattern=0u;pattern<3u;++pattern){\n        check<false>(s[0],s[1],s[2],family,pattern,counts);\n        check<true>(s[0],s[1],s[2],family,pattern,counts);\n    }\n    std::cout<<\"{\\\"cases\\\":\"<<counts.cases<<\",\\\"selected_outputs\\\":\"<<counts.selected<<\",\\\"ordered_carries\\\":\"<<counts.carries\n      <<\",\\\"inactive_outputs\\\":\"<<counts.inactive<<\",\\\"uniform_shuffles\\\":\"<<counts.shuffles<<\",\\\"uniform_ballots\\\":\"<<counts.ballots\n      <<\",\\\"modeled_matrix_instructions\\\":\"<<counts.matrices<<\",\\\"raw_bit_mismatches\\\":0,\\\"redzones_pass\\\":true,\\\"immutable_inputs\\\":true\"\n      <<\",\\\"host_coordinates_and_declared_matrix_model_only\\\":true,\\\"physical_wmma_semantics_verified\\\":false,\\\"gpu_executed\\\":false}\\n\";\n}catch(const std::exception& e){std::cerr<<e.what()<<'\\n';return 2;}\n"
+    },
+    "check_partial_wave_projection_host_coord_r1.py": {
+      "sha256": "da0f7305c07f1c0a033dfea2060ae61263f344b71a0af2761cbca3e133aad9f0",
+      "text": "from pathlib import Path\nimport hashlib\nimport json\nimport re\nimport subprocess\n\nB=Path(__file__).resolve().parent\nP=Path('<runtime-checkout>')\nsha=lambda p:hashlib.file_digest(p.open('rb'),'sha256').hexdigest()\noriginal=P/'native/providers/moe_accumulator/sm121_partial_wave_projection.h'\nsource=B/'partial_wave_projection_host_coord_r1.cpp'\ntext=original.read_text()\nextracted=text[text.index('__device__ __forceinline__ Row broadcast'):text.index('template<bool Trace>\\n__global__ void unsupported')]\nd=B/'partial-wave-projection-host-coordinates-r1';d.mkdir()\ninc=d/'extracted_replay.inc';inc.write_text(extracted)\ntodo=[P/'native/providers/moe_accumulator/sm121_partial_matrix_group.h'];seen=set()\nwhile todo:\n p=todo.pop().resolve()\n if p in seen:continue\n assert p.is_relative_to(P);seen.add(p)\n for name in re.findall(r'^\\s*#include \"([^\"\\n]+)\"',p.read_text(),re.M):todo.append((p.parent/name).resolve())\ncommand=['c++','-std=c++20','-O1','-Wall','-Wextra','-Werror','-Wno-psabi','-Wno-unknown-pragmas',\n '-fsanitize=address,undefined','-fno-sanitize-recover=all','-I',str(P),'-I',str(d),str(source),'-o',str(d/'check')]\nr=subprocess.run(command,capture_output=True,text=True,timeout=45)\nrecord=dict(source_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=P,text=True,timeout=10).strip(),\n original_kernel=str(original.relative_to(P)),original_kernel_sha256=sha(original),extracted_replay_sha256=sha(inc),\n source_sha256=sha(source),quoted_include_bindings={str(p.relative_to(P)):sha(p) for p in sorted(seen)},\n compile_command=command,compile_returncode=r.returncode,compile_stdout=r.stdout,compile_stderr=r.stderr,\n compile_timeout_seconds=45,execution_timeout_seconds=180,\n host_execution_model_only=True,physical_wmma_semantics_verified=False,gpu_executed=False,inference_acceptance=False,performance_acceptance=False)\ntry:\n if r.returncode:raise RuntimeError('Compile failed: '+r.stderr[-4000:])\n cmd=[str(d/'check')]\n try:\n  run=subprocess.run(cmd,capture_output=True,text=True,timeout=180)\n except subprocess.TimeoutExpired as error:\n  record.update(command=cmd,returncode=None,timeout=True,stdout=str(error.stdout),stderr=str(error.stderr));raise\n record.update(command=cmd,returncode=run.returncode,stdout=run.stdout,stderr=run.stderr)\n if run.returncode:raise RuntimeError('Coordinate model failed: '+run.stderr[-4000:])\n result=json.loads(run.stdout);record['result']=result\n assert result['cases']==72 and result['raw_bit_mismatches']==0 and result['redzones_pass'] and result['immutable_inputs']\nfinally:\n out=d/'comparison.json'\n with out.open('x')as f:json.dump(record,f,indent=2,allow_nan=False);f.write('\\n')\nprint(json.dumps(dict(file=str(out.relative_to(B)),sha256=sha(out),result=result)),flush=True)\n"
+    },
+    "check_partial_wave_projection_host_coord_faults_r1.py": {
+      "sha256": "39d570f6a0c7ebdd496d7802db326c4a56a41317469e8bdd8be53e6e8573a5f5",
+      "text": "from pathlib import Path\nimport hashlib\nimport json\nimport subprocess\n\nB=Path(__file__).resolve().parent\nsha=lambda p:hashlib.file_digest(p.open('rb'),'sha256').hexdigest()\nread=lambda p:json.loads(p.read_text())\ncontrol=B/'partial-wave-projection-host-coordinates-r1'\nproof=read(control/'comparison.json')\nassert proof['returncode']==0 and proof['result']['cases']==72\ntext=(control/'extracted_replay.inc').read_text()\nmutations=[('wrong_broadcast_row','broadcast(b,item*2u+lane/16u)','broadcast(b,(item*2u+lane/16u)^1u)'),\n           ('wrong_output_cell','output[size_t(token)*rows+first_row+item*2u+lane/16u]','output[size_t(token)*rows+first_row+item*2u+lane/16u+1u]')]\nroot=B/'partial-wave-projection-host-coordinates-faults-r1';root.mkdir()\nrecords=[]\nfor name,before,after in mutations:\n assert text.count(before)==1\n d=root/name;d.mkdir();inc=d/'extracted_replay.inc';inc.write_text(text.replace(before,after))\n cmd=[str(d) if part==str(control) else str(d/'check') if part==str(control/'check') else part for part in proof['compile_command']]\n c=subprocess.run(cmd,capture_output=True,text=True,timeout=45)\n item=dict(name=name,mutation=dict(before=before,after=after),mutated_replay_sha256=sha(inc),compile_command=cmd,\n           compile_returncode=c.returncode,compile_stdout=c.stdout,compile_stderr=c.stderr)\n records.append(item)\n if c.returncode:raise RuntimeError(c.stderr[-2500:])\n r=subprocess.run([str(d/'check')],capture_output=True,text=True,timeout=30)\n item.update(command=r.args,returncode=r.returncode,stdout=r.stdout,stderr=r.stderr)\n assert r.returncode!=0 and ('ordered carry differs' in r.stderr or 'output differs' in r.stderr or 'inactive output changed' in r.stderr or 'redzone changed' in r.stderr),item\nrecord=dict(positive_control_sha256=sha(control/'comparison.json'),faults=records,\n            declared_model_miswiring_rejected=True,gpu_executed=False,physical_wmma_semantics_verified=False)\nout=root/'comparison.json'\nwith out.open('x')as f:json.dump(record,f,indent=2);f.write('\\n')\nprint(json.dumps(dict(file=str(out.relative_to(B)),sha256=sha(out),rejected=[dict(name=x['name'],returncode=x['returncode'],stderr=x['stderr']) for x in records])),flush=True)\n"
+    }
+  },
+  "conclusion": "The complete2048-output original OUT row558 matches GB10 through original CPU arithmetic; its only unsupported operand has biased exponent94. All112 unsupported QKV weight rows also match on16 original input positions each. The unchanged extracted projection replay passes72 CPU-coordinate cases with scalar modeled matrix instructions, every selected carry/output, inactive cells, immutable metadata and guards. Deliberately wrong broadcasts and output coordinates reject. This does not execute the GPU unsupported-row subgroup, verify physical WMMA semantics, or qualify native speed or model correctness.",
+  "gpu_executed": false,
+  "physical_wmma_semantics_verified": false,
+  "native_unsupported_subgroup_executed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "private_original_record_sha256": "6297da1bacd9781d293362979e494f5f57a35e6ded8248844fe3d6637fe2ec39"
+}

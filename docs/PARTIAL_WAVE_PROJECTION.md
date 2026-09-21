@@ -135,3 +135,20 @@ the first read-only command exceeds Windows' command-line limit; that failed
 attempt is preserved. No input archive or source bundle was uploaded, no new
 checkout exists and no new native build or GPU comparison ran.
 [Complete-original-data native plans and preparation checks](../benchmarks/correctness/original-q8192-native-prepared-20260921.json).
+
+A subsequent ASan/UBSan host audit covers the previously unsampled rejected
+OUT input row, index558: all2,048 original outputs match GB10. Only its feature
+2123 is outside the narrow domain, with biased exponent94. All112 rejected
+QKV weight rows also match at16 original input positions each, giving1,792
+additional endpoints. Their very small coefficients retain the original
+arithmetic; no domain threshold changes.
+
+The unchanged extracted projection replay also passes72 controller coordinate
+cases with32 cooperating host threads per wave and scalar modeled matrix
+instructions. It checks6,670 selected outputs,32,362 ordered carries and13,868
+inactive outputs across partial tiles, candidate masks and rejected complete
+rows. All30,336 broadcasts remain uniform and metadata/redzones are unchanged.
+Deliberately changing the broadcast row or output position causes rejection.
+This model does not execute the GPU unsupported-row subgroup or establish
+physical WMMA behavior. Those remain part of the pending native safety suite.
+[Original rejected-row endpoints and host coordinate evidence](../benchmarks/correctness/original-q8192-projection-followup-local-20260921.json).
