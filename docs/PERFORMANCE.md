@@ -1,5 +1,16 @@
 # Real-model performance
 
+## Partial-coefficient wave projection preparation, 2026-09-21
+
+An isolated projection replay now shares complete input/weight rows within
+16x16 wave-owned tiles while retaining original K16 carries and exact exceptional
+products. A controller audit of8192 real QKV and8192 OUT dots preserves every
+sampled GB10 BF16 operator output and3131392 eligible ordered carry endpoints.
+Unsupported complete rows retain original four-lane replay. Native compilation,
+the240 generated GPU configurations and both complete q8192 comparisons are
+pending the active long-context run's cleanup. No product dispatch or measured
+performance changes. [Implementation and evidence](PARTIAL_WAVE_PROJECTION.md).
+
 ## Two-stream attention components, 2026-09-18
 
 Source `68df394` retains every numerical kernel while separating two128-query
