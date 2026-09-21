@@ -52,6 +52,11 @@ misrouting. The initial evidence writer failed to serialize subprocess
 bytes after executing these controls; its partial record and fixtures are
 preserved, and the corrected writer records all expected outcomes.
 
+[Committed source hashes and completed local outcomes](../benchmarks/correctness/cold-prefill-tail-local-20260921.json)
+bind these checks to a7e2092. Positive command results are recorded from the
+local tool output; complete stdout logs are not claimed. The negative-control
+report includes its commands, generated-source hashes and actual failures.
+
 ## Native qualification remains open
 
 The current 256k ordinary-prefix run uses the previously built 8612387
@@ -60,6 +65,19 @@ Both the whole provider and the normal product CLI must be rebuilt, since
 the C entry point changed. The prepared native tail and retirement r1 plans
 bind the older runtime and must be rebound before execution. Their original
 GB10 prompts, expected outputs and numerical tolerances remain unchanged.
+
+The [new build preparation](../benchmarks/correctness/cold-prefill-tail-prepared-20260921.json)
+binds 173 source inputs: 167 whole-provider, 10 prefix-probe and 8 normal CLI
+inputs in overlapping compilation closures, plus the build scripts. Only the
+three repaired implementation files differ from the prior build closure.
+Both Windows command files parse successfully. The active-process admission
+check performs zero dispatch calls. Compilation deadlines are 240/180/180
+seconds, within a 660-second guarded process and 750-second transport bound.
+
+The seven-case native transport preserves the earlier observer logic and
+original reference files. Its binary binding remains pending until the actual
+build succeeds. Four same-build short controls precede the three retirement
+cases. An ordinary q8192 control is also required before performance claims.
 
 Next validation uses the original q8191/out32 and q8193/out32 boundaries,
 same-build ordinary and native q8192 controls, then the three original native

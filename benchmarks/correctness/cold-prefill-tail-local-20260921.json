@@ -1,0 +1,349 @@
+{
+  "kind": "cold_prefill_tail_local_repair",
+  "utc": "2026-09-21T08:23:06.093440+00:00",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "source_commit": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+  "sources": [
+    {
+      "file": "native/providers/prefill_chunks.h",
+      "sha256": "ae09ddc585a314d2515b1eb66e18a0a5a154883bf86420d582e1e3408e125266"
+    },
+    {
+      "file": "native/providers/prefix_batch_suffix.h",
+      "sha256": "dcac9d1e8566aef72c8e615881333f995e9b3a981b0a0b792b5b8b8be02915a4"
+    },
+    {
+      "file": "native/src/qrt.c",
+      "sha256": "941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957"
+    },
+    {
+      "file": "tests/test_prefill_chunks.py",
+      "sha256": "88f710648c484b38b343c51979b2df0cc10e8c6ea88cd6eb027e3ee13323d513"
+    },
+    {
+      "file": "tests/test_prefix_batch_suffix.py",
+      "sha256": "899ced29b6be5d4331c7bd31c97d04e6e38c4df27bb10631345fe9f98806e8f2"
+    },
+    {
+      "file": "tests/test_bounded_prefill_suffix.py",
+      "sha256": "8dbe8bd4347aa4ddca215a1c254f2ec97e425adf039527edb3f534943072c7cc"
+    }
+  ],
+  "fixes": [
+    "Admit the actual final cold chunk of 1 through 8192 tokens",
+    "Preserve prior convolution ring slots when fewer than four new inputs arrive",
+    "Delegate native MTP plus chunked prefill around the C cold-suffix shortcut"
+  ],
+  "coverage": {
+    "ordinary_prompt_lengths": 26,
+    "native_prompt_lengths": 13,
+    "ring_extents": 18,
+    "prefix_residues": 4,
+    "ring_formats": 2,
+    "ring_shapes": 144,
+    "unique_python_tests": 23,
+    "transaction_cases": 7
+  },
+  "observed_positive_checks": [
+    {
+      "command": "PYTHONPATH=tests python3.12 -m unittest test_prefill_chunks test_prefix_batch_suffix test_bounded_prefill_suffix",
+      "tests": 6,
+      "seconds": 14.867,
+      "result": "OK",
+      "exit_code": 0,
+      "exec_session": 67226
+    },
+    {
+      "command": "PYTHONPATH=tests python3.12 -m unittest test_prefix_batch_suffix.PrefixBatchSuffixTests.test_actual_ring_update_keeps_unreplaced_prefix_slots test_attention_suffix test_prefix_fla_suffix test_mtp_chunked_prefill_capture",
+      "tests": 15,
+      "seconds": 3.363,
+      "result": "OK",
+      "exit_code": 0
+    },
+    {
+      "command": "PYTHONPATH=tests python3.12 -m unittest test_mtp_native_prefill_integration test_native_mtp_decode test_mtp_drafter",
+      "tests": 3,
+      "seconds": 41.1,
+      "result": "OK",
+      "exit_code": 0
+    },
+    {
+      "command": "make c-smoke",
+      "result": "C build and smoke pass; emitted product-matrix label is smoke text only",
+      "exit_code": 0
+    },
+    {
+      "command": "python3.12 scripts/test_q16_transaction_contract.py",
+      "cases": 7,
+      "result": "PASS",
+      "exit_code": 0
+    }
+  ],
+  "positive_record_scope": "Transcribed completed local tool outcomes; full output logs are not attached. The ring appears in two command groups and is counted once.",
+  "negative_control_record": {
+    "kind": "cold_prefill_tail_actual_host_negative_controls",
+    "host": "Jiawei-MacminideMac-mini.local",
+    "reports": [
+      {
+        "name": "ring-current",
+        "expected_failure": false,
+        "expected_outcome_pass": true,
+        "tests_run": 1,
+        "calls": [
+          {
+            "command": [
+              "c++",
+              "-std=c++17",
+              "-O1",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-sanitize-recover=all",
+              "-x",
+              "c++",
+              "-",
+              "-o",
+              "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-cold-tail-ring-h2tvyzwn/ring"
+            ],
+            "source_file": "ring-current-compile-source.cpp",
+            "source_sha256": "b5d2aaa73703b50c1c1ab6dfda099a9a6ff96b6f7d5fd32b7c11262ae4b487b3",
+            "returncode": 0,
+            "stdout": "",
+            "stderr": "",
+            "executable_sha256": "b64700e0d524d376c4030696d1ff0b5eceba61ea7b465bd2d88f95387b362e9d"
+          },
+          {
+            "command": [
+              "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-cold-tail-ring-h2tvyzwn/ring"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          }
+        ],
+        "errors": [],
+        "failures": []
+      },
+      {
+        "name": "ring-old-underflow",
+        "expected_failure": true,
+        "expected_outcome_pass": true,
+        "tests_run": 1,
+        "calls": [
+          {
+            "command": [
+              "c++",
+              "-std=c++17",
+              "-O1",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-sanitize-recover=all",
+              "-x",
+              "c++",
+              "-",
+              "-o",
+              "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-cold-tail-ring-616k9ej9/ring"
+            ],
+            "source_file": "ring-old-underflow-compile-source.cpp",
+            "source_sha256": "2590ecfb0e2ca29e9eecdf817ee291e900d227e22bbf0e70bb9513d09d7e667e",
+            "returncode": 0,
+            "stdout": "",
+            "stderr": "",
+            "executable_sha256": "7f35ccec540d2a33c83efd9db79284a31027ca665e33cc7f907619adeb47d21a"
+          },
+          {
+            "command": [
+              "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-cold-tail-ring-616k9ej9/ring"
+            ],
+            "returncode": -6,
+            "stdout": "",
+            "stderr": "AddressSanitizer:DEADLYSIGNAL\n=================================================================\n==20504==ERROR: AddressSanitizer: SEGV on unknown address 0x1070218f5980 (pc 0x000104fd4954 bp 0x00016ae2a370 sp 0x00016ae2a370 T0)\n==20504==The signal is caused by a READ memory access.\n    #0 0x000104fd4954 in qwen36_prefix_suffix_ring_kernel(float const*, float*, unsigned short*, unsigned int, unsigned int)+0x80 (ring:arm64+0x100000954)\n    #1 0x000104fd51d0 in main+0x724 (ring:arm64+0x1000011d0)\n    #2 0x00018dc0bdfc in start+0x1b4c (dyld:arm64e+0x1fdfc)\n\n==20504==Register values:\n x[0] = 0x000000010c6c4c00   x[1] = 0x00000001050d0c00   x[2] = 0x0000000000000000   x[3] = 0x0000000000002000  \n x[4] = 0x0000000000000001   x[5] = 0x0000000000000001   x[6] = 0x000000016a630000   x[7] = 0x0000000000000001  \n x[8] = 0x000080010c6acc00   x[9] = 0x0000007000020000  x[10] = 0x00000000fffffffd  x[11] = 0x0000000000000000  \nx[12] = 0x00001000218d5980  x[13] = 0x0000631000000820  x[14] = 0x0000000000000410  x[15] = 0x00007fffffffffff  \nx[16] = 0x000000030e8fabf4  x[17] = 0x0000000105874558  x[18] = 0x0000000000000000  x[19] = 0x000000016ae2a700  \nx[20] = 0x0000000000000000  x[21] = 0x0000000000000000  x[22] = 0x0000007000020000  x[23] = 0x000000016ae2a580  \nx[24] = 0x000000016ae2a5c0  x[25] = 0x000000016ae2a600  x[26] = 0x000000010c6c4c00  x[27] = 0x0000000000000000  \nx[28] = 0x000000016ae2a640     fp = 0x000000016ae2a370     lr = 0x0000000104fd51d4     sp = 0x000000016ae2a370  \nAddressSanitizer can not provide additional info.\nSUMMARY: AddressSanitizer: SEGV (ring:arm64+0x100000954) in qwen36_prefix_suffix_ring_kernel(float const*, float*, unsigned short*, unsigned int, unsigned int)+0x80\n==20504==ABORTING\n"
+          }
+        ],
+        "errors": [
+          {
+            "test": "test_actual_ring_update_keeps_unreplaced_prefix_slots (test_prefix_batch_suffix.PrefixBatchSuffixTests.test_actual_ring_update_keeps_unreplaced_prefix_slots)",
+            "traceback": "Traceback (most recent call last):\n  File \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tests/test_prefix_batch_suffix.py\", line 71, in test_actual_ring_update_keeps_unreplaced_prefix_slots\n    subprocess.run([exe], check=True, timeout=30, capture_output=True)\n  File \"<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/validate_cold_prefill_tail_controls_r2.py\", line 56, in run\n    if checked:result.check_returncode()\n               ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<evidence-home-1>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/subprocess.py\", line 502, in check_returncode\n    raise CalledProcessError(self.returncode, self.args, self.stdout,\nsubprocess.CalledProcessError: Command '['/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-cold-tail-ring-616k9ej9/ring']' died with <Signals.SIGABRT: 6>.\n"
+          }
+        ],
+        "failures": []
+      },
+      {
+        "name": "coordinator-old-rejection",
+        "expected_failure": true,
+        "expected_outcome_pass": true,
+        "tests_run": 1,
+        "calls": [
+          {
+            "command": [
+              "c++",
+              "-std=c++17",
+              "-O2",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-sanitize-recover=all",
+              "-I",
+              "<evidence-home-1>/projects/AIMA-public-r1191-candidate",
+              "-x",
+              "c++",
+              "-",
+              "-o",
+              "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/tmpmfuwq67l/coordinator"
+            ],
+            "source_file": "coordinator-old-rejection-compile-source.cpp",
+            "source_sha256": "e8888f04dc27d2407e9918feac4dbcc70a18e2a8b1d19f5bf6659815fe177945",
+            "returncode": 0,
+            "stdout": "",
+            "stderr": "",
+            "executable_sha256": "7bb0a7ad82af73fbc3f017e2dc26997a4625f9ffc3a7098e03de5227c8f9bb9b"
+          },
+          {
+            "command": [
+              "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/tmpmfuwq67l/coordinator"
+            ],
+            "returncode": -6,
+            "stdout": "",
+            "stderr": "Assertion failed: (run(total)==1&&callbacks==1&&seeds==1&&suffixes==(total+8191)/8192-1&&!releases), function main, file <stdin>, line 657.\n"
+          }
+        ],
+        "errors": [
+          {
+            "test": "test_coordinator_positions_single_callback_and_failed_replacement (test_prefill_chunks.PrefillChunkTests.test_coordinator_positions_single_callback_and_failed_replacement)",
+            "traceback": "Traceback (most recent call last):\n  File \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tests/test_prefill_chunks.py\", line 321, in test_coordinator_positions_single_callback_and_failed_replacement\n    subprocess.run([exe], check=True, timeout=20, capture_output=True)\n  File \"<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/validate_cold_prefill_tail_controls_r2.py\", line 56, in run\n    if checked:result.check_returncode()\n               ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<evidence-home-1>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/subprocess.py\", line 502, in check_returncode\n    raise CalledProcessError(self.returncode, self.args, self.stdout,\nsubprocess.CalledProcessError: Command '['/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/tmpmfuwq67l/coordinator']' died with <Signals.SIGABRT: 6>.\n"
+          }
+        ],
+        "failures": []
+      },
+      {
+        "name": "bridge-old-split",
+        "expected_failure": true,
+        "expected_outcome_pass": true,
+        "tests_run": 1,
+        "calls": [
+          {
+            "command": [
+              "cc",
+              "-std=c11",
+              "-O2",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=undefined",
+              "-I",
+              "<evidence-home-1>/projects/AIMA-public-r1191-candidate",
+              "-x",
+              "c",
+              "-",
+              "-o",
+              "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-prefill-suffix-vbe92wqi/probe",
+              "-lm"
+            ],
+            "source_file": "bridge-old-split-compile-source.cpp",
+            "source_sha256": "d3412ff3d7a25ee399590c56ed2a00210cea891ac0040f7f9be60cfb780875f3",
+            "returncode": 0,
+            "stdout": "",
+            "stderr": "",
+            "executable_sha256": "89810a836bdf6080999d03a75c46f58501ea42f2d2a630ad8ba9f2f2bef166d3"
+          },
+          {
+            "command": [
+              "/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-prefill-suffix-vbe92wqi/probe"
+            ],
+            "returncode": -6,
+            "stdout": "",
+            "stderr": "Assertion failed: (qrt_qwen36_try_bounded_prefill_suffix(&e,in,n,out,32,&count,&handled)==QRT_STATUS_UNSUPPORTED), function main, file <stdin>, line 441.\n"
+          }
+        ],
+        "errors": [
+          {
+            "test": "test_cold_seed_stream_cancellation_and_metadata_contract (test_bounded_prefill_suffix.BoundedPrefillSuffixTests.test_cold_seed_stream_cancellation_and_metadata_contract)",
+            "traceback": "Traceback (most recent call last):\n  File \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tests/test_bounded_prefill_suffix.py\", line 198, in test_cold_seed_stream_cancellation_and_metadata_contract\n    subprocess.run([exe], check=True, timeout=15)\n  File \"<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/validate_cold_prefill_tail_controls_r2.py\", line 56, in run\n    if checked:result.check_returncode()\n               ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<evidence-home-1>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/subprocess.py\", line 502, in check_returncode\n    raise CalledProcessError(self.returncode, self.args, self.stdout,\nsubprocess.CalledProcessError: Command '['/var/folders/qt/46yh36zj4_91hhwtzbbbysm80000gn/T/qrt-prefill-suffix-vbe92wqi/probe']' died with <Signals.SIGABRT: 6>.\n"
+          }
+        ],
+        "failures": []
+      }
+    ],
+    "all_expected_outcomes": true,
+    "sources": [
+      {
+        "file": "native/providers/prefill_chunks.h",
+        "sha256": "ae09ddc585a314d2515b1eb66e18a0a5a154883bf86420d582e1e3408e125266"
+      },
+      {
+        "file": "native/providers/prefix_batch_suffix.h",
+        "sha256": "dcac9d1e8566aef72c8e615881333f995e9b3a981b0a0b792b5b8b8be02915a4"
+      },
+      {
+        "file": "native/src/qrt.c",
+        "sha256": "941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957"
+      },
+      {
+        "file": "tests/test_prefill_chunks.py",
+        "sha256": "88f710648c484b38b343c51979b2df0cc10e8c6ea88cd6eb027e3ee13323d513"
+      },
+      {
+        "file": "tests/test_prefix_batch_suffix.py",
+        "sha256": "899ced29b6be5d4331c7bd31c97d04e6e38c4df27bb10631345fe9f98806e8f2"
+      },
+      {
+        "file": "tests/test_bounded_prefill_suffix.py",
+        "sha256": "8dbe8bd4347aa4ddca215a1c254f2ec97e425adf039527edb3f534943072c7cc"
+      }
+    ],
+    "validator": {
+      "file": "validate_cold_prefill_tail_controls_r2.py",
+      "sha256": "dfdf610a915bcac2e550cdea5d009bd44b05d0f2e3e7c1e162c7d15847e47a98"
+    },
+    "scope": "Actual extracted production ring, coordinator and C bridge with host transport only. Every negative control must compile successfully and fail during execution. No GPU/model inference or speed qualification.",
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "previous_writer_failure": {
+      "file": "cold-prefill-tail-negative-controls-r1.json",
+      "sha256": "519d12188a7d4e5e73e274c5e9380cd8e5108fb07e31312bb24923b3163412df",
+      "reason": "All four compiled controls had the expected execution outcomes, but the initial JSON writer could not serialize subprocess bytes. The partial record and all fixtures remain preserved."
+    }
+  },
+  "negative_control_record_sha256": "c44262d2d6955601aae16221569de8e1960382df1ea26afa2a2d48d97224fef8",
+  "failed_setup_attempts": [
+    "Package-style unittest invocation could not import a sibling test helper; corrected with PYTHONPATH=tests and bare module names.",
+    "The first ring host fixture omitted blockDim; the fixture was corrected before the passing runs.",
+    "The first negative-control writer failed on subprocess bytes after all controls ran; its partial record and fixtures are preserved in the attached record."
+  ],
+  "model_reference": "Original GB10 q8191/q8193 cold-matrix and q262140/q262142/q262143 MTP retirement boundaries remain unrun on this implementation",
+  "required_new_artifacts": [
+    "whole provider DLL",
+    "normal product CLI",
+    "prefix stream product probe"
+  ],
+  "previous_frozen_runtime": "861238786053b26363ddb64418632a8f8ee7dce2",
+  "previous_r1_native_plans_require_rebinding": true,
+  "public_prefix_suffix_limit_unchanged": true,
+  "native_mtp_opt_in": true,
+  "native_build_completed": false,
+  "native_model_run_completed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "publisher": {
+    "file": "publish_cold_prefill_tail_local_r1.py",
+    "sha256": "b6bb2a6bca13f01b632daca4ed639a747a226193dd2f3231aff3f2ddab278075"
+  },
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "bac7e6d628f435986d48171f79ce0265375be2f787d2999c626afdd654ea1a64",
+    "original_json_bytes": 17017,
+    "source_revision": "a7e2092d4cbe68f5f8ce4b61c8dd708453ac25b3",
+    "source_path": "benchmarks/correctness/cold-prefill-tail-local-20260921.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 11
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}
