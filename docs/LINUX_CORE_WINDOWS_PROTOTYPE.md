@@ -2,13 +2,19 @@
 
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
-It is not enabled in the Windows product. The latest decode-attention repair
-(`08e5694`) runs the real model on baiying. First-decode full-layer3 is exact
-through attention, gating, output projection, residual and post normalization.
-Its MoE output differs in30 BF16 values, with7 differences after residual add.
-First144/logit10.375 passes; continuation differs at index3 and in463 of512
-tokens. The next change replaces complete decode MoE arithmetic and preserves
-the final unrounded residual operands. Correctness and release remain open.
+It is not enabled in the Windows product. The complete decode-MoE repair
+(`5585977`) runs the real model on baiying. All 40 first-decode layer carriers
+match the original after BF16 rounding, and final normalization matches exactly.
+All 69 comparisons pass, including the complete full-layer3 path and its cached
+K/V. First144/logit10.375 passes; continuation still differs at index3 and in
+471 of512 tokens. Second-decode state propagation is the next observation.
+Correctness and release remain open.
+
+The MoE-repair run builds all60 native units, loads in27332.5239ms, and measures
+diagnostic TTFT30929.1631ms and TPOT231.562583ms. All67 captures and host checks
+pass. These timings are not accepted performance. The first-step observations
+do not qualify subsequent recurrent updates or the full continuation.
+[Native complete decode-MoE result](../benchmarks/correctness/linux-core-decode-moe-native-20260922.json).
 
 The attention-repair run builds all59 native units, loads in27430.1645ms,
 and measures diagnostic TTFT30923.1363ms and TPOT84.6361949ms. All67 observed
@@ -25,9 +31,9 @@ loads the existing original SiLU/router-exp artifacts before READY. Ordered
 layers0–39 accumulate a device error flag, checked before publishing each token.
 The last layer snapshots its two BF16 operands so final RMSNorm uses the
 unrounded FP32 residual sum for variance. ASan/UBSan checks80 layer bindings,
-two complete terminal lifetimes and85 rejection/failure cases. Native execution
-is pending; existing component qualification does not establish whole-model
-success. [MoE preparation](../benchmarks/correctness/linux-core-decode-moe-preparation-20260922.json).
+two complete terminal lifetimes and85 rejection/failure cases. The native result
+above verifies its first decode step; complete continuation still fails.
+[MoE preparation](../benchmarks/correctness/linux-core-decode-moe-preparation-20260922.json).
 
 The preceding head-repair run loads in27227.3378ms, with diagnostic TTFT30973.0705ms
 and TPOT67.3512951ms. Its output-only observer captures67 verified files;
