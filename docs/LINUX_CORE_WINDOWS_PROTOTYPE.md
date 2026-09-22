@@ -66,6 +66,17 @@ The route remains unqualified; earlier output divergence despite smaller
 layer0 errors requires further stage comparisons against original operands.
 [Native W/U correction result](../benchmarks/correctness/linux-core-native-gdn-wu-native-20260923.json).
 
+An isolated replay of the original first64 layer0 operands reproduces every
+one of the 262144 original model-core BF16 values on GB10 using its frozen
+kernel choices. On baiying the same-image native chain's last row also matches
+the actual q8192 product's first chunk endpoint. Cumsum is exact, but identical
+original operands still expose independent differences in KKT, inverse, W/U,
+state and output. Isolated inverse differs at 8 BF16 values, U at 32, output
+at 13, and state at 256249 FP32 values (124 BF16 endpoints). Corrected W differs
+at 883 values, down from 93279 with the imported uncorrected image. These are
+operator diagnostics; the full-model continuation boundary remains unchanged.
+[Original first64 stage comparisons](../benchmarks/correctness/linux-core-native-gdn-firstchunk-stages-20260923.json).
+
 Native MoE correction `f210ff3` also passes the original cold q8192/out512
 boundary: all 512 tokens/callbacks, first 144 and logit 10.375 (zero error).
 It replaces the expert gate/up and weighted-down AOT products with FP32 WMMA
