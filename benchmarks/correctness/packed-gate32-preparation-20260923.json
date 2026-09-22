@@ -1,0 +1,97 @@
+{
+  "kind": "packed_gate32_actual_header_preparation",
+  "base_revision": "d7e553bc362d76019789dea0ec0bb42f5ecbc1c6",
+  "preceding_runtime_source_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+  "actual_changed_runtime_inputs": [
+    "native/providers/moe_accumulator/sm121_packed_dense.h"
+  ],
+  "actual_header_sha256": "2e493c72d7003a56cb8b06cc80c0fe8239fa0e979f08ad3738499f4b9c1fe20a",
+  "reduction_sweep_sha256": "aeda2e4e0ae58edd70d8a87886338246b283fd7f1e1dc34f0220a50940d2de81",
+  "selected_order": {
+    "lanes": 32,
+    "contiguous": 0,
+    "adjacent_tree": 0,
+    "cells": 15872,
+    "plain_mismatches": 0,
+    "midpoint_corrected_mismatches": 2,
+    "first_plain_failures": []
+  },
+  "actual_header_host_replay": {
+    "compile_command": [
+      "c++",
+      "-std=c++17",
+      "-O2",
+      "-ffp-contract=off",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-fno-omit-frame-pointer",
+      "-I",
+      "<evidence-home-1>/projects/AIMA-public-r1191-candidate",
+      "<evidence-home-1>/projects/AIMA-public-r1191-candidate/tools/q1_packed_gate_host_probe.cpp",
+      "-o",
+      "build/recovery-20260910/gate32-production-host-r1/probe"
+    ],
+    "compile_stdout": "",
+    "compile_stderr": "",
+    "command": [
+      "build/recovery-20260910/gate32-production-host-r1/probe",
+      "build/recovery-20260910/gate-reduction-sweep-r1/plan.tsv"
+    ],
+    "returncode": 0,
+    "stdout": "{\"samples\":248,\"compared_elements\":31744,\"bf16_mismatches\":0,\"native_gpu_executed\":false,\"inference_acceptance\":false}\n",
+    "stderr": "",
+    "wall_seconds": 0.8124555423855782,
+    "source_sha256": "93d90200ee46114fdb23ce76307785960e108674765a6b80c5e199a5e8a1db2a",
+    "executable_sha256": "f400c3f98f9cf6d7f582ccac3d1cadb317e2e84634f3036b233b0d04f8921112",
+    "actual_runtime_header_sha256": "2e493c72d7003a56cb8b06cc80c0fe8239fa0e979f08ad3738499f4b9c1fe20a",
+    "plan_sha256": "cac229719de20ab5ef79b0e11d242a11215d7523590e3a8d4c7041b5271a6a58",
+    "native_gpu_executed": false,
+    "inference_acceptance": false
+  },
+  "actual_header_host_result_sha256": "00c75739e73a4b9af2c3cb26ced602c1a6122bca79c6dfc2123aa1b17f4254af",
+  "regression_tests": {
+    "command": [
+      "python3.12",
+      "-m",
+      "unittest",
+      "test_packed_dense_gate_reduction",
+      "test_sm121_shared_gate",
+      "test_q1_router_profile",
+      "-v"
+    ],
+    "working_directory": "tests",
+    "returncode": 0,
+    "tests": 3,
+    "reported_seconds": 2.444
+  },
+  "new_validation_source_sha256": {
+    "tools/q1_packed_gate_host_probe.cpp": "93d90200ee46114fdb23ce76307785960e108674765a6b80c5e199a5e8a1db2a",
+    "tests/test_packed_dense_gate_reduction.py": "fbe8cf1fe029dbb17f9c84cf3716863e6521325d22dd56a00d486d66b7d4be4f",
+    "tests/fixtures/packed_gate_reduction.json": "76420e12db189d39f0f3299e348592f272f49047752766eaf0bf729c6577ea1e"
+  },
+  "new_runtime_dependencies": 0,
+  "new_runtime_artifacts": 0,
+  "device_workspace_delta_bytes": 0,
+  "physical_launch_layout_unchanged": true,
+  "original_gate_endpoints_required": true,
+  "native_candidate_execution_pending": true,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "05c01eb336f24532ccfcd7080e90f904627dfd043ccb8214346a9df2a7d87e0a",
+    "original_json_bytes": 3275,
+    "source_revision": "d7e553bc362d76019789dea0ec0bb42f5ecbc1c6",
+    "source_path": "benchmarks/correctness/packed-gate32-preparation-20260923.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 2
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}

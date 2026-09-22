@@ -10,9 +10,9 @@
 
 namespace qrt_sm121_packed_dense {
 // Original non-speculative single-row cuBLAS projections. The 2048/4096
-// reduction widths use sixteen strided FMA chains. Shared-down (K=512)
-// instead uses thirty-two contiguous sixteen-element chains. Both reduce
-// lane partials by successive halves, then round once to BF16.
+// reduction widths use sixteen strided FMA chains, except the 32-row gates
+// which require thirty-two. Shared-down (K=512) uses thirty-two contiguous
+// sixteen-element chains. Reduce by successive halves, then round to BF16.
 template<unsigned K> constexpr unsigned lanes = K == 512u ? 32u : 16u;
 QRT_PACKED_DENSE_HD inline float operand(uint16_t value) {
     return qrt_sm121_q1::widen(value);
@@ -45,50 +45,32 @@ QRT_PACKED_DENSE_HD inline float lane_dot(const Input* input,
     return sum;
 }
 
-QRT_PACKED_DENSE_HD inline double midpoint_add(double a, double b) {
-#if defined(__HIP_DEVICE_COMPILE__)
-    double result;
-    asm("v_add_f64 %0, %1, %2" : "=v"(result) : "v"(a), "v"(b));
-    return result;
-#else
-    volatile double result = a + b;
-    return result;
-#endif
-}
-
-// A32-row gate's FP32 reduction can lose a small product and land exactly
-// on a BF16 midpoint. Resolve that ambiguity before BF16 rounding, rather
-// than rounding the already-rounded FP32 midpoint a second time. Other
-// endpoints retain the original reduction. This depends only on shape and
-// arithmetic, never on layer, head, position, token or reference values.
+// Two independent chains per physical lane reproduce the 32 logical lanes
+// of the original K2048/N32 gate. Their first reduction combines lanes i and
+// i+16; the existing 16-lane shuffle performs the remaining halves. Preserve
+// the launch geometry and resolve the actual reduction order, including
+// non-midpoint errors that a higher-precision dot cannot repair.
 template<class Input>
-QRT_PACKED_DENSE_HD inline uint16_t gate_midpoint(float sum,
-    const Input* input, const uint16_t* weight) {
-    const uint32_t bits = qrt_sm121_exp2::bits(sum);
-    if ((bits & 0xffffu) != 0x8000u || (bits & 0x7f800000u) == 0x7f800000u)
-        return qrt_sm121_q1::bf16(sum);
-    double precise = 0.0, correction = 0.0;
-    for (unsigned i = 0; i < 2048u; ++i) {
-        const double product = double(operand(input[i])) * double(operand(weight[i]));
-        const double next = midpoint_add(precise, product);
-        const double residual = std::abs(precise) >= std::abs(product)
-            ? midpoint_add(midpoint_add(precise, -next), product)
-            : midpoint_add(midpoint_add(product, -next), precise);
-        correction = midpoint_add(correction, residual);
-        precise = next;
+QRT_PACKED_DENSE_HD inline float gate_lane_dot(const Input* input,
+    const uint16_t* weight, unsigned lane) {
+    static_assert(std::is_same<Input,uint16_t>::value || std::is_same<Input,float>::value,
+                  "BF16 input or its widened resident carrier");
+    float first = 0.0f, second = 0.0f;
+    for (unsigned i = lane; i < 2048u; i += 32u) {
+        first = fma(operand(input[i]), operand(weight[i]), first);
+        second = fma(operand(input[i + 16u]), operand(weight[i + 16u]), second);
     }
-    precise = midpoint_add(precise, correction);
-    if (precise == double(sum)) return qrt_sm121_q1::bf16(sum);
-    const uint16_t base = static_cast<uint16_t>(bits >> 16u);
-    const bool next = (bits >> 31u) ? precise < double(sum) : precise > double(sum);
-    return static_cast<uint16_t>(base + unsigned(next));
+    return qrt_sm121_q1::add(first, second);
 }
 
 #if defined(__HIPCC__) || defined(__CUDACC__)
-template<unsigned K, class Input>
+template<unsigned K, class Input, bool Gate = false>
 __device__ inline float dot(const Input* input, const uint16_t* weight) {
+    static_assert(!Gate || K == 2048u, "original gate input width");
     const unsigned lane = threadIdx.x % lanes<K>;
-    float sum = lane_dot<K>(input, weight, lane);
+    float sum;
+    if constexpr (Gate) sum = gate_lane_dot(input, weight, lane);
+    else sum = lane_dot<K>(input, weight, lane);
     for (unsigned offset = lanes<K> / 2u; offset; offset >>= 1u)
         sum = qrt_sm121_q1::add(sum, __shfl_down(sum, offset, lanes<K>));
     return sum;
@@ -105,13 +87,14 @@ __global__ void projection(const Input* input, const uint16_t* weights,
     if (cell >= size_t(columns) * queries) return;
     const unsigned column = static_cast<unsigned>(cell % columns);
     const size_t query = cell / columns;
-    const float sum = dot<K>(input + query * K, weights + size_t(column) * K);
+    float sum;
+    if constexpr (K == 2048u) {
+        sum = columns == 32u
+            ? dot<K,Input,true>(input + query * K, weights + size_t(column) * K)
+            : dot<K>(input + query * K, weights + size_t(column) * K);
+    } else sum = dot<K>(input + query * K, weights + size_t(column) * K);
     if (threadIdx.x % lanes<K> == 0u) {
-        uint16_t rounded = qrt_sm121_q1::bf16(sum);
-        if constexpr (K == 2048u) {
-            if (columns == 32u)
-                rounded = gate_midpoint(sum, input + query * K, weights + size_t(column) * K);
-        }
+        const uint16_t rounded = qrt_sm121_q1::bf16(sum);
         if constexpr (std::is_same<Output,uint16_t>::value) output[cell] = rounded;
         else output[cell] = qrt_sm121_q1::widen(rounded);
     }

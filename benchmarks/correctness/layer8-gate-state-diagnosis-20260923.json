@@ -1,0 +1,3337 @@
+{
+  "kind": "layer8_original_gate_projection_and_accumulated_state_diagnosis",
+  "runtime_source_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+  "model": "D:/models/Qwen3.6-35B-A3B",
+  "original_reference": {
+    "kind": "qualified_original_layer8_continuous_recurrent_history",
+    "authority_host": "gb10-4t",
+    "runtime_host": "aitopatom-66c4",
+    "source_commit": "3fcbdafb10a14e94c15bd94a1f821f180bc95373",
+    "dependency_source_commit": "f963ff0c890dd94e0167057b19428e539e097628",
+    "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "command_file": "<evidence-home-2>/run-qrt-gb10-layer8-history-20260923-r1.py",
+    "command_file_sha256": "3fbb6838715c8c1332e22435918a033f20b605c0a569b6ef53a2dd3affcca936",
+    "source_manifest_sha256": "a017ad40ec20e4fa1924dcb8b464c3d58aba98933deae6e442c83ebaafc2f6a9",
+    "compact_history_sha256": "c9a2bd048d22a8988963a9f28e8d0ea2a3a786ce08bf8694d1888e26c4cf26e2",
+    "original_full_capture_sha256": "7184204b8bbf36f2c7532cde3969b4716f28c369f5d94b591d0f5978555c952b",
+    "dispatch_sha256": "a20790e1b10cc1f69719db76fd1a085e89e8b38d31aa28b374b32f6e3620c330",
+    "source_inputs_sha256": "30b2646159fff0f65116535795685353e72e5eb704ca859b7b6dce08842738cb",
+    "collector_sha256": "ec90042f8640a0f682b2419549cf5331e2341378e4b2006acc1ca8f673563419",
+    "original608_outputs_and_full_first_logits_pass": true,
+    "cases": [
+      {
+        "name": "q7169-out32",
+        "prompt": {
+          "token_count": 7169,
+          "seed": 50536152,
+          "first_token_id": 30199,
+          "u32le_sha256": "b4ba753492f994e7c64ca7805c1b48523993ff24f6e75b44fa5705067d1de87d",
+          "u32le_fnv1a64": "c900c18703532d6a"
+        },
+        "outputs": 32,
+        "output_token_ids": [
+          82,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220
+        ],
+        "first_token": 82,
+        "first_logit": 9.25,
+        "first_logit_absolute_error": 0,
+        "full_first_logits_sha256": "719813bb031f041544c91840b0092fd43a0e3ef96ccbb9ac44cd2f713a5763c9",
+        "prior_case_sha256": "f44143f2143c52b255472f8687d396c77e896d7ff46f45889517d95ffd44717c",
+        "all_original_outputs_match": true,
+        "all_full_first_logits_bits_match": true
+      },
+      {
+        "name": "q8192-out32",
+        "prompt": {
+          "token_count": 8192,
+          "seed": 395518,
+          "first_token_id": 84411,
+          "u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+          "u32le_fnv1a64": "1584e34d56e5d78b"
+        },
+        "outputs": 32,
+        "output_token_ids": [
+          144,
+          255,
+          82,
+          57,
+          79,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196
+        ],
+        "first_token": 144,
+        "first_logit": 10.375,
+        "first_logit_absolute_error": 0,
+        "full_first_logits_sha256": "145adfd0d14158d649b4c57f1dbb5151466d73f9183821e7da24e831d74112c0",
+        "prior_case_sha256": "a76e67653322878f5c42c5a96a4465c0d5f402d6a4f098d6db5fadf8a3a24d42",
+        "all_original_outputs_match": true,
+        "all_full_first_logits_bits_match": true
+      },
+      {
+        "name": "long-prefix262144-owner-out32",
+        "prompt": {
+          "token_count": 262144,
+          "generator": "explicit_actual_tokens",
+          "u32le_sha256": "bda1b648ef9365c40f9233228cd646c4addf9ec8c0f1cf7aeaad56aaf0f712e2",
+          "u32le_fnv1a64": "55ac49bb839b4fe8"
+        },
+        "outputs": 32,
+        "output_token_ids": [
+          16,
+          15,
+          15,
+          220,
+          16,
+          15,
+          16,
+          220,
+          16,
+          15,
+          17,
+          220,
+          16,
+          15,
+          18,
+          220,
+          16,
+          15,
+          19,
+          220,
+          16,
+          15,
+          20,
+          220,
+          16,
+          15,
+          21,
+          220,
+          16,
+          15,
+          22,
+          220
+        ],
+        "first_token": 16,
+        "first_logit": 24.375,
+        "first_logit_absolute_error": 0,
+        "full_first_logits_sha256": "a29f8caade68a34ae1201e9f3d9b5b8849e8ec3548235c46c99679fb23042cfe",
+        "prior_case_sha256": "61fa8ab26f3c170926901bc9e3deb1588fe5d9edc227aa4060fc2b80148fbd94",
+        "all_original_outputs_match": true,
+        "all_full_first_logits_bits_match": true
+      },
+      {
+        "name": "long-prefix262144-suffix1024-out512",
+        "prompt": {
+          "token_count": 263168,
+          "generator": "explicit_actual_tokens",
+          "u32le_sha256": "da628768df91843dbdb011983f4534df6d1c80be9deb97c0eef48dfc0a8d18fa",
+          "u32le_fnv1a64": "6aa7d9579bb8427c"
+        },
+        "outputs": 512,
+        "output_token_ids": [
+          248045,
+          248046,
+          198,
+          248044,
+          248045,
+          248045,
+          248045,
+          248045,
+          846,
+          198,
+          248046,
+          198,
+          248045,
+          74455,
+          198,
+          248068,
+          198,
+          8160,
+          579,
+          264,
+          7047,
+          1817,
+          25,
+          271,
+          16,
+          13,
+          220,
+          2972,
+          2014,
+          53983,
+          2570,
+          5396,
+          64700,
+          198,
+          256,
+          471,
+          2972,
+          16174,
+          64700,
+          328,
+          20206,
+          440,
+          11778,
+          24959,
+          5732,
+          506,
+          220,
+          16,
+          15,
+          15,
+          321,
+          7459,
+          539,
+          799,
+          11,
+          18101,
+          539,
+          3074,
+          12258,
+          13,
+          59460,
+          506,
+          3140,
+          220,
+          21,
+          19,
+          24959,
+          321,
+          874,
+          15673,
+          13,
+          5272,
+          279,
+          69892,
+          1248,
+          61485,
+          16602,
+          2100,
+          220,
+          16,
+          18,
+          16,
+          15,
+          22,
+          17,
+          1149,
+          198,
+          256,
+          471,
+          2972,
+          1905,
+          64700,
+          357,
+          10632,
+          2424,
+          314,
+          11173,
+          328,
+          16606,
+          328,
+          1414,
+          318,
+          13873,
+          264,
+          9640,
+          24277,
+          75108,
+          52870,
+          310,
+          1228,
+          1248,
+          61485,
+          11256,
+          553,
+          198,
+          256,
+          471,
+          2972,
+          1536,
+          84457,
+          64700,
+          198,
+          257,
+          471,
+          4980,
+          506,
+          220,
+          16,
+          15,
+          15,
+          198,
+          257,
+          471,
+          38321,
+          539,
+          220,
+          16,
+          198,
+          257,
+          471,
+          32001,
+          639,
+          539,
+          3074,
+          12258,
+          198,
+          257,
+          471,
+          2332,
+          3140,
+          220,
+          21,
+          19,
+          24959,
+          198,
+          257,
+          471,
+          2233,
+          15673,
+          198,
+          257,
+          471,
+          328,
+          9947,
+          279,
+          69892,
+          1248,
+          61485,
+          16602,
+          2100,
+          220,
+          16,
+          18,
+          16,
+          15,
+          22,
+          17,
+          1149,
+          318,
+          1919,
+          369,
+          264,
+          2612,
+          52920,
+          13,
+          1049,
+          2493,
+          2977,
+          279,
+          8240,
+          1220,
+          809,
+          506,
+          220,
+          16,
+          18,
+          16,
+          15,
+          22,
+          17,
+          11,
+          466,
+          424,
+          579,
+          1066,
+          264,
+          2100,
+          75108,
+          10811,
+          13,
+          15767,
+          279,
+          1273,
+          93144,
+          328,
+          67,
+          15999,
+          4384,
+          1248,
+          61485,
+          16602,
+          2100,
+          220,
+          16,
+          18,
+          16,
+          15,
+          22,
+          17,
+          487,
+          424,
+          4222,
+          3254,
+          279,
+          8240,
+          1220,
+          708,
+          685,
+          310,
+          220,
+          16,
+          18,
+          16,
+          15,
+          22,
+          17,
+          11,
+          466,
+          424,
+          579,
+          1066,
+          264,
+          8097,
+          1406,
+          310,
+          8940,
+          364,
+          13,
+          353,
+          3172,
+          13792,
+          424,
+          430,
+          25,
+          6707,
+          24959,
+          494,
+          220,
+          16,
+          15,
+          15,
+          685,
+          310,
+          220,
+          16,
+          18,
+          16,
+          15,
+          22,
+          17,
+          11,
+          466,
+          506,
+          3140,
+          5790,
+          279,
+          8240,
+          369,
+          1248,
+          3213,
+          321,
+          10029,
+          506,
+          466,
+          15734,
+          220,
+          16,
+          18,
+          16,
+          15,
+          22,
+          17,
+          13,
+          32645,
+          11,
+          328,
+          5480,
+          220,
+          16,
+          18,
+          16,
+          15,
+          22,
+          17,
+          1,
+          2493,
+          1066,
+          2977,
+          279,
+          8240,
+          1220,
+          809,
+          506,
+          220,
+          16,
+          18,
+          16,
+          15,
+          22,
+          17,
+          13,
+          6558,
+          579,
+          1698,
+          25,
+          220,
+          16,
+          18,
+          16,
+          15,
+          22,
+          17,
+          471,
+          220,
+          16,
+          15,
+          15,
+          478,
+          220,
+          16,
+          283,
+          220,
+          16,
+          18,
+          15,
+          24,
+          22,
+          18,
+          24959,
+          13,
+          2844,
+          579,
+          264,
+          2609,
+          13,
+          1921,
+          279,
+          9640,
+          2640,
+          328,
+          36,
+          1701,
+          506,
+          3140,
+          220,
+          21,
+          19,
+          24959,
+          3158,
+          353,
+          3172,
+          6707,
+          494,
+          220,
+          16,
+          15,
+          15,
+          310,
+          220,
+          16,
+          18,
+          16,
+          15,
+          22,
+          17,
+          310,
+          381,
+          5902,
+          11,
+          466,
+          1066,
+          220,
+          16,
+          15,
+          15,
+          310,
+          220,
+          16,
+          21,
+          18,
+          318,
+          21,
+          19,
+          24959,
+          553,
+          13428,
+          11,
+          328,
+          5480,
+          220,
+          16,
+          18,
+          16,
+          15,
+          22,
+          17,
+          1,
+          2493,
+          381,
+          264,
+          3050,
+          7359,
+          310,
+          809,
+          506,
+          421,
+          1324,
+          13,
+          353,
+          3172,
+          6707,
+          6681,
+          494,
+          220,
+          16,
+          15,
+          15,
+          310,
+          220,
+          16,
+          18,
+          16,
+          15,
+          22,
+          17,
+          13,
+          1921,
+          421,
+          579,
+          3835,
+          16,
+          18,
+          15,
+          74,
+          4947,
+          13,
+          93121,
+          421,
+          1599,
+          2493,
+          4062,
+          3817,
+          13001,
+          13,
+          6558,
+          579,
+          311,
+          27864,
+          15060,
+          25,
+          328,
+          9947,
+          279,
+          69892,
+          1248,
+          61485,
+          16602,
+          2100,
+          220,
+          16,
+          18,
+          16,
+          15,
+          22,
+          17,
+          1149,
+          1061,
+          369,
+          4222,
+          264,
+          27502,
+          12333,
+          16629,
+          13,
+          353,
+          668,
+          6707,
+          24959,
+          494,
+          220,
+          16,
+          15
+        ],
+        "first_token": 248045,
+        "first_logit": 5.78125,
+        "first_logit_absolute_error": 0,
+        "full_first_logits_sha256": "8819f100f74f9e07be158509b703dedfaf91497b4a5b0aaf371ba82b6548912e",
+        "prior_case_sha256": "411071b7ed8b61d521d888916059f9bc48a95bc7ad12d7f2c74bc25dd191ec01",
+        "all_original_outputs_match": true,
+        "all_full_first_logits_bits_match": true
+      }
+    ],
+    "all_raw_boundary_files_verified_remotely": 33050,
+    "all_raw_boundary_bytes_verified_remotely": 809549948,
+    "compact_files_verified_locally": 1379,
+    "compact_bytes_verified_locally": 28101777,
+    "complete_raw_reference_retained_on_gb10": true,
+    "local_full_state_downloaded": false,
+    "original_reference_compute_unchanged": true,
+    "native_values_supplied_to_reference": false,
+    "prior_reference_endpoint_overlap": [
+      {
+        "position": 263168,
+        "shared_surfaces": 11,
+        "changed_surfaces": [],
+        "all_shared_bits_equal": true,
+        "diagnostic_only": true
+      },
+      {
+        "position": 263290,
+        "shared_surfaces": 11,
+        "changed_surfaces": [],
+        "all_shared_bits_equal": true,
+        "diagnostic_only": true
+      },
+      {
+        "position": 263291,
+        "shared_surfaces": 11,
+        "changed_surfaces": [],
+        "all_shared_bits_equal": true,
+        "diagnostic_only": true
+      }
+    ],
+    "host_guard_pass": true,
+    "minimum_host_available_bytes": 15103496192,
+    "reference_wall_seconds": 949.9913096081,
+    "frozen_autotune_cache_no_misses": true,
+    "reference_qualified": true,
+    "windows_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false,
+    "scope": "Original reference qualification and compact operator evidence only. Native diagnosis, numerical repair and full Windows acceptance remain separate.",
+    "raw_analysis_file": "boundary-analysis.json",
+    "raw_analysis_sha256": "6bfdde4e41096e437c1de9692aa7ac57f497405508467ff40a5240ceef9ce567",
+    "normalized_input_overlap_count": 124,
+    "all_normalized_inputs_equal_previous_reference": true,
+    "full_state_continuity_count": 123,
+    "all_full_state_and_head_slice_continuity_bits_equal": true,
+    "recurrent_window": {
+      "layer": 8,
+      "first_offset": 0,
+      "tokens": 124
+    },
+    "transported_head": 26,
+    "transitions": [
+      {
+        "position": 263168,
+        "input_token_id": 248045,
+        "output_token_id": 248046,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "67c8d9bdb8fac73c66d0aeafd26f4e78c5e4c54bf3a73a6c4b255c1e13a6a3ca",
+            "head26_slice_sha256": "2c211bc0d5d2e564221b68c6b987b0bdaca44d029439f4db15569ac7878dce4d"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "b51e7038428de5215ef849c3619333f567c97fae95af71cec8b1308c15001403",
+            "head26_slice_sha256": "acf43be27a0a159226a6ce2ee594daa6c1ccbefe380c18918da6eaac42e467bf"
+          }
+        ]
+      },
+      {
+        "position": 263169,
+        "input_token_id": 248046,
+        "output_token_id": 198,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "b51e7038428de5215ef849c3619333f567c97fae95af71cec8b1308c15001403",
+            "head26_slice_sha256": "acf43be27a0a159226a6ce2ee594daa6c1ccbefe380c18918da6eaac42e467bf"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "1c27fb3c61681ee62e2c5000609f2eab870aa624d763c2b35338eecc5231efcd",
+            "head26_slice_sha256": "fde2162b869f05726e4ea4c0d2e9f7e8e4501c5fad814b246694de8ffc82a318"
+          }
+        ]
+      },
+      {
+        "position": 263170,
+        "input_token_id": 198,
+        "output_token_id": 248044,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "1c27fb3c61681ee62e2c5000609f2eab870aa624d763c2b35338eecc5231efcd",
+            "head26_slice_sha256": "fde2162b869f05726e4ea4c0d2e9f7e8e4501c5fad814b246694de8ffc82a318"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "87122e4369f4251f694e76892cab87a80f7f9dae2711012a4f78de42a94e837c",
+            "head26_slice_sha256": "319f3cd58643b6b54d1722ce75913488ae301846b4178e573de5fab4de7e6e37"
+          }
+        ]
+      },
+      {
+        "position": 263171,
+        "input_token_id": 248044,
+        "output_token_id": 248045,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "87122e4369f4251f694e76892cab87a80f7f9dae2711012a4f78de42a94e837c",
+            "head26_slice_sha256": "319f3cd58643b6b54d1722ce75913488ae301846b4178e573de5fab4de7e6e37"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "f2b389248eabd3b091a865f9148699d0c8cf11cef69917a158444cfd65d81856",
+            "head26_slice_sha256": "53b6a7465ac64d3cc545dd1fcb52cfef7d1feb6f46254208a9235bfb189d51fa"
+          }
+        ]
+      },
+      {
+        "position": 263172,
+        "input_token_id": 248045,
+        "output_token_id": 248045,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "f2b389248eabd3b091a865f9148699d0c8cf11cef69917a158444cfd65d81856",
+            "head26_slice_sha256": "53b6a7465ac64d3cc545dd1fcb52cfef7d1feb6f46254208a9235bfb189d51fa"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "74950a75688076b8fc3cafd28531f8c97d0b7c223d7f57dbb656357f62708a0d",
+            "head26_slice_sha256": "d7f345d6adb164c19f65ce52af3e6f4e6ba904fdbeaf7c46b72bb8883c397eed"
+          }
+        ]
+      },
+      {
+        "position": 263173,
+        "input_token_id": 248045,
+        "output_token_id": 248045,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "74950a75688076b8fc3cafd28531f8c97d0b7c223d7f57dbb656357f62708a0d",
+            "head26_slice_sha256": "d7f345d6adb164c19f65ce52af3e6f4e6ba904fdbeaf7c46b72bb8883c397eed"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "ea4be27521eeeda30c04adb4f8ad466b5fff8ca2e591affbbbb6837735aae5e6",
+            "head26_slice_sha256": "40920cc27fd26fa8404242da14c074390adb67eb939f7e832fe82fec34230a06"
+          }
+        ]
+      },
+      {
+        "position": 263174,
+        "input_token_id": 248045,
+        "output_token_id": 248045,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "ea4be27521eeeda30c04adb4f8ad466b5fff8ca2e591affbbbb6837735aae5e6",
+            "head26_slice_sha256": "40920cc27fd26fa8404242da14c074390adb67eb939f7e832fe82fec34230a06"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "80a7a57cfc2e113bea9445c2e3a0e1190ed6b7a6823fa6fe72dd47f83f151739",
+            "head26_slice_sha256": "5501c2dd95efdb2e71d3fb7b01eefa09626efe1395165f0f0299a4ea56935d08"
+          }
+        ]
+      },
+      {
+        "position": 263175,
+        "input_token_id": 248045,
+        "output_token_id": 846,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "80a7a57cfc2e113bea9445c2e3a0e1190ed6b7a6823fa6fe72dd47f83f151739",
+            "head26_slice_sha256": "5501c2dd95efdb2e71d3fb7b01eefa09626efe1395165f0f0299a4ea56935d08"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "069e894670149f900dfcb5d4a0b0f3e585fc87ce18181026135e246fe4065395",
+            "head26_slice_sha256": "39bdc9006447cef0c7b6b1132da247616274a65f5412f762efafa24898e0913e"
+          }
+        ]
+      },
+      {
+        "position": 263176,
+        "input_token_id": 846,
+        "output_token_id": 198,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "069e894670149f900dfcb5d4a0b0f3e585fc87ce18181026135e246fe4065395",
+            "head26_slice_sha256": "39bdc9006447cef0c7b6b1132da247616274a65f5412f762efafa24898e0913e"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "2cd2459fc93b4f9f3ca6408fdd42413c70daf94dec03baed41620c705ad61bad",
+            "head26_slice_sha256": "de9f2d747ce6c6fcfef7c7e25a07eef900a90f2e69ecb9355dd4d3b08679f116"
+          }
+        ]
+      },
+      {
+        "position": 263177,
+        "input_token_id": 198,
+        "output_token_id": 248046,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "2cd2459fc93b4f9f3ca6408fdd42413c70daf94dec03baed41620c705ad61bad",
+            "head26_slice_sha256": "de9f2d747ce6c6fcfef7c7e25a07eef900a90f2e69ecb9355dd4d3b08679f116"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "95e3f77f0a415f9ffc54bb6f9bf195637da6dbd42bc90bedc017d9c91c013b1c",
+            "head26_slice_sha256": "7a6f5237c98adcccf5b0f8587ed344acb346d78b619c27444fdb0f9385896e50"
+          }
+        ]
+      },
+      {
+        "position": 263178,
+        "input_token_id": 248046,
+        "output_token_id": 198,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "95e3f77f0a415f9ffc54bb6f9bf195637da6dbd42bc90bedc017d9c91c013b1c",
+            "head26_slice_sha256": "7a6f5237c98adcccf5b0f8587ed344acb346d78b619c27444fdb0f9385896e50"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "35bae4af1df6724f14868e9e3d5e1d059542b117f16269c5627836d4405c995b",
+            "head26_slice_sha256": "8489957e7777db241a17c35de4e7f56649cf57b0a207e7be16c5f0bc741c49bb"
+          }
+        ]
+      },
+      {
+        "position": 263179,
+        "input_token_id": 198,
+        "output_token_id": 248045,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "35bae4af1df6724f14868e9e3d5e1d059542b117f16269c5627836d4405c995b",
+            "head26_slice_sha256": "8489957e7777db241a17c35de4e7f56649cf57b0a207e7be16c5f0bc741c49bb"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "c97d81cb08c71a82aae4bf33e39a150a5582f6b627d9e04131f148362e62f7fb",
+            "head26_slice_sha256": "0206a6ba00a8cfad8c0b175a0310fcc7e795bb3addefd9026e711eeb36a6342d"
+          }
+        ]
+      },
+      {
+        "position": 263180,
+        "input_token_id": 248045,
+        "output_token_id": 74455,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "c97d81cb08c71a82aae4bf33e39a150a5582f6b627d9e04131f148362e62f7fb",
+            "head26_slice_sha256": "0206a6ba00a8cfad8c0b175a0310fcc7e795bb3addefd9026e711eeb36a6342d"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "ca86f5de999432f6861954a045868d63f566aa77466750f37643b27ea823ad11",
+            "head26_slice_sha256": "c2230cbc2ae58b62bb196d942f4ea37172939e5c01bc25e879e6619afdbea562"
+          }
+        ]
+      },
+      {
+        "position": 263181,
+        "input_token_id": 74455,
+        "output_token_id": 198,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "ca86f5de999432f6861954a045868d63f566aa77466750f37643b27ea823ad11",
+            "head26_slice_sha256": "c2230cbc2ae58b62bb196d942f4ea37172939e5c01bc25e879e6619afdbea562"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "f1af3e0d97f03f18a71922bdfecce2f39af7d2e72d452c1725b53803f209e781",
+            "head26_slice_sha256": "37154c540e0042439c97778d006df74c82c7919963278bdd352d96648eeedc24"
+          }
+        ]
+      },
+      {
+        "position": 263182,
+        "input_token_id": 198,
+        "output_token_id": 248068,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "f1af3e0d97f03f18a71922bdfecce2f39af7d2e72d452c1725b53803f209e781",
+            "head26_slice_sha256": "37154c540e0042439c97778d006df74c82c7919963278bdd352d96648eeedc24"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "6ac6fa9d941fa86c4630eb59d4ed9956f433b4be1eef9c44162e7a6687e1f89b",
+            "head26_slice_sha256": "4e1e06e781c852d1173a2860a47e22bf3233dfa7f9be9b3b984bba0bf56a6d09"
+          }
+        ]
+      },
+      {
+        "position": 263183,
+        "input_token_id": 248068,
+        "output_token_id": 198,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "6ac6fa9d941fa86c4630eb59d4ed9956f433b4be1eef9c44162e7a6687e1f89b",
+            "head26_slice_sha256": "4e1e06e781c852d1173a2860a47e22bf3233dfa7f9be9b3b984bba0bf56a6d09"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "25dd94702fd93bfbc472b3a286c5262aa1064dd1b157f9bec78d099df8b2818e",
+            "head26_slice_sha256": "e2ca46defbf5462400294d0ecfa6960a6f2c8afa750cc63e38df869595b3ea82"
+          }
+        ]
+      },
+      {
+        "position": 263184,
+        "input_token_id": 198,
+        "output_token_id": 8160,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "25dd94702fd93bfbc472b3a286c5262aa1064dd1b157f9bec78d099df8b2818e",
+            "head26_slice_sha256": "e2ca46defbf5462400294d0ecfa6960a6f2c8afa750cc63e38df869595b3ea82"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "ae5bf8d3bf7d052f042ef25d9f2a0830a6da94535098dbb2501a847fde84808c",
+            "head26_slice_sha256": "029b9b9a87e8a9fb5edaf3fe548e7b905e6863a289a2ebf5077e05f2279dfea2"
+          }
+        ]
+      },
+      {
+        "position": 263185,
+        "input_token_id": 8160,
+        "output_token_id": 579,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "ae5bf8d3bf7d052f042ef25d9f2a0830a6da94535098dbb2501a847fde84808c",
+            "head26_slice_sha256": "029b9b9a87e8a9fb5edaf3fe548e7b905e6863a289a2ebf5077e05f2279dfea2"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "309ecf7418eb2bedf4b6742264472c2b699d12d46ff3cdcd9da27e0b18d928eb",
+            "head26_slice_sha256": "26028fab96075382853b2c72a1a8b2c40bd8f8e81b1347287d2f19e374e6a206"
+          }
+        ]
+      },
+      {
+        "position": 263186,
+        "input_token_id": 579,
+        "output_token_id": 264,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "309ecf7418eb2bedf4b6742264472c2b699d12d46ff3cdcd9da27e0b18d928eb",
+            "head26_slice_sha256": "26028fab96075382853b2c72a1a8b2c40bd8f8e81b1347287d2f19e374e6a206"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "80f6d10c0d1ed61aba7a06a8856632c4cacac3f393ccbbeea86c9bd119ca314a",
+            "head26_slice_sha256": "11ec4773ccdfc9d51ba2d3d3bbd6c98b8491fd3cfa88c6f46110c838a3621e74"
+          }
+        ]
+      },
+      {
+        "position": 263187,
+        "input_token_id": 264,
+        "output_token_id": 7047,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "80f6d10c0d1ed61aba7a06a8856632c4cacac3f393ccbbeea86c9bd119ca314a",
+            "head26_slice_sha256": "11ec4773ccdfc9d51ba2d3d3bbd6c98b8491fd3cfa88c6f46110c838a3621e74"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "677aafcdf0f443a08d3f6d1b72444e29abd28cc2cd941b974a0ce6c598923b5d",
+            "head26_slice_sha256": "305bda30cf09c595d09b2195c488c5875ee8af849488a19c651a61c9b7637376"
+          }
+        ]
+      },
+      {
+        "position": 263188,
+        "input_token_id": 7047,
+        "output_token_id": 1817,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "677aafcdf0f443a08d3f6d1b72444e29abd28cc2cd941b974a0ce6c598923b5d",
+            "head26_slice_sha256": "305bda30cf09c595d09b2195c488c5875ee8af849488a19c651a61c9b7637376"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "f17f93cc8f5113c6c6c88589f4460bc484c0b7f9397cdef32fe8dbf584473132",
+            "head26_slice_sha256": "13498743d3b2e76d0f62402f4cdaff9c02a2573847fec588fe522919b3e63bb6"
+          }
+        ]
+      },
+      {
+        "position": 263189,
+        "input_token_id": 1817,
+        "output_token_id": 25,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "f17f93cc8f5113c6c6c88589f4460bc484c0b7f9397cdef32fe8dbf584473132",
+            "head26_slice_sha256": "13498743d3b2e76d0f62402f4cdaff9c02a2573847fec588fe522919b3e63bb6"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "a3e75eb490a4fcdedad411a16b51ee168fe71a005aaea37ed8e11b5740552dc0",
+            "head26_slice_sha256": "87a3374c4c2a891c5b0ce1e93a7e335a46785be14cd50c10078beabd4ff600e3"
+          }
+        ]
+      },
+      {
+        "position": 263190,
+        "input_token_id": 25,
+        "output_token_id": 271,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "a3e75eb490a4fcdedad411a16b51ee168fe71a005aaea37ed8e11b5740552dc0",
+            "head26_slice_sha256": "87a3374c4c2a891c5b0ce1e93a7e335a46785be14cd50c10078beabd4ff600e3"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "ed9073c7a082d1cb44ecbd8cf43a127d8d68b047414bb9e9c672a0e0a0c6d2be",
+            "head26_slice_sha256": "758df205d11b77a44843417a4db445244c6abbec701f8f49489a916929d7a03e"
+          }
+        ]
+      },
+      {
+        "position": 263191,
+        "input_token_id": 271,
+        "output_token_id": 16,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "ed9073c7a082d1cb44ecbd8cf43a127d8d68b047414bb9e9c672a0e0a0c6d2be",
+            "head26_slice_sha256": "758df205d11b77a44843417a4db445244c6abbec701f8f49489a916929d7a03e"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "3b99cb6ab2119ee4e5350844177656bfa8fb3b92024d0af4760398527957ee3c",
+            "head26_slice_sha256": "24efb1a6f317f9910a5d88fea8cb4cb00c1a5023212085d058ebbc76e0624b42"
+          }
+        ]
+      },
+      {
+        "position": 263192,
+        "input_token_id": 16,
+        "output_token_id": 13,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "3b99cb6ab2119ee4e5350844177656bfa8fb3b92024d0af4760398527957ee3c",
+            "head26_slice_sha256": "24efb1a6f317f9910a5d88fea8cb4cb00c1a5023212085d058ebbc76e0624b42"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "f20220dc6c7687f337985eb4927757a8db7c95bcbf7b0ed64f666aa40ec85b96",
+            "head26_slice_sha256": "214acb65d7a265066f88d48968fa5f15e718d73591de8bb198f88ccf0f670ee7"
+          }
+        ]
+      },
+      {
+        "position": 263193,
+        "input_token_id": 13,
+        "output_token_id": 220,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "f20220dc6c7687f337985eb4927757a8db7c95bcbf7b0ed64f666aa40ec85b96",
+            "head26_slice_sha256": "214acb65d7a265066f88d48968fa5f15e718d73591de8bb198f88ccf0f670ee7"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "42d2e954b1dbeb87fa47f7bf327be893494e2301f1055050cec54b1cb6c2b81d",
+            "head26_slice_sha256": "b45a2ea8cfd3ff40bc6491592e2585af559d0b1f95276ee58f5b946b3e540395"
+          }
+        ]
+      },
+      {
+        "position": 263194,
+        "input_token_id": 220,
+        "output_token_id": 2972,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "42d2e954b1dbeb87fa47f7bf327be893494e2301f1055050cec54b1cb6c2b81d",
+            "head26_slice_sha256": "b45a2ea8cfd3ff40bc6491592e2585af559d0b1f95276ee58f5b946b3e540395"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "7aed25c64243b72ca2bf24604a5401fa1152ecff00b50d0d3cc17572df40536b",
+            "head26_slice_sha256": "b138190067f010f78eb29ef7722e127ad6c33ff33a3aa8afed65b5914655e9f4"
+          }
+        ]
+      },
+      {
+        "position": 263195,
+        "input_token_id": 2972,
+        "output_token_id": 2014,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "7aed25c64243b72ca2bf24604a5401fa1152ecff00b50d0d3cc17572df40536b",
+            "head26_slice_sha256": "b138190067f010f78eb29ef7722e127ad6c33ff33a3aa8afed65b5914655e9f4"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "9d7732a15b3c876daeffd094170e951f8485cd43ccf3ef5db63c0e2689e89aea",
+            "head26_slice_sha256": "631493c8530a58ac1b8f0a7fa79683237da8f89545e59c4a65a94be1c59b91be"
+          }
+        ]
+      },
+      {
+        "position": 263196,
+        "input_token_id": 2014,
+        "output_token_id": 53983,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "9d7732a15b3c876daeffd094170e951f8485cd43ccf3ef5db63c0e2689e89aea",
+            "head26_slice_sha256": "631493c8530a58ac1b8f0a7fa79683237da8f89545e59c4a65a94be1c59b91be"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "a8c94621c27fded1c75b2b304c24fa3f96a5f5c3768cda2ceed18ad4931aa2db",
+            "head26_slice_sha256": "b4c44d8813029e6eb339b32687d9cbbcf0c621ec5c1399f9708237620e63125c"
+          }
+        ]
+      },
+      {
+        "position": 263197,
+        "input_token_id": 53983,
+        "output_token_id": 2570,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "a8c94621c27fded1c75b2b304c24fa3f96a5f5c3768cda2ceed18ad4931aa2db",
+            "head26_slice_sha256": "b4c44d8813029e6eb339b32687d9cbbcf0c621ec5c1399f9708237620e63125c"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "4894cc6d5ef3fdb9cb755e0827bb9b1fe392c27b2915ca0bcf02ddadb1956bc9",
+            "head26_slice_sha256": "f28f768e5d369754db2d3973c0317989412f885174476389589b8f43a0963cbe"
+          }
+        ]
+      },
+      {
+        "position": 263198,
+        "input_token_id": 2570,
+        "output_token_id": 5396,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "4894cc6d5ef3fdb9cb755e0827bb9b1fe392c27b2915ca0bcf02ddadb1956bc9",
+            "head26_slice_sha256": "f28f768e5d369754db2d3973c0317989412f885174476389589b8f43a0963cbe"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "361c104bd622782a4c94d1dceb0e02b722934c5bc78e52604a3f20db7d8c1c0d",
+            "head26_slice_sha256": "3a619eb99494a4d231acf857af45e8b79b0610930aa05f2a3a53b9760354d111"
+          }
+        ]
+      },
+      {
+        "position": 263199,
+        "input_token_id": 5396,
+        "output_token_id": 64700,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "361c104bd622782a4c94d1dceb0e02b722934c5bc78e52604a3f20db7d8c1c0d",
+            "head26_slice_sha256": "3a619eb99494a4d231acf857af45e8b79b0610930aa05f2a3a53b9760354d111"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "2500b5d4f7d2200a93541d5de4489622020bb6a0814775f981b52e8c626dedca",
+            "head26_slice_sha256": "be512d6d2d3bea028da9d92b7ae7b1eb25745e2b1648b0dea647337be1d5a001"
+          }
+        ]
+      },
+      {
+        "position": 263200,
+        "input_token_id": 64700,
+        "output_token_id": 198,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "2500b5d4f7d2200a93541d5de4489622020bb6a0814775f981b52e8c626dedca",
+            "head26_slice_sha256": "be512d6d2d3bea028da9d92b7ae7b1eb25745e2b1648b0dea647337be1d5a001"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "b4e43a262c1af94ffa4d2985f007ece66401b187ae83a603a777e5e45b9ca86c",
+            "head26_slice_sha256": "f486a981f08f62342ef481140f8efcea42140eac3d4e68e7df14aac7ca3911e5"
+          }
+        ]
+      },
+      {
+        "position": 263201,
+        "input_token_id": 198,
+        "output_token_id": 256,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "b4e43a262c1af94ffa4d2985f007ece66401b187ae83a603a777e5e45b9ca86c",
+            "head26_slice_sha256": "f486a981f08f62342ef481140f8efcea42140eac3d4e68e7df14aac7ca3911e5"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "7df2eb90e7aff71154f14c93b925d05c3481a202c3bec595f47720f99ca47193",
+            "head26_slice_sha256": "56e7fbbe02ce6281579ba2cffc809eeb1d1d5eea58e36be4fe523d41a07d5a27"
+          }
+        ]
+      },
+      {
+        "position": 263202,
+        "input_token_id": 256,
+        "output_token_id": 471,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "7df2eb90e7aff71154f14c93b925d05c3481a202c3bec595f47720f99ca47193",
+            "head26_slice_sha256": "56e7fbbe02ce6281579ba2cffc809eeb1d1d5eea58e36be4fe523d41a07d5a27"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "d6a60657fda1947b562acafa992ecb3530f21474e8316a6957352cbdb17409f9",
+            "head26_slice_sha256": "1ada97f37d29f2191a457ac84bad783ba950cf0c8850223fadc3d7f8ebdfcc07"
+          }
+        ]
+      },
+      {
+        "position": 263203,
+        "input_token_id": 471,
+        "output_token_id": 2972,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "d6a60657fda1947b562acafa992ecb3530f21474e8316a6957352cbdb17409f9",
+            "head26_slice_sha256": "1ada97f37d29f2191a457ac84bad783ba950cf0c8850223fadc3d7f8ebdfcc07"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "6a052382fb2be61c6d8fa24fb54e06c20865b3422fafabad98421d360e39ceec",
+            "head26_slice_sha256": "21c40eff869c1b68dcc4a6152b9d1b9127daef9986807102d95447d2f3fe4e32"
+          }
+        ]
+      },
+      {
+        "position": 263204,
+        "input_token_id": 2972,
+        "output_token_id": 16174,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "6a052382fb2be61c6d8fa24fb54e06c20865b3422fafabad98421d360e39ceec",
+            "head26_slice_sha256": "21c40eff869c1b68dcc4a6152b9d1b9127daef9986807102d95447d2f3fe4e32"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "30b9450f10e2e7fc299ebbaf24b83b0fe47140d96c8b22136219cb8ac7c30336",
+            "head26_slice_sha256": "73a7059f3ce4168b626e3858d58407f02264eb0ad9dec4aed74c6aa881330d2b"
+          }
+        ]
+      },
+      {
+        "position": 263205,
+        "input_token_id": 16174,
+        "output_token_id": 64700,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "30b9450f10e2e7fc299ebbaf24b83b0fe47140d96c8b22136219cb8ac7c30336",
+            "head26_slice_sha256": "73a7059f3ce4168b626e3858d58407f02264eb0ad9dec4aed74c6aa881330d2b"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "e095d7083f0db6c94a5e06826ea82d04173d1dc59066f78f1b7f82caed6ddead",
+            "head26_slice_sha256": "403f3e59abad36a03dbcc51b4c3ca195a60776b86b4794991503288041d78784"
+          }
+        ]
+      },
+      {
+        "position": 263206,
+        "input_token_id": 64700,
+        "output_token_id": 328,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "e095d7083f0db6c94a5e06826ea82d04173d1dc59066f78f1b7f82caed6ddead",
+            "head26_slice_sha256": "403f3e59abad36a03dbcc51b4c3ca195a60776b86b4794991503288041d78784"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "0a9047f085cb1334da94d54d22ec50f4cb15a25aa34288a8cd4622dcdff06f61",
+            "head26_slice_sha256": "88034b4eb742a1750746c79c52348c9a8da55ebf6b2a9a066a5f5582406cb351"
+          }
+        ]
+      },
+      {
+        "position": 263207,
+        "input_token_id": 328,
+        "output_token_id": 20206,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "0a9047f085cb1334da94d54d22ec50f4cb15a25aa34288a8cd4622dcdff06f61",
+            "head26_slice_sha256": "88034b4eb742a1750746c79c52348c9a8da55ebf6b2a9a066a5f5582406cb351"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "c655c8466f272650908b1df0fc1534c9096c26638359fea73054e270b2f4dc8d",
+            "head26_slice_sha256": "7ce4a0e49e361b0da8600eaf773cc83cfefd2d7550eb9aa7bfd15174d077bf74"
+          }
+        ]
+      },
+      {
+        "position": 263208,
+        "input_token_id": 20206,
+        "output_token_id": 440,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "c655c8466f272650908b1df0fc1534c9096c26638359fea73054e270b2f4dc8d",
+            "head26_slice_sha256": "7ce4a0e49e361b0da8600eaf773cc83cfefd2d7550eb9aa7bfd15174d077bf74"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "508ae90c9db4f3618897f99c981c27023ebfa8acdc363c8849d639522517316d",
+            "head26_slice_sha256": "a825bbf47910bac069e52e8d374de958f136a2220292fcc3db50ec475533db0a"
+          }
+        ]
+      },
+      {
+        "position": 263209,
+        "input_token_id": 440,
+        "output_token_id": 11778,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "508ae90c9db4f3618897f99c981c27023ebfa8acdc363c8849d639522517316d",
+            "head26_slice_sha256": "a825bbf47910bac069e52e8d374de958f136a2220292fcc3db50ec475533db0a"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "45f73a625d300895df6fb44f19e222765e0d15408fe3d9c748314524344ab036",
+            "head26_slice_sha256": "e47fe14ceff7e68e856ae63a4e5dbda84a0dd642ec719d87245c1ffa72f77106"
+          }
+        ]
+      },
+      {
+        "position": 263210,
+        "input_token_id": 11778,
+        "output_token_id": 24959,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "45f73a625d300895df6fb44f19e222765e0d15408fe3d9c748314524344ab036",
+            "head26_slice_sha256": "e47fe14ceff7e68e856ae63a4e5dbda84a0dd642ec719d87245c1ffa72f77106"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "17af365de6a9f69b345a7b99b20f7ba0310177503811bf0fa145ef068528c84e",
+            "head26_slice_sha256": "0adabd88261bc54a8b7cf040fe18595d8b1d65e482ec5a20686fbe71792758a3"
+          }
+        ]
+      },
+      {
+        "position": 263211,
+        "input_token_id": 24959,
+        "output_token_id": 5732,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "17af365de6a9f69b345a7b99b20f7ba0310177503811bf0fa145ef068528c84e",
+            "head26_slice_sha256": "0adabd88261bc54a8b7cf040fe18595d8b1d65e482ec5a20686fbe71792758a3"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "962ee9cfa301194b479647a6a40ac350d63dd828cf62624804f59adad2d242da",
+            "head26_slice_sha256": "f6f38e229f96f0080c7f02f081db1f017c194f6d398161686f18b0d77dd6e0d7"
+          }
+        ]
+      },
+      {
+        "position": 263212,
+        "input_token_id": 5732,
+        "output_token_id": 506,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "962ee9cfa301194b479647a6a40ac350d63dd828cf62624804f59adad2d242da",
+            "head26_slice_sha256": "f6f38e229f96f0080c7f02f081db1f017c194f6d398161686f18b0d77dd6e0d7"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "1a2cde45a2cae926f87efeade89ba18c63a7047102505a9e3e148362763de549",
+            "head26_slice_sha256": "bc476299011f4f09446e3f1ca41342c2fd609495fbf6c34d43f12ecc2e8f0d84"
+          }
+        ]
+      },
+      {
+        "position": 263213,
+        "input_token_id": 506,
+        "output_token_id": 220,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "1a2cde45a2cae926f87efeade89ba18c63a7047102505a9e3e148362763de549",
+            "head26_slice_sha256": "bc476299011f4f09446e3f1ca41342c2fd609495fbf6c34d43f12ecc2e8f0d84"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "b467d7d28f0359e8ec590c5e5f0fe18fb5c60d4f74741552d5b71e8b97b5df29",
+            "head26_slice_sha256": "ac0d6a089996b07ce570e24bf732cfb401bdfa4b81eea4153b7812e0fbd99832"
+          }
+        ]
+      },
+      {
+        "position": 263214,
+        "input_token_id": 220,
+        "output_token_id": 16,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "b467d7d28f0359e8ec590c5e5f0fe18fb5c60d4f74741552d5b71e8b97b5df29",
+            "head26_slice_sha256": "ac0d6a089996b07ce570e24bf732cfb401bdfa4b81eea4153b7812e0fbd99832"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "8b68b30f7bb17985794a9eaf2e9fbd572417ad29a82a110c4b2f715263669de5",
+            "head26_slice_sha256": "e7f415b2df8312efde0b24c1736413a9e28ab730bb23fdf00e94eb66f7fe5555"
+          }
+        ]
+      },
+      {
+        "position": 263215,
+        "input_token_id": 16,
+        "output_token_id": 15,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "8b68b30f7bb17985794a9eaf2e9fbd572417ad29a82a110c4b2f715263669de5",
+            "head26_slice_sha256": "e7f415b2df8312efde0b24c1736413a9e28ab730bb23fdf00e94eb66f7fe5555"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "da780eea77e0fa96b85ffd227ffe8cce21f4ce4a675b5bfa0c47fbccc313f157",
+            "head26_slice_sha256": "7f2af662ecc394546407564afdcd69df8b74dd8c0f8a3b27e0d61013f4857c8d"
+          }
+        ]
+      },
+      {
+        "position": 263216,
+        "input_token_id": 15,
+        "output_token_id": 15,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "da780eea77e0fa96b85ffd227ffe8cce21f4ce4a675b5bfa0c47fbccc313f157",
+            "head26_slice_sha256": "7f2af662ecc394546407564afdcd69df8b74dd8c0f8a3b27e0d61013f4857c8d"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "ba21b9296a8ccab1bb2a0371ace98455be26ba789df3965f3ea291667fe5985d",
+            "head26_slice_sha256": "8960d559062e3adafcbc697aa08706b6b8326a89da5245c1c333be71b9c6ca0b"
+          }
+        ]
+      },
+      {
+        "position": 263217,
+        "input_token_id": 15,
+        "output_token_id": 321,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "ba21b9296a8ccab1bb2a0371ace98455be26ba789df3965f3ea291667fe5985d",
+            "head26_slice_sha256": "8960d559062e3adafcbc697aa08706b6b8326a89da5245c1c333be71b9c6ca0b"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "d3120fc4b073c97e1dda1c4fccdfa0bea1f03a461ae7cd95153ae2c64c370cfa",
+            "head26_slice_sha256": "c1477a476b23ae0a075869a668d2ead5f72c5681f53a99590f2d3e9446444a86"
+          }
+        ]
+      },
+      {
+        "position": 263218,
+        "input_token_id": 321,
+        "output_token_id": 7459,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "d3120fc4b073c97e1dda1c4fccdfa0bea1f03a461ae7cd95153ae2c64c370cfa",
+            "head26_slice_sha256": "c1477a476b23ae0a075869a668d2ead5f72c5681f53a99590f2d3e9446444a86"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "ff73fdb309c64589cb4907ef6e6ad151493530fa09649c60cbf288e0db2ac250",
+            "head26_slice_sha256": "ec34e7b29959b53f42aec0da82e8fbd22319a3f39b9250430ddcae49ec6453e4"
+          }
+        ]
+      },
+      {
+        "position": 263219,
+        "input_token_id": 7459,
+        "output_token_id": 539,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "ff73fdb309c64589cb4907ef6e6ad151493530fa09649c60cbf288e0db2ac250",
+            "head26_slice_sha256": "ec34e7b29959b53f42aec0da82e8fbd22319a3f39b9250430ddcae49ec6453e4"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "aafb7d1a2fe07dc56b58a507d4bd512c68843b1a3b7121ccc82be7eab20e9b07",
+            "head26_slice_sha256": "533f5aff896921761e3264303674ae7a1e539f1caf000de8592127b54073a20b"
+          }
+        ]
+      },
+      {
+        "position": 263220,
+        "input_token_id": 539,
+        "output_token_id": 799,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "aafb7d1a2fe07dc56b58a507d4bd512c68843b1a3b7121ccc82be7eab20e9b07",
+            "head26_slice_sha256": "533f5aff896921761e3264303674ae7a1e539f1caf000de8592127b54073a20b"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "312bc59b50cf1f0fec98c268c4735002124ea9309ca7c90911fcee2a709beec1",
+            "head26_slice_sha256": "370c1f5b53653d16fdd274dc74c022cf07bfed7623f83a87e773e5635dd30d60"
+          }
+        ]
+      },
+      {
+        "position": 263221,
+        "input_token_id": 799,
+        "output_token_id": 11,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "312bc59b50cf1f0fec98c268c4735002124ea9309ca7c90911fcee2a709beec1",
+            "head26_slice_sha256": "370c1f5b53653d16fdd274dc74c022cf07bfed7623f83a87e773e5635dd30d60"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "288dc8675922001165acc2046c209019a8a9d4267c3c34e972ebfa10fa515ea0",
+            "head26_slice_sha256": "3b28ffee5bc19b926f23e86a724f4d64004c77456ab507d48663a2abd170c4de"
+          }
+        ]
+      },
+      {
+        "position": 263222,
+        "input_token_id": 11,
+        "output_token_id": 18101,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "288dc8675922001165acc2046c209019a8a9d4267c3c34e972ebfa10fa515ea0",
+            "head26_slice_sha256": "3b28ffee5bc19b926f23e86a724f4d64004c77456ab507d48663a2abd170c4de"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "b63a86e1383ad7350e74e9c6c026fb8faba9bf76303e64c12ea1d43f781240c7",
+            "head26_slice_sha256": "42dc2a94db22bd6f661d5d23f3a4e17b303c249bad2a38306e43f2aa99bea42a"
+          }
+        ]
+      },
+      {
+        "position": 263223,
+        "input_token_id": 18101,
+        "output_token_id": 539,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "b63a86e1383ad7350e74e9c6c026fb8faba9bf76303e64c12ea1d43f781240c7",
+            "head26_slice_sha256": "42dc2a94db22bd6f661d5d23f3a4e17b303c249bad2a38306e43f2aa99bea42a"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "b096d8586e1a08b6b49672f0168975607825ef65cbd75392d85343dd551d9cb1",
+            "head26_slice_sha256": "54210f47484bfd3971e0b8aa66a51951e867a1d20239088f9b00d8a320c43e2c"
+          }
+        ]
+      },
+      {
+        "position": 263224,
+        "input_token_id": 539,
+        "output_token_id": 3074,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "b096d8586e1a08b6b49672f0168975607825ef65cbd75392d85343dd551d9cb1",
+            "head26_slice_sha256": "54210f47484bfd3971e0b8aa66a51951e867a1d20239088f9b00d8a320c43e2c"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "0573a540bc1cc8a49c36bb54fbec1e10ae62bc517b25cee6a4515e40c05d6928",
+            "head26_slice_sha256": "77119b4983fa45e140df88338b84d5021cd860bfc9326751a73246f9286d7c50"
+          }
+        ]
+      },
+      {
+        "position": 263225,
+        "input_token_id": 3074,
+        "output_token_id": 12258,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "0573a540bc1cc8a49c36bb54fbec1e10ae62bc517b25cee6a4515e40c05d6928",
+            "head26_slice_sha256": "77119b4983fa45e140df88338b84d5021cd860bfc9326751a73246f9286d7c50"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "86f1dc45ff4ce339a4a5a0e0ab5c9ed619c88e84740cc76750a12bef976a5bc0",
+            "head26_slice_sha256": "f8556e8886ab3965c8fb23da09f2065cd10c9caaf60209e4e9e531312ff8ef33"
+          }
+        ]
+      },
+      {
+        "position": 263226,
+        "input_token_id": 12258,
+        "output_token_id": 13,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "86f1dc45ff4ce339a4a5a0e0ab5c9ed619c88e84740cc76750a12bef976a5bc0",
+            "head26_slice_sha256": "f8556e8886ab3965c8fb23da09f2065cd10c9caaf60209e4e9e531312ff8ef33"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "0b8af7e300e6cb4d74d5f9afcf8197f76e343945d00752d733864c0f6d2184a7",
+            "head26_slice_sha256": "674ec1cf2d2d92755e7f6aada6140c09f9f27c1cd0ffb2e5dc35a65c99b5934b"
+          }
+        ]
+      },
+      {
+        "position": 263227,
+        "input_token_id": 13,
+        "output_token_id": 59460,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "0b8af7e300e6cb4d74d5f9afcf8197f76e343945d00752d733864c0f6d2184a7",
+            "head26_slice_sha256": "674ec1cf2d2d92755e7f6aada6140c09f9f27c1cd0ffb2e5dc35a65c99b5934b"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "a8961fef9aaf513c0e1d5b1bdc37142f9ed3a713d9e1ccf02a54f6033cb0077e",
+            "head26_slice_sha256": "a7eb5dc3f9dd2d63862543514e59f0e34026cb1a596770bc28f959f220b4baa1"
+          }
+        ]
+      },
+      {
+        "position": 263228,
+        "input_token_id": 59460,
+        "output_token_id": 506,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "a8961fef9aaf513c0e1d5b1bdc37142f9ed3a713d9e1ccf02a54f6033cb0077e",
+            "head26_slice_sha256": "a7eb5dc3f9dd2d63862543514e59f0e34026cb1a596770bc28f959f220b4baa1"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "503c4a7d8bbb43724cb629f64d3dd03ec5b8e2c62a14e35849640e6e35e886ca",
+            "head26_slice_sha256": "014c91c94c0d7dc9eb7a3f5ffd9604cd548485f0939fb4986f53a2715013e3e2"
+          }
+        ]
+      },
+      {
+        "position": 263229,
+        "input_token_id": 506,
+        "output_token_id": 3140,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "503c4a7d8bbb43724cb629f64d3dd03ec5b8e2c62a14e35849640e6e35e886ca",
+            "head26_slice_sha256": "014c91c94c0d7dc9eb7a3f5ffd9604cd548485f0939fb4986f53a2715013e3e2"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "d74d88c34393dd9a94dae71216c625bfd85df206fc622101274596f872cf4d29",
+            "head26_slice_sha256": "cc215ff72946175fe4493a6b47d12253937809056bd51ba24dfb1d454d987b7f"
+          }
+        ]
+      },
+      {
+        "position": 263230,
+        "input_token_id": 3140,
+        "output_token_id": 220,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "d74d88c34393dd9a94dae71216c625bfd85df206fc622101274596f872cf4d29",
+            "head26_slice_sha256": "cc215ff72946175fe4493a6b47d12253937809056bd51ba24dfb1d454d987b7f"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "07e3282b4405ae033395916b59c9184b5928600a409255a9e02dcd4e481d3816",
+            "head26_slice_sha256": "16f51b33a67da70e15bc90d08621817aa78ab4ee912361e99d990c95c6b66e00"
+          }
+        ]
+      },
+      {
+        "position": 263231,
+        "input_token_id": 220,
+        "output_token_id": 21,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "07e3282b4405ae033395916b59c9184b5928600a409255a9e02dcd4e481d3816",
+            "head26_slice_sha256": "16f51b33a67da70e15bc90d08621817aa78ab4ee912361e99d990c95c6b66e00"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "1f13c3fcdae9967b09c353d2ef274d5fe7b53c116d307771ae01b5fad6af4e9f",
+            "head26_slice_sha256": "9bcad41e30343e728f3262d48899d055a0b7139147a3b57f048a6f51e73fd4ed"
+          }
+        ]
+      },
+      {
+        "position": 263232,
+        "input_token_id": 21,
+        "output_token_id": 19,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "1f13c3fcdae9967b09c353d2ef274d5fe7b53c116d307771ae01b5fad6af4e9f",
+            "head26_slice_sha256": "9bcad41e30343e728f3262d48899d055a0b7139147a3b57f048a6f51e73fd4ed"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "239cd03169a84a7cac9f4c4e75e4a79c2316ad34d6cc21b17bdaf38324abed61",
+            "head26_slice_sha256": "61b5d5aac3e9aee1b698e91013bbc9ae0a300a7bbd74632424c9bac3930d1227"
+          }
+        ]
+      },
+      {
+        "position": 263233,
+        "input_token_id": 19,
+        "output_token_id": 24959,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "239cd03169a84a7cac9f4c4e75e4a79c2316ad34d6cc21b17bdaf38324abed61",
+            "head26_slice_sha256": "61b5d5aac3e9aee1b698e91013bbc9ae0a300a7bbd74632424c9bac3930d1227"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "7d694bf75746961c850abb7772506632ca2863555bc8c0d81d05c1bee8e4bee2",
+            "head26_slice_sha256": "157ad35668c5b8a52a86a19d36fe3f85b10a15bab65093778ce104fb60980066"
+          }
+        ]
+      },
+      {
+        "position": 263234,
+        "input_token_id": 24959,
+        "output_token_id": 321,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "7d694bf75746961c850abb7772506632ca2863555bc8c0d81d05c1bee8e4bee2",
+            "head26_slice_sha256": "157ad35668c5b8a52a86a19d36fe3f85b10a15bab65093778ce104fb60980066"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "bcae08c07b89b8d3453574864d6b9cb3496d565d3773f5ca4794777163530b6b",
+            "head26_slice_sha256": "12ae7f6200aa125f68c47ea5024716917fd9bc0c7670b5005154fa41173a5c68"
+          }
+        ]
+      },
+      {
+        "position": 263235,
+        "input_token_id": 321,
+        "output_token_id": 874,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "bcae08c07b89b8d3453574864d6b9cb3496d565d3773f5ca4794777163530b6b",
+            "head26_slice_sha256": "12ae7f6200aa125f68c47ea5024716917fd9bc0c7670b5005154fa41173a5c68"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "c7342321a57397aa154f9fd206319e0b6dcd65dd6f1c7c36cbebef6189198fd4",
+            "head26_slice_sha256": "f3ea52f9a248a96be775caf702be23dab4eada69ed3460369706580df7478809"
+          }
+        ]
+      },
+      {
+        "position": 263236,
+        "input_token_id": 874,
+        "output_token_id": 15673,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "c7342321a57397aa154f9fd206319e0b6dcd65dd6f1c7c36cbebef6189198fd4",
+            "head26_slice_sha256": "f3ea52f9a248a96be775caf702be23dab4eada69ed3460369706580df7478809"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "efb192bbad9cc032f2fdfc5318c9a9081459a283939631c37047eebaa673f6c3",
+            "head26_slice_sha256": "f18130b3393c09eaeb6fff2277b5214ce708fb639feb85ac11cb2355c827ee05"
+          }
+        ]
+      },
+      {
+        "position": 263237,
+        "input_token_id": 15673,
+        "output_token_id": 13,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "efb192bbad9cc032f2fdfc5318c9a9081459a283939631c37047eebaa673f6c3",
+            "head26_slice_sha256": "f18130b3393c09eaeb6fff2277b5214ce708fb639feb85ac11cb2355c827ee05"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "32ff9dbde9263446e60d63dbdb56c65ca2738facac1fb0e92cec49a37d3da7a5",
+            "head26_slice_sha256": "80f41b7d8baa438e4c0190cc0b14579e5b5ca22ba2cd741b24c952b49ab4151b"
+          }
+        ]
+      },
+      {
+        "position": 263238,
+        "input_token_id": 13,
+        "output_token_id": 5272,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "32ff9dbde9263446e60d63dbdb56c65ca2738facac1fb0e92cec49a37d3da7a5",
+            "head26_slice_sha256": "80f41b7d8baa438e4c0190cc0b14579e5b5ca22ba2cd741b24c952b49ab4151b"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "e031733e4f615760db7519a78ae255e1b97407156c25b2eca7c2809a2973e06a",
+            "head26_slice_sha256": "dca2ea89334e3aeb7e6ecde23e71b8188d0a0100d3f4996899cd7ef466de42f9"
+          }
+        ]
+      },
+      {
+        "position": 263239,
+        "input_token_id": 5272,
+        "output_token_id": 279,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "e031733e4f615760db7519a78ae255e1b97407156c25b2eca7c2809a2973e06a",
+            "head26_slice_sha256": "dca2ea89334e3aeb7e6ecde23e71b8188d0a0100d3f4996899cd7ef466de42f9"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "6e153641a1cc321c77299e18d4500d29b1a126527221a94e681fa56246460a92",
+            "head26_slice_sha256": "1d1949ab7d4fa7ceaf4c1d2008377269b0f7aec96d50f2311a7aaad03159919f"
+          }
+        ]
+      },
+      {
+        "position": 263240,
+        "input_token_id": 279,
+        "output_token_id": 69892,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "6e153641a1cc321c77299e18d4500d29b1a126527221a94e681fa56246460a92",
+            "head26_slice_sha256": "1d1949ab7d4fa7ceaf4c1d2008377269b0f7aec96d50f2311a7aaad03159919f"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "fee4a155942f3fea1f1d702a7293ed90d4292559952c462fbf50c4723aa1c517",
+            "head26_slice_sha256": "ca88434557d16179907ae961f680a06d62d615ad8a08be984728bdd61f14da42"
+          }
+        ]
+      },
+      {
+        "position": 263241,
+        "input_token_id": 69892,
+        "output_token_id": 1248,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "fee4a155942f3fea1f1d702a7293ed90d4292559952c462fbf50c4723aa1c517",
+            "head26_slice_sha256": "ca88434557d16179907ae961f680a06d62d615ad8a08be984728bdd61f14da42"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "7b087898f7eb0241a56f082ba6cb7f5013c600e3adc8eb6ec70ae6be52fb9efc",
+            "head26_slice_sha256": "8cbb77ae801fe4960bd2a0682436dad8e8cf1cf76fe1bfc6ef7abf158e6bb6f7"
+          }
+        ]
+      },
+      {
+        "position": 263242,
+        "input_token_id": 1248,
+        "output_token_id": 61485,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "7b087898f7eb0241a56f082ba6cb7f5013c600e3adc8eb6ec70ae6be52fb9efc",
+            "head26_slice_sha256": "8cbb77ae801fe4960bd2a0682436dad8e8cf1cf76fe1bfc6ef7abf158e6bb6f7"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "4ab8be89422f386fbfc4e9e03f8e8c5a5e61f6942e0fbdd30f4ed1889fb33550",
+            "head26_slice_sha256": "5b91e0427a688152f5281ee3cfc853ab2bb9ecbc477b1c090e17f59a3d18a8cf"
+          }
+        ]
+      },
+      {
+        "position": 263243,
+        "input_token_id": 61485,
+        "output_token_id": 16602,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "4ab8be89422f386fbfc4e9e03f8e8c5a5e61f6942e0fbdd30f4ed1889fb33550",
+            "head26_slice_sha256": "5b91e0427a688152f5281ee3cfc853ab2bb9ecbc477b1c090e17f59a3d18a8cf"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "a5fe220057349e7bfebe0979270e532dea0927874f52790aa25b807229bdac06",
+            "head26_slice_sha256": "52eeadd0462a07b4b71a1640b646025d8c25947560f00ed098d87e6eaaaa193d"
+          }
+        ]
+      },
+      {
+        "position": 263244,
+        "input_token_id": 16602,
+        "output_token_id": 2100,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "a5fe220057349e7bfebe0979270e532dea0927874f52790aa25b807229bdac06",
+            "head26_slice_sha256": "52eeadd0462a07b4b71a1640b646025d8c25947560f00ed098d87e6eaaaa193d"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "24232bebb47d392d34e86c80bb31f1ba99243488b1f4855da1c7df4f183ba95c",
+            "head26_slice_sha256": "c39cc4b0a7fd36bd361421f1d22b6e84fc2b9a8ea554b701df5d62febd7d8198"
+          }
+        ]
+      },
+      {
+        "position": 263245,
+        "input_token_id": 2100,
+        "output_token_id": 220,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "24232bebb47d392d34e86c80bb31f1ba99243488b1f4855da1c7df4f183ba95c",
+            "head26_slice_sha256": "c39cc4b0a7fd36bd361421f1d22b6e84fc2b9a8ea554b701df5d62febd7d8198"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "36c39444270a7dde3b50ba3812947c12b17da090a7a676dd7d83347fd40851a2",
+            "head26_slice_sha256": "7b9993bf6df4db3ee09ac0e5e11d6cd5d63d5649e8c8ab7ed894dd0117636fe0"
+          }
+        ]
+      },
+      {
+        "position": 263246,
+        "input_token_id": 220,
+        "output_token_id": 16,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "36c39444270a7dde3b50ba3812947c12b17da090a7a676dd7d83347fd40851a2",
+            "head26_slice_sha256": "7b9993bf6df4db3ee09ac0e5e11d6cd5d63d5649e8c8ab7ed894dd0117636fe0"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "315bb67427b4587b6463d64de0a7e45ed45f9fbec5be6a9362eb434103ff749b",
+            "head26_slice_sha256": "cba68b3b023a00e33e92e3083a2b16477366ed3ac11ba2ef7bbc7126e86403ef"
+          }
+        ]
+      },
+      {
+        "position": 263247,
+        "input_token_id": 16,
+        "output_token_id": 18,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "315bb67427b4587b6463d64de0a7e45ed45f9fbec5be6a9362eb434103ff749b",
+            "head26_slice_sha256": "cba68b3b023a00e33e92e3083a2b16477366ed3ac11ba2ef7bbc7126e86403ef"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "910a29a2798367c6c52c81665ada54f2375b63921ab6cd77799212221a7ab265",
+            "head26_slice_sha256": "dea9183de585d2ce77a0e6656b735df93c8839c61d3aa400da1d595e4ae2f835"
+          }
+        ]
+      },
+      {
+        "position": 263248,
+        "input_token_id": 18,
+        "output_token_id": 16,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "910a29a2798367c6c52c81665ada54f2375b63921ab6cd77799212221a7ab265",
+            "head26_slice_sha256": "dea9183de585d2ce77a0e6656b735df93c8839c61d3aa400da1d595e4ae2f835"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "b135b34c67d3023b331054ec94f40415c075816038764d2fd512749476d24886",
+            "head26_slice_sha256": "43b17bcad9310ab230dbb35840c6ea57fe78bb879a95bd0f7bd28f87a7fa7cc4"
+          }
+        ]
+      },
+      {
+        "position": 263249,
+        "input_token_id": 16,
+        "output_token_id": 15,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "b135b34c67d3023b331054ec94f40415c075816038764d2fd512749476d24886",
+            "head26_slice_sha256": "43b17bcad9310ab230dbb35840c6ea57fe78bb879a95bd0f7bd28f87a7fa7cc4"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "a0584440cbdc3285baf9f6ecec17a20bcab83680c3897da8ae49bead63844a11",
+            "head26_slice_sha256": "6a7f940099c17087fba21f959518ee11f54f58206265c1bb9642d236d0296ca0"
+          }
+        ]
+      },
+      {
+        "position": 263250,
+        "input_token_id": 15,
+        "output_token_id": 22,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "a0584440cbdc3285baf9f6ecec17a20bcab83680c3897da8ae49bead63844a11",
+            "head26_slice_sha256": "6a7f940099c17087fba21f959518ee11f54f58206265c1bb9642d236d0296ca0"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "64f44bf7c639d7e507ca68046cf846efd5cd6a7a940f484f4d0f3056e89dffb5",
+            "head26_slice_sha256": "591102cb4d4f271be85438fd3d67203cfae60367710cde25a12ac2b39aa86dbb"
+          }
+        ]
+      },
+      {
+        "position": 263251,
+        "input_token_id": 22,
+        "output_token_id": 17,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "64f44bf7c639d7e507ca68046cf846efd5cd6a7a940f484f4d0f3056e89dffb5",
+            "head26_slice_sha256": "591102cb4d4f271be85438fd3d67203cfae60367710cde25a12ac2b39aa86dbb"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "f317d55527a0c3b5af417540a16c2adab506e4cbcc2053958fda08cccbb1553a",
+            "head26_slice_sha256": "868046c7af9f32495c492ed21f2d66a28c2cae0e67d3bda66162e2489b58972a"
+          }
+        ]
+      },
+      {
+        "position": 263252,
+        "input_token_id": 17,
+        "output_token_id": 1149,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "f317d55527a0c3b5af417540a16c2adab506e4cbcc2053958fda08cccbb1553a",
+            "head26_slice_sha256": "868046c7af9f32495c492ed21f2d66a28c2cae0e67d3bda66162e2489b58972a"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "574c4277c7b1a84316a8159456f1e5c4a6713e918d4a7bad264622de25ae7267",
+            "head26_slice_sha256": "7f23f00b4c20696043467d8c48a24ca54118c87e72ae0a28d6b0796135d894e4"
+          }
+        ]
+      },
+      {
+        "position": 263253,
+        "input_token_id": 1149,
+        "output_token_id": 198,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "574c4277c7b1a84316a8159456f1e5c4a6713e918d4a7bad264622de25ae7267",
+            "head26_slice_sha256": "7f23f00b4c20696043467d8c48a24ca54118c87e72ae0a28d6b0796135d894e4"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "701a1a6d2cb466f6bf2fb7a6b1808f2269f4a1679077d309e735311d2396c79a",
+            "head26_slice_sha256": "7d11d8f64b196029f59715ad740845a3ea9a84705a183dec1a6f185dafd9dee2"
+          }
+        ]
+      },
+      {
+        "position": 263254,
+        "input_token_id": 198,
+        "output_token_id": 256,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "701a1a6d2cb466f6bf2fb7a6b1808f2269f4a1679077d309e735311d2396c79a",
+            "head26_slice_sha256": "7d11d8f64b196029f59715ad740845a3ea9a84705a183dec1a6f185dafd9dee2"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "678dd1c7f6dfaa84258f86b35b1692a6f5322f10b51c4be6f1f80cd48a0bb9c4",
+            "head26_slice_sha256": "35b9856ac26064c5deb7c12e841687f0c7b5465f7036889ecbae0fd9f2a509cf"
+          }
+        ]
+      },
+      {
+        "position": 263255,
+        "input_token_id": 256,
+        "output_token_id": 471,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "678dd1c7f6dfaa84258f86b35b1692a6f5322f10b51c4be6f1f80cd48a0bb9c4",
+            "head26_slice_sha256": "35b9856ac26064c5deb7c12e841687f0c7b5465f7036889ecbae0fd9f2a509cf"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "43651a7f716a66911954c5363b8bdf7fcabdd6d1e1d544b5b1005a3e7a551cec",
+            "head26_slice_sha256": "9fa14d231f29b9298b7ad3438ce3769d56afd1fe4a80e1e9646fd17057e79bc3"
+          }
+        ]
+      },
+      {
+        "position": 263256,
+        "input_token_id": 471,
+        "output_token_id": 2972,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "43651a7f716a66911954c5363b8bdf7fcabdd6d1e1d544b5b1005a3e7a551cec",
+            "head26_slice_sha256": "9fa14d231f29b9298b7ad3438ce3769d56afd1fe4a80e1e9646fd17057e79bc3"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "dc98526d6655faf0da84930ef8aa5d4544c7c01a4e3f810a6139588bab8db22c",
+            "head26_slice_sha256": "b2f73094bc898a451b90f43ef9e737fba295e312f97b00cbdc14f35adc8d9bc6"
+          }
+        ]
+      },
+      {
+        "position": 263257,
+        "input_token_id": 2972,
+        "output_token_id": 1905,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "dc98526d6655faf0da84930ef8aa5d4544c7c01a4e3f810a6139588bab8db22c",
+            "head26_slice_sha256": "b2f73094bc898a451b90f43ef9e737fba295e312f97b00cbdc14f35adc8d9bc6"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "ce5f2daf314ca45e80a90d0a840ff670d5b096b8131ddec6367451ea7c6e383e",
+            "head26_slice_sha256": "23f4f32585b8e88e2c99ed9d8011a3a11a688fcc4d8f2e5b751bf0b063f74298"
+          }
+        ]
+      },
+      {
+        "position": 263258,
+        "input_token_id": 1905,
+        "output_token_id": 64700,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "ce5f2daf314ca45e80a90d0a840ff670d5b096b8131ddec6367451ea7c6e383e",
+            "head26_slice_sha256": "23f4f32585b8e88e2c99ed9d8011a3a11a688fcc4d8f2e5b751bf0b063f74298"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "53224296160e414d4a4321041178deaa13033f6843d05a906cf99cebe99702b4",
+            "head26_slice_sha256": "671c0569b6b199acd72ee62396d7c44a0d185dae11a3f65f81b92ab7c3436cde"
+          }
+        ]
+      },
+      {
+        "position": 263259,
+        "input_token_id": 64700,
+        "output_token_id": 357,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "53224296160e414d4a4321041178deaa13033f6843d05a906cf99cebe99702b4",
+            "head26_slice_sha256": "671c0569b6b199acd72ee62396d7c44a0d185dae11a3f65f81b92ab7c3436cde"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "c153cea4f222d728d295f7d58ca02d0eb2d36eae0812aa09cdf479514e50cf47",
+            "head26_slice_sha256": "572c290deb2936bc1e6318ac9fac184d33166779d52a5d8c92bdfa590bc95b34"
+          }
+        ]
+      },
+      {
+        "position": 263260,
+        "input_token_id": 357,
+        "output_token_id": 10632,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "c153cea4f222d728d295f7d58ca02d0eb2d36eae0812aa09cdf479514e50cf47",
+            "head26_slice_sha256": "572c290deb2936bc1e6318ac9fac184d33166779d52a5d8c92bdfa590bc95b34"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "dc0a926cac9847c65aaeab939ecb839a367ecaf3b21d68793a88da2c7161fd17",
+            "head26_slice_sha256": "88fc49017e9407ae617a91a215b055457ca451b2523441ea9ac0805e2cc8e4bd"
+          }
+        ]
+      },
+      {
+        "position": 263261,
+        "input_token_id": 10632,
+        "output_token_id": 2424,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "dc0a926cac9847c65aaeab939ecb839a367ecaf3b21d68793a88da2c7161fd17",
+            "head26_slice_sha256": "88fc49017e9407ae617a91a215b055457ca451b2523441ea9ac0805e2cc8e4bd"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "927767c7ace951ae43d2a5a05bf9dd57a9c4ba9616f5b10fff95c0798143ac7b",
+            "head26_slice_sha256": "0f6bc666bb31174f4b3a7ba56a20abd200c020655f2c3c2bf4a8b8b17bf8977c"
+          }
+        ]
+      },
+      {
+        "position": 263262,
+        "input_token_id": 2424,
+        "output_token_id": 314,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "927767c7ace951ae43d2a5a05bf9dd57a9c4ba9616f5b10fff95c0798143ac7b",
+            "head26_slice_sha256": "0f6bc666bb31174f4b3a7ba56a20abd200c020655f2c3c2bf4a8b8b17bf8977c"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "d3ec08fd69a5ebe9c614c9f5adc6b160caff0de1c65ca4bc1937d4587402e1ee",
+            "head26_slice_sha256": "a1203bf2574e0e0583da731abf092324fb2b773ec0fcb1fdd56240eec76dc5ef"
+          }
+        ]
+      },
+      {
+        "position": 263263,
+        "input_token_id": 314,
+        "output_token_id": 11173,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "d3ec08fd69a5ebe9c614c9f5adc6b160caff0de1c65ca4bc1937d4587402e1ee",
+            "head26_slice_sha256": "a1203bf2574e0e0583da731abf092324fb2b773ec0fcb1fdd56240eec76dc5ef"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "cfa2bbb1697c63043fc2dfcb757ea93ac608eedbe326ed288282411b20772759",
+            "head26_slice_sha256": "9af8ec8c3b3df4dfafaffb9c73cb29768858203e272379930068c56f0e356119"
+          }
+        ]
+      },
+      {
+        "position": 263264,
+        "input_token_id": 11173,
+        "output_token_id": 328,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "cfa2bbb1697c63043fc2dfcb757ea93ac608eedbe326ed288282411b20772759",
+            "head26_slice_sha256": "9af8ec8c3b3df4dfafaffb9c73cb29768858203e272379930068c56f0e356119"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "68d95cab8541160e270a01695701882fcd779dd102cf04d8b0830fab414aebeb",
+            "head26_slice_sha256": "7a3a446177881fbd2188cffe9a06467808845288fbe57fc147f76fc7bf292738"
+          }
+        ]
+      },
+      {
+        "position": 263265,
+        "input_token_id": 328,
+        "output_token_id": 16606,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "68d95cab8541160e270a01695701882fcd779dd102cf04d8b0830fab414aebeb",
+            "head26_slice_sha256": "7a3a446177881fbd2188cffe9a06467808845288fbe57fc147f76fc7bf292738"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "12b1682ff0a12ae4deec0f7f0efb207e9595b348421661d3c03bdd68903ac63a",
+            "head26_slice_sha256": "4c36f653ea45d06593017a75fa8c560a3ffa270db17b25cd052f45b100c57134"
+          }
+        ]
+      },
+      {
+        "position": 263266,
+        "input_token_id": 16606,
+        "output_token_id": 328,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "12b1682ff0a12ae4deec0f7f0efb207e9595b348421661d3c03bdd68903ac63a",
+            "head26_slice_sha256": "4c36f653ea45d06593017a75fa8c560a3ffa270db17b25cd052f45b100c57134"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "82a9c45f98c67e9ae4f781c82519ce5d3b88b1fdb85bdf8e0e4e67973ec17616",
+            "head26_slice_sha256": "b924c65c9ad6d50868dafc53726b6e304797b54a62b76955609baf4cda9f0dd2"
+          }
+        ]
+      },
+      {
+        "position": 263267,
+        "input_token_id": 328,
+        "output_token_id": 1414,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "82a9c45f98c67e9ae4f781c82519ce5d3b88b1fdb85bdf8e0e4e67973ec17616",
+            "head26_slice_sha256": "b924c65c9ad6d50868dafc53726b6e304797b54a62b76955609baf4cda9f0dd2"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "331851a7d461471acde60791dcc1a151d6f8e09d5efba2c13d05d41057c7924c",
+            "head26_slice_sha256": "9ad98c05c6dd6f6a6d4289695409304ba45403072ccbf453fca5f5943b064a37"
+          }
+        ]
+      },
+      {
+        "position": 263268,
+        "input_token_id": 1414,
+        "output_token_id": 318,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "331851a7d461471acde60791dcc1a151d6f8e09d5efba2c13d05d41057c7924c",
+            "head26_slice_sha256": "9ad98c05c6dd6f6a6d4289695409304ba45403072ccbf453fca5f5943b064a37"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "e868e31f8ad117e56801e8c85ad4666b476d7499d3b44e39fe4718817765dd69",
+            "head26_slice_sha256": "045101f3d9498e92d49e27454a3b4c80bf93e96fe4ec6579b5275478ff85c3b8"
+          }
+        ]
+      },
+      {
+        "position": 263269,
+        "input_token_id": 318,
+        "output_token_id": 13873,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "e868e31f8ad117e56801e8c85ad4666b476d7499d3b44e39fe4718817765dd69",
+            "head26_slice_sha256": "045101f3d9498e92d49e27454a3b4c80bf93e96fe4ec6579b5275478ff85c3b8"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "a515c170eaa2ad9560bfc6733d56c566223242a25c9819f7a0f7092c8fd6bb4b",
+            "head26_slice_sha256": "de994d11bd2b0e1183b9dc7e1a58927108e3475a7ad52e38dbe87b9a1339203c"
+          }
+        ]
+      },
+      {
+        "position": 263270,
+        "input_token_id": 13873,
+        "output_token_id": 264,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "a515c170eaa2ad9560bfc6733d56c566223242a25c9819f7a0f7092c8fd6bb4b",
+            "head26_slice_sha256": "de994d11bd2b0e1183b9dc7e1a58927108e3475a7ad52e38dbe87b9a1339203c"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "099779a492289499a1dbc6c91f5a89e7e8abf4b6e42bc6f07cb2638c32ab39c5",
+            "head26_slice_sha256": "b58a8d5991f72881a6f6525dc8479ae4cc6a822757993009bdee6c097c4c8dc0"
+          }
+        ]
+      },
+      {
+        "position": 263271,
+        "input_token_id": 264,
+        "output_token_id": 9640,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "099779a492289499a1dbc6c91f5a89e7e8abf4b6e42bc6f07cb2638c32ab39c5",
+            "head26_slice_sha256": "b58a8d5991f72881a6f6525dc8479ae4cc6a822757993009bdee6c097c4c8dc0"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "c51981bed26113b0611481072e687f1f42fdc8098de2d823c80166b41b6f2fa6",
+            "head26_slice_sha256": "76bacc7db85f743a806a098a61a9ec0abda2dab20d7e440b15d2093a7fdfedac"
+          }
+        ]
+      },
+      {
+        "position": 263272,
+        "input_token_id": 9640,
+        "output_token_id": 24277,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "c51981bed26113b0611481072e687f1f42fdc8098de2d823c80166b41b6f2fa6",
+            "head26_slice_sha256": "76bacc7db85f743a806a098a61a9ec0abda2dab20d7e440b15d2093a7fdfedac"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "d3a17c3b6aca7efd4e190f6e7ff1bb4c5f8ea3cb117d64778fac1cf5a3373f0c",
+            "head26_slice_sha256": "3914d039469426a8ea3cd8f4d85f3d9bb2ae7d83ef11f9556595f69ff724f61d"
+          }
+        ]
+      },
+      {
+        "position": 263273,
+        "input_token_id": 24277,
+        "output_token_id": 75108,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "d3a17c3b6aca7efd4e190f6e7ff1bb4c5f8ea3cb117d64778fac1cf5a3373f0c",
+            "head26_slice_sha256": "3914d039469426a8ea3cd8f4d85f3d9bb2ae7d83ef11f9556595f69ff724f61d"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "1551200296d613948c94a7992371fa0e28f6cfd154b81dfa962fe848e90f5cb5",
+            "head26_slice_sha256": "303cb2c1d974a3634e662c8d05020fe7688dea413c7afa5cac787af2b8dd4076"
+          }
+        ]
+      },
+      {
+        "position": 263274,
+        "input_token_id": 75108,
+        "output_token_id": 52870,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "1551200296d613948c94a7992371fa0e28f6cfd154b81dfa962fe848e90f5cb5",
+            "head26_slice_sha256": "303cb2c1d974a3634e662c8d05020fe7688dea413c7afa5cac787af2b8dd4076"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "e3baaee00c45c171ffa2fd5fd919291ac2db5b61dc7ffd529dc5bbacbce69576",
+            "head26_slice_sha256": "05d892ae3fcdcbbc1a94f3d353874e9a8ca054a390533679ce72fc6529926016"
+          }
+        ]
+      },
+      {
+        "position": 263275,
+        "input_token_id": 52870,
+        "output_token_id": 310,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "e3baaee00c45c171ffa2fd5fd919291ac2db5b61dc7ffd529dc5bbacbce69576",
+            "head26_slice_sha256": "05d892ae3fcdcbbc1a94f3d353874e9a8ca054a390533679ce72fc6529926016"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "c88867de6412de0264ee8fee35e03b91c15f475431140ba99c59e98d422651fb",
+            "head26_slice_sha256": "75886d5e6d3984291ee5b9d06d3231e1d9646a4a364ca14eeaf66b627628eca9"
+          }
+        ]
+      },
+      {
+        "position": 263276,
+        "input_token_id": 310,
+        "output_token_id": 1228,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "c88867de6412de0264ee8fee35e03b91c15f475431140ba99c59e98d422651fb",
+            "head26_slice_sha256": "75886d5e6d3984291ee5b9d06d3231e1d9646a4a364ca14eeaf66b627628eca9"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "5ec32fc6f591c13eeefb3520aa2abc730525ddf12acb55b818c6973aaf1aa84f",
+            "head26_slice_sha256": "5823f6cb47538d190295897cf09ffda578def09b1ba74fed2fdd76e3c83d6ccf"
+          }
+        ]
+      },
+      {
+        "position": 263277,
+        "input_token_id": 1228,
+        "output_token_id": 1248,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "5ec32fc6f591c13eeefb3520aa2abc730525ddf12acb55b818c6973aaf1aa84f",
+            "head26_slice_sha256": "5823f6cb47538d190295897cf09ffda578def09b1ba74fed2fdd76e3c83d6ccf"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "fd427e7ae21f5d18b06fc27ec1125ba78f213bd6fd8339adccbd6c5c51da3b0c",
+            "head26_slice_sha256": "0aeb528611899074fb08c8d8fea311b5c81193575b18e23590d6e95a3ffebf40"
+          }
+        ]
+      },
+      {
+        "position": 263278,
+        "input_token_id": 1248,
+        "output_token_id": 61485,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "fd427e7ae21f5d18b06fc27ec1125ba78f213bd6fd8339adccbd6c5c51da3b0c",
+            "head26_slice_sha256": "0aeb528611899074fb08c8d8fea311b5c81193575b18e23590d6e95a3ffebf40"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "39037bbab65812adc8bc12a43b85efb979b3f0191eca8201ee31fc6706470df6",
+            "head26_slice_sha256": "9f03f57a40d4871a62ede4b066320d8ea565b173b57cddb2927514621b7a1a7f"
+          }
+        ]
+      },
+      {
+        "position": 263279,
+        "input_token_id": 61485,
+        "output_token_id": 11256,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "39037bbab65812adc8bc12a43b85efb979b3f0191eca8201ee31fc6706470df6",
+            "head26_slice_sha256": "9f03f57a40d4871a62ede4b066320d8ea565b173b57cddb2927514621b7a1a7f"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "9d209d639fa48f3e90429b14c9b98e90047b7d9d331c8188eef2a0c0f468b577",
+            "head26_slice_sha256": "012fd28fc5d4138db5e775d384b9818676709edf2a1403254da05d283985ae93"
+          }
+        ]
+      },
+      {
+        "position": 263280,
+        "input_token_id": 11256,
+        "output_token_id": 553,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "9d209d639fa48f3e90429b14c9b98e90047b7d9d331c8188eef2a0c0f468b577",
+            "head26_slice_sha256": "012fd28fc5d4138db5e775d384b9818676709edf2a1403254da05d283985ae93"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "7154d4f8d0d90ee44d27b0f3f9f1c99262802b2040dea9cfeb11ce376835823b",
+            "head26_slice_sha256": "d61ae4ad67241492a12715512b171a44462963b54682a5e7b069ee56fe85e10c"
+          }
+        ]
+      },
+      {
+        "position": 263281,
+        "input_token_id": 553,
+        "output_token_id": 198,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "7154d4f8d0d90ee44d27b0f3f9f1c99262802b2040dea9cfeb11ce376835823b",
+            "head26_slice_sha256": "d61ae4ad67241492a12715512b171a44462963b54682a5e7b069ee56fe85e10c"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "1f02f591e8941ba297c43dfd14399c65a2462471df16f120122cfde073fe1ad0",
+            "head26_slice_sha256": "e25744d2c29a0bce439f8eee64001284647cf7e6f9e60ed6be116c0f9e01761f"
+          }
+        ]
+      },
+      {
+        "position": 263282,
+        "input_token_id": 198,
+        "output_token_id": 256,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "1f02f591e8941ba297c43dfd14399c65a2462471df16f120122cfde073fe1ad0",
+            "head26_slice_sha256": "e25744d2c29a0bce439f8eee64001284647cf7e6f9e60ed6be116c0f9e01761f"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "1d05a01a6ec5ffe829185066815b8c4ba5d5997f7f5b65d213cae48ad13452b3",
+            "head26_slice_sha256": "daff812234859404ca547ff4c6d677b57fac8d778165a22f0c3c821b34abc4ec"
+          }
+        ]
+      },
+      {
+        "position": 263283,
+        "input_token_id": 256,
+        "output_token_id": 471,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "1d05a01a6ec5ffe829185066815b8c4ba5d5997f7f5b65d213cae48ad13452b3",
+            "head26_slice_sha256": "daff812234859404ca547ff4c6d677b57fac8d778165a22f0c3c821b34abc4ec"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "3d0b4e8980dedd04cd9a29e08e1568bf9d2505f7be2183a7bee814cea722ae23",
+            "head26_slice_sha256": "174c973f634a8ec25c2a6761331beb46212edc7d7d21da0edbf6013444f2bf66"
+          }
+        ]
+      },
+      {
+        "position": 263284,
+        "input_token_id": 471,
+        "output_token_id": 2972,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "3d0b4e8980dedd04cd9a29e08e1568bf9d2505f7be2183a7bee814cea722ae23",
+            "head26_slice_sha256": "174c973f634a8ec25c2a6761331beb46212edc7d7d21da0edbf6013444f2bf66"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "e9e5b693afd277d647a1df0a64b2593f19cfcb509d95704eb9fefaa896a589a3",
+            "head26_slice_sha256": "3111fb8e6f18c818a49168b5a0de4bed92fdf9ff93403a6f42978d28fa952a26"
+          }
+        ]
+      },
+      {
+        "position": 263285,
+        "input_token_id": 2972,
+        "output_token_id": 1536,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "e9e5b693afd277d647a1df0a64b2593f19cfcb509d95704eb9fefaa896a589a3",
+            "head26_slice_sha256": "3111fb8e6f18c818a49168b5a0de4bed92fdf9ff93403a6f42978d28fa952a26"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "82ea697d5c208b24e6bc1faffe08e3e06432bac51c6f2fd5d3feb0193a0c630e",
+            "head26_slice_sha256": "12e8ba289da92b090bd29b6da642244126c988ce14c4824335158e18f8f2033c"
+          }
+        ]
+      },
+      {
+        "position": 263286,
+        "input_token_id": 1536,
+        "output_token_id": 84457,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "82ea697d5c208b24e6bc1faffe08e3e06432bac51c6f2fd5d3feb0193a0c630e",
+            "head26_slice_sha256": "12e8ba289da92b090bd29b6da642244126c988ce14c4824335158e18f8f2033c"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "64c2ffd9df684dd811e5c0a8e02a480923265b7cc5a9d294fd04f8f4e1e03a63",
+            "head26_slice_sha256": "94496a47e7d52689295639cda490a85d9cf5ab276d9960693d05e13256269983"
+          }
+        ]
+      },
+      {
+        "position": 263287,
+        "input_token_id": 84457,
+        "output_token_id": 64700,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "64c2ffd9df684dd811e5c0a8e02a480923265b7cc5a9d294fd04f8f4e1e03a63",
+            "head26_slice_sha256": "94496a47e7d52689295639cda490a85d9cf5ab276d9960693d05e13256269983"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "e72a25fca7338d22ca3791a43d3ab8eb71650bb4a59b3485df45eeefb2de8d3e",
+            "head26_slice_sha256": "e1dfe26f0419cf1a8bed58020f8c8a9fc28d69cc0d3d35f38dcfe310ca709f72"
+          }
+        ]
+      },
+      {
+        "position": 263288,
+        "input_token_id": 64700,
+        "output_token_id": 198,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "e72a25fca7338d22ca3791a43d3ab8eb71650bb4a59b3485df45eeefb2de8d3e",
+            "head26_slice_sha256": "e1dfe26f0419cf1a8bed58020f8c8a9fc28d69cc0d3d35f38dcfe310ca709f72"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "fdfb20eeda4cdd8ee9d4e57bcfb1ef497b13dc07c71532dfe09532b2121b0910",
+            "head26_slice_sha256": "bdfb0a33c21292246008ce650264d22f794a3dea78d077c3f1863a2dc7773f07"
+          }
+        ]
+      },
+      {
+        "position": 263289,
+        "input_token_id": 198,
+        "output_token_id": 257,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "fdfb20eeda4cdd8ee9d4e57bcfb1ef497b13dc07c71532dfe09532b2121b0910",
+            "head26_slice_sha256": "bdfb0a33c21292246008ce650264d22f794a3dea78d077c3f1863a2dc7773f07"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "c34590a1270eb21d79f61d91af57c73db07b2dff0992032be6ee35a73080f620",
+            "head26_slice_sha256": "a3da8bdd1291bc39d5909967119d336b5b56ff998946411b29d92ed80a1c1c65"
+          }
+        ]
+      },
+      {
+        "position": 263290,
+        "input_token_id": 257,
+        "output_token_id": 471,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "c34590a1270eb21d79f61d91af57c73db07b2dff0992032be6ee35a73080f620",
+            "head26_slice_sha256": "a3da8bdd1291bc39d5909967119d336b5b56ff998946411b29d92ed80a1c1c65"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "a35f5093e4e862cc533c066cdc1bd0fe58c03036755c8ca457de5cd2e16a947c",
+            "head26_slice_sha256": "1bd1b141a2384d9c7bc723c7318d7e155f381996fa5c58d02e557e63d51527d4"
+          }
+        ]
+      },
+      {
+        "position": 263291,
+        "input_token_id": 471,
+        "output_token_id": 4980,
+        "operator": "fused_recurrent_gated_delta_rule_packed_decode",
+        "states": [
+          {
+            "label": "linear-08-decode-state-before",
+            "original_full_sha256": "a35f5093e4e862cc533c066cdc1bd0fe58c03036755c8ca457de5cd2e16a947c",
+            "head26_slice_sha256": "1bd1b141a2384d9c7bc723c7318d7e155f381996fa5c58d02e557e63d51527d4"
+          },
+          {
+            "label": "linear-08-decode-state-after",
+            "original_full_sha256": "9d6627699052a414354c6fcdc4ff267863b806e54b63ba84c77b76be96258c18",
+            "head26_slice_sha256": "af69fa2901d106acab2359805ec5ef85ed191f4093265d15ca0e488983618017"
+          }
+        ]
+      }
+    ]
+  },
+  "native_projection_reproduction": {
+    "kind": "actual_gfx1151_layer8_continuous_projection_reproduction",
+    "host": "BAIYING",
+    "source_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+    "model": "D:\\models\\Qwen3.6-35B-A3B; independent GB10 operator operands, no model load",
+    "command_file": "P:\\projects\\run-layer8-gate-history-native-r1.ps1",
+    "command_file_sha256": "03ec1e7ea391febc389009d9747a112e1f27cb56af15dff9ce42fa6497b5c9d2",
+    "source_manifest_sha256": "a4a88b0204eea9470b296b9bdfaa8a5720ecf82d8d40ef6e60a03497164e84cb",
+    "reference_analysis_sha256": "6bfdde4e41096e437c1de9692aa7ac57f497405508467ff40a5240ceef9ce567",
+    "native_run_sha256": "64b6383e8dc353dd04fbea635855b52464bf9af636720afa55d5d6ce2f297e33",
+    "stdout_sha256": "db83e7ec526d5aec13cbefd71457f8c9c5b272f7846f7455de95b11896452aab",
+    "executable": {
+      "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-r1/qrt-packed-dense.exe",
+      "sha256": "d125477f32ade46de3a8c138d655352be353ff73618442f3c63684ccf354d79e"
+    },
+    "reports": 250,
+    "configurations": 2000,
+    "compared_elements": 194560,
+    "bit_mismatches": 16,
+    "mismatching_cases": [
+      {
+        "position": 263196,
+        "projection": "b",
+        "layer": 8,
+        "report": {
+          "ordinal": 57,
+          "kind": "projection",
+          "packed": true,
+          "queries": 1,
+          "input_width": 2048,
+          "output_width": 32,
+          "configurations": 8,
+          "compared_elements": 256,
+          "bit_mismatches": 8,
+          "guard_errors": 0,
+          "immutable_input_errors": 0,
+          "first_difference": [
+            19,
+            47936,
+            47935
+          ],
+          "passed": false,
+          "native_execution": true,
+          "model_loaded": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "position": 263256,
+        "projection": "a",
+        "layer": 8,
+        "report": {
+          "ordinal": 177,
+          "kind": "projection",
+          "packed": true,
+          "queries": 1,
+          "input_width": 2048,
+          "output_width": 32,
+          "configurations": 8,
+          "compared_elements": 256,
+          "bit_mismatches": 8,
+          "guard_errors": 0,
+          "immutable_input_errors": 0,
+          "first_difference": [
+            26,
+            15736,
+            15737
+          ],
+          "passed": false,
+          "native_execution": true,
+          "model_loaded": false,
+          "inference_acceptance": false
+        }
+      }
+    ],
+    "all_guard_checks_pass": true,
+    "immutable_inputs_pass": true,
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "after_processes": [],
+    "wall_ms": 621.305,
+    "native_exit_code": 1,
+    "model_loaded": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false,
+    "raw_comparison_sha256": "e96b5050b33a440f6eeeb4558f566519616af9de9f99033a603953576795ddac"
+  },
+  "host_projection": {
+    "raw_comparison_sha256": "bca23115d4c9ec6d67f4a7a8db3deaf31eda0a9c2b7a045080c5a7392864e285",
+    "gate_summary": {
+      "kind": "layer8_projection_midpoint_audit",
+      "cells": 7936,
+      "baseline_mismatches": 2,
+      "refined_mismatches": 2,
+      "midpoints": 0,
+      "changed_outputs": 0
+    },
+    "differences": [
+      {
+        "position": 263196,
+        "projection": "b",
+        "row": 19,
+        "sum_bits": 3141501024,
+        "float_sum": -0.0029220804572105408,
+        "compensated_double_sum": -0.002922057348769158,
+        "original_bf16": 47936,
+        "refined_bf16": 47936,
+        "expected_bf16": 47935
+      },
+      {
+        "position": 263256,
+        "projection": "a",
+        "row": 26,
+        "sum_bits": 1031307248,
+        "float_sum": 0.060668885707855225,
+        "compensated_double_sum": 0.06066882613231428,
+        "original_bf16": 15736,
+        "refined_bf16": 15736,
+        "expected_bf16": 15737
+      }
+    ],
+    "qkv_compared_elements": 47616,
+    "qkv_mismatches_by_projection": {
+      "q": 0,
+      "k": 0,
+      "v": 0
+    }
+  },
+  "original_and_altered_recurrence": {
+    "kind": "original_layer8_head26_continuous_host_replay_and_single_gate_alteration",
+    "reference_analysis_sha256": "6bfdde4e41096e437c1de9692aa7ac57f497405508467ff40a5240ceef9ce567",
+    "prepared_probe_sha256": "b37e28e98368011bf40a176ed4d81c97f82416b5cd0024d8946a4f1e02a08e4e",
+    "projection_comparison_sha256": "bca23115d4c9ec6d67f4a7a8db3deaf31eda0a9c2b7a045080c5a7392864e285",
+    "actual_failed_native_comparison_sha256": "da1479232bc55f529868197464cbb3caf63164c878868adfa05766860520784d",
+    "source": {
+      "file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/recurrent-head-host-r1/replay.cpp",
+      "bytes": 6408,
+      "sha256": "59b6d70691d70600704ea72d4c08d64215aad13e1e3eeece43aab74d6eefc8e1"
+    },
+    "executable": {
+      "file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/recurrent-head-host-r1/replay",
+      "bytes": 153992,
+      "sha256": "95e4a7d22c08d10a6f1e43e88e730795268e6d2f1a6c63e91400881d3994aa54"
+    },
+    "math_headers": [
+      {
+        "file": "native/providers/gdn/sm121_q1_math.h",
+        "bytes": 6456,
+        "sha256": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb"
+      },
+      {
+        "file": "native/providers/gdn/sm121_rsqrt_table.h",
+        "bytes": 3034,
+        "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f"
+      },
+      {
+        "file": "native/providers/gdn/sm121_exp2_table.h",
+        "bytes": 3753,
+        "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142"
+      },
+      {
+        "file": "native/providers/gdn/sm121_sqrt_table.h",
+        "bytes": 2377,
+        "sha256": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1"
+      },
+      {
+        "file": "native/providers/gdn/sm121_attention_rcp.h",
+        "bytes": 3034,
+        "sha256": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6"
+      },
+      {
+        "file": "native/providers/gdn/sm121_q1_gdn.h",
+        "bytes": 4698,
+        "sha256": "a85bcd2eae346a31ccb4075e4bb5897d0d238513344322bb4d12059d9734287e"
+      },
+      {
+        "file": "native/providers/gdn/sm121_silu_table.h",
+        "bytes": 3132,
+        "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547"
+      }
+    ],
+    "gate_table": {
+      "file": "qrt-gating-model-20260910-r1/layer8-g-f32-head-major.bin",
+      "bytes": 8388608,
+      "sha256": "5b2e7abf664b0c77aae8e747e2b9f7b326a9c3314d3aa6899d27e2e53c46d86a"
+    },
+    "tables": [
+      {
+        "file": "q1-gdn-probe-inputs-r1/sigmoid-beta-f32.bin",
+        "bytes": 262144,
+        "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
+      },
+      {
+        "file": "qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+        "bytes": 183174448,
+        "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
+      },
+      {
+        "file": "qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+        "bytes": 17301808,
+        "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+      },
+      {
+        "file": "qrt-sm121-packed-normalization-20260920-r2/sm121-sqrt-positive.bin",
+        "bytes": 17039392,
+        "sha256": "4f40ec04656a43948813e188f914e7e2f78d8f6b09b45e647027978aa520191a"
+      },
+      {
+        "file": "qrt-rcp-table-20260911-r2/sm121-attention-rcp-delta-i8.bin",
+        "bytes": 8388640,
+        "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39"
+      }
+    ],
+    "summaries": {
+      "independent": {
+        "transitions": 124,
+        "first_differing_position": null,
+        "state_f32_bit_mismatches": 0,
+        "core_bf16_mismatches": 0
+      },
+      "chained": {
+        "transitions": 124,
+        "first_differing_position": null,
+        "state_f32_bit_mismatches": 0,
+        "core_bf16_mismatches": 0
+      },
+      "altered-a263256": {
+        "transitions": 124,
+        "first_differing_position": 263256,
+        "state_f32_bit_mismatches": 581004,
+        "core_bf16_mismatches": 11
+      }
+    },
+    "modified_operand": {
+      "position": 263256,
+      "layer": 8,
+      "projection": "a",
+      "head": 26,
+      "original_bf16": 15737,
+      "altered_bf16": 15736,
+      "file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/layer8-head-history-host-r1/altered-a263256.bf16.bin",
+      "sha256": "7c5a91cd8e416b5f3df44064c75dbab5c8a72c6a5fc6789d94b16c76b64dfc8b",
+      "source": "Independently computed current host projection; native GPU reproduction is recorded separately."
+    },
+    "original_continuous_replay_bit_exact": true,
+    "altered_replay_matches_all_four_measured_native_head_endpoints": true,
+    "wall_seconds": 127.29638708382845,
+    "native_gpu_executed": false,
+    "reference_activations_supplied_to_model_inference": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false,
+    "raw_comparison_sha256": "a911f54950931326517b55b42952b703adec203b461141a902db8d7ce0bdd44a",
+    "measured_native_endpoints": [
+      {
+        "position": 263290,
+        "stage": "recurrent_state_key_major_before_f32",
+        "head": 26,
+        "mode": "altered-a263256",
+        "replay_after_position": 263289,
+        "native_file": "linear.txn7.pos263290.layer8.recurrent_state_key_major_before_f32.bin",
+        "native_sha256": "b8a50694b638fea2b4b01ad95f27d87c9c60f9e099aa45d7a3b118ce3d453699",
+        "native_head_value_major_sha256": "ff879ee2f2739b7547172981314b7180bbc6a7c986acb504c336bd06203e24ce",
+        "replay_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/layer8-head-history-host-r1/altered-a263256-after263289.f32.bin",
+        "replay_sha256": "ff879ee2f2739b7547172981314b7180bbc6a7c986acb504c336bd06203e24ce",
+        "state_f32_bit_mismatches": 0,
+        "all_head_bits_match": true
+      },
+      {
+        "position": 263290,
+        "stage": "recurrent_state_key_major_after_f32",
+        "head": 26,
+        "mode": "altered-a263256",
+        "replay_after_position": 263290,
+        "native_file": "linear.txn7.pos263290.layer8.recurrent_state_key_major_after_f32.bin",
+        "native_sha256": "5380ef4a858af9527166e8b74c6de5b3351f1040d140255b8ed9024028a51a2c",
+        "native_head_value_major_sha256": "fa009e19bcf23c3b5ff31f03de75e060afe9f33d8e3cf7a477d4bd4711f240dd",
+        "replay_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/layer8-head-history-host-r1/altered-a263256-after263290.f32.bin",
+        "replay_sha256": "fa009e19bcf23c3b5ff31f03de75e060afe9f33d8e3cf7a477d4bd4711f240dd",
+        "state_f32_bit_mismatches": 0,
+        "all_head_bits_match": true
+      },
+      {
+        "position": 263291,
+        "stage": "recurrent_state_key_major_before_f32",
+        "head": 26,
+        "mode": "altered-a263256",
+        "replay_after_position": 263290,
+        "native_file": "linear.txn37.pos263291.layer8.recurrent_state_key_major_before_f32.bin",
+        "native_sha256": "5380ef4a858af9527166e8b74c6de5b3351f1040d140255b8ed9024028a51a2c",
+        "native_head_value_major_sha256": "fa009e19bcf23c3b5ff31f03de75e060afe9f33d8e3cf7a477d4bd4711f240dd",
+        "replay_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/layer8-head-history-host-r1/altered-a263256-after263290.f32.bin",
+        "replay_sha256": "fa009e19bcf23c3b5ff31f03de75e060afe9f33d8e3cf7a477d4bd4711f240dd",
+        "state_f32_bit_mismatches": 0,
+        "all_head_bits_match": true
+      },
+      {
+        "position": 263291,
+        "stage": "recurrent_state_key_major_after_f32",
+        "head": 26,
+        "mode": "altered-a263256",
+        "replay_after_position": 263291,
+        "native_file": "linear.txn37.pos263291.layer8.recurrent_state_key_major_after_f32.bin",
+        "native_sha256": "ee13b7f6eb60245f77fb90eac7ccebe99e51ca72632f219dd88c3b008c4b08db",
+        "native_head_value_major_sha256": "69f18d45633d59fea67b21e1b9d559ef25d03654c5f8276b947ded5ea92e10ca",
+        "replay_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/layer8-head-history-host-r1/altered-a263256-after263291.f32.bin",
+        "replay_sha256": "69f18d45633d59fea67b21e1b9d559ef25d03654c5f8276b947ded5ea92e10ca",
+        "state_f32_bit_mismatches": 0,
+        "all_head_bits_match": true
+      }
+    ]
+  },
+  "conclusion": "The original layer8 A/head26 projection at input263256 is15737, while the current Windows GPU produces15736 in all8 configurations. Replacing only this A value in the original recurrence reproduces every bit of all4 captured native head26 state endpoints at263290/263291. This establishes the cause of that observed state difference. The causal link to later output189 and a repaired full256k run remain unqualified.",
+  "other_difference": "B/head19 at263196 is47936 on the current GPU instead of original47935; its later effect is not established here.",
+  "arithmetic_constraint": "Neither failed gate is an exact FP32 midpoint. The compensated double sum for A/head26 rounds to the current endpoint, while GB10 selects the other neighbor; a general higher-precision dot is therefore not yet a demonstrated repair.",
+  "runtime_changed": false,
+  "original_oracles_changed": false,
+  "reference_activations_supplied_to_model_inference": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "f7f5c8897a6f5454fc4b9e8602c23e447986d4676a09855e9a0732833c1cca5d",
+    "original_json_bytes": 125913,
+    "source_revision": "35607853eb03487b443ddfed8529b8da5539de86",
+    "source_path": "benchmarks/correctness/layer8-gate-state-diagnosis-20260923.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 7,
+      "<evidence-home-2>": 1
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}

@@ -1,5 +1,14 @@
 # Packed gate midpoint diagnosis
 
+The current candidate uses 32 logical FMA chains for K2048/N32 gates. Each
+physical lane accumulates two independent chains, combines logical lanes
+i/i+16, then uses the existing 16-lane shuffle. Launch geometry and carriers
+are preserved. This replaces the earlier double-precision midpoint patch.
+The actual edited helper matches all 31,744 BF16/widened-carrier comparisons
+across the two original 124-step histories. Three captured GB10 regressions
+are retained as hash-bound fixtures and pass ASan/UBSan. Native candidate
+compilation, full operator replay and complete model checks remain pending.
+
 The preceding c268 256k run first emits the wrong token at suffix output 124.
 Its earlier numerical cause is a packed B projection at input position263238:
 layer5, head13 produces BF16 `0xbebc` instead of original GB10 `0xbebd`.
@@ -26,7 +35,7 @@ GB10 endpoint selects the lower value. This changes the head's BF16 beta from
 0.408203125 to0.41015625 in the failing native run, and its error accumulates
 until the first output-token difference.
 
-The candidate repair resolves exact midpoints only for K2048,32-row packed
+The earlier 356 repair resolves exact midpoints only for K2048,32-row packed
 gate projections. A compensated double sum determines the side before the
 final BF16 rounding. Non-midpoints retain the existing calculation. The rule
 contains no token, position, layer, head or reference selectors.
@@ -61,10 +70,40 @@ claimed.
 At the same captured input positions 263290 and 263291, all compared surfaces
 through layer 7 now match bitwise, including the repaired layer 5 state.
 The earliest remaining observed difference is layer 8's incoming recurrent
-state. Its earlier cause, and the cause of output 189, are not yet established.
+state. The subsequent continuous-history diagnosis below establishes its
+earlier cause; the causal link to output 189 still requires model validation.
 The completed run retains all 1,559 raw observations with verified hashes,
 passes host checks and leaves no native process running.
 [Completed run and remaining mismatch](../benchmarks/correctness/packed-gate-midpoint-prefix256k-remaining-failure-20260922.json).
+
+The new unchanged-compute GB10 capture reproduces all 608 original outputs
+and complete first logits. It captures 124 consecutive layer 8 transitions;
+all state links are bit-exact. Every raw boundary file is verified remotely,
+and 1,379 compact files are verified locally. Full states remain on GB10;
+the controller receives head 26 slices and the relevant complete operands.
+All 124 normalized inputs and the 11 shared surfaces at each older endpoint
+match the preceding reference.
+
+Current Windows source 356 reproduces two gate errors across all eight GPU
+configurations: B/head19 at 263196 is 47936 instead of 47935, and A/head26
+at 263256 is 15736 instead of 15737. The 250-case replay verifies 194,560
+elements with 16 mismatches, intact guards and immutable inputs. Two complete
+QKV controls pass; the host also matches all 47,616 target Q/K/V values.
+
+Original independent and chained head26 recurrence match every state/core bit
+for all 124 steps. Changing only the A/head26 value at 263256 to the measured
+AMD value reproduces every bit of all four native state endpoints at
+263290/263291. This establishes the source of that observed state difference.
+B/head19's downstream effect remains separate. Neither erroneous gate is an
+exact FP32 midpoint. Higher precision alone is insufficient: the compensated
+double A dot selects the current endpoint, while GB10 selects its neighbor.
+[Reference, native reproduction and causal replay](../benchmarks/correctness/layer8-gate-state-diagnosis-20260923.json).
+
+A bounded reduction-order sweep finds that 32 strided chains with a folding
+halves tree match all 15,872 original layer5/layer8 gate endpoints. Applying
+the old midpoint correction to that order introduces two errors. The new
+candidate implements the matching order directly, with no token, position,
+layer or head selectors and no added runtime artifact or workspace.
 
 Three CLI provenance fields in that run's emitted metadata still name the old
 build. The original success observer correctly rejects them. The pinned
