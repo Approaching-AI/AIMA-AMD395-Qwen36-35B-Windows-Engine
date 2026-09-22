@@ -54,6 +54,15 @@ int main(int argc,char**argv) {
   for(unsigned i=0;i<128*32;++i)assert(samples[i]==preserved[((i/32+1)*64-1)*32+i%32]);
   for(unsigned i=128*32;i<samples.size();++i)assert(samples[i]==0x1234);
   assert(sample_input==preserved);
+  for (unsigned columns : {1u, 256u, 512u}) {
+    std::vector<uint16_t> input(8192u*columns), output(128u*columns+256u,0x1234);
+    for(unsigned i=0;i<input.size();++i) input[i]=uint16_t(i*37u);
+    const auto copy=input;
+    for(unsigned i=0;i<output.size();++i){blockIdx=dim3(i/256);threadIdx=dim3(i%256);sample_prefill(input.data(),output.data(),columns);}
+    for(unsigned i=0;i<128u*columns;++i)assert(output[i]==copy[((i/columns+1)*64-1)*columns+i%columns]);
+    for(unsigned i=128u*columns;i<output.size();++i)assert(output[i]==0x1234);
+    assert(input==copy);
+  }
   // Exercise the actual wrapper against a recording provider. Scratch owners
   // are deliberately distinct; kernels are recorded rather than GPU-executed.
   State s;for(Device* d:{&s.raw,&s.gates,&s.output,&s.decode_ab,&s.gate[0],&s.beta,&s.prefill_beta,&s.exp2,&s.rsqrt})d->allocate(64);
@@ -96,5 +105,5 @@ int main(int argc,char**argv) {
   assert(read(file,asset)==std::vector<unsigned char>({'a','b','c'}));
   {std::ofstream f(file,std::ios::binary);f<<"abd";}reject([&]{read(file,asset);});
   {std::ofstream f(file,std::ios::binary);f<<"ab";}reject([&]{read(file,asset);});
-  std::cout<<"{\"conversion_values_checked\":33027,\"sampled_values_checked\":4096,\"sampling_input_unchanged\":true,\"sampling_guards_pass\":true,\"observer_faults_rejected\":5,\"guards_pass\":true,\"provider_order_pass\":true,\"seeded_state_forwarded\":true,\"decode_q2_flags\":true,\"injected_provider_failure_rejected\":true,\"invalid_bindings_rejected\":6,\"artifact_faults_rejected\":2}\n";
+  std::cout<<"{\"conversion_values_checked\":33027,\"sampled_values_checked\":102528,\"sampling_input_unchanged\":true,\"sampling_guards_pass\":true,\"observer_faults_rejected\":5,\"guards_pass\":true,\"provider_order_pass\":true,\"seeded_state_forwarded\":true,\"decode_q2_flags\":true,\"injected_provider_failure_rejected\":true,\"invalid_bindings_rejected\":6,\"artifact_faults_rejected\":2}\n";
 }

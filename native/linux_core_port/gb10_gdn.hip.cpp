@@ -177,7 +177,8 @@ void observe_gdn_prefill(std::size_t layer, const char* name, const void* values
                          std::size_t columns, std::size_t tokens) {
   if (!active || !active->observer || layer != active->observer_layer) return;
   if (!values || values == active->output.data || !name || tokens != 8192 ||
-      (columns != 32 && columns != 2048 && columns != 4096 && columns != 8192))
+      (columns != 1 && columns != 32 && columns != 256 && columns != 512 &&
+       columns != 2048 && columns != 4096 && columns != 8192))
     throw std::runtime_error("GDN prefill observation geometry is invalid");
   // This buffer is dead at each caller: before the FLA call, or after its
   // output has been converted into the engine's distinct BF16 destination.

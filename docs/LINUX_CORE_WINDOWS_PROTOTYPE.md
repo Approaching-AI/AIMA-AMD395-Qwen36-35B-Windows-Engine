@@ -103,6 +103,25 @@ observation selects layer one in the unchanged executable to separate its
 incoming normalization, prefill state and MoE boundaries.
 [Native normalization result](../benchmarks/correctness/linux-core-gb10-normalization-native-20260922.json).
 
+The unchanged-source layer-one observation preserves all 512 outputs. Its
+input norm has21 BF16 differences. CPU replay of the fused tail's rounded
+variance reproduces every native value; the existing unrounded-residual math
+matches all2048 GB10 values using either engine's layer-zero operands. Prefill
+layer-one input norm still has547 differences in the last row. The qualified
+reference contains layer-one norms and layer carriers, but its detailed linear
+state/projection capture is limited to layer zero; no missing-state comparison
+is inferred.
+
+The normalization option now snapshots the live decode residual before the
+MoE tail and applies the existing residual kernel to the next layer's input.
+The 4096-byte copy uses the default stream and prevents output aliases from
+destroying the variance operand. One additional decode observation exposes
+that next norm. Twelve output-only prefill MoE samples expose the remaining
+prefill boundary. Host checks verify the snapshot after source overwrite,
+launch bindings, newly sampled widths and unchanged earlier overlay modes.
+The repaired native run remains pending.
+[Layer-one diagnosis and preparation](../benchmarks/correctness/linux-core-gb10-cross-layer-preparation-20260922.json).
+
 The latest ordinary Windows q8192 control is 23272.0441 ms TTFT. Structural
 projection and QK alternatives preserved component bits but increased their
 measured execution times. This experiment instead evaluates the Linux release's

@@ -14,7 +14,8 @@ namespace aima_port {
 namespace {
 struct State {
   float* silu = nullptr;
-  ~State() { if (silu) hipFree(silu); }
+  void* residual = nullptr;
+  ~State() { if (silu) hipFree(silu); if (residual) hipFree(residual); }
 };
 State* active = nullptr;
 std::vector<float> read_silu(const std::filesystem::path& path) {
@@ -61,6 +62,8 @@ Gb10NormalizationOwner::Gb10NormalizationOwner() : impl_(std::make_unique<Impl>(
   if (hipMalloc(reinterpret_cast<void**>(&s.silu), values.size() * sizeof(float)) != hipSuccess ||
       hipMemcpy(s.silu, values.data(), values.size() * sizeof(float), hipMemcpyHostToDevice) != hipSuccess)
     throw std::runtime_error("Gated SiLU table upload failed");
+  if (hipMalloc(&s.residual, 2048 * sizeof(uint16_t)) != hipSuccess)
+    throw std::runtime_error("Decode residual snapshot allocation failed");
   active = &s;
 }
 Gb10NormalizationOwner::~Gb10NormalizationOwner() {
@@ -87,5 +90,13 @@ void gb10_residual_norm(const void* input, const void* residual, const void* wei
       static_cast<uint16_t*>(norm_output), static_cast<uint16_t*>(residual_output),
       static_cast<hipStream_t>(stream));
   if (status != hipSuccess) throw std::runtime_error("GB10 residual normalization launch failed");
+}
+const void* gb10_preserve_decode_residual(const void* residual, void* stream) {
+  if (!active || !active->residual || !residual || stream)
+    throw std::invalid_argument("Decode residual snapshot requires a live owner and default stream");
+  if (hipMemcpyAsync(active->residual, residual, 2048 * sizeof(uint16_t),
+                     hipMemcpyDeviceToDevice, nullptr) != hipSuccess)
+    throw std::runtime_error("Decode residual snapshot failed");
+  return active->residual;
 }
 }  // namespace aima_port

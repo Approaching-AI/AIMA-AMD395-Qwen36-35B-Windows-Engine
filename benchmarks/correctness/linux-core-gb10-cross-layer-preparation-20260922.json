@@ -1,0 +1,1088 @@
+{
+  "schema": 1,
+  "kind": "native_layer1_normalization_diagnosis_and_repair_preparation",
+  "host": "BAIYING",
+  "model": "D:/models/Qwen3.6-35B-A3B",
+  "source_commit": "6ea9adf7996af97cc57893144f6a8ddceae40be3",
+  "command_file": "P:/projects/AIMA-public-linux-core-gb10-normalization-20260922-r1/scripts/baiying_linux_core_probe.ps1",
+  "command": [
+    "P:/projects/AIMA-public-linux-core-gb10-normalization-20260922-r1/build/linux-core-layer1-r1/qrt-linux-core-q8192-probe.exe",
+    "--model",
+    "D:/models/Qwen3.6-35B-A3B",
+    "--input-u32",
+    "P:/projects/linux-core-q8192-prompt-r1.u32",
+    "--ck-provider",
+    "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query/qrt_ck_fmha_sm121.dll",
+    "--vision-image",
+    "P:/projects/AIMA-public-linux-core-gb10-normalization-20260922-r1/third_party/aima_linux/native/aot/gfx1151/vision-attention-v0.3.0/kernels/d09fefdcb1ddb6cb-_fwd_kernel.hsaco",
+    "--load-report",
+    "P:/projects/AIMA-public-linux-core-gb10-normalization-20260922-r1/build/linux-core-layer1-q8192-load-r1.json",
+    "--observe-directory",
+    "P:/projects/AIMA-public-linux-core-gb10-normalization-20260922-r1/build/linux-core-layer1-observations-r1",
+    "--observe-output-index",
+    "1",
+    "--observe-linear-layer",
+    "1"
+  ],
+  "run_sha256": "2d8753479cd7597dbeb65aa32f896e89a8b9e88d85d30938cc4f898ba8071ea9",
+  "plan_sha256": "cee7e965c3724e11126cfd5e2e3197bfcd3f5e669002fb6f00bded64840e7f60",
+  "native_wall_ms": 89087.127,
+  "native_exit_code": 0,
+  "host_checks": {
+    "same_boot": true,
+    "no_engine_process": true,
+    "host_memory_reserve": true,
+    "commit_reserve": true,
+    "amd_gpu_ok": true
+  },
+  "after_processes": [],
+  "evidence": {
+    "cross_layer_cpu_replay": {
+      "sha256": "cd60256e758bfaee430b395d74e4cb80b93b3b5eaf0a6606290ddbee24508eaa",
+      "data": {
+        "build_command": [
+          "clang++",
+          "-std=c++17",
+          "-O1",
+          "-ffp-contract=off",
+          "-fsanitize=address,undefined",
+          "-I",
+          "source-checkout",
+          "controller-evidence/linux-core-cross-layer-norm-replay-r1/replay.cpp",
+          "-o",
+          "controller-evidence/linux-core-cross-layer-norm-replay-r1/replay"
+        ],
+        "source_sha256": "e530330904e0821c3d53ca1a6ec643fb36025bcd4bd442778d96cd31ac2236d1",
+        "exe_sha256": "a1388c2d33f0f383c14cc1f8f25973c83c76da972491ff8f47f97f3c8c53de5b",
+        "weight_metadata_sha256": "322695054485bfa8566ade210cb241a81a7150b06d5f1b24f048baf86517d73a",
+        "source_commit": "58dc7de110124836b4be3192c5dda9ce192a9a6e",
+        "reference_download_sha256": "64723e2fc871e315e4c1efec3ba675c7fdda43c8e2facf8664acc532d2b327d1",
+        "native_run_sha256": "39de62e57305a26f6b149c18cde3bdc8a7f5936c22cc6e920546687c24216b83",
+        "runs": [
+          {
+            "name": "original",
+            "command": [
+              "controller-evidence/linux-core-cross-layer-norm-replay-r1/replay",
+              "controller-evidence/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-layer-00-residual-bf16.bin",
+              "controller-evidence/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-layer-00-hidden-bf16.bin",
+              "controller-evidence/linux-core-cross-layer-norm-replay-r1/layer1-input-norm-weight.bin",
+              "controller-evidence/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-layer-01-input-rmsnorm-bf16.bin",
+              "controller-evidence/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-layer-01-input-rmsnorm-bf16.bin",
+              "controller-evidence/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+              "controller-evidence/linux-core-cross-layer-norm-replay-r1/original"
+            ],
+            "reference_control_in_both_comparison_slots": true,
+            "results": [
+              {
+                "mode": 0,
+                "elements": 2048,
+                "reference_mismatches": 0,
+                "native_mismatches": 0,
+                "sum_bits": 1074312560,
+                "inverse_bits": 1106745308
+              },
+              {
+                "mode": 1,
+                "elements": 2048,
+                "reference_mismatches": 21,
+                "native_mismatches": 21,
+                "sum_bits": 1074310996,
+                "inverse_bits": 1106746723
+              },
+              {
+                "mode": 2,
+                "elements": 2048,
+                "reference_mismatches": 21,
+                "native_mismatches": 21,
+                "sum_bits": 1074310997,
+                "inverse_bits": 1106746722
+              }
+            ],
+            "outputs": [
+              {
+                "mode": 0,
+                "sha256": "0fc900f5ded2e7af6f84539c92e7c75169a0e906e451cb773baa940a04f9eb34"
+              },
+              {
+                "mode": 1,
+                "sha256": "ff04d447fe5f48dc7e434d5fd38ecdb9915104a1942c20d08afe3ef3a9498ce4"
+              },
+              {
+                "mode": 2,
+                "sha256": "ff04d447fe5f48dc7e434d5fd38ecdb9915104a1942c20d08afe3ef3a9498ce4"
+              }
+            ]
+          },
+          {
+            "name": "native",
+            "command": [
+              "controller-evidence/linux-core-cross-layer-norm-replay-r1/replay",
+              "controller-evidence/linux-core-windows-gb10-normalization-step1-r1/observations/decode-linear-attention_residual.bin",
+              "controller-evidence/linux-core-windows-gb10-normalization-step1-r1/observations/decode-linear-combined_moe_output.bin",
+              "controller-evidence/linux-core-cross-layer-norm-replay-r1/layer1-input-norm-weight.bin",
+              "controller-evidence/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-layer-01-input-rmsnorm-bf16.bin",
+              "controller-evidence/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-layer-01-input-rmsnorm-bf16.bin",
+              "controller-evidence/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+              "controller-evidence/linux-core-cross-layer-norm-replay-r1/native"
+            ],
+            "reference_control_in_both_comparison_slots": true,
+            "results": [
+              {
+                "mode": 0,
+                "elements": 2048,
+                "reference_mismatches": 0,
+                "native_mismatches": 0,
+                "sum_bits": 1074312562,
+                "inverse_bits": 1106745306
+              },
+              {
+                "mode": 1,
+                "elements": 2048,
+                "reference_mismatches": 21,
+                "native_mismatches": 21,
+                "sum_bits": 1074310996,
+                "inverse_bits": 1106746723
+              },
+              {
+                "mode": 2,
+                "elements": 2048,
+                "reference_mismatches": 21,
+                "native_mismatches": 21,
+                "sum_bits": 1074310997,
+                "inverse_bits": 1106746722
+              }
+            ],
+            "outputs": [
+              {
+                "mode": 0,
+                "sha256": "0fc900f5ded2e7af6f84539c92e7c75169a0e906e451cb773baa940a04f9eb34"
+              },
+              {
+                "mode": 1,
+                "sha256": "ff04d447fe5f48dc7e434d5fd38ecdb9915104a1942c20d08afe3ef3a9498ce4"
+              },
+              {
+                "mode": 2,
+                "sha256": "ff04d447fe5f48dc7e434d5fd38ecdb9915104a1942c20d08afe3ef3a9498ce4"
+              }
+            ]
+          }
+        ],
+        "inputs": [
+          {
+            "path": "controller-evidence/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-layer-00-residual-bf16.bin",
+            "bytes": 4096,
+            "sha256": "2b6389aba45f7c5e601d3ea3d74bded1ceb0acc92dcc2351370610e3e61639dc"
+          },
+          {
+            "path": "controller-evidence/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-layer-00-hidden-bf16.bin",
+            "bytes": 4096,
+            "sha256": "9b950f32eee2bf5bf88bd399b0000a81ef161dbe69578d49270a3f533a095f22"
+          },
+          {
+            "path": "controller-evidence/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-layer-01-input-rmsnorm-bf16.bin",
+            "bytes": 4096,
+            "sha256": "0fc900f5ded2e7af6f84539c92e7c75169a0e906e451cb773baa940a04f9eb34"
+          },
+          {
+            "path": "controller-evidence/linux-core-windows-gb10-normalization-step1-r1/observations/decode-linear-attention_residual.bin",
+            "bytes": 4096,
+            "sha256": "2b6389aba45f7c5e601d3ea3d74bded1ceb0acc92dcc2351370610e3e61639dc"
+          },
+          {
+            "path": "controller-evidence/linux-core-windows-gb10-normalization-step1-r1/observations/decode-linear-combined_moe_output.bin",
+            "bytes": 4096,
+            "sha256": "b23b5f64fd4c8162aad396984d1c41e28e5435fadf60ab820c978cadead28c98"
+          },
+          {
+            "path": "controller-evidence/linux-core-cross-layer-norm-replay-r1/layer1-input-norm-weight.bin",
+            "bytes": 4096,
+            "sha256": "ed4ca80e09d39e7edc8667a8c3b125dfae990a40993eb065c6871a77209549ef"
+          },
+          {
+            "path": "controller-evidence/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "bytes": 17301808,
+            "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+          }
+        ],
+        "host_only": true,
+        "inference_acceptance": false
+      }
+    },
+    "layer1_native_comparison": {
+      "sha256": "cb34d4844d0ac08667c7fb457f0e7b406187e515cc41ba691b3939d5172a52f7",
+      "data": {
+        "source_commit": "6ea9adf7996af97cc57893144f6a8ddceae40be3",
+        "host": "BAIYING",
+        "model": "D:\\models\\Qwen3.6-35B-A3B",
+        "command_file": "P:/projects/AIMA-public-linux-core-gb10-normalization-20260922-r1/scripts/baiying_linux_core_probe.ps1",
+        "source_plan_sha256": "cee7e965c3724e11126cfd5e2e3197bfcd3f5e669002fb6f00bded64840e7f60",
+        "run_sha256": "2d8753479cd7597dbeb65aa32f896e89a8b9e88d85d30938cc4f898ba8071ea9",
+        "capture_verified_sha256": "9afc5c19202ec5939927fa94bc2fb6f1da777e8fb45fad68d08622c2945a4c6f",
+        "reference_download_sha256": "64723e2fc871e315e4c1efec3ba675c7fdda43c8e2facf8664acc532d2b327d1",
+        "unchanged_outputs_from_layer0_observation": true,
+        "cpu_replay_sha256": "cd60256e758bfaee430b395d74e4cb80b93b3b5eaf0a6606290ddbee24508eaa",
+        "missing_reference_scope": "Only layer-zero linear internals are present in this qualified reference capture; layer-one state and projection comparisons are not claimed.",
+        "rows": [
+          {
+            "native_file": "decode-linear-input_norm.bin",
+            "native_sha256": "ff04d447fe5f48dc7e434d5fd38ecdb9915104a1942c20d08afe3ef3a9498ce4",
+            "reference_file": "txn0001-layer-01-input-rmsnorm-bf16.bin",
+            "reference_sha256": "0fc900f5ded2e7af6f84539c92e7c75169a0e906e451cb773baa940a04f9eb34",
+            "actual_offset": 0,
+            "comparison": {
+              "elements": 2048,
+              "f32_bit_mismatches": 21,
+              "bf16_mismatches": 21,
+              "nonfinite_pairs": 0,
+              "maximum_absolute_error": 0.0078125,
+              "first_bf16_differences": [
+                {
+                  "column": 183,
+                  "native_index": 183,
+                  "reference_index": 183,
+                  "native_bits": 1050804224,
+                  "reference_bits": 1050738688,
+                  "native": 0.31640625,
+                  "reference": 0.314453125
+                },
+                {
+                  "column": 201,
+                  "native_index": 201,
+                  "reference_index": 201,
+                  "native_bits": 3205365760,
+                  "reference_bits": 3205300224,
+                  "native": -0.5546875,
+                  "reference": -0.55078125
+                },
+                {
+                  "column": 219,
+                  "native_index": 219,
+                  "reference_index": 219,
+                  "native_bits": 1056702464,
+                  "reference_bits": 1056636928,
+                  "native": 0.4921875,
+                  "reference": 0.490234375
+                },
+                {
+                  "column": 227,
+                  "native_index": 227,
+                  "reference_index": 227,
+                  "native_bits": 1054998528,
+                  "reference_bits": 1054932992,
+                  "native": 0.44140625,
+                  "reference": 0.439453125
+                },
+                {
+                  "column": 446,
+                  "native_index": 446,
+                  "reference_index": 446,
+                  "native_bits": 3210412032,
+                  "reference_bits": 3210346496,
+                  "native": -0.85546875,
+                  "reference": -0.8515625
+                },
+                {
+                  "column": 582,
+                  "native_index": 582,
+                  "reference_index": 582,
+                  "native_bits": 1058537472,
+                  "reference_bits": 1058471936,
+                  "native": 0.59375,
+                  "reference": 0.58984375
+                },
+                {
+                  "column": 597,
+                  "native_index": 597,
+                  "reference_index": 597,
+                  "native_bits": 3206217728,
+                  "reference_bits": 3206152192,
+                  "native": -0.60546875,
+                  "reference": -0.6015625
+                },
+                {
+                  "column": 623,
+                  "native_index": 623,
+                  "reference_index": 623,
+                  "native_bits": 3149660160,
+                  "reference_bits": 3149594624,
+                  "native": -0.0057373046875,
+                  "reference": -0.005706787109375
+                }
+              ]
+            }
+          },
+          {
+            "native_file": "decode-linear-attention_residual.bin",
+            "native_sha256": "2294a2f2e067732f10262246051b04014dba21c4b37fb2bd120e653d3f59d6ea",
+            "reference_file": "txn0001-layer-01-residual-bf16.bin",
+            "reference_sha256": "e71893f606d4ab61b235034a6698650bb1acb270d38843854d736599548e9002",
+            "actual_offset": 0,
+            "comparison": {
+              "elements": 2048,
+              "f32_bit_mismatches": 767,
+              "bf16_mismatches": 767,
+              "nonfinite_pairs": 0,
+              "maximum_absolute_error": 0.00048828125,
+              "first_bf16_differences": [
+                {
+                  "column": 3,
+                  "native_index": 3,
+                  "reference_index": 3,
+                  "native_bits": 1006043136,
+                  "reference_bits": 1005912064,
+                  "native": 0.007537841796875,
+                  "reference": 0.007476806640625
+                },
+                {
+                  "column": 8,
+                  "native_index": 8,
+                  "reference_index": 8,
+                  "native_bits": 3160276992,
+                  "reference_bits": 3160211456,
+                  "native": -0.0135498046875,
+                  "reference": -0.01348876953125
+                },
+                {
+                  "column": 13,
+                  "native_index": 13,
+                  "reference_index": 13,
+                  "native_bits": 3156410368,
+                  "reference_bits": 3156344832,
+                  "native": -0.00994873046875,
+                  "reference": -0.0098876953125
+                },
+                {
+                  "column": 17,
+                  "native_index": 17,
+                  "reference_index": 17,
+                  "native_bits": 3154378752,
+                  "reference_bits": 3154444288,
+                  "native": -0.008056640625,
+                  "reference": -0.00811767578125
+                },
+                {
+                  "column": 19,
+                  "native_index": 19,
+                  "reference_index": 19,
+                  "native_bits": 3145990144,
+                  "reference_bits": 3145859072,
+                  "native": -0.0040283203125,
+                  "reference": -0.00396728515625
+                },
+                {
+                  "column": 21,
+                  "native_index": 21,
+                  "reference_index": 21,
+                  "native_bits": 3161456640,
+                  "reference_bits": 3161587712,
+                  "native": -0.0146484375,
+                  "reference": -0.0147705078125
+                },
+                {
+                  "column": 25,
+                  "native_index": 25,
+                  "reference_index": 25,
+                  "native_bits": 3163750400,
+                  "reference_bits": 3163684864,
+                  "native": -0.0179443359375,
+                  "reference": -0.017822265625
+                },
+                {
+                  "column": 26,
+                  "native_index": 26,
+                  "reference_index": 26,
+                  "native_bits": 3112173568,
+                  "reference_bits": 3107979264,
+                  "native": -0.000244140625,
+                  "reference": -0.00018310546875
+                }
+              ]
+            }
+          },
+          {
+            "native_file": "decode-linear-post_attention_norm.bin",
+            "native_sha256": "0595988b56190553ff566c2f5f1d9f2e898ff5affdb79c53fec13e3134ff0a31",
+            "reference_file": "txn0001-layer-01-post-attention-rmsnorm-bf16.bin",
+            "reference_sha256": "d150f8e1e84a765f60ae004ffc3c763e1f4fb62cab836c7ef7a42054189b4209",
+            "actual_offset": 0,
+            "comparison": {
+              "elements": 2048,
+              "f32_bit_mismatches": 752,
+              "bf16_mismatches": 752,
+              "nonfinite_pairs": 0,
+              "maximum_absolute_error": 0.015625,
+              "first_bf16_differences": [
+                {
+                  "column": 3,
+                  "native_index": 3,
+                  "reference_index": 3,
+                  "native_bits": 1045889024,
+                  "reference_bits": 1045823488,
+                  "native": 0.2099609375,
+                  "reference": 0.208984375
+                },
+                {
+                  "column": 8,
+                  "native_index": 8,
+                  "reference_index": 8,
+                  "native_bits": 3200712704,
+                  "reference_bits": 3200647168,
+                  "native": -0.388671875,
+                  "reference": -0.38671875
+                },
+                {
+                  "column": 13,
+                  "native_index": 13,
+                  "reference_index": 13,
+                  "native_bits": 3197173760,
+                  "reference_bits": 3197108224,
+                  "native": -0.283203125,
+                  "reference": -0.28125
+                },
+                {
+                  "column": 17,
+                  "native_index": 17,
+                  "reference_index": 17,
+                  "native_bits": 3194290176,
+                  "reference_bits": 3194421248,
+                  "native": -0.2236328125,
+                  "reference": -0.2255859375
+                },
+                {
+                  "column": 19,
+                  "native_index": 19,
+                  "reference_index": 19,
+                  "native_bits": 3185442816,
+                  "reference_bits": 3185180672,
+                  "native": -0.1083984375,
+                  "reference": -0.1064453125
+                },
+                {
+                  "column": 21,
+                  "native_index": 21,
+                  "reference_index": 21,
+                  "native_bits": 3198550016,
+                  "reference_bits": 3198615552,
+                  "native": -0.32421875,
+                  "reference": -0.326171875
+                },
+                {
+                  "column": 25,
+                  "native_index": 25,
+                  "reference_index": 25,
+                  "native_bits": 3204317184,
+                  "reference_bits": 3204186112,
+                  "native": -0.49609375,
+                  "reference": -0.4921875
+                },
+                {
+                  "column": 26,
+                  "native_index": 26,
+                  "reference_index": 26,
+                  "native_bits": 3153330176,
+                  "reference_bits": 3149332480,
+                  "native": -0.0074462890625,
+                  "reference": -0.005584716796875
+                }
+              ]
+            }
+          },
+          {
+            "native_file": "decode-linear-combined_moe_output.bin",
+            "native_sha256": "68a444000fbafe1385335d2024bad6f731fe0b898a9f127329a509614dd2b475",
+            "reference_file": "txn0001-layer-01-hidden-bf16.bin",
+            "reference_sha256": "a86334c8be2a98b5a36426c9ad032b9fb08bad5b68789b7cac46e4aee379acd9",
+            "actual_offset": 0,
+            "comparison": {
+              "elements": 2048,
+              "f32_bit_mismatches": 1440,
+              "bf16_mismatches": 1440,
+              "nonfinite_pairs": 0,
+              "maximum_absolute_error": 0.0003662109375,
+              "first_bf16_differences": [
+                {
+                  "column": 0,
+                  "native_index": 0,
+                  "reference_index": 0,
+                  "native_bits": 1007943680,
+                  "reference_bits": 1007878144,
+                  "native": 0.009033203125,
+                  "reference": 0.00897216796875
+                },
+                {
+                  "column": 2,
+                  "native_index": 2,
+                  "reference_index": 2,
+                  "native_bits": 3135242240,
+                  "reference_bits": 3134980096,
+                  "native": -0.001708984375,
+                  "reference": -0.001678466796875
+                },
+                {
+                  "column": 3,
+                  "native_index": 3,
+                  "reference_index": 3,
+                  "native_bits": 3133276160,
+                  "reference_bits": 3133407232,
+                  "native": -0.0014801025390625,
+                  "reference": -0.001495361328125
+                },
+                {
+                  "column": 4,
+                  "native_index": 4,
+                  "reference_index": 4,
+                  "native_bits": 977207296,
+                  "reference_bits": 977600512,
+                  "native": 0.000728607177734375,
+                  "reference": 0.000751495361328125
+                },
+                {
+                  "column": 6,
+                  "native_index": 6,
+                  "reference_index": 6,
+                  "native_bits": 966787072,
+                  "reference_bits": 969932800,
+                  "native": 0.00030517578125,
+                  "reference": 0.000396728515625
+                },
+                {
+                  "column": 7,
+                  "native_index": 7,
+                  "reference_index": 7,
+                  "native_bits": 1005649920,
+                  "reference_bits": 1005584384,
+                  "native": 0.007354736328125,
+                  "reference": 0.00732421875
+                },
+                {
+                  "column": 8,
+                  "native_index": 8,
+                  "reference_index": 8,
+                  "native_bits": 964689920,
+                  "reference_bits": 964165632,
+                  "native": 0.000244140625,
+                  "reference": 0.00023651123046875
+                },
+                {
+                  "column": 11,
+                  "native_index": 11,
+                  "reference_index": 11,
+                  "native_bits": 998375424,
+                  "reference_bits": 998244352,
+                  "native": 0.00396728515625,
+                  "reference": 0.00390625
+                }
+              ]
+            }
+          },
+          {
+            "native_file": "prefill-input-norm-sampled.bin",
+            "native_sha256": "165ebd169a1d0a1522c68178a11d34b509454ddfe73c90e079de79a2454d883b",
+            "reference_file": "txn0000-layer-01-input-rmsnorm-bf16.bin",
+            "reference_sha256": "c7b4192d89839ea2f1c115b8f4729a8068b8dfc1ba758cbe89ab9211dbc22db3",
+            "actual_offset": 260096,
+            "comparison": {
+              "elements": 2048,
+              "f32_bit_mismatches": 547,
+              "bf16_mismatches": 547,
+              "nonfinite_pairs": 0,
+              "maximum_absolute_error": 0.03125,
+              "first_bf16_differences": [
+                {
+                  "column": 5,
+                  "native_index": 260101,
+                  "reference_index": 5,
+                  "native_bits": 3198550016,
+                  "reference_bits": 3198615552,
+                  "native": -0.32421875,
+                  "reference": -0.326171875
+                },
+                {
+                  "column": 12,
+                  "native_index": 260108,
+                  "reference_index": 12,
+                  "native_bits": 3165323264,
+                  "reference_bits": 3165126656,
+                  "native": -0.0208740234375,
+                  "reference": -0.0205078125
+                },
+                {
+                  "column": 13,
+                  "native_index": 260109,
+                  "reference_index": 13,
+                  "native_bits": 1001521152,
+                  "reference_bits": 1001914368,
+                  "native": 0.00543212890625,
+                  "reference": 0.005615234375
+                },
+                {
+                  "column": 15,
+                  "native_index": 260111,
+                  "reference_index": 15,
+                  "native_bits": 1041170432,
+                  "reference_bits": 1041104896,
+                  "native": 0.1396484375,
+                  "reference": 0.138671875
+                },
+                {
+                  "column": 20,
+                  "native_index": 260116,
+                  "reference_index": 20,
+                  "native_bits": 3202220032,
+                  "reference_bits": 3202285568,
+                  "native": -0.43359375,
+                  "reference": -0.435546875
+                },
+                {
+                  "column": 21,
+                  "native_index": 260117,
+                  "reference_index": 21,
+                  "native_bits": 1047330816,
+                  "reference_bits": 1047265280,
+                  "native": 0.2314453125,
+                  "reference": 0.23046875
+                },
+                {
+                  "column": 24,
+                  "native_index": 260120,
+                  "reference_index": 24,
+                  "native_bits": 3183935488,
+                  "reference_bits": 3183804416,
+                  "native": -0.09716796875,
+                  "reference": -0.09619140625
+                },
+                {
+                  "column": 27,
+                  "native_index": 260123,
+                  "reference_index": 27,
+                  "native_bits": 3197501440,
+                  "reference_bits": 3197566976,
+                  "native": -0.29296875,
+                  "reference": -0.294921875
+                }
+              ]
+            }
+          },
+          {
+            "prediction": "original",
+            "mode": 0,
+            "prediction_sha256": "0fc900f5ded2e7af6f84539c92e7c75169a0e906e451cb773baa940a04f9eb34",
+            "native_sha256": "ff04d447fe5f48dc7e434d5fd38ecdb9915104a1942c20d08afe3ef3a9498ce4",
+            "comparison": {
+              "elements": 2048,
+              "f32_bit_mismatches": 21,
+              "bf16_mismatches": 21,
+              "nonfinite_pairs": 0,
+              "maximum_absolute_error": 0.0078125,
+              "first_bf16_differences": [
+                {
+                  "column": 183,
+                  "native_index": 183,
+                  "reference_index": 183,
+                  "native_bits": 1050804224,
+                  "reference_bits": 1050738688,
+                  "native": 0.31640625,
+                  "reference": 0.314453125
+                },
+                {
+                  "column": 201,
+                  "native_index": 201,
+                  "reference_index": 201,
+                  "native_bits": 3205365760,
+                  "reference_bits": 3205300224,
+                  "native": -0.5546875,
+                  "reference": -0.55078125
+                },
+                {
+                  "column": 219,
+                  "native_index": 219,
+                  "reference_index": 219,
+                  "native_bits": 1056702464,
+                  "reference_bits": 1056636928,
+                  "native": 0.4921875,
+                  "reference": 0.490234375
+                },
+                {
+                  "column": 227,
+                  "native_index": 227,
+                  "reference_index": 227,
+                  "native_bits": 1054998528,
+                  "reference_bits": 1054932992,
+                  "native": 0.44140625,
+                  "reference": 0.439453125
+                },
+                {
+                  "column": 446,
+                  "native_index": 446,
+                  "reference_index": 446,
+                  "native_bits": 3210412032,
+                  "reference_bits": 3210346496,
+                  "native": -0.85546875,
+                  "reference": -0.8515625
+                },
+                {
+                  "column": 582,
+                  "native_index": 582,
+                  "reference_index": 582,
+                  "native_bits": 1058537472,
+                  "reference_bits": 1058471936,
+                  "native": 0.59375,
+                  "reference": 0.58984375
+                },
+                {
+                  "column": 597,
+                  "native_index": 597,
+                  "reference_index": 597,
+                  "native_bits": 3206217728,
+                  "reference_bits": 3206152192,
+                  "native": -0.60546875,
+                  "reference": -0.6015625
+                },
+                {
+                  "column": 623,
+                  "native_index": 623,
+                  "reference_index": 623,
+                  "native_bits": 3149660160,
+                  "reference_bits": 3149594624,
+                  "native": -0.0057373046875,
+                  "reference": -0.005706787109375
+                }
+              ]
+            }
+          },
+          {
+            "prediction": "original",
+            "mode": 1,
+            "prediction_sha256": "ff04d447fe5f48dc7e434d5fd38ecdb9915104a1942c20d08afe3ef3a9498ce4",
+            "native_sha256": "ff04d447fe5f48dc7e434d5fd38ecdb9915104a1942c20d08afe3ef3a9498ce4",
+            "comparison": {
+              "elements": 2048,
+              "f32_bit_mismatches": 0,
+              "bf16_mismatches": 0,
+              "nonfinite_pairs": 0,
+              "maximum_absolute_error": 0,
+              "first_bf16_differences": []
+            }
+          },
+          {
+            "prediction": "original",
+            "mode": 2,
+            "prediction_sha256": "ff04d447fe5f48dc7e434d5fd38ecdb9915104a1942c20d08afe3ef3a9498ce4",
+            "native_sha256": "ff04d447fe5f48dc7e434d5fd38ecdb9915104a1942c20d08afe3ef3a9498ce4",
+            "comparison": {
+              "elements": 2048,
+              "f32_bit_mismatches": 0,
+              "bf16_mismatches": 0,
+              "nonfinite_pairs": 0,
+              "maximum_absolute_error": 0,
+              "first_bf16_differences": []
+            }
+          },
+          {
+            "prediction": "native",
+            "mode": 0,
+            "prediction_sha256": "0fc900f5ded2e7af6f84539c92e7c75169a0e906e451cb773baa940a04f9eb34",
+            "native_sha256": "ff04d447fe5f48dc7e434d5fd38ecdb9915104a1942c20d08afe3ef3a9498ce4",
+            "comparison": {
+              "elements": 2048,
+              "f32_bit_mismatches": 21,
+              "bf16_mismatches": 21,
+              "nonfinite_pairs": 0,
+              "maximum_absolute_error": 0.0078125,
+              "first_bf16_differences": [
+                {
+                  "column": 183,
+                  "native_index": 183,
+                  "reference_index": 183,
+                  "native_bits": 1050804224,
+                  "reference_bits": 1050738688,
+                  "native": 0.31640625,
+                  "reference": 0.314453125
+                },
+                {
+                  "column": 201,
+                  "native_index": 201,
+                  "reference_index": 201,
+                  "native_bits": 3205365760,
+                  "reference_bits": 3205300224,
+                  "native": -0.5546875,
+                  "reference": -0.55078125
+                },
+                {
+                  "column": 219,
+                  "native_index": 219,
+                  "reference_index": 219,
+                  "native_bits": 1056702464,
+                  "reference_bits": 1056636928,
+                  "native": 0.4921875,
+                  "reference": 0.490234375
+                },
+                {
+                  "column": 227,
+                  "native_index": 227,
+                  "reference_index": 227,
+                  "native_bits": 1054998528,
+                  "reference_bits": 1054932992,
+                  "native": 0.44140625,
+                  "reference": 0.439453125
+                },
+                {
+                  "column": 446,
+                  "native_index": 446,
+                  "reference_index": 446,
+                  "native_bits": 3210412032,
+                  "reference_bits": 3210346496,
+                  "native": -0.85546875,
+                  "reference": -0.8515625
+                },
+                {
+                  "column": 582,
+                  "native_index": 582,
+                  "reference_index": 582,
+                  "native_bits": 1058537472,
+                  "reference_bits": 1058471936,
+                  "native": 0.59375,
+                  "reference": 0.58984375
+                },
+                {
+                  "column": 597,
+                  "native_index": 597,
+                  "reference_index": 597,
+                  "native_bits": 3206217728,
+                  "reference_bits": 3206152192,
+                  "native": -0.60546875,
+                  "reference": -0.6015625
+                },
+                {
+                  "column": 623,
+                  "native_index": 623,
+                  "reference_index": 623,
+                  "native_bits": 3149660160,
+                  "reference_bits": 3149594624,
+                  "native": -0.0057373046875,
+                  "reference": -0.005706787109375
+                }
+              ]
+            }
+          },
+          {
+            "prediction": "native",
+            "mode": 1,
+            "prediction_sha256": "ff04d447fe5f48dc7e434d5fd38ecdb9915104a1942c20d08afe3ef3a9498ce4",
+            "native_sha256": "ff04d447fe5f48dc7e434d5fd38ecdb9915104a1942c20d08afe3ef3a9498ce4",
+            "comparison": {
+              "elements": 2048,
+              "f32_bit_mismatches": 0,
+              "bf16_mismatches": 0,
+              "nonfinite_pairs": 0,
+              "maximum_absolute_error": 0,
+              "first_bf16_differences": []
+            }
+          },
+          {
+            "prediction": "native",
+            "mode": 2,
+            "prediction_sha256": "ff04d447fe5f48dc7e434d5fd38ecdb9915104a1942c20d08afe3ef3a9498ce4",
+            "native_sha256": "ff04d447fe5f48dc7e434d5fd38ecdb9915104a1942c20d08afe3ef3a9498ce4",
+            "comparison": {
+              "elements": 2048,
+              "f32_bit_mismatches": 0,
+              "bf16_mismatches": 0,
+              "nonfinite_pairs": 0,
+              "maximum_absolute_error": 0,
+              "first_bf16_differences": []
+            }
+          }
+        ],
+        "inference_acceptance": false,
+        "performance_acceptance": false
+      }
+    },
+    "normalization_host": {
+      "sha256": "5e4b82c876d0612c955d9fc431d98a7b335ed410a596d636dc87bbddea97104b",
+      "data": {
+        "result": {
+          "table_ownership_and_sha_verified": true,
+          "borrowed_rsqrt_binding_verified": true,
+          "dispatches_verified": 3,
+          "residual_alias_snapshot_verified": true,
+          "invalid_bindings_and_artifacts_rejected": 28,
+          "gpu_reduction_executed": false
+        },
+        "build_command": [
+          "clang++",
+          "-std=c++17",
+          "-O1",
+          "-ffp-contract=off",
+          "-fsanitize=address,undefined",
+          "-I",
+          "source-checkout/build/linux-core-gb10-cross-layer-local-r1/host-r1/stub",
+          "-I",
+          "source-checkout/third_party/aima_linux/native/include",
+          "source-checkout/native/linux_core_port/gb10_normalization_host_contract_test.cpp",
+          "source-checkout/third_party/aima_linux/native/src/sha256.cpp",
+          "-o",
+          "source-checkout/build/linux-core-gb10-cross-layer-local-r1/host-r1/host-contract"
+        ],
+        "inputs": [
+          {
+            "path": "native/linux_core_port/gb10_normalization_host_contract_test.cpp",
+            "sha256": "1d13384d5a6386fd2a0ed267ad70da453b1f533144769450c2a23d99b0b83e51"
+          },
+          {
+            "path": "native/linux_core_port/gb10_normalization.hip.cpp",
+            "sha256": "16f90d09d13c6345677afd93033591f1837ac34c194a321cdf56b439a53b6819"
+          },
+          {
+            "path": "native/linux_core_port/gb10_normalization.h",
+            "sha256": "ab92423833a30e2434b53bed6f10293dd2cd78c847fccb020c7b118e582da035"
+          },
+          {
+            "path": "tools/test_linux_core_normalization.py",
+            "sha256": "5d1f1a06233dde78a25e0733067dafd1b8472ee3e57b8bb46d77bc263f144fde"
+          },
+          {
+            "path": "native/linux_core_port/gb10_gdn.h",
+            "sha256": "c92de42d8a83324b56356df42295ca2f6f7f113b084a0d8e55772282c8898dd1"
+          },
+          {
+            "path": "tools/test_linux_core_gdn.py",
+            "sha256": "7d9d6e05b721f17b4245a9c31f6d78a2d729f7bd251c024e662db91c8d47f517"
+          },
+          {
+            "path": "native/providers/gdn/sm121_q2_gated_math.h",
+            "sha256": "6e99b4da7db63da3c5a155c955efd4458a6919659ce4c36a37e9e582ca08a68c"
+          },
+          {
+            "path": "native/providers/gdn/sm121_mtp_residual.h",
+            "sha256": "135dadcfe48e69232e2254380f55a0891cbd0ce72e3c4ea296167ec6af51273f"
+          },
+          {
+            "path": "native/providers/gdn/sm121_mtp_residual_math.h",
+            "sha256": "778b44d6f983e682409dc64aa50d1548d9dffc047d50012204c2ab135b69ac48"
+          },
+          {
+            "path": "native/providers/gdn/sm121_mtp_math.h",
+            "sha256": "0e58296175341d4ded1b69c5318808246721623b25b15404d00b6074d74ebddf"
+          }
+        ],
+        "stub_sha256": "e7383b370f5cfd3040d0adcd962f5217c8d8438d38a578d9205183336b05502e",
+        "silu_table_sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c",
+        "host_only": true,
+        "model_inference_acceptance": false
+      }
+    },
+    "gdn_host": {
+      "sha256": "d5538da2144b8a6b47d79803f2c44028e56a174e60aa7b2e834031af6d1aaf71",
+      "data": {
+        "result": {
+          "conversion_values_checked": 33027,
+          "sampled_values_checked": 102528,
+          "sampling_input_unchanged": true,
+          "sampling_guards_pass": true,
+          "observer_faults_rejected": 5,
+          "guards_pass": true,
+          "provider_order_pass": true,
+          "seeded_state_forwarded": true,
+          "decode_q2_flags": true,
+          "injected_provider_failure_rejected": true,
+          "invalid_bindings_rejected": 6,
+          "artifact_faults_rejected": 2
+        },
+        "build_command": [
+          "clang++",
+          "-std=c++17",
+          "-O1",
+          "-ffp-contract=off",
+          "-fsanitize=address,undefined",
+          "-I",
+          "source-checkout/build/linux-core-gb10-cross-layer-local-r1/gdn-host-r2/stub",
+          "-I",
+          "source-checkout/third_party/aima_linux/native/include",
+          "source-checkout/native/linux_core_port/gb10_gdn_host_contract_test.cpp",
+          "source-checkout/third_party/aima_linux/native/src/sha256.cpp",
+          "-o",
+          "source-checkout/build/linux-core-gb10-cross-layer-local-r1/gdn-host-r2/host-contract"
+        ],
+        "inputs": [
+          {
+            "path": "native/linux_core_port/gb10_gdn_host_contract_test.cpp",
+            "sha256": "53a740e23765fc19679dab784b6a47fe33138ac73a8f3ebbf1fe32a668d5a4ad"
+          },
+          {
+            "path": "native/linux_core_port/gb10_gdn.hip.cpp",
+            "sha256": "8f26685edef940b151c1c9a55b456dec3dcc3f70cd6b388097eb971265fe1cd8"
+          },
+          {
+            "path": "native/linux_core_port/gb10_gdn.h",
+            "sha256": "c92de42d8a83324b56356df42295ca2f6f7f113b084a0d8e55772282c8898dd1"
+          },
+          {
+            "path": "native/linux_core_port/gb10_gdn_assets.inc",
+            "sha256": "bc89be98894cac0bf5e9c6ae7eea11a42a934303fd62b99800b59a6c306ec125"
+          }
+        ],
+        "test_source_sha256": "7d9d6e05b721f17b4245a9c31f6d78a2d729f7bd251c024e662db91c8d47f517",
+        "stub_sha256": "f9360963a9dd3c4bd404f4870a400004079adb25880f6999178d90d85964cb30",
+        "host_only": true,
+        "model_inference_acceptance": false
+      }
+    },
+    "preparation": {
+      "sha256": "cf76960dd5137b39347a55c06f97587d8f3ea6260c52c27b3277db47dede5a33",
+      "data": {
+        "prior_modes_unchanged": [
+          {},
+          {
+            "rectangular_ck": true
+          },
+          {
+            "rectangular_ck": true,
+            "current_text_decode": true
+          },
+          {
+            "current_text_decode": true
+          },
+          {
+            "current_text_decode": true,
+            "gb10_convolution": true
+          },
+          {
+            "current_text_decode": true,
+            "gb10_convolution": true,
+            "gb10_gdn": true
+          },
+          {
+            "current_text_decode": true,
+            "gb10_convolution": true,
+            "gb10_gdn": true,
+            "gb10_projections": true
+          },
+          {
+            "current_text_decode": true,
+            "gb10_convolution": true,
+            "gb10_gdn": true,
+            "gb10_projections": true,
+            "gb10_prefill_projections": true
+          }
+        ],
+        "unchanged_import_files": 327,
+        "decode_snapshot_before_tail_before_normalization": true,
+        "prefill_moe_observation_boundaries": 12,
+        "decode_next_norm_observation": true,
+        "compilation_units": 57,
+        "images": 72,
+        "overlays": 15,
+        "prepare_sha256": "c174c53b6c7981e05de1b8a2fda3d19062dee275c3393df4831b98b3d03e03b6",
+        "model_inference_acceptance": false
+      }
+    }
+  },
+  "conclusion": "The native layer-one input norm has 21 BF16 differences. CPU replay of rounded variance exactly reproduces the native output; existing unrounded residual math matches all 2048 GB10 values with either original or native layer-zero operands. Layer-one prefill input norm still has 547 last-row differences; its cause is not yet established.",
+  "additional_device_bytes": 266240,
+  "windows_repaired_build_qualified": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_acceptance": false
+}

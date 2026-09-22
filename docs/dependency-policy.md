@@ -88,6 +88,12 @@ One device copy and its validation/upload count toward command-ready. The
 without an additional copy. No library or installed package is added. The
 benefit is restoring the demonstrated prefill gated arithmetic and computing
 residual variance before BF16 rounding. Real-model qualification remains open.
+The cross-layer decode repair additionally owns one 4,096-byte residual row.
+A default-stream device copy preserves the live operand before the MoE tail
+can overwrite an alias. The existing residual-normalization kernel then
+computes the next layer's input with unrounded variance. This raises the
+normalization owner's added storage to266,240bytes; its copy and extra kernel
+are charged to decode timing. No reference activation is used by inference.
 
 The [installed Windows dependency inventory](../benchmarks/correctness/linux-core-windows-dependencies-20260922.json)
 finds a6,012,312-byte hipBLASLt DLL. Its installed data directory contains1078

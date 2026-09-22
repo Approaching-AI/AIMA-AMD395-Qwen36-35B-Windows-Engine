@@ -25,6 +25,12 @@ def main():
 #define __forceinline__ inline
 #define __host__
 constexpr int hipErrorInvalidValue = 2;
+constexpr int hipMemcpyDeviceToDevice = 2;
+inline int fake_copies = 0;
+inline int hipMemcpyAsync(void* d, const void* s, size_t n, int kind, void* stream) {
+ assert(kind == hipMemcpyDeviceToDevice && !stream && n == 4096);
+ memcpy(d,s,n); ++fake_copies; return hipSuccess;
+}
 template<class T> T __shfl(T v, unsigned, unsigned) { return v; }
 template<class T> T __shfl_down(T v, unsigned, unsigned) { return v; }
 template<class T> T __shfl_xor(T v, unsigned, unsigned) { return v; }

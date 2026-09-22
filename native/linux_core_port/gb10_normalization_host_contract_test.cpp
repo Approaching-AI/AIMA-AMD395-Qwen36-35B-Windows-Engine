@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "gb10_normalization.hip.cpp"
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 namespace aima_port {
@@ -30,6 +31,7 @@ int main(int argc, char** argv) {
   auto gated = [&](std::size_t n) { gb10_gated_norm(input, residual, weight, output, n, fake_stream); };
   auto residual_norm = [&](std::size_t n) { gb10_residual_norm(input, residual, weight, output, norm, n, fake_stream); };
   reject([&]{gated(1);}); reject([&]{residual_norm(1);});
+  reject([&]{gb10_preserve_decode_residual(input);});
   fake_gdn_alive = false;
   reject([&]{Gb10NormalizationOwner no_gdn;});
   fake_gdn_alive = true;
@@ -38,6 +40,15 @@ int main(int argc, char** argv) {
   {
     Gb10NormalizationOwner owner;
     assert(active && active->silu);
+    std::vector<uint16_t> row(2048), original;
+    for (unsigned i=0; i<2048; ++i) row[i] = uint16_t(i*29u);
+    original = row;
+    const auto* saved = static_cast<const uint16_t*>(gb10_preserve_decode_residual(row.data()));
+    assert(saved != row.data() && std::equal(original.begin(),original.end(),saved));
+    std::fill(row.begin(),row.end(),0);
+    assert(std::equal(original.begin(),original.end(),saved) && fake_copies == 1);
+    reject([&]{gb10_preserve_decode_residual(nullptr);});
+    reject([&]{gb10_preserve_decode_residual(input,reinterpret_cast<void*>(1));});
     reject([&]{Gb10NormalizationOwner duplicate;});
     fake_stream = reinterpret_cast<void*>(0x100);
     gated(8192);
@@ -78,6 +89,6 @@ int main(int argc, char** argv) {
     file.write(reinterpret_cast<const char*>(wrong.data()), wrong.size()*4); }
   reject([&]{read_silu(path);});
   std::cout << "{\"table_ownership_and_sha_verified\":true,\"borrowed_rsqrt_binding_verified\":true,"
-      "\"dispatches_verified\":3,\"invalid_bindings_and_artifacts_rejected\":" << rejected
+      "\"dispatches_verified\":3,\"residual_alias_snapshot_verified\":true,\"invalid_bindings_and_artifacts_rejected\":" << rejected
       << ",\"gpu_reduction_executed\":false}\n";
 }

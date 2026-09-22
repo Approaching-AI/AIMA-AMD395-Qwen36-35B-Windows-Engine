@@ -377,6 +377,61 @@ def gb10_normalization_overlays(sources, read):
         "        post_attention_norm, execution_tokens);\n"
         "    ++result.layer.native_pointwise_launches;\n"
         "  } else if (use_mrope) {")
+    path = "native/src/native_routed_moe.hip.cpp"
+    text = replace(read(path), '#include "aima/native_routed_moe.h"',
+        '#include "aima/native_routed_moe.h"\n#include "gb10_normalization.h"')
+    begin = text.index("  hipLaunchKernelGGL(\n      native_decode_moe_tail_next_rmsnorm_kernel,")
+    end = text.index('\n}', begin)
+    text = replace(text, text[begin:end],
+        "  // Preserve the live residual before the tail writes a possibly aliased carrier.\n"
+        "  const void* saved_residual = aima_port::gb10_preserve_decode_residual(residual_bf16, stream);\n"
+        "  launch_native_decode_moe_tail(weighted_expert_outputs_bf16,\n"
+        "      fused_shared_input_bf16, shared_down_bf16, residual_bf16,\n"
+        "      routed_output_bf16, shared_output_bf16, combined_output_bf16, output_bf16, stream);\n"
+        "  aima_port::gb10_residual_norm(combined_output_bf16, saved_residual,\n"
+        "      next_norm_weight_bf16, output_bf16, next_norm_output_bf16, 1, stream);")
+    sources[path] = text
+    path = "native/src/native_linear_layer.hip.cpp"
+    text = replace(sources[path],
+        '    ++metrics.native_pointwise_launches;\n  }\n  observe_boundary(tail_observer, "shared_gate_logits",',
+        '    metrics.native_pointwise_launches += next_input_norm != nullptr ? 2 : 1;\n  }\n'
+        '  if (next_input_norm != nullptr)\n'
+        '    observe_boundary(tail_observer, "next_input_norm", next_input_norm->output_bf16,\n'
+        '                     kHidden * sizeof(__hip_bfloat16), DecodeTensorDtype::kBfloat16);\n'
+        '  observe_boundary(tail_observer, "shared_gate_logits",')
+    sources[path] = text
+    path = "native/src/native_full_layer.hip.cpp"
+    sources[path] = replace(read(path),
+        "  ++metrics.native_pointwise_launches;\n  if (attention_observer != nullptr) {",
+        "  metrics.native_pointwise_launches += use_mrope && next_input_norm != nullptr ? 2 : 1;\n"
+        "  if (attention_observer != nullptr) {")
+    # The existing output-only sampler gathers live prefill MoE boundaries.
+    # No captured value is an input; GDN's FP32 output scratch is dead here.
+    path = "native/src/native_moe_prefill.hip.cpp"
+    text = replace(read(path), '#include "aima/native_moe_prefill.h"',
+        '#include "aima/native_moe_prefill.h"\n#include "gb10_gdn.h"')
+    def observe(name, value, columns):
+        return (f'  aima_port::observe_gdn_prefill(options.layer_index, "prefill-{name}-sampled", '
+                f'{value}, {columns}, tokens);\n')
+    text = replace(text, "  shared_gate_plan.launch(h2, shared_gate_weight.device_pointer,",
+        observe("post-attention-norm", "h2", 2048) +
+        observe("post-attention-residual", "after_attention", 2048) +
+        "  shared_gate_plan.launch(h2, shared_gate_weight.device_pointer,")
+    for anchor, samples in (
+        ('  diagnostic_stage("after_shared_gate");', [("shared-gate", "shared_gate", 1)]),
+        ('  diagnostic_stage("after_shared_gate_projection");', [("shared-gate-projection", "shared_projected_gate", 512)]),
+        ('  diagnostic_stage("after_shared_up_projection");', [("shared-up-projection", "shared_projected_up", 512)]),
+        ("  shared_down_plan.launch(shared_activated,", [("shared-activation", "shared_activated", 512)]),
+        ('  diagnostic_stage("after_shared_down_projection");', [("shared-down", "shared_down", 2048)]),
+        ("  if (logical_router_gemm_plans != nullptr) {\n    check_hip(hipMemsetAsync(", [("shared-output", "shared_scaled", 2048)]),
+        ('  diagnostic_stage("after_router_projection");', [("router", "router_logits", 256)]),
+        ('  diagnostic_stage("after_expert_sum");', [("routed-output", "routed_moe", 2048)]),
+        ('  diagnostic_stage("after_output_add");', [("combined-moe", "combined_moe", 2048), ("layer-output", "layer_output", 2048)]),
+    ):
+        code = "".join(observe(*sample) for sample in samples)
+        # Capture a completed stage after its marker, or before its consumer.
+        text = replace(text, anchor, anchor + "\n" + code if "diagnostic_stage" in anchor else code + anchor)
+    sources[path] = text
 
 
 def make_overlays(*, rectangular_ck=False, current_text_decode=False,
@@ -653,7 +708,9 @@ def main():
             gated="original short-row ordered FP32 reduction and FP32 SiLU",
             residual="FP32 unrounded sum variance; BF16 residual numerator",
             gated_prefill_tokens=8192, residual_maximum_tokens=8192,
-            silu_table_bytes=262144, additional_device_bytes=262144,
+            silu_table_bytes=262144, additional_device_bytes=266240,
+            cross_layer_residual="one 4096-byte live row snapshot before the MoE tail; default stream only",
+            prefill_moe_observations=12, decode_next_norm_observations=1,
             silu_table_sha256="f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c",
             rsqrt_table="borrowed from the live GB10 GDN owner",
             model_qualified=False)
