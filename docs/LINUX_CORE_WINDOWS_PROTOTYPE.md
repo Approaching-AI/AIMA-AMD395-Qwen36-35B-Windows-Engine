@@ -2,8 +2,8 @@
 
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
-It is not enabled in the Windows product. The GDN, singleton projection and
-embedding-normalization replacement (`f321d93`) runs the real model on baiying.
+It is not enabled in the Windows product. The GDN, singleton/dense projection
+and embedding-normalization replacement (`c6c7903`) runs the real model on baiying.
 The original q8192 first token and logit match GB10, but output 115 diverges.
 Complete continuation, performance and release qualification remain open.
 
@@ -58,6 +58,24 @@ M64/N128/K16 WMMA producer geometry. The two weight layouts and K512/2048/4096
 are supported, followed by the same selection and exact replay. Unsupported
 short-context plans keep their original behavior, and a borrowed plan cannot
 reuse an empty fallback algorithm. This fallback still needs a native model run.
+
+Source `c6c7903` now completes the native q8192/out512 request. Only the N1/K2048
+shared-gate plan needs WMMA fallback. All 1,048,576 sampled layer-zero QKV values,
+other sampled input projections, convolution and final core match GB10. All
+524,288 FP32 prefill-state values match exactly; the selected first decode also
+matches through gated normalization, attention output and attention residual.
+The next observed discrepancies are 1,055 prefill gated-norm values (of the
+4,096-value last row) and 107 decode post-attention-norm values. Same-input CPU
+replay with existing GB10 gated math matches original decode and prefill; the
+prior native prefill normalization differs on its own inputs.
+
+Complete continuation still fails at output115, actual196 versus expected271,
+with394 mismatches. First144/10.375 remains correct. Diagnostic loading is
+25756.5479 ms, TTFT28805.7198 ms and TPOT67.0215659 ms. This slower path is retained
+as a correctness diagnostic, not a product performance result. All host checks
+and cleanup pass. [Native result and next numerical boundary](../benchmarks/correctness/linux-core-gb10-prefill-projection-native-failure-20260922.json).
+The next correction covers the original prefill gated norm and unrounded
+residual variance, while keeping the complete model and performance gates.
 
 The latest ordinary Windows q8192 control is 23272.0441 ms TTFT. Structural
 projection and QK alternatives preserved component bits but increased their
