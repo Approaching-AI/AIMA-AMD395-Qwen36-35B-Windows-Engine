@@ -2,9 +2,9 @@
 
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
-It is not enabled in the Windows product. The complete GDN replacement and
-its output-only prefill sampler (`c43685e`) run the real model on baiying.
-The original q8192 first token and logit match GB10, but output 91 diverges.
+It is not enabled in the Windows product. The GDN, singleton projection and
+embedding-normalization replacement (`f321d93`) runs the real model on baiying.
+The original q8192 first token and logit match GB10, but output 115 diverges.
 Complete continuation, performance and release qualification remain open.
 
 The latest sampler preserves all 512 outputs and all 71 earlier observations.
@@ -22,8 +22,19 @@ all reference QKV values with the SM121 accumulator and original input.
 first-layer embedding normalization on top of `--gb10-gdn`. Prefill dense
 GEMMs retain their current arithmetic. Grouped projections retain one launch;
 actual request token IDs select normalization scales. ASan/UBSan host checks
-pass for elementwise normalization, binding, bounds and artifact failures;
-GPU projection correctness requires the next full native model run.
+pass for elementwise normalization, binding, bounds and artifact failures.
+
+Source `f321d93` passes all 55 native compilation units and completes the real
+q8192/out512 request. All 12,352 layer-zero first-decode QKV/Z/A/B outputs now
+match GB10. All 262,144 sampled prefill input-normalization values also match.
+Prefill QKV still differs in 6,657 of 1,048,576 sampled values, with downstream
+state differences. Continuation fails at output 115 (196 versus 271), with 396
+differences in total. First144/10.375 remains correct. Diagnostic loading is
+25685.8562 ms, TTFT11766.9144 ms and TPOT66.8326589 ms. These timings are not
+retained performance. Host checks and cleanup pass.
+[Native result](../benchmarks/correctness/linux-core-gb10-projection-native-failure-20260922.json).
+The next structural change targets dense prefill projection arithmetic using
+the existing matrix-producer and exact-replay approach.
 
 The latest ordinary Windows q8192 control is 23272.0441 ms TTFT. Structural
 projection and QK alternatives preserved component bits but increased their
