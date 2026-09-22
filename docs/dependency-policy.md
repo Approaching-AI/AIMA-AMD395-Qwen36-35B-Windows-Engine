@@ -22,6 +22,20 @@ hipBLASLt is present; no separate BLAS installation is introduced. Removing
 `third_party/aima_linux`, `native/linux_core_port` and their dedicated tools
 removes the experiment without changing the current runtime/package route.
 
+The [installed Windows dependency inventory](../benchmarks/correctness/linux-core-windows-dependencies-20260922.json)
+finds a6,012,312-byte hipBLASLt DLL. Its installed data directory contains1078
+files totaling434,067,673bytes across GPU architectures. The complete96-file
+gfx1151/shared-metadata selection is18,849,143bytes, with every SHA recorded.
+All46 sublibrary names found in the verified lazy index have matching data and
+code-object files. This is a lexical inventory check, not a runtime closure test.
+
+DLL plus selected data would add24,861,455bytes before the executable, existing
+HIP/driver requirements, Microsoft CRT and redistribution notices. COFF imports
+explicitly include amdhip64_7, MSVCP140 and VCRUNTIME140/140_1, plus Windows API
+libraries. The actual relocated process must establish the complete runtime
+dependencies before that selection is packaged. No installed files or queued
+experiment settings have been changed by this inspection.
+
 # Experimental packed Q1 normalization table
 
 The non-speculative Q1 recurrence uses a model-independent SM121 square-root

@@ -102,3 +102,10 @@ result on baiying. A controller is queued behind the repaired runtime's complete
 binds 335 build inputs, the original prompt, existing CK DLL and arithmetic
 tables; only the completed prior-owner receipt is filled after cleanup. The
 subsequent build and q8192/out512 phases must pass their own evidence checks.
+
+The later [dependency inventory](../benchmarks/correctness/linux-core-windows-dependencies-20260922.json)
+also records the installed gfx1151 hipBLASLt data and DLL imports. Its96 selected
+data files total18,849,143bytes; the DLL adds6,012,312bytes. Actual relocated
+execution is still needed to qualify that file set. A non-compiling driver query
+confirms automatic MSVC, Windows SDK and linker discovery. The queued source,
+environment and product boundary remain unchanged.

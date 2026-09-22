@@ -1,0 +1,625 @@
+{
+  "schema_version": 1,
+  "kind": "linux_core_windows_installed_dependency_inventory",
+  "host": "baiying",
+  "utc": "2026-09-22T00:27:56.6535198Z",
+  "prototype_source_commit": "0a57516e8c7c1dba55a077eba9d38b6155a0620e",
+  "installed_hipblaslt": {
+    "sha256": "9f97d95c3b7257efcab992914b4e1c1b3b71b0693a6ad5d61a8f3cbf08a96dee",
+    "bytes": 6012312,
+    "relative": "bin/libhipblaslt.dll"
+  },
+  "build_only_import_library": {
+    "sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+    "bytes": 318010,
+    "relative": "lib/libhipblaslt.dll.a"
+  },
+  "installed_data_directory": {
+    "path": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipblaslt",
+    "files": 1078,
+    "bytes": 434067673
+  },
+  "gfx1151_and_shared_metadata": {
+    "files": [
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/extop_gfx1151.co",
+        "bytes": 41488,
+        "sha256": "a56fff737d84b72bb73b3c1e5d32a25748472ba91fa19e5d7e8c7041fb6eab4d"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/hipblasltExtOpLibrary.dat",
+        "bytes": 10039,
+        "sha256": "b8c689cfd717871e88308c8170af6bbd5ae20ac2e02749a65cc87a4ccbddf92f"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/Kernels.so-000-gfx1151.hsaco",
+        "bytes": 8966856,
+        "sha256": "7cd896a541a0944e3f1a0af090b0c84738ffc719fa3064829a72fa62bd666cc2"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_BB_HA_Bias_Aux_SAV_UA_Type_BB_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 142423,
+        "sha256": "eb549ff212833a59a044f1c44635ea984c86db2c027202fc614d65b71cd9d6b6"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_BB_HA_Bias_Aux_SAV_UA_Type_BB_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 204916,
+        "sha256": "c3b680625d3ef8ad7c0d960b7622be8ad10d25fb0c2240b77827559557f59595"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_BB_HA_Bias_Aux_SAV_UA_Type_BB_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 218260,
+        "sha256": "4138f7c4b05b1be45e81a998ef81ba6434962c933c1eb8346909da49be3ad51d"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_BB_HA_Bias_Aux_SAV_UA_Type_BB_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 288274,
+        "sha256": "fc17547cbf12590186ab2391c07e457bc40ff88ba79e815bc850b2a43ab30b33"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_BB_HA_Bias_Aux_SAV_UA_Type_BB_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 256309,
+        "sha256": "3402a1a976dc0c2c1650de3a4b4a74b1852f7ab11984e2668bd443f69550586a"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_BB_HA_Bias_Aux_SAV_UA_Type_BB_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 288278,
+        "sha256": "66cd2d0383ee69ef110e12002bd2a9600850f9a27e3eb1c8c489dbe9cce9e49b"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_BB_HA_Bias_Aux_SAV_UA_Type_BB_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 203168,
+        "sha256": "0c656025b3f1890eb65593e7c448f97d8810c769bf361345e10eca7271c03249"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_BB_HA_Bias_Aux_SAV_UA_Type_BB_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 254106,
+        "sha256": "8edd9a2820867be064ac52fb46ca40c4b88be4099c1c3a7f9dbdbc8e93222a09"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_BB_HA_Bias_SAV_UA_Type_BB_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 138482,
+        "sha256": "2285cc84653758fbfce05693ec16785ac279832c58a820dd623d4d4e6081fa7a"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_BB_HA_Bias_SAV_UA_Type_BB_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 204406,
+        "sha256": "32727b9170118f90b098412a2deda983f58d09fe325bc1af9ec8d2bd91f1b6c5"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_BB_HA_Bias_SAV_UA_Type_BB_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 210862,
+        "sha256": "10b3f18b5df294cf55fae367d9d7c973fb64593325201948376c4374a1a668dd"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_BB_HA_Bias_SAV_UA_Type_BB_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 287544,
+        "sha256": "48572d8597f1b3ab098ace92d4f7cb5a9014a4cd9f0e482913d3e73230d7a791"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_BB_HA_Bias_SAV_UA_Type_BB_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 248159,
+        "sha256": "c3ec9a2d821bfbfe867fc5b6d5700eab98aa1090e8bd9dbf8c8d313d2698d398"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_BB_HA_Bias_SAV_UA_Type_BB_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 287548,
+        "sha256": "e8381d88485b593ef327af4f621a69494bb4039d5eb108c8ec89c3ca6207a28a"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_BB_HA_Bias_SAV_UA_Type_BB_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 195284,
+        "sha256": "8071d9655e82598441055021c68d8d3d6595a3c9a09f19e819dfb597adf8d119"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_BB_HA_Bias_SAV_UA_Type_BB_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 253466,
+        "sha256": "44dfa229a9919d672232c619f41aaed91520cea8b08e66855a2624d663ab573a"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_SB_HA_Bias_SAV_UA_Type_BS_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 39330,
+        "sha256": "3d8a87eb576d72d7a937d16b72a60201cd3fae604fdb184cda3d4ec97374d97c"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_SB_HA_Bias_SAV_UA_Type_BS_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 23071,
+        "sha256": "5b211e4c9ff1abb804b85bcd4a6416d2bf1f31033123d54bd140db6b5205f8b1"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_SB_HA_Bias_SAV_UA_Type_BS_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 45976,
+        "sha256": "e6b954575961948299d4d0ea0b23f2ef799ccf3495b6a90cdbcfd407b2976ec8"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_SB_HA_Bias_SAV_UA_Type_BS_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 23061,
+        "sha256": "3f84a6e23289d15a6d2eae1d15b50eff6cfbd3d8298c95bdc479e7c64fc9fa8b"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_SB_HA_Bias_SAV_UA_Type_BS_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 39166,
+        "sha256": "3458b5854edcf738ab683712a9cd25c06123770eaaf9b57f387f44deb23d8908"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_SB_HA_Bias_SAV_UA_Type_BS_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 19301,
+        "sha256": "3ceb9e63ec82bba86b8b8f24c635e7775e82681b232770e0d11132af4c3be8dc"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_SB_HA_Bias_SAV_UA_Type_BS_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 31283,
+        "sha256": "68d2dfe518d05db847ee95ab3d76b81aa849ab8bcaa5ee2deb30b1873ffed979"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_SB_HA_Bias_SAV_UA_Type_BS_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 19287,
+        "sha256": "4abae2daf230ea2b54c80166cb3a7b5ef68fe896baec13acdb7a29c58ab12235"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_SB_HA_Bias_Type_BS_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 18384,
+        "sha256": "66832b261775636a3b85a603e43e7634a07ce38ee1559b3c27807756976dd368"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_SB_HA_Bias_Type_BS_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 117885,
+        "sha256": "ea2756dd3109ef1f0e8c5755f15566c141766f36befd993bf7294da95734dbb3"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_SB_HA_Bias_Type_BS_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 16308,
+        "sha256": "2a086d1272cfb19ac2cc3dc29a4f6b2e554c4fa05c60e592cfbba698e03b3213"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_SB_HA_Bias_Type_BS_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 117885,
+        "sha256": "785a151954d111c6dde15478ce1be5628458ac01239eff2c026275690f90ba98"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_SB_HA_Bias_Type_BS_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 16443,
+        "sha256": "9d93c335a4a2d69dda66d5e579c2da2516c6284a060408393c45e969fcdf159f"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_BB_SB_HA_Bias_Type_BS_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 117885,
+        "sha256": "251b4623dd9c6d120e88f6940d29cc65dbd61f17b9298f738ad1e380bbbfdfb9"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_DD_DD_UA_Type_DD_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 13048,
+        "sha256": "1d3682e297e07bec39dd631f290a26736c26e064b31d9292c002808ff6fc83bd"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_DD_DD_UA_Type_DD_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 24144,
+        "sha256": "3ecd8d11a55bc88d58f069e4d50fe42aea3f8623bc1ed04f21904a292dd20cbe"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_DD_DD_UA_Type_DD_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 12978,
+        "sha256": "d4a481a6e959ec049578570de2aa1a9395b140a66a18f336262146f8c5ec57fe"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_DD_DD_UA_Type_DD_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 24144,
+        "sha256": "14706cb117143f6708a450113d69984fca24c43cc21219b3a24fbd27ef2a9fc9"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_DD_DD_UA_Type_DD_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 12895,
+        "sha256": "6eb383c98d3fc7e4224ee5340dcb9dd3d03ec16a016bb2c449f2f5304b7324a7"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_DD_DD_UA_Type_DD_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 24144,
+        "sha256": "c1a6c1f09b3ad9fe65ae4b487b0b8cca16179aa7caf411a26c1bf40141715c1e"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_DD_DD_UA_Type_DD_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 13091,
+        "sha256": "1dcdd794c4d6a2892037bcb543df6b06587ed3f676ce8d6d3f1debb439c4d8eb"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_DD_DD_UA_Type_DD_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 24144,
+        "sha256": "826ae00a81ee162ddbeb03d1c0776c54690b2de462e989d0930946bdca5cc9e5"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_HH_HA_Bias_Aux_SAV_UA_Type_HH_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 137773,
+        "sha256": "7ea87c52159bdab23c657ce3593d576d790000a9617922d6519a18464d2a4741"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_HH_HA_Bias_Aux_SAV_UA_Type_HH_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 202052,
+        "sha256": "5e2590d0702185d14a1831eddca6965eab05894567f20194dc9d64ddb0e39abe"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_HH_HA_Bias_Aux_SAV_UA_Type_HH_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 183511,
+        "sha256": "5c504cb3992ea84bb128da61e48aae83c3278a0ea27d3280340d0b750005efe7"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_HH_HA_Bias_Aux_SAV_UA_Type_HH_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 272969,
+        "sha256": "3c5cd92502977f0ae343dbb3206892a9621b4377edf296550eadd8222d00abbd"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_HH_HA_Bias_Aux_SAV_UA_Type_HH_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 242948,
+        "sha256": "74df8e432b4c496a6ffb21a7ad3749ec3521fe9a844f04c7584935caf95855c5"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_HH_HA_Bias_Aux_SAV_UA_Type_HH_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 317814,
+        "sha256": "3f8b691cf8484cbd14ab6e248f3057177df150c43d2ad52648a186ecfdc60ec9"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_HH_HA_Bias_Aux_SAV_UA_Type_HH_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 213394,
+        "sha256": "1fd2b47e20d2bde3bb6b841bc358753d90f408bf6250c9aa794cac9aeac7ebad"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_HH_HA_Bias_Aux_SAV_UA_Type_HH_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 284095,
+        "sha256": "fadb8ae1c14ce48912f8da6fc602ec9d5db4d84c4f42ecdf11bd0d5df302bc43"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_HH_HA_Bias_SAV_UA_Type_HH_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 132741,
+        "sha256": "6f132bfccb389e7e4c231feeb8ab5ddfd81b74a46f28d2c2d2ec4719f4267ba0"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_HH_HA_Bias_SAV_UA_Type_HH_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 201542,
+        "sha256": "1d86ffe3a383f8c13024cc710d93fa54fef9573b6ae8be12c525e26a06041b0e"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_HH_HA_Bias_SAV_UA_Type_HH_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 180049,
+        "sha256": "2d0a59f8f871cfea107459dc8a1ffa8e38bd7a7b300e0a87e7f694b5050b0f92"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_HH_HA_Bias_SAV_UA_Type_HH_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 272269,
+        "sha256": "9d17e13426fb13aa3117025a346e26bdcc33110bf2c905314265eb39b34497fe"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_HH_HA_Bias_SAV_UA_Type_HH_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 234394,
+        "sha256": "7d31c542a57bb27f1345496ec57bd6ad819109f4ab6152c28881ebe1cf757f4c"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_HH_HA_Bias_SAV_UA_Type_HH_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 316994,
+        "sha256": "fa474c9bd00713d29921b82afe3db04ce18ab6805fbc4c8af80b762eddc2f3e9"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_HH_HA_Bias_SAV_UA_Type_HH_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 338332,
+        "sha256": "4688aa42d21d83128070ccc780f0218021ba60625d2156d4b34db8d7c2dced45"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_HH_HA_Bias_SAV_UA_Type_HH_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 464279,
+        "sha256": "00cfcc7cf77dd2ed36966a7112e58ed94d47e323a09e47b0f2cae4007ba5cd5a"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_SH_HA_Bias_SAV_UA_Type_HS_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 53194,
+        "sha256": "4d8a1abefa8ebeece9b4ab105097237abf51ddca32e81f5933b072e86b8f7293"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_SH_HA_Bias_SAV_UA_Type_HS_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 26617,
+        "sha256": "7dc14d0b5bb0ea5761ac74826c832e520719973275bce392774fcf160d4e345d"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_SH_HA_Bias_SAV_UA_Type_HS_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 45964,
+        "sha256": "b560a6b3560f777b9156d77d98e056d8204f6ce6520465876e8a0beb453ec383"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_SH_HA_Bias_SAV_UA_Type_HS_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 22865,
+        "sha256": "b89221e465b0c857ba7fab9437b64c9d1c2c49a5eb8d62c9f618ed714d1526cc"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_SH_HA_Bias_SAV_UA_Type_HS_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 52067,
+        "sha256": "fcfcdd4e4efec162b469e4c45e9c847b52cda51d09481be44e1b73977be81a07"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_SH_HA_Bias_SAV_UA_Type_HS_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 30336,
+        "sha256": "ac9d92ef47f83e0a5f0666f22f057d1b2079c576790dcd0ac64ffc6bc69bdd92"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_SH_HA_Bias_SAV_UA_Type_HS_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 27170,
+        "sha256": "443333fa10f2b4bd3817c2e3fc358d1c44760dab1c587d325e769bc2b3b8a7f4"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_SH_HA_Bias_SAV_UA_Type_HS_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 11669,
+        "sha256": "ed1e067fa76f3a56b20ddca6f54dfe858af15cdfef29859a63e14b2e36e69bb8"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_SH_HA_Bias_Type_HS_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 18243,
+        "sha256": "417a16c048909800d4c643f4f530fdd7cc62984598fbfe5916e9629c1fbb1d3d"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_SH_HA_Bias_Type_HS_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 117757,
+        "sha256": "b2564a099cd1c9834d5404cb27ab6c367cc16c52f6b162c8f45371a14d3a08a1"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_SH_HA_Bias_Type_HS_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 16192,
+        "sha256": "481acd79ff86538279945ca6f023ee19890ed963f82da8859fdfec9963deb73e"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_SH_HA_Bias_Type_HS_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 117757,
+        "sha256": "30b976258e5db7c776c7583692ff67df06ddaa2175ee53ec5d02ff34ff812f40"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_SH_HA_Bias_Type_HS_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 16262,
+        "sha256": "0bcb06a2cd773cd3972bfcf8566e141f54e7089f6e14628ceda9299e4d395a9d"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_HH_SH_HA_Bias_Type_HS_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 117757,
+        "sha256": "7433674409bebdea8915c8f1cd0ae342ce3b867e525a752903d6b5a9391b0743"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_I8I8_I8I8_HA_SAV_UA_Type_I8I8_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 31925,
+        "sha256": "a5f56860e5152b9b049dd81d1c5fb94e9c52ace2f2da8ccc97c46baee2336875"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_I8I8_I8I8_HA_SAV_UA_Type_I8I8_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 18947,
+        "sha256": "05f15eb1c20c348c5ed0520793e3ec7b154ddc6089c4ff2c0e072f7d3b07a8bc"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_I8I8_I8I8_HA_SAV_UA_Type_I8I8_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 36910,
+        "sha256": "1e22ff3c7a543b54cb5c2a778ae3e7f44cb9cb36487fe030dc358338a1f87d32"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_I8I8_I8I8_HA_SAV_UA_Type_I8I8_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 18952,
+        "sha256": "0ab9ae8665755d2a33812c90e4a6909869f78168947d6f62b56c83c50fbfee13"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_I8I8_I8I8_HA_SAV_UA_Type_I8I8_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 55061,
+        "sha256": "ac0fbf2dba3f231b658f10363d75ca9a87a5bc84a1ec83692aab81698751b109"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_I8I8_I8I8_HA_SAV_UA_Type_I8I8_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 26335,
+        "sha256": "1be5989abfc72f7f11470cd8b668f06c9c0337e9ae80ed03164e800add353500"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_I8I8_I8I8_HA_SAV_UA_Type_I8I8_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 38271,
+        "sha256": "170e4c7ccb8972c2a21f4b7dd0dc362043feb9d682e23aeec2a22a4312a3175d"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_I8I8_I8I8_HA_SAV_UA_Type_I8I8_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 30036,
+        "sha256": "739ae557635e3e95d7637b281e82dc76ff464127d8c7e4e3f1294b3d56e216c7"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_I8I8_II8_HA_SAV_UA_Type_I8I_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 27200,
+        "sha256": "8ca8bc86021e8e64a079b8c487a2cf6c27ce0ea5f18d4d1f4bc6b9151c1c888e"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_I8I8_II8_HA_SAV_UA_Type_I8I_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 15293,
+        "sha256": "436f950dd9001e720a0674a2b3b6a13b33456d8ee701211b2ba912253ba65653"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_I8I8_II8_HA_SAV_UA_Type_I8I_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 39294,
+        "sha256": "ed5139a041fb38242c4b85dc218726a8e2d848567fe126a3cf548cc626d10e12"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_I8I8_II8_HA_SAV_UA_Type_I8I_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 22708,
+        "sha256": "9dd035018bc4b19fe9008d7812e4cd48e1a5a0d7b90583186eb82acdb29ebd88"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_I8I8_II8_HA_SAV_UA_Type_I8I_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 53130,
+        "sha256": "1cfafe2b9d48b0bd3710ff067501dc9f56ff84a3f43bd5d9d1d9cf1081799132"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_I8I8_II8_HA_SAV_UA_Type_I8I_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 22705,
+        "sha256": "7577a6a179b628741bd273f5a3142e93e33732da28f8b4d04284dc1881d0780a"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_I8I8_II8_HA_SAV_UA_Type_I8I_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 33687,
+        "sha256": "a5cb14b80219f8d8b3e621e1ce412705b5549dae5d116ea6a4e48f1a759c65cc"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_I8I8_II8_HA_SAV_UA_Type_I8I_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 22711,
+        "sha256": "e4f45fbcea2e10a24fc78d62512266114da8f46d5560042c27961bf2c1dc85db"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_lazy_gfx1151.dat",
+        "bytes": 33828,
+        "sha256": "5071f1e9716decc35974bbc7ad7165378826e02b1dc5f4c7b3f2e66388e7cfd5"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_SS_SS_HA_Bias_SAV_UA_Type_SS_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 15326,
+        "sha256": "41b8b6149d37d9aaff663fa451d7e15bdc18970bdd2ef2e7cfe3dcd2def3484e"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_SS_SS_HA_Bias_SAV_UA_Type_SS_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 24512,
+        "sha256": "19945c6e22de1323c12a687a6e271783557342770b8b558f38663d6eca7bd0f8"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_SS_SS_HA_Bias_SAV_UA_Type_SS_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 15341,
+        "sha256": "315da7980e8a78d7317fbf344abf31dfa28d68009fa7477883edcc96e19b0e48"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_SS_SS_HA_Bias_SAV_UA_Type_SS_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 24512,
+        "sha256": "bd2abd906a8fc0e35c8e23b8bb9e666dd3e98cacd7dbcb5af53795f60eb205e0"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_SS_SS_HA_Bias_SAV_UA_Type_SS_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.co",
+        "bytes": 15407,
+        "sha256": "051857b318149e0f1ccc3a3b2e129228d50eeb8cb86c14f88b098f03e500a6d5"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_SS_SS_HA_Bias_SAV_UA_Type_SS_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 24512,
+        "sha256": "f7853a3251b83638252b3af75b041f4e9ee86c154d0a9c8b4f4e3eac5c0b48d1"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_SS_SS_HA_Bias_SAV_UA_Type_SS_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.co",
+        "bytes": 15301,
+        "sha256": "5e602a2c280a4fa0128df97687c1472bc6d075c37fed78958609eabf43f77326"
+      },
+      {
+        "path": "C:/Program Files/AMD/ROCm/7.1/bin/hipblaslt/library/TensileLibrary_SS_SS_HA_Bias_SAV_UA_Type_SS_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151.dat",
+        "bytes": 24512,
+        "sha256": "610542e841586357bbdff225458ded41771fafdb14d52fee6ea311b19947e3b5"
+      }
+    ],
+    "file_count": 96,
+    "bytes": 18849143,
+    "lazy_index_string_references": [
+      "TensileLibrary_BB_BB_HA_Bias_Aux_SAV_UA_Type_BB_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_BB_BB_HA_Bias_Aux_SAV_UA_Type_BB_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_BB_BB_HA_Bias_Aux_SAV_UA_Type_BB_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_BB_BB_HA_Bias_Aux_SAV_UA_Type_BB_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_BB_BB_HA_Bias_SAV_UA_Type_BB_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_BB_BB_HA_Bias_SAV_UA_Type_BB_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_BB_BB_HA_Bias_SAV_UA_Type_BB_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_BB_BB_HA_Bias_SAV_UA_Type_BB_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_BB_SB_HA_Bias_SAV_UA_Type_BS_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_BB_SB_HA_Bias_SAV_UA_Type_BS_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_BB_SB_HA_Bias_SAV_UA_Type_BS_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_BB_SB_HA_Bias_SAV_UA_Type_BS_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_BB_SB_HA_Bias_Type_BS_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_BB_SB_HA_Bias_Type_BS_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_BB_SB_HA_Bias_Type_BS_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_DD_DD_UA_Type_DD_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_DD_DD_UA_Type_DD_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_DD_DD_UA_Type_DD_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_DD_DD_UA_Type_DD_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_HH_HH_HA_Bias_Aux_SAV_UA_Type_HH_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_HH_HH_HA_Bias_Aux_SAV_UA_Type_HH_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_HH_HH_HA_Bias_Aux_SAV_UA_Type_HH_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_HH_HH_HA_Bias_Aux_SAV_UA_Type_HH_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_HH_HH_HA_Bias_SAV_UA_Type_HH_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_HH_HH_HA_Bias_SAV_UA_Type_HH_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_HH_HH_HA_Bias_SAV_UA_Type_HH_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_HH_HH_HA_Bias_SAV_UA_Type_HH_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_HH_SH_HA_Bias_SAV_UA_Type_HS_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_HH_SH_HA_Bias_SAV_UA_Type_HS_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_HH_SH_HA_Bias_SAV_UA_Type_HS_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_HH_SH_HA_Bias_SAV_UA_Type_HS_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_HH_SH_HA_Bias_Type_HS_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_HH_SH_HA_Bias_Type_HS_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_HH_SH_HA_Bias_Type_HS_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_I8I8_I8I8_HA_SAV_UA_Type_I8I8_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_I8I8_I8I8_HA_SAV_UA_Type_I8I8_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_I8I8_I8I8_HA_SAV_UA_Type_I8I8_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_I8I8_I8I8_HA_SAV_UA_Type_I8I8_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_I8I8_II8_HA_SAV_UA_Type_I8I_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_I8I8_II8_HA_SAV_UA_Type_I8I_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_I8I8_II8_HA_SAV_UA_Type_I8I_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_I8I8_II8_HA_SAV_UA_Type_I8I_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_SS_SS_HA_Bias_SAV_UA_Type_SS_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_SS_SS_HA_Bias_SAV_UA_Type_SS_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_SS_SS_HA_Bias_SAV_UA_Type_SS_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "TensileLibrary_SS_SS_HA_Bias_SAV_UA_Type_SS_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151"
+    ],
+    "all46_names_have_installed_dat_and_co": true,
+    "index_inspection_method": "Lexical names in the verified MessagePack bytes; not a MessagePack graph or actual runtime closure test."
+  },
+  "observed_dll_imports": [
+    "amdhip64_7.dll",
+    "KERNEL32.dll",
+    "MSVCP140.dll",
+    "SHLWAPI.dll",
+    "VCRUNTIME140.dll",
+    "VCRUNTIME140_1.dll",
+    "api-ms-win-crt-locale-l1-1-0.dll",
+    "api-ms-win-crt-stdio-l1-1-0.dll",
+    "api-ms-win-crt-filesystem-l1-1-0.dll",
+    "api-ms-win-crt-runtime-l1-1-0.dll",
+    "api-ms-win-crt-math-l1-1-0.dll",
+    "api-ms-win-crt-time-l1-1-0.dll",
+    "api-ms-win-crt-convert-l1-1-0.dll",
+    "api-ms-win-crt-heap-l1-1-0.dll",
+    "api-ms-win-crt-environment-l1-1-0.dll",
+    "api-ms-win-crt-string-l1-1-0.dll",
+    "api-ms-win-crt-utility-l1-1-0.dll"
+  ],
+  "hypothetical_dll_plus_selected_data_bytes": 24861455,
+  "additional_hip_crt_driver_executable_and_notice_cost_not_included": true,
+  "compiler_driver": {
+    "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\clang++.exe",
+    "arguments": "-### -std=c++17 -x c++ -o NUL P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/native/src/qrt.c",
+    "exit_code": 0,
+    "target": "x86_64-pc-windows-msvc",
+    "msvc_discovered": true,
+    "windows_sdk_discovered": true,
+    "linker_discovered": true,
+    "compilation_executed": false
+  },
+  "original_receipts": {
+    "inventory": {
+      "file": "linux-core-windows-hipblaslt-data-inventory-20260922-r2.json",
+      "sha256": "065e6d0300c6d9df2ea830ec669c9e7ed36b2df0658a90724683c7aece81f6a8",
+      "command_script": "$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$root='C:/Program Files/AMD/ROCm/7.1';$dirs=@()\nforeach($sub in @('bin/hipblaslt','lib/hipblaslt')){\n $p=Join-Path $root $sub\n if(Test-Path -LiteralPath $p){\n  $all=@(Get-ChildItem -LiteralPath $p -Recurse -File)\n  $selected=@($all|Where-Object {$_.Name -match 'gfx1151|^hipblasltExtOpLibrary[.]dat$'}|Select-Object -First 160|ForEach-Object{[ordered]@{path=$_.FullName;bytes=$_.Length;sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}})\n  $dirs+=[ordered]@{path=$p;all_files=$all.Count;all_bytes=($all|Measure-Object Length -Sum).Sum;selected=$selected;selected_truncated=(@($all|Where-Object {$_.Name -match 'gfx1151|^hipblasltExtOpLibrary[.]dat$'}).Count -gt 160)}\n }\n}\n[ordered]@{host=[Environment]::MachineName;utc=[DateTime]::UtcNow.ToString('o');directories=$dirs;native_model_launched=$false;gpu_api_called=$false;scope='Installed gfx1151-named kernels and shared ext-op metadata only; final runtime dependency closure still needs actual process qualification.'}|ConvertTo-Json -Depth 7\n"
+    },
+    "imports": {
+      "file": "linux-core-windows-hipblaslt-data-inventory-20260922-r1.json",
+      "sha256": "f454c2c2461c721aa37bb409484fb374f1ccc44fb8b4e3c857de62621367bca9",
+      "command_script": "$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$root='C:/Program Files/AMD/ROCm/7.1';$dirs=@()\nforeach($sub in @('bin/hipblaslt','lib/hipblaslt')){\n $p=Join-Path $root $sub\n if(Test-Path -LiteralPath $p){\n  $all=@(Get-ChildItem -LiteralPath $p -Recurse -File)\n  $selected=@($all|Where-Object {$_.Name -match 'gfx1151|TensileLibrary|hipblaslt.*(yaml|dat|json|msgpack)$'}|Select-Object -First 160|ForEach-Object{[ordered]@{path=$_.FullName;bytes=$_.Length}})\n  $dirs+=[ordered]@{path=$p;all_files=$all.Count;all_bytes=($all|Measure-Object Length -Sum).Sum;selected=$selected;selected_truncated=(@($all|Where-Object {$_.Name -match 'gfx1151|TensileLibrary|hipblaslt.*(yaml|dat|json|msgpack)$'}).Count -gt 160)}\n }\n}\n$i=New-Object Diagnostics.ProcessStartInfo;$i.FileName=(Join-Path $root 'bin/llvm-readobj.exe');$i.Arguments='--coff-imports \"C:/Program Files/AMD/ROCm/7.1/bin/libhipblaslt.dll\"';$i.UseShellExecute=$false;$i.RedirectStandardOutput=$true;$i.RedirectStandardError=$true\n$p=New-Object Diagnostics.Process;$p.StartInfo=$i;$null=$p.Start();$o=$p.StandardOutput.ReadToEndAsync();$e=$p.StandardError.ReadToEndAsync()\nif(-not $p.WaitForExit(10000)){try{$p.Kill()}catch{};throw 'Dependency reader deadline'}\n[ordered]@{host=[Environment]::MachineName;utc=[DateTime]::UtcNow.ToString('o');directories=$dirs;dependency_reader=[ordered]@{executable=$i.FileName;arguments=$i.Arguments;exit_code=$p.ExitCode;stdout=$o.GetAwaiter().GetResult();stderr=$e.GetAwaiter().GetResult()};native_model_launched=$false;gpu_api_called=$false}|ConvertTo-Json -Depth 7\n"
+    },
+    "libraries": {
+      "file": "linux-prefill-windows-dependency-inventory-20260922-r2.json",
+      "sha256": "86d22edc4ddf847564f8c81f3a51aa80314d9078c4cbad1544754e0a5d3a6ab6",
+      "command_script": "$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\n$root='C:/Program Files/AMD/ROCm/7.1';$files=@()\nforeach($sub in @('bin','lib')){foreach($p in @(Get-ChildItem -LiteralPath (Join-Path $root $sub) -File|Where-Object{$_.Name -like '*blas*'})){$files+=@{relative=($sub+'/'+$p.Name);bytes=$p.Length;sha256=(Get-FileHash $p.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}}}\n[ordered]@{host=[Environment]::MachineName;root=$root;files=$files;model_loaded=$false;gpu_commands_executed=$false}|ConvertTo-Json -Depth 5 -Compress\n"
+    },
+    "driver": {
+      "file": "linux-core-windows-driver-discovery-20260922-r1.json",
+      "sha256": "692e505d7cd53f28501e640ca2f940ff0472eea9002eee0fb743cfcaba969e81",
+      "command_script": "$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$i=New-Object Diagnostics.ProcessStartInfo;$i.FileName='C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\clang++.exe';$i.UseShellExecute=$false;$i.RedirectStandardOutput=$true;$i.RedirectStandardError=$true\n$i.Arguments='-### -std=c++17 -x c++ -o NUL P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/native/src/qrt.c'\n$p=New-Object Diagnostics.Process;$p.StartInfo=$i;$null=$p.Start();$out=$p.StandardOutput.ReadToEndAsync();$err=$p.StandardError.ReadToEndAsync()\nif(-not $p.WaitForExit(10000)){try{$p.Kill()}catch{};throw 'Driver metadata deadline'}\n[ordered]@{host=[Environment]::MachineName;utc=[DateTime]::UtcNow.ToString('o');executable=$i.FileName;arguments=$i.Arguments;exit_code=$p.ExitCode;stdout=$out.GetAwaiter().GetResult();stderr=$err.GetAwaiter().GetResult();compiler_driver_only=$true;compiled=$false;native_model_launched=$false}|ConvertTo-Json -Depth 5\n"
+    }
+  },
+  "metadata_download": {
+    "file": "linux-core-hipblaslt-selected-metadata-r1/verified-metadata.json",
+    "sha256": "71fa0eb17a434d6f64d582704ec84403d38cff2e5f1ca6799f3be13f967b30e0",
+    "all_hashes_verified": true
+  },
+  "source_plan_changed": false,
+  "queued_experiment_changed": false,
+  "native_compilation_qualified": false,
+  "native_model_executed": false,
+  "runtime_dependency_closure_qualified": false,
+  "final_package_size_qualified": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "scope": "Read-only installed-file and COFF-import evidence. The initial broad listing is retained; the complete architecture-filtered revision hashes all96 selected files. No library is loaded or GPU API called. The prospective file set still needs actual relocated execution and redistribution notices before packaging."
+}
