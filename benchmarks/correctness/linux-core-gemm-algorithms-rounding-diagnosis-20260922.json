@@ -1,0 +1,224 @@
+{
+  "source_commit": "2141af2bb3d0cc6c0e9eeb329d04ef09d4ab0ecf",
+  "host": "baiying",
+  "command_file": "P:\\projects\\AIMA-public-linux-core-gemm-algorithms-20260922-r2\\scripts\\baiying_linux_core_gemm_probe.ps1",
+  "model_loaded": false,
+  "run_record_sha256": "f4ad168bc7f23b3925ffe0507a49020f021eebc58208ef0f361e087de575e86b",
+  "stdout_sha256": "a7d164de2c939d1ee0073f0dab133126c48b960c6bf3dab32e488984ae113768",
+  "source_manifest_sha256": "04ee4c68d80219302d184ae8abf576564d9dabbf6331a1e638071b967bacd522",
+  "exit_code": 1,
+  "host_checks_pass": true,
+  "events": [
+    {
+      "event": "start",
+      "host": "baiying",
+      "source_commit": "2141af2bb3d0cc6c0e9eeb329d04ef09d4ab0ecf",
+      "model_loaded": false,
+      "inference_acceptance": false
+    },
+    {
+      "event": "shape",
+      "m": 8192,
+      "n": 8192,
+      "k": 2048,
+      "heuristics": 9,
+      "library_version": 100100,
+      "workspace_limit": 134217728
+    },
+    {
+      "event": "algorithm_start",
+      "n": 8192,
+      "k": 2048,
+      "index": 0
+    },
+    {
+      "event": "validation_failure",
+      "n": 8192,
+      "k": 2048,
+      "index": 0,
+      "output_mismatches": 50649664,
+      "input_mismatches": 0,
+      "guard_mismatches": 0
+    },
+    {
+      "event": "failure_sample",
+      "token": 0,
+      "row": 0,
+      "actual": 2.8828125,
+      "expected": 2.8828125
+    },
+    {
+      "event": "failure_sample",
+      "token": 0,
+      "row": 1,
+      "actual": -1.87109327,
+      "expected": -1.87109375
+    },
+    {
+      "event": "failure_sample",
+      "token": 0,
+      "row": 28,
+      "actual": 0.7265625,
+      "expected": 0.7265625
+    },
+    {
+      "event": "failure_sample",
+      "token": 0,
+      "row": 29,
+      "actual": 2.8828125,
+      "expected": 2.8828125
+    },
+    {
+      "event": "failure_sample",
+      "token": 0,
+      "row": 8191,
+      "actual": 0.894530535,
+      "expected": 0.89453125
+    },
+    {
+      "event": "failure_sample",
+      "token": 1,
+      "row": 0,
+      "actual": -1.47265518,
+      "expected": -1.47265625
+    },
+    {
+      "event": "failure_sample",
+      "token": 1,
+      "row": 1,
+      "actual": 2.66406202,
+      "expected": 2.6640625
+    },
+    {
+      "event": "failure_sample",
+      "token": 1,
+      "row": 28,
+      "actual": 0.960937858,
+      "expected": 0.9609375
+    },
+    {
+      "event": "failure_sample",
+      "token": 1,
+      "row": 29,
+      "actual": -1.47265518,
+      "expected": -1.47265625
+    },
+    {
+      "event": "failure_sample",
+      "token": 1,
+      "row": 8191,
+      "actual": 0.195312545,
+      "expected": 0.1953125
+    },
+    {
+      "event": "failure_sample",
+      "token": 30,
+      "row": 0,
+      "actual": -1.35937476,
+      "expected": -1.359375
+    },
+    {
+      "event": "failure_sample",
+      "token": 30,
+      "row": 1,
+      "actual": 0.25390622,
+      "expected": 0.25390625
+    },
+    {
+      "event": "failure_sample",
+      "token": 30,
+      "row": 28,
+      "actual": -2.29296637,
+      "expected": -2.29296875
+    },
+    {
+      "event": "failure_sample",
+      "token": 30,
+      "row": 29,
+      "actual": -1.35937476,
+      "expected": -1.359375
+    },
+    {
+      "event": "failure_sample",
+      "token": 30,
+      "row": 8191,
+      "actual": 1.71484375,
+      "expected": 1.71484375
+    },
+    {
+      "event": "failure_sample",
+      "token": 31,
+      "row": 0,
+      "actual": 2.8828125,
+      "expected": 2.8828125
+    },
+    {
+      "event": "failure_sample",
+      "token": 31,
+      "row": 1,
+      "actual": -1.87109327,
+      "expected": -1.87109375
+    },
+    {
+      "event": "failure_sample",
+      "token": 31,
+      "row": 28,
+      "actual": 0.7265625,
+      "expected": 0.7265625
+    },
+    {
+      "event": "failure_sample",
+      "token": 31,
+      "row": 29,
+      "actual": 2.8828125,
+      "expected": 2.8828125
+    },
+    {
+      "event": "failure_sample",
+      "token": 31,
+      "row": 8191,
+      "actual": 0.894530535,
+      "expected": 0.89453125
+    },
+    {
+      "event": "failure_sample",
+      "token": 8191,
+      "row": 0,
+      "actual": 1.82031345,
+      "expected": 1.8203125
+    },
+    {
+      "event": "failure_sample",
+      "token": 8191,
+      "row": 1,
+      "actual": 0.0859406292,
+      "expected": 0.0859375
+    },
+    {
+      "event": "failure_sample",
+      "token": 8191,
+      "row": 28,
+      "actual": -0.29687497,
+      "expected": -0.296875
+    },
+    {
+      "event": "failure_sample",
+      "token": 8191,
+      "row": 29,
+      "actual": 1.82031345,
+      "expected": 1.8203125
+    },
+    {
+      "event": "failure_sample",
+      "token": 8191,
+      "row": 8191,
+      "actual": 0.117188722,
+      "expected": 0.1171875
+    }
+  ],
+  "integer_reference_samples_independently_replayed": true,
+  "interpretation": "Existing first hipBLASLt producer is not bit-exact on the rational control. No input or output-guard changes. Preserve FP32 errors and compare with the existing 1000-ppb L2 selector radius before timing candidates. No model gate changed.",
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

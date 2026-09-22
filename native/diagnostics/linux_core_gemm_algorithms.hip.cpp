@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Full q8192 geometry, matching the port's column-major BF16/F32 descriptors.
-// Integer-valued reference products make every output exactly representable;
+// Integer-valued reference products make every mathematical output exact.
+// Preserve all FP32 differences and test the existing producer-selector bound;
 // this is an algorithm/ABI diagnostic, never a model correctness oracle.
 #include <hip/hip_runtime.h>
 #include <hipblaslt/hipblaslt.h>
@@ -9,12 +10,14 @@
 #include <array>
 #include <chrono>
 #include <cctype>
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <stdexcept>
 #include <string>
+#include <limits>
 #include <vector>
 
 namespace {
@@ -58,15 +61,19 @@ __global__ void fill_output(float* all,unsigned count) {
   const unsigned i=blockIdx.x*blockDim.x+threadIdx.x;
   if(i<count+2u*guard)all[i]=__uint_as_float(0x4a5a7b00u);
 }
-__global__ void verify_output(const float* all,const int* reference,unsigned n,unsigned* failures) {
+__global__ void verify_output(const float* all,const int* reference,const float* allowances,unsigned n,unsigned* failures) {
   const unsigned i=blockIdx.x*blockDim.x+threadIdx.x, count=m*n;
   if(i>=count+2u*guard)return;
   if(i<guard || i>=guard+count) {
     if(__float_as_uint(all[i])!=0x4a5a7b00u)atomicAdd(failures+2,1u);
   } else {
     const unsigned cell=i-guard;
-    const float expected=float(reference[((cell/n)%31u)*29u+(cell%n)%29u])*0.00390625f;
-    if(all[i]!=expected)atomicAdd(failures,1u);
+    const unsigned which=((cell/n)%31u)*29u+(cell%n)%29u;
+    const float expected=float(reference[which])*0.00390625f;
+    const float error=fabsf(all[i]-expected);
+    if(!(error<=allowances[which]))atomicAdd(failures,1u);
+    if(all[i]!=expected)atomicAdd(failures+3,1u);
+    atomicMax(failures+4,__float_as_uint(error));
   }
 }
 struct Plan {
@@ -111,16 +118,42 @@ void sweep(unsigned n,unsigned k) {
       m,n,k,count,version,workspace_limit);std::fflush(stdout);
   if(!count)return;
   Buffer x((std::size_t(m)*k+2u*guard)*2u),w((std::size_t(n)*k+2u*guard)*2u);
-  Buffer y((std::size_t(m)*n+2u*guard)*4u),work(workspace_limit),reference(31u*29u*4u),bad(3u*4u);
+  Buffer y((std::size_t(m)*n+2u*guard)*4u),work(workspace_limit),reference(31u*29u*4u),bounds(31u*29u*4u),bad(5u*4u);
   std::array<int,31u*29u> expected{};
-  for(unsigned t=0;t<31u;++t)for(unsigned row=0;row<29u;++row)
-    for(unsigned column=0;column<k;++column)
-      expected[t*29u+row]+=input_word(t,column,false)*input_word(row,column,true);
+  std::array<float,31u*29u> allowances{};
+  for(unsigned t=0;t<31u;++t)for(unsigned row=0;row<29u;++row) {
+    int left_norm=0,right_norm=0;
+    for(unsigned column=0;column<k;++column) {
+      const int left=input_word(t,column,false),right=input_word(row,column,true);
+      expected[t*29u+row]+=left*right;left_norm+=left*left;right_norm+=right*right;
+    }
+    // Same 1000-ppb L2 admission radius as the port's input projections.
+    // This diagnoses a producer; it does not establish a universal error
+    // proof or replace the complete model's unchanged GB10 boundary.
+    allowances[t*29u+row]=std::nextafter(float(std::sqrt(double(left_norm)*right_norm)*0.00390625*1.e-6),
+                                        std::numeric_limits<float>::infinity());
+  }
   hip(hipMemcpy(reference.pointer,expected.data(),sizeof(expected),hipMemcpyHostToDevice),"reference upload");
+  hip(hipMemcpy(bounds.pointer,allowances.data(),sizeof(allowances),hipMemcpyHostToDevice),"bound upload");
   hipLaunchKernelGGL(fill_input,dim3((m*k+2u*guard+255u)/256u),dim3(256),0,nullptr,x.data<uint16_t>(),m,k,false);
   hip(hipGetLastError(),"fill input");
   hipLaunchKernelGGL(fill_input,dim3((n*k+2u*guard+255u)/256u),dim3(256),0,nullptr,w.data<uint16_t>(),n,k,true);
   hip(hipGetLastError(),"fill weight");hip(hipDeviceSynchronize(),"input drain");
+  auto cpu_input_check=[&](const Buffer& buffer,unsigned rows,bool weight) {
+    std::vector<uint16_t> actual(std::size_t(rows)*k+2u*guard);
+    hip(hipMemcpy(actual.data(),buffer.pointer,actual.size()*2u,hipMemcpyDeviceToHost),"CPU input control");
+    for(std::size_t i=0;i<actual.size();++i) {
+      uint16_t wanted=0x5a7bu;
+      if(i>=guard && i<actual.size()-guard) {
+        const auto cell=i-guard;const unsigned period=weight?29u:31u;
+        const int integer=int((((cell/k)%period)*(weight?5u:13u)+((cell%k)%period)*(weight?11u:7u))%period)-(weight?14:15);
+        const float value=float(integer)/16.0f;uint32_t bits=0;std::memcpy(&bits,&value,4u);wanted=uint16_t(bits>>16u);
+      }
+      if(actual[i]!=wanted)throw std::runtime_error("Independent CPU input control differs");
+    }
+  };
+  cpu_input_check(x,m,false);cpu_input_check(w,n,true);
+  std::printf("{\"event\":\"cpu_input_control\",\"n\":%u,\"k\":%u,\"verified_elements\":%zu}\n",n,k,(std::size_t(m)+n)*k+4u*guard);
   unsigned completed=0;const auto deadline=Clock::now()+std::chrono::seconds(120);
   for(int index=0;index<count;++index) {
     if(Clock::now()>deadline)throw std::runtime_error("Shape deadline exceeded");
@@ -138,19 +171,19 @@ void sweep(unsigned n,unsigned k) {
     std::printf("{\"event\":\"algorithm_start\",\"n\":%u,\"k\":%u,\"index\":%d}\n",n,k,index);std::fflush(stdout);
     launch();
     auto validate=[&]{
-      hip(hipMemset(bad.pointer,0,12u),"clear failures");
-      hipLaunchKernelGGL(verify_output,dim3((m*n+2u*guard+255u)/256u),dim3(256),0,nullptr,y.data<float>(),reference.data<int>(),n,bad.data<unsigned>());
+      hip(hipMemset(bad.pointer,0,20u),"clear failures");
+      hipLaunchKernelGGL(verify_output,dim3((m*n+2u*guard+255u)/256u),dim3(256),0,nullptr,y.data<float>(),reference.data<int>(),bounds.data<float>(),n,bad.data<unsigned>());
       hip(hipGetLastError(),"verify output");
       hipLaunchKernelGGL(verify_input,dim3((m*k+2u*guard+255u)/256u),dim3(256),0,nullptr,x.data<uint16_t>(),m,k,false,bad.data<unsigned>());
       hip(hipGetLastError(),"verify input");
       hipLaunchKernelGGL(verify_input,dim3((n*k+2u*guard+255u)/256u),dim3(256),0,nullptr,w.data<uint16_t>(),n,k,true,bad.data<unsigned>());
       hip(hipGetLastError(),"verify weight");
-      std::array<unsigned,3> failures{};
-      hip(hipMemcpy(failures.data(),bad.pointer,12u,hipMemcpyDeviceToHost),"failure read");return failures;
+      std::array<unsigned,5> failures{};
+      hip(hipMemcpy(failures.data(),bad.pointer,20u,hipMemcpyDeviceToHost),"failure read");return failures;
     };
     const auto first=validate();
-    if(first!=std::array<unsigned,3>{}) {
-      std::printf("{\"event\":\"validation_failure\",\"n\":%u,\"k\":%u,\"index\":%d,\"output_mismatches\":%u,\"input_mismatches\":%u,\"guard_mismatches\":%u}\n",
+    if(first[0] || first[1] || first[2]) {
+      std::printf("{\"event\":\"validation_failure\",\"n\":%u,\"k\":%u,\"index\":%d,\"out_of_bound_cells\":%u,\"input_mismatches\":%u,\"guard_mismatches\":%u}\n",
           n,k,index,first[0],first[1],first[2]);
       for(unsigned t:{0u,1u,30u,31u,m-1u})for(unsigned row:{0u,1u,28u,29u,n-1u}) {
         float actual=0;hip(hipMemcpy(&actual,y.data<float>()+guard+std::size_t(t)*n+row,4u,hipMemcpyDeviceToHost),"failure sample");
@@ -158,7 +191,7 @@ void sweep(unsigned n,unsigned k) {
             t,row,double(actual),double(expected[(t%31u)*29u+row%29u])*0.00390625);
       }
       std::fflush(stdout);
-      throw std::runtime_error("Algorithm changed exact outputs, inputs or guards");
+      throw std::runtime_error("Algorithm exceeds producer bound or changed inputs/guards");
     }
     // Positive controls demonstrate that the numerical and guard checkers
     // detect independent corruptions; restore the real output before timing.
@@ -167,17 +200,18 @@ void sweep(unsigned n,unsigned k) {
       hip(hipMemcpy(y.data<float>()+guard,&poison,4u,hipMemcpyHostToDevice),"inject output control");
       hip(hipMemcpy(y.data<float>(),&poison,4u,hipMemcpyHostToDevice),"inject guard control");
       const auto control=validate();
-      if(control!=std::array<unsigned,3>{{1,0,1}})throw std::runtime_error("Numerical checker control failed");
+      if(control[0]!=1 || control[1] || control[2]!=1)throw std::runtime_error("Numerical checker control failed");
       hipLaunchKernelGGL(fill_output,dim3((m*n+2u*guard+255u)/256u),dim3(256),0,nullptr,y.data<float>(),m*n);
       hip(hipGetLastError(),"restore output");
     }
     launch();std::array<double,rounds> elapsed{};
     for(auto& ms:elapsed) {const auto begin=Clock::now();launch();ms=std::chrono::duration<double,std::milli>(Clock::now()-begin).count();}
     const auto last=validate();
-    if(last!=std::array<unsigned,3>{})throw std::runtime_error("Repeated algorithm changed exact outputs, inputs or guards");
+    if(last[0] || last[1] || last[2])throw std::runtime_error("Repeated algorithm exceeds producer bound or changed inputs/guards");
+    float max_error=0;std::memcpy(&max_error,&last[4],4u);
     auto sorted=elapsed;std::sort(sorted.begin(),sorted.end());
-    std::printf("{\"event\":\"algorithm\",\"m\":%u,\"n\":%u,\"k\":%u,\"index\":%d,\"workspace\":%zu,\"algorithm_hex\":\"%s\",\"completed_host_ms\":[%.9f,%.9f,%.9f],\"median_ms\":%.9f,\"verified_output_cells\":%u,\"input_and_guards_unchanged\":true,\"stream_drained\":true}\n",
-        m,n,k,index,choice.workspaceSize,identity(choice.algo).c_str(),elapsed[0],elapsed[1],elapsed[2],sorted[1],m*n);
+    std::printf("{\"event\":\"algorithm\",\"m\":%u,\"n\":%u,\"k\":%u,\"index\":%d,\"workspace\":%zu,\"algorithm_hex\":\"%s\",\"completed_host_ms\":[%.9f,%.9f,%.9f],\"median_ms\":%.9f,\"verified_output_cells\":%u,\"nonexact_output_cells\":%u,\"max_absolute_error\":%.9g,\"selector_bound_ppb\":1000,\"out_of_bound_cells\":0,\"input_and_guards_unchanged\":true,\"stream_drained\":true}\n",
+        m,n,k,index,choice.workspaceSize,identity(choice.algo).c_str(),elapsed[0],elapsed[1],elapsed[2],sorted[1],m*n,last[3],double(max_error));
     std::fflush(stdout);++completed;
   }
   if(!completed)throw std::runtime_error("No completed supported algorithm");

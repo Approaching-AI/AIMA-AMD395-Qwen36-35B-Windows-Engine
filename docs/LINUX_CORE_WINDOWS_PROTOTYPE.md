@@ -131,11 +131,18 @@ hipBLASLt heuristics at the actual q8192 N8192/K2048, N4096/K2048 and
 N2048/K4096 shapes. Descriptors and the128MiB workspace limit match the port.
 BF16 inputs use small exact rational values, allowing an independent integer
 reference for every FP32 output, plus unchanged input and guard checks before
-and after repeated launches. Injected output and guard corruptions test the
-observer. Completed steady host timing includes stream drains. This is a
+and after repeated launches. The initial exact-equality diagnostic rejects
+the first algorithm:50649664 of67108864 cells differ, with no input or guard
+changes; sampled errors are around1e-6. Source2141af2 preserves those values.
+The revised diagnostic adds a complete independent CPU check of generated
+input bytes and records every nonexact cell plus maximum absolute error.
+Producer admission uses the existing input selector's1000-ppb L2 radius;
+that component criterion is not a universal arithmetic proof. Injected output
+and guard corruptions test the observer. Completed steady host timing includes
+stream drains. This is a
 component probe; an algorithm change still requires the full real-model GB10
 boundary and load/TTFT accounting. The diagnostic adds no runtime dependency
-or package artifact, and its native run is pending.
+or package artifact, and its revised native run is pending.
 
 The preceding complete decode-MoE repair (`5585977`) runs the real model on
 baiying. All 40 first-decode layer carriers
