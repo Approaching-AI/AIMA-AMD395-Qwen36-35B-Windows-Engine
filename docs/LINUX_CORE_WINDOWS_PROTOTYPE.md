@@ -88,12 +88,31 @@ The native build passes and all10 actual activations are verified, but395 of512
 outputs differ from GB10, first at index115 (196 versus271). First144/logit10.375
 is exact. Loading27428.1791ms, diagnostic TTFT19712.6649ms and TPOT226.616026ms
 do not qualify this route. Source `cbe133b` remains the correct experimental
-baseline. The next run disables native-text attention and enables the existing
-CK completed-stage observer to separate QK, probability and PV work under the
-same complete continuation gate. Its steady host clock avoids invalid short
-GPU-event intervals; extra synchronizations make its wall diagnostic.
+baseline. Source `9af3371` disables native-text attention and enables the CK
+completed-stage observer. All512 outputs/callbacks and first144/logit10.375
+pass. Load is27470.2248ms; instrumented TTFT23938.4993ms and TPOT230.002446ms
+are diagnostic. Ten completed attention calls total5889.253ms: QK2507.5478,
+fused probability/native-PV1556.654 and exact-PV1668.4516ms dominate. Dense
+projection profiles total9333.048755ms, including4693.320469ms replay;26
+calls report invalid GPU-event intervals, so these stage sums remain diagnostic.
+The prior source `cbe133b` remains the performance comparison baseline.
 [Native attention rejection and CK profiling](../benchmarks/correctness/linux-core-native-attention-negative-and-ck-profile-20260922.json).
 [Coarse native result and embedded-attention preparation](../benchmarks/correctness/linux-core-prefill-coarse-native-and-attention-preparation-20260922.json).
+
+The next experiment, `AIMA_PORT_PREFILL_TERMINAL_ONLY=1`, preserves complete
+layer39 input projections, head normalization, RoPE and resident K/V writes,
+then computes only row8191 through attention, gate, OUT, residual norm and MoE.
+The resident engine's final hidden consumer selects that row; no later layer
+reads the other outputs. The attention helper reuses the original CK terminal
+prefill arithmetic, including its non-FMA denominator, and borrows existing
+exp2/reciprocal tables and scratch. OUT uses the original SM121 vector kernel;
+MoE uses the pinned provider's dynamic ABI with one logical token. Its FP32
+carrier remains at row8191 for terminal normalization. No dependency, artifact
+or device allocation is added. Cold q8192 text and disabled tensor observers
+are required; full512-token native qualification is pending. Local ASan/UBSan
+checks pass68 attention rejection controls, two ordered40-layer MoE requests,
+the one-row pointer bindings, carrier ownership and135 MoE rejection controls.
+[CK result and terminal preparation](../benchmarks/correctness/linux-core-ck-profile-and-terminal-preparation-20260922.json).
 
 The preceding complete decode-MoE repair (`5585977`) runs the real model on
 baiying. All 40 first-decode layer carriers

@@ -17,6 +17,11 @@ class Gb10DecodeAttentionOwner {
   std::unique_ptr<Impl> impl_;
 };
 bool gb10_decode_attention_enabled();
+bool gb10_prefill_terminal_only_enabled();
+// Cold q8192 terminal query, with the original prefill denominator arithmetic.
+// Q is one BF16 row; output is one F32 row. All 8192 K/V rows remain resident.
+void gb10_prefill_terminal_attention(const void* query, const void* key,
+    const void* value, void* output, std::size_t cache_end);
 // K/V are the existing token-major [cache_end,2,256] planes, including the
 // current row. Q/output are one [16,256] BF16 row. No cache writes or copies.
 void gb10_decode_attention(const void* query, const void* key, const void* value,

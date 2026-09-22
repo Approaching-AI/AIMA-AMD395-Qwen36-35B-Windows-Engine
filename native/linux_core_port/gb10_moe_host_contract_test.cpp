@@ -8,7 +8,7 @@ const unsigned char* gb10_rsqrt_table() { return roots; }
 void observe_gdn_prefill(std::size_t, const char*, const void*, std::size_t, std::size_t) {}
 }
 using namespace aima_port;
-unsigned calls = 0, registrations = 0, rejected = 0;
+unsigned calls = 0, dynamic_calls = 0, registrations = 0, rejected = 0;
 int returned = 1;
 const char* failure() { return "injected provider failure"; }
 int registration(const uint16_t* const* gu, const uint16_t* const* dn, uint32_t n) {
@@ -23,6 +23,15 @@ int launch(const float* x, const float* r, const uint16_t* router, const uint16_
   assert(router && sg && gp && up && sd && !stream);
   assert(gu == active->gate_up[active->next_layer] && dn == active->down[active->next_layer]);
   fake_events.push_back("provider"); ++calls; return returned;
+}
+int dynamic_launch(const float* x, const float* r, const uint16_t* router, const uint16_t* gu,
+    const uint16_t* dn, const uint16_t* sg, const uint16_t* gp, const uint16_t* up,
+    const uint16_t* sd, float* out, uint32_t rows, void* stream) {
+  const auto offset=elements-hidden;
+  assert(active && active->next_layer==39 && rows==1 && !stream);
+  assert(x==active->input()+offset && r==active->residual()+offset && out==active->output()+offset);
+  assert(router && sg && gp && up && sd && gu==active->gate_up[39] && dn==active->down[39]);
+  fake_events.push_back("dynamic_provider");++dynamic_calls;return returned;
 }
 template<class F> void reject(F fn) {
   bool failed = false;
@@ -72,9 +81,9 @@ int main(int argc, char** argv) {
     gu[i] = reinterpret_cast<const uint16_t*>(std::uintptr_t(0x100000 + i * 0x1000));
     dn[i] = reinterpret_cast<const uint16_t*>(std::uintptr_t(0x200000 + i * 0x1000));
   }
-  auto run = [&](unsigned layer, unsigned count = 8192) {
+  auto run = [&](unsigned layer, unsigned count = 8192, bool terminal = false) {
     gb10_prefill_moe(layer,x.data(),residual.data(),x.data(),gu[layer],dn[layer],
-        x.data(),x.data(),x.data(),x.data(),output.data(),count);
+        x.data(),x.data(),x.data(),x.data(),output.data(),count,terminal);
   };
   reject([&]{run(0);});
   active = &state;
@@ -103,6 +112,31 @@ int main(int argc, char** argv) {
   assert(gb10_moe_terminal_norm(last,x.data(),residual.data()));
   assert(!gb10_moe_terminal_norm(last,x.data(),residual.data()));
   assert(calls == 40 && registrations == 1);
+  // A second request computes only the final MoE row while preserving the
+  // same carrier base identity and exactly-once terminal norm handoff.
+  x.resize(elements); residual.resize(elements); output.resize(elements);
+  assert(!gb10_moe_input_norm(0,x.data(),x.data(),output.data(),8192));
+  reject([&]{run(0,8192,true);});
+  for(unsigned layer=0;layer<40;++layer) {
+    if(layer)assert(gb10_moe_input_norm(layer,output.data(),x.data(),residual.data(),8192));
+    if(layer==39) {
+      reject([&]{run(layer,8192,true);});
+      state.dynamic_launch=dynamic_launch;
+    }
+    fake_events.clear();moe_launches.clear();run(layer,8192,layer==39);
+    if(layer==39) {
+      assert(fake_events==std::vector<std::string>({"widen_moe_inputs","dynamic_provider","round_moe_carrier"}));
+      const auto off=elements-hidden;
+      assert(moe_launches.size()==2 && moe_launches[0].blocks==8 && moe_launches[1].blocks==8);
+      assert(moe_launches[0].args==std::vector<std::uintptr_t>({moe_address(x.data()+off),moe_address(residual.data()+off),
+          moe_address(state.input()+off),moe_address(state.residual()+off),hidden}));
+      assert(moe_launches[1].args==std::vector<std::uintptr_t>({moe_address(state.output()+off),moe_address(output.data()+off),hidden}));
+    }
+  }
+  assert(calls==79 && dynamic_calls==1 && state.pending_carrier==output.data());
+  last=output.data()+elements-hidden;
+  assert(gb10_moe_terminal_norm(last,x.data(),residual.data()));
+  assert(!gb10_moe_terminal_norm(last,x.data(),residual.data()));
   assert(!gb10_moe_input_norm(0,x.data(),x.data(),output.data(),8192));
   returned = 0; fake_events.clear(); reject([&]{run(0);});
   assert(state.poisoned && fake_events == std::vector<std::string>({"widen_moe_inputs","provider"}));
@@ -117,7 +151,7 @@ int main(int argc, char** argv) {
   { std::ofstream f(file); f << "ab"; } reject([&]{verify(file,fixture);});
   std::cout << "{\"conversion_values_checked\":18435,\"guard_elements_checked\":768,"
       "\"carrier_lane_sums_verified\":768,\"original_inputs_unchanged\":true,"
-      "\"ordered_layer_calls\":40,\"terminal_consumed_once\":true,"
+      "\"ordered_layer_calls\":80,\"terminal_row_only_calls\":1,\"terminal_consumed_once\":true,"
       "\"registered_weights_drained\":true,\"failed_provider_poisoned\":true,"
       "\"invalid_bindings_and_artifacts_rejected\":" << rejected << ",\"gpu_reduction_executed\":false}\n";
 }

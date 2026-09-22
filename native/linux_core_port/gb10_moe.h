@@ -24,7 +24,7 @@ void gb10_prefill_moe(std::size_t layer, const void* input, const void* residual
     const void* router, const void* gate_up, const void* down,
     const void* shared_gate, const void* shared_gate_projection,
     const void* shared_up_projection, const void* shared_down,
-    void* output, std::size_t tokens);
+    void* output, std::size_t tokens, bool terminal_only = false);
 // One live q8192 layer boundary. Only layer zero starts a new sequence; every
 // subsequent norm must consume the preceding MoE's unrounded FP32 carrier.
 bool gb10_moe_input_norm(std::size_t layer, const void* carrier,

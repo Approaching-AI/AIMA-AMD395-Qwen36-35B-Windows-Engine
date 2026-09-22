@@ -7,10 +7,11 @@ namespace qrt_blackwell_attention {
 inline uint16_t f32_to_bf16(float) { return 0; }
 inline void blackwell_compact_query_scores_kernel(const uint16_t*,const uint16_t*,float*,
     unsigned,unsigned,unsigned,unsigned) {}
-template<bool Serial,bool Scores,bool Split,bool Native,bool Strided,bool Warp,bool Prepared,bool Mtp,class View>
+template<bool Serial,bool Scores,bool Split,bool Native,bool Strided,bool Warp,bool Prepared,bool Mtp,class View=const uint16_t*>
 void blackwell_exact_attention_kernel(const uint16_t*,const uint16_t*,const uint16_t*,float*,
     unsigned,unsigned,const unsigned char*,float*,float*,bool,const unsigned char*,const float*,unsigned,View,unsigned) {
-  static_assert(Serial && Scores && Mtp && !Split && !Native && !Strided && !Warp && !Prepared);
+  static_assert(Serial && Scores && !Split && !Native && !Strided && !Warp && !Prepared);
+  static_assert(Mtp != std::is_pointer_v<View>);
 }
 }
 #include "gb10_decode_attention.hip.cpp"
@@ -40,6 +41,7 @@ void setting(const char* name,const char* value) {
 int main(int argc,char** argv) {
   assert(argc==3);
   setting("AIMA_PORT_DECODE_ATTENTION","");
+  setting("AIMA_PORT_PREFILL_TERMINAL_ONLY","");
   std::vector<uint16_t> q(4096,0x1234), k(8193u*512u,0x2345), v(k.size(),0x3456), out(4096,0x4567);
   auto call=[&](size_t n){gb10_decode_attention(q.data(),k.data(),v.data(),out.data(),n,nullptr);};
   reject([&]{call(1);});
@@ -111,11 +113,59 @@ int main(int argc,char** argv) {
   }
   assert(!active && allocations==0 && drains==1);
   reject([&]{call(1);});
+  std::vector<float> terminal_output(4096, -123.0f);
+  auto terminal_call=[&](size_t n=8192){
+    gb10_prefill_terminal_attention(q.data(),k.data(),v.data(),terminal_output.data(),n);
+  };
+  reject([&]{terminal_call();});
+  setting("AIMA_PORT_PREFILL_TERMINAL_ONLY","x");
+  reject([&]{Gb10DecodeAttentionOwner invalid_terminal(8193);});
+  setting("AIMA_PORT_PREFILL_TERMINAL_ONLY","1");
+  setting("AIMA_PORT_DECODE_ATTENTION","");
+  reject([&]{Gb10DecodeAttentionOwner missing_attention(8193);});
+  setting("AIMA_PORT_DECODE_ATTENTION","1");
+  reject([&]{Gb10DecodeAttentionOwner short_cache(8191);});
+  {
+    Gb10DecodeAttentionOwner owner(8193);
+    assert(gb10_prefill_terminal_only_enabled() && allocations==2);
+    const auto before=launches.size();const int copies_before=copies;
+    terminal_call();
+    assert(launches.size()==before+2 && copies==copies_before);
+    const auto& scores=launches[before];const auto& attention=launches[before+1];
+    assert(scores.grid.x==8192 && attention.grid.x==16);
+    assert(scores.block.x==256 && attention.block.x==256 && attention.grid.y==1);
+    assert(!scores.stream && !attention.stream);
+    assert(scores.args==std::vector<std::uintptr_t>({address(q.data()),address(k.data()),address(active->scratch.data),8191,1,8192,8191}));
+    assert(attention.args==std::vector<std::uintptr_t>({0,0,address(v.data()),address(terminal_output.data()),8191,0,
+        address(fake_exp2),0,0,1,address(active->reciprocal.data),address(active->scratch.data),8192,0,0}));
+    for(size_t n:{0u,1u,8191u,8193u})reject([&]{terminal_call(n);});
+    const std::array<const void*,4> pointers{{q.data(),k.data(),v.data(),terminal_output.data()}};
+    for(size_t i=0;i<4;++i)for(unsigned control=0;control<3;++control) {
+      auto args=pointers;args[i]=control==0 ? nullptr : control==1 ? reinterpret_cast<void*>(address(args[i])+1u)
+          : reinterpret_cast<void*>(std::numeric_limits<std::uintptr_t>::max()-1u);
+      reject([&]{gb10_prefill_terminal_attention(args[0],args[1],args[2],const_cast<void*>(args[3]),8192);});
+    }
+    for(size_t i=0;i<4;++i)for(size_t j=0;j<i;++j) {
+      auto args=pointers;args[i]=reinterpret_cast<void*>(address(args[j])+4u);
+      reject([&]{gb10_prefill_terminal_attention(args[0],args[1],args[2],const_cast<void*>(args[3]),8192);});
+    }
+    reject([&]{gb10_prefill_terminal_attention(q.data(),k.data(),v.data(),
+        reinterpret_cast<void*>(address(terminal_output.data())+2u),8192);});
+    fake_gdn_alive=false;const auto no_work=launches.size();reject([&]{terminal_call();});
+    assert(launches.size()==no_work);fake_gdn_alive=true;
+    for(size_t which=1;which<=2;++which) {
+      fail_launch=launches.size()+which;reject([&]{terminal_call();});
+      assert(launches.size()==fail_launch);fail_launch=0;
+    }
+  }
+  assert(!active && allocations==0 && drains==2);
+  assert(std::all_of(terminal_output.begin(),terminal_output.end(),[](float x){return x==-123.0f;}));
+  setting("AIMA_PORT_PREFILL_TERMINAL_ONLY","0");
   for(const auto& pair:{std::make_pair(&q,uint16_t(0x1234)),std::make_pair(&k,uint16_t(0x2345)),
       std::make_pair(&v,uint16_t(0x3456)),std::make_pair(&out,uint16_t(0x4567))})
     assert(std::all_of(pair.first->begin(),pair.first->end(),[&](uint16_t x){return x==pair.second;}));
   {Gb10DecodeAttentionOwner maximum(262144);assert(active->score_capacity==262144);}
-  assert(!active && allocations==0 && drains==2);
+  assert(!active && allocations==0 && drains==3);
   std::cout << "{\"complete_bindings\":" << complete_calls << ",\"rejected_controls\":" << rejected
-      << ",\"buffers_unchanged\":true,\"all_allocations_released\":true,\"kernel_arithmetic_executed\":false}" << std::endl;
+      << ",\"terminal_prefill_binding\":true,\"buffers_unchanged\":true,\"all_allocations_released\":true,\"kernel_arithmetic_executed\":false}" << std::endl;
 }

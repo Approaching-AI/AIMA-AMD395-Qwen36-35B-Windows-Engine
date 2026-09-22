@@ -29,6 +29,9 @@ using Register = int (*)(const uint16_t* const*, const uint16_t* const*, uint32_
 using Launch = int (*)(const float*, const float*, const uint16_t*, const uint16_t*,
     const uint16_t*, const uint16_t*, const uint16_t*, const uint16_t*,
     const uint16_t*, float*, void*);
+using DynamicLaunch = int (*)(const float*, const float*, const uint16_t*, const uint16_t*,
+    const uint16_t*, const uint16_t*, const uint16_t*, const uint16_t*,
+    const uint16_t*, float*, uint32_t, void*);
 void check(hipError_t status, const char* action) {
   if (status != hipSuccess) throw std::runtime_error(std::string(action) + ": " + hipGetErrorString(status));
 }
@@ -53,6 +56,7 @@ struct State {
   Error error = nullptr;
   Register registration = nullptr;
   Launch launch = nullptr;
+  DynamicLaunch dynamic_launch = nullptr;
   float* storage = nullptr;
   std::array<const uint16_t*, 40> gate_up{}, down{};
   bool registered = false, pending = false, poisoned = false;
@@ -136,8 +140,12 @@ Gb10MoeOwner::Gb10MoeOwner() : impl_(std::make_unique<Impl>()) {
   s.error = reinterpret_cast<Error>(dlsym(s.library, "qrt_triton_moe_q8192_last_error"));
   s.registration = reinterpret_cast<Register>(dlsym(s.library, "qrt_triton_moe_q8192_register_weight_metadata"));
   s.launch = reinterpret_cast<Launch>(dlsym(s.library, "qrt_triton_moe_q8192_launch_full_v3_async"));
+  s.dynamic_launch = reinterpret_cast<DynamicLaunch>(dlsym(s.library, "qrt_triton_moe_q8192_launch_full_v4_dynamic_async"));
   if (!prepare || !s.release || !s.error || !s.registration || !s.launch)
     throw std::runtime_error("MoE provider ABI is incomplete");
+  const char* terminal = std::getenv("AIMA_PORT_PREFILL_TERMINAL_ONLY");
+  if (terminal && std::string(terminal) == "1" && !s.dynamic_launch)
+    throw std::runtime_error("Terminal MoE provider ABI is incomplete");
   if (prepare(directory.u8string().c_str()) != 1)
     throw std::runtime_error(std::string("MoE prepare: ") + s.error());
   check(hipMalloc(reinterpret_cast<void**>(&s.storage), 3u * elements * sizeof(float)), "MoE carrier allocation");
@@ -177,29 +185,45 @@ void gb10_prefill_moe(std::size_t layer, const void* input, const void* residual
     const void* router, const void* gate_up, const void* down,
     const void* shared_gate, const void* shared_gate_projection,
     const void* shared_up_projection, const void* shared_down,
-    void* output, std::size_t count) {
+    void* output, std::size_t count, bool terminal_only) {
   auto& s = bound();
   if (layer >= 40 || count != tokens || s.pending || s.next_layer != layer ||
       !input || !residual || !router || !shared_gate || !shared_gate_projection ||
       !shared_up_projection || !shared_down || !output || gate_up != s.gate_up[layer] || down != s.down[layer])
     throw std::invalid_argument("Invalid complete q8192 MoE binding or layer order");
-  observe_gdn_prefill(layer, "prefill-post-attention-norm-sampled", input, hidden, count);
-  observe_gdn_prefill(layer, "prefill-post-attention-residual-sampled", residual, hidden, count);
-  hipLaunchKernelGGL(widen_moe_inputs, dim3((elements + 255u) / 256u), dim3(256), 0, nullptr,
-      static_cast<const uint16_t*>(input), static_cast<const uint16_t*>(residual), s.input(), s.residual(), unsigned(elements));
+  if (terminal_only && (layer != 39 || !s.dynamic_launch))
+    throw std::invalid_argument("Invalid terminal MoE binding");
+  const std::size_t offset = terminal_only ? elements - hidden : 0;
+  const unsigned live_elements = terminal_only ? hidden : unsigned(elements);
+  if (!terminal_only) {
+    observe_gdn_prefill(layer, "prefill-post-attention-norm-sampled", input, hidden, count);
+    observe_gdn_prefill(layer, "prefill-post-attention-residual-sampled", residual, hidden, count);
+  }
+  hipLaunchKernelGGL(widen_moe_inputs, dim3((live_elements + 255u) / 256u), dim3(256), 0, nullptr,
+      static_cast<const uint16_t*>(input) + offset, static_cast<const uint16_t*>(residual) + offset,
+      s.input() + offset, s.residual() + offset, live_elements);
   check(hipGetLastError(), "MoE input conversion");
-  if (s.launch(s.input(), s.residual(), static_cast<const uint16_t*>(router),
+  const int status = terminal_only
+      ? s.dynamic_launch(s.input() + offset, s.residual() + offset, static_cast<const uint16_t*>(router),
       static_cast<const uint16_t*>(gate_up), static_cast<const uint16_t*>(down),
       static_cast<const uint16_t*>(shared_gate), static_cast<const uint16_t*>(shared_gate_projection),
-      static_cast<const uint16_t*>(shared_up_projection), static_cast<const uint16_t*>(shared_down), s.output(), nullptr) != 1) {
+      static_cast<const uint16_t*>(shared_up_projection), static_cast<const uint16_t*>(shared_down),
+      s.output() + offset, 1u, nullptr)
+      : s.launch(s.input(), s.residual(), static_cast<const uint16_t*>(router),
+      static_cast<const uint16_t*>(gate_up), static_cast<const uint16_t*>(down),
+      static_cast<const uint16_t*>(shared_gate), static_cast<const uint16_t*>(shared_gate_projection),
+      static_cast<const uint16_t*>(shared_up_projection), static_cast<const uint16_t*>(shared_down), s.output(), nullptr);
+  if (status != 1) {
     s.poisoned = true;
     throw std::runtime_error(std::string("MoE launch: ") + s.error());
   }
-  hipLaunchKernelGGL(round_moe_carrier, dim3((elements + 255u) / 256u), dim3(256), 0, nullptr,
-      s.output(), static_cast<uint16_t*>(output), unsigned(elements));
+  hipLaunchKernelGGL(round_moe_carrier, dim3((live_elements + 255u) / 256u), dim3(256), 0, nullptr,
+      s.output() + offset, static_cast<uint16_t*>(output) + offset, live_elements);
   check(hipGetLastError(), "MoE output conversion");
   s.pending = true; s.next_layer = layer + 1; s.pending_carrier = output;
-  observe_gdn_prefill(layer, "prefill-layer-output-sampled", output, hidden, count);
+  if (terminal_only)
+    std::fprintf(stderr, "{\"event\":\"terminal_prefill_moe\",\"layer\":39,\"rows\":1,\"carrier_row\":8191}\n");
+  else observe_gdn_prefill(layer, "prefill-layer-output-sampled", output, hidden, count);
 }
 bool gb10_moe_input_norm(std::size_t layer, const void* carrier,
     const void* weight, void* output, std::size_t count) {

@@ -265,6 +265,8 @@ int run(const std::vector<std::string>& argv) {
 #ifdef AIMA_PORT_GB10_NORMALIZATION
   aima_port::Gb10NormalizationOwner normalization;
   aima_port::Gb10DecodeAttentionOwner decode_attention(9216);
+  if (aima_port::gb10_prefill_terminal_only_enabled() && observation)
+    throw std::invalid_argument("Terminal prefill trial requires observers to be disabled");
 #endif
 #ifdef AIMA_PORT_GB10_MOE
   aima_port::Gb10MoeOwner moe;

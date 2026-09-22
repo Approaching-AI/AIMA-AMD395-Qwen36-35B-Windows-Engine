@@ -633,6 +633,74 @@ def gb10_decode_moe_overlays(sources):
         "      aima_port::gb10_moe_terminal_norm(final_hidden_row,")
 
 
+def terminal_prefill_overlays(sources):
+    """Remove dead layer-39 rows only in the explicit cold-q8192 experiment."""
+    path = "native/src/native_full_prefill.hip.cpp"
+    text = replace(sources[path], '#include "gb10_moe.h"',
+        '#include "gb10_moe.h"\n#include "gb10_decode_attention.h"\n#include "gb10_projection.h"')
+    text = replace(text, "  if (tokens == 0 || tokens > 262144 ||",
+        """  const bool terminal_only = options.layer_index == 39 &&
+      aima_port::gb10_prefill_terminal_only_enabled();
+  if (terminal_only && (tokens != 8192 || active_tokens != tokens ||
+      execution_tokens != tokens || use_mrope || use_native_text_attention ||
+      options.cache_position_start != 0 || !options.decode_attention_state ||
+      options.seed_layer_input || options.collect_oracle_comparisons ||
+      !options.tail_oracle_dir.empty() || !options.sequence_oracle_dir.empty() ||
+      !options.attention_core_oracle_dir.empty()))
+    throw std::invalid_argument("Terminal prefill requires cold, unseeded q8192 text and resident K/V");
+  const std::size_t terminal_row = tokens - 1;
+  if (tokens == 0 || tokens > 262144 ||""")
+    text = replace(text, "  void* attention_bf16 = nullptr;\n  if (use_vl_unified_attention) {",
+        """  void* attention_bf16 = nullptr;
+  if (terminal_only) {
+    aima_port::gb10_prefill_terminal_attention(
+        static_cast<const uint16_t*>(q) + terminal_row * kQueryDimension,
+        attention_k, attention_v,
+        static_cast<float*>(attention_f32) + terminal_row * kQueryDimension, tokens);
+    result.layer.native_pointwise_launches += 2;
+  } else if (use_vl_unified_attention) {""")
+    text = replace(text,
+        "  if (use_vl_unified_attention) {\n    launch_full_attention_sigmoid_gate_bf16_prefill(",
+        """  if (terminal_only) {
+    launch_full_attention_sigmoid_gate_f32_prefill(
+        static_cast<float*>(attention_f32) + terminal_row * kQueryDimension,
+        static_cast<const uint16_t*>(q_gate) + terminal_row * (split_projections ? 8192 : 9216),
+        static_cast<uint16_t*>(q) + terminal_row * kQueryDimension,
+        static_cast<uint16_t*>(gated) + terminal_row * kQueryDimension,
+        1, split_projections ? 8192 : 9216);
+  } else if (use_vl_unified_attention) {
+    launch_full_attention_sigmoid_gate_bf16_prefill(""")
+    text = replace(text,
+        "  {\n    aima_port::Gb10PrefillFullOutputScope full_out_scope(execution_tokens, options.layer_index);",
+        """  if (terminal_only) {
+    aima_port::gb10_projection(output_weight.device_pointer,
+        static_cast<const uint16_t*>(gated) + terminal_row * kQueryDimension, nullptr,
+        static_cast<uint16_t*>(projected_attention) + terminal_row * kHidden,
+        kHidden, kQueryDimension, nullptr);
+  } else {
+    aima_port::Gb10PrefillFullOutputScope full_out_scope(execution_tokens, options.layer_index);""")
+    text = replace(text, "  if (execution_tokens == 8192) {\n    aima_port::gb10_residual_norm(",
+        """  if (terminal_only) {
+    aima_port::gb10_residual_norm(
+        static_cast<const uint16_t*>(projected_attention) + terminal_row * kHidden,
+        static_cast<const uint16_t*>(layer_input) + terminal_row * kHidden,
+        post_attention_norm_weight.device_pointer,
+        static_cast<uint16_t*>(after_attention) + terminal_row * kHidden,
+        static_cast<uint16_t*>(post_attention_norm) + terminal_row * kHidden, 1);
+    ++result.layer.native_pointwise_launches;
+    std::fprintf(stderr, "{\\\"event\\\":\\\"terminal_prefill_attention\\\",\\\"layer\\\":39,"
+        "\\\"queries\\\":1,\\\"kv_tokens\\\":8192,\\\"projection_rows\\\":1}\\n");
+  } else if (execution_tokens == 8192) {
+    aima_port::gb10_residual_norm(""")
+    sources[path] = text
+    path = "native/src/native_moe_prefill.hip.cpp"
+    text = replace(sources[path], '#include "gb10_moe.h"',
+        '#include "gb10_moe.h"\n#include "gb10_decode_attention.h"')
+    sources[path] = replace(text, "      layer_output, tokens);",
+        "      layer_output, tokens, options.layer_index == 39 &&\n"
+        "      aima_port::gb10_prefill_terminal_only_enabled());")
+
+
 def make_overlays(*, rectangular_ck=False, current_text_decode=False,
                   gb10_convolution=False, gb10_gdn=False, gb10_projections=False,
                   gb10_prefill_projections=False, gb10_normalization=False, gb10_moe=False):
@@ -776,6 +844,8 @@ def make_overlays(*, rectangular_ck=False, current_text_decode=False,
     if gb10_moe:
         gb10_moe_overlays(sources, read)
         gb10_decode_moe_overlays(sources)
+    if gb10_moe and gb10_normalization and gb10_prefill_projections and gb10_projections:
+        terminal_prefill_overlays(sources)
     # These two upstream enum-to-string functions have no media I/O dependency.
     media = read("native/src/native_media.cpp")
     names = media[media.index("std::string_view native_media_kind_name("):]

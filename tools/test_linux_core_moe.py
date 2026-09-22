@@ -21,10 +21,18 @@ def main():
     stub.write_text(STUB[:STUB.index("template<class K,class...A>")] + r'''
 #define __forceinline__ inline
 #define __host__
+#include <type_traits>
 template<class T> T __shfl_xor(T v,unsigned,unsigned) { return v; }
+struct RecordedMoeLaunch { unsigned blocks; std::vector<std::uintptr_t> args; };
+inline std::vector<RecordedMoeLaunch> moe_launches;
+template<class T>std::uintptr_t moe_address(T x) {
+ if constexpr(std::is_pointer_v<T>)return reinterpret_cast<std::uintptr_t>(x);
+ else return static_cast<std::uintptr_t>(x);
+}
 template<class K,class...A> void fake_launch(const char* name,dim3 grid,dim3 block,void* stream,K kernel,A...args) {
  if(false)kernel(args...);
- assert(!stream && block.x==256 && (grid.x==65536 || grid.x==8192 || grid.x==1));
+ assert(!stream && block.x==256 && (grid.x==65536 || grid.x==8192 || grid.x==8 || grid.x==1));
+ moe_launches.push_back({grid.x,{moe_address(args)...}});
  fake_events.push_back(name);
 }
 #define hipLaunchKernelGGL(k,g,b,z,s,...) fake_launch(#k,g,b,s,k,__VA_ARGS__)

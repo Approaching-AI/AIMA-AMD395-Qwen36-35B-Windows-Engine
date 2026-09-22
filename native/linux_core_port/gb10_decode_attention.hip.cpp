@@ -29,6 +29,7 @@ struct Device {
 struct State {
   Device reciprocal, scratch;
   std::size_t capacity = 0, score_capacity = 0;
+  bool terminal_only = false;
 };
 State* active = nullptr;
 std::vector<unsigned char> read_reciprocal(const std::filesystem::path& path) {
@@ -73,14 +74,24 @@ Gb10DecodeAttentionOwner::Gb10DecodeAttentionOwner(std::size_t capacity)
   if (!capacity || capacity > kMaximumTokens)
     throw std::invalid_argument("Invalid decode attention cache capacity");
   if (active) throw std::runtime_error("A decode attention owner is already active");
+  const char* terminal = std::getenv("AIMA_PORT_PREFILL_TERMINAL_ONLY");
+  if (terminal && *terminal && std::string(terminal) != "0" && std::string(terminal) != "1")
+    throw std::invalid_argument("Unsupported terminal prefill mode");
+  const bool terminal_only = terminal && std::string(terminal) == "1";
   const char* setting = std::getenv("AIMA_PORT_DECODE_ATTENTION");
-  if (!setting || !*setting) return;
+  if (!setting || !*setting) {
+    if (terminal_only) throw std::invalid_argument("Terminal prefill requires the attention owner");
+    return;
+  }
   if (std::string(setting) != "1") throw std::invalid_argument("Unsupported decode attention mode");
+  if (terminal_only && capacity < 8192)
+    throw std::invalid_argument("Terminal prefill requires a complete q8192 cache");
   (void)gb10_exp2_table();
   const char* path = std::getenv("AIMA_PORT_ATTENTION_RCP_TABLE");
   if (!path || !*path) throw std::runtime_error("Missing decode attention reciprocal table");
   const auto bytes = read_reciprocal(std::filesystem::u8path(path));
   auto& s = impl_->state;
+  s.terminal_only = terminal_only;
   s.capacity = capacity;
   s.score_capacity = (capacity + 31u) & ~std::size_t(31u);
   s.reciprocal.allocate(bytes.size());
@@ -93,6 +104,38 @@ Gb10DecodeAttentionOwner::~Gb10DecodeAttentionOwner() {
   if (active == &impl_->state) { hipDeviceSynchronize(); active = nullptr; }
 }
 bool gb10_decode_attention_enabled() { return active != nullptr; }
+bool gb10_prefill_terminal_only_enabled() { return active && active->terminal_only; }
+void gb10_prefill_terminal_attention(const void* query, const void* key,
+    const void* value, void* output, std::size_t cache_end) {
+  if (!gb10_prefill_terminal_only_enabled() || cache_end != 8192 || cache_end > active->capacity)
+    throw std::invalid_argument("Invalid terminal prefill owner or extent");
+  const std::array<Span,4> spans{{{query,8192u}, {key,cache_end*1024u},
+                                {value,cache_end*1024u}, {output,16384u}}};
+  if (reinterpret_cast<std::uintptr_t>(output) & 3u)
+    throw std::invalid_argument("Unaligned terminal prefill F32 output");
+  for (std::size_t i = 0; i < spans.size(); ++i) {
+    if (!valid(spans[i])) throw std::invalid_argument("Invalid terminal prefill buffer");
+    for (std::size_t j = 0; j < i; ++j)
+      if (!disjoint(spans[i], spans[j])) throw std::invalid_argument("Overlapping terminal prefill buffers");
+  }
+  const auto* exp2 = gb10_exp2_table();
+  float* scores = active->scratch.as<float>();
+  hipLaunchKernelGGL(qrt_blackwell_attention::blackwell_compact_query_scores_kernel,
+      dim3(8192), dim3(256), 0, nullptr, static_cast<const uint16_t*>(query),
+      static_cast<const uint16_t*>(key), scores, 8191u, 1u, 8192u, 8191u);
+  check(hipGetLastError(), "Terminal prefill QK");
+  // MtpCache=false is intentional: the qualified CK terminal replacement uses
+  // separate multiply/add for the denominator, unlike the Q2 decode FMA.
+  hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_blackwell_attention::blackwell_exact_attention_kernel<
+      true, true, false, false, false, false, false, false>),
+      dim3(16), dim3(256), 0, nullptr,
+      static_cast<const uint16_t*>(nullptr), static_cast<const uint16_t*>(nullptr),
+      static_cast<const uint16_t*>(value), static_cast<float*>(output), 8191u, 0u, exp2,
+      static_cast<float*>(nullptr), static_cast<float*>(nullptr), true,
+      active->reciprocal.as<unsigned char>(), scores, 8192u,
+      static_cast<const uint16_t*>(nullptr), 0u);
+  check(hipGetLastError(), "Terminal prefill softmax/PV");
+}
 void gb10_decode_attention(const void* query, const void* key, const void* value,
     void* output, std::size_t cache_end, void* stream) {
   if (!active || !cache_end || cache_end > active->capacity || stream)
