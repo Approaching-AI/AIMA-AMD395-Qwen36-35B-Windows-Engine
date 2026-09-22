@@ -1,0 +1,2759 @@
+{
+  "preparation_correction": {
+    "prior_manifest": "packed-gate-midpoint-package-source-r1.json",
+    "prior_manifest_sha256": "b7ee90eb05f32aa1da2fdcd62f3ee790347225597b4fe4228c8418673458a60e",
+    "prior_archive_created": false,
+    "prior_dispatch_executed": false,
+    "reason": "The completed-owner admission must compare the execution checkout to spec.repo_commit and the separately built whole provider to spec.coarse_out_provider.commit. Runtime356 uses execution370 for this original long run."
+  },
+  "prior_public_preparation": {
+    "file": "packed-gate-midpoint-package-prepared-20260922.json",
+    "sha256": "ed26c36b434939cab8e301d9ecc7bc465025fd489f0912f46b19821926948c5e"
+  },
+  "generator_replay": {
+    "generator": "correct_packed_gate_midpoint_package_admission_r2.py",
+    "generator_sha256": "2b53ef8e30de713c14cf668ae459781b34227882c9f812512b915c14da02c4ce",
+    "generated_files": [
+      {
+        "file": "packed_gate_midpoint_package_stage_evidence_r2.py",
+        "sha256": "0ee861f9c1fa89fbcd82ddb5b1e8e0f14ef30dfea4246a633ecc1dbf17018f5a"
+      },
+      {
+        "file": "stage_packed_gate_midpoint_package_r2.py",
+        "sha256": "98fe7e01e6a8889bb97cac707300a229ff1c97132fa94d58a05dad3e05782474"
+      },
+      {
+        "file": "run-native-packed-gate-midpoint-package-r2.ps1",
+        "sha256": "844d47cabab44a082c54fe41db3b725d7893c68ffecb41c1f1b7157124865759"
+      },
+      {
+        "file": "dispatch_packed_gate_midpoint_package_r2.py",
+        "sha256": "07fbaefcd3bb21bc373376e37313d53c58954f4cb42ea7de2f152f4489429d15"
+      },
+      {
+        "file": "packed-gate-midpoint-package-source-r2.json",
+        "sha256": "b6bb3aad0f65814a8549a905f9548a844208f11a07f1962c2415818962f527f6"
+      },
+      {
+        "file": "prepare_packed_gate_midpoint_package_checks_r2.py",
+        "sha256": "844891bd50a356c931b4cf5f80b00b8d1e9b63eb448cc6f64753b22d2293cc1e"
+      },
+      {
+        "file": "prepare_packed_gate_midpoint_package_matrix_r2.py",
+        "sha256": "bf3fba8cf8d7835f8c1f31e37d806cd5325da39e7e0f8f8bb29a428edaf56a02"
+      },
+      {
+        "file": "prepare_packed_gate_midpoint_package_soak_r2.py",
+        "sha256": "1e956738d69022181b610d9f6eedd270a2f33197081192553333e12bafd3e101"
+      },
+      {
+        "file": "check_packed_gate_midpoint_package_regressions_prepared_r2.py",
+        "sha256": "3940411fcc9cac8ee1f112b57631f0e82177a8bda5d8f711e4658feab4b229b7"
+      },
+      {
+        "file": "check_packed_gate_midpoint_package_bindings_r3.py",
+        "sha256": "8f4fa85d55083170172b28686e13dbe63785fbb4aa40ff8cfc5cbde9ca749032"
+      }
+    ],
+    "all_bytes_reproduced": true,
+    "files_written_by_generator": false,
+    "model_launched": false
+  },
+  "generator_replay_sha256": "4d55946c6f1911c94908068e802e98c52d821de3e900c8745c7e6a9fa37c3354",
+  "schema_version": 1,
+  "kind": "packed_gate_midpoint_package_actual_bindings_and_preserved_regression_preparation",
+  "source_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+  "controller_host": "Jiawei-MacminideMac-mini.local",
+  "native_host": "baiying",
+  "components": {
+    "server": {
+      "commit": "c2683cd5cb55478099f1adffe47b98e5cef79fba",
+      "metadata": {
+        "path": "P:/projects/AIMA-public-single-tail-q1-20260921-r1/build/single-tail-q1-server/build-provenance.json",
+        "sha256": "44b6ed5393922bd8b9ef8367f51358c896183284e0bccc10583926b2b8ff6056"
+      },
+      "artifact": {
+        "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\build\\single-tail-q1-server\\qrt.exe",
+        "sha256": "57a40483284ff8a35cf21cc46ad0acf0bb8b6d5653a7051097e92951ebfbeb4f",
+        "bytes": 7916032
+      },
+      "package_path": "engine/qrt.exe",
+      "build_run": {
+        "path": "P:/projects/AIMA-public-single-tail-q1-20260921-r1/build/single-tail-q1-server-build-r2/run-record.json",
+        "sha256": "ea4993fb6ef19c906ff409537d2d76db8492bca4d4de7fa622c497892bc51f7b"
+      }
+    },
+    "cli": {
+      "commit": "35607853eb03487b443ddfed8529b8da5539de86",
+      "metadata": {
+        "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/product-cli/build-provenance.json",
+        "sha256": "2f789b8274d71acb9368d801344135505e703d22f3a01f6421e5d64ec7d8ddf6"
+      },
+      "artifact": {
+        "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/product-cli/qrt-product.exe",
+        "bytes": 949760,
+        "sha256": "c919570991729fc9632d63426a3da1a46721d3e8a852de8e74fa0b585e11e9dd"
+      },
+      "package_path": "product-cli/qrt-product.exe",
+      "build_run": {
+        "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-build-r1/run-record.json",
+        "sha256": "cdf23e7d8bbdb07ac0da4690829f4aa8dbf28292e0d96fc14eedd2e345b9231e"
+      }
+    },
+    "whole": {
+      "commit": "35607853eb03487b443ddfed8529b8da5539de86",
+      "metadata": {
+        "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-provider/build-provenance.json",
+        "sha256": "35711d255702d4b10c5e20346fa7871aba0090263ab4acdaeecfcf199d377499"
+      },
+      "artifact": {
+        "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-provider/qrt_qwen36_whole_provider.dll",
+        "bytes": 14068736,
+        "sha256": "81aba6f6956c415ea48ed60d1199a9f64a6eb0ef04dc96ad176f5b876f3b0e83"
+      },
+      "package_path": "whole-provider/qrt_qwen36_whole_provider.dll",
+      "build_run": {
+        "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-build-r1/run-record.json",
+        "sha256": "cdf23e7d8bbdb07ac0da4690829f4aa8dbf28292e0d96fc14eedd2e345b9231e"
+      }
+    },
+    "ck": {
+      "commit": "37014953c28e5b5a91573c6233fdda00bb279b85",
+      "metadata": {
+        "path": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query/build-ck-provenance.json",
+        "sha256": "599681d26ec1aeb62081f56ab8868d5d35ff753b8ec8cf0656fcf94f969f9976"
+      },
+      "artifact": {
+        "path": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query/qrt_ck_fmha_sm121.dll",
+        "sha256": "2ab47f4443fa8bb30b521c75b1c6785e8ce1a998b97021bd252aaed77c3aa64b",
+        "bytes": 2106368
+      },
+      "package_path": "ck-fmha/qrt_ck_fmha_sm121.dll",
+      "build_run": {
+        "path": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query-build-ck-r2/run-record.json",
+        "sha256": "b93dc75fbf922d7d062e656f2ffd8af7fe804bb4393a7da68d05051f2138fd27"
+      }
+    },
+    "moe": {
+      "commit": "9235750e81a899f6843bb9dfd3f11165ad4cdce9",
+      "metadata": {
+        "path": "D:\\projects\\AIMA-public-moe-down-compact-20260917-r6\\build\\moe-down-compact-provider\\build-provenance.json",
+        "sha256": "e318a189c68303b4918354e0d29ea6f849d20a6e9df19571a06c0289c8f824e9"
+      },
+      "artifact": {
+        "path": "D:\\projects\\AIMA-public-moe-down-compact-20260917-r6\\build\\moe-down-compact-provider\\qrt_triton_moe_q8192_provider.dll",
+        "sha256": "716379525ead68d583b36380261b467e8bfc37cd427f6577a24ee4519cda9891"
+      },
+      "package_path": "q8192-moe/qrt_triton_moe_q8192_provider.dll",
+      "build_run": {
+        "path": "D:/projects/AIMA-public-moe-down-compact-20260917-r6/build/moe-down-compact-provider-build-r6/run-record.json",
+        "sha256": "40dd15a883f3ed251727e5ca7d8de98f16b7d27ba5dc81ec92b793e6951d1aa4"
+      }
+    },
+    "fla": {
+      "commit": "1d11bf742268924ecf5df1e0e66a0e19fb7cec15",
+      "metadata": {
+        "path": "D:/projects/AIMA-public-fla-completed-latency-20260919-r1/build/fla/build-provenance.json",
+        "sha256": "1286c84384fc9dd71fff7db8b7f2b2e59b5c7b0665a0320b2d96c3560a817eba"
+      },
+      "artifact": {
+        "path": "D:/projects/AIMA-public-fla-completed-latency-20260919-r1/build/fla/qrt_fla_chunk_gdn_provider.dll",
+        "sha256": "a6b110c3482ca8bc1bb7ef1b6c8213133bb98d53afa5d3a491ba4194bc1d3a88",
+        "bytes": 984064
+      },
+      "package_path": "fla/qrt_fla_chunk_gdn_provider.dll",
+      "build_run": {
+        "path": "D:/projects/AIMA-public-fla-completed-latency-20260919-r1/build/fla-completed-latency-build-r1/run-record.json",
+        "sha256": "2922fa818d9496e52cd67003dfb0d999e5feca53dbad7ae301fd429bf591807a"
+      }
+    }
+  },
+  "validated_builds": {
+    "combined": {
+      "source_manifest": "packed-gate-midpoint-whole-source-r1.json",
+      "source_manifest_sha256": "42b224f40bf79d0b021cd67fdbf65e7c70ec4a3e5c61c49fc4f926daec420bdb",
+      "source_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+      "repo": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1",
+      "run_directory": "packed-gate-midpoint-whole-build-r1",
+      "run_sha256": "cdf23e7d8bbdb07ac0da4690829f4aa8dbf28292e0d96fc14eedd2e345b9231e",
+      "whole_metadata_sha256": "35711d255702d4b10c5e20346fa7871aba0090263ab4acdaeecfcf199d377499",
+      "whole_artifact": {
+        "name": "qrt_qwen36_whole_provider.dll",
+        "bytes": 14068736,
+        "sha256": "81aba6f6956c415ea48ed60d1199a9f64a6eb0ef04dc96ad176f5b876f3b0e83"
+      },
+      "whole_artifacts": [
+        {
+          "name": "qrt_qwen36_whole_provider.dll",
+          "bytes": 14068736,
+          "sha256": "81aba6f6956c415ea48ed60d1199a9f64a6eb0ef04dc96ad176f5b876f3b0e83"
+        },
+        {
+          "name": "q1_moe_avx512bf16_host_provider.obj",
+          "bytes": 183170,
+          "sha256": "831e912266e6738812d3eae9a74dd32201b06e25e80f61c52b9f6cbf02bb3345"
+        }
+      ],
+      "probe_metadata_sha256": "b1822022ae37d0130045e6cf9980d38f8e53122864c000bb889fed1556c6fca8",
+      "probe_executable_sha256": "c0b5c16bac2a0d0eb2bb54b234ac63fe02b683f76dcba8ca7ef0e612fd7cd31d",
+      "probe_executable_bytes": 956416,
+      "cli_metadata_sha256": "2f789b8274d71acb9368d801344135505e703d22f3a01f6421e5d64ec7d8ddf6",
+      "cli_executable_sha256": "c919570991729fc9632d63426a3da1a46721d3e8a852de8e74fa0b585e11e9dd",
+      "cli_executable_bytes": 949760,
+      "cli_path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/product-cli/qrt-product.exe",
+      "whole_compilation_inputs": 167,
+      "probe_compilation_inputs": 10,
+      "cli_compilation_inputs": 8,
+      "all_source_inputs": 173,
+      "compiler_flags_match_control": true
+    },
+    "server": {
+      "source_commit": "c2683cd5cb55478099f1adffe47b98e5cef79fba",
+      "repo": "P:/projects/AIMA-public-single-tail-q1-20260921-r1",
+      "source_manifest": "single-tail-q1-server-source-r2.json",
+      "source_manifest_sha256": "330aa7d20d728fe35ed589f029884d7e190056068e4e793edfea0821ce3bf65d",
+      "source_inputs": 25,
+      "run_directory": "single-tail-q1-server-build-r2",
+      "run_sha256": "ea4993fb6ef19c906ff409537d2d76db8492bca4d4de7fa622c497892bc51f7b",
+      "build_metadata_sha256": "44b6ed5393922bd8b9ef8367f51358c896183284e0bccc10583926b2b8ff6056",
+      "artifact": {
+        "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\build\\single-tail-q1-server\\qrt.exe",
+        "sha256": "57a40483284ff8a35cf21cc46ad0acf0bb8b6d5653a7051097e92951ebfbeb4f",
+        "bytes": 7916032
+      },
+      "command_file_sha256": "65fc321b7462e8c1653500f2ab542f14b78d9d8e13dc3cde9a5b9b46046c8cb5",
+      "stdout_sha256": "e73ecdb4af6ad983ba2f4e2fa635a86e10a3a20065ec8851911112984f8f6ab4",
+      "stderr_sha256": "4fc442189733a22d680e98ecee1bdf276b26cf58acb7737e30238f7df1de2fcf",
+      "stack_reserve_bytes": 268435456,
+      "library_tests_passed": 54,
+      "whole_build": {
+        "source_manifest": "single-tail-q1-whole-source-r2.json",
+        "source_manifest_sha256": "2ad442095947ebf83203350781ab1191cc62f94368366625ad2982246653e58a",
+        "source_commit": "c2683cd5cb55478099f1adffe47b98e5cef79fba",
+        "repo": "P:/projects/AIMA-public-single-tail-q1-20260921-r1",
+        "run_directory": "single-tail-q1-build-r2",
+        "run_sha256": "87cd447d5cbad28be30b1aeb035bb03719f8eded345bcaa1459fb7a628156762",
+        "whole_metadata_sha256": "7bfafef5fc6f7811c2272784a2466100ca4216e905c3f05a2ad60a7c9b655aa4",
+        "whole_artifact": {
+          "name": "qrt_qwen36_whole_provider.dll",
+          "bytes": 14067200,
+          "sha256": "84e3cedcdf75cb316fa056378afbe31509cc397274b8a62079e33f882f5c8802"
+        },
+        "whole_artifacts": [
+          {
+            "name": "qrt_qwen36_whole_provider.dll",
+            "bytes": 14067200,
+            "sha256": "84e3cedcdf75cb316fa056378afbe31509cc397274b8a62079e33f882f5c8802"
+          },
+          {
+            "name": "q1_moe_avx512bf16_host_provider.obj",
+            "bytes": 183170,
+            "sha256": "70bbe737fc13f0142104e7af97f313c2fef5f6953e83f61594dc05a07bcb73b6"
+          }
+        ],
+        "probe_metadata_sha256": "8187fd414a4fe6f0b520d0330476ad2b8a0c259296e4c9f56de4e56af52d74d5",
+        "probe_executable_sha256": "6690465c80d1ba453edf59ee1d89a3cff59fa26ca2c61088a5461016ff0b2f10",
+        "probe_executable_bytes": 956416,
+        "cli_metadata_sha256": "b9b623d8c29128197f2ba7b5c7edfec7bd11726cb1d4229502ad6a833c2c71cc",
+        "cli_executable_sha256": "813dd56d8409e0cd16dcbec0214e3d24a06f99cc603dddd58ebf5864995b3031",
+        "cli_executable_bytes": 949760,
+        "cli_path": "P:/projects/AIMA-public-single-tail-q1-20260921-r1/build/product-cli/qrt-product.exe",
+        "whole_compilation_inputs": 167,
+        "probe_compilation_inputs": 10,
+        "cli_compilation_inputs": 8,
+        "all_source_inputs": 173,
+        "compiler_flags_match_control": true
+      },
+      "model_loaded": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "release_qualified": false
+    }
+  },
+  "bound_package_manifest": {
+    "worker": "stage_packed_gate_midpoint_package_r2.py",
+    "worker_sha256": "98fe7e01e6a8889bb97cac707300a229ff1c97132fa94d58a05dad3e05782474",
+    "script": "run-native-packed-gate-midpoint-package-r2.ps1",
+    "script_sha256": "844d47cabab44a082c54fe41db3b725d7893c68ffecb41c1f1b7157124865759",
+    "dispatcher": "dispatch_packed_gate_midpoint_package_r2.py",
+    "dispatcher_sha256": "07fbaefcd3bb21bc373376e37313d53c58954f4cb42ea7de2f152f4489429d15",
+    "repo": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1",
+    "source_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+    "exclusive_host_predecessor": {
+      "run_directory": "linux-core-windows-queued-r1/product",
+      "remote_run_record": "P:/projects/AIMA-public-linux-core-20260922-r1/build/linux-core-windows-q8192-out512-r1/run-record.json",
+      "numerical_success_required": false,
+      "all_host_cleanup_required": true,
+      "execution_source_commit": "0a57516e8c7c1dba55a077eba9d38b6155a0620e"
+    },
+    "input": "packed-gate-midpoint-package-input-r2.json",
+    "input_sha256": "cdf88da2c271e45e2577711be9c889f963dc62a37982a4f4329a90e51ba31542",
+    "profile_input": {
+      "file": "current-stack-portable-profile-20260920-packed-q1.env",
+      "sha256": "f6b38bff3c58860e81fd4f5b21e576753c38321d57e0b9bad5cdd23244f4291c",
+      "rows": 535,
+      "relative_paths": 34
+    },
+    "http_script_sha256": "080155aa38c62818f9b71a7fd2e5f5ac7056b1f763de170475b568118faa2eb5",
+    "components": {
+      "server": {
+        "commit": "c2683cd5cb55478099f1adffe47b98e5cef79fba",
+        "metadata": {
+          "path": "P:/projects/AIMA-public-single-tail-q1-20260921-r1/build/single-tail-q1-server/build-provenance.json",
+          "sha256": "44b6ed5393922bd8b9ef8367f51358c896183284e0bccc10583926b2b8ff6056"
+        },
+        "artifact": {
+          "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\build\\single-tail-q1-server\\qrt.exe",
+          "sha256": "57a40483284ff8a35cf21cc46ad0acf0bb8b6d5653a7051097e92951ebfbeb4f",
+          "bytes": 7916032
+        },
+        "package_path": "engine/qrt.exe",
+        "build_run": {
+          "path": "P:/projects/AIMA-public-single-tail-q1-20260921-r1/build/single-tail-q1-server-build-r2/run-record.json",
+          "sha256": "ea4993fb6ef19c906ff409537d2d76db8492bca4d4de7fa622c497892bc51f7b"
+        }
+      },
+      "cli": {
+        "commit": "35607853eb03487b443ddfed8529b8da5539de86",
+        "metadata": {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/product-cli/build-provenance.json",
+          "sha256": "2f789b8274d71acb9368d801344135505e703d22f3a01f6421e5d64ec7d8ddf6"
+        },
+        "artifact": {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/product-cli/qrt-product.exe",
+          "bytes": 949760,
+          "sha256": "c919570991729fc9632d63426a3da1a46721d3e8a852de8e74fa0b585e11e9dd"
+        },
+        "package_path": "product-cli/qrt-product.exe",
+        "build_run": {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-build-r1/run-record.json",
+          "sha256": "cdf23e7d8bbdb07ac0da4690829f4aa8dbf28292e0d96fc14eedd2e345b9231e"
+        }
+      },
+      "whole": {
+        "commit": "35607853eb03487b443ddfed8529b8da5539de86",
+        "metadata": {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-provider/build-provenance.json",
+          "sha256": "35711d255702d4b10c5e20346fa7871aba0090263ab4acdaeecfcf199d377499"
+        },
+        "artifact": {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-provider/qrt_qwen36_whole_provider.dll",
+          "bytes": 14068736,
+          "sha256": "81aba6f6956c415ea48ed60d1199a9f64a6eb0ef04dc96ad176f5b876f3b0e83"
+        },
+        "package_path": "whole-provider/qrt_qwen36_whole_provider.dll",
+        "build_run": {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-build-r1/run-record.json",
+          "sha256": "cdf23e7d8bbdb07ac0da4690829f4aa8dbf28292e0d96fc14eedd2e345b9231e"
+        }
+      },
+      "ck": {
+        "commit": "37014953c28e5b5a91573c6233fdda00bb279b85",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query/build-ck-provenance.json",
+          "sha256": "599681d26ec1aeb62081f56ab8868d5d35ff753b8ec8cf0656fcf94f969f9976"
+        },
+        "artifact": {
+          "path": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query/qrt_ck_fmha_sm121.dll",
+          "sha256": "2ab47f4443fa8bb30b521c75b1c6785e8ce1a998b97021bd252aaed77c3aa64b",
+          "bytes": 2106368
+        },
+        "package_path": "ck-fmha/qrt_ck_fmha_sm121.dll",
+        "build_run": {
+          "path": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query-build-ck-r2/run-record.json",
+          "sha256": "b93dc75fbf922d7d062e656f2ffd8af7fe804bb4393a7da68d05051f2138fd27"
+        }
+      },
+      "moe": {
+        "commit": "9235750e81a899f6843bb9dfd3f11165ad4cdce9",
+        "metadata": {
+          "path": "D:\\projects\\AIMA-public-moe-down-compact-20260917-r6\\build\\moe-down-compact-provider\\build-provenance.json",
+          "sha256": "e318a189c68303b4918354e0d29ea6f849d20a6e9df19571a06c0289c8f824e9"
+        },
+        "artifact": {
+          "path": "D:\\projects\\AIMA-public-moe-down-compact-20260917-r6\\build\\moe-down-compact-provider\\qrt_triton_moe_q8192_provider.dll",
+          "sha256": "716379525ead68d583b36380261b467e8bfc37cd427f6577a24ee4519cda9891"
+        },
+        "package_path": "q8192-moe/qrt_triton_moe_q8192_provider.dll",
+        "build_run": {
+          "path": "D:/projects/AIMA-public-moe-down-compact-20260917-r6/build/moe-down-compact-provider-build-r6/run-record.json",
+          "sha256": "40dd15a883f3ed251727e5ca7d8de98f16b7d27ba5dc81ec92b793e6951d1aa4"
+        }
+      },
+      "fla": {
+        "commit": "1d11bf742268924ecf5df1e0e66a0e19fb7cec15",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-fla-completed-latency-20260919-r1/build/fla/build-provenance.json",
+          "sha256": "1286c84384fc9dd71fff7db8b7f2b2e59b5c7b0665a0320b2d96c3560a817eba"
+        },
+        "artifact": {
+          "path": "D:/projects/AIMA-public-fla-completed-latency-20260919-r1/build/fla/qrt_fla_chunk_gdn_provider.dll",
+          "sha256": "a6b110c3482ca8bc1bb7ef1b6c8213133bb98d53afa5d3a491ba4194bc1d3a88",
+          "bytes": 984064
+        },
+        "package_path": "fla/qrt_fla_chunk_gdn_provider.dll",
+        "build_run": {
+          "path": "D:/projects/AIMA-public-fla-completed-latency-20260919-r1/build/fla-completed-latency-build-r1/run-record.json",
+          "sha256": "2922fa818d9496e52cd67003dfb0d999e5feca53dbad7ae301fd429bf591807a"
+        }
+      }
+    },
+    "functional_prerequisites": {
+      "packed-gate-midpoint-q8192-product-q8192-out512-mode1-r1": {
+        "run_record_sha256": "b018ee644e068830b8d26e8f92401b5a052ec83ea50df6b68396b8a0214c0b1c",
+        "boundary_sha256": "7b8032b50a9b12460c740ee0e87d6573b3208715f2fe04f58b8e9cce0e7607fa",
+        "remote_run_record": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-q8192-product-q8192-out512-mode1-r1/run-record.json"
+      },
+      "packed-gate-midpoint-native-mtp-q7169-out32-r1": {
+        "run_record_sha256": "fad9536c9d2bd680560d3f2ca2f76684db66a60723d26b3a70aed7c897b3f635",
+        "boundary_sha256": "edc238cb85ed218246e412034c445cc8242be8584e717b4a563f9af93d463a62",
+        "remote_run_record": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q7169-out32-r1/run-record.json"
+      },
+      "packed-gate-midpoint-native-mtp-q8191-out32-r1": {
+        "run_record_sha256": "ffbd7972501326c8475dd90c8935e99d8ff832167ea531c4d1358bd42b40638c",
+        "boundary_sha256": "652d0bce43c199fcd3c5dee6ac17b4b78ed33646cef2702924a917fef664e78c",
+        "remote_run_record": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q8191-out32-r1/run-record.json"
+      },
+      "packed-gate-midpoint-native-mtp-q8192-out512-r1": {
+        "run_record_sha256": "ac01b9e07c027769ae81158b5ec42607f27f5dd693ad84e0946f0aed6c783209",
+        "boundary_sha256": "19918831c76e7991ed4a75aaf074560ff5650c3e221791d0b05651c429dfeb1b",
+        "remote_run_record": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q8192-out512-r1/run-record.json"
+      },
+      "packed-gate-midpoint-native-mtp-q8193-out32-r1": {
+        "run_record_sha256": "1a0de88214eddd32029097c4da4dc74b66cc5597b51eab763071e134e138def7",
+        "boundary_sha256": "5d01c8eaea2712d53cf9995f8778be0d537ae9a6609124e187768392b1bb1ed9",
+        "remote_run_record": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q8193-out32-r1/run-record.json"
+      }
+    },
+    "validated_builds": {
+      "combined": {
+        "source_manifest": "packed-gate-midpoint-whole-source-r1.json",
+        "source_manifest_sha256": "42b224f40bf79d0b021cd67fdbf65e7c70ec4a3e5c61c49fc4f926daec420bdb",
+        "source_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+        "repo": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1",
+        "run_directory": "packed-gate-midpoint-whole-build-r1",
+        "run_sha256": "cdf23e7d8bbdb07ac0da4690829f4aa8dbf28292e0d96fc14eedd2e345b9231e",
+        "whole_metadata_sha256": "35711d255702d4b10c5e20346fa7871aba0090263ab4acdaeecfcf199d377499",
+        "whole_artifact": {
+          "name": "qrt_qwen36_whole_provider.dll",
+          "bytes": 14068736,
+          "sha256": "81aba6f6956c415ea48ed60d1199a9f64a6eb0ef04dc96ad176f5b876f3b0e83"
+        },
+        "whole_artifacts": [
+          {
+            "name": "qrt_qwen36_whole_provider.dll",
+            "bytes": 14068736,
+            "sha256": "81aba6f6956c415ea48ed60d1199a9f64a6eb0ef04dc96ad176f5b876f3b0e83"
+          },
+          {
+            "name": "q1_moe_avx512bf16_host_provider.obj",
+            "bytes": 183170,
+            "sha256": "831e912266e6738812d3eae9a74dd32201b06e25e80f61c52b9f6cbf02bb3345"
+          }
+        ],
+        "probe_metadata_sha256": "b1822022ae37d0130045e6cf9980d38f8e53122864c000bb889fed1556c6fca8",
+        "probe_executable_sha256": "c0b5c16bac2a0d0eb2bb54b234ac63fe02b683f76dcba8ca7ef0e612fd7cd31d",
+        "probe_executable_bytes": 956416,
+        "cli_metadata_sha256": "2f789b8274d71acb9368d801344135505e703d22f3a01f6421e5d64ec7d8ddf6",
+        "cli_executable_sha256": "c919570991729fc9632d63426a3da1a46721d3e8a852de8e74fa0b585e11e9dd",
+        "cli_executable_bytes": 949760,
+        "cli_path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/product-cli/qrt-product.exe",
+        "whole_compilation_inputs": 167,
+        "probe_compilation_inputs": 10,
+        "cli_compilation_inputs": 8,
+        "all_source_inputs": 173,
+        "compiler_flags_match_control": true
+      },
+      "server": {
+        "source_commit": "c2683cd5cb55478099f1adffe47b98e5cef79fba",
+        "repo": "P:/projects/AIMA-public-single-tail-q1-20260921-r1",
+        "source_manifest": "single-tail-q1-server-source-r2.json",
+        "source_manifest_sha256": "330aa7d20d728fe35ed589f029884d7e190056068e4e793edfea0821ce3bf65d",
+        "source_inputs": 25,
+        "run_directory": "single-tail-q1-server-build-r2",
+        "run_sha256": "ea4993fb6ef19c906ff409537d2d76db8492bca4d4de7fa622c497892bc51f7b",
+        "build_metadata_sha256": "44b6ed5393922bd8b9ef8367f51358c896183284e0bccc10583926b2b8ff6056",
+        "artifact": {
+          "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\build\\single-tail-q1-server\\qrt.exe",
+          "sha256": "57a40483284ff8a35cf21cc46ad0acf0bb8b6d5653a7051097e92951ebfbeb4f",
+          "bytes": 7916032
+        },
+        "command_file_sha256": "65fc321b7462e8c1653500f2ab542f14b78d9d8e13dc3cde9a5b9b46046c8cb5",
+        "stdout_sha256": "e73ecdb4af6ad983ba2f4e2fa635a86e10a3a20065ec8851911112984f8f6ab4",
+        "stderr_sha256": "4fc442189733a22d680e98ecee1bdf276b26cf58acb7737e30238f7df1de2fcf",
+        "stack_reserve_bytes": 268435456,
+        "library_tests_passed": 54,
+        "whole_build": {
+          "source_manifest": "single-tail-q1-whole-source-r2.json",
+          "source_manifest_sha256": "2ad442095947ebf83203350781ab1191cc62f94368366625ad2982246653e58a",
+          "source_commit": "c2683cd5cb55478099f1adffe47b98e5cef79fba",
+          "repo": "P:/projects/AIMA-public-single-tail-q1-20260921-r1",
+          "run_directory": "single-tail-q1-build-r2",
+          "run_sha256": "87cd447d5cbad28be30b1aeb035bb03719f8eded345bcaa1459fb7a628156762",
+          "whole_metadata_sha256": "7bfafef5fc6f7811c2272784a2466100ca4216e905c3f05a2ad60a7c9b655aa4",
+          "whole_artifact": {
+            "name": "qrt_qwen36_whole_provider.dll",
+            "bytes": 14067200,
+            "sha256": "84e3cedcdf75cb316fa056378afbe31509cc397274b8a62079e33f882f5c8802"
+          },
+          "whole_artifacts": [
+            {
+              "name": "qrt_qwen36_whole_provider.dll",
+              "bytes": 14067200,
+              "sha256": "84e3cedcdf75cb316fa056378afbe31509cc397274b8a62079e33f882f5c8802"
+            },
+            {
+              "name": "q1_moe_avx512bf16_host_provider.obj",
+              "bytes": 183170,
+              "sha256": "70bbe737fc13f0142104e7af97f313c2fef5f6953e83f61594dc05a07bcb73b6"
+            }
+          ],
+          "probe_metadata_sha256": "8187fd414a4fe6f0b520d0330476ad2b8a0c259296e4c9f56de4e56af52d74d5",
+          "probe_executable_sha256": "6690465c80d1ba453edf59ee1d89a3cff59fa26ca2c61088a5461016ff0b2f10",
+          "probe_executable_bytes": 956416,
+          "cli_metadata_sha256": "b9b623d8c29128197f2ba7b5c7edfec7bd11726cb1d4229502ad6a833c2c71cc",
+          "cli_executable_sha256": "813dd56d8409e0cd16dcbec0214e3d24a06f99cc603dddd58ebf5864995b3031",
+          "cli_executable_bytes": 949760,
+          "cli_path": "P:/projects/AIMA-public-single-tail-q1-20260921-r1/build/product-cli/qrt-product.exe",
+          "whole_compilation_inputs": 167,
+          "probe_compilation_inputs": 10,
+          "cli_compilation_inputs": 8,
+          "all_source_inputs": 173,
+          "compiler_flags_match_control": true
+        },
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "release_qualified": false
+      }
+    },
+    "generator": "correct_packed_gate_midpoint_package_admission_r2.py",
+    "generator_sha256": "2b53ef8e30de713c14cf668ae459781b34227882c9f812512b915c14da02c4ce",
+    "server_source_equivalence": {
+      "server_artifact_source_commit": "c2683cd5cb55478099f1adffe47b98e5cef79fba",
+      "repaired_tree_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+      "compared_inputs": [
+        {
+          "file": "Cargo.lock",
+          "bytes": 34728,
+          "server_build_sha256": "89adc25be45d0b731d55bf3671284d228ae58a32a6a66714f6ac9ae3de8a04b5",
+          "repaired_tree_sha256": "89adc25be45d0b731d55bf3671284d228ae58a32a6a66714f6ac9ae3de8a04b5"
+        },
+        {
+          "file": "Cargo.toml",
+          "bytes": 225,
+          "server_build_sha256": "c4f9cf8436e44ecdd1b4db764fc9c5969245bdd28339b805fad5f9b94236d743",
+          "repaired_tree_sha256": "c4f9cf8436e44ecdd1b4db764fc9c5969245bdd28339b805fad5f9b94236d743"
+        },
+        {
+          "file": "engine/qrt-cli/Cargo.toml",
+          "bytes": 158,
+          "server_build_sha256": "bf1ad59c3f324baf14cc6ba7598b8a93751e44a8626678969605b4961243cee6",
+          "repaired_tree_sha256": "bf1ad59c3f324baf14cc6ba7598b8a93751e44a8626678969605b4961243cee6"
+        },
+        {
+          "file": "engine/qrt-server/Cargo.toml",
+          "bytes": 874,
+          "server_build_sha256": "a27e5fd9c862b17eb580d9bbaba146a3428fb4d74cc6c4f1ac8027820b017ef9",
+          "repaired_tree_sha256": "a27e5fd9c862b17eb580d9bbaba146a3428fb4d74cc6c4f1ac8027820b017ef9"
+        },
+        {
+          "file": "engine/qrt-server/build.rs",
+          "bytes": 4651,
+          "server_build_sha256": "ac7ecdfbbe3207122327c2f9fdc84d650838850ad7066d4a6124694854f846c8",
+          "repaired_tree_sha256": "ac7ecdfbbe3207122327c2f9fdc84d650838850ad7066d4a6124694854f846c8"
+        },
+        {
+          "file": "engine/qrt-server/src/api.rs",
+          "bytes": 117757,
+          "server_build_sha256": "abbd19bf8d3e1eba47a9aa72cf6877b452374724eb700c708d1eff6537a23bd5",
+          "repaired_tree_sha256": "abbd19bf8d3e1eba47a9aa72cf6877b452374724eb700c708d1eff6537a23bd5"
+        },
+        {
+          "file": "engine/qrt-server/src/backend.rs",
+          "bytes": 17511,
+          "server_build_sha256": "f63db7637c263144b3f0009369a3c8d47c0bc10ac92af590e82a103fd47fcbd3",
+          "repaired_tree_sha256": "f63db7637c263144b3f0009369a3c8d47c0bc10ac92af590e82a103fd47fcbd3"
+        },
+        {
+          "file": "engine/qrt-server/src/chat.rs",
+          "bytes": 61117,
+          "server_build_sha256": "7f4384c169057bf3a6436c47b33c64a9bc84d606f8605474399021b758ef379b",
+          "repaired_tree_sha256": "7f4384c169057bf3a6436c47b33c64a9bc84d606f8605474399021b758ef379b"
+        },
+        {
+          "file": "engine/qrt-server/src/environment.rs",
+          "bytes": 1677,
+          "server_build_sha256": "609672b5077317c7ed5d290db9dc38e0e10120ef315cf57b9ccf3dbfd8f8001c",
+          "repaired_tree_sha256": "609672b5077317c7ed5d290db9dc38e0e10120ef315cf57b9ccf3dbfd8f8001c"
+        },
+        {
+          "file": "engine/qrt-server/src/lib.rs",
+          "bytes": 99,
+          "server_build_sha256": "5bbd18a6af78f2a9e31584218a9c2a50ccbd7f29c6583d51d5f4c42849a37d93",
+          "repaired_tree_sha256": "5bbd18a6af78f2a9e31584218a9c2a50ccbd7f29c6583d51d5f4c42849a37d93"
+        },
+        {
+          "file": "engine/qrt-server/src/lifecycle.rs",
+          "bytes": 41754,
+          "server_build_sha256": "9739ed2353c173703a13385d2d60bf8f9a2416da529a87b6a8ac6797b6bf51ce",
+          "repaired_tree_sha256": "9739ed2353c173703a13385d2d60bf8f9a2416da529a87b6a8ac6797b6bf51ce"
+        },
+        {
+          "file": "engine/qrt-server/src/main.rs",
+          "bytes": 1331,
+          "server_build_sha256": "b7f858794a3cd18ee18cbe64abe2c1f3d21ae4d72c4e43b0ccd8bb8147f2c4c1",
+          "repaired_tree_sha256": "b7f858794a3cd18ee18cbe64abe2c1f3d21ae4d72c4e43b0ccd8bb8147f2c4c1"
+        },
+        {
+          "file": "engine/qrt-server/src/tokenizer.rs",
+          "bytes": 5064,
+          "server_build_sha256": "dd55911fbd658300aa90f117dea6595799917052e96f329d164fe8d0614ebd32",
+          "repaired_tree_sha256": "dd55911fbd658300aa90f117dea6595799917052e96f329d164fe8d0614ebd32"
+        },
+        {
+          "file": "native/src/qrt.c",
+          "bytes": 4020579,
+          "server_build_sha256": "941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957",
+          "repaired_tree_sha256": "941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957"
+        },
+        {
+          "file": "native/src/qrt.h",
+          "bytes": 336432,
+          "server_build_sha256": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18",
+          "repaired_tree_sha256": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18"
+        },
+        {
+          "file": "native/src/qrt_context_limits.h",
+          "bytes": 565,
+          "server_build_sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+          "repaired_tree_sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00"
+        },
+        {
+          "file": "native/src/qrt_prefix_checkpoint.h",
+          "bytes": 1097,
+          "server_build_sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+          "repaired_tree_sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289"
+        },
+        {
+          "file": "native/src/qrt_prefix_logit.h",
+          "bytes": 1378,
+          "server_build_sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+          "repaired_tree_sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf"
+        },
+        {
+          "file": "native/src/qrt_server_bridge.c",
+          "bytes": 43199,
+          "server_build_sha256": "fdd1d51b2542e4702323edae8ba6fabbdd0264d10fd50c167f56c1b6083e3d12",
+          "repaired_tree_sha256": "fdd1d51b2542e4702323edae8ba6fabbdd0264d10fd50c167f56c1b6083e3d12"
+        },
+        {
+          "file": "native/src/qrt_server_bridge.h",
+          "bytes": 2910,
+          "server_build_sha256": "c9abb1593b531ac5afa1cdf821f432feb74f17f0acdd07c2ba83875721bd195c",
+          "repaired_tree_sha256": "c9abb1593b531ac5afa1cdf821f432feb74f17f0acdd07c2ba83875721bd195c"
+        },
+        {
+          "file": "native/src/qwen36_baseline.c",
+          "bytes": 14204,
+          "server_build_sha256": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061",
+          "repaired_tree_sha256": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061"
+        },
+        {
+          "file": "native/src/qwen36_baseline.h",
+          "bytes": 78,
+          "server_build_sha256": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42",
+          "repaired_tree_sha256": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42"
+        },
+        {
+          "file": "scripts/baiying_boot_identity.ps1",
+          "bytes": 1438,
+          "server_build_sha256": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+          "repaired_tree_sha256": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca"
+        },
+        {
+          "file": "scripts/baiying_build_qrt_server.ps1",
+          "bytes": 5396,
+          "server_build_sha256": "64011f0941f98a3e5b801c353148d0cf0ced3d81c37efe3e9a46e743d2be7b59",
+          "repaired_tree_sha256": "64011f0941f98a3e5b801c353148d0cf0ced3d81c37efe3e9a46e743d2be7b59"
+        },
+        {
+          "file": "scripts/baiying_guarded_inference.ps1",
+          "bytes": 12880,
+          "server_build_sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+          "repaired_tree_sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7"
+        }
+      ],
+      "all25_inputs_unchanged": true,
+      "server_rebuilt": false,
+      "server_library_tests_passed": 54,
+      "new_provider_http_inference_qualified": false,
+      "server_working_directory": "P:/projects/AIMA-public-single-tail-q1-20260921-r1"
+    },
+    "additional_host_predecessors": [
+      {
+        "run_directory": "packed-gate-midpoint-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+        "remote_run_record": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1/run-record.json",
+        "numerical_success_required": false,
+        "all_host_cleanup_required": true,
+        "execution_source_commit": "37014953c28e5b5a91573c6233fdda00bb279b85",
+        "runtime_source_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+        "original_run_plan": "packed-gate-midpoint-prefix256k-source-r1.json",
+        "original_run_plan_sha256": "f2ba17e8063cdbef7092869f1b54f0793f94c328da8a4d067a60fe5073021e3a"
+      }
+    ],
+    "stage_validator": "packed_gate_midpoint_package_stage_evidence_r2.py",
+    "stage_validator_sha256": "0ee861f9c1fa89fbcd82ddb5b1e8e0f14ef30dfea4246a633ecc1dbf17018f5a",
+    "preparation_correction": {
+      "prior_manifest": "packed-gate-midpoint-package-source-r1.json",
+      "prior_manifest_sha256": "b7ee90eb05f32aa1da2fdcd62f3ee790347225597b4fe4228c8418673458a60e",
+      "prior_archive_created": false,
+      "prior_dispatch_executed": false,
+      "reason": "The completed-owner admission must compare the execution checkout to spec.repo_commit and the separately built whole provider to spec.coarse_out_provider.commit. Runtime356 uses execution370 for this original long run."
+    }
+  },
+  "bound_package_manifest_sha256": "b6bb3aad0f65814a8549a905f9548a844208f11a07f1962c2415818962f527f6",
+  "package_input": {
+    "schema_version": 1,
+    "host": "baiying",
+    "repo": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1",
+    "source_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+    "base_manifest": {
+      "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\runtime-manifest.json",
+      "sha256": "0f3eac0003c04a8a2e4856f492e7c356a139c83d3a8fe3e9ae206b25ce290729"
+    },
+    "profile_sha256": "f6b38bff3c58860e81fd4f5b21e576753c38321d57e0b9bad5cdd23244f4291c",
+    "components": {
+      "server": {
+        "commit": "c2683cd5cb55478099f1adffe47b98e5cef79fba",
+        "metadata": {
+          "path": "P:/projects/AIMA-public-single-tail-q1-20260921-r1/build/single-tail-q1-server/build-provenance.json",
+          "sha256": "44b6ed5393922bd8b9ef8367f51358c896183284e0bccc10583926b2b8ff6056"
+        },
+        "artifact": {
+          "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\build\\single-tail-q1-server\\qrt.exe",
+          "sha256": "57a40483284ff8a35cf21cc46ad0acf0bb8b6d5653a7051097e92951ebfbeb4f",
+          "bytes": 7916032
+        },
+        "package_path": "engine/qrt.exe",
+        "build_run": {
+          "path": "P:/projects/AIMA-public-single-tail-q1-20260921-r1/build/single-tail-q1-server-build-r2/run-record.json",
+          "sha256": "ea4993fb6ef19c906ff409537d2d76db8492bca4d4de7fa622c497892bc51f7b"
+        }
+      },
+      "cli": {
+        "commit": "35607853eb03487b443ddfed8529b8da5539de86",
+        "metadata": {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/product-cli/build-provenance.json",
+          "sha256": "2f789b8274d71acb9368d801344135505e703d22f3a01f6421e5d64ec7d8ddf6"
+        },
+        "artifact": {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/product-cli/qrt-product.exe",
+          "bytes": 949760,
+          "sha256": "c919570991729fc9632d63426a3da1a46721d3e8a852de8e74fa0b585e11e9dd"
+        },
+        "package_path": "product-cli/qrt-product.exe",
+        "build_run": {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-build-r1/run-record.json",
+          "sha256": "cdf23e7d8bbdb07ac0da4690829f4aa8dbf28292e0d96fc14eedd2e345b9231e"
+        }
+      },
+      "whole": {
+        "commit": "35607853eb03487b443ddfed8529b8da5539de86",
+        "metadata": {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-provider/build-provenance.json",
+          "sha256": "35711d255702d4b10c5e20346fa7871aba0090263ab4acdaeecfcf199d377499"
+        },
+        "artifact": {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-provider/qrt_qwen36_whole_provider.dll",
+          "bytes": 14068736,
+          "sha256": "81aba6f6956c415ea48ed60d1199a9f64a6eb0ef04dc96ad176f5b876f3b0e83"
+        },
+        "package_path": "whole-provider/qrt_qwen36_whole_provider.dll",
+        "build_run": {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-build-r1/run-record.json",
+          "sha256": "cdf23e7d8bbdb07ac0da4690829f4aa8dbf28292e0d96fc14eedd2e345b9231e"
+        }
+      },
+      "ck": {
+        "commit": "37014953c28e5b5a91573c6233fdda00bb279b85",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query/build-ck-provenance.json",
+          "sha256": "599681d26ec1aeb62081f56ab8868d5d35ff753b8ec8cf0656fcf94f969f9976"
+        },
+        "artifact": {
+          "path": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query/qrt_ck_fmha_sm121.dll",
+          "sha256": "2ab47f4443fa8bb30b521c75b1c6785e8ce1a998b97021bd252aaed77c3aa64b",
+          "bytes": 2106368
+        },
+        "package_path": "ck-fmha/qrt_ck_fmha_sm121.dll",
+        "build_run": {
+          "path": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query-build-ck-r2/run-record.json",
+          "sha256": "b93dc75fbf922d7d062e656f2ffd8af7fe804bb4393a7da68d05051f2138fd27"
+        }
+      },
+      "moe": {
+        "commit": "9235750e81a899f6843bb9dfd3f11165ad4cdce9",
+        "metadata": {
+          "path": "D:\\projects\\AIMA-public-moe-down-compact-20260917-r6\\build\\moe-down-compact-provider\\build-provenance.json",
+          "sha256": "e318a189c68303b4918354e0d29ea6f849d20a6e9df19571a06c0289c8f824e9"
+        },
+        "artifact": {
+          "path": "D:\\projects\\AIMA-public-moe-down-compact-20260917-r6\\build\\moe-down-compact-provider\\qrt_triton_moe_q8192_provider.dll",
+          "sha256": "716379525ead68d583b36380261b467e8bfc37cd427f6577a24ee4519cda9891"
+        },
+        "package_path": "q8192-moe/qrt_triton_moe_q8192_provider.dll",
+        "build_run": {
+          "path": "D:/projects/AIMA-public-moe-down-compact-20260917-r6/build/moe-down-compact-provider-build-r6/run-record.json",
+          "sha256": "40dd15a883f3ed251727e5ca7d8de98f16b7d27ba5dc81ec92b793e6951d1aa4"
+        }
+      },
+      "fla": {
+        "commit": "1d11bf742268924ecf5df1e0e66a0e19fb7cec15",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-fla-completed-latency-20260919-r1/build/fla/build-provenance.json",
+          "sha256": "1286c84384fc9dd71fff7db8b7f2b2e59b5c7b0665a0320b2d96c3560a817eba"
+        },
+        "artifact": {
+          "path": "D:/projects/AIMA-public-fla-completed-latency-20260919-r1/build/fla/qrt_fla_chunk_gdn_provider.dll",
+          "sha256": "a6b110c3482ca8bc1bb7ef1b6c8213133bb98d53afa5d3a491ba4194bc1d3a88",
+          "bytes": 984064
+        },
+        "package_path": "fla/qrt_fla_chunk_gdn_provider.dll",
+        "build_run": {
+          "path": "D:/projects/AIMA-public-fla-completed-latency-20260919-r1/build/fla-completed-latency-build-r1/run-record.json",
+          "sha256": "2922fa818d9496e52cd67003dfb0d999e5feca53dbad7ae301fd429bf591807a"
+        }
+      }
+    },
+    "reference_config": {
+      "files": {
+        "server": {
+          "path": "D:\\projects\\AIMA-public-prefix-owner-cli-20260918-r1\\build\\relocated current package r6\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260919.r6\\engine\\qrt.exe",
+          "sha256": "6b3e5dd79a8e39652efcaf469410ebce1a106a499661f7fbe31ecdeba8d67dae"
+        },
+        "provider": {
+          "path": "D:\\projects\\AIMA-public-prefix-owner-cli-20260918-r1\\build\\relocated current package r6\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260919.r6\\whole-provider\\qrt_qwen36_whole_provider.dll",
+          "sha256": "2589bdd1d4b35904f5dd040721bb73a09c88bb483af7c3c93d729aab92b08dde"
+        },
+        "env": {
+          "path": "D:\\projects\\AIMA-public-prefix-owner-cli-20260918-r1\\build\\relocated current package r6\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260919.r6\\runtime.env",
+          "sha256": "2178d4ed6b51221b88de08b83cb0f8827d9f396f72d423c8ed833db851af8fa7"
+        },
+        "prompt": {
+          "path": "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out32-prompt.json",
+          "sha256": "3c4cf3bf6384fd0a915c0925737e186746b680f9659af980192f863f1cb0fe54"
+        },
+        "oracle": {
+          "path": "D:\\projects\\AIMA-public-prefix-owner-cli-20260918-r1\\contracts\\hprefill_q8192_gb10_oracle.json",
+          "sha256": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890"
+        },
+        "runtime_manifest": {
+          "path": "D:\\projects\\AIMA-public-prefix-owner-cli-20260918-r1\\build\\relocated current package r6\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260919.r6\\runtime-manifest.json",
+          "sha256": "6ad922acf382b73c0322b8dadc5cc6661e72e1af90d94195c8f6cc56bc0579ed"
+        }
+      },
+      "port": 18181,
+      "model": "D:/models/Qwen3.6-35B-A3B",
+      "model_id": "qwen3.6-35b-a3b",
+      "server_commit": "b3d75e910350c2b7dd3911fa5370a39a89dbe5cc",
+      "working_directory": "D:/projects/AIMA-public-tool-text-parts-bounded-20260918-r1",
+      "require_first_token_logit": true,
+      "execution_limits": {
+        "readiness_seconds": 45,
+        "request_seconds": 120,
+        "controller_seconds": 360
+      }
+    },
+    "package_script_sha256": "afd5730e677ef2dd34bb7fad2789f6d4f018fc0322db22cd04260b54678e432a",
+    "http_script_sha256": "080155aa38c62818f9b71a7fd2e5f5ac7056b1f763de170475b568118faa2eb5",
+    "version": "1.0.2-packed-gate-midpoint.20260922.r1",
+    "published": false,
+    "caller_assets": {
+      "docs/API.md": "0a0d67f666e70fa3ffe937dff79ea040701c5cb6919c9bdcc3e239fd023d19c4",
+      "docs/AGENT-INTEGRATION.md": "9176392639dc8f4ce4f972f86775917e77df55ed4ce7395fd1f25410c922f178",
+      "scripts/check-agent-documents.py": "20d28dadad874255ec96342056117ccd47912d8feacce4aa2491741a5a396d41"
+    },
+    "profile_input": {
+      "file": "current-stack-portable-profile-20260920-packed-q1.env",
+      "sha256": "f6b38bff3c58860e81fd4f5b21e576753c38321d57e0b9bad5cdd23244f4291c",
+      "rows": 535,
+      "relative_paths": 34
+    },
+    "profile_values_byte_identical": false,
+    "original_r3_profile_sha256": "a8b0a9d17716268ddc6e5eb82a98abba498153b24727536cb65e7f3264c5b11f",
+    "numeric_component_control": {
+      "run": "packed-gate-midpoint-q8192-product-q8192-out512-mode1-r1",
+      "run_record_sha256": "b018ee644e068830b8d26e8f92401b5a052ec83ea50df6b68396b8a0214c0b1c"
+    },
+    "server_working_directory": "P:/projects/AIMA-public-single-tail-q1-20260921-r1",
+    "runtime_artifact_count": 269,
+    "release_file_count": 285,
+    "pending_product_gates": [
+      "correctness-attached same-artifact context/prefix completion",
+      "remaining native MTP retirement cases",
+      "final-archive HTTP protocol/prefix/cancellation and 13-case cold matrix",
+      "one-hour final-archive soak",
+      "final archive verification",
+      "immutable q8192 performance and load targets"
+    ],
+    "functional_prerequisites": {
+      "packed-gate-midpoint-q8192-product-q8192-out512-mode1-r1": {
+        "run_record_sha256": "b018ee644e068830b8d26e8f92401b5a052ec83ea50df6b68396b8a0214c0b1c",
+        "boundary_sha256": "7b8032b50a9b12460c740ee0e87d6573b3208715f2fe04f58b8e9cce0e7607fa",
+        "remote_run_record": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-q8192-product-q8192-out512-mode1-r1/run-record.json"
+      },
+      "packed-gate-midpoint-native-mtp-q7169-out32-r1": {
+        "run_record_sha256": "fad9536c9d2bd680560d3f2ca2f76684db66a60723d26b3a70aed7c897b3f635",
+        "boundary_sha256": "edc238cb85ed218246e412034c445cc8242be8584e717b4a563f9af93d463a62",
+        "remote_run_record": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q7169-out32-r1/run-record.json"
+      },
+      "packed-gate-midpoint-native-mtp-q8191-out32-r1": {
+        "run_record_sha256": "ffbd7972501326c8475dd90c8935e99d8ff832167ea531c4d1358bd42b40638c",
+        "boundary_sha256": "652d0bce43c199fcd3c5dee6ac17b4b78ed33646cef2702924a917fef664e78c",
+        "remote_run_record": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q8191-out32-r1/run-record.json"
+      },
+      "packed-gate-midpoint-native-mtp-q8192-out512-r1": {
+        "run_record_sha256": "ac01b9e07c027769ae81158b5ec42607f27f5dd693ad84e0946f0aed6c783209",
+        "boundary_sha256": "19918831c76e7991ed4a75aaf074560ff5650c3e221791d0b05651c429dfeb1b",
+        "remote_run_record": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q8192-out512-r1/run-record.json"
+      },
+      "packed-gate-midpoint-native-mtp-q8193-out32-r1": {
+        "run_record_sha256": "1a0de88214eddd32029097c4da4dc74b66cc5597b51eab763071e134e138def7",
+        "boundary_sha256": "5d01c8eaea2712d53cf9995f8778be0d537ae9a6609124e187768392b1bb1ed9",
+        "remote_run_record": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q8193-out32-r1/run-record.json"
+      }
+    },
+    "extra_artifacts": [
+      {
+        "path": "D:/projects/sm121-sqrt-positive-4f40ec04.bin",
+        "sha256": "4f40ec04656a43948813e188f914e7e2f78d8f6b09b45e647027978aa520191a",
+        "bytes": 17039392,
+        "package_path": "tables/sm121-sqrt-positive-4f40ec04.bin"
+      }
+    ],
+    "functional_profile_binding": {
+      "native_environment_sha256": "24b8871bfe4c7ad103e4f98a68d760a44a690447d5047f662b213a9da4d2a362",
+      "portable_profile_sha256": "f6b38bff3c58860e81fd4f5b21e576753c38321d57e0b9bad5cdd23244f4291c",
+      "normalized_options_match": true,
+      "declared_profile_differences": {
+        "QRT_QWEN36_CHUNKED_PREFILL": {
+          "native": "0",
+          "portable": "1"
+        },
+        "QRT_PREFILL_DESCRIPTOR_BATCH_PROFILE_LINEAR_PHASES": {
+          "native": null,
+          "portable": "0"
+        },
+        "QRT_PREFILL_DESCRIPTOR_BATCH_REQUIRED_MARKERS_ONLY": {
+          "native": "1",
+          "portable": "0"
+        }
+      },
+      "portable_options": 535,
+      "portable_paths": 34,
+      "final_archive_inference_qualified": false
+    },
+    "server_source_equivalence": {
+      "server_artifact_source_commit": "c2683cd5cb55478099f1adffe47b98e5cef79fba",
+      "repaired_tree_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+      "compared_inputs": [
+        {
+          "file": "Cargo.lock",
+          "bytes": 34728,
+          "server_build_sha256": "89adc25be45d0b731d55bf3671284d228ae58a32a6a66714f6ac9ae3de8a04b5",
+          "repaired_tree_sha256": "89adc25be45d0b731d55bf3671284d228ae58a32a6a66714f6ac9ae3de8a04b5"
+        },
+        {
+          "file": "Cargo.toml",
+          "bytes": 225,
+          "server_build_sha256": "c4f9cf8436e44ecdd1b4db764fc9c5969245bdd28339b805fad5f9b94236d743",
+          "repaired_tree_sha256": "c4f9cf8436e44ecdd1b4db764fc9c5969245bdd28339b805fad5f9b94236d743"
+        },
+        {
+          "file": "engine/qrt-cli/Cargo.toml",
+          "bytes": 158,
+          "server_build_sha256": "bf1ad59c3f324baf14cc6ba7598b8a93751e44a8626678969605b4961243cee6",
+          "repaired_tree_sha256": "bf1ad59c3f324baf14cc6ba7598b8a93751e44a8626678969605b4961243cee6"
+        },
+        {
+          "file": "engine/qrt-server/Cargo.toml",
+          "bytes": 874,
+          "server_build_sha256": "a27e5fd9c862b17eb580d9bbaba146a3428fb4d74cc6c4f1ac8027820b017ef9",
+          "repaired_tree_sha256": "a27e5fd9c862b17eb580d9bbaba146a3428fb4d74cc6c4f1ac8027820b017ef9"
+        },
+        {
+          "file": "engine/qrt-server/build.rs",
+          "bytes": 4651,
+          "server_build_sha256": "ac7ecdfbbe3207122327c2f9fdc84d650838850ad7066d4a6124694854f846c8",
+          "repaired_tree_sha256": "ac7ecdfbbe3207122327c2f9fdc84d650838850ad7066d4a6124694854f846c8"
+        },
+        {
+          "file": "engine/qrt-server/src/api.rs",
+          "bytes": 117757,
+          "server_build_sha256": "abbd19bf8d3e1eba47a9aa72cf6877b452374724eb700c708d1eff6537a23bd5",
+          "repaired_tree_sha256": "abbd19bf8d3e1eba47a9aa72cf6877b452374724eb700c708d1eff6537a23bd5"
+        },
+        {
+          "file": "engine/qrt-server/src/backend.rs",
+          "bytes": 17511,
+          "server_build_sha256": "f63db7637c263144b3f0009369a3c8d47c0bc10ac92af590e82a103fd47fcbd3",
+          "repaired_tree_sha256": "f63db7637c263144b3f0009369a3c8d47c0bc10ac92af590e82a103fd47fcbd3"
+        },
+        {
+          "file": "engine/qrt-server/src/chat.rs",
+          "bytes": 61117,
+          "server_build_sha256": "7f4384c169057bf3a6436c47b33c64a9bc84d606f8605474399021b758ef379b",
+          "repaired_tree_sha256": "7f4384c169057bf3a6436c47b33c64a9bc84d606f8605474399021b758ef379b"
+        },
+        {
+          "file": "engine/qrt-server/src/environment.rs",
+          "bytes": 1677,
+          "server_build_sha256": "609672b5077317c7ed5d290db9dc38e0e10120ef315cf57b9ccf3dbfd8f8001c",
+          "repaired_tree_sha256": "609672b5077317c7ed5d290db9dc38e0e10120ef315cf57b9ccf3dbfd8f8001c"
+        },
+        {
+          "file": "engine/qrt-server/src/lib.rs",
+          "bytes": 99,
+          "server_build_sha256": "5bbd18a6af78f2a9e31584218a9c2a50ccbd7f29c6583d51d5f4c42849a37d93",
+          "repaired_tree_sha256": "5bbd18a6af78f2a9e31584218a9c2a50ccbd7f29c6583d51d5f4c42849a37d93"
+        },
+        {
+          "file": "engine/qrt-server/src/lifecycle.rs",
+          "bytes": 41754,
+          "server_build_sha256": "9739ed2353c173703a13385d2d60bf8f9a2416da529a87b6a8ac6797b6bf51ce",
+          "repaired_tree_sha256": "9739ed2353c173703a13385d2d60bf8f9a2416da529a87b6a8ac6797b6bf51ce"
+        },
+        {
+          "file": "engine/qrt-server/src/main.rs",
+          "bytes": 1331,
+          "server_build_sha256": "b7f858794a3cd18ee18cbe64abe2c1f3d21ae4d72c4e43b0ccd8bb8147f2c4c1",
+          "repaired_tree_sha256": "b7f858794a3cd18ee18cbe64abe2c1f3d21ae4d72c4e43b0ccd8bb8147f2c4c1"
+        },
+        {
+          "file": "engine/qrt-server/src/tokenizer.rs",
+          "bytes": 5064,
+          "server_build_sha256": "dd55911fbd658300aa90f117dea6595799917052e96f329d164fe8d0614ebd32",
+          "repaired_tree_sha256": "dd55911fbd658300aa90f117dea6595799917052e96f329d164fe8d0614ebd32"
+        },
+        {
+          "file": "native/src/qrt.c",
+          "bytes": 4020579,
+          "server_build_sha256": "941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957",
+          "repaired_tree_sha256": "941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957"
+        },
+        {
+          "file": "native/src/qrt.h",
+          "bytes": 336432,
+          "server_build_sha256": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18",
+          "repaired_tree_sha256": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18"
+        },
+        {
+          "file": "native/src/qrt_context_limits.h",
+          "bytes": 565,
+          "server_build_sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+          "repaired_tree_sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00"
+        },
+        {
+          "file": "native/src/qrt_prefix_checkpoint.h",
+          "bytes": 1097,
+          "server_build_sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+          "repaired_tree_sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289"
+        },
+        {
+          "file": "native/src/qrt_prefix_logit.h",
+          "bytes": 1378,
+          "server_build_sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+          "repaired_tree_sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf"
+        },
+        {
+          "file": "native/src/qrt_server_bridge.c",
+          "bytes": 43199,
+          "server_build_sha256": "fdd1d51b2542e4702323edae8ba6fabbdd0264d10fd50c167f56c1b6083e3d12",
+          "repaired_tree_sha256": "fdd1d51b2542e4702323edae8ba6fabbdd0264d10fd50c167f56c1b6083e3d12"
+        },
+        {
+          "file": "native/src/qrt_server_bridge.h",
+          "bytes": 2910,
+          "server_build_sha256": "c9abb1593b531ac5afa1cdf821f432feb74f17f0acdd07c2ba83875721bd195c",
+          "repaired_tree_sha256": "c9abb1593b531ac5afa1cdf821f432feb74f17f0acdd07c2ba83875721bd195c"
+        },
+        {
+          "file": "native/src/qwen36_baseline.c",
+          "bytes": 14204,
+          "server_build_sha256": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061",
+          "repaired_tree_sha256": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061"
+        },
+        {
+          "file": "native/src/qwen36_baseline.h",
+          "bytes": 78,
+          "server_build_sha256": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42",
+          "repaired_tree_sha256": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42"
+        },
+        {
+          "file": "scripts/baiying_boot_identity.ps1",
+          "bytes": 1438,
+          "server_build_sha256": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+          "repaired_tree_sha256": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca"
+        },
+        {
+          "file": "scripts/baiying_build_qrt_server.ps1",
+          "bytes": 5396,
+          "server_build_sha256": "64011f0941f98a3e5b801c353148d0cf0ced3d81c37efe3e9a46e743d2be7b59",
+          "repaired_tree_sha256": "64011f0941f98a3e5b801c353148d0cf0ced3d81c37efe3e9a46e743d2be7b59"
+        },
+        {
+          "file": "scripts/baiying_guarded_inference.ps1",
+          "bytes": 12880,
+          "server_build_sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+          "repaired_tree_sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7"
+        }
+      ],
+      "all25_inputs_unchanged": true,
+      "server_rebuilt": false,
+      "server_library_tests_passed": 54,
+      "new_provider_http_inference_qualified": false,
+      "server_working_directory": "P:/projects/AIMA-public-single-tail-q1-20260921-r1"
+    },
+    "preparation_correction": {
+      "prior_input": "packed-gate-midpoint-package-input-r1.json",
+      "prior_input_sha256": "5072a4972a385d3a50e689d88b329f3120a234c7d1c74b0d31a6d7f54ca6269e",
+      "reason": "The unchanged HTTP preflight requires the server working checkout to match its actual c268 binary source. Retain that checkout while loading the newly bound 356 whole provider from the relocated archive.",
+      "prior_input_never_staged": true,
+      "numerical_options_changed": false
+    }
+  },
+  "package_input_sha256": "cdf88da2c271e45e2577711be9c889f963dc62a37982a4f4329a90e51ba31542",
+  "actual_binding_checks": {
+    "kind": "packed_gate_midpoint_package_actual_component_binding_checks",
+    "source_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+    "utc": "2026-09-22T00:21:39.576435+00:00",
+    "source_manifest_sha256": "b6bb3aad0f65814a8549a905f9548a844208f11a07f1962c2415818962f527f6",
+    "input_sha256": "cdf88da2c271e45e2577711be9c889f963dc62a37982a4f4329a90e51ba31542",
+    "positive_profile": {
+      "native_environment_sha256": "24b8871bfe4c7ad103e4f98a68d760a44a690447d5047f662b213a9da4d2a362",
+      "portable_profile_sha256": "f6b38bff3c58860e81fd4f5b21e576753c38321d57e0b9bad5cdd23244f4291c",
+      "normalized_options_match": true,
+      "declared_profile_differences": {
+        "QRT_PREFILL_DESCRIPTOR_BATCH_PROFILE_LINEAR_PHASES": {
+          "native": null,
+          "portable": "0"
+        },
+        "QRT_QWEN36_CHUNKED_PREFILL": {
+          "native": "0",
+          "portable": "1"
+        },
+        "QRT_PREFILL_DESCRIPTOR_BATCH_REQUIRED_MARKERS_ONLY": {
+          "native": "1",
+          "portable": "0"
+        }
+      },
+      "portable_options": 535,
+      "portable_paths": 34,
+      "final_archive_inference_qualified": false
+    },
+    "profile_faults_rejected": [
+      {
+        "case": "wrong_base_manifest",
+        "rejected": true
+      },
+      {
+        "case": "wrong_moe_path",
+        "rejected": true
+      },
+      {
+        "case": "wrong_table_path",
+        "rejected": true
+      },
+      {
+        "case": "changed_numeric_option",
+        "rejected": true
+      },
+      {
+        "case": "duplicate_option",
+        "rejected": true
+      }
+    ],
+    "server_source_faults_rejected": [
+      {
+        "case": "wrong_server_working_checkout",
+        "rejected": true
+      },
+      {
+        "case": "relabeled_server_binary",
+        "rejected": true
+      },
+      {
+        "case": "changed_server_build_input",
+        "rejected": true
+      }
+    ],
+    "server_source_equivalence": {
+      "server_artifact_source_commit": "c2683cd5cb55478099f1adffe47b98e5cef79fba",
+      "repaired_tree_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+      "compared_inputs": [
+        {
+          "file": "Cargo.lock",
+          "bytes": 34728,
+          "server_build_sha256": "89adc25be45d0b731d55bf3671284d228ae58a32a6a66714f6ac9ae3de8a04b5",
+          "repaired_tree_sha256": "89adc25be45d0b731d55bf3671284d228ae58a32a6a66714f6ac9ae3de8a04b5"
+        },
+        {
+          "file": "Cargo.toml",
+          "bytes": 225,
+          "server_build_sha256": "c4f9cf8436e44ecdd1b4db764fc9c5969245bdd28339b805fad5f9b94236d743",
+          "repaired_tree_sha256": "c4f9cf8436e44ecdd1b4db764fc9c5969245bdd28339b805fad5f9b94236d743"
+        },
+        {
+          "file": "engine/qrt-cli/Cargo.toml",
+          "bytes": 158,
+          "server_build_sha256": "bf1ad59c3f324baf14cc6ba7598b8a93751e44a8626678969605b4961243cee6",
+          "repaired_tree_sha256": "bf1ad59c3f324baf14cc6ba7598b8a93751e44a8626678969605b4961243cee6"
+        },
+        {
+          "file": "engine/qrt-server/Cargo.toml",
+          "bytes": 874,
+          "server_build_sha256": "a27e5fd9c862b17eb580d9bbaba146a3428fb4d74cc6c4f1ac8027820b017ef9",
+          "repaired_tree_sha256": "a27e5fd9c862b17eb580d9bbaba146a3428fb4d74cc6c4f1ac8027820b017ef9"
+        },
+        {
+          "file": "engine/qrt-server/build.rs",
+          "bytes": 4651,
+          "server_build_sha256": "ac7ecdfbbe3207122327c2f9fdc84d650838850ad7066d4a6124694854f846c8",
+          "repaired_tree_sha256": "ac7ecdfbbe3207122327c2f9fdc84d650838850ad7066d4a6124694854f846c8"
+        },
+        {
+          "file": "engine/qrt-server/src/api.rs",
+          "bytes": 117757,
+          "server_build_sha256": "abbd19bf8d3e1eba47a9aa72cf6877b452374724eb700c708d1eff6537a23bd5",
+          "repaired_tree_sha256": "abbd19bf8d3e1eba47a9aa72cf6877b452374724eb700c708d1eff6537a23bd5"
+        },
+        {
+          "file": "engine/qrt-server/src/backend.rs",
+          "bytes": 17511,
+          "server_build_sha256": "f63db7637c263144b3f0009369a3c8d47c0bc10ac92af590e82a103fd47fcbd3",
+          "repaired_tree_sha256": "f63db7637c263144b3f0009369a3c8d47c0bc10ac92af590e82a103fd47fcbd3"
+        },
+        {
+          "file": "engine/qrt-server/src/chat.rs",
+          "bytes": 61117,
+          "server_build_sha256": "7f4384c169057bf3a6436c47b33c64a9bc84d606f8605474399021b758ef379b",
+          "repaired_tree_sha256": "7f4384c169057bf3a6436c47b33c64a9bc84d606f8605474399021b758ef379b"
+        },
+        {
+          "file": "engine/qrt-server/src/environment.rs",
+          "bytes": 1677,
+          "server_build_sha256": "609672b5077317c7ed5d290db9dc38e0e10120ef315cf57b9ccf3dbfd8f8001c",
+          "repaired_tree_sha256": "609672b5077317c7ed5d290db9dc38e0e10120ef315cf57b9ccf3dbfd8f8001c"
+        },
+        {
+          "file": "engine/qrt-server/src/lib.rs",
+          "bytes": 99,
+          "server_build_sha256": "5bbd18a6af78f2a9e31584218a9c2a50ccbd7f29c6583d51d5f4c42849a37d93",
+          "repaired_tree_sha256": "5bbd18a6af78f2a9e31584218a9c2a50ccbd7f29c6583d51d5f4c42849a37d93"
+        },
+        {
+          "file": "engine/qrt-server/src/lifecycle.rs",
+          "bytes": 41754,
+          "server_build_sha256": "9739ed2353c173703a13385d2d60bf8f9a2416da529a87b6a8ac6797b6bf51ce",
+          "repaired_tree_sha256": "9739ed2353c173703a13385d2d60bf8f9a2416da529a87b6a8ac6797b6bf51ce"
+        },
+        {
+          "file": "engine/qrt-server/src/main.rs",
+          "bytes": 1331,
+          "server_build_sha256": "b7f858794a3cd18ee18cbe64abe2c1f3d21ae4d72c4e43b0ccd8bb8147f2c4c1",
+          "repaired_tree_sha256": "b7f858794a3cd18ee18cbe64abe2c1f3d21ae4d72c4e43b0ccd8bb8147f2c4c1"
+        },
+        {
+          "file": "engine/qrt-server/src/tokenizer.rs",
+          "bytes": 5064,
+          "server_build_sha256": "dd55911fbd658300aa90f117dea6595799917052e96f329d164fe8d0614ebd32",
+          "repaired_tree_sha256": "dd55911fbd658300aa90f117dea6595799917052e96f329d164fe8d0614ebd32"
+        },
+        {
+          "file": "native/src/qrt.c",
+          "bytes": 4020579,
+          "server_build_sha256": "941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957",
+          "repaired_tree_sha256": "941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957"
+        },
+        {
+          "file": "native/src/qrt.h",
+          "bytes": 336432,
+          "server_build_sha256": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18",
+          "repaired_tree_sha256": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18"
+        },
+        {
+          "file": "native/src/qrt_context_limits.h",
+          "bytes": 565,
+          "server_build_sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+          "repaired_tree_sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00"
+        },
+        {
+          "file": "native/src/qrt_prefix_checkpoint.h",
+          "bytes": 1097,
+          "server_build_sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+          "repaired_tree_sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289"
+        },
+        {
+          "file": "native/src/qrt_prefix_logit.h",
+          "bytes": 1378,
+          "server_build_sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+          "repaired_tree_sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf"
+        },
+        {
+          "file": "native/src/qrt_server_bridge.c",
+          "bytes": 43199,
+          "server_build_sha256": "fdd1d51b2542e4702323edae8ba6fabbdd0264d10fd50c167f56c1b6083e3d12",
+          "repaired_tree_sha256": "fdd1d51b2542e4702323edae8ba6fabbdd0264d10fd50c167f56c1b6083e3d12"
+        },
+        {
+          "file": "native/src/qrt_server_bridge.h",
+          "bytes": 2910,
+          "server_build_sha256": "c9abb1593b531ac5afa1cdf821f432feb74f17f0acdd07c2ba83875721bd195c",
+          "repaired_tree_sha256": "c9abb1593b531ac5afa1cdf821f432feb74f17f0acdd07c2ba83875721bd195c"
+        },
+        {
+          "file": "native/src/qwen36_baseline.c",
+          "bytes": 14204,
+          "server_build_sha256": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061",
+          "repaired_tree_sha256": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061"
+        },
+        {
+          "file": "native/src/qwen36_baseline.h",
+          "bytes": 78,
+          "server_build_sha256": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42",
+          "repaired_tree_sha256": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42"
+        },
+        {
+          "file": "scripts/baiying_boot_identity.ps1",
+          "bytes": 1438,
+          "server_build_sha256": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+          "repaired_tree_sha256": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca"
+        },
+        {
+          "file": "scripts/baiying_build_qrt_server.ps1",
+          "bytes": 5396,
+          "server_build_sha256": "64011f0941f98a3e5b801c353148d0cf0ced3d81c37efe3e9a46e743d2be7b59",
+          "repaired_tree_sha256": "64011f0941f98a3e5b801c353148d0cf0ced3d81c37efe3e9a46e743d2be7b59"
+        },
+        {
+          "file": "scripts/baiying_guarded_inference.ps1",
+          "bytes": 12880,
+          "server_build_sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+          "repaired_tree_sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7"
+        }
+      ],
+      "all25_inputs_unchanged": true,
+      "server_rebuilt": false,
+      "server_library_tests_passed": 54,
+      "new_provider_http_inference_qualified": false,
+      "server_working_directory": "P:/projects/AIMA-public-single-tail-q1-20260921-r1"
+    },
+    "owner_admission": {
+      "historical_positive_run_sha256": "1f58d71e0a8b1c5ff61de48f6adf872d3b593afcc60792816bbabe12eeabd198",
+      "historical_execution_source": "37014953c28e5b5a91573c6233fdda00bb279b85",
+      "historical_runtime_source": "c2683cd5cb55478099f1adffe47b98e5cef79fba",
+      "historical_numerical_failure_not_promoted": true,
+      "rejected_faults": [
+        {
+          "case": "runtime_as_execution",
+          "rejected": true
+        },
+        {
+          "case": "wrong_runtime",
+          "rejected": true
+        },
+        {
+          "case": "wrong_host",
+          "rejected": true
+        },
+        {
+          "case": "false_host_check",
+          "rejected": true
+        },
+        {
+          "case": "empty_host_checks",
+          "rejected": true
+        },
+        {
+          "case": "unclean_processes",
+          "rejected": true
+        }
+      ],
+      "original_long_plan_matches": true,
+      "actual_new_owner_completed": false
+    },
+    "active_owner_admission": [
+      {
+        "action": "stage",
+        "subprocess_calls": 0,
+        "output_directory_created": false
+      },
+      {
+        "action": "test",
+        "subprocess_calls": 0,
+        "output_directory_created": false
+      }
+    ],
+    "native": {
+      "command": [
+        "ssh",
+        "-o",
+        "BatchMode=yes",
+        "-o",
+        "ConnectTimeout=10",
+        "baiying",
+        "powershell.exe -NoProfile -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAJABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAWwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgBwAHUAdABFAG4AYwBvAGQAaQBuAGcAPQBbAFQAZQB4AHQALgBVAFQARgA4AEUAbgBjAG8AZABpAG4AZwBdADoAOgBuAGUAdwAoACQAZgBhAGwAcwBlACkAOwBbAEMAbwBuAHMAbwBsAGUAXQA6ADoATwB1AHQAcAB1AHQARQBuAGMAbwBkAGkAbgBnAD0AWwBUAGUAeAB0AC4AVQBUAEYAOABFAG4AYwBvAGQAaQBuAGcAXQA6ADoAbgBlAHcAKAAkAGYAYQBsAHMAZQApADsAJABzAD0AWwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgAuAFIAZQBhAGQAVABvAEUAbgBkACgAKQA7ACYAIAAoAFsAUwBjAHIAaQBwAHQAQgBsAG8AYwBrAF0AOgA6AEMAcgBlAGEAdABlACgAJABzACkAKQA="
+      ],
+      "command_script": "$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\nfunction Fingerprint([string]$Path,[string]$Expected,[long]$Bytes=-1){\n $item=Get-Item -LiteralPath $Path\n $actual=(Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()\n if($actual -ne $Expected -or ($Bytes -ge 0 -and $item.Length -ne $Bytes)){throw ('Changed input: '+$Path)}\n return [ordered]@{path=$Path;sha256=$actual;bytes=$item.Length}\n}\n$sourcePath='P:/projects/packed-gate-midpoint-package-source-r2.json'\n$sourceFile=Fingerprint $sourcePath 'b6bb3aad0f65814a8549a905f9548a844208f11a07f1962c2415818962f527f6'\n$m=[IO.File]::ReadAllText($sourcePath)|ConvertFrom-Json\n$inputPath=Join-Path 'P:/projects' $m.input\n$inputFile=Fingerprint $inputPath $m.input_sha256\n$c=[IO.File]::ReadAllText($inputPath)|ConvertFrom-Json\n$scriptPath=Join-Path 'P:/projects' $m.script\n$scriptFile=Fingerprint $scriptPath $m.script_sha256\n$tokens=$null;$errors=$null;$null=[Management.Automation.Language.Parser]::ParseFile($scriptPath,[ref]$tokens,[ref]$errors)\nif($errors.Count){throw ($errors|Out-String)}\n$components=@()\nforeach($entry in $c.components.PSObject.Properties){\n $x=$entry.Value\n $expectedBytes=-1\n if($x.artifact.PSObject.Properties.Name -contains 'bytes'){$expectedBytes=[long]$x.artifact.bytes}\n $artifact=Fingerprint $x.artifact.path $x.artifact.sha256 $expectedBytes\n $metaFile=Fingerprint $x.metadata.path $x.metadata.sha256\n $meta=[IO.File]::ReadAllText($x.metadata.path)|ConvertFrom-Json\n if($meta.repo_commit -ne $x.commit -or $meta.dirty_tree){throw 'Component source mismatch'}\n $runFile=Fingerprint $x.build_run.path $x.build_run.sha256\n $run=[IO.File]::ReadAllText($x.build_run.path)|ConvertFrom-Json\n if($run.spec.repo_commit -ne $x.commit -or $run.reason -ne 'completed' -or $run.exit_code -ne 0 -or -not $run.host_checks_pass){throw 'Component build not qualified'}\n $components+=[ordered]@{role=$entry.Name;commit=$x.commit;artifact=$artifact;metadata=$metaFile;build_run=$runFile}\n}\n$extra=@();foreach($x in $c.extra_artifacts){$extra+=Fingerprint $x.path $x.sha256 ([long]$x.bytes)}\n$base=Fingerprint $c.base_manifest.path $c.base_manifest.sha256\n$controls=@();foreach($entry in $c.functional_prerequisites.PSObject.Properties){$controls+=Fingerprint $entry.Value.remote_run_record $entry.Value.run_record_sha256}\n$equivalence=@();foreach($x in $c.server_source_equivalence.compared_inputs){\n $repaired=Fingerprint (Join-Path $c.repo $x.file) $x.repaired_tree_sha256 ([long]$x.bytes)\n $server=Fingerprint (Join-Path $c.server_working_directory $x.file) $x.server_build_sha256 ([long]$x.bytes)\n if($repaired.sha256 -ne $server.sha256){throw 'Server input differs'}\n $equivalence+=[ordered]@{file=$x.file;repaired=$repaired;server=$server}\n}\n$active=@();foreach($owner in @($m.exclusive_host_predecessor)+@($m.additional_host_predecessors)){\n $active+=[ordered]@{run_directory=$owner.run_directory;record_present=(Test-Path -LiteralPath $owner.remote_run_record)}\n}\n[ordered]@{host=[Environment]::MachineName;utc=[DateTime]::UtcNow.ToString('o');source=$sourceFile;input=$inputFile;script=$scriptFile;parse_errors=@();components=$components;extra_artifacts=$extra;base_manifest=$base;functional_controls=$controls;active_owners=$active;server_input_equivalence=$equivalence;artifact_binding_verified=$true;archive_created=$false;new_model_process_launched=$false;gpu_test_launched=$false}|ConvertTo-Json -Depth 12\n",
+      "returncode": 0,
+      "stdout": "{\n    \"host\":  \"BAIYING\",\n    \"utc\":  \"2026-09-22T00:21:41.4404584Z\",\n    \"source\":  {\n                   \"path\":  \"P:/projects/packed-gate-midpoint-package-source-r2.json\",\n                   \"sha256\":  \"b6bb3aad0f65814a8549a905f9548a844208f11a07f1962c2415818962f527f6\",\n                   \"bytes\":  23388\n               },\n    \"input\":  {\n                  \"path\":  \"P:\\\\projects\\\\packed-gate-midpoint-package-input-r2.json\",\n                  \"sha256\":  \"cdf88da2c271e45e2577711be9c889f963dc62a37982a4f4329a90e51ba31542\",\n                  \"bytes\":  20944\n              },\n    \"script\":  {\n                   \"path\":  \"P:\\\\projects\\\\run-native-packed-gate-midpoint-package-r2.ps1\",\n                   \"sha256\":  \"844d47cabab44a082c54fe41db3b725d7893c68ffecb41c1f1b7157124865759\",\n                   \"bytes\":  4983\n               },\n    \"parse_errors\":  [\n\n                     ],\n    \"components\":  [\n                       {\n                           \"role\":  \"server\",\n                           \"commit\":  \"c2683cd5cb55478099f1adffe47b98e5cef79fba\",\n                           \"artifact\":  {\n                                            \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\build\\\\single-tail-q1-server\\\\qrt.exe\",\n                                            \"sha256\":  \"57a40483284ff8a35cf21cc46ad0acf0bb8b6d5653a7051097e92951ebfbeb4f\",\n                                            \"bytes\":  7916032\n                                        },\n                           \"metadata\":  {\n                                            \"path\":  \"P:/projects/AIMA-public-single-tail-q1-20260921-r1/build/single-tail-q1-server/build-provenance.json\",\n                                            \"sha256\":  \"44b6ed5393922bd8b9ef8367f51358c896183284e0bccc10583926b2b8ff6056\",\n                                            \"bytes\":  866\n                                        },\n                           \"build_run\":  {\n                                             \"path\":  \"P:/projects/AIMA-public-single-tail-q1-20260921-r1/build/single-tail-q1-server-build-r2/run-record.json\",\n                                             \"sha256\":  \"ea4993fb6ef19c906ff409537d2d76db8492bca4d4de7fa622c497892bc51f7b\",\n                                             \"bytes\":  25589\n                                         }\n                       },\n                       {\n                           \"role\":  \"cli\",\n                           \"commit\":  \"35607853eb03487b443ddfed8529b8da5539de86\",\n                           \"artifact\":  {\n                                            \"path\":  \"P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/product-cli/qrt-product.exe\",\n                                            \"sha256\":  \"c919570991729fc9632d63426a3da1a46721d3e8a852de8e74fa0b585e11e9dd\",\n                                            \"bytes\":  949760\n                                        },\n                           \"metadata\":  {\n                                            \"path\":  \"P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/product-cli/build-provenance.json\",\n                                            \"sha256\":  \"2f789b8274d71acb9368d801344135505e703d22f3a01f6421e5d64ec7d8ddf6\",\n                                            \"bytes\":  3413\n                                        },\n                           \"build_run\":  {\n                                             \"path\":  \"P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-build-r1/run-record.json\",\n                                             \"sha256\":  \"cdf23e7d8bbdb07ac0da4690829f4aa8dbf28292e0d96fc14eedd2e345b9231e\",\n                                             \"bytes\":  128264\n                                         }\n                       },\n                       {\n                           \"role\":  \"whole\",\n                           \"commit\":  \"35607853eb03487b443ddfed8529b8da5539de86\",\n                           \"artifact\":  {\n                                            \"path\":  \"P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-provider/qrt_qwen36_whole_provider.dll\",\n                                            \"sha256\":  \"81aba6f6956c415ea48ed60d1199a9f64a6eb0ef04dc96ad176f5b876f3b0e83\",\n                                            \"bytes\":  14068736\n                                        },\n                           \"metadata\":  {\n                                            \"path\":  \"P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-provider/build-provenance.json\",\n                                            \"sha256\":  \"35711d255702d4b10c5e20346fa7871aba0090263ab4acdaeecfcf199d377499\",\n                                            \"bytes\":  12402\n                                        },\n                           \"build_run\":  {\n                                             \"path\":  \"P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-build-r1/run-record.json\",\n                                             \"sha256\":  \"cdf23e7d8bbdb07ac0da4690829f4aa8dbf28292e0d96fc14eedd2e345b9231e\",\n                                             \"bytes\":  128264\n                                         }\n                       },\n                       {\n                           \"role\":  \"ck\",\n                           \"commit\":  \"37014953c28e5b5a91573c6233fdda00bb279b85\",\n                           \"artifact\":  {\n                                            \"path\":  \"D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query/qrt_ck_fmha_sm121.dll\",\n                                            \"sha256\":  \"2ab47f4443fa8bb30b521c75b1c6785e8ce1a998b97021bd252aaed77c3aa64b\",\n                                            \"bytes\":  2106368\n                                        },\n                           \"metadata\":  {\n                                            \"path\":  \"D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query/build-ck-provenance.json\",\n                                            \"sha256\":  \"599681d26ec1aeb62081f56ab8868d5d35ff753b8ec8cf0656fcf94f969f9976\",\n                                            \"bytes\":  25418\n                                        },\n                           \"build_run\":  {\n                                             \"path\":  \"D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query-build-ck-r2/run-record.json\",\n                                             \"sha256\":  \"b93dc75fbf922d7d062e656f2ffd8af7fe804bb4393a7da68d05051f2138fd27\",\n                                             \"bytes\":  72455\n                                         }\n                       },\n                       {\n                           \"role\":  \"moe\",\n                           \"commit\":  \"9235750e81a899f6843bb9dfd3f11165ad4cdce9\",\n                           \"artifact\":  {\n                                            \"path\":  \"D:\\\\projects\\\\AIMA-public-moe-down-compact-20260917-r6\\\\build\\\\moe-down-compact-provider\\\\qrt_triton_moe_q8192_provider.dll\",\n                                            \"sha256\":  \"716379525ead68d583b36380261b467e8bfc37cd427f6577a24ee4519cda9891\",\n                                            \"bytes\":  914432\n                                        },\n                           \"metadata\":  {\n                                            \"path\":  \"D:\\\\projects\\\\AIMA-public-moe-down-compact-20260917-r6\\\\build\\\\moe-down-compact-provider\\\\build-provenance.json\",\n                                            \"sha256\":  \"e318a189c68303b4918354e0d29ea6f849d20a6e9df19571a06c0289c8f824e9\",\n                                            \"bytes\":  50132\n                                        },\n                           \"build_run\":  {\n                                             \"path\":  \"D:/projects/AIMA-public-moe-down-compact-20260917-r6/build/moe-down-compact-provider-build-r6/run-record.json\",\n                                             \"sha256\":  \"40dd15a883f3ed251727e5ca7d8de98f16b7d27ba5dc81ec92b793e6951d1aa4\",\n                                             \"bytes\":  246259\n                                         }\n                       },\n                       {\n                           \"role\":  \"fla\",\n                           \"commit\":  \"1d11bf742268924ecf5df1e0e66a0e19fb7cec15\",\n                           \"artifact\":  {\n                                            \"path\":  \"D:/projects/AIMA-public-fla-completed-latency-20260919-r1/build/fla/qrt_fla_chunk_gdn_provider.dll\",\n                                            \"sha256\":  \"a6b110c3482ca8bc1bb7ef1b6c8213133bb98d53afa5d3a491ba4194bc1d3a88\",\n                                            \"bytes\":  984064\n                                        },\n                           \"metadata\":  {\n                                            \"path\":  \"D:/projects/AIMA-public-fla-completed-latency-20260919-r1/build/fla/build-provenance.json\",\n                                            \"sha256\":  \"1286c84384fc9dd71fff7db8b7f2b2e59b5c7b0665a0320b2d96c3560a817eba\",\n                                            \"bytes\":  21096\n                                        },\n                           \"build_run\":  {\n                                             \"path\":  \"D:/projects/AIMA-public-fla-completed-latency-20260919-r1/build/fla-completed-latency-build-r1/run-record.json\",\n                                             \"sha256\":  \"2922fa818d9496e52cd67003dfb0d999e5feca53dbad7ae301fd429bf591807a\",\n                                             \"bytes\":  195723\n                                         }\n                       }\n                   ],\n    \"extra_artifacts\":  [\n                            {\n                                \"path\":  \"D:/projects/sm121-sqrt-positive-4f40ec04.bin\",\n                                \"sha256\":  \"4f40ec04656a43948813e188f914e7e2f78d8f6b09b45e647027978aa520191a\",\n                                \"bytes\":  17039392\n                            }\n                        ],\n    \"base_manifest\":  {\n                          \"path\":  \"D:\\\\projects\\\\AIMA-public-runtime-environment-20260915\\\\build\\\\relocated current package r3\\\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\\\runtime-manifest.json\",\n                          \"sha256\":  \"0f3eac0003c04a8a2e4856f492e7c356a139c83d3a8fe3e9ae206b25ce290729\",\n                          \"bytes\":  58085\n                      },\n    \"functional_controls\":  [\n                                {\n                                    \"path\":  \"P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-q8192-product-q8192-out512-mode1-r1/run-record.json\",\n                                    \"sha256\":  \"b018ee644e068830b8d26e8f92401b5a052ec83ea50df6b68396b8a0214c0b1c\",\n                                    \"bytes\":  179380\n                                },\n                                {\n                                    \"path\":  \"P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q7169-out32-r1/run-record.json\",\n                                    \"sha256\":  \"fad9536c9d2bd680560d3f2ca2f76684db66a60723d26b3a70aed7c897b3f635\",\n                                    \"bytes\":  232317\n                                },\n                                {\n                                    \"path\":  \"P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q8191-out32-r1/run-record.json\",\n                                    \"sha256\":  \"ffbd7972501326c8475dd90c8935e99d8ff832167ea531c4d1358bd42b40638c\",\n                                    \"bytes\":  232340\n                                },\n                                {\n                                    \"path\":  \"P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q8192-out512-r1/run-record.json\",\n                                    \"sha256\":  \"ac01b9e07c027769ae81158b5ec42607f27f5dd693ad84e0946f0aed6c783209\",\n                                    \"bytes\":  257144\n                                },\n                                {\n                                    \"path\":  \"P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q8193-out32-r1/run-record.json\",\n                                    \"sha256\":  \"1a0de88214eddd32029097c4da4dc74b66cc5597b51eab763071e134e138def7\",\n                                    \"bytes\":  232321\n                                }\n                            ],\n    \"active_owners\":  [\n                          {\n                              \"run_directory\":  \"linux-core-windows-queued-r1/product\",\n                              \"record_present\":  false\n                          },\n                          {\n                              \"run_directory\":  \"packed-gate-midpoint-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1\",\n                              \"record_present\":  false\n                          }\n                      ],\n    \"server_input_equivalence\":  [\n                                     {\n                                         \"file\":  \"Cargo.lock\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\Cargo.lock\",\n                                                          \"sha256\":  \"89adc25be45d0b731d55bf3671284d228ae58a32a6a66714f6ac9ae3de8a04b5\",\n                                                          \"bytes\":  34728\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\Cargo.lock\",\n                                                        \"sha256\":  \"89adc25be45d0b731d55bf3671284d228ae58a32a6a66714f6ac9ae3de8a04b5\",\n                                                        \"bytes\":  34728\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"Cargo.toml\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\Cargo.toml\",\n                                                          \"sha256\":  \"c4f9cf8436e44ecdd1b4db764fc9c5969245bdd28339b805fad5f9b94236d743\",\n                                                          \"bytes\":  225\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\Cargo.toml\",\n                                                        \"sha256\":  \"c4f9cf8436e44ecdd1b4db764fc9c5969245bdd28339b805fad5f9b94236d743\",\n                                                        \"bytes\":  225\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"engine/qrt-cli/Cargo.toml\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\engine\\\\qrt-cli\\\\Cargo.toml\",\n                                                          \"sha256\":  \"bf1ad59c3f324baf14cc6ba7598b8a93751e44a8626678969605b4961243cee6\",\n                                                          \"bytes\":  158\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\engine\\\\qrt-cli\\\\Cargo.toml\",\n                                                        \"sha256\":  \"bf1ad59c3f324baf14cc6ba7598b8a93751e44a8626678969605b4961243cee6\",\n                                                        \"bytes\":  158\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"engine/qrt-server/Cargo.toml\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\engine\\\\qrt-server\\\\Cargo.toml\",\n                                                          \"sha256\":  \"a27e5fd9c862b17eb580d9bbaba146a3428fb4d74cc6c4f1ac8027820b017ef9\",\n                                                          \"bytes\":  874\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\engine\\\\qrt-server\\\\Cargo.toml\",\n                                                        \"sha256\":  \"a27e5fd9c862b17eb580d9bbaba146a3428fb4d74cc6c4f1ac8027820b017ef9\",\n                                                        \"bytes\":  874\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"engine/qrt-server/build.rs\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\engine\\\\qrt-server\\\\build.rs\",\n                                                          \"sha256\":  \"ac7ecdfbbe3207122327c2f9fdc84d650838850ad7066d4a6124694854f846c8\",\n                                                          \"bytes\":  4651\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\engine\\\\qrt-server\\\\build.rs\",\n                                                        \"sha256\":  \"ac7ecdfbbe3207122327c2f9fdc84d650838850ad7066d4a6124694854f846c8\",\n                                                        \"bytes\":  4651\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"engine/qrt-server/src/api.rs\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\engine\\\\qrt-server\\\\src\\\\api.rs\",\n                                                          \"sha256\":  \"abbd19bf8d3e1eba47a9aa72cf6877b452374724eb700c708d1eff6537a23bd5\",\n                                                          \"bytes\":  117757\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\engine\\\\qrt-server\\\\src\\\\api.rs\",\n                                                        \"sha256\":  \"abbd19bf8d3e1eba47a9aa72cf6877b452374724eb700c708d1eff6537a23bd5\",\n                                                        \"bytes\":  117757\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"engine/qrt-server/src/backend.rs\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\engine\\\\qrt-server\\\\src\\\\backend.rs\",\n                                                          \"sha256\":  \"f63db7637c263144b3f0009369a3c8d47c0bc10ac92af590e82a103fd47fcbd3\",\n                                                          \"bytes\":  17511\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\engine\\\\qrt-server\\\\src\\\\backend.rs\",\n                                                        \"sha256\":  \"f63db7637c263144b3f0009369a3c8d47c0bc10ac92af590e82a103fd47fcbd3\",\n                                                        \"bytes\":  17511\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"engine/qrt-server/src/chat.rs\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\engine\\\\qrt-server\\\\src\\\\chat.rs\",\n                                                          \"sha256\":  \"7f4384c169057bf3a6436c47b33c64a9bc84d606f8605474399021b758ef379b\",\n                                                          \"bytes\":  61117\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\engine\\\\qrt-server\\\\src\\\\chat.rs\",\n                                                        \"sha256\":  \"7f4384c169057bf3a6436c47b33c64a9bc84d606f8605474399021b758ef379b\",\n                                                        \"bytes\":  61117\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"engine/qrt-server/src/environment.rs\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\engine\\\\qrt-server\\\\src\\\\environment.rs\",\n                                                          \"sha256\":  \"609672b5077317c7ed5d290db9dc38e0e10120ef315cf57b9ccf3dbfd8f8001c\",\n                                                          \"bytes\":  1677\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\engine\\\\qrt-server\\\\src\\\\environment.rs\",\n                                                        \"sha256\":  \"609672b5077317c7ed5d290db9dc38e0e10120ef315cf57b9ccf3dbfd8f8001c\",\n                                                        \"bytes\":  1677\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"engine/qrt-server/src/lib.rs\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\engine\\\\qrt-server\\\\src\\\\lib.rs\",\n                                                          \"sha256\":  \"5bbd18a6af78f2a9e31584218a9c2a50ccbd7f29c6583d51d5f4c42849a37d93\",\n                                                          \"bytes\":  99\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\engine\\\\qrt-server\\\\src\\\\lib.rs\",\n                                                        \"sha256\":  \"5bbd18a6af78f2a9e31584218a9c2a50ccbd7f29c6583d51d5f4c42849a37d93\",\n                                                        \"bytes\":  99\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"engine/qrt-server/src/lifecycle.rs\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\engine\\\\qrt-server\\\\src\\\\lifecycle.rs\",\n                                                          \"sha256\":  \"9739ed2353c173703a13385d2d60bf8f9a2416da529a87b6a8ac6797b6bf51ce\",\n                                                          \"bytes\":  41754\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\engine\\\\qrt-server\\\\src\\\\lifecycle.rs\",\n                                                        \"sha256\":  \"9739ed2353c173703a13385d2d60bf8f9a2416da529a87b6a8ac6797b6bf51ce\",\n                                                        \"bytes\":  41754\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"engine/qrt-server/src/main.rs\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\engine\\\\qrt-server\\\\src\\\\main.rs\",\n                                                          \"sha256\":  \"b7f858794a3cd18ee18cbe64abe2c1f3d21ae4d72c4e43b0ccd8bb8147f2c4c1\",\n                                                          \"bytes\":  1331\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\engine\\\\qrt-server\\\\src\\\\main.rs\",\n                                                        \"sha256\":  \"b7f858794a3cd18ee18cbe64abe2c1f3d21ae4d72c4e43b0ccd8bb8147f2c4c1\",\n                                                        \"bytes\":  1331\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"engine/qrt-server/src/tokenizer.rs\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\engine\\\\qrt-server\\\\src\\\\tokenizer.rs\",\n                                                          \"sha256\":  \"dd55911fbd658300aa90f117dea6595799917052e96f329d164fe8d0614ebd32\",\n                                                          \"bytes\":  5064\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\engine\\\\qrt-server\\\\src\\\\tokenizer.rs\",\n                                                        \"sha256\":  \"dd55911fbd658300aa90f117dea6595799917052e96f329d164fe8d0614ebd32\",\n                                                        \"bytes\":  5064\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"native/src/qrt.c\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\native\\\\src\\\\qrt.c\",\n                                                          \"sha256\":  \"941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957\",\n                                                          \"bytes\":  4020579\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\native\\\\src\\\\qrt.c\",\n                                                        \"sha256\":  \"941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957\",\n                                                        \"bytes\":  4020579\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"native/src/qrt.h\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\native\\\\src\\\\qrt.h\",\n                                                          \"sha256\":  \"a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18\",\n                                                          \"bytes\":  336432\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\native\\\\src\\\\qrt.h\",\n                                                        \"sha256\":  \"a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18\",\n                                                        \"bytes\":  336432\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"native/src/qrt_context_limits.h\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\native\\\\src\\\\qrt_context_limits.h\",\n                                                          \"sha256\":  \"79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00\",\n                                                          \"bytes\":  565\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\native\\\\src\\\\qrt_context_limits.h\",\n                                                        \"sha256\":  \"79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00\",\n                                                        \"bytes\":  565\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"native/src/qrt_prefix_checkpoint.h\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\native\\\\src\\\\qrt_prefix_checkpoint.h\",\n                                                          \"sha256\":  \"1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289\",\n                                                          \"bytes\":  1097\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\native\\\\src\\\\qrt_prefix_checkpoint.h\",\n                                                        \"sha256\":  \"1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289\",\n                                                        \"bytes\":  1097\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"native/src/qrt_prefix_logit.h\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\native\\\\src\\\\qrt_prefix_logit.h\",\n                                                          \"sha256\":  \"fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf\",\n                                                          \"bytes\":  1378\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\native\\\\src\\\\qrt_prefix_logit.h\",\n                                                        \"sha256\":  \"fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf\",\n                                                        \"bytes\":  1378\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"native/src/qrt_server_bridge.c\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\native\\\\src\\\\qrt_server_bridge.c\",\n                                                          \"sha256\":  \"fdd1d51b2542e4702323edae8ba6fabbdd0264d10fd50c167f56c1b6083e3d12\",\n                                                          \"bytes\":  43199\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\native\\\\src\\\\qrt_server_bridge.c\",\n                                                        \"sha256\":  \"fdd1d51b2542e4702323edae8ba6fabbdd0264d10fd50c167f56c1b6083e3d12\",\n                                                        \"bytes\":  43199\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"native/src/qrt_server_bridge.h\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\native\\\\src\\\\qrt_server_bridge.h\",\n                                                          \"sha256\":  \"c9abb1593b531ac5afa1cdf821f432feb74f17f0acdd07c2ba83875721bd195c\",\n                                                          \"bytes\":  2910\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\native\\\\src\\\\qrt_server_bridge.h\",\n                                                        \"sha256\":  \"c9abb1593b531ac5afa1cdf821f432feb74f17f0acdd07c2ba83875721bd195c\",\n                                                        \"bytes\":  2910\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"native/src/qwen36_baseline.c\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\native\\\\src\\\\qwen36_baseline.c\",\n                                                          \"sha256\":  \"e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061\",\n                                                          \"bytes\":  14204\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\native\\\\src\\\\qwen36_baseline.c\",\n                                                        \"sha256\":  \"e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061\",\n                                                        \"bytes\":  14204\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"native/src/qwen36_baseline.h\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\native\\\\src\\\\qwen36_baseline.h\",\n                                                          \"sha256\":  \"46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42\",\n                                                          \"bytes\":  78\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\native\\\\src\\\\qwen36_baseline.h\",\n                                                        \"sha256\":  \"46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42\",\n                                                        \"bytes\":  78\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"scripts/baiying_boot_identity.ps1\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\scripts\\\\baiying_boot_identity.ps1\",\n                                                          \"sha256\":  \"f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca\",\n                                                          \"bytes\":  1438\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\scripts\\\\baiying_boot_identity.ps1\",\n                                                        \"sha256\":  \"f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca\",\n                                                        \"bytes\":  1438\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"scripts/baiying_build_qrt_server.ps1\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\scripts\\\\baiying_build_qrt_server.ps1\",\n                                                          \"sha256\":  \"64011f0941f98a3e5b801c353148d0cf0ced3d81c37efe3e9a46e743d2be7b59\",\n                                                          \"bytes\":  5396\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\scripts\\\\baiying_build_qrt_server.ps1\",\n                                                        \"sha256\":  \"64011f0941f98a3e5b801c353148d0cf0ced3d81c37efe3e9a46e743d2be7b59\",\n                                                        \"bytes\":  5396\n                                                    }\n                                     },\n                                     {\n                                         \"file\":  \"scripts/baiying_guarded_inference.ps1\",\n                                         \"repaired\":  {\n                                                          \"path\":  \"P:\\\\projects\\\\AIMA-public-packed-gate-midpoint-20260922-r1\\\\scripts\\\\baiying_guarded_inference.ps1\",\n                                                          \"sha256\":  \"896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7\",\n                                                          \"bytes\":  12880\n                                                      },\n                                         \"server\":  {\n                                                        \"path\":  \"P:\\\\projects\\\\AIMA-public-single-tail-q1-20260921-r1\\\\scripts\\\\baiying_guarded_inference.ps1\",\n                                                        \"sha256\":  \"896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7\",\n                                                        \"bytes\":  12880\n                                                    }\n                                     }\n                                 ],\n    \"artifact_binding_verified\":  true,\n    \"archive_created\":  false,\n    \"new_model_process_launched\":  false,\n    \"gpu_test_launched\":  false\n}\n",
+      "stderr": ""
+    },
+    "native_result": {
+      "host": "BAIYING",
+      "utc": "2026-09-22T00:21:41.4404584Z",
+      "source": {
+        "path": "P:/projects/packed-gate-midpoint-package-source-r2.json",
+        "sha256": "b6bb3aad0f65814a8549a905f9548a844208f11a07f1962c2415818962f527f6",
+        "bytes": 23388
+      },
+      "input": {
+        "path": "P:\\projects\\packed-gate-midpoint-package-input-r2.json",
+        "sha256": "cdf88da2c271e45e2577711be9c889f963dc62a37982a4f4329a90e51ba31542",
+        "bytes": 20944
+      },
+      "script": {
+        "path": "P:\\projects\\run-native-packed-gate-midpoint-package-r2.ps1",
+        "sha256": "844d47cabab44a082c54fe41db3b725d7893c68ffecb41c1f1b7157124865759",
+        "bytes": 4983
+      },
+      "parse_errors": [],
+      "components": [
+        {
+          "role": "server",
+          "commit": "c2683cd5cb55478099f1adffe47b98e5cef79fba",
+          "artifact": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\build\\single-tail-q1-server\\qrt.exe",
+            "sha256": "57a40483284ff8a35cf21cc46ad0acf0bb8b6d5653a7051097e92951ebfbeb4f",
+            "bytes": 7916032
+          },
+          "metadata": {
+            "path": "P:/projects/AIMA-public-single-tail-q1-20260921-r1/build/single-tail-q1-server/build-provenance.json",
+            "sha256": "44b6ed5393922bd8b9ef8367f51358c896183284e0bccc10583926b2b8ff6056",
+            "bytes": 866
+          },
+          "build_run": {
+            "path": "P:/projects/AIMA-public-single-tail-q1-20260921-r1/build/single-tail-q1-server-build-r2/run-record.json",
+            "sha256": "ea4993fb6ef19c906ff409537d2d76db8492bca4d4de7fa622c497892bc51f7b",
+            "bytes": 25589
+          }
+        },
+        {
+          "role": "cli",
+          "commit": "35607853eb03487b443ddfed8529b8da5539de86",
+          "artifact": {
+            "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/product-cli/qrt-product.exe",
+            "sha256": "c919570991729fc9632d63426a3da1a46721d3e8a852de8e74fa0b585e11e9dd",
+            "bytes": 949760
+          },
+          "metadata": {
+            "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/product-cli/build-provenance.json",
+            "sha256": "2f789b8274d71acb9368d801344135505e703d22f3a01f6421e5d64ec7d8ddf6",
+            "bytes": 3413
+          },
+          "build_run": {
+            "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-build-r1/run-record.json",
+            "sha256": "cdf23e7d8bbdb07ac0da4690829f4aa8dbf28292e0d96fc14eedd2e345b9231e",
+            "bytes": 128264
+          }
+        },
+        {
+          "role": "whole",
+          "commit": "35607853eb03487b443ddfed8529b8da5539de86",
+          "artifact": {
+            "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-provider/qrt_qwen36_whole_provider.dll",
+            "sha256": "81aba6f6956c415ea48ed60d1199a9f64a6eb0ef04dc96ad176f5b876f3b0e83",
+            "bytes": 14068736
+          },
+          "metadata": {
+            "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-provider/build-provenance.json",
+            "sha256": "35711d255702d4b10c5e20346fa7871aba0090263ab4acdaeecfcf199d377499",
+            "bytes": 12402
+          },
+          "build_run": {
+            "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-build-r1/run-record.json",
+            "sha256": "cdf23e7d8bbdb07ac0da4690829f4aa8dbf28292e0d96fc14eedd2e345b9231e",
+            "bytes": 128264
+          }
+        },
+        {
+          "role": "ck",
+          "commit": "37014953c28e5b5a91573c6233fdda00bb279b85",
+          "artifact": {
+            "path": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query/qrt_ck_fmha_sm121.dll",
+            "sha256": "2ab47f4443fa8bb30b521c75b1c6785e8ce1a998b97021bd252aaed77c3aa64b",
+            "bytes": 2106368
+          },
+          "metadata": {
+            "path": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query/build-ck-provenance.json",
+            "sha256": "599681d26ec1aeb62081f56ab8868d5d35ff753b8ec8cf0656fcf94f969f9976",
+            "bytes": 25418
+          },
+          "build_run": {
+            "path": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query-build-ck-r2/run-record.json",
+            "sha256": "b93dc75fbf922d7d062e656f2ffd8af7fe804bb4393a7da68d05051f2138fd27",
+            "bytes": 72455
+          }
+        },
+        {
+          "role": "moe",
+          "commit": "9235750e81a899f6843bb9dfd3f11165ad4cdce9",
+          "artifact": {
+            "path": "D:\\projects\\AIMA-public-moe-down-compact-20260917-r6\\build\\moe-down-compact-provider\\qrt_triton_moe_q8192_provider.dll",
+            "sha256": "716379525ead68d583b36380261b467e8bfc37cd427f6577a24ee4519cda9891",
+            "bytes": 914432
+          },
+          "metadata": {
+            "path": "D:\\projects\\AIMA-public-moe-down-compact-20260917-r6\\build\\moe-down-compact-provider\\build-provenance.json",
+            "sha256": "e318a189c68303b4918354e0d29ea6f849d20a6e9df19571a06c0289c8f824e9",
+            "bytes": 50132
+          },
+          "build_run": {
+            "path": "D:/projects/AIMA-public-moe-down-compact-20260917-r6/build/moe-down-compact-provider-build-r6/run-record.json",
+            "sha256": "40dd15a883f3ed251727e5ca7d8de98f16b7d27ba5dc81ec92b793e6951d1aa4",
+            "bytes": 246259
+          }
+        },
+        {
+          "role": "fla",
+          "commit": "1d11bf742268924ecf5df1e0e66a0e19fb7cec15",
+          "artifact": {
+            "path": "D:/projects/AIMA-public-fla-completed-latency-20260919-r1/build/fla/qrt_fla_chunk_gdn_provider.dll",
+            "sha256": "a6b110c3482ca8bc1bb7ef1b6c8213133bb98d53afa5d3a491ba4194bc1d3a88",
+            "bytes": 984064
+          },
+          "metadata": {
+            "path": "D:/projects/AIMA-public-fla-completed-latency-20260919-r1/build/fla/build-provenance.json",
+            "sha256": "1286c84384fc9dd71fff7db8b7f2b2e59b5c7b0665a0320b2d96c3560a817eba",
+            "bytes": 21096
+          },
+          "build_run": {
+            "path": "D:/projects/AIMA-public-fla-completed-latency-20260919-r1/build/fla-completed-latency-build-r1/run-record.json",
+            "sha256": "2922fa818d9496e52cd67003dfb0d999e5feca53dbad7ae301fd429bf591807a",
+            "bytes": 195723
+          }
+        }
+      ],
+      "extra_artifacts": [
+        {
+          "path": "D:/projects/sm121-sqrt-positive-4f40ec04.bin",
+          "sha256": "4f40ec04656a43948813e188f914e7e2f78d8f6b09b45e647027978aa520191a",
+          "bytes": 17039392
+        }
+      ],
+      "base_manifest": {
+        "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\runtime-manifest.json",
+        "sha256": "0f3eac0003c04a8a2e4856f492e7c356a139c83d3a8fe3e9ae206b25ce290729",
+        "bytes": 58085
+      },
+      "functional_controls": [
+        {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-q8192-product-q8192-out512-mode1-r1/run-record.json",
+          "sha256": "b018ee644e068830b8d26e8f92401b5a052ec83ea50df6b68396b8a0214c0b1c",
+          "bytes": 179380
+        },
+        {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q7169-out32-r1/run-record.json",
+          "sha256": "fad9536c9d2bd680560d3f2ca2f76684db66a60723d26b3a70aed7c897b3f635",
+          "bytes": 232317
+        },
+        {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q8191-out32-r1/run-record.json",
+          "sha256": "ffbd7972501326c8475dd90c8935e99d8ff832167ea531c4d1358bd42b40638c",
+          "bytes": 232340
+        },
+        {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q8192-out512-r1/run-record.json",
+          "sha256": "ac01b9e07c027769ae81158b5ec42607f27f5dd693ad84e0946f0aed6c783209",
+          "bytes": 257144
+        },
+        {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q8193-out32-r1/run-record.json",
+          "sha256": "1a0de88214eddd32029097c4da4dc74b66cc5597b51eab763071e134e138def7",
+          "bytes": 232321
+        }
+      ],
+      "active_owners": [
+        {
+          "run_directory": "linux-core-windows-queued-r1/product",
+          "record_present": false
+        },
+        {
+          "run_directory": "packed-gate-midpoint-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1",
+          "record_present": false
+        }
+      ],
+      "server_input_equivalence": [
+        {
+          "file": "Cargo.lock",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\Cargo.lock",
+            "sha256": "89adc25be45d0b731d55bf3671284d228ae58a32a6a66714f6ac9ae3de8a04b5",
+            "bytes": 34728
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\Cargo.lock",
+            "sha256": "89adc25be45d0b731d55bf3671284d228ae58a32a6a66714f6ac9ae3de8a04b5",
+            "bytes": 34728
+          }
+        },
+        {
+          "file": "Cargo.toml",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\Cargo.toml",
+            "sha256": "c4f9cf8436e44ecdd1b4db764fc9c5969245bdd28339b805fad5f9b94236d743",
+            "bytes": 225
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\Cargo.toml",
+            "sha256": "c4f9cf8436e44ecdd1b4db764fc9c5969245bdd28339b805fad5f9b94236d743",
+            "bytes": 225
+          }
+        },
+        {
+          "file": "engine/qrt-cli/Cargo.toml",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\engine\\qrt-cli\\Cargo.toml",
+            "sha256": "bf1ad59c3f324baf14cc6ba7598b8a93751e44a8626678969605b4961243cee6",
+            "bytes": 158
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\engine\\qrt-cli\\Cargo.toml",
+            "sha256": "bf1ad59c3f324baf14cc6ba7598b8a93751e44a8626678969605b4961243cee6",
+            "bytes": 158
+          }
+        },
+        {
+          "file": "engine/qrt-server/Cargo.toml",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\engine\\qrt-server\\Cargo.toml",
+            "sha256": "a27e5fd9c862b17eb580d9bbaba146a3428fb4d74cc6c4f1ac8027820b017ef9",
+            "bytes": 874
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\engine\\qrt-server\\Cargo.toml",
+            "sha256": "a27e5fd9c862b17eb580d9bbaba146a3428fb4d74cc6c4f1ac8027820b017ef9",
+            "bytes": 874
+          }
+        },
+        {
+          "file": "engine/qrt-server/build.rs",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\engine\\qrt-server\\build.rs",
+            "sha256": "ac7ecdfbbe3207122327c2f9fdc84d650838850ad7066d4a6124694854f846c8",
+            "bytes": 4651
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\engine\\qrt-server\\build.rs",
+            "sha256": "ac7ecdfbbe3207122327c2f9fdc84d650838850ad7066d4a6124694854f846c8",
+            "bytes": 4651
+          }
+        },
+        {
+          "file": "engine/qrt-server/src/api.rs",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\engine\\qrt-server\\src\\api.rs",
+            "sha256": "abbd19bf8d3e1eba47a9aa72cf6877b452374724eb700c708d1eff6537a23bd5",
+            "bytes": 117757
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\engine\\qrt-server\\src\\api.rs",
+            "sha256": "abbd19bf8d3e1eba47a9aa72cf6877b452374724eb700c708d1eff6537a23bd5",
+            "bytes": 117757
+          }
+        },
+        {
+          "file": "engine/qrt-server/src/backend.rs",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\engine\\qrt-server\\src\\backend.rs",
+            "sha256": "f63db7637c263144b3f0009369a3c8d47c0bc10ac92af590e82a103fd47fcbd3",
+            "bytes": 17511
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\engine\\qrt-server\\src\\backend.rs",
+            "sha256": "f63db7637c263144b3f0009369a3c8d47c0bc10ac92af590e82a103fd47fcbd3",
+            "bytes": 17511
+          }
+        },
+        {
+          "file": "engine/qrt-server/src/chat.rs",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\engine\\qrt-server\\src\\chat.rs",
+            "sha256": "7f4384c169057bf3a6436c47b33c64a9bc84d606f8605474399021b758ef379b",
+            "bytes": 61117
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\engine\\qrt-server\\src\\chat.rs",
+            "sha256": "7f4384c169057bf3a6436c47b33c64a9bc84d606f8605474399021b758ef379b",
+            "bytes": 61117
+          }
+        },
+        {
+          "file": "engine/qrt-server/src/environment.rs",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\engine\\qrt-server\\src\\environment.rs",
+            "sha256": "609672b5077317c7ed5d290db9dc38e0e10120ef315cf57b9ccf3dbfd8f8001c",
+            "bytes": 1677
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\engine\\qrt-server\\src\\environment.rs",
+            "sha256": "609672b5077317c7ed5d290db9dc38e0e10120ef315cf57b9ccf3dbfd8f8001c",
+            "bytes": 1677
+          }
+        },
+        {
+          "file": "engine/qrt-server/src/lib.rs",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\engine\\qrt-server\\src\\lib.rs",
+            "sha256": "5bbd18a6af78f2a9e31584218a9c2a50ccbd7f29c6583d51d5f4c42849a37d93",
+            "bytes": 99
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\engine\\qrt-server\\src\\lib.rs",
+            "sha256": "5bbd18a6af78f2a9e31584218a9c2a50ccbd7f29c6583d51d5f4c42849a37d93",
+            "bytes": 99
+          }
+        },
+        {
+          "file": "engine/qrt-server/src/lifecycle.rs",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\engine\\qrt-server\\src\\lifecycle.rs",
+            "sha256": "9739ed2353c173703a13385d2d60bf8f9a2416da529a87b6a8ac6797b6bf51ce",
+            "bytes": 41754
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\engine\\qrt-server\\src\\lifecycle.rs",
+            "sha256": "9739ed2353c173703a13385d2d60bf8f9a2416da529a87b6a8ac6797b6bf51ce",
+            "bytes": 41754
+          }
+        },
+        {
+          "file": "engine/qrt-server/src/main.rs",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\engine\\qrt-server\\src\\main.rs",
+            "sha256": "b7f858794a3cd18ee18cbe64abe2c1f3d21ae4d72c4e43b0ccd8bb8147f2c4c1",
+            "bytes": 1331
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\engine\\qrt-server\\src\\main.rs",
+            "sha256": "b7f858794a3cd18ee18cbe64abe2c1f3d21ae4d72c4e43b0ccd8bb8147f2c4c1",
+            "bytes": 1331
+          }
+        },
+        {
+          "file": "engine/qrt-server/src/tokenizer.rs",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\engine\\qrt-server\\src\\tokenizer.rs",
+            "sha256": "dd55911fbd658300aa90f117dea6595799917052e96f329d164fe8d0614ebd32",
+            "bytes": 5064
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\engine\\qrt-server\\src\\tokenizer.rs",
+            "sha256": "dd55911fbd658300aa90f117dea6595799917052e96f329d164fe8d0614ebd32",
+            "bytes": 5064
+          }
+        },
+        {
+          "file": "native/src/qrt.c",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qrt.c",
+            "sha256": "941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957",
+            "bytes": 4020579
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\native\\src\\qrt.c",
+            "sha256": "941cae00ce498d2840cc64ca96c288640183ce4525bd67af5bbf88a09bcd0957",
+            "bytes": 4020579
+          }
+        },
+        {
+          "file": "native/src/qrt.h",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qrt.h",
+            "sha256": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18",
+            "bytes": 336432
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\native\\src\\qrt.h",
+            "sha256": "a10349df319e1fddf14568d2e01a28cb262c7a84cd4fc2a103e78cf825d31d18",
+            "bytes": 336432
+          }
+        },
+        {
+          "file": "native/src/qrt_context_limits.h",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qrt_context_limits.h",
+            "sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+            "bytes": 565
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\native\\src\\qrt_context_limits.h",
+            "sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+            "bytes": 565
+          }
+        },
+        {
+          "file": "native/src/qrt_prefix_checkpoint.h",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qrt_prefix_checkpoint.h",
+            "sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+            "bytes": 1097
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\native\\src\\qrt_prefix_checkpoint.h",
+            "sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+            "bytes": 1097
+          }
+        },
+        {
+          "file": "native/src/qrt_prefix_logit.h",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qrt_prefix_logit.h",
+            "sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+            "bytes": 1378
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\native\\src\\qrt_prefix_logit.h",
+            "sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+            "bytes": 1378
+          }
+        },
+        {
+          "file": "native/src/qrt_server_bridge.c",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qrt_server_bridge.c",
+            "sha256": "fdd1d51b2542e4702323edae8ba6fabbdd0264d10fd50c167f56c1b6083e3d12",
+            "bytes": 43199
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\native\\src\\qrt_server_bridge.c",
+            "sha256": "fdd1d51b2542e4702323edae8ba6fabbdd0264d10fd50c167f56c1b6083e3d12",
+            "bytes": 43199
+          }
+        },
+        {
+          "file": "native/src/qrt_server_bridge.h",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qrt_server_bridge.h",
+            "sha256": "c9abb1593b531ac5afa1cdf821f432feb74f17f0acdd07c2ba83875721bd195c",
+            "bytes": 2910
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\native\\src\\qrt_server_bridge.h",
+            "sha256": "c9abb1593b531ac5afa1cdf821f432feb74f17f0acdd07c2ba83875721bd195c",
+            "bytes": 2910
+          }
+        },
+        {
+          "file": "native/src/qwen36_baseline.c",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qwen36_baseline.c",
+            "sha256": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061",
+            "bytes": 14204
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\native\\src\\qwen36_baseline.c",
+            "sha256": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061",
+            "bytes": 14204
+          }
+        },
+        {
+          "file": "native/src/qwen36_baseline.h",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\native\\src\\qwen36_baseline.h",
+            "sha256": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42",
+            "bytes": 78
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\native\\src\\qwen36_baseline.h",
+            "sha256": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42",
+            "bytes": 78
+          }
+        },
+        {
+          "file": "scripts/baiying_boot_identity.ps1",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\scripts\\baiying_boot_identity.ps1",
+            "sha256": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+            "bytes": 1438
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\scripts\\baiying_boot_identity.ps1",
+            "sha256": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+            "bytes": 1438
+          }
+        },
+        {
+          "file": "scripts/baiying_build_qrt_server.ps1",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\scripts\\baiying_build_qrt_server.ps1",
+            "sha256": "64011f0941f98a3e5b801c353148d0cf0ced3d81c37efe3e9a46e743d2be7b59",
+            "bytes": 5396
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\scripts\\baiying_build_qrt_server.ps1",
+            "sha256": "64011f0941f98a3e5b801c353148d0cf0ced3d81c37efe3e9a46e743d2be7b59",
+            "bytes": 5396
+          }
+        },
+        {
+          "file": "scripts/baiying_guarded_inference.ps1",
+          "repaired": {
+            "path": "P:\\projects\\AIMA-public-packed-gate-midpoint-20260922-r1\\scripts\\baiying_guarded_inference.ps1",
+            "sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+            "bytes": 12880
+          },
+          "server": {
+            "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\scripts\\baiying_guarded_inference.ps1",
+            "sha256": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+            "bytes": 12880
+          }
+        }
+      ],
+      "artifact_binding_verified": true,
+      "archive_created": false,
+      "new_model_process_launched": false,
+      "gpu_test_launched": false
+    },
+    "actual_controls": {
+      "packed-gate-midpoint-q8192-product-q8192-out512-mode1-r1": {
+        "run_record_sha256": "b018ee644e068830b8d26e8f92401b5a052ec83ea50df6b68396b8a0214c0b1c",
+        "boundary_sha256": "7b8032b50a9b12460c740ee0e87d6573b3208715f2fe04f58b8e9cce0e7607fa",
+        "remote_run_record": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-q8192-product-q8192-out512-mode1-r1/run-record.json"
+      },
+      "packed-gate-midpoint-native-mtp-q7169-out32-r1": {
+        "run_record_sha256": "fad9536c9d2bd680560d3f2ca2f76684db66a60723d26b3a70aed7c897b3f635",
+        "boundary_sha256": "edc238cb85ed218246e412034c445cc8242be8584e717b4a563f9af93d463a62",
+        "remote_run_record": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q7169-out32-r1/run-record.json"
+      },
+      "packed-gate-midpoint-native-mtp-q8191-out32-r1": {
+        "run_record_sha256": "ffbd7972501326c8475dd90c8935e99d8ff832167ea531c4d1358bd42b40638c",
+        "boundary_sha256": "652d0bce43c199fcd3c5dee6ac17b4b78ed33646cef2702924a917fef664e78c",
+        "remote_run_record": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q8191-out32-r1/run-record.json"
+      },
+      "packed-gate-midpoint-native-mtp-q8192-out512-r1": {
+        "run_record_sha256": "ac01b9e07c027769ae81158b5ec42607f27f5dd693ad84e0946f0aed6c783209",
+        "boundary_sha256": "19918831c76e7991ed4a75aaf074560ff5650c3e221791d0b05651c429dfeb1b",
+        "remote_run_record": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q8192-out512-r1/run-record.json"
+      },
+      "packed-gate-midpoint-native-mtp-q8193-out32-r1": {
+        "run_record_sha256": "1a0de88214eddd32029097c4da4dc74b66cc5597b51eab763071e134e138def7",
+        "boundary_sha256": "5d01c8eaea2712d53cf9995f8778be0d537ae9a6609124e187768392b1bb1ed9",
+        "remote_run_record": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-native-mtp-q8193-out32-r1/run-record.json"
+      }
+    },
+    "components": {
+      "server": {
+        "commit": "c2683cd5cb55478099f1adffe47b98e5cef79fba",
+        "metadata": {
+          "path": "P:/projects/AIMA-public-single-tail-q1-20260921-r1/build/single-tail-q1-server/build-provenance.json",
+          "sha256": "44b6ed5393922bd8b9ef8367f51358c896183284e0bccc10583926b2b8ff6056"
+        },
+        "artifact": {
+          "path": "P:\\projects\\AIMA-public-single-tail-q1-20260921-r1\\build\\single-tail-q1-server\\qrt.exe",
+          "sha256": "57a40483284ff8a35cf21cc46ad0acf0bb8b6d5653a7051097e92951ebfbeb4f",
+          "bytes": 7916032
+        },
+        "package_path": "engine/qrt.exe",
+        "build_run": {
+          "path": "P:/projects/AIMA-public-single-tail-q1-20260921-r1/build/single-tail-q1-server-build-r2/run-record.json",
+          "sha256": "ea4993fb6ef19c906ff409537d2d76db8492bca4d4de7fa622c497892bc51f7b"
+        }
+      },
+      "cli": {
+        "commit": "35607853eb03487b443ddfed8529b8da5539de86",
+        "metadata": {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/product-cli/build-provenance.json",
+          "sha256": "2f789b8274d71acb9368d801344135505e703d22f3a01f6421e5d64ec7d8ddf6"
+        },
+        "artifact": {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/product-cli/qrt-product.exe",
+          "bytes": 949760,
+          "sha256": "c919570991729fc9632d63426a3da1a46721d3e8a852de8e74fa0b585e11e9dd"
+        },
+        "package_path": "product-cli/qrt-product.exe",
+        "build_run": {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-build-r1/run-record.json",
+          "sha256": "cdf23e7d8bbdb07ac0da4690829f4aa8dbf28292e0d96fc14eedd2e345b9231e"
+        }
+      },
+      "whole": {
+        "commit": "35607853eb03487b443ddfed8529b8da5539de86",
+        "metadata": {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-provider/build-provenance.json",
+          "sha256": "35711d255702d4b10c5e20346fa7871aba0090263ab4acdaeecfcf199d377499"
+        },
+        "artifact": {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-provider/qrt_qwen36_whole_provider.dll",
+          "bytes": 14068736,
+          "sha256": "81aba6f6956c415ea48ed60d1199a9f64a6eb0ef04dc96ad176f5b876f3b0e83"
+        },
+        "package_path": "whole-provider/qrt_qwen36_whole_provider.dll",
+        "build_run": {
+          "path": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1/build/packed-gate-midpoint-whole-build-r1/run-record.json",
+          "sha256": "cdf23e7d8bbdb07ac0da4690829f4aa8dbf28292e0d96fc14eedd2e345b9231e"
+        }
+      },
+      "ck": {
+        "commit": "37014953c28e5b5a91573c6233fdda00bb279b85",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query/build-ck-provenance.json",
+          "sha256": "599681d26ec1aeb62081f56ab8868d5d35ff753b8ec8cf0656fcf94f969f9976"
+        },
+        "artifact": {
+          "path": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query/qrt_ck_fmha_sm121.dll",
+          "sha256": "2ab47f4443fa8bb30b521c75b1c6785e8ce1a998b97021bd252aaed77c3aa64b",
+          "bytes": 2106368
+        },
+        "package_path": "ck-fmha/qrt_ck_fmha_sm121.dll",
+        "build_run": {
+          "path": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query-build-ck-r2/run-record.json",
+          "sha256": "b93dc75fbf922d7d062e656f2ffd8af7fe804bb4393a7da68d05051f2138fd27"
+        }
+      },
+      "moe": {
+        "commit": "9235750e81a899f6843bb9dfd3f11165ad4cdce9",
+        "metadata": {
+          "path": "D:\\projects\\AIMA-public-moe-down-compact-20260917-r6\\build\\moe-down-compact-provider\\build-provenance.json",
+          "sha256": "e318a189c68303b4918354e0d29ea6f849d20a6e9df19571a06c0289c8f824e9"
+        },
+        "artifact": {
+          "path": "D:\\projects\\AIMA-public-moe-down-compact-20260917-r6\\build\\moe-down-compact-provider\\qrt_triton_moe_q8192_provider.dll",
+          "sha256": "716379525ead68d583b36380261b467e8bfc37cd427f6577a24ee4519cda9891"
+        },
+        "package_path": "q8192-moe/qrt_triton_moe_q8192_provider.dll",
+        "build_run": {
+          "path": "D:/projects/AIMA-public-moe-down-compact-20260917-r6/build/moe-down-compact-provider-build-r6/run-record.json",
+          "sha256": "40dd15a883f3ed251727e5ca7d8de98f16b7d27ba5dc81ec92b793e6951d1aa4"
+        }
+      },
+      "fla": {
+        "commit": "1d11bf742268924ecf5df1e0e66a0e19fb7cec15",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-fla-completed-latency-20260919-r1/build/fla/build-provenance.json",
+          "sha256": "1286c84384fc9dd71fff7db8b7f2b2e59b5c7b0665a0320b2d96c3560a817eba"
+        },
+        "artifact": {
+          "path": "D:/projects/AIMA-public-fla-completed-latency-20260919-r1/build/fla/qrt_fla_chunk_gdn_provider.dll",
+          "sha256": "a6b110c3482ca8bc1bb7ef1b6c8213133bb98d53afa5d3a491ba4194bc1d3a88",
+          "bytes": 984064
+        },
+        "package_path": "fla/qrt_fla_chunk_gdn_provider.dll",
+        "build_run": {
+          "path": "D:/projects/AIMA-public-fla-completed-latency-20260919-r1/build/fla-completed-latency-build-r1/run-record.json",
+          "sha256": "2922fa818d9496e52cd67003dfb0d999e5feca53dbad7ae301fd429bf591807a"
+        }
+      }
+    },
+    "stage_validator_sha256": "0ee861f9c1fa89fbcd82ddb5b1e8e0f14ef30dfea4246a633ecc1dbf17018f5a",
+    "regressions_prepared_sha256": "355ecae4022ed19b0eabe24dcb2e62e64c02c8b5b6f7c0081bc42b6dd696ec51",
+    "package_components_bound": true,
+    "archive_created": false,
+    "native_staged": false,
+    "final_archive_inference_qualified": false,
+    "performance_acceptance": false,
+    "release_qualified": false,
+    "preparation_correction": {
+      "prior_input": "packed-gate-midpoint-package-input-r1.json",
+      "prior_input_sha256": "5072a4972a385d3a50e689d88b329f3120a234c7d1c74b0d31a6d7f54ca6269e",
+      "reason": "The unchanged HTTP preflight requires the server working checkout to match its actual c268 binary source. Retain that checkout while loading the newly bound 356 whole provider from the relocated archive.",
+      "prior_input_never_staged": true,
+      "numerical_options_changed": false
+    },
+    "checker_sha256": "8f4fa85d55083170172b28686e13dbe63785fbb4aa40ff8cfc5cbde9ca749032"
+  },
+  "actual_binding_checks_sha256": "2e2a2da4a926644580c25918fb03fd70cc80814c7b99a9f5441ab1fb7fd6735c",
+  "regression_preparation": {
+    "utc": "2026-09-22T00:20:57.325112+00:00",
+    "host": "Jiawei-MacminideMac-mini.local",
+    "source_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+    "input_sha256": {
+      "prepare_packed_gate_midpoint_package_checks_r2.py": "844891bd50a356c931b4cf5f80b00b8d1e9b63eb448cc6f64753b22d2293cc1e",
+      "packed_gate_midpoint_package_stage_evidence_r2.py": "0ee861f9c1fa89fbcd82ddb5b1e8e0f14ef30dfea4246a633ecc1dbf17018f5a",
+      "run-native-packed-gate-midpoint-package-checks-r2.ps1": "54017e5da7bdfafb1a2cf0d6bec023312a033dce32eeef7c8e118e497a92cdc1",
+      "dispatch_packed_gate_midpoint_package_checks_r2.py": "c3bd737efca2e32ae0018c87688274329f2b1182a936d8d567c5bce25ef5c0c5",
+      "prepare_packed_gate_midpoint_package_matrix_r2.py": "bf3fba8cf8d7835f8c1f31e37d806cd5325da39e7e0f8f8bb29a428edaf56a02",
+      "run-native-packed-gate-midpoint-package-matrix-r2.ps1": "5b51a0a7e7c4b790558df57d37cf836c29a67541f7075045ad6fd2c99d64c2e9",
+      "dispatch_packed_gate_midpoint_package_matrix_r2.py": "2570c2bc6ef4a378b8bd8ed5f59799b19ee528f241ba7c423f6992a888ff5d49",
+      "analyze_packed_gate_midpoint_package_matrix_r2.py": "6e1be380fe09e1a67618defe62468f299670289518776adad139b5738b76d128",
+      "prepare_packed_gate_midpoint_package_soak_r2.py": "1e956738d69022181b610d9f6eedd270a2f33197081192553333e12bafd3e101",
+      "verify_packed_gate_midpoint_package_soak_r2.py": "c750ac5f0ed719f671534ef791ce88e3ae325e9c33f3f05402ddaf6b974338ac",
+      "run-native-packed-gate-midpoint-package-soak-r2.ps1": "a6c31ab70bfdc93c9a0411de83dcf1e8cdc8f09d7804bda19c1052e8bde8517e",
+      "run-native-packed-gate-midpoint-package-soak-guard-r2.ps1": "1fc5bc48261986eb553c54d114324698b9dfbf17306da15c883fbce2161872ba",
+      "dispatch_packed_gate_midpoint_package_soak_r2.py": "842c0f41ba7465af3616eca9644f34d55064e43ce06bfa3dd93d28e5df97988b",
+      "analyze_packed_gate_midpoint_package_checks_r2.py": "a5bdb66e772c113cfd132d284cae91ea07263452a67296f4bf2babeb8fa75d47",
+      "analyze_packed_gate_midpoint_package_soak_r2.py": "a2fface2e3e86b05f3b7330d6eb4bc2a4bfa55bcd18fbf09931d7b0959b764c2",
+      "verify_packed_gate_midpoint_package_protocol_r2.py": "c548d23084236f56169e6220517b7a8b749d9677b5e5842edd17697e3375dbb7",
+      "verify_packed_gate_midpoint_package_prefix_r2.py": "6ba4491b4fdf749a0d11ac64a03b9309e99680743b10b44fe4dd324d904342ed",
+      "verify_packed_gate_midpoint_package_controlplane_r2.py": "d7c2c1ab4f90a5ca4931085293e91ac339b4d3ec95358987e5fff3430950d8e5"
+    },
+    "unbound_plans": {
+      "checks": {
+        "file": "packed-gate-midpoint-package-checks-unbound-r2.json",
+        "sha256": "2fa3cbfe316f347bdccefd9ba149406416e4009c414561838126b3a0e9619b3d",
+        "plan": {
+          "kind": "unbound_packed_gate_midpoint_package_http_preparation",
+          "source_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+          "repo": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1",
+          "helpers": {
+            "script": "run-native-packed-gate-midpoint-package-checks-r2.ps1",
+            "script_sha256": "54017e5da7bdfafb1a2cf0d6bec023312a033dce32eeef7c8e118e497a92cdc1",
+            "dispatcher": "dispatch_packed_gate_midpoint_package_checks_r2.py",
+            "dispatcher_sha256": "c3bd737efca2e32ae0018c87688274329f2b1182a936d8d567c5bce25ef5c0c5"
+          },
+          "stage_validator": "packed_gate_midpoint_package_stage_evidence_r2.py",
+          "stage_validator_sha256": "0ee861f9c1fa89fbcd82ddb5b1e8e0f14ef30dfea4246a633ecc1dbf17018f5a",
+          "source_sha256": {
+            "scripts/verify_baiying_q8192_http.py": "080155aa38c62818f9b71a7fd2e5f5ac7056b1f763de170475b568118faa2eb5",
+            "scripts/verify_qrt_openai_server.py": "26d9b33a13cb8bc2a648b0fa94f19ea6fd8e1fa112b089274b8a7b6ea03d2e6a",
+            "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+            "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca"
+          },
+          "actions": {
+            "protocol": {
+              "controller": "verify_packed_gate_midpoint_package_protocol_r2.py",
+              "controller_sha256": "c548d23084236f56169e6220517b7a8b749d9677b5e5842edd17697e3375dbb7",
+              "config": "packed-gate-midpoint-package-protocol-config-r2.json",
+              "port": 18242,
+              "timeout_seconds": 780,
+              "transport_timeout_seconds": 900,
+              "name": "packed-gate-midpoint-package-protocol-r2",
+              "response_directory": "packed-gate-midpoint-package-protocol-requests-r2",
+              "required_status": "native_tool_text_parts_http_and_gb10_pass"
+            },
+            "prefix": {
+              "controller": "verify_packed_gate_midpoint_package_prefix_r2.py",
+              "controller_sha256": "6ba4491b4fdf749a0d11ac64a03b9309e99680743b10b44fe4dd324d904342ed",
+              "config": "packed-gate-midpoint-package-prefix-config-r2.json",
+              "port": 18243,
+              "timeout_seconds": 780,
+              "transport_timeout_seconds": 900,
+              "name": "packed-gate-midpoint-package-prefix-r2",
+              "response_directory": "packed-gate-midpoint-package-prefix-requests-r2",
+              "required_status": "native_http_saved_prefix_gb10_pass"
+            },
+            "controlplane": {
+              "controller": "verify_packed_gate_midpoint_package_controlplane_r2.py",
+              "controller_sha256": "d7c2c1ab4f90a5ca4931085293e91ac339b4d3ec95358987e5fff3430950d8e5",
+              "config": "packed-gate-midpoint-package-controlplane-config-r2.json",
+              "port": 18245,
+              "timeout_seconds": 780,
+              "transport_timeout_seconds": 900,
+              "name": "packed-gate-midpoint-package-controlplane-r2",
+              "response_directory": "packed-gate-midpoint-package-controlplane-requests-r2",
+              "required_status": "native_http_protocol_and_control_plane_pass"
+            }
+          },
+          "original_source": "current-package-checks-source-r6.json",
+          "original_source_sha256": "2841e3ab0b8c5c8d40e58d976321f9678c567a7a15fccb95eb92f4c3e570bf57",
+          "original_templates": {
+            "verify_current_package_protocol_r6.py": "683a9d69402305afd243b734c10ee285b6ad29dcf7fc46c7f4d5683d27e816f1",
+            "verify_current_package_prefix_r6.py": "05fecb3f25e36692741d6d775bbba6136bc9d191a0c7bbe09c4d384db2fa5102",
+            "verify_current_package_controlplane_r6.py": "484449f06d68eb8d26433010fb68e94d95c6b4c3b34d2cb901eca81ecd48a71a",
+            "run-native-current-package-checks-r6.ps1": "3749ff80e8d3695fc1847af9d7129e8816567f44becb24c51f0cd946df25c08f",
+            "dispatch_current_package_checks_r6.py": "ea9e5422babffe4efd05f62772a9152e0c5b4a044b9ca45fa02a624da1819d83"
+          },
+          "native_timeouts_seconds": {
+            "http": 780,
+            "transport": 900,
+            "git": 30
+          },
+          "required_before_binding": "Actual repaired-core package staging, archive relocation and CPU preflight on the real built components.",
+          "preserved_checks": {
+            "protocol": 45,
+            "prefix": 15,
+            "controlplane": 55,
+            "raw_q8192_outputs": 512,
+            "raw_saved_prefix_outputs": 256,
+            "saved_prefix_first_logit_observations": 12,
+            "saved_prefix_sse_cases": 4
+          },
+          "binary_bound": false,
+          "native_model_executed": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "release_qualified": false,
+          "generator": "prepare_packed_gate_midpoint_package_checks_r2.py",
+          "generator_sha256": "844891bd50a356c931b4cf5f80b00b8d1e9b63eb448cc6f64753b22d2293cc1e"
+        }
+      },
+      "matrix": {
+        "file": "packed-gate-midpoint-package-matrix-unbound-r2.json",
+        "sha256": "96ae0a4369d36f53fb79e66a1fdf63ca60ccc2967edaa15729311dc2a7b9110c",
+        "plan": {
+          "kind": "unbound_packed_gate_midpoint_package_cold_matrix_preparation",
+          "source_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+          "repo": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1",
+          "helpers": {
+            "script": "run-native-packed-gate-midpoint-package-matrix-r2.ps1",
+            "script_sha256": "5b51a0a7e7c4b790558df57d37cf836c29a67541f7075045ad6fd2c99d64c2e9",
+            "dispatcher": "dispatch_packed_gate_midpoint_package_matrix_r2.py",
+            "dispatcher_sha256": "2570c2bc6ef4a378b8bd8ed5f59799b19ee528f241ba7c423f6992a888ff5d49",
+            "analyzer": "analyze_packed_gate_midpoint_package_matrix_r2.py",
+            "analyzer_sha256": "6e1be380fe09e1a67618defe62468f299670289518776adad139b5738b76d128"
+          },
+          "source_sha256": {
+            "scripts/baiying_guarded_inference.ps1": "896f5de5a2c955ac4978d103bc4d0735c1e4924520542ff2f49a561b3e9e18b7",
+            "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+            "contracts/gb10_cold_token_matrix_20260911_oracle.json": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1"
+          },
+          "stage_validator": "packed_gate_midpoint_package_stage_evidence_r2.py",
+          "stage_validator_sha256": "0ee861f9c1fa89fbcd82ddb5b1e8e0f14ef30dfea4246a633ecc1dbf17018f5a",
+          "original_source": "current-package-matrix-source-r1.json",
+          "original_source_sha256": "75141d401252d4fbd51294815b00f7ae4ee7118b18332b199b078d2e81262e89",
+          "original_analyzer": "record_current_package_matrix_r3.py",
+          "original_analyzer_sha256": "edd41794084f43362a33635f591a8d2b904e40f151fd916c2723c6dc9a3bfd85",
+          "native_timeouts_seconds": {
+            "case": 300,
+            "transport": 390,
+            "git": 30
+          },
+          "case_count": 13,
+          "short_cases": 5,
+          "cold_cases": 8,
+          "original_expected_output_tokens": 1856,
+          "required_before_binding": "Actual repaired-core package staging, archive relocation and CPU preflight; each case starts a fresh CLI/model process.",
+          "original_numerical_and_callback_checks_preserved": true,
+          "binary_bound": false,
+          "native_model_executed": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "release_qualified": false,
+          "generator": "prepare_packed_gate_midpoint_package_matrix_r2.py",
+          "generator_sha256": "bf3fba8cf8d7835f8c1f31e37d806cd5325da39e7e0f8f8bb29a428edaf56a02"
+        }
+      },
+      "soak": {
+        "file": "packed-gate-midpoint-package-soak-unbound-r2.json",
+        "sha256": "d85120c10dd2c542590f218bd0634b35bc0814fde3cc3b06c93bc8cd76e704dd",
+        "plan": {
+          "kind": "unbound_packed_gate_midpoint_package_one_hour_soak_preparation",
+          "source_commit": "35607853eb03487b443ddfed8529b8da5539de86",
+          "repo": "P:/projects/AIMA-public-packed-gate-midpoint-20260922-r1",
+          "helpers": {
+            "worker": "verify_packed_gate_midpoint_package_soak_r2.py",
+            "worker_sha256": "c750ac5f0ed719f671534ef791ce88e3ae325e9c33f3f05402ddaf6b974338ac",
+            "script": "run-native-packed-gate-midpoint-package-soak-r2.ps1",
+            "script_sha256": "a6c31ab70bfdc93c9a0411de83dcf1e8cdc8f09d7804bda19c1052e8bde8517e",
+            "guard_script": "run-native-packed-gate-midpoint-package-soak-guard-r2.ps1",
+            "guard_script_sha256": "1fc5bc48261986eb553c54d114324698b9dfbf17306da15c883fbce2161872ba",
+            "dispatcher": "dispatch_packed_gate_midpoint_package_soak_r2.py",
+            "dispatcher_sha256": "842c0f41ba7465af3616eca9644f34d55064e43ce06bfa3dd93d28e5df97988b",
+            "http_analyzer": "analyze_packed_gate_midpoint_package_checks_r2.py",
+            "http_analyzer_sha256": "a5bdb66e772c113cfd132d284cae91ea07263452a67296f4bf2babeb8fa75d47",
+            "analyzer": "analyze_packed_gate_midpoint_package_soak_r2.py",
+            "analyzer_sha256": "a2fface2e3e86b05f3b7330d6eb4bc2a4bfa55bcd18fbf09931d7b0959b764c2"
+          },
+          "source_sha256": {
+            "scripts/verify_baiying_q8192_http.py": "080155aa38c62818f9b71a7fd2e5f5ac7056b1f763de170475b568118faa2eb5",
+            "scripts/verify_qrt_openai_server.py": "26d9b33a13cb8bc2a648b0fa94f19ea6fd8e1fa112b089274b8a7b6ea03d2e6a",
+            "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca"
+          },
+          "original_source": "current-package-soak-source-r5.json",
+          "original_source_sha256": "1a8d87f675cc955292929bdbb4fa2c0472328e31d20889d5823bf4d243fad266",
+          "original_http_analyzer": "record_current_package_checks_r6.py",
+          "original_http_analyzer_sha256": "57e526ca0586be98dae5bd7180264037e3ffded402c818fefba9973bca9de62f",
+          "original_soak_analyzer": "record_current_package_soak_r7.py",
+          "original_soak_analyzer_sha256": "e18a5a903d00cd4527d47447549d99c8e22cca04413f81d13d1e65f0e457f116",
+          "stage_validator": "packed_gate_midpoint_package_stage_evidence_r2.py",
+          "stage_validator_sha256": "0ee861f9c1fa89fbcd82ddb5b1e8e0f14ef30dfea4246a633ecc1dbf17018f5a",
+          "port": 18244,
+          "minimum_active_window_seconds": 3600,
+          "native_guard_seconds": 4500,
+          "controller_seconds": 4200,
+          "per_request_seconds": 120,
+          "transport_seconds": 4620,
+          "git_seconds": 30,
+          "required_before_binding": "Same repaired-core archive, all three HTTP regressions and their offline raw-response replay, and all thirteen cold CLI cases with original first logits and actual callbacks.",
+          "binary_bound": false,
+          "native_model_executed": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "release_qualified": false,
+          "generator": "prepare_packed_gate_midpoint_package_soak_r2.py",
+          "generator_sha256": "1e956738d69022181b610d9f6eedd270a2f33197081192553333e12bafd3e101"
+        }
+      }
+    },
+    "preserved_workloads": [
+      {
+        "kind": "protocol",
+        "original_sha256": "683a9d69402305afd243b734c10ee285b6ad29dcf7fc46c7f4d5683d27e816f1",
+        "candidate_sha256": "c548d23084236f56169e6220517b7a8b749d9677b5e5842edd17697e3375dbb7",
+        "only_repository_evidence_path_port_and_role_changed": true,
+        "assertions": 21
+      },
+      {
+        "kind": "prefix",
+        "original_sha256": "05fecb3f25e36692741d6d775bbba6136bc9d191a0c7bbe09c4d384db2fa5102",
+        "candidate_sha256": "6ba4491b4fdf749a0d11ac64a03b9309e99680743b10b44fe4dd324d904342ed",
+        "only_repository_evidence_path_port_and_role_changed": true,
+        "assertions": 29
+      },
+      {
+        "kind": "controlplane",
+        "original_sha256": "484449f06d68eb8d26433010fb68e94d95c6b4c3b34d2cb901eca81ecd48a71a",
+        "candidate_sha256": "d7c2c1ab4f90a5ca4931085293e91ac339b4d3ec95358987e5fff3430950d8e5",
+        "only_repository_evidence_path_port_and_role_changed": true,
+        "assertions": 24
+      },
+      {
+        "kind": "cold_matrix",
+        "all_thirteen_original_cases": true,
+        "frozen_oracle_prompt_and_expected_file_checks_unchanged": true,
+        "token_first_logit_and_stream_assertions_byte_identical": true,
+        "numeric_profile_options_overridden": 0
+      },
+      {
+        "kind": "soak",
+        "reference_inputs_workload_numerics_watchdogs_and_cleanup_byte_identical": true,
+        "active_seconds": 3600,
+        "controller_seconds": 4200,
+        "request_seconds": 120,
+        "guard_seconds": 4500,
+        "guard_only_boot_helper_path_and_bounded_git_changed": true
+      }
+    ],
+    "missing_prerequisites": [
+      {
+        "file": "prepare_packed_gate_midpoint_package_checks_r2.py",
+        "arguments": [],
+        "missing": "packed-gate-midpoint-package-stage-r2/run-record.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "prepare_packed_gate_midpoint_package_matrix_r2.py",
+        "arguments": [],
+        "missing": "packed-gate-midpoint-package-stage-r2/run-record.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "prepare_packed_gate_midpoint_package_soak_r2.py",
+        "arguments": [],
+        "missing": "packed-gate-midpoint-package-stage-r2/run-record.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "dispatch_packed_gate_midpoint_package_checks_r2.py",
+        "arguments": [
+          "protocol"
+        ],
+        "missing": "packed-gate-midpoint-package-checks-source-r2.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "dispatch_packed_gate_midpoint_package_checks_r2.py",
+        "arguments": [
+          "prefix"
+        ],
+        "missing": "packed-gate-midpoint-package-checks-source-r2.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "dispatch_packed_gate_midpoint_package_checks_r2.py",
+        "arguments": [
+          "controlplane"
+        ],
+        "missing": "packed-gate-midpoint-package-checks-source-r2.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "dispatch_packed_gate_midpoint_package_matrix_r2.py",
+        "arguments": [
+          "http-plain-q5-out32"
+        ],
+        "missing": "packed-gate-midpoint-package-matrix-source-r2.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "dispatch_packed_gate_midpoint_package_matrix_r2.py",
+        "arguments": [
+          "http-chat-q17-out32"
+        ],
+        "missing": "packed-gate-midpoint-package-matrix-source-r2.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "dispatch_packed_gate_midpoint_package_matrix_r2.py",
+        "arguments": [
+          "http-tool-call-q294-out32"
+        ],
+        "missing": "packed-gate-midpoint-package-matrix-source-r2.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "dispatch_packed_gate_midpoint_package_matrix_r2.py",
+        "arguments": [
+          "http-tool-continuation-q85-out32"
+        ],
+        "missing": "packed-gate-midpoint-package-matrix-source-r2.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "dispatch_packed_gate_midpoint_package_matrix_r2.py",
+        "arguments": [
+          "http-thinking-q19-out512"
+        ],
+        "missing": "packed-gate-midpoint-package-matrix-source-r2.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "dispatch_packed_gate_midpoint_package_matrix_r2.py",
+        "arguments": [
+          "q7168-out32"
+        ],
+        "missing": "packed-gate-midpoint-package-matrix-source-r2.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "dispatch_packed_gate_midpoint_package_matrix_r2.py",
+        "arguments": [
+          "q7170-out32"
+        ],
+        "missing": "packed-gate-midpoint-package-matrix-source-r2.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "dispatch_packed_gate_midpoint_package_matrix_r2.py",
+        "arguments": [
+          "q8191-out32"
+        ],
+        "missing": "packed-gate-midpoint-package-matrix-source-r2.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "dispatch_packed_gate_midpoint_package_matrix_r2.py",
+        "arguments": [
+          "q7169-out32"
+        ],
+        "missing": "packed-gate-midpoint-package-matrix-source-r2.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "dispatch_packed_gate_midpoint_package_matrix_r2.py",
+        "arguments": [
+          "q8192-out32"
+        ],
+        "missing": "packed-gate-midpoint-package-matrix-source-r2.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "dispatch_packed_gate_midpoint_package_matrix_r2.py",
+        "arguments": [
+          "q7169-out512"
+        ],
+        "missing": "packed-gate-midpoint-package-matrix-source-r2.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "dispatch_packed_gate_midpoint_package_matrix_r2.py",
+        "arguments": [
+          "q8192-out512"
+        ],
+        "missing": "packed-gate-midpoint-package-matrix-source-r2.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "dispatch_packed_gate_midpoint_package_matrix_r2.py",
+        "arguments": [
+          "q8193-out32"
+        ],
+        "missing": "packed-gate-midpoint-package-matrix-source-r2.json",
+        "subprocess_or_network_calls": 0
+      },
+      {
+        "file": "dispatch_packed_gate_midpoint_package_soak_r2.py",
+        "arguments": [],
+        "missing": "packed-gate-midpoint-package-soak-source-r2.json",
+        "subprocess_or_network_calls": 0
+      }
+    ],
+    "historical_stage_positive_control": {
+      "result": {
+        "source_commit": "6d9602cb9e51096f4e336ecf07a2b220e53f6a54",
+        "repo": "D:/projects/AIMA-public-prefix-owner-cli-20260918-r1",
+        "stage_directory": "current-package-stage-r6",
+        "stage_run_sha256": "83200124d61595e5562ef7d769915c9c7e91b3244255b9c00525605b00de0292",
+        "archive_report_sha256": "94abacd06ab0e7c58e26aa0a016f356af5e07ea63314158b67df53fe6adb38ec",
+        "runtime_manifest_sha256": "6ad922acf382b73c0322b8dadc5cc6661e72e1af90d94195c8f6cc56bc0579ed",
+        "release_manifest_sha256": "20c7c6a9f0a760bf4181e22b30c74751680f6ee2e6616e97c2977256f25a0fac",
+        "config_sha256": "bb904cc9d918287d9b060baae4fd823a1555429cb40fc5b5bd6234e7cb18507c",
+        "numeric_profile_sha256": "2178d4ed6b51221b88de08b83cb0f8827d9f396f72d423c8ed833db851af8fa7",
+        "cpu_preflight_sha256": "5bab2c057e0550001830cd294b0273d526ee39cf0266470783cbf01cf32ff931",
+        "archive": {
+          "archive": "D:\\projects\\AIMA-public-prefix-owner-cli-20260918-r1\\build\\current-package-archive-r6\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260919.r6.zip",
+          "bytes": 132397965,
+          "sha256": "2cd3798411e33f10cc31b944aa69e2453005a0761f1f637f7f0b7d33aa3349c7",
+          "checksum_file": "D:\\projects\\AIMA-public-prefix-owner-cli-20260918-r1\\build\\current-package-archive-r6\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260919.r6.zip.sha256",
+          "source_commit": "6d9602cb9e51096f4e336ecf07a2b220e53f6a54"
+        },
+        "relocated_runtime_directory": "D:\\projects\\AIMA-public-prefix-owner-cli-20260918-r1\\build\\relocated current package r6\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260919.r6",
+        "server_commit": "b3d75e910350c2b7dd3911fa5370a39a89dbe5cc",
+        "runtime_artifacts": 268,
+        "release_files": 284,
+        "components": {
+          "server": {
+            "commit": "b3d75e910350c2b7dd3911fa5370a39a89dbe5cc",
+            "metadata": {
+              "path": "D:/projects/AIMA-public-tool-text-parts-bounded-20260918-r1/build/tool-text-parts-server/build-provenance.json",
+              "sha256": "d9504fe707f64bf80f04fc71a93190376b53283c44ec70fd48851d2ee15aadcc"
+            },
+            "artifact": {
+              "path": "D:\\projects\\AIMA-public-tool-text-parts-bounded-20260918-r1\\build\\tool-text-parts-server\\qrt.exe",
+              "sha256": "6b3e5dd79a8e39652efcaf469410ebce1a106a499661f7fbe31ecdeba8d67dae"
+            },
+            "package_path": "engine/qrt.exe",
+            "build_run": {
+              "path": "D:/projects/AIMA-public-tool-text-parts-bounded-20260918-r1/build/tool-text-parts-server-build-r2/run-record.json",
+              "sha256": "be73b2fed89ce834271b78ce92a7efffb804e9dff9c38f5d016539f479277faf"
+            }
+          },
+          "cli": {
+            "commit": "6d9602cb9e51096f4e336ecf07a2b220e53f6a54",
+            "metadata": {
+              "path": "D:/projects/AIMA-public-prefix-owner-cli-20260918-r1/build/prefix-owner-cli/build-provenance.json",
+              "sha256": "0defead4a309f7aab324200148fdde1270387ee8a39d1d09db5a4cbb68ac7f54"
+            },
+            "artifact": {
+              "path": "D:\\projects\\AIMA-public-prefix-owner-cli-20260918-r1\\build\\prefix-owner-cli\\qrt-product.exe",
+              "sha256": "153c0970dc2c4d1d3f8536ed698005842169431d412741a736cee185f731c78d",
+              "bytes": 949248
+            },
+            "package_path": "product-cli/qrt-product.exe",
+            "build_run": {
+              "path": "D:/projects/AIMA-public-prefix-owner-cli-20260918-r1/build/prefix-owner-cli-build-r1/run-record.json",
+              "sha256": "d04e34e8a45c1eed1676351e4416de4922acbf20a8d5b4824829a3f255a64d65"
+            }
+          },
+          "whole": {
+            "commit": "ddacdc99afaf76f4ec5de106affc80956c36f07b",
+            "metadata": {
+              "path": "D:\\projects\\AIMA-public-final-query-output-20260918-r1\\build\\final-query-output-whole-provider\\build-provenance.json",
+              "sha256": "30d39a1d76797df69d231ad482a70aa502d975ca4ba8b0acc3292f4b19310fc3"
+            },
+            "artifact": {
+              "path": "D:\\projects\\AIMA-public-final-query-output-20260918-r1\\build\\final-query-output-whole-provider\\qrt_qwen36_whole_provider.dll",
+              "sha256": "2589bdd1d4b35904f5dd040721bb73a09c88bb483af7c3c93d729aab92b08dde"
+            },
+            "package_path": "whole-provider/qrt_qwen36_whole_provider.dll",
+            "build_run": {
+              "path": "D:/projects/AIMA-public-final-query-output-20260918-r1/build/final-query-output-build-r1/run-record.json",
+              "sha256": "db0302bb152fbc69851382f24002e3c1eab13e31fde59a247571144fb13fbe66"
+            }
+          },
+          "ck": {
+            "commit": "ea6faff785474f9acdf84e72ce596a62db3ea7c5",
+            "metadata": {
+              "path": "D:\\projects\\AIMA-public-long-final-pv-provider-20260918-r1\\build\\long-final-pv-provider\\build-ck-provenance.json",
+              "sha256": "9c39a97e856e8a173fd58a9eca6d1b59ec2182071e42911aed06771a1cdd2100"
+            },
+            "artifact": {
+              "path": "D:\\projects\\AIMA-public-long-final-pv-provider-20260918-r1\\build\\long-final-pv-provider\\qrt_ck_fmha_sm121.dll",
+              "sha256": "e10b2db6fefcd55dc1848895f0eb3e11e67bdacb0b8368a2e9b993468c355ad8"
+            },
+            "package_path": "ck-fmha/qrt_ck_fmha_sm121.dll",
+            "build_run": {
+              "path": "D:/projects/AIMA-public-long-final-pv-provider-20260918-r1/build/long-final-pv-provider-build-ck-r1/run-record.json",
+              "sha256": "395a0fcdf70c5bd8f1a0d5b04ec7ea741f11a72dec59b25706e7c1d9fad32f79"
+            }
+          },
+          "moe": {
+            "commit": "9235750e81a899f6843bb9dfd3f11165ad4cdce9",
+            "metadata": {
+              "path": "D:\\projects\\AIMA-public-moe-down-compact-20260917-r6\\build\\moe-down-compact-provider\\build-provenance.json",
+              "sha256": "e318a189c68303b4918354e0d29ea6f849d20a6e9df19571a06c0289c8f824e9"
+            },
+            "artifact": {
+              "path": "D:\\projects\\AIMA-public-moe-down-compact-20260917-r6\\build\\moe-down-compact-provider\\qrt_triton_moe_q8192_provider.dll",
+              "sha256": "716379525ead68d583b36380261b467e8bfc37cd427f6577a24ee4519cda9891"
+            },
+            "package_path": "q8192-moe/qrt_triton_moe_q8192_provider.dll",
+            "build_run": {
+              "path": "D:/projects/AIMA-public-moe-down-compact-20260917-r6/build/moe-down-compact-provider-build-r6/run-record.json",
+              "sha256": "40dd15a883f3ed251727e5ca7d8de98f16b7d27ba5dc81ec92b793e6951d1aa4"
+            }
+          },
+          "fla": {
+            "commit": "2b33665676223a4cded4b1df10437f4d1456aae9",
+            "metadata": {
+              "path": "D:\\projects\\AIMA-public-fla-completion-guard-20260918-r1\\build\\fla\\build-provenance.json",
+              "sha256": "07d7e5b963d443a4c7bac98e72bca34df298f70a38ed6889e5751ab827e21160"
+            },
+            "artifact": {
+              "path": "D:\\projects\\AIMA-public-fla-completion-guard-20260918-r1\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+              "sha256": "73bd48b27ff696135b5902d1d693bc4d6a08e7f308f79b63e587c169e1ba83f7"
+            },
+            "package_path": "fla/qrt_fla_chunk_gdn_provider.dll",
+            "build_run": {
+              "path": "D:/projects/AIMA-public-fla-completion-guard-20260918-r1/build/fla-completion-guard-build-r1/run-record.json",
+              "sha256": "05f3e0e2dc040d91cc56a90adfed98996f0f849d68c68b29fb2e000138168f28"
+            }
+          }
+        },
+        "staging_qualified": true,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "release_qualified": false
+      },
+      "scope": "Actual R6 stage records exercise the common validator only. They are never substituted for a repaired-core binary binding or acceptance result."
+    },
+    "rejected_historical_record_faults": [
+      {
+        "case": "unfinished_process",
+        "rejected": true,
+        "fault_in_memory_only": true
+      },
+      {
+        "case": "host_guard_failed",
+        "rejected": true,
+        "fault_in_memory_only": true
+      },
+      {
+        "case": "wrong_run_source",
+        "rejected": true,
+        "fault_in_memory_only": true
+      },
+      {
+        "case": "original_stage_available",
+        "rejected": true,
+        "fault_in_memory_only": true
+      },
+      {
+        "case": "crc_failed",
+        "rejected": true,
+        "fault_in_memory_only": true
+      },
+      {
+        "case": "wrong_server_commit",
+        "rejected": true,
+        "fault_in_memory_only": true
+      },
+      {
+        "case": "wrong_server_binary",
+        "rejected": true,
+        "fault_in_memory_only": true
+      },
+      {
+        "case": "wrong_numeric_profile",
+        "rejected": true,
+        "fault_in_memory_only": true
+      },
+      {
+        "case": "missing_runtime_artifact",
+        "rejected": true,
+        "fault_in_memory_only": true
+      },
+      {
+        "case": "different_component_build",
+        "rejected": true,
+        "fault_in_memory_only": true
+      },
+      {
+        "case": "different_release_version",
+        "rejected": true,
+        "fault_in_memory_only": true
+      },
+      {
+        "case": "cpu_preflight_failed",
+        "rejected": true,
+        "fault_in_memory_only": true
+      }
+    ],
+    "windows_parse": {
+      "command": [
+        "ssh",
+        "-o",
+        "BatchMode=yes",
+        "-o",
+        "ConnectTimeout=10",
+        "baiying",
+        "powershell.exe -NoProfile -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAJABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAJAByAG8AdwBzAD0AQAAoACkAOwBmAG8AcgBlAGEAYwBoACgAJABwAGEAdABoACAAaQBuACAAQAAoACcAUAA6AC8AcAByAG8AagBlAGMAdABzAC8AcgB1AG4ALQBuAGEAdABpAHYAZQAtAHAAYQBjAGsAZQBkAC0AZwBhAHQAZQAtAG0AaQBkAHAAbwBpAG4AdAAtAHAAYQBjAGsAYQBnAGUALQBjAGgAZQBjAGsAcwAtAHIAMgAuAHAAcwAxACcALAAnAFAAOgAvAHAAcgBvAGoAZQBjAHQAcwAvAHIAdQBuAC0AbgBhAHQAaQB2AGUALQBwAGEAYwBrAGUAZAAtAGcAYQB0AGUALQBtAGkAZABwAG8AaQBuAHQALQBwAGEAYwBrAGEAZwBlAC0AbQBhAHQAcgBpAHgALQByADIALgBwAHMAMQAnACwAJwBQADoALwBwAHIAbwBqAGUAYwB0AHMALwByAHUAbgAtAG4AYQB0AGkAdgBlAC0AcABhAGMAawBlAGQALQBnAGEAdABlAC0AbQBpAGQAcABvAGkAbgB0AC0AcABhAGMAawBhAGcAZQAtAHMAbwBhAGsALQByADIALgBwAHMAMQAnACwAJwBQADoALwBwAHIAbwBqAGUAYwB0AHMALwByAHUAbgAtAG4AYQB0AGkAdgBlAC0AcABhAGMAawBlAGQALQBnAGEAdABlAC0AbQBpAGQAcABvAGkAbgB0AC0AcABhAGMAawBhAGcAZQAtAHMAbwBhAGsALQBnAHUAYQByAGQALQByADIALgBwAHMAMQAnACkAKQB7ACQAdAA9ACQAbgB1AGwAbAA7ACQAZQA9ACQAbgB1AGwAbAA7ACQAbgB1AGwAbAA9AFsATQBhAG4AYQBnAGUAbQBlAG4AdAAuAEEAdQB0AG8AbQBhAHQAaQBvAG4ALgBMAGEAbgBnAHUAYQBnAGUALgBQAGEAcgBzAGUAcgBdADoAOgBQAGEAcgBzAGUARgBpAGwAZQAoACQAcABhAHQAaAAsAFsAcgBlAGYAXQAkAHQALABbAHIAZQBmAF0AJABlACkAOwAkAHIAbwB3AHMAIAArAD0AIABbAG8AcgBkAGUAcgBlAGQAXQBAAHsAZgBpAGwAZQA9ACQAcABhAHQAaAA7AHMAaABhADIANQA2AD0AKABHAGUAdAAtAEYAaQBsAGUASABhAHMAaAAgACQAcABhAHQAaAAgAC0AQQBsAGcAbwByAGkAdABoAG0AIABTAEgAQQAyADUANgApAC4ASABhAHMAaAAuAFQAbwBMAG8AdwBlAHIASQBuAHYAYQByAGkAYQBuAHQAKAApADsAcABhAHIAcwBlAF8AZQByAHIAbwByAHMAPQBAACgAJABlAHwARgBvAHIARQBhAGMAaAAtAE8AYgBqAGUAYwB0ACAAewAkAF8ALgBNAGUAcwBzAGEAZwBlAH0AKQB9AH0AOwBbAG8AcgBkAGUAcgBlAGQAXQBAAHsAaABvAHMAdAA9AFsARQBuAHYAaQByAG8AbgBtAGUAbgB0AF0AOgA6AE0AYQBjAGgAaQBuAGUATgBhAG0AZQA7AHUAdABjAD0AWwBEAGEAdABlAFQAaQBtAGUAXQA6ADoAVQB0AGMATgBvAHcALgBUAG8AUwB0AHIAaQBuAGcAKAAnAG8AJwApADsAcwBjAHIAaQBwAHQAcwA9ACQAcgBvAHcAcwA7AG4AYQB0AGkAdgBlAF8AbABhAHUAbgBjAGgAZQBkAD0AJABmAGEAbABzAGUAfQB8AEMAbwBuAHYAZQByAHQAVABvAC0ASgBzAG8AbgAgAC0ARABlAHAAdABoACAANQA7AGkAZgAoAEAAKAAkAHIAbwB3AHMAfABXAGgAZQByAGUALQBPAGIAagBlAGMAdAAgAHsAJABfAC4AcABhAHIAcwBlAF8AZQByAHIAbwByAHMALgBDAG8AdQBuAHQAfQApAC4AQwBvAHUAbgB0ACkAewBlAHgAaQB0ACAAMQB9AA=="
+      ],
+      "returncode": 0,
+      "stdout": "{\n    \"host\":  \"BAIYING\",\n    \"utc\":  \"2026-09-22T00:20:59.1535967Z\",\n    \"scripts\":  [\n                    {\n                        \"file\":  \"P:/projects/run-native-packed-gate-midpoint-package-checks-r2.ps1\",\n                        \"sha256\":  \"54017e5da7bdfafb1a2cf0d6bec023312a033dce32eeef7c8e118e497a92cdc1\",\n                        \"parse_errors\":  [\n\n                                         ]\n                    },\n                    {\n                        \"file\":  \"P:/projects/run-native-packed-gate-midpoint-package-matrix-r2.ps1\",\n                        \"sha256\":  \"5b51a0a7e7c4b790558df57d37cf836c29a67541f7075045ad6fd2c99d64c2e9\",\n                        \"parse_errors\":  [\n\n                                         ]\n                    },\n                    {\n                        \"file\":  \"P:/projects/run-native-packed-gate-midpoint-package-soak-r2.ps1\",\n                        \"sha256\":  \"a6c31ab70bfdc93c9a0411de83dcf1e8cdc8f09d7804bda19c1052e8bde8517e\",\n                        \"parse_errors\":  [\n\n                                         ]\n                    },\n                    {\n                        \"file\":  \"P:/projects/run-native-packed-gate-midpoint-package-soak-guard-r2.ps1\",\n                        \"sha256\":  \"1fc5bc48261986eb553c54d114324698b9dfbf17306da15c883fbce2161872ba\",\n                        \"parse_errors\":  [\n\n                                         ]\n                    }\n                ],\n    \"native_launched\":  false\n}\n",
+      "stderr": "",
+      "result": {
+        "host": "BAIYING",
+        "utc": "2026-09-22T00:20:59.1535967Z",
+        "scripts": [
+          {
+            "file": "P:/projects/run-native-packed-gate-midpoint-package-checks-r2.ps1",
+            "sha256": "54017e5da7bdfafb1a2cf0d6bec023312a033dce32eeef7c8e118e497a92cdc1",
+            "parse_errors": []
+          },
+          {
+            "file": "P:/projects/run-native-packed-gate-midpoint-package-matrix-r2.ps1",
+            "sha256": "5b51a0a7e7c4b790558df57d37cf836c29a67541f7075045ad6fd2c99d64c2e9",
+            "parse_errors": []
+          },
+          {
+            "file": "P:/projects/run-native-packed-gate-midpoint-package-soak-r2.ps1",
+            "sha256": "a6c31ab70bfdc93c9a0411de83dcf1e8cdc8f09d7804bda19c1052e8bde8517e",
+            "parse_errors": []
+          },
+          {
+            "file": "P:/projects/run-native-packed-gate-midpoint-package-soak-guard-r2.ps1",
+            "sha256": "1fc5bc48261986eb553c54d114324698b9dfbf17306da15c883fbce2161872ba",
+            "parse_errors": []
+          }
+        ],
+        "native_launched": false
+      }
+    },
+    "regression_bindings_created": false,
+    "package_components_bound": true,
+    "archive_created": false,
+    "native_model_executed": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false,
+    "checker_sha256": "3940411fcc9cac8ee1f112b57631f0e82177a8bda5d8f711e4658feab4b229b7"
+  },
+  "regression_preparation_sha256": "355ecae4022ed19b0eabe24dcb2e62e64c02c8b5b6f7c0081bc42b6dd696ec51",
+  "prepared_request_counts": {
+    "protocol": 45,
+    "saved_prefix": 15,
+    "controlplane": 55,
+    "cold_cases": 13,
+    "cold_output_tokens": 1856
+  },
+  "required_active_soak_seconds": 3600,
+  "planned_runtime_artifacts": 269,
+  "planned_release_files": 285,
+  "assertions": {
+    "all_six_actual_native_component_files_hash_verified": true,
+    "whole_and_cli_from_repaired356": true,
+    "existing_server_retains_actual_c268_provenance": true,
+    "all25_server_build_inputs_identical_in_repaired_tree": true,
+    "server_checkout_matches_actual_server_build": true,
+    "original512_output_control_attached": true,
+    "portable535_options_and34_paths_checked": true,
+    "only_declared_profile_differences": true,
+    "original_http_cold_and_soak_workloads_preserved": true,
+    "no_actual_archive_or_final_file_results_inferred": true
+  },
+  "admission": {
+    "exclusive_stage_waits_for_active_long_and_queued_linux_core_cleanup": true,
+    "later_checks_require_actual_relocated_archive": true,
+    "one_hour_soak_requires_same_archive_http_and_cold_matrix": true,
+    "missing_evidence_never_substituted_by_historical_positive_control": true
+  },
+  "staging_qualified": false,
+  "archive_created": false,
+  "new_native_model_executed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "published": false
+}

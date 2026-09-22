@@ -1,6 +1,6 @@
 # Linux sibling fixes reviewed for the next Windows release
 
-## September 21 status
+## September 22 Windows status and September 21 release refresh
 
 The [API refresh](../benchmarks/correctness/linux-windows-release-review-refresh-20260921-r2.json)
 at 2026-09-21T18:16:13Z rechecks the latest five releases: `.10`, `.9`, `.7`,
@@ -11,31 +11,41 @@ The source review below remains applicable. This refresh executes no model.
 It preserves the earlier15:18 comparison and the intervening local receipt
 selection error; the corrected reader compares the successful published record.
 
-The current Windows whole provider and C CLI at `c2683cd` pass
-[ordinary and native controls](../benchmarks/correctness/single-tail-q1-native-20260921.json):
+The current Windows whole provider and C CLI at `3560785` pass
+[ordinary and native controls](../benchmarks/correctness/packed-gate-midpoint-products-20260922.json):
 ordinary q8192/out512, plus native q7169/out32, q8191/out32, q8193/out32 and
 q8192/out512. All 1120 original GB10 outputs, callbacks and first logits match.
 The single cold input at position8192 now uses the resident q1 arithmetic;
 [its implementation and scope](COLD_PREFILL_TAILS.md) keep cold inputs separate
-from generated native commits. Ordinary q8192 loads in21496.2425 ms and has
-TTFT23134.0106 ms. The below10000-ms requirement and retained target remain open.
+from generated native commits. Ordinary q8192 loads in21517.6512 ms and has
+TTFT23272.0441 ms. The below10000-ms requirement and retained target remain open.
 
 The preceding [complete256k diagnostic](../benchmarks/correctness/retired-reference-mode-prefix256k-20260921.json)
 first differs at generated index124 after the original owner and suffix
 prefill. The [completed c268 rerun](../benchmarks/correctness/single-tail-q1-prefix256k-step124-native-20260921.json)
 reproduces the same failure. Its1257 same-history comparisons first differ in
 layer5's incoming recurrent state, head13. All90 original-operand GPU recurrence
-cases pass both state layouts; the earlier origin remains open. Later owner32,
+cases pass both state layouts. The earlier origin is now localized to a packed
+B-projection BF16 midpoint; the [repair](PACKED_GATE_MIDPOINT.md) passes original
+component operands and five short model controls. Its complete256k rerun remains
+active and unqualified. In the preceding failed run, later owner32,
 timed continuation and negative branches are not reached. Reference operands
 never enter native inference. Earlier128k qualification remains tied to its
 declared build.
 
-The same c268 server passes its native build and all54 Rust tests. Its new
-HTTP matrix, final archive inventory,13-case cold matrix and one-hour soak
+The c268 server passes its native build and all54 Rust tests. All25 build inputs
+are unchanged in356. The [package preparation](../benchmarks/correctness/packed-gate-midpoint-package-prepared-20260922-r2.json)
+retains its actual binary provenance and binds the repaired whole provider and
+CLI. Its new HTTP matrix, final archive inventory,13-case cold matrix and one-hour soak
 remain unrun. Older archive/API records below retain their own component
 boundaries. No new archive is release-qualified or published. Windows still
 rejects visual media explicitly; Linux VL and numerical/soak results do not
 qualify the Windows artifact.
+
+The separate [Linux core Windows experiment](LINUX_CORE_WINDOWS_PROTOTYPE.md)
+imports the native source declared by `.10`. It is queued behind the complete256k
+owner and has no Windows model or performance result yet. Protocol improvements
+already implemented in the Windows server retain their own evidence below.
 
 ## September 18 refresh: Linux `.10` tool content
 

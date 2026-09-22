@@ -121,7 +121,7 @@ claimed. [Completed run and actual state evidence](../benchmarks/correctness/sin
 and [qualified same-history reference](../benchmarks/correctness/gb10-prefix256-step124-reference-20260921.json).
 
 The c268 server builds on Windows and passes all 54 Rust tests. The
-[new package preparation](../benchmarks/correctness/packed-gate-midpoint-package-prepared-20260922.json)
+[new package preparation](../benchmarks/correctness/packed-gate-midpoint-package-prepared-20260922-r2.json)
 retains that binary's actual source after verifying all25 build inputs are
 unchanged in356, and binds the repaired whole provider and CLI. Its archive,
 actual HTTP matrix, three native retirement cases,13-case cold matrix and

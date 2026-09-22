@@ -43,7 +43,7 @@ All completed builds and short runs pass host checks and process cleanup.
 The preceding c268 server passed54 Rust tests, but server/package qualification
 with the repaired provider remains open. The complete256k rerun is now active.
 
-The [repaired package preparation](../benchmarks/correctness/packed-gate-midpoint-package-prepared-20260922.json)
+The [repaired package preparation](../benchmarks/correctness/packed-gate-midpoint-package-prepared-20260922-r2.json)
 binds the actual356 whole provider and CLI, the existing c268 server and three
 numerical providers. All25 server build inputs are unchanged in356; the server
 keeps its original commit, binary and working checkout. Read-only Windows
@@ -57,6 +57,10 @@ workloads are preserved. Preparation rejects five profile faults, three server
 provenance faults,20 missing-evidence cases and12 corrupted historical records;
 two dispatch checks prevent starting behind unfinished host owners. Five
 PowerShell scripts parse on Windows. No archive has been created or tested.
+Revision2 also distinguishes the long owner's execution checkout370 from its
+runtime356. Six admission faults are rejected, and ten generated files reproduce
+byte-for-byte. The first unrun preparation remains preserved; its owner-source
+mix-up would have incorrectly prevented dispatch after cleanup.
 
 A separate [Linux core Windows prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md)
 is queued after that owner. Source0a57516 ports the pinned Linux compute core
