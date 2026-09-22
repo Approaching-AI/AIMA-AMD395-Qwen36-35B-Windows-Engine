@@ -246,5 +246,32 @@ The component fix remains experimental and is not a retained product result.
 The next structural investigation covers the complete GDN prefill and decode
 boundaries, including reuse of the existing Windows reference-compatible FLA
 provider. The imported packed singleton recurrence differs from the GB10
-reference's observed two-row speculative transaction; its numerical effect
-must be measured with actual operands.
+reference's observed two-row speculative transaction.
+
+Same-input CPU replay now reproduces all 524288 original FP32 state cells and
+4096 BF16 core values using the existing Windows Q2 arithmetic. Rounding only
+beta to BF16 changes 333 core values and 492547 FP32 state cells. On actual
+native inputs, the original arithmetic reduces core differences from 1148 to
+884, while the carried prefill state still differs. These are operator results,
+not a complete model qualification.
+
+`--gb10-gdn` requires both preceding options. It replaces the entire q8192
+prefill GDN pipeline with the existing Windows FLA provider from source
+`1d11bf7`, and decode with the existing Q2 update on the single accepted token.
+State remains FP32 in `[value_head][value][key]` order. Input conversion uses
+the qualified model-parameter gate tables, BF16 prefill beta and FP32 decode
+beta. It reads no expected output or captured state. The adapter loads its
+pinned DLL/AOT and tables before model loading, includes that time in READY,
+and reuses conversion scratch across layers.
+
+This option covers unpadded q8192 prefill and singleton decode. It rejects the
+retired AOT's intermediate fixtures and checkpoint requests, whose scratch
+layouts no longer describe the replacement. Existing model-output observers
+remain intact. Five prior preparation modes remain byte-identical; the new
+mode has 54 compilation units and the same 72 embedded upstream images.
+
+`python3 tools/test_linux_core_gdn.py --out build/FRESH_DIRECTORY` checks the
+actual conversion kernels (33027 values and guard regions), cold/seeded provider
+selection, FP32 state forwarding, decode arithmetic flags and injected failures
+under ASan/UBSan. This test records HIP launches without executing a model.
+Windows native compilation and the original q8192/out512 gate remain required.

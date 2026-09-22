@@ -14,6 +14,9 @@
 #ifdef AIMA_PORT_GB10_CONVOLUTION
 #include "gb10_convolution.h"
 #endif
+#ifdef AIMA_PORT_GB10_GDN
+#include "gb10_gdn.h"
+#endif
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -161,6 +164,9 @@ int run(const std::vector<std::string>& argv) {
   std::cout << "}" << std::endl;
 #ifdef AIMA_PORT_GB10_CONVOLUTION
   aima_port::ConvolutionSiluOwner convolution_silu;
+#endif
+#ifdef AIMA_PORT_GB10_GDN
+  aima_port::Gb10GdnOwner gdn;
 #endif
   aima::NativeResidentEngineOptions options;
   options.weights.model_dir = model;

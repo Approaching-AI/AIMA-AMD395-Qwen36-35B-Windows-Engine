@@ -34,6 +34,8 @@ def main():
                         help="Use current upstream decode arithmetic for text; not model-qualified")
     parser.add_argument("--gb10-convolution", action="store_true",
                         help="Use the GB10 convolution rounding and SiLU boundary")
+    parser.add_argument("--gb10-gdn", action="store_true",
+                        help="Use the Windows FLA and GB10 Q2 arithmetic experiment")
     args = parser.parse_args()
     host = socket.gethostname()
     if platform.system() != "Windows" or host.split(".")[0].lower() != "baiying":
@@ -101,6 +103,10 @@ def main():
         if args.gb10_convolution:
             source_paths += [ROOT / "native/providers/gdn" / name for name in (
                 "sm121_silu_table.h", "sm121_exp2_table.h")]
+        if args.gb10_gdn:
+            source_paths += [ROOT / "native/providers/gdn" / name for name in (
+                "fla_checkpoint.h", "sm121_q1_gdn.h", "sm121_q1_math.h",
+                "sm121_rsqrt_table.h", "sm121_sqrt_table.h", "sm121_attention_rcp.h")]
         record["source_inputs"] = [dict(path=p.relative_to(ROOT).as_posix(), bytes=p.stat().st_size,
                                         sha256=sha(p)) for p in sorted(source_paths) if p.is_file()]
         prepared = out / "prepared"
@@ -111,6 +117,8 @@ def main():
             preparation.append("--current-text-decode")
         if args.gb10_convolution:
             preparation.append("--gb10-convolution")
+        if args.gb10_gdn:
+            preparation.append("--gb10-gdn")
         run("prepare", preparation, 120)
         plan = json.loads((prepared / "prepare.json").read_text())
         if "optional_adaptations" in plan:
@@ -135,6 +143,8 @@ def main():
                  "-DHIP_ENABLE_WARP_SYNC_BUILTINS=1", "-fno-gpu-rdc", "-DNOMINMAX", "-DWIN32_LEAN_AND_MEAN"]
         if args.gb10_convolution:
             flags.append("-DAIMA_PORT_GB10_CONVOLUTION=1")
+        if args.gb10_gdn:
+            flags.append("-DAIMA_PORT_GB10_GDN=1")
         flags += [x for p in includes for x in ("-I", p)]
         record["compile_flags"] = [str(x) for x in flags]
         objects = [obj]

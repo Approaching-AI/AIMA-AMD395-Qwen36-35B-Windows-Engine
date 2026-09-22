@@ -35,6 +35,23 @@ boundary. The native convolution now reproduces the intended RNE calculation
 on the captured input. The complete model still fails, so this table-backed
 experiment has no product or release qualification.
 
+The optional `--gb10-gdn` experiment reuses the existing Windows FLA provider
+from source `1d11bf7` and its pinned build assets (1,205,368 bytes), plus existing
+gate, sigmoid, exponent and reciprocal-root tables (452,527,712 bytes). Gate
+tables enumerate every BF16 input for the pinned model parameters; other tables
+describe arithmetic independently of prompts. No captured activation is read
+by inference. The benefit under evaluation is preserving the complete original
+prefill/state-update contract instead of mixing Linux packed decode with the
+GB10 reference's Q2 recurrence.
+
+The adapter owns 404,750,592 bytes of reusable FP32 conversion scratch and one
+device copy of those tables. The FLA DLL additionally owns its normal scratch
+and exponent/root copies. SHA checks, uploads and provider preparation count
+toward command-to-ready; first-use provider scratch allocation remains in the
+measured request. This experiment adds no installed library or Python/CUDA
+runtime. Its memory, loading, correctness and performance costs must be measured
+on the real model before product selection or packaging.
+
 The [installed Windows dependency inventory](../benchmarks/correctness/linux-core-windows-dependencies-20260922.json)
 finds a6,012,312-byte hipBLASLt DLL. Its installed data directory contains1078
 files totaling434,067,673bytes across GPU architectures. The complete96-file

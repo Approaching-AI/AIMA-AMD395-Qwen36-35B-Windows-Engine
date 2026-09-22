@@ -181,10 +181,48 @@ def current_text_decode_overlay(text):
         "        &impl_->decode_cross_layer_norms);")
 
 
+def gb10_gdn_overlays(linear, prefill):
+    linear = replace(linear, '#include "gb10_convolution.h"',
+                     '#include "gb10_convolution.h"\n#include "gb10_gdn.h"')
+    linear = replace(linear,
+        "  launch_packed_recurrent(layer_index, workspace, invocations, executor, stream);",
+        "  aima_port::gb10_decode_gdn(layer_index, projected_qkv, a_projection,\n"
+        "      b_projection, recurrent_output, recurrent_state, stream);\n"
+        "  metrics.native_pointwise_launches += 3;")
+    linear = replace(linear, "  metrics.aot_launches += 2;\n  launch_bf16_wvsplitk(",
+                     "  metrics.aot_launches += 1;\n  launch_bf16_wvsplitk(")
+    prefill = replace(prefill, '#include "gb10_convolution.h"',
+                      '#include "gb10_convolution.h"\n#include "gb10_gdn.h"')
+    prefill = replace(prefill,
+        "  const auto started = std::chrono::steady_clock::now();",
+        "  // This optional experiment owns complete q8192 GDN arithmetic.\n"
+        "  // Imported intermediate-AOT observations/checkpoints no longer\n"
+        "  // describe this provider and must not read its retired scratch.\n"
+        "  if (!q8192_schedule || tokens != 8192 || comparison_tokens != tokens ||\n"
+        "      options.seed_layer_input || options.collect_oracle_comparisons ||\n"
+        "      !options.checkpoints.empty() || !fixture.empty() ||\n"
+        "      !boundary_fixture.empty() || !tail_fixture.empty() || !sequence_fixture.empty())\n"
+        "    throw std::invalid_argument(\"GB10 GDN experiment requires unpadded q8192 without AOT fixtures\");\n"
+        "  const auto started = std::chrono::steady_clock::now();")
+    begin = prefill.index("  launch_attention_aot(2);")
+    end = prefill.index("  launch_attention_aot(8);", begin) + len("  launch_attention_aot(8);")
+    prefill = replace(prefill, prefill[begin:end],
+        "  aima_port::gb10_prefill_gdn(options.layer_index,\n"
+        "      invocations.tensor_pointer(base + 1, \"o_ptr\"),\n"
+        "      a, b, core, final_state, tokens, options.has_initial_state);\n"
+        "  // Two conversion kernels surround one existing FLA provider call.\n"
+        "  result.layer.native_pointwise_launches += 2;")
+    prefill = replace(prefill, "      (q8192_schedule ? 1 : 0);",
+                      "      (q8192_schedule ? 8 : 0);")
+    return linear, prefill
+
+
 def make_overlays(*, rectangular_ck=False, current_text_decode=False,
-                  gb10_convolution=False):
+                  gb10_convolution=False, gb10_gdn=False):
     if gb10_convolution and not current_text_decode:
         raise ValueError("GB10 convolution requires current text decode ownership")
+    if gb10_gdn and not gb10_convolution:
+        raise ValueError("GB10 GDN requires GB10 convolution and current text decode")
     read = lambda p: (UPSTREAM / p).read_text(encoding="utf-8")
     sources = {}
     loader = "benchmarks/shape-lab/native/src/torch_owned_safetensors_loader.hip.cpp"
@@ -238,6 +276,9 @@ def make_overlays(*, rectangular_ck=False, current_text_decode=False,
             "      attention_launches - (use_vl_rmsnorm ? 2 : 0);",
             "      attention_launches - (use_vl_rmsnorm ? 2 : 0) -\n"
             "      (q8192_schedule ? 1 : 0);")
+        if gb10_gdn:
+            sources[linear], sources[linear_prefill] = gb10_gdn_overlays(
+                sources[linear], sources[linear_prefill])
     weights = "native/src/native_weight_store.hip.cpp"
     sources[weights] = replace(read(weights), "shard_storage.push_back(path.string());",
                              "shard_storage.push_back(path.u8string());")
@@ -287,6 +328,8 @@ def main():
                         help="Use current upstream decode arithmetic for text; not model-qualified")
     parser.add_argument("--gb10-convolution", action="store_true",
                         help="Use RNE BF16 convolution products and the qualified SiLU table")
+    parser.add_argument("--gb10-gdn", action="store_true",
+                        help="Use existing Windows FLA and original GB10 Q2 decode arithmetic")
     args = parser.parse_args()
     inventory = verify_import()
     out = args.out.resolve()
@@ -294,7 +337,7 @@ def main():
         raise SystemExit("Output already exists; preserve it and choose a fresh directory")
     overlays = make_overlays(rectangular_ck=args.windows_rectangular_ck,
                              current_text_decode=args.current_text_decode,
-                             gb10_convolution=args.gb10_convolution)
+                             gb10_convolution=args.gb10_convolution, gb10_gdn=args.gb10_gdn)
     out.mkdir(parents=True)
     adapted = []
     for relative, text in overlays.items():
@@ -357,6 +400,8 @@ def main():
     sources.extend(str(out / p) for p in (
         "aot_registry.cpp", "decode_registry.cpp", "prefill_registry.cpp", "frozen_text_registry.cpp"))
     sources.append(str(ROOT / "native/linux_core_port/probe.cpp"))
+    if args.gb10_gdn:
+        sources.append(str(ROOT / "native/linux_core_port/gb10_gdn.hip.cpp"))
     generated = [dict(path=p.relative_to(out).as_posix(), bytes=p.stat().st_size,
                       sha256=digest(p.read_bytes())) for p in sorted(out.rglob("*")) if p.is_file()]
     report = dict(schema=1, upstream_revision=inventory["revision"],
@@ -386,6 +431,14 @@ def main():
             prefill_changed=True,
             silu_table_sha256="673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8",
             model_qualified=False)
+    if args.gb10_gdn:
+        report["optional_adaptations"]["gb10_gdn"] = dict(
+            prefill="existing Windows FLA provider 1d11bf7 with exact q8192 arithmetic",
+            decode="original GB10 Q2 recurrence applied to one accepted token",
+            state_layout="value-head, value, key; FP32 and in place",
+            decode_beta="FP32", prefill_beta="BF16",
+            prefill_tokens=8192, decode_tokens=1, intermediate_aot_observations=False,
+            provider_calls_per_linear_prefill=1, model_qualified=False)
     (out / "prepare.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: report[k] for k in ("upstream_revision", "imported_files", "imported_bytes", "image_bytes")}
                      | dict(images=len(images), compilation_units=len(sources), overlays=len(adapted))))

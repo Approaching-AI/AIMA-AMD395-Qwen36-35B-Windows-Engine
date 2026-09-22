@@ -1,0 +1,302 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "kind": "optional_complete_gdn_preparation",
+  "reference_capture_sha256": "8cf8705a62a2bd1d8ca6446ef5a2e154e37ad895c740ad9297a93f8d6de0bec4",
+  "reference_replay": {
+    "source_sha256": "a427ef8aad48cecba53eccf2cbd734a89466ef098a0b0cd201dda1d4e165e6dd",
+    "build_command": [
+      "clang++",
+      "-std=c++17",
+      "-O2",
+      "-ffp-contract=off",
+      "-fsanitize=address,undefined",
+      "-I",
+      "<repo>",
+      "<private-evidence>/linux_core_gdn_replay_r1.cpp",
+      "-o",
+      "<private-evidence>/linux-core-gdn-replay-r1/replay"
+    ],
+    "build_stderr": "",
+    "shared_math_sha256": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb",
+    "runs": [
+      {
+        "name": "reference_same_input",
+        "command": [
+          "<private-evidence>/linux-core-gdn-replay-r1/replay",
+          "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-conv-decode-output-bf16.bin",
+          "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-a-projection-bf16.bin",
+          "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-b-projection-bf16.bin",
+          "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-decode-state-before-f32.bin",
+          "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-decode-state-after-f32.bin",
+          "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-core-bf16.bin",
+          "<private-evidence>/qrt-gating-model-20260910-r1/layer0-g-f32-head-major.bin",
+          "<private-evidence>/qrt-gb10-decode-replay-20260911-r1/output/sigmoid-beta-f32.bin",
+          "<private-evidence>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+          "<private-evidence>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        ],
+        "inputs": [
+          {
+            "path": "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-conv-decode-output-bf16.bin",
+            "sha256": "0a7eb8c9a36f7c18a64762ea1d820da825b3ad204ffeef8ac77519772b63b164"
+          },
+          {
+            "path": "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-a-projection-bf16.bin",
+            "sha256": "daa698b8d09c7c25a26e7c80c2ba449531a9f2b1b113d8b55732281e23f4c08f"
+          },
+          {
+            "path": "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-b-projection-bf16.bin",
+            "sha256": "767d46c295226c98820b34142fb5ed0478e859d6418b9163b2e55ccc6b8a6a46"
+          },
+          {
+            "path": "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-decode-state-before-f32.bin",
+            "sha256": "df7054595e55c391c1a3a4099a7b32d74c8a51cfe233480ec559642f038b3e38"
+          },
+          {
+            "path": "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-decode-state-after-f32.bin",
+            "sha256": "93077dda58f2052c944385b211951e65875720d0bf478dbb570eda6c4c8e2f37"
+          },
+          {
+            "path": "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-core-bf16.bin",
+            "sha256": "80a090e346dad25e5809b666f6724328223e19e88a8026845afd8a09a59fc08b"
+          },
+          {
+            "path": "<private-evidence>/qrt-gating-model-20260910-r1/layer0-g-f32-head-major.bin",
+            "sha256": "fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4"
+          },
+          {
+            "path": "<private-evidence>/qrt-gb10-decode-replay-20260911-r1/output/sigmoid-beta-f32.bin",
+            "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
+          },
+          {
+            "path": "<private-evidence>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+            "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
+          },
+          {
+            "path": "<private-evidence>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+          }
+        ],
+        "result": [
+          {
+            "mode": 0,
+            "state_f32_mismatches": 0,
+            "state_bf16_mismatches": 0,
+            "core_bf16_mismatches": 0,
+            "state_max_abs": 0,
+            "core_max_abs": 0
+          },
+          {
+            "mode": 1,
+            "state_f32_mismatches": 492547,
+            "state_bf16_mismatches": 48616,
+            "core_bf16_mismatches": 333,
+            "state_max_abs": 0.0118751525879,
+            "core_max_abs": 6.103515625e-05
+          },
+          {
+            "mode": 2,
+            "state_f32_mismatches": 492587,
+            "state_bf16_mismatches": 48616,
+            "core_bf16_mismatches": 333,
+            "state_max_abs": 0.0118751525879,
+            "core_max_abs": 6.103515625e-05
+          }
+        ]
+      },
+      {
+        "name": "native_inputs_compared_with_reference",
+        "command": [
+          "<private-evidence>/linux-core-gdn-replay-r1/replay",
+          "<private-evidence>/linux-core-windows-gb10-convolution-step1-r1/observations/decode-linear-post_conv_mixed_qkv.bin",
+          "<private-evidence>/linux-core-windows-gb10-convolution-step1-r1/observations/decode-linear-a_projection.bin",
+          "<private-evidence>/linux-core-windows-gb10-convolution-step1-r1/observations/decode-linear-b_projection.bin",
+          "<private-evidence>/linux-core-windows-gb10-convolution-step1-r1/observations/decode-linear-recurrent_state_before.bin",
+          "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-decode-state-after-f32.bin",
+          "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-core-bf16.bin",
+          "<private-evidence>/qrt-gating-model-20260910-r1/layer0-g-f32-head-major.bin",
+          "<private-evidence>/qrt-gb10-decode-replay-20260911-r1/output/sigmoid-beta-f32.bin",
+          "<private-evidence>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+          "<private-evidence>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        ],
+        "inputs": [
+          {
+            "path": "<private-evidence>/linux-core-windows-gb10-convolution-step1-r1/observations/decode-linear-post_conv_mixed_qkv.bin",
+            "sha256": "788c470f008caebb88806b0ca5b6378490801da123eab5d65c345475ff198769"
+          },
+          {
+            "path": "<private-evidence>/linux-core-windows-gb10-convolution-step1-r1/observations/decode-linear-a_projection.bin",
+            "sha256": "daa698b8d09c7c25a26e7c80c2ba449531a9f2b1b113d8b55732281e23f4c08f"
+          },
+          {
+            "path": "<private-evidence>/linux-core-windows-gb10-convolution-step1-r1/observations/decode-linear-b_projection.bin",
+            "sha256": "767d46c295226c98820b34142fb5ed0478e859d6418b9163b2e55ccc6b8a6a46"
+          },
+          {
+            "path": "<private-evidence>/linux-core-windows-gb10-convolution-step1-r1/observations/decode-linear-recurrent_state_before.bin",
+            "sha256": "b5ed7aa49a9f2b71c5ae2441ecb46f5137ebce49cc0c38b68511da47004609f1"
+          },
+          {
+            "path": "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-decode-state-after-f32.bin",
+            "sha256": "93077dda58f2052c944385b211951e65875720d0bf478dbb570eda6c4c8e2f37"
+          },
+          {
+            "path": "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-core-bf16.bin",
+            "sha256": "80a090e346dad25e5809b666f6724328223e19e88a8026845afd8a09a59fc08b"
+          },
+          {
+            "path": "<private-evidence>/qrt-gating-model-20260910-r1/layer0-g-f32-head-major.bin",
+            "sha256": "fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4"
+          },
+          {
+            "path": "<private-evidence>/qrt-gb10-decode-replay-20260911-r1/output/sigmoid-beta-f32.bin",
+            "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
+          },
+          {
+            "path": "<private-evidence>/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+            "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
+          },
+          {
+            "path": "<private-evidence>/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+          }
+        ],
+        "result": [
+          {
+            "mode": 0,
+            "state_f32_mismatches": 438289,
+            "state_bf16_mismatches": 230720,
+            "core_bf16_mismatches": 884,
+            "state_max_abs": 0.0936345458031,
+            "core_max_abs": 0.0078125
+          },
+          {
+            "mode": 1,
+            "state_f32_mismatches": 509942,
+            "state_bf16_mismatches": 263371,
+            "core_bf16_mismatches": 1148,
+            "state_max_abs": 0.0936646461487,
+            "core_max_abs": 0.0078125
+          },
+          {
+            "mode": 2,
+            "state_f32_mismatches": 509942,
+            "state_bf16_mismatches": 263371,
+            "core_bf16_mismatches": 1148,
+            "state_max_abs": 0.0936646461487,
+            "core_max_abs": 0.0078125
+          }
+        ]
+      }
+    ],
+    "mode_scope": [
+      "original q2 normalization, FP32 beta, q2 state order",
+      "only beta rounded to BF16",
+      "beta rounded plus packed state dot order; original q2 norm retained"
+    ],
+    "model_inference_acceptance": false
+  },
+  "reference_replay_sha256": "847fd83b5d214f46e1e5e11ca8c2bb2fdb1afa9bd97e282ce42ed2139190c921",
+  "host_contract": {
+    "result": {
+      "conversion_values_checked": 33027,
+      "guards_pass": true,
+      "provider_order_pass": true,
+      "seeded_state_forwarded": true,
+      "decode_q2_flags": true,
+      "injected_provider_failure_rejected": true,
+      "invalid_bindings_rejected": 6,
+      "artifact_faults_rejected": 2
+    },
+    "build_command": [
+      "clang++",
+      "-std=c++17",
+      "-O1",
+      "-ffp-contract=off",
+      "-fsanitize=address,undefined",
+      "-I",
+      "<repo>/build/linux-core-gb10-gdn-local-r1/host-r2/stub",
+      "-I",
+      "<repo>/third_party/aima_linux/native/include",
+      "<repo>/native/linux_core_port/gb10_gdn_host_contract_test.cpp",
+      "<repo>/third_party/aima_linux/native/src/sha256.cpp",
+      "-o",
+      "<repo>/build/linux-core-gb10-gdn-local-r1/host-r2/host-contract"
+    ],
+    "inputs": [
+      {
+        "path": "native/linux_core_port/gb10_gdn_host_contract_test.cpp",
+        "sha256": "8aa28f65dec36745cd100296ece09df967b58865c1d83db93521db24c9f65d83"
+      },
+      {
+        "path": "native/linux_core_port/gb10_gdn.hip.cpp",
+        "sha256": "55aa3a351cd4626df2fd0cffedd28cf8cacceaf69423d5669d69cb29e610d302"
+      },
+      {
+        "path": "native/linux_core_port/gb10_gdn.h",
+        "sha256": "424308688a1469fce2764f6e0bad37f01180cb003910fc5ebb81ddd3383a3782"
+      },
+      {
+        "path": "native/linux_core_port/gb10_gdn_assets.inc",
+        "sha256": "bc89be98894cac0bf5e9c6ae7eea11a42a934303fd62b99800b59a6c306ec125"
+      }
+    ],
+    "test_source_sha256": "7d9d6e05b721f17b4245a9c31f6d78a2d729f7bd251c024e662db91c8d47f517",
+    "stub_sha256": "f9360963a9dd3c4bd404f4870a400004079adb25880f6999178d90d85964cb30",
+    "host_only": true,
+    "model_inference_acceptance": false
+  },
+  "host_contract_sha256": "431534a50dbaeae8308a0ff78167735ba70433da1336455fc397a4e63afb816b",
+  "preparation": {
+    "default_modes": [
+      {
+        "flags": {},
+        "byte_identical_overlays": 7
+      },
+      {
+        "flags": {
+          "rectangular_ck": true
+        },
+        "byte_identical_overlays": 7
+      },
+      {
+        "flags": {
+          "current_text_decode": true
+        },
+        "byte_identical_overlays": 7
+      },
+      {
+        "flags": {
+          "current_text_decode": true,
+          "gb10_convolution": true
+        },
+        "byte_identical_overlays": 9
+      },
+      {
+        "flags": {
+          "rectangular_ck": true,
+          "current_text_decode": true,
+          "gb10_convolution": true
+        },
+        "byte_identical_overlays": 9
+      }
+    ],
+    "invalid_dependencies_rejected": 2,
+    "preparation_command": [
+      "python3.12",
+      "<repo>/tools/prepare_linux_core_windows.py",
+      "--out",
+      "<repo>/build/linux-core-gb10-gdn-local-r1/prepared",
+      "--current-text-decode",
+      "--gb10-convolution",
+      "--gb10-gdn"
+    ],
+    "preparation_sha256": "9cd7863c6bd34b07fa8f700dbc7ab0dca4c4ae750191b7021793dcd39b994c1e",
+    "provider_call_present": true,
+    "retired_gdn_aot_calls_absent": true
+  },
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "scope": "Same-input operator replay plus host ABI preparation; full original model gate is still required."
+}
