@@ -26,9 +26,26 @@ for each whole GEMM, plus candidate counts. The owner allocates295 events and
 a388-byte count array before READY, bounded to97 windows; counts are read
 only after completion and do not control arithmetic. Host ASan/UBSan checks
 cover maximum bounds, warmup exclusion, event lifetime and14 invalid bindings.
-Preparation preserves327 imports,60 units,72 images and17 overlays. Native
-correctness and profiling are pending; these timings include diagnostic overhead.
+Preparation preserves327 imports,60 units,72 images and17 overlays. Source
+`8ebdba0` completes all190 projection measurements and passes all512 GB10
+outputs/callbacks and first144/logit10.375. Loading is27504.329ms,
+diagnostic TTFT31209.5764ms and TPOT234.052419ms. Completed projection work
+totals16713.466615ms: producer4026.57947, operands189.366, norm bounds161.52025,
+selection498.05741 and exact replay11789.119477ms. The40 K4096 OUT calls
+alone replay382466673 of671088640 cells and consume8863.161088ms in replay.
+These timings include diagnostic overhead and do not meet performance goals.
 [BF16-only native failure and profiling preparation](../benchmarks/correctness/linux-core-bf16-prefill-native-and-profile-preparation-20260922.json).
+
+The next structural comparison enables `AIMA_PORT_PREFILL_WMMA=1` for the
+existing M64/N128/K16 matrix producer across all eligible dense projections,
+and `AIMA_PORT_PREFILL_LINEAR_BOUND=1` for the original1000-ppb linear OUT
+selector. The actual linear call site owns that scope; full-attention K4096
+keeps10000ppb. The prior port incorrectly used the full-attention bound for
+both kinds. The512-radius selection and complete exact replay remain.
+ASan/UBSan checks all30 linear layer scopes, exception unwinding, maximum
+profile bounds and107 invalid bindings. Preparation passes with the same
+60 units and no new dependency or allocation. Native qualification is pending.
+[Completed projection profile and replacement preparation](../benchmarks/correctness/linux-core-prefill-profile-and-wmma-preparation-20260922.json).
 
 The preceding complete decode-MoE repair (`5585977`) runs the real model on
 baiying. All 40 first-decode layer carriers

@@ -55,7 +55,7 @@ struct Profile {
     rows = n; width = k; fallback = false; inflight = true;
     mark(0);
   }
-  void finish(unsigned windows, bool contiguous) {
+  void finish(unsigned windows, bool contiguous, unsigned ppb, bool linear_output) {
     check(hipEventSynchronize(events.at(3 + 3 * windows).value));
     check(hipMemcpy(host_counts.data(), counts.data, windows * sizeof(unsigned), hipMemcpyDeviceToHost));
     double selection_ms = 0, replay_ms = 0;
@@ -70,12 +70,14 @@ struct Profile {
     std::fprintf(stderr, "{\"event\":\"prefill_projection_profile\",\"ordinal\":%u,"
         "\"tokens\":%u,\"rows\":%u,\"reduction\":%u,\"weight_rows_contiguous\":%s,"
         "\"producer\":\"%s\",\"windows\":%u,\"cells\":%llu,\"candidates\":%llu,"
+        "\"bound_ppb\":%u,\"linear_output\":%s,"
         "\"producer_ms\":%.6f,\"operands_ms\":%.6f,\"norm_bound_ms\":%.6f,"
         "\"selection_ms\":%.6f,\"replay_ms\":%.6f,\"total_gpu_ms\":%.6f,"
         "\"completed_gpu_events\":true,\"diagnostic_only\":true}\n",
         ordinal++, max_tokens, rows, width, contiguous ? "true" : "false",
         fallback ? "wmma-fallback" : "hipblaslt", windows,
         static_cast<unsigned long long>(max_tokens) * rows, candidates,
+        ppb, linear_output ? "true" : "false",
         ms(0, 1), ms(1, 2), ms(2, 3), selection_ms, replay_ms, ms(0, 3 + 3 * windows));
     inflight = false;
   }
@@ -83,8 +85,13 @@ struct Profile {
 struct State {
   Device raw, inputs, weights, input_l2, weight_l2, indices, count;
   std::unique_ptr<Profile> profile;
+  bool wmma = false, linear_bound = false, linear_output = false;
 };
 State* active = nullptr;
+bool enabled(const char* name) {
+  const char* value = std::getenv(name);
+  return value && std::strcmp(value, "1") == 0;
+}
 
 using WmmaBf16 = unsigned short __attribute__((ext_vector_type(16)));
 using WmmaF32 = float __attribute__((ext_vector_type(8)));
@@ -225,6 +232,8 @@ static __global__ void replay_selected(const half::Row* inputs,
 State& bound(std::size_t tokens, std::size_t rows, std::size_t reduction, void* stream) {
   if (!active || stream || !gb10_prefill_projection_shape(tokens, rows, reduction, false))
     throw std::invalid_argument("Prefill projection requires its q8192 default-stream owner");
+  if (active->linear_output && (rows != 2048 || reduction != 4096))
+    throw std::invalid_argument("Linear OUT selector requires N2048/K4096");
   return *active;
 }
 }  // namespace
@@ -240,8 +249,9 @@ Gb10PrefillProjectionOwner::Gb10PrefillProjectionOwner() : impl_(std::make_uniqu
   s.weight_l2.allocate(max_rows * sizeof(float));
   s.indices.allocate(window_capacity * sizeof(unsigned));
   s.count.allocate(sizeof(unsigned));
-  const char* profile = std::getenv("AIMA_PORT_PREFILL_PROJECTION_PROFILE");
-  if (profile && std::strcmp(profile, "1") == 0) s.profile = std::make_unique<Profile>();
+  if (enabled("AIMA_PORT_PREFILL_PROJECTION_PROFILE")) s.profile = std::make_unique<Profile>();
+  s.wmma = enabled("AIMA_PORT_PREFILL_WMMA");
+  s.linear_bound = enabled("AIMA_PORT_PREFILL_LINEAR_BOUND");
   active = &s;
 }
 Gb10PrefillProjectionOwner::~Gb10PrefillProjectionOwner() {
@@ -262,6 +272,20 @@ void gb10_prefill_projection_profile_begin() {
     profile->armed = true;
     profile->ordinal = 0;
   }
+}
+bool gb10_prefill_projection_wmma_enabled() { return active && active->wmma; }
+Gb10PrefillLinearOutputScope::Gb10PrefillLinearOutputScope(std::size_t tokens, unsigned layer) {
+  if (tokens != max_tokens) return;
+  if (!active || layer >= 40 || layer % 4 == 3)
+    throw std::invalid_argument("Linear OUT scope requires its owner and a linear layer");
+  if (!active->linear_bound) return;
+  if (active->linear_output || (active->profile && active->profile->inflight))
+    throw std::logic_error("Linear OUT scope cannot nest or interrupt a projection");
+  state_ = active;
+  active->linear_output = true;
+}
+Gb10PrefillLinearOutputScope::~Gb10PrefillLinearOutputScope() {
+  if (state_ && active == state_) active->linear_output = false;
 }
 void* gb10_prefill_projection_buffer(std::size_t tokens, std::size_t rows,
     std::size_t reduction, void* stream) {
@@ -311,10 +335,11 @@ void gb10_prefill_projection_finish(const void* input, const void* weights,
   hipLaunchKernelGGL(row_l2, dim3(n), dim3(256), 0, nullptr, w, s.weight_l2.as<float>(), n, k, contiguous);
   check(hipGetLastError());
   if (profile) profile->mark(3);
-  // Existing QKV/shared/router bound is 1000 ppb; attention-output K4096
-  // uses the existing wider 10000-ppb admission. Complete model gates decide
-  // whether this producer/selector combination can be qualified.
-  const unsigned ppb = k == 4096 ? 10000u : 1000u;
+  // The original linear and full-attention OUT selectors use different
+  // admission bounds despite having the same N2048/K4096 geometry. An opt-in
+  // scope identifies the actual linear call. Unscoped K4096 keeps 10000 ppb.
+  // Complete GB10 continuation still qualifies every producer/selector pair.
+  const unsigned ppb = k == 4096 && !s.linear_output ? 10000u : 1000u;
   unsigned window = 0;
   for (unsigned start = 0; start < t * n; start += window_capacity) {
     const unsigned size = std::min(window_capacity, t * n - start);
@@ -336,6 +361,6 @@ void gb10_prefill_projection_finish(const void* input, const void* weights,
     }
     ++window;
   }
-  if (profile) profile->finish(window, contiguous);
+  if (profile) profile->finish(window, contiguous, ppb, s.linear_output);
 }
 }  // namespace aima_port

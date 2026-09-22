@@ -122,13 +122,39 @@ int main() {
   assert(fake_profile_serial == 302 && !state.profile->inflight && state.profile->ordinal == 2);
   state.profile.reset();
   assert(fake_live_profile_events == 0);
+  assert(!gb10_prefill_projection_wmma_enabled());
+  state.wmma = true;
+  assert(gb10_prefill_projection_wmma_enabled());
+  { Gb10PrefillLinearOutputScope disabled(8192, 0); assert(!state.linear_output); }
+  state.linear_bound = true;
+  { Gb10PrefillLinearOutputScope short_shape(1024, 0); assert(!state.linear_output); }
+  reject([&]{Gb10PrefillLinearOutputScope full_layer(8192, 3);});
+  reject([&]{Gb10PrefillLinearOutputScope bad_layer(8192, 40);});
+  unsigned scoped_layers = 0;
+  for (unsigned layer = 0; layer < 40; ++layer) if (layer % 4 != 3) {
+    { Gb10PrefillLinearOutputScope scope(8192, layer);
+      assert(state.linear_output);
+      assert(gb10_prefill_projection_buffer(8192, 2048, 4096, nullptr) == state.raw.data);
+      reject([&]{Gb10PrefillLinearOutputScope nested(8192, layer);});
+      reject([&]{gb10_prefill_projection_buffer(8192, 2048, 2048, nullptr);});
+      reject([&]{gb10_prefill_projection_buffer(8192, 4096, 4096, nullptr);});
+      ++scoped_layers;
+    }
+    assert(!state.linear_output);
+  }
+  try { Gb10PrefillLinearOutputScope scope(8192, 0); throw std::runtime_error("scope-unwind"); }
+  catch (const std::runtime_error&) {}
+  assert(!state.linear_output && scoped_layers == 30);
   active = nullptr;
   reject([&]{gb10_prefill_projection_profile_begin();});
+  reject([&]{Gb10PrefillLinearOutputScope missing_owner(8192, 0);});
+  assert(!gb10_prefill_projection_wmma_enabled());
   std::cout << "{\"lossless_operand_values\":2048,\"both_weight_layouts_match\":true,"
                "\"full_window_candidates\":1048576,\"window_guards_pass\":true,"
                "\"input_immutable\":true,\"selector_edges_pass\":true,"
-               "\"queued_kernel_order_pass\":true,\"invalid_bindings_rejected\":14,"
+               "\"queued_kernel_order_pass\":true,\"invalid_bindings_rejected\":107,"
                "\"profile_max_windows\":97,\"profile_lifetime_pass\":true,"
                "\"profile_warmup_excluded\":true,\"profile_completed_events_only\":true,"
+               "\"linear_output_scoped_layers\":30,\"linear_output_scope_unwind_pass\":true,"
                "\"gpu_replay_executed\":false}\n";
 }

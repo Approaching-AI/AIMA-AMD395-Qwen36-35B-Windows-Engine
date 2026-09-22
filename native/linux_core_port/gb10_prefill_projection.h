@@ -18,6 +18,18 @@ bool gb10_prefill_projection_shape(std::size_t tokens, std::size_t rows,
 // Arm optional completed-GPU diagnostics after model loading/warmup. Storage
 // is allocated by the owner only when AIMA_PORT_PREFILL_PROJECTION_PROFILE=1.
 void gb10_prefill_projection_profile_begin();
+bool gb10_prefill_projection_wmma_enabled();
+// Bind the original linear-OUT selector at its actual call site, rather than
+// inferring layer kind from a K4096 shape shared with full attention.
+class Gb10PrefillLinearOutputScope {
+ public:
+  Gb10PrefillLinearOutputScope(std::size_t tokens, unsigned layer);
+  ~Gb10PrefillLinearOutputScope();
+  Gb10PrefillLinearOutputScope(const Gb10PrefillLinearOutputScope&) = delete;
+  Gb10PrefillLinearOutputScope& operator=(const Gb10PrefillLinearOutputScope&) = delete;
+ private:
+  void* state_ = nullptr;
+};
 void* gb10_prefill_projection_buffer(std::size_t tokens, std::size_t rows,
                                     std::size_t reduction, void* stream);
 void gb10_prefill_projection_fallback(const void* input, const void* weights,

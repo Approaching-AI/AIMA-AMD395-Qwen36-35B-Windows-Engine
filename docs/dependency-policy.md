@@ -64,6 +64,10 @@ runtime. It adds295 event handles and388 device bytes only when explicitly
 enabled, allocated before READY. Completed per-GEMM count reads and timing
 records diagnose the exact-replay cost without changing numerical selection.
 There is no new library, package or arithmetic artifact.
+The optional complete WMMA producer reuses the existing fallback kernel;
+the linear OUT scope restores its original1000-ppb selector independently of
+the full-attention10000-ppb selector. Neither adds device storage or artifacts.
+Whole-model GB10 qualification is required for the combined route.
 
 The import includes source, generated schedules, AOT GPU images and upstream
 licenses. It reuses Windows HIP, hipBLASLt and the existing CK provider. Python

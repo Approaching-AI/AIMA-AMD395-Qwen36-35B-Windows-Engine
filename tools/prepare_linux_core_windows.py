@@ -322,7 +322,8 @@ def gb10_prefill_projection_overlay(text):
         "                 d, impl_->c_layout, d, impl_->d_layout, &impl_->algorithm,",
         "                 destination, impl_->c_layout, destination, impl_->d_layout, &impl_->algorithm,")
     method = replace(method, "  check_blas(hipblasLtMatmul(",
-        "  if (impl_->gb10_wmma) {\n"
+        "  if (impl_->gb10_wmma || (impl_->gb10_prefill &&\n"
+        "      aima_port::gb10_prefill_projection_wmma_enabled())) {\n"
         "    aima_port::gb10_prefill_projection_fallback(a, b, impl_->m, impl_->n,\n"
         "        impl_->k, impl_->right_operand_is_transposed, stream);\n"
         "  } else {\n  check_blas(hipblasLtMatmul(")
@@ -705,6 +706,15 @@ def make_overlays(*, rectangular_ck=False, current_text_decode=False,
     if gb10_prefill_projections:
         path = "native/src/bf16_gemm.hip.cpp"
         sources[path] = gb10_prefill_projection_overlay(read(path))
+        path = "native/src/native_linear_prefill.hip.cpp"
+        sources[path] = replace(sources[path], '#include "gb10_projection.h"',
+            '#include "gb10_projection.h"\n#include "gb10_prefill_projection.h"')
+        sources[path] = replace(sources[path],
+            "  output_plan.launch(gated, output_weight.device_pointer, attention_output);",
+            "  {\n"
+            "    aima_port::Gb10PrefillLinearOutputScope linear_out_scope(tokens, options.layer_index);\n"
+            "    output_plan.launch(gated, output_weight.device_pointer, attention_output);\n"
+            "  }", count=2)
     weights = "native/src/native_weight_store.hip.cpp"
     sources[weights] = replace(read(weights), "shard_storage.push_back(path.string());",
                              "shard_storage.push_back(path.u8string());")
@@ -908,6 +918,13 @@ def main():
             maximum_window_cells=1048576, candidate_counts="device-owned; no host count copy unless optional profiling is armed",
             shared_scratch_stream="default stream only; nondefault streams rejected",
             device_scratch_bytes=598360324,
+            optional_wmma=dict(environment="AIMA_PORT_PREFILL_WMMA", enabled_value="1",
+                producer="existing M64/N128 ascending-K16 BF16 WMMA; all eligible dense plans",
+                additional_device_bytes=0),
+            optional_linear_bound=dict(environment="AIMA_PORT_PREFILL_LINEAR_BOUND", enabled_value="1",
+                scope="actual linear output projection call only; ordered synchronous host scope",
+                linear_output_ppb=1000, full_attention_output_ppb=10000,
+                radius=512, exact_replay="unchanged", additional_device_bytes=0),
             optional_profile=dict(environment="AIMA_PORT_PREFILL_PROJECTION_PROFILE", enabled_value="1",
                 arm="after load and READY; warmup excluded", completed_gpu_events=295,
                 maximum_windows=97, additional_device_count_bytes=388,
