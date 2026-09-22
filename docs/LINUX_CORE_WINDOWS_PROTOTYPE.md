@@ -2,7 +2,7 @@
 
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
-It is not enabled in the Windows product. The latest qualified source
+It is not enabled in the Windows product. The fastest qualified observation,
 `0c80a89` passes the complete cold q8192/out512 correctness boundary on baiying
 with the real model: all512 tokens and callbacks match GB10, with
 first144/logit10.375. Loading is27608.3814ms, diagnostic TTFT20657.4111ms and
@@ -10,7 +10,29 @@ TPOT228.040989ms. The earlier `9447947` run also has all72 second-decode
 comparisons matching in BF16 and a bitwise-exact final normalization.
 Performance, other product shapes, prefix continuation and release remain open.
 
-The optional comparison, `AIMA_PORT_NATIVE_MOE_PREFILL=1`, replaces
+Native MoE correction `f210ff3` also passes the original cold q8192/out512
+boundary: all 512 tokens/callbacks, first 144 and logit 10.375 (zero error).
+It replaces the expert gate/up and weighted-down AOT products with FP32 WMMA
+and selective original SM121 replay before the BF16 endpoints. The FP32
+routing weight is applied before down selection and rounding. All 39 native
+MoE layers, 78 routed projections, 345 dense projections and both terminal
+paths execute. Loading is 27826.9393 ms, TTFT 24282.2874 ms and TPOT
+138.061143 ms. The 394-output continuation failure described below is repaired
+for this case; the slower TTFT is not retained as a performance improvement.
+The opt-in route adds 1241104128 device workspace bytes and no runtime artifact.
+Host guards and cleanup pass. A local ENOSPC interrupted build receipt writing;
+the same remote build was verified and resumed without recompilation.
+[Qualified native MoE replay result](../benchmarks/correctness/linux-core-native-moe-replay-native-20260923.json).
+
+The preceding output-only observation reproduces all 512 failed outputs.
+Seventeen upstream/shared/router surfaces match the original GB10 capture
+bitwise. Expert gate/up first differs at 20632 sampled BF16 values, including
+seven non-tiny pairs; five numerical activation differences and 877 weighted
+down differences remain. The next normalized carrier differs at 41 values.
+Both expert products now use the corrected producer/replay pipeline.
+[Boundary diagnosis and correction preparation](../benchmarks/correctness/linux-core-native-moe-boundary-and-replay-20260923.json).
+
+The original optional comparison, `AIMA_PORT_NATIVE_MOE_PREFILL=1`, replaced
 layers0..38 of the approximately4927.5989ms MoE wall with imported expert
 GEMMs. It uses the existing FP32-routing-weight images with q8192 live grids,
 four corrected dense projections, the original scalar gate reduction,
