@@ -1,0 +1,491 @@
+{
+  "schema": 1,
+  "purpose": "GB10 normalization arithmetic repair preparation",
+  "prior_native_source_commit": "c6c79035a74e2e35252e78f54f51728754cde1f2",
+  "prior_native_run_sha256": "7d61fcfa4ec982319a55bedec3e8307e6edee56646e56e1db1bfbb0314d92da9",
+  "evidence": {
+    "host_contract": {
+      "sha256": "667eaa60a60715916d768920cf373818f8bf67147d562aaafb4bd9168c64c2db",
+      "data": {
+        "result": {
+          "table_ownership_and_sha_verified": true,
+          "borrowed_rsqrt_binding_verified": true,
+          "dispatches_verified": 3,
+          "invalid_bindings_and_artifacts_rejected": 25,
+          "gpu_reduction_executed": false
+        },
+        "build_command": [
+          "clang++",
+          "-std=c++17",
+          "-O1",
+          "-ffp-contract=off",
+          "-fsanitize=address,undefined",
+          "-I",
+          "source-checkout/build/linux-core-gb10-normalization-local-r1/host-r2/stub",
+          "-I",
+          "source-checkout/third_party/aima_linux/native/include",
+          "source-checkout/native/linux_core_port/gb10_normalization_host_contract_test.cpp",
+          "source-checkout/third_party/aima_linux/native/src/sha256.cpp",
+          "-o",
+          "source-checkout/build/linux-core-gb10-normalization-local-r1/host-r2/host-contract"
+        ],
+        "inputs": [
+          {
+            "path": "native/linux_core_port/gb10_normalization_host_contract_test.cpp",
+            "sha256": "621198d57459f258c471d72800a40b0007127b73d7365a101f840852c520bfbc"
+          },
+          {
+            "path": "native/linux_core_port/gb10_normalization.hip.cpp",
+            "sha256": "0690006681f98c8e9b110d85ada6650b8dfab4becc6ec1be6eee06542d0763b4"
+          },
+          {
+            "path": "native/linux_core_port/gb10_normalization.h",
+            "sha256": "119390b60ba985d26bfaa579a711e5bbf9828a8b059edc067ce96dcbb416eac5"
+          },
+          {
+            "path": "tools/test_linux_core_normalization.py",
+            "sha256": "f6da7308c8c74d97f5d78caafc18189a8ea950b24c4f306cd0e9701cb718230d"
+          },
+          {
+            "path": "native/linux_core_port/gb10_gdn.h",
+            "sha256": "c92de42d8a83324b56356df42295ca2f6f7f113b084a0d8e55772282c8898dd1"
+          },
+          {
+            "path": "tools/test_linux_core_gdn.py",
+            "sha256": "7d9d6e05b721f17b4245a9c31f6d78a2d729f7bd251c024e662db91c8d47f517"
+          },
+          {
+            "path": "native/providers/gdn/sm121_q2_gated_math.h",
+            "sha256": "6e99b4da7db63da3c5a155c955efd4458a6919659ce4c36a37e9e582ca08a68c"
+          },
+          {
+            "path": "native/providers/gdn/sm121_mtp_residual.h",
+            "sha256": "135dadcfe48e69232e2254380f55a0891cbd0ce72e3c4ea296167ec6af51273f"
+          },
+          {
+            "path": "native/providers/gdn/sm121_mtp_residual_math.h",
+            "sha256": "778b44d6f983e682409dc64aa50d1548d9dffc047d50012204c2ab135b69ac48"
+          },
+          {
+            "path": "native/providers/gdn/sm121_mtp_math.h",
+            "sha256": "0e58296175341d4ded1b69c5318808246721623b25b15404d00b6074d74ebddf"
+          }
+        ],
+        "stub_sha256": "1d76e74ecc6509b9b451148d333726adcd579a42b6c761e4c1e1da4fc5a3d125",
+        "silu_table_sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c",
+        "host_only": true,
+        "model_inference_acceptance": false
+      }
+    },
+    "gdn_host_contract": {
+      "sha256": "59c588454cfbfe3c8ba73149488f90f807cdefca0ceb5e0511103283c2abb230",
+      "data": {
+        "result": {
+          "conversion_values_checked": 33027,
+          "sampled_values_checked": 4096,
+          "sampling_input_unchanged": true,
+          "sampling_guards_pass": true,
+          "observer_faults_rejected": 5,
+          "guards_pass": true,
+          "provider_order_pass": true,
+          "seeded_state_forwarded": true,
+          "decode_q2_flags": true,
+          "injected_provider_failure_rejected": true,
+          "invalid_bindings_rejected": 6,
+          "artifact_faults_rejected": 2
+        },
+        "build_command": [
+          "clang++",
+          "-std=c++17",
+          "-O1",
+          "-ffp-contract=off",
+          "-fsanitize=address,undefined",
+          "-I",
+          "source-checkout/build/linux-core-gb10-normalization-local-r1/gdn-host-r2/stub",
+          "-I",
+          "source-checkout/third_party/aima_linux/native/include",
+          "source-checkout/native/linux_core_port/gb10_gdn_host_contract_test.cpp",
+          "source-checkout/third_party/aima_linux/native/src/sha256.cpp",
+          "-o",
+          "source-checkout/build/linux-core-gb10-normalization-local-r1/gdn-host-r2/host-contract"
+        ],
+        "inputs": [
+          {
+            "path": "native/linux_core_port/gb10_gdn_host_contract_test.cpp",
+            "sha256": "e9146a5b26ddfbb55167e0aeec48fa68f159674ee78ae4f5719e5d80c3dacfb8"
+          },
+          {
+            "path": "native/linux_core_port/gb10_gdn.hip.cpp",
+            "sha256": "7572bdd201159028666edc9fef0684bd7469553aefd42d38a2d792c4f1cf51e7"
+          },
+          {
+            "path": "native/linux_core_port/gb10_gdn.h",
+            "sha256": "c92de42d8a83324b56356df42295ca2f6f7f113b084a0d8e55772282c8898dd1"
+          },
+          {
+            "path": "native/linux_core_port/gb10_gdn_assets.inc",
+            "sha256": "bc89be98894cac0bf5e9c6ae7eea11a42a934303fd62b99800b59a6c306ec125"
+          }
+        ],
+        "test_source_sha256": "7d9d6e05b721f17b4245a9c31f6d78a2d729f7bd251c024e662db91c8d47f517",
+        "stub_sha256": "f9360963a9dd3c4bd404f4870a400004079adb25880f6999178d90d85964cb30",
+        "host_only": true,
+        "model_inference_acceptance": false
+      }
+    },
+    "preparation": {
+      "sha256": "695bad9740b744c6bbe063ea278f404ca603cc339a45e19ad0181fcadf3342d4",
+      "data": {
+        "unchanged_prior_modes": [
+          {},
+          {
+            "rectangular_ck": true
+          },
+          {
+            "rectangular_ck": true,
+            "current_text_decode": true
+          },
+          {
+            "current_text_decode": true
+          },
+          {
+            "current_text_decode": true,
+            "gb10_convolution": true
+          },
+          {
+            "current_text_decode": true,
+            "gb10_convolution": true,
+            "gb10_gdn": true
+          },
+          {
+            "current_text_decode": true,
+            "gb10_convolution": true,
+            "gb10_gdn": true,
+            "gb10_projections": true
+          },
+          {
+            "current_text_decode": true,
+            "gb10_convolution": true,
+            "gb10_gdn": true,
+            "gb10_projections": true,
+            "gb10_prefill_projections": true
+          }
+        ],
+        "invalid_prerequisite_rejected": true,
+        "unchanged_imported_files": 327,
+        "compilation_units": 57,
+        "images": 72,
+        "overlays": 12,
+        "prepare_sha256": "2fe957ef34f9d1cc11b0aafe1665cc242d17be8546bd5bdd76d6760aa44868dc",
+        "model_inference_acceptance": false
+      }
+    },
+    "residual_same_input_replay": {
+      "sha256": "d1428a56be43cafef5cfebe8190772f77ef152cf03368ddc2d4c3113a653d4e6",
+      "data": {
+        "results": [
+          {
+            "mode": 0,
+            "elements": 2048,
+            "reference_mismatches": 0,
+            "native_mismatches": 107,
+            "sum_bits": 1066684290,
+            "inverse_bits": 1109918993
+          },
+          {
+            "mode": 1,
+            "elements": 2048,
+            "reference_mismatches": 107,
+            "native_mismatches": 0,
+            "sum_bits": 1066679014,
+            "inverse_bits": 1109921977
+          },
+          {
+            "mode": 2,
+            "elements": 2048,
+            "reference_mismatches": 107,
+            "native_mismatches": 0,
+            "sum_bits": 1066679013,
+            "inverse_bits": 1109921977
+          }
+        ],
+        "source_sha256": "15ad7640d7849ea54407335e9a7a269bf0c57883abd4dd6a0e64352066e1d29b",
+        "shared_math_sha256": "778b44d6f983e682409dc64aa50d1548d9dffc047d50012204c2ab135b69ac48",
+        "exe_sha256": "655a7e4ac96670f1e3e7586f0d81b54ecbc144dd14183cf053e9d27ba63457e8",
+        "build_command": [
+          "clang++",
+          "-std=c++17",
+          "-O1",
+          "-ffp-contract=off",
+          "-fsanitize=address,undefined",
+          "-I",
+          "source-checkout",
+          "controller-evidence/linux-core-residual-norm-replay-r1/replay.cpp",
+          "-o",
+          "controller-evidence/linux-core-residual-norm-replay-r1/replay"
+        ],
+        "command": [
+          "controller-evidence/linux-core-residual-norm-replay-r1/replay",
+          "controller-evidence/linux-core-residual-norm-replay-r1/embedding-144.bin",
+          "controller-evidence/linux-core-windows-gb10-prefill-projection-step1-r2/observations/decode-linear-attention_output.bin",
+          "controller-evidence/layer0-weights-r1/post_norm.bin",
+          "controller-evidence/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-layer-00-post-attention-rmsnorm-bf16.bin",
+          "controller-evidence/linux-core-windows-gb10-prefill-projection-step1-r2/observations/decode-linear-post_attention_norm.bin",
+          "controller-evidence/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        ],
+        "files": [
+          {
+            "path": "controller-evidence/linux-core-residual-norm-replay-r1/embedding-144.bin",
+            "bytes": 4096,
+            "sha256": "375ab229a6d4573f9c08e955bf7dbeaafbbf640814c2458a8cf002e02f73a3e8"
+          },
+          {
+            "path": "controller-evidence/linux-core-windows-gb10-prefill-projection-step1-r2/observations/decode-linear-attention_output.bin",
+            "bytes": 4096,
+            "sha256": "f12a641eeb985cf5284c852e5529fc8d2fb9151b3d1bfc04aeea6f7f1182abf2"
+          },
+          {
+            "path": "controller-evidence/layer0-weights-r1/post_norm.bin",
+            "bytes": 4096,
+            "sha256": "931d41e92220f2653c6866a48e73e21cf68603430340c133a5e7618ea929e1d6"
+          },
+          {
+            "path": "controller-evidence/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-layer-00-post-attention-rmsnorm-bf16.bin",
+            "bytes": 4096,
+            "sha256": "a6b55d59ef0a594b4fda96c05a28fcc62d4b281ccf4dae399b581ccb8db4d286"
+          },
+          {
+            "path": "controller-evidence/linux-core-windows-gb10-prefill-projection-step1-r2/observations/decode-linear-post_attention_norm.bin",
+            "bytes": 4096,
+            "sha256": "3dacbd783fb9859cc86641c6d73bc1bf022c72930951d00838e4c1a6c9ccb2b3"
+          },
+          {
+            "path": "controller-evidence/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "bytes": 17301808,
+            "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+          }
+        ],
+        "original_embedding_manifest_sha256": "ac2c45b9190490c8698df0de93c422ad09ee3b4c2b57bdd67430b21e19b13ca4",
+        "original_weight_metadata_sha256": "7ef6a8f3c252f889997c1b512eafa0b7783d90094a3f597254f0b2d70639c782",
+        "source_commit": "3b93049b1612797fe04c9ddd8a82ccea08893973",
+        "native_run_sha256": "7d61fcfa4ec982319a55bedec3e8307e6edee56646e56e1db1bfbb0314d92da9",
+        "reference_download_sha256": "64723e2fc871e315e4c1efec3ba675c7fdda43c8e2facf8664acc532d2b327d1",
+        "same_attention_output_as_reference": true,
+        "host_only": true,
+        "inference_acceptance": false
+      }
+    },
+    "gated_same_input_replay": {
+      "sha256": "21682fc408767d941a4e20dc1c27927b4f2837128ccf613677c74f7b7ab4cfb8",
+      "data": {
+        "source_sha256": "ed90a0b69d60ab7e976a57c2d0ee54f758534f226275d1cf605e92ca54da15ed",
+        "shared_math_sha256": "6e99b4da7db63da3c5a155c955efd4458a6919659ce4c36a37e9e582ca08a68c",
+        "command": [
+          "controller-evidence/linux-core-gated-norm-replay-r1/replay",
+          "controller-evidence/linux-core-gated-norm-replay-r1/plan.tsv",
+          "controller-evidence/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+          "controller-evidence/gated-compat-tables-r1/silu-f32.bin"
+        ],
+        "build_command": [
+          "clang++",
+          "-std=c++17",
+          "-O1",
+          "-ffp-contract=off",
+          "-fno-fast-math",
+          "-fsanitize=address,undefined",
+          "-I",
+          "source-checkout",
+          "controller-evidence/linux-core-gated-norm-replay-r1/replay.cpp",
+          "-o",
+          "controller-evidence/linux-core-gated-norm-replay-r1/replay"
+        ],
+        "source_commit": "c6c79035a74e2e35252e78f54f51728754cde1f2",
+        "exe_sha256": "3d1410da4adf6f7314d2ad1c5a26ccf938b1703d8314c22fcea872d6bde0588d",
+        "reference_download_sha256": "64723e2fc871e315e4c1efec3ba675c7fdda43c8e2facf8664acc532d2b327d1",
+        "native_run_sha256": "8e3ef6cb2ecfb5f2bc049d2ccea94a9dba2e276cbe479786f2fda5458094caea",
+        "files": [
+          {
+            "path": "controller-evidence/gated-compat-tables-r1/silu-f32.bin",
+            "bytes": 262144,
+            "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
+          },
+          {
+            "path": "controller-evidence/layer0-weights-r1/gated_norm.bin",
+            "bytes": 256,
+            "sha256": "7ebc17576e1c103ebb3d74bc593c0ab5d43afdcc0fdcad5cef7e11c2351c8a20"
+          },
+          {
+            "path": "controller-evidence/linux-core-gated-norm-replay-r1/native-prefill-last-core.bin",
+            "bytes": 8192,
+            "sha256": "0375fa63fc6f25484fbefa2409a8e5697395509d2610f1f7e7ffe94059a3b1a5"
+          },
+          {
+            "path": "controller-evidence/linux-core-gated-norm-replay-r1/native-prefill-last-gated.bin",
+            "bytes": 8192,
+            "sha256": "70e8c0c02a789433dd9dcfd2c1bb99b2332971ff91ef466ca1e109c0487d75a5"
+          },
+          {
+            "path": "controller-evidence/linux-core-gated-norm-replay-r1/native-prefill-last-z.bin",
+            "bytes": 8192,
+            "sha256": "ae95644e438c07214e9e8f6223846dc4341465d1c79007e8c118484ea204fd5c"
+          },
+          {
+            "path": "controller-evidence/linux-core-gated-norm-replay-r1/reference-core.bin",
+            "bytes": 8192,
+            "sha256": "80a090e346dad25e5809b666f6724328223e19e88a8026845afd8a09a59fc08b"
+          },
+          {
+            "path": "controller-evidence/linux-core-gated-norm-replay-r1/reference-gated.bin",
+            "bytes": 8192,
+            "sha256": "00354ced121028ca8596a9927d7a717731b7777d877031fce844dc19073ed468"
+          },
+          {
+            "path": "controller-evidence/linux-core-gated-norm-replay-r1/reference-z-projection.bin",
+            "bytes": 8192,
+            "sha256": "765d005484e6e10a0517f61b1380caa330225922ad63572946ee15f47e7de9bc"
+          },
+          {
+            "path": "controller-evidence/linux-core-windows-gb10-gdn-observer-step1-r1/reference-prefill-core.bin",
+            "bytes": 8192,
+            "sha256": "515a9f3d2d437da6399b3f9078c0e469c2e0e2748de08ce8675774e7c986437a"
+          },
+          {
+            "path": "controller-evidence/linux-core-windows-gb10-gdn-observer-step1-r1/reference-prefill-gated.bin",
+            "bytes": 8192,
+            "sha256": "c67b22d72366aa72f55a675eeb19ffea904fbb04c6566e8d660acf0c23a7ff23"
+          },
+          {
+            "path": "controller-evidence/linux-core-windows-gb10-gdn-observer-step1-r1/reference-prefill-z.bin",
+            "bytes": 8192,
+            "sha256": "c4d84aca609881d294f93ed54998336f18c81824e7080aa61f942e004f06122d"
+          },
+          {
+            "path": "controller-evidence/linux-core-windows-gb10-projection-step1-r1/observations/decode-linear-gated_norm.bin",
+            "bytes": 8192,
+            "sha256": "2e6128f9ed8903d0400706e78637a347243afba89534e7ec7dfc404d5f67b85f"
+          },
+          {
+            "path": "controller-evidence/linux-core-windows-gb10-projection-step1-r1/observations/decode-linear-recurrent_output.bin",
+            "bytes": 8192,
+            "sha256": "4e8f79977fd785b14a1d5c41f6fc627e84081ddf86993b16b660c834e56290b7"
+          },
+          {
+            "path": "controller-evidence/linux-core-windows-gb10-projection-step1-r1/observations/decode-linear-z_projection.bin",
+            "bytes": 8192,
+            "sha256": "765d005484e6e10a0517f61b1380caa330225922ad63572946ee15f47e7de9bc"
+          },
+          {
+            "path": "controller-evidence/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+            "bytes": 17301808,
+            "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+          }
+        ],
+        "cases": [
+          {
+            "name": "reference_decode",
+            "paths": [
+              "controller-evidence/linux-core-gated-norm-replay-r1/reference-core.bin",
+              "controller-evidence/linux-core-gated-norm-replay-r1/reference-z-projection.bin",
+              "controller-evidence/layer0-weights-r1/gated_norm.bin",
+              "controller-evidence/linux-core-gated-norm-replay-r1/reference-gated.bin"
+            ]
+          },
+          {
+            "name": "native_decode",
+            "paths": [
+              "controller-evidence/linux-core-windows-gb10-projection-step1-r1/observations/decode-linear-recurrent_output.bin",
+              "controller-evidence/linux-core-windows-gb10-projection-step1-r1/observations/decode-linear-z_projection.bin",
+              "controller-evidence/layer0-weights-r1/gated_norm.bin",
+              "controller-evidence/linux-core-windows-gb10-projection-step1-r1/observations/decode-linear-gated_norm.bin"
+            ]
+          },
+          {
+            "name": "reference_prefill",
+            "paths": [
+              "controller-evidence/linux-core-windows-gb10-gdn-observer-step1-r1/reference-prefill-core.bin",
+              "controller-evidence/linux-core-windows-gb10-gdn-observer-step1-r1/reference-prefill-z.bin",
+              "controller-evidence/layer0-weights-r1/gated_norm.bin",
+              "controller-evidence/linux-core-windows-gb10-gdn-observer-step1-r1/reference-prefill-gated.bin"
+            ]
+          },
+          {
+            "name": "native_prefill",
+            "paths": [
+              "controller-evidence/linux-core-gated-norm-replay-r1/native-prefill-last-core.bin",
+              "controller-evidence/linux-core-gated-norm-replay-r1/native-prefill-last-z.bin",
+              "controller-evidence/layer0-weights-r1/gated_norm.bin",
+              "controller-evidence/linux-core-gated-norm-replay-r1/native-prefill-last-gated.bin"
+            ]
+          }
+        ],
+        "results": [
+          {
+            "ordinal": 0,
+            "elements": 4096,
+            "bf16_mismatches": 0,
+            "first_difference": [
+              0,
+              0,
+              0
+            ],
+            "name": "reference_decode"
+          },
+          {
+            "ordinal": 1,
+            "elements": 4096,
+            "bf16_mismatches": 0,
+            "first_difference": [
+              0,
+              0,
+              0
+            ],
+            "name": "native_decode"
+          },
+          {
+            "ordinal": 2,
+            "elements": 4096,
+            "bf16_mismatches": 0,
+            "first_difference": [
+              0,
+              0,
+              0
+            ],
+            "name": "reference_prefill"
+          },
+          {
+            "ordinal": 3,
+            "elements": 4096,
+            "bf16_mismatches": 1050,
+            "first_difference": [
+              7,
+              47709,
+              47710
+            ],
+            "name": "native_prefill"
+          }
+        ],
+        "host_only": true,
+        "inference_acceptance": false
+      }
+    },
+    "remote_asset": {
+      "sha256": "2fe7d89431b64673b45d2ee8ec65fa32baec893f6ea322a74dfb7a2289f7b6bf",
+      "data": {
+        "command_script": "$file='D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/full-gated-silu-f32-lut-f32.bin'\n[ordered]@{host=[Environment]::MachineName;path=$file;bytes=(Get-Item -LiteralPath $file).Length;sha256=(Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant()}|ConvertTo-Json -Compress\n",
+        "result": {
+          "host": "BAIYING",
+          "path": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/full-gated-silu-f32-lut-f32.bin",
+          "bytes": 262144,
+          "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
+        }
+      }
+    }
+  },
+  "additional_device_bytes": 262144,
+  "borrowed_rsqrt_bytes": 17301808,
+  "new_external_libraries": 0,
+  "windows_build_qualified": false,
+  "model_correctness_qualified": false,
+  "performance_qualified": false,
+  "release_qualified": false
+}

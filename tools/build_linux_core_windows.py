@@ -40,6 +40,8 @@ def main():
                         help="Use SM121 decode projection and embedding normalization arithmetic")
     parser.add_argument("--gb10-prefill-projections", action="store_true",
                         help="Use FP32 prefill GEMMs with staged SM121 exact replay")
+    parser.add_argument("--gb10-normalization", action="store_true",
+                        help="Use GB10 prefill gated norm and unrounded residual variance")
     args = parser.parse_args()
     host = socket.gethostname()
     if platform.system() != "Windows" or host.split(".")[0].lower() != "baiying":
@@ -121,6 +123,10 @@ def main():
                 "sm121_float_subgroup.h", "sm121_paired_products.h", "sm121_prepared_integer_pairs.h",
                 "sm121_scalar_projection.h", "sm121_scaled_half_products.h", "sm121_scaled_half_projection.h",
                 "sm121_staged_half_projection.h", "sm121_subgroup.h")]
+        if args.gb10_normalization:
+            source_paths += [ROOT / "native/providers/gdn" / name for name in (
+                "sm121_q2_gated_math.h", "sm121_mtp_residual.h",
+                "sm121_mtp_residual_math.h", "sm121_mtp_math.h")]
         record["source_inputs"] = [dict(path=p.relative_to(ROOT).as_posix(), bytes=p.stat().st_size,
                                         sha256=sha(p)) for p in sorted(source_paths) if p.is_file()]
         prepared = out / "prepared"
@@ -137,6 +143,8 @@ def main():
             preparation.append("--gb10-projections")
         if args.gb10_prefill_projections:
             preparation.append("--gb10-prefill-projections")
+        if args.gb10_normalization:
+            preparation.append("--gb10-normalization")
         run("prepare", preparation, 120)
         plan = json.loads((prepared / "prepare.json").read_text())
         if "optional_adaptations" in plan:
@@ -167,6 +175,8 @@ def main():
             flags.append("-DAIMA_PORT_GB10_PROJECTIONS=1")
         if args.gb10_prefill_projections:
             flags.append("-DAIMA_PORT_GB10_PREFILL_PROJECTIONS=1")
+        if args.gb10_normalization:
+            flags.append("-DAIMA_PORT_GB10_NORMALIZATION=1")
         flags += [x for p in includes for x in ("-I", p)]
         record["compile_flags"] = [str(x) for x in flags]
         objects = [obj]

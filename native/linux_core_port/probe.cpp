@@ -23,6 +23,9 @@
 #ifdef AIMA_PORT_GB10_PREFILL_PROJECTIONS
 #include "gb10_prefill_projection.h"
 #endif
+#ifdef AIMA_PORT_GB10_NORMALIZATION
+#include "gb10_normalization.h"
+#endif
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -186,6 +189,9 @@ int run(const std::vector<std::string>& argv) {
 #endif
 #ifdef AIMA_PORT_GB10_PREFILL_PROJECTIONS
   aima_port::Gb10PrefillProjectionOwner prefill_projections;
+#endif
+#ifdef AIMA_PORT_GB10_NORMALIZATION
+  aima_port::Gb10NormalizationOwner normalization;
 #endif
   aima::NativeResidentEngineOptions options;
   options.weights.model_dir = model;

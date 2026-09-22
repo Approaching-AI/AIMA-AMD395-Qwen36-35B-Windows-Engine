@@ -334,9 +334,54 @@ def gb10_prefill_projection_overlay(text):
     return text[:begin] + method + text[end:]
 
 
+def gb10_normalization_overlays(sources, read):
+    path = "native/src/native_linear_prefill.hip.cpp"
+    text = replace(sources[path], '#include "gb10_gdn.h"',
+        '#include "gb10_gdn.h"\n#include "gb10_normalization.h"')
+    text = replace(text,
+        "    launch_bf16_rowwise_invstd_128(core, invstd, tokens * kLinearHeads);\n"
+        "    ++result.layer.native_pointwise_launches;\n"
+        "    executor.launch(launches[base + 9]);",
+        "    aima_port::gb10_gated_norm(core, z, linear_norm_weight.device_pointer, gated, tokens);\n"
+        "    ++result.layer.native_pointwise_launches;")
+    text = replace(text,
+        "  if (use_vl_rmsnorm) {\n    launch_prefill_add_rmsnorm_2048(",
+        "  if (q8192_schedule) {\n"
+        "    aima_port::gb10_residual_norm(attention_output, x,\n"
+        "        post_attention_norm_weight.device_pointer, after_attention, h2, tokens);\n"
+        "    ++result.layer.native_pointwise_launches;\n"
+        "  } else if (use_vl_rmsnorm) {\n    launch_prefill_add_rmsnorm_2048(")
+    text = replace(text, "      (q8192_schedule ? 8 : 0) -",
+        "      (q8192_schedule ? (use_vl_rmsnorm ? 9 : 10) : 0) -")
+    sources[path] = text
+    path = "native/src/native_pointwise.hip.cpp"
+    text = replace(read(path), '#include "aima/native_pointwise.h"',
+        '#include "aima/native_pointwise.h"\n#include "gb10_normalization.h"')
+    text = replace(text,
+        '        "native prefill residual RMSNorm geometry is invalid");\n  }\n',
+        '        "native prefill residual RMSNorm geometry is invalid");\n  }\n'
+        "  if (token_count <= 8192) {\n"
+        "    aima_port::gb10_residual_norm(input_bf16, residual_bf16, weight_bf16,\n"
+        "        residual_output_bf16, norm_output_bf16, token_count, stream_value);\n"
+        "    return;\n  }\n")
+    sources[path] = text
+    path = "native/src/native_full_prefill.hip.cpp"
+    text = replace(sources[path], '#include "aima/native_full_prefill.h"',
+        '#include "aima/native_full_prefill.h"\n#include "gb10_normalization.h"')
+    sources[path] = replace(text,
+        '  diagnostic_stage("after_output_projection");\n  if (use_mrope) {',
+        '  diagnostic_stage("after_output_projection");\n'
+        "  if (execution_tokens == 8192) {\n"
+        "    aima_port::gb10_residual_norm(projected_attention, layer_input,\n"
+        "        post_attention_norm_weight.device_pointer, after_attention,\n"
+        "        post_attention_norm, execution_tokens);\n"
+        "    ++result.layer.native_pointwise_launches;\n"
+        "  } else if (use_mrope) {")
+
+
 def make_overlays(*, rectangular_ck=False, current_text_decode=False,
                   gb10_convolution=False, gb10_gdn=False, gb10_projections=False,
-                  gb10_prefill_projections=False):
+                  gb10_prefill_projections=False, gb10_normalization=False):
     if gb10_convolution and not current_text_decode:
         raise ValueError("GB10 convolution requires current text decode ownership")
     if gb10_gdn and not gb10_convolution:
@@ -345,6 +390,8 @@ def make_overlays(*, rectangular_ck=False, current_text_decode=False,
         raise ValueError("GB10 projections require the GB10 GDN experiment")
     if gb10_prefill_projections and not gb10_projections:
         raise ValueError("GB10 prefill projections require the GB10 projection experiment")
+    if gb10_normalization and not gb10_prefill_projections:
+        raise ValueError("GB10 normalization requires the GB10 prefill projection experiment")
     read = lambda p: (UPSTREAM / p).read_text(encoding="utf-8")
     sources = {}
     loader = "benchmarks/shape-lab/native/src/torch_owned_safetensors_loader.hip.cpp"
@@ -424,6 +471,8 @@ def make_overlays(*, rectangular_ck=False, current_text_decode=False,
     if rectangular_ck:
         sources[header], sources[prefill] = rectangular_ck_overlay(
             sources[header], sources[prefill])
+    if gb10_normalization:
+        gb10_normalization_overlays(sources, read)
     # These two upstream enum-to-string functions have no media I/O dependency.
     media = read("native/src/native_media.cpp")
     names = media[media.index("std::string_view native_media_kind_name("):]
@@ -461,6 +510,8 @@ def main():
                         help="Use SM121 decode projections and full-vocabulary embedding RMS scales")
     parser.add_argument("--gb10-prefill-projections", action="store_true",
                         help="Use FP32 q8192 GEMM outputs with existing SM121 staged exact replay")
+    parser.add_argument("--gb10-normalization", action="store_true",
+                        help="Use GB10 prefill gated norm and unrounded residual variance")
     args = parser.parse_args()
     inventory = verify_import()
     out = args.out.resolve()
@@ -470,7 +521,8 @@ def main():
                              current_text_decode=args.current_text_decode,
                              gb10_convolution=args.gb10_convolution, gb10_gdn=args.gb10_gdn,
                              gb10_projections=args.gb10_projections,
-                             gb10_prefill_projections=args.gb10_prefill_projections)
+                             gb10_prefill_projections=args.gb10_prefill_projections,
+                             gb10_normalization=args.gb10_normalization)
     out.mkdir(parents=True)
     adapted = []
     for relative, text in overlays.items():
@@ -539,6 +591,8 @@ def main():
         sources.append(str(ROOT / "native/linux_core_port/gb10_projection.hip.cpp"))
     if args.gb10_prefill_projections:
         sources.append(str(ROOT / "native/linux_core_port/gb10_prefill_projection.hip.cpp"))
+    if args.gb10_normalization:
+        sources.append(str(ROOT / "native/linux_core_port/gb10_normalization.hip.cpp"))
     generated = [dict(path=p.relative_to(out).as_posix(), bytes=p.stat().st_size,
                       sha256=digest(p.read_bytes())) for p in sorted(out.rglob("*")) if p.is_file()]
     report = dict(schema=1, upstream_revision=inventory["revision"],
@@ -593,6 +647,15 @@ def main():
             maximum_window_cells=1048576, candidate_counts="device-owned; no host count copy",
             shared_scratch_stream="default stream only; nondefault streams rejected",
             device_scratch_bytes=598360324,
+            model_qualified=False)
+    if args.gb10_normalization:
+        report["optional_adaptations"]["gb10_normalization"] = dict(
+            gated="original short-row ordered FP32 reduction and FP32 SiLU",
+            residual="FP32 unrounded sum variance; BF16 residual numerator",
+            gated_prefill_tokens=8192, residual_maximum_tokens=8192,
+            silu_table_bytes=262144, additional_device_bytes=262144,
+            silu_table_sha256="f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c",
+            rsqrt_table="borrowed from the live GB10 GDN owner",
             model_qualified=False)
     (out / "prepare.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: report[k] for k in ("upstream_revision", "imported_files", "imported_bytes", "image_bytes")}

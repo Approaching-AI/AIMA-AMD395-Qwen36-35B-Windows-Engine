@@ -57,7 +57,9 @@ int main(int argc,char**argv) {
   // Exercise the actual wrapper against a recording provider. Scratch owners
   // are deliberately distinct; kernels are recorded rather than GPU-executed.
   State s;for(Device* d:{&s.raw,&s.gates,&s.output,&s.decode_ab,&s.gate[0],&s.beta,&s.prefill_beta,&s.exp2,&s.rsqrt})d->allocate(64);
+  reject([&]{gb10_rsqrt_table();});
   s.cold=cold;s.seeded=seed;s.error=failure;active=&s;float state=17;expected_state=&state;
+  assert(gb10_rsqrt_table() == s.rsqrt.as<unsigned char>());
   gb10_prefill_gdn(0,conv.data(),a.data(),b.data(),out,&state,8192,false);
   assert(calls==1&&state==17&&fake_events==std::vector<std::string>({"prepare_prefill","cold","copy_core"}));
   fake_events.clear();gb10_prefill_gdn(0,conv.data(),a.data(),b.data(),out,&state,8192,true);
@@ -84,6 +86,7 @@ int main(int argc,char**argv) {
   reject([&]{observe_gdn_prefill(0,"prefill-a-sampled",a.data(),31,8192);});
   reject([&]{observe_gdn_prefill(0,"prefill-a-sampled",a.data(),32,8191);});
   active=nullptr;
+  reject([&]{gb10_rsqrt_table();});
   reject([&]{gb10_decode_gdn(0,conv.data(),a.data(),b.data(),out,&state,nullptr);});
   // The production input reader checks exact byte length and SHA, including
   // artifact replacement with unchanged length.

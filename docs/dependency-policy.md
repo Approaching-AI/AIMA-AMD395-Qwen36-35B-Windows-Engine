@@ -79,6 +79,16 @@ the optional path uses the existing provider's ascending-K16 WMMA geometry.
 This needs no extra library, table or device allocation, and its complete cost
 is included in the same request timing.
 
+The optional `--gb10-normalization` repair reuses the existing short-row gated
+math and residual-normalization kernel. Its complete BF16-input FP32 SiLU table
+is 262,144 bytes, SHA256
+`f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c`.
+One device copy and its validation/upload count toward command-ready. The
+17,301,808-byte reciprocal-root table is borrowed from the live GDN owner,
+without an additional copy. No library or installed package is added. The
+benefit is restoring the demonstrated prefill gated arithmetic and computing
+residual variance before BF16 rounding. Real-model qualification remains open.
+
 The [installed Windows dependency inventory](../benchmarks/correctness/linux-core-windows-dependencies-20260922.json)
 finds a6,012,312-byte hipBLASLt DLL. Its installed data directory contains1078
 files totaling434,067,673bytes across GPU architectures. The complete96-file

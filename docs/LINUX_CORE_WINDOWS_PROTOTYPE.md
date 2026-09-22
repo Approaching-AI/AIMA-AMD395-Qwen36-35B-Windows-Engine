@@ -77,6 +77,16 @@ and cleanup pass. [Native result and next numerical boundary](../benchmarks/corr
 The next correction covers the original prefill gated norm and unrounded
 residual variance, while keeping the complete model and performance gates.
 
+Same-input CPU replay now identifies the residual cause: all 2,048 reference
+values match when variance uses the unrounded FP32 residual sum. Computing
+variance after BF16 rounding reproduces all native values, including its 107
+differences. `--gb10-normalization` applies the existing GB10 gated math to
+q8192 linear prefill and the existing residual kernel to linear/full prefill
+and singleton decode. Its table owner borrows the GDN reciprocal-root table;
+the additional FP32 SiLU table is loaded before READY. Host checks verify table
+identity, lifetime requirements, output ordering and invalid bindings. They do
+not execute the GPU reductions or establish complete-model correctness.
+
 The latest ordinary Windows q8192 control is 23272.0441 ms TTFT. Structural
 projection and QK alternatives preserved component bits but increased their
 measured execution times. This experiment instead evaluates the Linux release's

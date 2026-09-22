@@ -161,6 +161,10 @@ Gb10GdnOwner::Gb10GdnOwner() : impl_(std::make_unique<Impl>()) {
   active = &s;
 }
 Gb10GdnOwner::~Gb10GdnOwner() { if (active == &impl_->state) active = nullptr; }
+const unsigned char* gb10_rsqrt_table() {
+  if (!active || !active->rsqrt.data) throw std::runtime_error("GDN rsqrt owner is absent");
+  return active->rsqrt.as<unsigned char>();
+}
 
 void set_gdn_prefill_observer(std::size_t layer, GdnPrefillObserver callback, void* context) {
   if (!active || layer >= 40 || layer % 4 == 3 || !callback || !context || active->observer)
