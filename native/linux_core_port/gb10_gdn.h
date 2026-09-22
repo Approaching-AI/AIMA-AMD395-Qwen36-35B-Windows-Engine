@@ -27,7 +27,8 @@ void gb10_decode_gdn(std::size_t layer, const void* convolution,
 // Borrowed immutable table; valid only within the live GDN owner's lifetime.
 const unsigned char* gb10_rsqrt_table();
 using GdnPrefillObserver = void (*)(const char*, const void*, std::size_t, void*);
-void set_gdn_prefill_observer(std::size_t layer, GdnPrefillObserver callback, void* context);
+void set_gdn_prefill_observer(std::size_t layer, GdnPrefillObserver callback,
+                              void* context, bool first64 = false);
 // Fixed output-only sampling: the last row of every 64-token chunk at q8192.
 void observe_gdn_prefill(std::size_t layer, const char* name, const void* values,
                          std::size_t columns, std::size_t tokens);

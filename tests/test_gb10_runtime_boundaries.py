@@ -295,12 +295,20 @@ class RuntimeBoundaryTests(unittest.TestCase):
             self.assertEqual(observation_positions('q8192-out32', 8192), {8191, 8192})
             with self.assertRaises(ValueError):
                 observation_positions(case, 18555)
-        for plan in ([], {}, {case: []}, {case: list(range(33))}, {case: [1, 1]},
+        for plan in ([], {}, {case: []}, {case: list(range(97))}, {case: [1, 1]},
                      {case: [-1]}, {case: [263168]}, {case: [True]}, {case: '18554'},
                      {'undeclared': [1]}, {'case-out513': [1]}):
             with patch.dict(os.environ, {setting: json.dumps(plan)}, clear=True):
                 with self.assertRaises(ValueError):
                     observation_positions(case, 32768)
+
+        positions = list(range(64)) + [1023, 2111, 3391, 4159, 6079, 7167, 8191]
+        with patch.dict(os.environ, {setting: json.dumps({'q8192-out512': positions})}, clear=True):
+            selected = observation_positions('q8192-out512', 8192)
+            rows = target_rows(list(range(8192)), list(range(8192)), [8191], selected)
+            self.assertEqual([row['position'] for row in rows], positions)
+            self.assertEqual([row['input_token_id'] for row in rows], positions)
+            self.assertEqual(observation_positions('q7169-out32', 7169), {7168, 7169})
 
     def test_long_chunk_end_observations_preserve_real_row_identity(self):
         case = 'long-prefix262144-owner-out512'

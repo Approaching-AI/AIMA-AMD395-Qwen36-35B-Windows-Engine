@@ -197,6 +197,22 @@ First144/logit10.375 passes. Diagnostic load/TTFT/TPOT are
 85 verified files total17264322bytes. No retained performance is claimed.
 [Native complete-MoE result](../benchmarks/correctness/linux-core-gb10-moe-native-20260922.json).
 
+An unchanged-source layer-one observation reproduces all512 native outputs
+and the first logit. Its current decode inputs match through convolution,
+but the inherited prefill state has221911 FP32-bit differences and54053 BF16
+differences. At eight prefill positions, input norm, QKV/Z/A/B, raw Q/K/V,
+and all256 g/beta values match. Recurrence output already has307 BF16
+differences at position63. The preceding63 rows were not observed, so the
+recurrence implementation is not yet isolated from earlier input differences.
+[Layer-one diagnosis](../benchmarks/correctness/linux-core-gb10-layer1-prefill-diagnosis-20260922.json).
+
+For the next original-q8192 comparison, `AIMA_PORT_GDN_PREFILL_FIRST64=1`
+adds read-only first64 rows of each selected prefill surface. Existing samples,
+tensor byte limits and all model arithmetic remain unchanged. The reference
+observer accepts up to96 distinct original positions to include this complete
+first chunk plus the existing eight positions. Host ASan/UBSan checks and33
+reference-observer tests pass; native/reference execution is pending.
+
 The upstream release refresh at09:56UTC finds the same five releases and
 unchanged bodies; latest remains v1.5.1-native-vl.10/tag0522a57, declaring
 native sourceec993444. This does not change the Windows acceptance boundary.

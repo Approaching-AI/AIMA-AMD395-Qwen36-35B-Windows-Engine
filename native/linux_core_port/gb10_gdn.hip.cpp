@@ -69,6 +69,7 @@ struct State {
   GdnPrefillObserver observer = nullptr;
   void* observer_context = nullptr;
   std::size_t observer_layer = 0;
+  bool observer_first64 = false;
   ~State() {
     if (library) {
       hipDeviceSynchronize();
@@ -166,12 +167,14 @@ const unsigned char* gb10_rsqrt_table() {
   return active->rsqrt.as<unsigned char>();
 }
 
-void set_gdn_prefill_observer(std::size_t layer, GdnPrefillObserver callback, void* context) {
+void set_gdn_prefill_observer(std::size_t layer, GdnPrefillObserver callback,
+                              void* context, bool first64) {
   if (!active || layer >= 40 || layer % 4 == 3 || !callback || !context || active->observer)
     throw std::runtime_error("GDN prefill observation owner is invalid");
   active->observer = callback;
   active->observer_context = context;
   active->observer_layer = layer;
+  active->observer_first64 = first64;
 }
 void observe_gdn_prefill(std::size_t layer, const char* name, const void* values,
                          std::size_t columns, std::size_t tokens) {
@@ -186,6 +189,16 @@ void observe_gdn_prefill(std::size_t layer, const char* name, const void* values
       static_cast<const uint16_t*>(values), active->output.as<uint16_t>(), static_cast<unsigned>(columns));
   check(hipGetLastError(), "GDN prefill observation gather");
   active->observer(name, active->output.data, 128u * columns * sizeof(uint16_t), active->observer_context);
+  if (active->observer_first64) {
+    const std::string label(name), suffix("-sampled");
+    if (label.size() <= suffix.size() ||
+        label.compare(label.size() - suffix.size(), suffix.size(), suffix) != 0)
+      throw std::runtime_error("First64 observation requires a sampled surface name");
+    const auto first = label.substr(0, label.size() - suffix.size()) + "-first64";
+    // Read the first real 64 rows directly. No gather or arithmetic writes to
+    // the input; the same output-only collector owns transfer and byte guards.
+    active->observer(first.c_str(), values, 64u * columns * sizeof(uint16_t), active->observer_context);
+  }
 }
 
 void gb10_prefill_gdn(std::size_t layer, const void* conv, const void* a,

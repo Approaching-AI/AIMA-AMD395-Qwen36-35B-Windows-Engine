@@ -6,6 +6,7 @@
 #include <hip/hip_runtime.h>
 #include <chrono>
 #include <cmath>
+#include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <locale>
@@ -126,6 +127,16 @@ int run(const std::vector<std::string>& argv) {
   std::cout.imbue(std::locale::classic());
   std::cout << std::setprecision(17);
   const auto args = aima_port::probe_arguments(argv);
+  const char* first64_setting = std::getenv("AIMA_PORT_GDN_PREFILL_FIRST64");
+  if (first64_setting && std::string(first64_setting) != "0" &&
+      std::string(first64_setting) != "1")
+    throw std::invalid_argument("First64 observation requires 0 or 1");
+  const bool first64 = first64_setting && std::string(first64_setting) == "1";
+  if (first64 && !args.count("--observe-directory"))
+    throw std::invalid_argument("First64 observation requires an output directory");
+#ifndef AIMA_PORT_GB10_GDN
+  if (first64) throw std::invalid_argument("First64 observation requires the GDN owner");
+#endif
   const auto path = [&](const char* key) { return std::filesystem::u8path(args.at(key)); };
   const auto model = std::filesystem::absolute(path("--model"));
   const auto input = std::filesystem::absolute(path("--input-u32"));
@@ -171,6 +182,7 @@ int run(const std::vector<std::string>& argv) {
     std::cout << ",\"observation_directory\":" << quote(std::filesystem::absolute(path("--observe-directory")).u8string())
               << ",\"observation_output_index\":" << args.at("--observe-output-index")
               << ",\"observation_linear_layer\":" << args.at("--observe-linear-layer")
+              << ",\"observation_prefill_first64\":" << (first64 ? "true" : "false")
               << ",\"observation_output_only\":true,\"diagnostic_timings_only\":true";
   }
   std::cout << "}" << std::endl;
@@ -184,7 +196,7 @@ int run(const std::vector<std::string>& argv) {
         aima_port::observation_number(args.at("--observe-linear-layer"), 39),
         [](const char* name, const void* device, std::size_t bytes, void* owner) {
           static_cast<Observation*>(owner)->capture(name, device, bytes, "bf16");
-        }, observation.get());
+        }, observation.get(), first64);
   }
 #endif
 #ifdef AIMA_PORT_GB10_PROJECTIONS

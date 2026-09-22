@@ -5,6 +5,7 @@
 using namespace aima_port;
 static unsigned calls=0;static int returned=1;static bool seeded=false;
 static float* expected_state=nullptr;
+static const void* expected_first64=nullptr;
 int cold(const float* raw,const float* gate,float* output,float* state,int decay,void* stream,int32_t tokens) {
   assert(active && raw==active->raw.data && gate==active->gates.data && output==active->output.data);
   assert(state==expected_state && decay==0 && stream==nullptr && tokens==8192);++calls;
@@ -16,6 +17,10 @@ int seed(const float* raw,const float* gate,float* output,float* state,int decay
 }
 const char* failure(){return "injected provider failure";}
 void observed(const char*name,const void*pointer,std::size_t bytes,void*context) {
+  if (std::string(name)=="prefill-a-first64") {
+    assert(expected_first64 && pointer==expected_first64 && bytes==64*32*2 && context==&calls);
+    fake_events.push_back("observed_first64");return;
+  }
   assert(std::string(name)=="prefill-a-sampled" && pointer==active->output.data);
   assert(bytes==128*32*2 && context==&calls);fake_events.push_back("observed");
 }
@@ -94,6 +99,12 @@ int main(int argc,char**argv) {
   reject([&]{observe_gdn_prefill(0,"prefill-a-sampled",s.output.data,32,8192);});
   reject([&]{observe_gdn_prefill(0,"prefill-a-sampled",a.data(),31,8192);});
   reject([&]{observe_gdn_prefill(0,"prefill-a-sampled",a.data(),32,8191);});
+  s.observer=nullptr;fake_events.clear();expected_first64=sample_input.data();
+  const auto first64_input_copy=sample_input;
+  set_gdn_prefill_observer(0,observed,&calls,true);
+  observe_gdn_prefill(0,"prefill-a-sampled",sample_input.data(),32,8192);
+  assert(fake_events==std::vector<std::string>({"sample_prefill","observed","observed_first64"}));
+  assert(sample_input==first64_input_copy);
   active=nullptr;
   reject([&]{gb10_rsqrt_table();});
   reject([&]{gb10_decode_gdn(0,conv.data(),a.data(),b.data(),out,&state,nullptr);});
@@ -105,5 +116,5 @@ int main(int argc,char**argv) {
   assert(read(file,asset)==std::vector<unsigned char>({'a','b','c'}));
   {std::ofstream f(file,std::ios::binary);f<<"abd";}reject([&]{read(file,asset);});
   {std::ofstream f(file,std::ios::binary);f<<"ab";}reject([&]{read(file,asset);});
-  std::cout<<"{\"conversion_values_checked\":33027,\"sampled_values_checked\":102528,\"sampling_input_unchanged\":true,\"sampling_guards_pass\":true,\"observer_faults_rejected\":5,\"guards_pass\":true,\"provider_order_pass\":true,\"seeded_state_forwarded\":true,\"decode_q2_flags\":true,\"injected_provider_failure_rejected\":true,\"invalid_bindings_rejected\":6,\"artifact_faults_rejected\":2}\n";
+  std::cout<<"{\"conversion_values_checked\":33027,\"sampled_values_checked\":102528,\"sampling_input_unchanged\":true,\"first64_original_pointer_and_extent\":true,\"sampling_guards_pass\":true,\"observer_faults_rejected\":5,\"guards_pass\":true,\"provider_order_pass\":true,\"seeded_state_forwarded\":true,\"decode_q2_flags\":true,\"injected_provider_failure_rejected\":true,\"invalid_bindings_rejected\":6,\"artifact_faults_rejected\":2}\n";
 }
