@@ -5,8 +5,9 @@ The optional [Windows core prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md) imports
 `ec9934446911fdf376da8eebcd83e7b137efbb7c`. The concrete benefit under evaluation
 is replacing the current multi-second projection, recurrence and MoE route with
 the release's complete native resident computation. A native Windows q8192 run
-now completes, but its latest continuation fails GB10 at output index3. Its timings remain
-diagnostic, and the product does not select this prototype.
+now passes all512 outputs and the first logit at source9447947. Its31-second
+TTFT remains above the immutable target, and the product does not select this
+prototype.
 
 The optional `AIMA_PORT_FULL_ATTENTION_ROPE_TABLE` extension to the normalization
 owner reuses the existing model-config rotary table, SHA256
@@ -49,6 +50,13 @@ short-row helper. This removes an observed single BF16 gated-output difference
 with identical actual inputs. It reuses the loaded FP32 SiLU and reciprocal-root
 tables, adding zero artifact bytes and zero device allocation. Whole-model
 continuation remains the qualification boundary.
+
+Omitting `--gb10-prefill-projections` selects the existing imported hipBLASLt
+BF16 dense producer while preserving the normalization and decode repairs.
+This adds no dependency and removes598360324bytes of prefill replay scratch;
+the shared arithmetic headers remain bound in the source inventory because
+decode attention still includes them. This route comparison requires its own
+complete GB10 continuation result before any performance can be retained.
 
 The import includes source, generated schedules, AOT GPU images and upstream
 licenses. It reuses Windows HIP, hipBLASLt and the existing CK provider. Python

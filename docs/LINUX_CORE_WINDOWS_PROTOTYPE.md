@@ -2,8 +2,24 @@
 
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
-It is not enabled in the Windows product. The complete decode-MoE repair
-(`5585977`) runs the real model on baiying. All 40 first-decode layer carriers
+It is not enabled in the Windows product. Source `9447947` passes the complete
+cold q8192/out512 correctness boundary on baiying with the real model: all512
+tokens and callbacks match GB10, with first144/logit10.375. All72 second-decode
+comparisons match in BF16, and final normalization matches bitwise. Loading is
+27601.089ms, diagnostic TTFT31045.7175ms and TPOT239.481255ms. Performance,
+other product shapes, prefix continuation and release remain unqualified.
+
+The next structural experiment omits `--gb10-prefill-projections` and uses the
+imported hipBLASLt BF16 dense producer while retaining every other repair.
+Normalization depends on the projection/GDN table owners, independently of
+the optional prefill replay. Its removal saves598360324bytes of scratch and
+the whole per-GEMM preparation/selection/replay pipeline. Preparation passes
+with327 unchanged imports,59 units,72 images and16 overlays; its numerical
+effect still requires the unchanged complete512-output GB10 boundary.
+[Native correctness and dense-prefill preparation](../benchmarks/correctness/linux-core-decode-gated-native-and-bf16-prefill-preparation-20260922.json).
+
+The preceding complete decode-MoE repair (`5585977`) runs the real model on
+baiying. All 40 first-decode layer carriers
 match the original after BF16 rounding, and final normalization matches exactly.
 All 69 comparisons pass, including the complete full-layer3 path and its cached
 K/V. First144/logit10.375 passes; continuation still differs at index3 and in
@@ -26,7 +42,7 @@ the existing GB10 short-row helper. Original arithmetic reproduces all245760
 values across30 layers/two rows and the native layer12 operands. The overlay
 now calls that helper and updates launch accounting, adding no allocation or
 artifact. Host binding/artifact checks and generated-source preparation pass;
-native execution of this binding change remains pending.
+native execution of this binding change subsequently passes above.
 [Decode gated diagnosis and preparation](../benchmarks/correctness/linux-core-decode-gated-diagnosis-and-preparation-20260922.json).
 
 The attention-repair run builds all59 native units, loads in27430.1645ms,

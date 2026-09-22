@@ -41,7 +41,7 @@ def main():
     parser.add_argument("--gb10-prefill-projections", action="store_true",
                         help="Use FP32 prefill GEMMs with staged SM121 exact replay")
     parser.add_argument("--gb10-normalization", action="store_true",
-                        help="Use GB10 prefill gated norm and unrounded residual variance")
+                        help="Use GB10 prefill/decode gated norm and unrounded residual variance")
     parser.add_argument("--gb10-moe", action="store_true",
                         help="Use the Windows prefill MoE provider and live FP32 carriers")
     args = parser.parse_args()
@@ -119,7 +119,9 @@ def main():
             source_paths += [ROOT / "native/providers/moe_accumulator" / name for name in (
                 "sm121_wave16.h", "q1_moe_hawkeye_bf16_accumulator.h", "sm121_group16_modulo.h",
                 "sm121_lane_reduce.h", "sm121_canonical_normalize.h")]
-        if args.gb10_prefill_projections:
+        # Decode attention also includes subgroup/float-alignment headers from
+        # this family. Bind their identities when the prefill replay is omitted.
+        if args.gb10_prefill_projections or args.gb10_normalization:
             source_paths += [ROOT / "native/providers/moe_accumulator" / name for name in (
                 "bf16_midpoint_selector.h", "sm121_dot_certificate.h", "sm121_float_alignment.h",
                 "sm121_float_subgroup.h", "sm121_paired_products.h", "sm121_prepared_integer_pairs.h",

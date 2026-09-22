@@ -640,8 +640,8 @@ def make_overlays(*, rectangular_ck=False, current_text_decode=False,
         raise ValueError("GB10 projections require the GB10 GDN experiment")
     if gb10_prefill_projections and not gb10_projections:
         raise ValueError("GB10 prefill projections require the GB10 projection experiment")
-    if gb10_normalization and not gb10_prefill_projections:
-        raise ValueError("GB10 normalization requires the GB10 prefill projection experiment")
+    if gb10_normalization and not gb10_projections:
+        raise ValueError("GB10 normalization requires GB10 projection and GDN table ownership")
     if gb10_moe and not gb10_normalization:
         raise ValueError("GB10 MoE requires the GB10 normalization experiment")
     read = lambda p: (UPSTREAM / p).read_text(encoding="utf-8")
@@ -915,6 +915,7 @@ def main():
             residual="FP32 unrounded sum variance; BF16 residual numerator",
             gated_prefill_tokens=8192, gated_decode_tokens=1, residual_maximum_tokens=8192,
             decode_gated_call_site="current linear decode replaces the imported AOT gated-normalization call",
+            dense_prefill="SM121 selected replay" if args.gb10_prefill_projections else "imported hipBLASLt BF16 producer",
             silu_table_bytes=262144, additional_device_bytes=266240,
             cross_layer_residual="one 4096-byte live row snapshot before the MoE tail; default stream only",
             prefill_moe_observations=12, decode_next_norm_observations=1,
