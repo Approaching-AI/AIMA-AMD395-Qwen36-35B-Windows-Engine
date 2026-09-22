@@ -30,8 +30,18 @@ operand values, including32768 normalized Q/K values checked against the
 original vLLM normalization kernel on GB10. The initial raw Q/K capture is
 before normalization and is not a comparable normalized boundary. Host
 ASan/UBSan checks12480 conversion values and65 invalid preparation bindings.
-The native Windows build, full state and512-token result are still required.
 [GDN diagnosis and chunk64 preparation](../benchmarks/correctness/linux-core-native-gdn-boundary-and-chunk64-20260923.json).
+
+Source `01659ba` builds all60 native units and completes the real-model
+q8192/out512 run with all30 chunk64 activations. Actual GPU Q/K normalization
+and V match the original eight sampled positions bitwise, but the core still
+differs at5039 of32768 BF16 values. Final state differs at408681 of524288
+FP32 values, maximum absolute error0.049892806. The first continuation
+divergence moves from index1 to115 (196 versus271), with390 output differences.
+First144/logit10.375 is exact. Load27579.1347ms, instrumented TTFT21260.3428ms
+and TPOT222.559631ms are diagnostic only. The remaining block arithmetic
+requires correction; the chunk64 route is not qualified or retained for speed.
+[Native chunk64 GDN result](../benchmarks/correctness/linux-core-native-gdn-chunk64-native-20260923.json).
 
 Native MoE correction `f210ff3` also passes the original cold q8192/out512
 boundary: all 512 tokens/callbacks, first 144 and logit 10.375 (zero error).
