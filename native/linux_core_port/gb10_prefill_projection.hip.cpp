@@ -84,7 +84,9 @@ struct Profile {
         "\"selection_ms\":%.6f,\"replay_ms\":%.6f,\"total_gpu_ms\":%.6f,"
         "\"completed_gpu_events\":true,\"diagnostic_only\":true}\n",
         ordinal++, max_tokens, rows, width, contiguous ? "true" : "false",
-        coarse_output ? "coarse-c64" : (fallback ? "wmma-fallback" : "hipblaslt"), windows,
+        coarse_output ? "coarse-c64" : (fallback ? "wmma-fallback" :
+            (contiguous && gb10_prefill_projection_tuned_gemm_enabled(rows, width)
+                ? "hipblaslt-tuned-5651" : "hipblaslt")), windows,
         static_cast<unsigned long long>(max_tokens) * rows, candidates,
         ppb, linear_output ? "true" : "false",
         coarse_output ? "true" : "false", invalid_intervals, invalid_intervals ? "false" : "true",
@@ -97,6 +99,7 @@ struct State {
   std::unique_ptr<Profile> profile;
   bool wmma = false, wmma_output_only = false, linear_bound = false, linear_output = false;
   bool coarse_full = false, full_output = false, coarse_produced = false;
+  bool tuned_gemm = false;
 };
 State* active = nullptr;
 bool enabled(const char* name) {
@@ -271,6 +274,9 @@ Gb10PrefillProjectionOwner::Gb10PrefillProjectionOwner() : impl_(std::make_uniqu
   s.wmma_output_only = enabled("AIMA_PORT_PREFILL_WMMA_OUTPUT_ONLY");
   s.linear_bound = enabled("AIMA_PORT_PREFILL_LINEAR_BOUND");
   s.coarse_full = enabled("AIMA_PORT_PREFILL_FULL_COARSE");
+  s.tuned_gemm = enabled("AIMA_PORT_PREFILL_GEMM_TUNED");
+  if (s.tuned_gemm && (s.wmma || s.wmma_output_only))
+    throw std::invalid_argument("Tuned GEMM requires WMMA overrides to be disabled");
   if (s.coarse_full) s.coarse_errors.allocate(std::size_t(max_tokens) * 2048u * sizeof(float));
   active = &s;
 }
@@ -298,6 +304,18 @@ bool gb10_prefill_projection_wmma_enabled(std::size_t reduction) {
 }
 bool gb10_prefill_projection_coarse_enabled() {
   return active && active->coarse_full && active->full_output;
+}
+bool gb10_prefill_projection_tuned_gemm_enabled(std::size_t rows, std::size_t reduction) {
+  return active && active->tuned_gemm &&
+      ((reduction == 2048 && (rows == 8192 || rows == 4096)) ||
+       (reduction == 4096 && rows == 2048));
+}
+bool gb10_prefill_gemm_algorithm_matches(const void* algorithm, std::size_t bytes, int version) {
+  // Pinned installed 1.0.1 distribution, solution5651 and128MiB preference.
+  // Reject a changed heuristic surface instead of silently choosing another.
+  constexpr unsigned char expected[24] = {19,22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,0,0,0,0};
+  return algorithm && version == 100100 && bytes == sizeof(expected) &&
+      std::memcmp(algorithm, expected, sizeof(expected)) == 0;
 }
 Gb10PrefillLinearOutputScope::Gb10PrefillLinearOutputScope(std::size_t tokens, unsigned layer) {
   if (tokens != max_tokens) return;

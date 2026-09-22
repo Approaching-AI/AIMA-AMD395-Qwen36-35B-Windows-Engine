@@ -10,6 +10,13 @@ passes all512 GB10 outputs with a23062.2803ms TTFT observation. The broader
 performance and product gates remain open. The standalone algorithm sweep
 uses this same installed hipBLASLt distribution and is not packaged.
 
+The optional tuned-GEMM trial selects the measured solution5651 from the
+same installed hipBLASLt1.0.1 distribution. Its three full-q8192 shapes use
+zero algorithm workspace and add no dependency, runtime artifact or device
+allocation. Selection verifies the full algorithm identity and version; the
+product manifest also binds the installed DLL and96 gfx1151/shared data files.
+The scalar exact-replay selector and numerical model gates are unchanged.
+
 The optional [Windows core prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md) imports
 327 unchanged files (29,415,573 bytes) from Linux native source
 `ec9934446911fdf376da8eebcd83e7b137efbb7c`. The concrete benefit under evaluation

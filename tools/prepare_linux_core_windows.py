@@ -301,11 +301,29 @@ def gb10_prefill_projection_overlay(text):
         "      if (selected == heuristics.begin() + impl_->heuristic_count) {",
         "      if (selected == heuristics.begin() + impl_->heuristic_count) {\n"
         "        if (impl_->gb10_prefill) {\n"
+        "          if (right_operand_is_transposed && aima_port::gb10_prefill_projection_tuned_gemm_enabled(n, k))\n"
+        "            throw std::runtime_error(\"Tuned GEMM shape has no supported algorithm\");\n"
         "          impl_->gb10_wmma = true;\n"
         '          std::fprintf(stderr, "GB10_PREFILL_WMMA m=%zu n=%zu k=%zu transposed=%u\\n",\n'
         "              m, n, k, unsigned(right_operand_is_transposed));\n"
         "          return;\n"
         "        }")
+    text = replace(text, "      const auto selected = std::find_if(",
+                   "      auto selected = std::find_if(")
+    text = replace(text, "      impl_->algorithm = selected->algo;",
+        """      if (impl_->gb10_prefill && right_operand_is_transposed &&
+          aima_port::gb10_prefill_projection_tuned_gemm_enabled(n, k)) {
+        if (impl_->heuristic_count <= 4 ||
+            heuristics[4].state != HIPBLAS_STATUS_SUCCESS ||
+            heuristics[4].workspaceSize != 0 ||
+            !aima_port::gb10_prefill_gemm_algorithm_matches(
+                &heuristics[4].algo, sizeof(heuristics[4].algo), impl_->library_version))
+          throw std::runtime_error("Pinned tuned GEMM algorithm identity changed");
+        selected = heuristics.begin() + 4;
+        std::fprintf(stderr, "{\\\"event\\\":\\\"prefill_gemm_choice\\\",\\\"m\\\":%zu,\\\"n\\\":%zu,\\\"k\\\":%zu,"
+            "\\\"heuristic_index\\\":4,\\\"solution\\\":5651,\\\"workspace\\\":0,\\\"library_version\\\":100100}\\n", m, n, k);
+      }
+      impl_->algorithm = selected->algo;""")
     for name in ("c", "d"):
         text = replace(text,
             f"hipblasLtMatrixLayoutCreate(&impl_->{name}_layout, HIP_R_16BF,",

@@ -142,7 +142,27 @@ and guard corruptions test the observer. Completed steady host timing includes
 stream drains. This is a
 component probe; an algorithm change still requires the full real-model GB10
 boundary and load/TTFT accounting. The diagnostic adds no runtime dependency
-or package artifact, and its revised native run is pending.
+or package artifact. Source25ea284 completes all27 candidates (nine per shape).
+Complete CPU input controls pass; no output exceeds the selector radius and
+all inputs/guards remain unchanged. Raw FP32 differences are retained, with
+maximum absolute error4.08291817e-6 at K2048 and7.86781311e-6 at K4096.
+Heuristic4/solution5651 is fastest in all three shapes: median11.7862 versus
+49.373ms for N8192/K2048,5.0387 versus25.448ms for N4096/K2048 and5.0589
+versus24.5016ms for N2048/K4096. Each timing has three completed host samples;
+these controls are not model performance. A metadata-transfer timeout after
+the completed build was recovered by reusing the exact same binary.
+
+`AIMA_PORT_PREFILL_GEMM_TUNED=1` now prepares an opt-in model trial using
+that candidate on those three contiguous-weight shapes. It verifies library
+version100100, the complete24-byte algorithm identity, heuristic ordinal and
+zero workspace requirement before READY. Changed identities fail closed.
+WMMA overrides must be disabled; actual projection profiles identify the
+selected producer. Existing exact replay, input/linear bounds, nine coarse
+full OUTs and terminal pruning remain. No artifact or allocation is added.
+ASan/UBSan checks cover the three shapes, excluded shapes and all24 one-byte
+algorithm mutations alongside existing compaction/scope contracts. Full model
+q8192/out512 qualification is pending.
+[Native algorithm sweep and model preparation](../benchmarks/correctness/linux-core-gemm-algorithms-and-product-preparation-20260922.json).
 
 The preceding complete decode-MoE repair (`5585977`) runs the real model on
 baiying. All 40 first-decode layer carriers

@@ -20,6 +20,8 @@ bool gb10_prefill_projection_shape(std::size_t tokens, std::size_t rows,
 void gb10_prefill_projection_profile_begin();
 bool gb10_prefill_projection_wmma_enabled(std::size_t reduction);
 bool gb10_prefill_projection_coarse_enabled();
+bool gb10_prefill_projection_tuned_gemm_enabled(std::size_t rows, std::size_t reduction);
+bool gb10_prefill_gemm_algorithm_matches(const void* algorithm, std::size_t bytes, int library_version);
 // Bind the original linear-OUT selector at its actual call site, rather than
 // inferring layer kind from a K4096 shape shared with full attention.
 class Gb10PrefillLinearOutputScope {

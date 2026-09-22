@@ -144,6 +144,23 @@ int main() {
   state.profile.reset();
   assert(fake_live_profile_events == 0);
   assert(!gb10_prefill_projection_wmma_enabled(4096));
+  assert(!gb10_prefill_projection_tuned_gemm_enabled(8192,2048));
+  state.tuned_gemm = true;
+  assert(gb10_prefill_projection_tuned_gemm_enabled(8192,2048));
+  assert(gb10_prefill_projection_tuned_gemm_enabled(4096,2048));
+  assert(gb10_prefill_projection_tuned_gemm_enabled(2048,4096));
+  assert(!gb10_prefill_projection_tuned_gemm_enabled(512,2048));
+  assert(!gb10_prefill_projection_tuned_gemm_enabled(32,2048));
+  assert(!gb10_prefill_projection_tuned_gemm_enabled(2048,512));
+  unsigned char algorithm[24] = {19,22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,0,0,0,0};
+  assert(gb10_prefill_gemm_algorithm_matches(algorithm,24,100100));
+  assert(!gb10_prefill_gemm_algorithm_matches(nullptr,24,100100));
+  assert(!gb10_prefill_gemm_algorithm_matches(algorithm,23,100100));
+  assert(!gb10_prefill_gemm_algorithm_matches(algorithm,24,100101));
+  for(unsigned i=0;i<24;++i) {
+    algorithm[i]^=1;assert(!gb10_prefill_gemm_algorithm_matches(algorithm,24,100100));algorithm[i]^=1;
+  }
+  state.tuned_gemm = false;
   state.wmma = true;
   assert(gb10_prefill_projection_wmma_enabled(2048) && gb10_prefill_projection_wmma_enabled(4096));
   state.wmma_output_only = true;
