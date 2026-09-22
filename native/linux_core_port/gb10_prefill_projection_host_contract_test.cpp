@@ -160,8 +160,35 @@ int main() {
   for(unsigned i=0;i<24;++i) {
     algorithm[i]^=1;assert(!gb10_prefill_gemm_algorithm_matches(algorithm,24,100100));algorithm[i]^=1;
   }
+  unsigned producer_controls = 0;
+  for (unsigned flags = 0; flags < 16; ++flags) {
+    state.tuned_gemm = flags & 1;
+    state.tuned_gemm_input_only = flags & 2;
+    state.wmma = flags & 4;
+    state.wmma_output_only = flags & 8;
+    // Admission is specified independently by the complete configuration set.
+    const bool admitted = flags == 0 || flags == 1 || flags == 3 ||
+        flags == 4 || flags == 8 || flags == 12 || flags == 15;
+    if (!admitted) reject([&]{validate_producers(state);});
+    else {
+      validate_producers(state);
+      if (state.tuned_gemm) {
+        assert(gb10_prefill_projection_tuned_gemm_enabled(8192,2048));
+        assert(gb10_prefill_projection_tuned_gemm_enabled(4096,2048));
+        assert(gb10_prefill_projection_tuned_gemm_enabled(2048,4096) == (flags == 1));
+        assert(!gb10_prefill_projection_tuned_gemm_enabled(512,2048));
+        assert(!gb10_prefill_projection_tuned_gemm_enabled(32,2048));
+        assert(!gb10_prefill_projection_wmma_enabled(2048));
+        assert(gb10_prefill_projection_wmma_enabled(4096) == (flags == 15));
+      }
+    }
+    ++producer_controls;
+  }
+  assert(producer_controls == 16);
   state.tuned_gemm = false;
+  state.tuned_gemm_input_only = false;
   state.wmma = true;
+  state.wmma_output_only = false;
   assert(gb10_prefill_projection_wmma_enabled(2048) && gb10_prefill_projection_wmma_enabled(4096));
   state.wmma_output_only = true;
   assert(!gb10_prefill_projection_wmma_enabled(2048) && gb10_prefill_projection_wmma_enabled(4096));
@@ -231,5 +258,6 @@ int main() {
                "\"linear_output_scoped_layers\":30,\"linear_output_scope_unwind_pass\":true,"
                "\"full_output_scoped_layers\":10,\"full_output_scope_unwind_pass\":true,"
                "\"coarse_interval_exceptional_edges_pass\":true,\"invalid_event_time_reported\":true,"
+               "\"producer_configuration_controls\":16,\"tuned_input_output_scopes_disjoint\":true,"
                "\"gpu_replay_executed\":false}\n";
 }

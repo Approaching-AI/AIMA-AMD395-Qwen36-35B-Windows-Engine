@@ -3,10 +3,10 @@
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
 It is not enabled in the Windows product. The latest qualified source
-`cbe133b` passes the complete cold q8192/out512 correctness boundary on baiying
+`00d34c5` passes the complete cold q8192/out512 correctness boundary on baiying
 with the real model: all512 tokens and callbacks match GB10, with
-first144/logit10.375. Loading is27378.1457ms, diagnostic TTFT23743.2368ms and
-TPOT228.804659ms. The earlier `9447947` run also has all72 second-decode
+first144/logit10.375. Loading is27457.7687ms, diagnostic TTFT23062.2803ms and
+TPOT229.610074ms. The earlier `9447947` run also has all72 second-decode
 comparisons matching in BF16 and a bitwise-exact final normalization.
 Performance, other product shapes, prefix continuation and release remain open.
 
@@ -152,17 +152,36 @@ versus24.5016ms for N2048/K4096. Each timing has three completed host samples;
 these controls are not model performance. A metadata-transfer timeout after
 the completed build was recovered by reusing the exact same binary.
 
-`AIMA_PORT_PREFILL_GEMM_TUNED=1` now prepares an opt-in model trial using
+`AIMA_PORT_PREFILL_GEMM_TUNED=1` enables an opt-in model trial using
 that candidate on those three contiguous-weight shapes. It verifies library
 version100100, the complete24-byte algorithm identity, heuristic ordinal and
 zero workspace requirement before READY. Changed identities fail closed.
-WMMA overrides must be disabled; actual projection profiles identify the
+With all three shapes enabled, WMMA overrides must be disabled; profiles identify the
 selected producer. Existing exact replay, input/linear bounds, nine coarse
 full OUTs and terminal pruning remain. No artifact or allocation is added.
 ASan/UBSan checks cover the three shapes, excluded shapes and all24 one-byte
-algorithm mutations alongside existing compaction/scope contracts. Full model
-q8192/out512 qualification is pending.
+algorithm mutations alongside existing compaction/scope contracts.
 [Native algorithm sweep and model preparation](../benchmarks/correctness/linux-core-gemm-algorithms-and-product-preparation-20260922.json).
+
+The native trial at `558a3e7` builds all60 units and completes q8192/out512,
+with100 actual tuned projections and both terminal activations verified.
+It fails the original GB10 continuation observer:475 outputs differ, starting
+at index4 (220 versus79). First144/logit10.375 and all512 callbacks match
+the actual result. Load28601.6745ms, TTFT20186.3439ms and TPOT224.660759ms
+are rejected performance observations. Of189 projection profiles,51 flag
+invalid HIP event intervals; stage sums remain diagnostic. The qualified
+terminal route remains the correctness baseline.
+
+`AIMA_PORT_PREFILL_GEMM_TUNED_INPUT_ONLY=1` now isolates the two K2048 input
+shapes while restoring the qualified WMMA linear OUT producer. It requires
+tuned selection; combining it with WMMA requires both `AIMA_PORT_PREFILL_WMMA=1`
+and `AIMA_PORT_PREFILL_WMMA_OUTPUT_ONLY=1`, keeping their scopes disjoint.
+The trial expects70 tuned input projections,30 WMMA linear OUTs and nine
+coarse full OUTs. Selector bounds and the full512-token GB10 gate are unchanged.
+All16 producer configurations and180 rejection controls pass ASan/UBSan;
+all327 imported files and17 generated overlays remain unchanged. This is
+preparation, and neither projection family is yet identified as the cause.
+[Failed combined trial and input-only preparation](../benchmarks/correctness/linux-core-tuned-gemm-negative-and-input-preparation-20260923.json).
 
 The preceding complete decode-MoE repair (`5585977`) runs the real model on
 baiying. All 40 first-decode layer carriers

@@ -99,12 +99,19 @@ struct State {
   std::unique_ptr<Profile> profile;
   bool wmma = false, wmma_output_only = false, linear_bound = false, linear_output = false;
   bool coarse_full = false, full_output = false, coarse_produced = false;
-  bool tuned_gemm = false;
+  bool tuned_gemm = false, tuned_gemm_input_only = false;
 };
 State* active = nullptr;
 bool enabled(const char* name) {
   const char* value = std::getenv(name);
   return value && std::strcmp(value, "1") == 0;
+}
+void validate_producers(const State& s) {
+  if (s.tuned_gemm_input_only && !s.tuned_gemm)
+    throw std::invalid_argument("Input-only tuned GEMM requires tuned GEMM selection");
+  if (s.tuned_gemm && (s.wmma || s.wmma_output_only) &&
+      !(s.tuned_gemm_input_only && s.wmma && s.wmma_output_only))
+    throw std::invalid_argument("Tuned GEMM and WMMA require disjoint input/output scopes");
 }
 
 using WmmaBf16 = unsigned short __attribute__((ext_vector_type(16)));
@@ -275,8 +282,8 @@ Gb10PrefillProjectionOwner::Gb10PrefillProjectionOwner() : impl_(std::make_uniqu
   s.linear_bound = enabled("AIMA_PORT_PREFILL_LINEAR_BOUND");
   s.coarse_full = enabled("AIMA_PORT_PREFILL_FULL_COARSE");
   s.tuned_gemm = enabled("AIMA_PORT_PREFILL_GEMM_TUNED");
-  if (s.tuned_gemm && (s.wmma || s.wmma_output_only))
-    throw std::invalid_argument("Tuned GEMM requires WMMA overrides to be disabled");
+  s.tuned_gemm_input_only = enabled("AIMA_PORT_PREFILL_GEMM_TUNED_INPUT_ONLY");
+  validate_producers(s);
   if (s.coarse_full) s.coarse_errors.allocate(std::size_t(max_tokens) * 2048u * sizeof(float));
   active = &s;
 }
@@ -308,7 +315,7 @@ bool gb10_prefill_projection_coarse_enabled() {
 bool gb10_prefill_projection_tuned_gemm_enabled(std::size_t rows, std::size_t reduction) {
   return active && active->tuned_gemm &&
       ((reduction == 2048 && (rows == 8192 || rows == 4096)) ||
-       (reduction == 4096 && rows == 2048));
+       (!active->tuned_gemm_input_only && reduction == 4096 && rows == 2048));
 }
 bool gb10_prefill_gemm_algorithm_matches(const void* algorithm, std::size_t bytes, int version) {
   // Pinned installed 1.0.1 distribution, solution5651 and128MiB preference.

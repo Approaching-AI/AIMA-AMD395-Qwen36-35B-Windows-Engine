@@ -16,6 +16,9 @@ zero algorithm workspace and add no dependency, runtime artifact or device
 allocation. Selection verifies the full algorithm identity and version; the
 product manifest also binds the installed DLL and96 gfx1151/shared data files.
 The scalar exact-replay selector and numerical model gates are unchanged.
+The combined three-shape trial fails475 of512 GB10 tokens and is not retained.
+The input-only follow-up reuses the same candidate for two input shapes and
+restores the existing WMMA linear OUT producer, adding no dependency or storage.
 
 The optional [Windows core prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md) imports
 327 unchanged files (29,415,573 bytes) from Linux native source
