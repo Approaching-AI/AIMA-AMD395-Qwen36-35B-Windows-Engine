@@ -21,8 +21,11 @@ def main():
     stub.write_text(STUB + r'''
 #define __forceinline__ inline
 #define __host__
+#define __launch_bounds__(...)
 inline dim3 gridDim;
 inline unsigned __clz(unsigned v) { return __builtin_clz(v); }
+inline unsigned __popc(unsigned v) { return __builtin_popcount(v); }
+inline unsigned __ballot(bool v) { return unsigned(v); }
 template<class T> T __shfl_xor(T v, unsigned, unsigned) { return v; }
 template<class A,class B,class C> C recording_wmma(A,B,C value) { return value; }
 #define __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32 recording_wmma
@@ -35,6 +38,7 @@ struct FakeProfileEvent { unsigned serial = 0; };
 using hipEvent_t = FakeProfileEvent*;
 inline unsigned fake_live_profile_events = 0, fake_profile_serial = 0;
 inline unsigned fake_profile_sync = 0, fake_count_copies = 0;
+inline bool fake_negative_elapsed = false;
 inline size_t fake_count_host_bytes = 0;
 constexpr int hipMemcpyDeviceToDevice = 2, hipMemcpyDeviceToHost = 3;
 inline int hipEventCreate(hipEvent_t* p) {
@@ -49,7 +53,8 @@ inline int hipEventSynchronize(hipEvent_t p) {
 }
 inline int hipEventElapsedTime(float* ms,hipEvent_t first,hipEvent_t last) {
  assert(first->serial&&last->serial>=first->serial&&last->serial<=fake_profile_sync);
- *ms=float(last->serial-first->serial)*0.25f;return 0;
+ *ms=float(last->serial-first->serial)*0.25f;
+ if(fake_negative_elapsed)*ms=-*ms;return 0;
 }
 inline int hipMemcpyAsync(void* d,const void* s,size_t n,int kind,void* stream) {
  assert(!stream&&kind==hipMemcpyDeviceToDevice&&n==sizeof(unsigned));

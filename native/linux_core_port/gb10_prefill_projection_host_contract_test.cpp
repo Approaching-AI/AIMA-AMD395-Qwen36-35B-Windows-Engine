@@ -3,10 +3,12 @@
 #include <cassert>
 #include <iostream>
 using namespace aima_port;
+unsigned rejected_bindings = 0;
 template<class F> void reject(F fn) {
   bool rejected = false;
   try { fn(); } catch (const std::exception&) { rejected = true; }
   assert(rejected);
+  ++rejected_bindings;
 }
 int main() {
   constexpr unsigned rows = 32, width = 64, groups = rows * width / 16;
@@ -75,6 +77,22 @@ int main() {
                    8, 1, 100000, &count, indices.data());
   assert(count == 1 && indices[0] == 8);
 
+  // Coarse selection uses its own interval, including exceptional envelopes;
+  // dead L2 buffers must not influence admission or overwrite guard cells.
+  std::vector<float> errors(20, 0.f);
+  for (unsigned i = 5; i <= 11; ++i) raw[i] = 1.f;
+  raw[6] = qrt_sm121_exp2::value(0x3f808000);
+  errors[8] = INFINITY; errors[9] = NAN; errors[10] = -1.f; errors[11] = 1.e-6f;
+  std::fill(left.begin(), left.end(), NAN); std::fill(right.begin(), right.end(), NAN);
+  output[4] = output[12] = 0x1234; count = 0;
+  for (unsigned i = 0; i < 16; ++i) {
+    blockIdx = dim3(0); threadIdx = dim3(i);
+    select_and_round(raw.data(), output.data(), left.data(), right.data(), 128,
+        5, 7, 0, &count, indices.data(), errors.data());
+  }
+  assert(count == 4 && indices[0] == 6 && indices[1] == 8 && indices[2] == 9 && indices[3] == 10);
+  assert(output[4] == 0x1234 && output[12] == 0x1234 && output[11] == 0x3f80);
+
   assert(!gb10_prefill_projection_shape(4096, 8192, 2048, false));
   assert(gb10_prefill_projection_shape(8192, 1, 2048, false));
   assert(gb10_prefill_projection_shape(8192, 12352, 4096, false));
@@ -120,11 +138,16 @@ int main() {
   gb10_prefill_projection_finish(original.data(), transposed.data(), output.data(), 8192, 12352, 4096, true, nullptr);
   assert(fake_count_copies == 98 && fake_count_host_bytes == 97 * sizeof(unsigned));
   assert(fake_profile_serial == 302 && !state.profile->inflight && state.profile->ordinal == 2);
+  fake_negative_elapsed = true;
+  assert(state.profile->ms(0, 1) < 0 && state.profile->invalid_intervals == 1);
+  fake_negative_elapsed = false;
   state.profile.reset();
   assert(fake_live_profile_events == 0);
-  assert(!gb10_prefill_projection_wmma_enabled());
+  assert(!gb10_prefill_projection_wmma_enabled(4096));
   state.wmma = true;
-  assert(gb10_prefill_projection_wmma_enabled());
+  assert(gb10_prefill_projection_wmma_enabled(2048) && gb10_prefill_projection_wmma_enabled(4096));
+  state.wmma_output_only = true;
+  assert(!gb10_prefill_projection_wmma_enabled(2048) && gb10_prefill_projection_wmma_enabled(4096));
   { Gb10PrefillLinearOutputScope disabled(8192, 0); assert(!state.linear_output); }
   state.linear_bound = true;
   { Gb10PrefillLinearOutputScope short_shape(1024, 0); assert(!state.linear_output); }
@@ -145,16 +168,51 @@ int main() {
   try { Gb10PrefillLinearOutputScope scope(8192, 0); throw std::runtime_error("scope-unwind"); }
   catch (const std::runtime_error&) {}
   assert(!state.linear_output && scoped_layers == 30);
+  { Gb10PrefillFullOutputScope disabled(8192, 3); assert(!state.full_output); }
+  state.coarse_full = true;
+  state.coarse_errors.allocate(64);
+  assert(!gb10_prefill_projection_coarse_enabled());
+  reject([&]{gb10_prefill_projection_coarse(original.data(), transposed.data(), 8192, 2048, 4096, true, nullptr);});
+  reject([&]{Gb10PrefillFullOutputScope linear_layer(8192, 0);});
+  reject([&]{Gb10PrefillFullOutputScope invalid_layer(8192, 43);});
+  unsigned full_scopes = 0;
+  for (unsigned layer = 3; layer < 40; layer += 4) {
+    { Gb10PrefillFullOutputScope scope(8192, layer);
+      assert(state.full_output && gb10_prefill_projection_coarse_enabled());
+      reject([&]{Gb10PrefillFullOutputScope nested(8192, layer);});
+      reject([&]{Gb10PrefillLinearOutputScope overlapping(8192, 0);});
+      reject([&]{gb10_prefill_projection_buffer(8192, 512, 4096, nullptr);});
+      gb10_prefill_projection_buffer(8192, 2048, 4096, nullptr);
+      reject([&]{gb10_prefill_projection_finish(original.data(), transposed.data(), output.data(), 8192, 2048, 4096, true, nullptr);});
+      reject([&]{gb10_prefill_projection_coarse(original.data(), transposed.data(), 8192, 2048, 4096, false, nullptr);});
+      fake_events.clear();
+      gb10_prefill_projection_coarse(original.data(), transposed.data(), 8192, 2048, 4096, true, nullptr);
+      assert(fake_events.size() == 3 && fake_events[0] == "coarse::eligibility" && fake_events[1] == "coarse::eligibility");
+      assert(fake_events[2].find("coarse::produce<64u, 1u, true, 19u, true>") != std::string::npos);
+      reject([&]{gb10_prefill_projection_coarse(original.data(), transposed.data(), 8192, 2048, 4096, true, nullptr);});
+      gb10_prefill_projection_finish(original.data(), transposed.data(), output.data(), 8192, 2048, 4096, true, nullptr);
+      assert(!state.coarse_produced && std::find(fake_events.begin(), fake_events.end(), "row_l2") == fake_events.end());
+      assert(std::count(fake_events.begin(), fake_events.end(), "replay_selected") == 16);
+      ++full_scopes;
+    }
+    assert(!state.full_output && !gb10_prefill_projection_coarse_enabled());
+  }
+  try { Gb10PrefillFullOutputScope scope(8192, 3); throw std::runtime_error("scope-unwind"); }
+  catch (const std::runtime_error&) {}
+  assert(!state.full_output && full_scopes == 10);
   active = nullptr;
   reject([&]{gb10_prefill_projection_profile_begin();});
   reject([&]{Gb10PrefillLinearOutputScope missing_owner(8192, 0);});
-  assert(!gb10_prefill_projection_wmma_enabled());
+  reject([&]{Gb10PrefillFullOutputScope missing_owner(8192, 3);});
+  assert(!gb10_prefill_projection_wmma_enabled(4096));
   std::cout << "{\"lossless_operand_values\":2048,\"both_weight_layouts_match\":true,"
                "\"full_window_candidates\":1048576,\"window_guards_pass\":true,"
                "\"input_immutable\":true,\"selector_edges_pass\":true,"
-               "\"queued_kernel_order_pass\":true,\"invalid_bindings_rejected\":107,"
+               "\"queued_kernel_order_pass\":true,\"invalid_bindings_rejected\":" << rejected_bindings << ","
                "\"profile_max_windows\":97,\"profile_lifetime_pass\":true,"
                "\"profile_warmup_excluded\":true,\"profile_completed_events_only\":true,"
                "\"linear_output_scoped_layers\":30,\"linear_output_scope_unwind_pass\":true,"
+               "\"full_output_scoped_layers\":10,\"full_output_scope_unwind_pass\":true,"
+               "\"coarse_interval_exceptional_edges_pass\":true,\"invalid_event_time_reported\":true,"
                "\"gpu_replay_executed\":false}\n";
 }

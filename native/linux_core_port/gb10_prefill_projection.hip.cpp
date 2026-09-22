@@ -2,9 +2,11 @@
 #include "gb10_prefill_projection.h"
 #include "../providers/moe_accumulator/sm121_staged_half_projection.h"
 #include "../providers/moe_accumulator/bf16_midpoint_selector.h"
+#include "../providers/moe_accumulator/sm121_coarse_projection_matrix.h"
 #include "../providers/gdn/sm121_q1_math.h"
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -14,6 +16,7 @@ namespace aima_port {
 namespace {
 namespace staged = qrt_sm121_staged_half_projection;
 namespace half = qrt_sm121_scaled_half_products;
+namespace coarse = qrt_sm121_coarse_projection_matrix;
 constexpr unsigned max_tokens = 8192, max_rows = 12352, max_k = 4096;
 constexpr unsigned window_capacity = 1u << 20;
 constexpr unsigned max_windows = (max_tokens * max_rows + window_capacity - 1) / window_capacity;
@@ -41,18 +44,21 @@ struct Profile {
   std::array<Event, 4 + 3 * max_windows> events;
   Device counts;
   std::array<unsigned, max_windows> host_counts{};
-  bool armed = false, inflight = false, fallback = false;
-  unsigned ordinal = 0, rows = 0, width = 0;
+  bool armed = false, inflight = false, fallback = false, coarse_output = false;
+  unsigned ordinal = 0, rows = 0, width = 0, invalid_intervals = 0;
   Profile() { counts.allocate(max_windows * sizeof(unsigned)); }
   void mark(unsigned index) { check(hipEventRecord(events.at(index).value, nullptr)); }
-  float ms(unsigned first, unsigned last) const {
+  float ms(unsigned first, unsigned last) {
     float elapsed = 0;
     check(hipEventElapsedTime(&elapsed, events.at(first).value, events.at(last).value));
+    if (!std::isfinite(elapsed)) throw std::runtime_error("Nonfinite HIP projection elapsed time");
+    if (elapsed < 0) ++invalid_intervals;
     return elapsed;
   }
   void begin(unsigned n, unsigned k) {
     if (inflight) throw std::logic_error("Prefill projection profile already in flight");
-    rows = n; width = k; fallback = false; inflight = true;
+    rows = n; width = k; fallback = false; coarse_output = false;
+    invalid_intervals = 0; inflight = true;
     mark(0);
   }
   void finish(unsigned windows, bool contiguous, unsigned ppb, bool linear_output) {
@@ -67,25 +73,30 @@ struct Profile {
       selection_ms += ms(4 + 3 * i, 5 + 3 * i);
       replay_ms += ms(5 + 3 * i, 6 + 3 * i);
     }
+    const float producer_ms = ms(0, 1), operands_ms = ms(1, 2), norm_ms = ms(2, 3);
+    const float total_ms = ms(0, 3 + 3 * windows);
     std::fprintf(stderr, "{\"event\":\"prefill_projection_profile\",\"ordinal\":%u,"
         "\"tokens\":%u,\"rows\":%u,\"reduction\":%u,\"weight_rows_contiguous\":%s,"
         "\"producer\":\"%s\",\"windows\":%u,\"cells\":%llu,\"candidates\":%llu,"
         "\"bound_ppb\":%u,\"linear_output\":%s,"
+        "\"coarse_output\":%s,\"invalid_elapsed_intervals\":%u,\"timing_valid\":%s,"
         "\"producer_ms\":%.6f,\"operands_ms\":%.6f,\"norm_bound_ms\":%.6f,"
         "\"selection_ms\":%.6f,\"replay_ms\":%.6f,\"total_gpu_ms\":%.6f,"
         "\"completed_gpu_events\":true,\"diagnostic_only\":true}\n",
         ordinal++, max_tokens, rows, width, contiguous ? "true" : "false",
-        fallback ? "wmma-fallback" : "hipblaslt", windows,
+        coarse_output ? "coarse-c64" : (fallback ? "wmma-fallback" : "hipblaslt"), windows,
         static_cast<unsigned long long>(max_tokens) * rows, candidates,
         ppb, linear_output ? "true" : "false",
-        ms(0, 1), ms(1, 2), ms(2, 3), selection_ms, replay_ms, ms(0, 3 + 3 * windows));
+        coarse_output ? "true" : "false", invalid_intervals, invalid_intervals ? "false" : "true",
+        producer_ms, operands_ms, norm_ms, selection_ms, replay_ms, total_ms);
     inflight = false;
   }
 };
 struct State {
-  Device raw, inputs, weights, input_l2, weight_l2, indices, count;
+  Device raw, inputs, weights, input_l2, weight_l2, indices, count, coarse_errors;
   std::unique_ptr<Profile> profile;
-  bool wmma = false, linear_bound = false, linear_output = false;
+  bool wmma = false, wmma_output_only = false, linear_bound = false, linear_output = false;
+  bool coarse_full = false, full_output = false, coarse_produced = false;
 };
 State* active = nullptr;
 bool enabled(const char* name) {
@@ -200,10 +211,16 @@ static __global__ void row_l2(const uint16_t* source, float* output,
 static __global__ void select_and_round(const float* raw, uint16_t* output,
     const float* input_l2, const float* weight_l2, unsigned rows,
     unsigned start, unsigned size, unsigned bound_ppb,
-    unsigned* count, unsigned* indices) {
+    unsigned* count, unsigned* indices, const float* errors = nullptr) {
   const unsigned local = blockIdx.x * blockDim.x + threadIdx.x;
   if (local >= size) return;
   const unsigned index = start + local, row = index % rows, token = index / rows;
+  if (errors) {
+    const float value = raw[index];
+    if (!coarse::bound::certified({value, errors[index]})) indices[atomicAdd(count, 1u)] = index;
+    output[index] = qrt_sm121_q1::bf16(value);
+    return;
+  }
   const float left = input_l2[token], right = weight_l2[row];
   if (left == 0.f || right == 0.f) { output[index] = 0; return; }
   const float value = raw[index];
@@ -232,8 +249,8 @@ static __global__ void replay_selected(const half::Row* inputs,
 State& bound(std::size_t tokens, std::size_t rows, std::size_t reduction, void* stream) {
   if (!active || stream || !gb10_prefill_projection_shape(tokens, rows, reduction, false))
     throw std::invalid_argument("Prefill projection requires its q8192 default-stream owner");
-  if (active->linear_output && (rows != 2048 || reduction != 4096))
-    throw std::invalid_argument("Linear OUT selector requires N2048/K4096");
+  if ((active->linear_output || active->full_output) && (rows != 2048 || reduction != 4096))
+    throw std::invalid_argument("Scoped OUT selector requires N2048/K4096");
   return *active;
 }
 }  // namespace
@@ -251,7 +268,10 @@ Gb10PrefillProjectionOwner::Gb10PrefillProjectionOwner() : impl_(std::make_uniqu
   s.count.allocate(sizeof(unsigned));
   if (enabled("AIMA_PORT_PREFILL_PROJECTION_PROFILE")) s.profile = std::make_unique<Profile>();
   s.wmma = enabled("AIMA_PORT_PREFILL_WMMA");
+  s.wmma_output_only = enabled("AIMA_PORT_PREFILL_WMMA_OUTPUT_ONLY");
   s.linear_bound = enabled("AIMA_PORT_PREFILL_LINEAR_BOUND");
+  s.coarse_full = enabled("AIMA_PORT_PREFILL_FULL_COARSE");
+  if (s.coarse_full) s.coarse_errors.allocate(std::size_t(max_tokens) * 2048u * sizeof(float));
   active = &s;
 }
 Gb10PrefillProjectionOwner::~Gb10PrefillProjectionOwner() {
@@ -273,13 +293,18 @@ void gb10_prefill_projection_profile_begin() {
     profile->ordinal = 0;
   }
 }
-bool gb10_prefill_projection_wmma_enabled() { return active && active->wmma; }
+bool gb10_prefill_projection_wmma_enabled(std::size_t reduction) {
+  return active && active->wmma && (!active->wmma_output_only || reduction == 4096);
+}
+bool gb10_prefill_projection_coarse_enabled() {
+  return active && active->coarse_full && active->full_output;
+}
 Gb10PrefillLinearOutputScope::Gb10PrefillLinearOutputScope(std::size_t tokens, unsigned layer) {
   if (tokens != max_tokens) return;
   if (!active || layer >= 40 || layer % 4 == 3)
     throw std::invalid_argument("Linear OUT scope requires its owner and a linear layer");
   if (!active->linear_bound) return;
-  if (active->linear_output || (active->profile && active->profile->inflight))
+  if (active->linear_output || active->full_output || (active->profile && active->profile->inflight))
     throw std::logic_error("Linear OUT scope cannot nest or interrupt a projection");
   state_ = active;
   active->linear_output = true;
@@ -287,9 +312,23 @@ Gb10PrefillLinearOutputScope::Gb10PrefillLinearOutputScope(std::size_t tokens, u
 Gb10PrefillLinearOutputScope::~Gb10PrefillLinearOutputScope() {
   if (state_ && active == state_) active->linear_output = false;
 }
+Gb10PrefillFullOutputScope::Gb10PrefillFullOutputScope(std::size_t tokens, unsigned layer) {
+  if (tokens != max_tokens) return;
+  if (!active || layer >= 40 || layer % 4 != 3)
+    throw std::invalid_argument("Full OUT scope requires its owner and a full-attention layer");
+  if (!active->coarse_full) return;
+  if (active->linear_output || active->full_output || (active->profile && active->profile->inflight))
+    throw std::logic_error("Full OUT scope cannot nest or interrupt a projection");
+  state_ = active;
+  active->full_output = true;
+}
+Gb10PrefillFullOutputScope::~Gb10PrefillFullOutputScope() {
+  if (state_ && active == state_) active->full_output = false;
+}
 void* gb10_prefill_projection_buffer(std::size_t tokens, std::size_t rows,
     std::size_t reduction, void* stream) {
   auto& s = bound(tokens, rows, reduction, stream);
+  s.coarse_produced = false;
   if (s.profile && s.profile->armed) s.profile->begin(static_cast<unsigned>(rows), static_cast<unsigned>(reduction));
   return s.raw.data;
 }
@@ -306,6 +345,29 @@ void gb10_prefill_projection_fallback(const void* input, const void* weights,
       static_cast<unsigned>(reduction), contiguous);
   check(hipGetLastError());
 }
+void gb10_prefill_projection_coarse(const void* input, const void* weights,
+    std::size_t tokens, std::size_t rows, std::size_t reduction,
+    bool contiguous, void* stream) {
+  auto& s = bound(tokens, rows, reduction, stream);
+  if (!input || !weights || !contiguous || !gb10_prefill_projection_coarse_enabled() ||
+      !s.coarse_errors.data || s.coarse_produced)
+    throw std::invalid_argument("Coarse OUT producer requires its live contiguous full-attention scope");
+  if (s.profile && s.profile->armed) s.profile->coarse_output = true;
+  // These two norm buffers are dead on the coarse route; reuse them as row
+  // eligibility flags. Unsupported rows retain infinite error and full replay.
+  hipLaunchKernelGGL(coarse::eligibility, dim3(2048), dim3(256), 0, nullptr,
+      static_cast<const uint16_t*>(weights), s.weight_l2.as<unsigned>(), 2048u, 4096u);
+  check(hipGetLastError());
+  hipLaunchKernelGGL(coarse::eligibility, dim3(max_tokens), dim3(256), 0, nullptr,
+      static_cast<const uint16_t*>(input), s.input_l2.as<unsigned>(), max_tokens, 4096u);
+  check(hipGetLastError());
+  hipLaunchKernelGGL((coarse::produce<64u, 1u, true, 19u, true>), dim3(16, 512), dim3(256), 0, nullptr,
+      static_cast<const uint16_t*>(weights), static_cast<const uint16_t*>(input),
+      s.weight_l2.as<unsigned>(), s.input_l2.as<unsigned>(), s.raw.as<float>(),
+      s.coarse_errors.as<float>(), 2048u, max_tokens, 4096u);
+  check(hipGetLastError());
+  s.coarse_produced = true;
+}
 void gb10_prefill_projection_finish(const void* input, const void* weights,
     void* output, std::size_t tokens, std::size_t rows, std::size_t reduction,
     bool contiguous, void* stream) {
@@ -314,6 +376,9 @@ void gb10_prefill_projection_finish(const void* input, const void* weights,
     throw std::invalid_argument("Invalid prefill projection input/output binding");
   const unsigned t = static_cast<unsigned>(tokens), n = static_cast<unsigned>(rows),
                  k = static_cast<unsigned>(reduction);
+  const bool coarse_output = gb10_prefill_projection_coarse_enabled();
+  if (coarse_output && !s.coarse_produced)
+    throw std::logic_error("Coarse OUT finish has no completed producer dispatch");
   Profile* profile = s.profile && s.profile->armed ? s.profile.get() : nullptr;
   if (profile) {
     if (!profile->inflight || profile->rows != n || profile->width != k)
@@ -330,16 +395,18 @@ void gb10_prefill_projection_finish(const void* input, const void* weights,
       nullptr, w, s.weights.as<half::Row>(), n, k, contiguous);
   check(hipGetLastError());
   if (profile) profile->mark(2);
-  hipLaunchKernelGGL(row_l2, dim3(t), dim3(256), 0, nullptr, x, s.input_l2.as<float>(), t, k, true);
-  check(hipGetLastError());
-  hipLaunchKernelGGL(row_l2, dim3(n), dim3(256), 0, nullptr, w, s.weight_l2.as<float>(), n, k, contiguous);
-  check(hipGetLastError());
+  if (!coarse_output) {
+    hipLaunchKernelGGL(row_l2, dim3(t), dim3(256), 0, nullptr, x, s.input_l2.as<float>(), t, k, true);
+    check(hipGetLastError());
+    hipLaunchKernelGGL(row_l2, dim3(n), dim3(256), 0, nullptr, w, s.weight_l2.as<float>(), n, k, contiguous);
+    check(hipGetLastError());
+  }
   if (profile) profile->mark(3);
   // The original linear and full-attention OUT selectors use different
   // admission bounds despite having the same N2048/K4096 geometry. An opt-in
   // scope identifies the actual linear call. Unscoped K4096 keeps 10000 ppb.
   // Complete GB10 continuation still qualifies every producer/selector pair.
-  const unsigned ppb = k == 4096 && !s.linear_output ? 10000u : 1000u;
+  const unsigned ppb = coarse_output ? 0u : (k == 4096 && !s.linear_output ? 10000u : 1000u);
   unsigned window = 0;
   for (unsigned start = 0; start < t * n; start += window_capacity) {
     const unsigned size = std::min(window_capacity, t * n - start);
@@ -347,7 +414,8 @@ void gb10_prefill_projection_finish(const void* input, const void* weights,
     check(hipMemsetAsync(s.count.data, 0, sizeof(unsigned), nullptr));
     hipLaunchKernelGGL(select_and_round, dim3((size + 255u) / 256u), dim3(256), 0,
         nullptr, s.raw.as<float>(), y, s.input_l2.as<float>(), s.weight_l2.as<float>(),
-        n, start, size, ppb, s.count.as<unsigned>(), s.indices.as<unsigned>());
+        n, start, size, ppb, s.count.as<unsigned>(), s.indices.as<unsigned>(),
+        coarse_output ? s.coarse_errors.as<float>() : nullptr);
     check(hipGetLastError());
     if (profile) profile->mark(5 + 3 * window);
     hipLaunchKernelGGL(replay_selected, dim3(256), dim3(256), 0,
@@ -362,5 +430,6 @@ void gb10_prefill_projection_finish(const void* input, const void* weights,
     ++window;
   }
   if (profile) profile->finish(window, contiguous, ppb, s.linear_output);
+  s.coarse_produced = false;
 }
 }  // namespace aima_port

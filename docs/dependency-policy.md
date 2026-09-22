@@ -68,6 +68,11 @@ The optional complete WMMA producer reuses the existing fallback kernel;
 the linear OUT scope restores its original1000-ppb selector independently of
 the full-attention10000-ppb selector. Neither adds device storage or artifacts.
 Whole-model GB10 qualification is required for the combined route.
+The optional full-attention OUT C64 interval producer reuses four existing
+arithmetic headers and adds67108864bytes of persistent error storage before
+READY. Eligibility reuses the dead norm-bound buffers. It introduces no DLL,
+table or new external dependency. The existing DPP/compact integer backend
+flags change compiled instructions without changing the arithmetic contract.
 
 The import includes source, generated schedules, AOT GPU images and upstream
 licenses. It reuses Windows HIP, hipBLASLt and the existing CK provider. Python

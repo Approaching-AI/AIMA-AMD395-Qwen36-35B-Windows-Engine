@@ -322,8 +322,11 @@ def gb10_prefill_projection_overlay(text):
         "                 d, impl_->c_layout, d, impl_->d_layout, &impl_->algorithm,",
         "                 destination, impl_->c_layout, destination, impl_->d_layout, &impl_->algorithm,")
     method = replace(method, "  check_blas(hipblasLtMatmul(",
-        "  if (impl_->gb10_wmma || (impl_->gb10_prefill &&\n"
-        "      aima_port::gb10_prefill_projection_wmma_enabled())) {\n"
+        "  if (impl_->gb10_prefill && aima_port::gb10_prefill_projection_coarse_enabled()) {\n"
+        "    aima_port::gb10_prefill_projection_coarse(a, b, impl_->m, impl_->n,\n"
+        "        impl_->k, impl_->right_operand_is_transposed, stream);\n"
+        "  } else if (impl_->gb10_wmma || (impl_->gb10_prefill &&\n"
+        "      aima_port::gb10_prefill_projection_wmma_enabled(impl_->k))) {\n"
         "    aima_port::gb10_prefill_projection_fallback(a, b, impl_->m, impl_->n,\n"
         "        impl_->k, impl_->right_operand_is_transposed, stream);\n"
         "  } else {\n  check_blas(hipblasLtMatmul(")
@@ -730,6 +733,16 @@ def make_overlays(*, rectangular_ck=False, current_text_decode=False,
         "  DynamicLaunchFn dynamic_launch_ = nullptr;")
     prefill = "native/src/native_full_prefill.hip.cpp"
     sources[prefill] = full_prefill_overlay(read(prefill))
+    if gb10_prefill_projections:
+        sources[prefill] = replace(sources[prefill], '#include "aima/native_full_prefill.h"',
+            '#include "aima/native_full_prefill.h"\n#include "gb10_prefill_projection.h"')
+        sources[prefill] = replace(sources[prefill],
+            "  output_plan.launch(gated, output_weight.device_pointer,\n"
+            "                     projected_attention);",
+            "  {\n"
+            "    aima_port::Gb10PrefillFullOutputScope full_out_scope(execution_tokens, options.layer_index);\n"
+            "    output_plan.launch(gated, output_weight.device_pointer, projected_attention);\n"
+            "  }")
     if rectangular_ck:
         sources[header], sources[prefill] = rectangular_ck_overlay(
             sources[header], sources[prefill])
@@ -904,6 +917,7 @@ def main():
     if args.gb10_projections:
         report["optional_adaptations"]["gb10_projections"] = dict(
             decode="existing Windows K16 width-26 SM121 projection arithmetic",
+            windows_integer_lowering="DPP lane reductions and compact canonical normalization; same integer result",
             scope="singleton wvSplitK call sites, including grouped projections",
             embedding_norm="live token IDs select full-vocabulary model inverse-RMS scales",
             embedding_table_bytes=993280, embedding_device_bytes=1026048,
@@ -920,16 +934,25 @@ def main():
             device_scratch_bytes=598360324,
             optional_wmma=dict(environment="AIMA_PORT_PREFILL_WMMA", enabled_value="1",
                 producer="existing M64/N128 ascending-K16 BF16 WMMA; all eligible dense plans",
+                output_only_environment="AIMA_PORT_PREFILL_WMMA_OUTPUT_ONLY",
+                output_only_enabled_value="1", output_only_reduction=4096,
                 additional_device_bytes=0),
             optional_linear_bound=dict(environment="AIMA_PORT_PREFILL_LINEAR_BOUND", enabled_value="1",
                 scope="actual linear output projection call only; ordered synchronous host scope",
                 linear_output_ppb=1000, full_attention_output_ppb=10000,
                 radius=512, exact_replay="unchanged", additional_device_bytes=0),
+            optional_full_coarse=dict(environment="AIMA_PORT_PREFILL_FULL_COARSE", enabled_value="1",
+                scope="actual full-attention output call only; contiguous N2048/K4096",
+                producer="existing C64 vector/domain SM121 interval matrix, one fragment, native coefficient 2^-19",
+                selector="same-BF16 interval endpoints; ineligible rows and ambiguous cells use complete original replay",
+                flags="reuse dead norm-bound buffers", additional_device_bytes=67108864,
+                native_error_bound_universal_proof=False),
             optional_profile=dict(environment="AIMA_PORT_PREFILL_PROJECTION_PROFILE", enabled_value="1",
                 arm="after load and READY; warmup excluded", completed_gpu_events=295,
                 maximum_windows=97, additional_device_count_bytes=388,
                 stages=["producer", "operands", "norm_bound", "selection", "replay"],
                 candidate_reads="one completed bounded count array per projection; never controls arithmetic",
+                invalid_elapsed_intervals="reported without clamping negative HIP intervals; timing_valid=false",
                 timing="diagnostic; event, copy and synchronization overhead included in request"),
             model_qualified=False)
     if args.gb10_normalization:

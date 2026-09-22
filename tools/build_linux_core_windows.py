@@ -127,6 +127,12 @@ def main():
                 "sm121_float_subgroup.h", "sm121_paired_products.h", "sm121_prepared_integer_pairs.h",
                 "sm121_scalar_projection.h", "sm121_scaled_half_products.h", "sm121_scaled_half_projection.h",
                 "sm121_staged_half_projection.h", "sm121_subgroup.h")]
+        if args.gb10_prefill_projections:
+            source_paths += [ROOT / "native/providers/moe_accumulator" / name for name in (
+                "sm121_coarse_projection_matrix.h", "sm121_coarse_projection_bound.h",
+                "sm121_domain_coarse_bound.h", "sm121_wmma_operand_load.h")]
+        if args.gb10_prefill_projections or args.gb10_normalization:
+            source_paths += [ROOT / "native/providers/moe_accumulator/sm121_pv_error_bound.h"]
         if args.gb10_normalization:
             source_paths += [ROOT / "native/providers/gdn" / name for name in (
                 "sm121_q2_gated_math.h", "sm121_mtp_residual.h",
@@ -137,7 +143,7 @@ def main():
                 "long_attention_layout.h", "packed_probability_storage.h")]
             source_paths += [ROOT / "native/providers/moe_accumulator" / name for name in (
                 "sm121_integer_core.h", "sm121_integer_parts.h", "sm121_mantissa_parts.h",
-                "sm121_native_product.h", "sm121_prepared_bf16.h", "sm121_pv_error_bound.h",
+                "sm121_native_product.h", "sm121_prepared_bf16.h",
                 "sm121_pv_final_bound.h", "sm121_strided_pair.h")]
             source_paths += [ROOT / "native/providers/sm121_attention_capacity.h",
                              ROOT / "native/src/qrt_context_limits.h"]
@@ -194,6 +200,9 @@ def main():
             flags.append("-DAIMA_PORT_GB10_GDN=1")
         if args.gb10_projections:
             flags.append("-DAIMA_PORT_GB10_PROJECTIONS=1")
+            # Match the existing Windows SM121 backend's equivalent integer
+            # lane transport and canonical normalization implementation.
+            flags += ["-DQRT_SM121_DPP_REDUCTION=1", "-DQRT_SM121_COMPACT_NORMALIZE=1"]
         if args.gb10_prefill_projections:
             flags.append("-DAIMA_PORT_GB10_PREFILL_PROJECTIONS=1")
         if args.gb10_normalization:

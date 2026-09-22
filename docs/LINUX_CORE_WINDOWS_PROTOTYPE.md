@@ -2,12 +2,13 @@
 
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
-It is not enabled in the Windows product. Source `9447947` passes the complete
-cold q8192/out512 correctness boundary on baiying with the real model: all512
-tokens and callbacks match GB10, with first144/logit10.375. All72 second-decode
-comparisons match in BF16, and final normalization matches bitwise. Loading is
-27601.089ms, diagnostic TTFT31045.7175ms and TPOT239.481255ms. Performance,
-other product shapes, prefix continuation and release remain unqualified.
+It is not enabled in the Windows product. The latest qualified source
+`42c7983` passes the complete cold q8192/out512 correctness boundary on baiying
+with the real model: all512 tokens and callbacks match GB10, with
+first144/logit10.375. Loading is27552.6066ms, diagnostic TTFT26516.5256ms and
+TPOT235.511273ms. The earlier `9447947` run also has all72 second-decode
+comparisons matching in BF16 and a bitwise-exact final normalization.
+Performance, other product shapes, prefix continuation and release remain open.
 
 Source `a56baa9` omits `--gb10-prefill-projections` and uses the imported
 hipBLASLt BF16 dense producer while retaining every other repair. It builds
@@ -36,7 +37,7 @@ alone replay382466673 of671088640 cells and consume8863.161088ms in replay.
 These timings include diagnostic overhead and do not meet performance goals.
 [BF16-only native failure and profiling preparation](../benchmarks/correctness/linux-core-bf16-prefill-native-and-profile-preparation-20260922.json).
 
-The next structural comparison enables `AIMA_PORT_PREFILL_WMMA=1` for the
+Source `42c7983` enables `AIMA_PORT_PREFILL_WMMA=1` for the
 existing M64/N128/K16 matrix producer across all eligible dense projections,
 and `AIMA_PORT_PREFILL_LINEAR_BOUND=1` for the original1000-ppb linear OUT
 selector. The actual linear call site owns that scope; full-attention K4096
@@ -44,8 +45,30 @@ keeps10000ppb. The prior port incorrectly used the full-attention bound for
 both kinds. The512-radius selection and complete exact replay remain.
 ASan/UBSan checks all30 linear layer scopes, exception unwinding, maximum
 profile bounds and107 invalid bindings. Preparation passes with the same
-60 units and no new dependency or allocation. Native qualification is pending.
+60 units and no new dependency or allocation. The native result above lowers
+observed TTFT4693.0508ms. Linear OUT replay drops6384.800812 to1321.111019ms,
+with58490373 candidates. Input-projection producers instead increase from
+2976.078555 to3995.487975ms. Seven short selection aggregates are negative
+HIP elapsed readings; raw values are preserved as diagnostic anomalies.
+The independently measured wall time and unchanged GB10 token gate pass.
 [Completed projection profile and replacement preparation](../benchmarks/correctness/linux-core-prefill-profile-and-wmma-preparation-20260922.json).
+
+The next comparison keeps WMMA only for K4096 OUT
+(`AIMA_PORT_PREFILL_WMMA_OUTPUT_ONLY=1`), uses hipBLASLt for inputs and enables
+`AIMA_PORT_PREFILL_FULL_COARSE=1` at the10 actual full-attention OUT call sites.
+The existing vector/domain C64 producer computes a center and interval;
+ambiguous BF16 endpoints and ineligible rows retain complete original replay.
+It adds67108864bytes of preallocated error scratch, reusing dead norm buffers
+for eligibility. The native coefficient remains2^-19; no universal hardware
+error proof is claimed. Existing Windows DPP integer transport and compact
+canonical normalization are also enabled in the imported SM121 backend.
+Host ASan/UBSan checks30 linear and10 full scopes, interval edges, event
+lifetime and171 invalid bindings. Existing arithmetic checks pass4194304
+normalization cases and the original coarse-bound suite. Native preparation
+preserves327 imports,60 units and72 images, binding419 source inputs. Profiling
+now flags every negative elapsed interval without clamping it. Native GB10
+qualification of this combined route is pending.
+[Native WMMA result and full-OUT preparation](../benchmarks/correctness/linux-core-prefill-wmma-native-and-coarse-preparation-20260922.json).
 
 The preceding complete decode-MoE repair (`5585977`) runs the real model on
 baiying. All 40 first-decode layer carriers
