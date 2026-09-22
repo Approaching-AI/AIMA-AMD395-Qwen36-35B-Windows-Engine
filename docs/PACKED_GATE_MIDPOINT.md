@@ -33,9 +33,15 @@ running with unchanged GB10 outputs, host guards and28800-second deadline.
 Output observations select263291/input471, where the diagnosed state error
 was observed, and263356/input279, which precedes the old output189 failure.
 All three CLI provenance annotations now match the build verified before
-launch; checks reject each stale annotation. Original GB10 tensors at263356
-are being captured independently. Full256k, native retirement, final package,
-protocol matrix, soak and release remain unqualified.
+launch; checks reject each stale annotation. The new original GB10 capture
+now reproduces all 608 outputs and complete first logits, supplying 700 full
+surfaces at each selected position. All 700 shared surfaces at263291 match
+the prior qualified reference bitwise. Input279 at263356 produces8240/22.875.
+The capture freezes the original qualified Inductor reduction configuration
+after two rejected attempts reproduced the earlier reference instability.
+[Reference reproducibility and repair](GB10_REFERENCE_REPRODUCIBILITY.md).
+Full256k, native retirement, final package, protocol matrix, soak and release
+remain unqualified.
 
 The preceding c268 256k run first emits the wrong token at suffix output 124.
 Its earlier numerical cause is a packed B projection at input position263238:

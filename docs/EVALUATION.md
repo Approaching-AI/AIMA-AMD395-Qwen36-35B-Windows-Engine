@@ -18,118 +18,57 @@ normalizes three later reports while preserving their original bytes at the
 recorded repository revision. Run tools/publish_evidence.py before publishing
 new reports and check the result with tools/public_hygiene.py.
 
-## Current measured state — September 22
+## Current measured state — September 23
 
-The [356 native evidence](../benchmarks/correctness/packed-gate-midpoint-products-20260922.json)
-qualifies the packed gate midpoint repair on the original short model gates.
-Native q7169/out32, q8191/out32, q8192/out512 and q8193/out32 match all608
-original outputs, first logits and callbacks. The cold8192+1 bridge still uses
-actual input63 at position8192 and produces220/9.75, followed by31 native
-continuation commits. No ordinary generated-token commits occur in those cases.
+Source `c90feccdfc01661b582c5a1db101f2660dc8642c` replaces the packed gate
+midpoint workaround with32 logical FMA chains. The actual gfx1151 component
+suite passes865 cases,6,664 configurations and7,672,332 elements, including
+all three original gate regressions and both complete histories.
+[Gate diagnosis and repair](PACKED_GATE_MIDPOINT.md).
 
-The ordinary q8192/out512 control passes the original prompt IDs, all512
-outputs and callbacks, and first token144/logit10.375 with zero logit error.
-Load is21517.6512ms; TTFT23272.0441ms and TPOT101.032956ms. These individual
-functional timings do not replace retained medians. TTFT must first fall below
-10000ms. Retained targets remain1506.407263tok/s,4187.415605ms TTFT and
-35.502151ms TPOT; model plus engine loading must remain at most30000ms.
+The whole provider, CLI and prefix probe compile on baiying in120665.79ms.
+All173 inputs and unchanged compiler flags verify. The whole DLL SHA256 is
+`983868b6413fdbe2fd7b0b0cf4cb8ea8d8620542b11995c0a441ba09b07d06de`;
+CLI SHA256 is `bf3d63a693413794c53edf26e37399ab65f0bbc1ea684e02337ac9395d080abc`.
+[Build provenance](../benchmarks/correctness/packed-gate32-build-20260923.json).
 
-Whole provider, CLI and prefix probe build on baiying from
-`35607853eb03487b443ddfed8529b8da5539de86` in121916.409ms. The packed gate
-header is the only changed input among173; compiler flags are unchanged.
-Whole DLL SHA256 starts `81aba6f6`; CLI SHA256 starts `c9195709`.
-[Build provenance](../benchmarks/correctness/packed-gate-midpoint-build-20260922.json).
-All completed builds and short runs pass host checks and process cleanup.
-The preceding c268 server passed54 Rust tests, but server/package qualification
-with the repaired provider remains open. The complete256k rerun is now active.
+Those artifacts pass ordinary q8192/out512 and native-MTP q7169/out32,
+q8191/out32, q8192/out512 and q8193/out32: all1,120 original outputs and live
+callbacks match, with exact first logits. The actual8192+1 cold bridge passes.
+Ordinary q8192 loading is21386.521ms, TTFT23392.4967ms and TPOT101.240904ms.
+Native MTP remains opt-in. These functional timings do not replace retained
+paired measurements. [Original-model controls](../benchmarks/correctness/packed-gate32-products-20260923.json).
 
-The [repaired package preparation](../benchmarks/correctness/packed-gate-midpoint-package-prepared-20260922-r2.json)
-binds the actual356 whole provider and CLI, the existing c268 server and three
-numerical providers. All25 server build inputs are unchanged in356; the server
-keeps its original commit, binary and working checkout. Read-only Windows
-checks verify all six component artifacts and both copies of those25 inputs.
-The initial unrun configuration's server-checkout mismatch is preserved and
-corrected in the bound revision. The535-option profile and34 portable paths
-match the original-model control after the three declared portability changes.
+The complete262144-token owner and both1024-input/512-output suffix requests
+are running with the same artifacts and a28800-second native bound. The
+previous356 run corrected output124 but diverged at output189,2468 versus
+8240. Layer8 gate errors explain its observed recurrent-state difference;
+their connection to the remaining output failure awaits the complete run.
+Owner continuation, timed suffix, restore and negative branches remain open.
 
-All original HTTP, prefix, control-plane,13-case cold and3600-second soak
-workloads are preserved. Preparation rejects five profile faults, three server
-provenance faults,20 missing-evidence cases and12 corrupted historical records;
-two dispatch checks prevent starting behind unfinished host owners. Five
-PowerShell scripts parse on Windows. No archive has been created or tested.
-Revision2 also distinguishes the long owner's execution checkout370 from its
-runtime356. Six admission faults are rejected, and ten generated files reproduce
-byte-for-byte. The first unrun preparation remains preserved; its owner-source
-mix-up would have incorrectly prevented dispatch after cleanup.
+The new [GB10 reference capture](GB10_REFERENCE_REPRODUCIBILITY.md) qualifies
+all608 original outputs, complete first logits and1,400 full selected tensor
+surfaces at263291 and263356. It freezes the original qualified Inductor
+normalization configuration after two rejected captures reproduced the older
+reference instability. Original prompts, oracles and compute sources remain
+unchanged. Reference qualification does not qualify the Windows product.
 
-A separate [Linux core Windows prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md)
-is queued after that owner. Source0a57516 ports the pinned Linux compute core
-while preserving the original GB10 oracle and token/logit requirements. Its
-local OS/COFF/observer controls pass; Windows compilation and model runs are
-unqualified. It does not change the current runtime or release status.
+Real q8192 TTFT must first fall below10000ms, excluding startup. Retained
+targets remain1506.407263tok/s,4187.415605ms TTFT and35.502151ms TPOT; model
+plus engine loading must be at most30000ms. The fastest qualified standalone
+[Linux-core Windows prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md) observation
+is20086.8502ms at21e32349, with all512 original outputs/callbacks and exact
+first logit. It is not product-selected and remains above the required bound.
+Broad attention and projection changes remain necessary.
 
-The [cold-tail implementation and diagnosis](COLD_PREFILL_TAILS.md) describe
-the failed earlier batch route, the real q1 bridge and per-call numeric
-fallback repair. Local bridge checks cover 31 ASan/UBSan cases; numeric checks
-cover 752 cases and three actual old-parser failures. Observer controls reject
-23 short-case and 72 retirement-boundary faults. These tests supplement the
-actual original-model boundaries; native MTP remains opt-in.
-
-The previous [complete 256K owner run](../benchmarks/correctness/retired-reference-mode-prefix256k-20260921.json)
-matches its owner first token and the first 124 suffix outputs, then emits
-8984 instead of 4980 at output index 124. The [qualified original reference](../benchmarks/correctness/gb10-prefix256-step124-reference-20260921.json)
-reproduces all 608 original outputs and full first-logit anchors. At position
-263291, input 471 produces 4980 / 26.625. The
-[completed c268 run](../benchmarks/correctness/single-tail-q1-prefix256k-step124-native-20260921.json)
-reproduces the same512 outputs and the same index124 failure. Native wall is
-22598962.712 ms, exit6; all host checks pass and no process remains. The owner
-first16/24.375 and suffix first248045/5.78125 match. The initial retry reports
-its contract and restoration checks passing; the later owner32, timed512,
-second suffix and negative branches are not reached.
-
-The new operand comparator verifies the actual generated history before each
-comparison. Its old native control matches all 628 available surfaces at
-position 263168 against the new reference, with zero F32-bit or BF16 differences.
-The completed new comparison verifies all1559 native files and compares1257
-surfaces at263290/input257 and263291/input471 with matching actual histories.
-All compared upstream surfaces through layer4 and layer5's current inputs,
-projections and convolution match. The first difference is layer5's incoming
-FP32 recurrent state, confined to head13; the other31 heads match. Its core
-then differs by one/eight BF16 values at the two positions. All30 native
-state owners preserve after263290 exactly as before263291, as does GB10.
-
-The actual GPU recurrence replay separately passes90 original-operand cases
-and180 state layouts:94371840 FP32 state and737280 BF16 core values match
-bitwise, with all guards and cleanup passing in25792.138 ms. Those independent
-operands do not reproduce the earlier native accumulation history.
-
-The bounded layer5 capture now supplies124 consecutive original transitions,
-with all123 state links exact. It reproduces all608 original outputs and full
-first logits; all33,098 files are verified. The first attempt's q7169 control
-failure remains preserved and never changes the oracle.
-[Qualified continuous reference](../benchmarks/correctness/gb10-layer5-recurrent-history-20260921.json),
-[rejected attempt](../benchmarks/correctness/gb10-layer5-history-control-rejection-20260921.json).
-
-The continuous reference and replay localize the earlier cause to the packed
-B projection at263238, layer5/head13: native BF16 `0xbebc` instead of original
-`0xbebd`. The GPU reproduces the error with original operands. Injecting only
-that measured error into offline recurrence reproduces all four captured
-native state endpoints bitwise. Source `3560785` resolves exact BF16 midpoints
-for the32-row packed gate family. It passes37 local controls and actual
-Windows GPU replay:615 cases,4,664 configurations and7,477,772 element
-comparisons, including all7,936 unique original history A/B outputs. The new
-whole provider and same-source CLI also pass all1,120 original outputs and
-callbacks across ordinary q8192 and native q7169/q8191/q8192/q8193, with exact
-first logits. The complete256k continuation is active and still unqualified.
-[Diagnosis and repair scope](PACKED_GATE_MIDPOINT.md).
-
-The three native retirement cases and final portable archive remain open.
-The actual whole DLL, CLI and static-C-core server must be bound together for
-the final 45 protocol, 15 prefix and 55 control-plane requests, the 13 cold
-cases with 1856 outputs, and the complete 3600-second soak. The new preparation
-does not qualify those final-archive results. Earlier package preparations are
-historical. No new release or retained-performance
-acceptance is claimed.
+The [cold-tail repair](COLD_PREFILL_TAILS.md) and existing54 server Rust tests
+retain their source-specific evidence. The final package still needs binding
+to current whole/CLI/server binaries and verification of269 runtime/285
+release files, relocation,45 protocol,15 prefix and55 control-plane requests,
+13 cold cases/1856 outputs, and the3600-second soak. The prepared native-MTP
+q262140/q262142/q262143 retirement cases also remain unrun. Earlier package
+preparations are historical. No new release or retained performance is
+qualified.
 
 ## Historical observations and preparations
 
