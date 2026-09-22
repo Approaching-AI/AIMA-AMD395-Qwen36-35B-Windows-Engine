@@ -3,11 +3,13 @@
 #include "aima/sha256.h"
 #include "aima_port_build_identity.h"
 #include "probe_input.h"
+#include <hip/hip_runtime.h>
 #include <chrono>
 #include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <locale>
+#include <memory>
 #include <sstream>
 #ifdef _WIN32
 #include <windows.h>
@@ -32,6 +34,75 @@ std::string host_name() {
   return name;
 #endif
 }
+
+class Observation {
+ public:
+  Observation(const std::filesystem::path& directory, std::size_t index,
+              std::size_t layer) : directory_(directory), output_index_(index), layer_(layer) {
+    if (!std::filesystem::create_directory(directory_))
+      throw std::runtime_error("Observation directory already exists");
+    manifest_.open(directory_ / "manifest.jsonl", std::ios::binary);
+    if (!manifest_) throw std::runtime_error("Cannot create observation manifest");
+  }
+  void capture(const std::string& name, const void* device, std::uint64_t bytes,
+               const char* dtype) {
+    if (name.empty() || name.find_first_not_of("abcdefghijklmnopqrstuvwxyz0123456789-_") !=
+                            std::string::npos ||
+        device == nullptr || bytes == 0 || bytes > (8ULL << 20) ||
+        bytes > (32ULL << 20) - total_ || count_ >= 128) {
+      throw std::runtime_error("Observation name, pointer or byte extent is invalid");
+    }
+    const auto file = name + ".bin";
+    const auto path = directory_ / file;
+    if (std::filesystem::exists(path)) throw std::runtime_error("Duplicate observation file");
+    std::vector<unsigned char> host(static_cast<std::size_t>(bytes));
+    if (hipDeviceSynchronize() != hipSuccess ||
+        hipMemcpy(host.data(), device, host.size(), hipMemcpyDeviceToHost) != hipSuccess)
+      throw std::runtime_error("Observation device-to-host copy failed");
+    std::ofstream stream(path, std::ios::binary);
+    stream.write(reinterpret_cast<const char*>(host.data()), host.size());
+    stream.close();
+    if (!stream) throw std::runtime_error("Observation write failed");
+    const auto digest = aima::sha256_bytes(host.data(), host.size());
+    manifest_ << "{\"file\":" << aima_port::json_string(file)
+              << ",\"bytes\":" << bytes << ",\"dtype\":" << aima_port::json_string(dtype)
+              << ",\"sha256\":" << aima_port::json_string(digest)
+              << ",\"selected_decode_output_index\":" << output_index_ << ",\"linear_layer\":" << layer_
+              << ",\"output_only\":true}" << std::endl;
+    if (!manifest_) throw std::runtime_error("Observation manifest write failed");
+    total_ += bytes; ++count_;
+  }
+  void bind(aima::NativeResidentRequestOptions& request) {
+    request.decode_layer_observer_output_index = output_index_;
+    request.decode_linear_observer_layer_index = layer_;
+    request.prefill_linear_state_observer = [this](std::size_t layer, const void* conv,
+        std::uint64_t conv_bytes, const void* state, std::uint64_t state_bytes) {
+      if (layer != layer_) return;
+      capture("prefill-conv", conv, conv_bytes, "bf16");
+      capture("prefill-state", state, state_bytes, "f32");
+    };
+    request.decode_layer_observer = [this](std::size_t boundary, const void* row) {
+      if (boundary > 40) throw std::runtime_error("Invalid decode layer boundary");
+      capture("decode-boundary-" + std::to_string(boundary), row, 2048 * 2, "bf16");
+    };
+    auto stage = [this](const char* name, const void* device, std::uint64_t bytes,
+                       aima::DecodeTensorDtype dtype) {
+      const char* type = dtype == aima::DecodeTensorDtype::kBfloat16 ? "bf16" :
+                         dtype == aima::DecodeTensorDtype::kFloat32 ? "f32" :
+                         dtype == aima::DecodeTensorDtype::kInt32 ? "i32" : nullptr;
+      if (type == nullptr || name == nullptr) throw std::runtime_error("Unsupported observation dtype");
+      capture(std::string("decode-linear-") + name, device, bytes, type);
+    };
+    request.decode_linear_layer0_observer = stage;
+    request.decode_layer0_tail_observer = stage;
+  }
+ private:
+  std::filesystem::path directory_;
+  std::ofstream manifest_;
+  std::size_t output_index_, layer_, count_ = 0;
+  std::uint64_t total_ = 0;
+};
+
 int run(const std::vector<std::string>& argv) {
   const auto entered = Clock::now();
   std::cout.imbue(std::locale::classic());
@@ -55,6 +126,14 @@ int run(const std::vector<std::string>& argv) {
   request.max_new_tokens = 512;
   request.temperature = 0.0;
   request.disable_prefix_cache = true;
+  std::unique_ptr<Observation> observation;
+  if (args.count("--observe-directory")) {
+    observation = std::make_unique<Observation>(
+        std::filesystem::absolute(path("--observe-directory")),
+        aima_port::observation_number(args.at("--observe-output-index"), 511),
+        aima_port::observation_number(args.at("--observe-linear-layer"), 39));
+    observation->bind(request);
+  }
   const auto quote = aima_port::json_string;
   const auto prompt_sha = aima::sha256_bytes(request.input_token_ids.data(),
                                              request.input_token_ids.size() * sizeof(std::uint32_t));
@@ -69,7 +148,14 @@ int run(const std::vector<std::string>& argv) {
             << ",\"input_u32_sha256\":" << quote(prompt_sha)
             << ",\"ck_provider_sha256\":" << quote(provider_sha)
             << ",\"vision_image_sha256\":" << quote(vision_sha)
-            << ",\"prompt_tokens\":8192,\"requested_outputs\":512}" << std::endl;
+            << ",\"prompt_tokens\":8192,\"requested_outputs\":512";
+  if (observation) {
+    std::cout << ",\"observation_directory\":" << quote(std::filesystem::absolute(path("--observe-directory")).u8string())
+              << ",\"observation_output_index\":" << args.at("--observe-output-index")
+              << ",\"observation_linear_layer\":" << args.at("--observe-linear-layer")
+              << ",\"observation_output_only\":true,\"diagnostic_timings_only\":true";
+  }
+  std::cout << "}" << std::endl;
   aima::NativeResidentEngineOptions options;
   options.weights.model_dir = model;
   options.weights.native_report = report;

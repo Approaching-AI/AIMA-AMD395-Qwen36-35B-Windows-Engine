@@ -153,3 +153,26 @@ maximum geometry, repeated KV addresses, generic-ABI precedence, absent symbols,
 provider failure and release cleanup. These libraries only record arguments;
 they perform no inference. Native Windows compilation and GB10-attached context
 and prefix runs remain required before selecting this option.
+
+## Output-only decode diagnosis
+
+The probe now optionally accepts `--observe-directory NEW_DIR`,
+`--observe-output-index 1..511` and `--observe-linear-layer L` together, where
+L is one of the model's linear-attention layers. Default requests leave the
+existing callbacks empty. The option preserves q8192/out512 and reads no
+expected token, logit or activation.
+
+The imported engine's existing callbacks expose the selected layer's prefill
+state, its decode attention/MoE stages, all 40 decode layer outputs and final
+normalization at the chosen step. The collector synchronizes and copies only
+device-to-host, records byte extents/dtypes/SHA values, and rejects existing
+directories, duplicate names, invalid paths, more than 128 files or 32 MiB.
+Observation times are explicitly diagnostic. This records an execution; it
+does not repair or qualify the continuation.
+
+`tools/test_linux_core_observation.py --out build/FRESH_DIRECTORY` extracts
+the actual collector into an ASan/UBSan host harness with recording HIP calls.
+It verifies 45 output files byte-for-byte, input immutability, 17 rejection
+controls, and the host I/O/parser contract. Native model comparisons are still
+needed to confirm the observer preserves the original output and locate the
+remaining numerical difference.

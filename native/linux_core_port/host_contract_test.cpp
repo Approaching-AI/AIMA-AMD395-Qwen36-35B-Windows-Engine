@@ -98,6 +98,26 @@ int main(int argc, char** argv) {
     rejects([&] { aima_port::probe_arguments(malformed); });
     malformed = arguments; malformed.pop_back();
     rejects([&] { aima_port::probe_arguments(malformed); });
+    auto observed = arguments;
+    observed.insert(observed.end(), {"--observe-directory", "fresh", "--observe-output-index", "1",
+                                    "--observe-linear-layer", "0"});
+    require(aima_port::probe_arguments(observed).size() == 8, "Observation arguments rejected");
+    observed[13] = "511"; observed[15] = "38";
+    require(aima_port::probe_arguments(observed).size() == 8, "Maximum observation selectors rejected");
+    for (const auto* invalid : {"0", "512", "-1", "+1", "01", "1x", "1.0", "99999999999999999999"}) {
+      malformed = observed; malformed[13] = invalid;
+      rejects([&] { aima_port::probe_arguments(malformed); });
+    }
+    for (const auto* invalid : {"3", "39", "40", "-1", "01", "2x"}) {
+      malformed = observed; malformed[15] = invalid;
+      rejects([&] { aima_port::probe_arguments(malformed); });
+    }
+    malformed = observed; malformed[14] = "--observe-output-index";
+    rejects([&] { aima_port::probe_arguments(malformed); });
+    malformed = arguments; malformed[0] = "--observe-directory";
+    rejects([&] { aima_port::probe_arguments(malformed); });
+    malformed = observed; malformed.resize(14);
+    rejects([&] { aima_port::probe_arguments(malformed); });
     require(aima_port::json_string(std::string("a\"\\\n\0", 5)) == "\"a\\\"\\\\\\u000a\\u0000\"",
             "JSON escaping failed");
     // Only remove the huge logical sparse fixture created by this test.

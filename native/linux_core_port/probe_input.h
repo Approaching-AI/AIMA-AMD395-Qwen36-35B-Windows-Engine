@@ -9,11 +9,24 @@
 #include <vector>
 
 namespace aima_port {
+inline std::size_t observation_number(const std::string& value, std::size_t maximum) {
+  if (value.empty() || value.find_first_not_of("0123456789") != std::string::npos ||
+      value.size() > 3 || (value.size() > 1 && value[0] == '0')) {
+    throw std::invalid_argument("Invalid observation selector");
+  }
+  const auto number = static_cast<std::size_t>(std::stoul(value));
+  if (number > maximum) throw std::invalid_argument("Observation selector exceeds bound");
+  return number;
+}
+
 inline std::map<std::string, std::string> probe_arguments(
     const std::vector<std::string>& arguments) {
   const std::vector<std::string> required = {
       "--model", "--input-u32", "--ck-provider", "--vision-image", "--load-report"};
-  if (arguments.size() != required.size() * 2) {
+  const std::vector<std::string> optional = {
+      "--observe-directory", "--observe-output-index", "--observe-linear-layer"};
+  if (arguments.size() != required.size() * 2 &&
+      arguments.size() != (required.size() + optional.size()) * 2) {
     throw std::invalid_argument(
         "Expected --model DIR --input-u32 FILE --ck-provider DLL "
         "--vision-image HSACO --load-report NEW_FILE; fixed q8192/out512");
@@ -23,10 +36,25 @@ inline std::map<std::string, std::string> probe_arguments(
     const auto& key = arguments[i];
     bool known = false;
     for (const auto& option : required) known = known || option == key;
+    for (const auto& option : optional) known = known || option == key;
     if (!known || arguments[i + 1].empty() ||
         arguments[i + 1].find('\0') != std::string::npos ||
         !result.emplace(key, arguments[i + 1]).second) {
       throw std::invalid_argument("Unknown, empty or repeated argument: " + key);
+    }
+  }
+  for (const auto& option : required) {
+    if (!result.count(option)) throw std::invalid_argument("Missing argument: " + option);
+  }
+  std::size_t optional_count = 0;
+  for (const auto& option : optional) optional_count += result.count(option);
+  if (optional_count != 0 && optional_count != optional.size()) {
+    throw std::invalid_argument("Observation requires directory, output index and linear layer");
+  }
+  if (optional_count) {
+    if (observation_number(result.at("--observe-output-index"), 511) == 0 ||
+        observation_number(result.at("--observe-linear-layer"), 39) % 4 == 3) {
+      throw std::invalid_argument("Observation requires decode output 1..511 and a linear layer");
     }
   }
   return result;
