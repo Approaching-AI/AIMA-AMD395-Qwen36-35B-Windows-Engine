@@ -119,8 +119,23 @@ destroying the variance operand. One additional decode observation exposes
 that next norm. Twelve output-only prefill MoE samples expose the remaining
 prefill boundary. Host checks verify the snapshot after source overwrite,
 launch bindings, newly sampled widths and unchanged earlier overlay modes.
-The repaired native run remains pending.
+The following native run tests this repair.
 [Layer-one diagnosis and preparation](../benchmarks/correctness/linux-core-gb10-cross-layer-preparation-20260922.json).
+
+Source `acced06` completes all57 native compilation units and q8192/out512.
+The observed next-layer input norm now matches all2048 GB10 values. However,
+complete continuation regresses to index2 (220 versus82), with398 differences;
+this remains an unqualified diagnostic path. First144/logit10.3125 is unchanged.
+The new prefill captures show exact layer-zero MoE input normalization and
+residual, followed by874 differences in the final MoE output and463 in the
+rounded layer carrier. The existing reference lacks prefill MoE internals;
+a bounded fresh capture uses unchanged reference sources and frozen tuning,
+adds selected-row observations and must reproduce all1216 original outputs.
+
+Diagnostic load/TTFT/TPOT are25810.6137/28908.8576/67.1387918ms. All host checks
+and cleanup pass, with93 verified observations totaling19296194bytes. No
+performance or release qualification is claimed.
+[Native cross-layer result](../benchmarks/correctness/linux-core-gb10-cross-layer-native-20260922.json).
 
 The latest ordinary Windows q8192 control is 23272.0441 ms TTFT. Structural
 projection and QK alternatives preserved component bits but increased their
