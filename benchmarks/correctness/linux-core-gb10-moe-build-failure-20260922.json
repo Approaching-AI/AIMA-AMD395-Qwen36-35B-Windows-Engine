@@ -1,0 +1,153 @@
+{
+  "schema": "linux-core-gb10-moe-build-failure-v1",
+  "source_commit": "266472f07007c252d858e6019207f59391eb513b",
+  "host": "BAIYING",
+  "command_file": "P:/projects/AIMA-public-linux-core-gb10-moe-20260922-r1/scripts/baiying_linux_core_probe.ps1",
+  "model_path_or_reference": "D:/models/Qwen3.6-35B-A3B",
+  "product_run": false,
+  "output_token_ids": [],
+  "build_completed": false,
+  "compile_units_passed": 57,
+  "failed_command": {
+    "label": "compile-57",
+    "argv": [
+      "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+      "-std=c++17",
+      "-O3",
+      "-DNDEBUG",
+      "--offload-arch=gfx1151",
+      "-DHIP_ENABLE_WARP_SYNC_BUILTINS=1",
+      "-fno-gpu-rdc",
+      "-DNOMINMAX",
+      "-DWIN32_LEAN_AND_MEAN",
+      "-DAIMA_PORT_GB10_CONVOLUTION=1",
+      "-DAIMA_PORT_GB10_GDN=1",
+      "-DAIMA_PORT_GB10_PROJECTIONS=1",
+      "-DAIMA_PORT_GB10_PREFILL_PROJECTIONS=1",
+      "-DAIMA_PORT_GB10_NORMALIZATION=1",
+      "-DAIMA_PORT_GB10_MOE=1",
+      "-I",
+      "P:\\projects\\AIMA-public-linux-core-gb10-moe-20260922-r1\\build\\linux-core-windows-r1\\prepared",
+      "-I",
+      "P:\\projects\\AIMA-public-linux-core-gb10-moe-20260922-r1\\build\\linux-core-windows-r1\\prepared\\overlay\\native\\include",
+      "-I",
+      "P:\\projects\\AIMA-public-linux-core-gb10-moe-20260922-r1\\native\\linux_core_port",
+      "-I",
+      "P:\\projects\\AIMA-public-linux-core-gb10-moe-20260922-r1\\third_party\\aima_linux\\native\\include",
+      "-I",
+      "P:\\projects\\AIMA-public-linux-core-gb10-moe-20260922-r1\\third_party\\aima_linux\\native\\generated",
+      "-c",
+      "P:\\projects\\AIMA-public-linux-core-gb10-moe-20260922-r1\\native\\linux_core_port\\gb10_moe.hip.cpp",
+      "-o",
+      "P:\\projects\\AIMA-public-linux-core-gb10-moe-20260922-r1\\build\\linux-core-windows-r1\\unit-57.obj"
+    ],
+    "timeout_seconds": 180,
+    "exit_code": 1,
+    "timed_out": false,
+    "wall_ms": 811.3963000942022,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "da2a596d45a7c49a4a0d5291949d499f9c7b1011b97bb4fd4b37c92fdab9328b"
+  },
+  "run": {
+    "reason": "completed",
+    "exit_code": 1,
+    "wall_ms": 117053.528,
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "host_checks_pass": true,
+    "after_processes": []
+  },
+  "evidence": {
+    "run-record.json": "7e39e60dae007a05857e850e4137ebe1ab9855534bf55407eff34f1370d19331",
+    "build-provenance.json": "de845f105d77b900fa31f084897df3d732f69ab87113fb2e5cfbc4414a2e09e6",
+    "compile-57.stderr.txt": "da2a596d45a7c49a4a0d5291949d499f9c7b1011b97bb4fd4b37c92fdab9328b",
+    "linux-core-windows-gb10-moe-source-r1.json": "17a28dfbca608cbc74bbcf814a4587e7176850edd45a23559e4d83fe88010bf8"
+  },
+  "diagnosis": "The new translation unit includes SM121 device math before the HIP runtime declares intrinsics and __forceinline__. Add the HIP runtime header before gb10_moe_math.h; arithmetic is unchanged.",
+  "local_contract": {
+    "result": {
+      "conversion_values_checked": 18435,
+      "guard_elements_checked": 768,
+      "carrier_lane_sums_verified": 768,
+      "original_inputs_unchanged": true,
+      "ordered_layer_calls": 40,
+      "terminal_consumed_once": true,
+      "registered_weights_drained": true,
+      "failed_provider_poisoned": true,
+      "invalid_bindings_and_artifacts_rejected": 133,
+      "gpu_reduction_executed": false
+    },
+    "build_command": [
+      "clang++",
+      "-std=c++17",
+      "-O1",
+      "-ffp-contract=off",
+      "-fsanitize=address,undefined",
+      "-I",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-gb10-moe-local-r1/host-r3/stub",
+      "-I",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/include",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_moe_host_contract_test.cpp",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/src/sha256.cpp",
+      "-o",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-gb10-moe-local-r1/host-r3/host-contract"
+    ],
+    "inputs": [
+      {
+        "path": "native/linux_core_port/gb10_moe_host_contract_test.cpp",
+        "sha256": "e338946b3ef7988a7df4750d0badc50701eb5fa28ee762167b4a461c83aa44d5"
+      },
+      {
+        "path": "tools/test_linux_core_moe.py",
+        "sha256": "1047d96753dcf448645891e8bbf5c0c19e6318682aca0619fb983ee815be1672"
+      },
+      {
+        "path": "tools/test_linux_core_gdn.py",
+        "sha256": "7d9d6e05b721f17b4245a9c31f6d78a2d729f7bd251c024e662db91c8d47f517"
+      },
+      {
+        "path": "native/linux_core_port/gb10_moe.hip.cpp",
+        "sha256": "c39330282b67c2d61c86416c2a9f0aac9bd88a58dfb7829d1e65bb5afed8eb45"
+      },
+      {
+        "path": "native/linux_core_port/gb10_moe.h",
+        "sha256": "12c83e491d51eee3ac1fd396c966535797af9d00970902b37f88a6d309b30087"
+      },
+      {
+        "path": "native/linux_core_port/gb10_moe_math.h",
+        "sha256": "159f0626f1474d0ec1a6423b1630a4918069a25e03fbb7b54596eb83732649d9"
+      },
+      {
+        "path": "native/linux_core_port/gb10_moe_assets.inc",
+        "sha256": "5943d3e4960407fe3f173c69e61221627aa083aeceed998b214912a84d96d7fb"
+      },
+      {
+        "path": "native/linux_core_port/gb10_gdn.h",
+        "sha256": "c92de42d8a83324b56356df42295ca2f6f7f113b084a0d8e55772282c8898dd1"
+      },
+      {
+        "path": "native/providers/gdn/sm121_mtp_residual_math.h",
+        "sha256": "778b44d6f983e682409dc64aa50d1548d9dffc047d50012204c2ab135b69ac48"
+      },
+      {
+        "path": "native/providers/gdn/sm121_mtp_math.h",
+        "sha256": "0e58296175341d4ded1b69c5318808246721623b25b15404d00b6074d74ebddf"
+      },
+      {
+        "path": "native/providers/gdn/sm121_q1_math.h",
+        "sha256": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb"
+      }
+    ],
+    "stub_sha256": "3b80971b1997375c16bb70d5baeb6689c838b75a37207c67dcb956f7c19737cd",
+    "host_only": true,
+    "model_inference_acceptance": false
+  },
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

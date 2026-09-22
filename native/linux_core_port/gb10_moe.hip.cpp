@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "gb10_moe.h"
+#include <hip/hip_runtime.h>
 #include "gb10_moe_math.h"
 #include "gb10_gdn.h"
 #include "aima/sha256.h"

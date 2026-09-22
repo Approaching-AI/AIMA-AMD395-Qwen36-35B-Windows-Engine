@@ -178,6 +178,13 @@ mode prepares58 native units,72 images and16 overlays. GPU/model acceptance
 is still pending.
 [MoE replacement preparation](../benchmarks/correctness/linux-core-gb10-moe-preparation-20260922.json).
 
+The first native build of source266472f passes57 units and fails the new MoE
+unit because its math header precedes HIP runtime declarations. The runtime
+header now comes first; the unchanged arithmetic passes the existing host
+contract again. That failed build exits1 in117053.528ms with clean host checks;
+no product invocation or output is recorded. A fresh native build is required.
+[Preserved build failure](../benchmarks/correctness/linux-core-gb10-moe-build-failure-20260922.json).
+
 Diagnostic load/TTFT/TPOT are25810.6137/28908.8576/67.1387918ms. All host checks
 and cleanup pass, with93 verified observations totaling19296194bytes. No
 performance or release qualification is claimed.
