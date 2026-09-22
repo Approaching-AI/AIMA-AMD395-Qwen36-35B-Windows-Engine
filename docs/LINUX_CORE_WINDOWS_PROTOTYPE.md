@@ -110,6 +110,13 @@ execution is still needed to qualify that file set. A non-compiling driver query
 confirms automatic MSVC, Windows SDK and linker discovery. The queued source,
 environment and product boundary remain unchanged.
 
+The subsequent [data graph and symbol review](../benchmarks/correctness/linux-core-windows-data-graph-20260922.json)
+decodes all48 selected MessagePack files, resolves46 lazy sublibraries and
+verifies the defined functions and descriptors for all1061 distinct solution
+kernels and11 extended operations. Every selected file matches its recorded SHA.
+This strengthens the dependency inventory; it executes no kernel and does not
+qualify relocation or the experiment's numerical output.
+
 ## Optional continuation ABI preparation
 
 Later source adds `--windows-rectangular-ck` to the preparation and build tools.

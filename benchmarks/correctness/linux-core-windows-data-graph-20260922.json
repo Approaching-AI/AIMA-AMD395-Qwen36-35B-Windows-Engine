@@ -1,0 +1,1138 @@
+{
+  "kind": "installed_hipblaslt_gfx1151_metadata_and_symbol_inventory",
+  "utc": "2026-09-22T01:07:52.307968+00:00",
+  "command_file": "inspect_hipblaslt_dependency_graph_r1.py",
+  "command_file_sha256": "39f36aeb1db322918b2cfe9fd6fd291f5af0a68806c49706916fb4129e78a052",
+  "installed_inventory_sha256": "065e6d0300c6d9df2ea830ec669c9e7ed36b2df0658a90724683c7aece81f6a8",
+  "metadata_transfer_sha256": "f846d34a1d3cd28a127f4e886f43dd5f86708e00d6d9b7d6f33160b727b36ca1",
+  "code_object_transfer_sha256": "98f0a69671df6aac74478e431a497d26c717c2849b2608d003e2ad4ac366b078",
+  "packages": [
+    {
+      "name": "msgpack",
+      "version": "1.2.1",
+      "source_files": [
+        {
+          "name": "__init__.py",
+          "bytes": 1109,
+          "sha256": "5479c248988782292b5ee489289f7823afadc74fc67cf32c6b5f813afe5cb6e5"
+        },
+        {
+          "name": "_cmsgpack.cpython-312-darwin.so",
+          "bytes": 218480,
+          "sha256": "4f0dffcf64e392e5e7e55445bb188b4e24f5bf37d6b0d04f8dc534b394c25644"
+        },
+        {
+          "name": "exceptions.py",
+          "bytes": 1081,
+          "sha256": "7424d67a2f1da64accb100dc8d093be004e5f47b08047d326edf3338f36a3187"
+        },
+        {
+          "name": "ext.py",
+          "bytes": 5731,
+          "sha256": "d23f8e581f9b648c163fed17d87f6e51f908af7ae7e8755dcf5630d0cd4cdf72"
+        },
+        {
+          "name": "fallback.py",
+          "bytes": 32820,
+          "sha256": "8cee6d2e894f16dcfaf58d40f317563bc8c02d2c021cb54da2495862eb1b04dd"
+        }
+      ]
+    },
+    {
+      "name": "zstandard",
+      "version": "0.25.0",
+      "source_files": [
+        {
+          "name": "__init__.py",
+          "bytes": 7235,
+          "sha256": "5dd909e0b60a946a0b08deaf57545d17dc044f5df4040beec55f7ef6c6fecd11"
+        },
+        {
+          "name": "_cffi.cpython-312-darwin.so",
+          "bytes": 884776,
+          "sha256": "fbe8cdb5fcc3674f316cc2c95d5f60f5e67b12866f9b7b2d13758d5edd1ed0aa"
+        },
+        {
+          "name": "backend_c.cpython-312-darwin.so",
+          "bytes": 761456,
+          "sha256": "b5a59cf2ff46dd1fc9e7959ccae934136a4c128c7ab747dfdbfcc16fd1f755b5"
+        },
+        {
+          "name": "backend_cffi.py",
+          "bytes": 152627,
+          "sha256": "0b268ae515d511531f1c6e76068123efb8f725b4f62484aa11e887fadc1975ce"
+        }
+      ]
+    },
+    {
+      "name": "elftools",
+      "version": "0.33",
+      "source_files": [
+        {
+          "name": "__init__.py",
+          "bytes": 267,
+          "sha256": "d8a071e9e68576ceab6ed200c5f4718119f7d61ee0fae337a867b095f1d5c5d9"
+        }
+      ]
+    }
+  ],
+  "metadata_files_decoded": 48,
+  "duplicate_metadata_keys_rejected": true,
+  "lazy_placeholders": 46,
+  "child_libraries": [
+    {
+      "library": "TensileLibrary_BB_BB_HA_Bias_Aux_SAV_UA_Type_BB_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "c3b680625d3ef8ad7c0d960b7622be8ad10d25fb0c2240b77827559557f59595",
+      "code_object_sha256": "eb549ff212833a59a044f1c44635ea984c86db2c027202fc614d65b71cd9d6b6",
+      "solution_count": 51,
+      "distinct_kernel_names": 39,
+      "kernel_names_sha256": "17b46671ef382d5cdc8f5f4bf318b302e67e94d52fc2b017a1abc81b76179f69",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 142423,
+        "decoded_bundle_bytes": 1883840,
+        "decoded_bundle_sha256": "fd03b6d4b945d18238dff355ffe04ef853a2bbc92d0c2b043a884e813f258849",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 1879744,
+        "gpu_image_sha256": "c6f9045b4d7dc1fcec0d812a2770df27b28afa6f1a83d9bd8f204862f6749cf8",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_BB_BB_HA_Bias_Aux_SAV_UA_Type_BB_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "fc17547cbf12590186ab2391c07e457bc40ff88ba79e815bc850b2a43ab30b33",
+      "code_object_sha256": "4138f7c4b05b1be45e81a998ef81ba6434962c933c1eb8346909da49be3ad51d",
+      "solution_count": 73,
+      "distinct_kernel_names": 59,
+      "kernel_names_sha256": "f60247ba31bf4df6ad82a480d84ea2dd2bf9ce959c3f4b82526e10a46941f8b5",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 218260,
+        "decoded_bundle_bytes": 3078032,
+        "decoded_bundle_sha256": "1b1df8aa1c43c98b24f9e372c0bc9c3cf2512960d17ddf4e509904de2452c30b",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 3073936,
+        "gpu_image_sha256": "54ea76693498307e35ae3993b1abd2876ecb486fd70c79d57a582230449bcb02",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_BB_BB_HA_Bias_Aux_SAV_UA_Type_BB_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "66cd2d0383ee69ef110e12002bd2a9600850f9a27e3eb1c8c489dbe9cce9e49b",
+      "code_object_sha256": "3402a1a976dc0c2c1650de3a4b4a74b1852f7ab11984e2668bd443f69550586a",
+      "solution_count": 73,
+      "distinct_kernel_names": 64,
+      "kernel_names_sha256": "6325c7406225c84d1858c775d366ea00f74b213ee88ec4233abfe60a0b84f901",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 256309,
+        "decoded_bundle_bytes": 3128440,
+        "decoded_bundle_sha256": "7f71b9eef74a462bce50e219898a02129f536b4f1163f3db2b62f13b6f8baf7b",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 3124344,
+        "gpu_image_sha256": "2d281a6efc5952e4d6b38a534cf3fd5461fe85bfd46977250cc343b08a33e6b6",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_BB_BB_HA_Bias_Aux_SAV_UA_Type_BB_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "8edd9a2820867be064ac52fb46ca40c4b88be4099c1c3a7f9dbdbc8e93222a09",
+      "code_object_sha256": "0c656025b3f1890eb65593e7c448f97d8810c769bf361345e10eca7271c03249",
+      "solution_count": 64,
+      "distinct_kernel_names": 55,
+      "kernel_names_sha256": "b8007fec242423e87b57ebbb1ff1276f5426ff214b6b44005666e56088e7b52a",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 203168,
+        "decoded_bundle_bytes": 2740008,
+        "decoded_bundle_sha256": "9882d10017fd417224cabb2b21cf8fa6cf0e972108ceed400457ec38b70cbc94",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 2735912,
+        "gpu_image_sha256": "c8c8b5726315361db36415ac5c0578f9f8e0de1508be46c72f7ad488eb3a98ca",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_BB_BB_HA_Bias_SAV_UA_Type_BB_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "32727b9170118f90b098412a2deda983f58d09fe325bc1af9ec8d2bd91f1b6c5",
+      "code_object_sha256": "2285cc84653758fbfce05693ec16785ac279832c58a820dd623d4d4e6081fa7a",
+      "solution_count": 51,
+      "distinct_kernel_names": 39,
+      "kernel_names_sha256": "1074d6d2d40fdd218495e707b5481da56300ad2122464d6cf8fbc404eae8bdb0",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 138482,
+        "decoded_bundle_bytes": 1668768,
+        "decoded_bundle_sha256": "7d516c3a7a758cf092c41e0b0bccd58ccfec4ac5999505eb083904a66079df01",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 1664672,
+        "gpu_image_sha256": "a6185a0e4111fc7d26e4fb3a5f5a6afcc3263cd4a1dd3bc3b782017411af423d",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_BB_BB_HA_Bias_SAV_UA_Type_BB_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "48572d8597f1b3ab098ace92d4f7cb5a9014a4cd9f0e482913d3e73230d7a791",
+      "code_object_sha256": "10b3f18b5df294cf55fae367d9d7c973fb64593325201948376c4374a1a668dd",
+      "solution_count": 73,
+      "distinct_kernel_names": 59,
+      "kernel_names_sha256": "beedec6c0c30d8bcb93ca9577ff1db1ce9a14277c3a220092da4758e507993cd",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 210862,
+        "decoded_bundle_bytes": 2638312,
+        "decoded_bundle_sha256": "371e8673c5b11099b20f59eec7349ea5947315a55689a467c43197c6af39682c",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 2634216,
+        "gpu_image_sha256": "83d7bae04ef1837754d564a7d811bcb0a23d6e8595f0b9bd73fbea6a424fb16a",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_BB_BB_HA_Bias_SAV_UA_Type_BB_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "e8381d88485b593ef327af4f621a69494bb4039d5eb108c8ec89c3ca6207a28a",
+      "code_object_sha256": "c3ec9a2d821bfbfe867fc5b6d5700eab98aa1090e8bd9dbf8c8d313d2698d398",
+      "solution_count": 73,
+      "distinct_kernel_names": 64,
+      "kernel_names_sha256": "73529d7ad88a5643656b800617603c3f6e68ef01ffb77911bb35e5625d2652df",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 248159,
+        "decoded_bundle_bytes": 2685120,
+        "decoded_bundle_sha256": "79194fac358adcea25def5759b61b82b71bbb2bd5dab2b1853d1a8ab74924a2c",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 2681024,
+        "gpu_image_sha256": "9a64190ba91b0561b398f904ca655f981d42d27a84799b2058348b5ac933aca2",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_BB_BB_HA_Bias_SAV_UA_Type_BB_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "44dfa229a9919d672232c619f41aaed91520cea8b08e66855a2624d663ab573a",
+      "code_object_sha256": "8071d9655e82598441055021c68d8d3d6595a3c9a09f19e819dfb597adf8d119",
+      "solution_count": 64,
+      "distinct_kernel_names": 55,
+      "kernel_names_sha256": "2ba54deee41625c999b3d1b37e4f76d1569bb9761b1e18fa9691e75befe63860",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 195284,
+        "decoded_bundle_bytes": 2287776,
+        "decoded_bundle_sha256": "c6f227687707379f6aa8489fdd5a5a7be336653ec6ef8d342291c78f03bcd4bf",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 2283680,
+        "gpu_image_sha256": "726ce05487459f6d1fa687b53acd250f500654d19ed058f41943dba2660a6487",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_BB_SB_HA_Bias_SAV_UA_Type_BS_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "5b211e4c9ff1abb804b85bcd4a6416d2bf1f31033123d54bd140db6b5205f8b1",
+      "code_object_sha256": "3d8a87eb576d72d7a937d16b72a60201cd3fae604fdb184cda3d4ec97374d97c",
+      "solution_count": 6,
+      "distinct_kernel_names": 6,
+      "kernel_names_sha256": "dd2a95c7a35cd77fedbbed0308f8a172e01e7684cd70effb84c1a42373470cda",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 39330,
+        "decoded_bundle_bytes": 287280,
+        "decoded_bundle_sha256": "a265015282bd154b51afd029d40dd8098571e1a406b5c5863a7c6e59e4142371",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 283184,
+        "gpu_image_sha256": "e57cf8d5b44532da973eac430c7e4040f6f00ba53a9505ca54b91c15bf0d2bd5",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_BB_SB_HA_Bias_SAV_UA_Type_BS_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "3f84a6e23289d15a6d2eae1d15b50eff6cfbd3d8298c95bdc479e7c64fc9fa8b",
+      "code_object_sha256": "e6b954575961948299d4d0ea0b23f2ef799ccf3495b6a90cdbcfd407b2976ec8",
+      "solution_count": 6,
+      "distinct_kernel_names": 6,
+      "kernel_names_sha256": "7f069f1811c869ec8d6012a4f6e968d8441571418dcc48aa928f6cc7cca8b4e7",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 45976,
+        "decoded_bundle_bytes": 301864,
+        "decoded_bundle_sha256": "2b390578694c2076a48e5c4fc7c8d6b3229a1ab8214b635c6a3f8d8c423f9210",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 297768,
+        "gpu_image_sha256": "12b524fc9e104ac235dd828334368ec5425b51fb8400344381bbf7b522444382",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_BB_SB_HA_Bias_SAV_UA_Type_BS_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "3ceb9e63ec82bba86b8b8f24c635e7775e82681b232770e0d11132af4c3be8dc",
+      "code_object_sha256": "3458b5854edcf738ab683712a9cd25c06123770eaaf9b57f387f44deb23d8908",
+      "solution_count": 5,
+      "distinct_kernel_names": 5,
+      "kernel_names_sha256": "5b6995f63cdf6de228b9588004ed4fe3bc0f630c558e76bdd1246090321efb29",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 39166,
+        "decoded_bundle_bytes": 214800,
+        "decoded_bundle_sha256": "bbea99783283fe0e1e9362d751af21a3d276e01a546076944d2f2947b94bb93e",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 210704,
+        "gpu_image_sha256": "38d0b25bea1f680c4439b470a868906ee7d7c59a5654ca9a45afc80126f11cc4",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_BB_SB_HA_Bias_SAV_UA_Type_BS_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "4abae2daf230ea2b54c80166cb3a7b5ef68fe896baec13acdb7a29c58ab12235",
+      "code_object_sha256": "68d2dfe518d05db847ee95ab3d76b81aa849ab8bcaa5ee2deb30b1873ffed979",
+      "solution_count": 5,
+      "distinct_kernel_names": 5,
+      "kernel_names_sha256": "f259bfea0828ad30107b3374e7d60df63bde39454f3c72135838cf79633e111b",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 31283,
+        "decoded_bundle_bytes": 178152,
+        "decoded_bundle_sha256": "6624399d30fe5f56be0dd97942a2e9091b325dfaffac243d13bc63d75f92a9bc",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 174056,
+        "gpu_image_sha256": "80ecc6b4a7328c3f766020c9a751612ee74785a115687c532ea698bdf91f20f8",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_BB_SB_HA_Bias_Type_BS_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "ea2756dd3109ef1f0e8c5755f15566c141766f36befd993bf7294da95734dbb3",
+      "code_object_sha256": "66832b261775636a3b85a603e43e7634a07ce38ee1559b3c27807756976dd368",
+      "solution_count": 4,
+      "distinct_kernel_names": 4,
+      "kernel_names_sha256": "c6af2345ad0b932a381810868a2f56154ae57985bf120dc4cefd8f526b3b1fd4",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 18384,
+        "decoded_bundle_bytes": 145320,
+        "decoded_bundle_sha256": "0c9cce6ae6d206e4e1928d76f73657a7a4406f5324351a2ec7c7a007c42687d6",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 141224,
+        "gpu_image_sha256": "96107ff89195f468e753b0b809b687b2c097af7b3a864cdfd272c3a214c61385",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_BB_SB_HA_Bias_Type_BS_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "785a151954d111c6dde15478ce1be5628458ac01239eff2c026275690f90ba98",
+      "code_object_sha256": "2a086d1272cfb19ac2cc3dc29a4f6b2e554c4fa05c60e592cfbba698e03b3213",
+      "solution_count": 4,
+      "distinct_kernel_names": 4,
+      "kernel_names_sha256": "e9ab3b5e2aca19af1a630cccff44a00ec2878804f54712e1b37d589783fbb9e2",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 16308,
+        "decoded_bundle_bytes": 136584,
+        "decoded_bundle_sha256": "55e9d523cc6eb3eb1c38e689716de029cfa71e51be0783a5dfb9b039bfb68ae8",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 132488,
+        "gpu_image_sha256": "75cc6c3021330a6aee65e9b9d280732cf96b902e9e86097b05e320647f95c61b",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_BB_SB_HA_Bias_Type_BS_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "251b4623dd9c6d120e88f6940d29cc65dbd61f17b9298f738ad1e380bbbfdfb9",
+      "code_object_sha256": "9d93c335a4a2d69dda66d5e579c2da2516c6284a060408393c45e969fcdf159f",
+      "solution_count": 4,
+      "distinct_kernel_names": 4,
+      "kernel_names_sha256": "565735f8954be7a07665139d46fa758eff7d75f2f66a9fff7cd136b7b5ea9003",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 16443,
+        "decoded_bundle_bytes": 124976,
+        "decoded_bundle_sha256": "d655d35da90ff185f7ee2d6799524b163fceb6c66947ccbc5c721b16f1f8143b",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 120880,
+        "gpu_image_sha256": "b89ca7b73fbc4719ecd5eca2a27382218c19cf20086e5e5c217afb144cef8b6e",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_DD_DD_UA_Type_DD_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "3ecd8d11a55bc88d58f069e4d50fe42aea3f8623bc1ed04f21904a292dd20cbe",
+      "code_object_sha256": "1d3682e297e07bec39dd631f290a26736c26e064b31d9292c002808ff6fc83bd",
+      "solution_count": 4,
+      "distinct_kernel_names": 4,
+      "kernel_names_sha256": "47441997771e63c4f5eca87b6b98337f0726b3f08ec1bd81d7d8104119dfe8eb",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 13048,
+        "decoded_bundle_bytes": 84152,
+        "decoded_bundle_sha256": "f516a4916f037c90135e6672389ac416ae7c453190033913723c088f01fa2590",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 80056,
+        "gpu_image_sha256": "02a6987eb52c003cb98ba4107830cbc8f586fe14e0097099e7dbf11c745ead29",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_DD_DD_UA_Type_DD_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "14706cb117143f6708a450113d69984fca24c43cc21219b3a24fbd27ef2a9fc9",
+      "code_object_sha256": "d4a481a6e959ec049578570de2aa1a9395b140a66a18f336262146f8c5ec57fe",
+      "solution_count": 4,
+      "distinct_kernel_names": 4,
+      "kernel_names_sha256": "3e1a235f48557bd31709537ecc59f1d086d031a5a818a70c70ccbf8b7aabdccd",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 12978,
+        "decoded_bundle_bytes": 83992,
+        "decoded_bundle_sha256": "32eff9becd64a47bbebfa004659ad3e8e90ff9199985eab7434ee1f3831f8a77",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 79896,
+        "gpu_image_sha256": "b2610209898bb5d753798bbb3ba479f32bf316abcf24446b044b6da88bf8e295",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_DD_DD_UA_Type_DD_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "c1a6c1f09b3ad9fe65ae4b487b0b8cca16179aa7caf411a26c1bf40141715c1e",
+      "code_object_sha256": "6eb383c98d3fc7e4224ee5340dcb9dd3d03ec16a016bb2c449f2f5304b7324a7",
+      "solution_count": 4,
+      "distinct_kernel_names": 4,
+      "kernel_names_sha256": "707d2251b60329aaff9956c2084270c947797b6de997320920bec6fe1b833962",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 12895,
+        "decoded_bundle_bytes": 84144,
+        "decoded_bundle_sha256": "7845382102601637cc8754a0fa6fb84a1bc2aa86497456e9629aa3804ceba5b2",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 80048,
+        "gpu_image_sha256": "b78e1006d3711f013cdedd7fd981d1f4837a3ff35f2e947de1991105be8b9359",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_DD_DD_UA_Type_DD_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "826ae00a81ee162ddbeb03d1c0776c54690b2de462e989d0930946bdca5cc9e5",
+      "code_object_sha256": "1dcdd794c4d6a2892037bcb543df6b06587ed3f676ce8d6d3f1debb439c4d8eb",
+      "solution_count": 4,
+      "distinct_kernel_names": 4,
+      "kernel_names_sha256": "2052ab6d8d40cd761d356305e8be5bf2faba55728c8a4ac995cc02300108b01a",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 13091,
+        "decoded_bundle_bytes": 84144,
+        "decoded_bundle_sha256": "46d2f42beedbc56ef2db0026b3b5f5828df2923d6f57583aa57c247593828dd9",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 80048,
+        "gpu_image_sha256": "6580989cba720f8d8b5cff65432e803f15769fd5ae9a3e9b5803687b1553e6c1",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_HH_HH_HA_Bias_Aux_SAV_UA_Type_HH_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "5e2590d0702185d14a1831eddca6965eab05894567f20194dc9d64ddb0e39abe",
+      "code_object_sha256": "7ea87c52159bdab23c657ce3593d576d790000a9617922d6519a18464d2a4741",
+      "solution_count": 51,
+      "distinct_kernel_names": 38,
+      "kernel_names_sha256": "7719b0a1f452229768a1dc4dda9a581e8c48347838aadc421d5531c5e2abc0f1",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 137773,
+        "decoded_bundle_bytes": 1606008,
+        "decoded_bundle_sha256": "9de840821824fc8f34ccdef3db7ac22d1d9c59f30a5376e723c6f12f5f3426f9",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 1601912,
+        "gpu_image_sha256": "850998951c6408f9c59f2a0a82e459a14d6bf03ac78a7f07af2803f9e2d49a3d",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_HH_HH_HA_Bias_Aux_SAV_UA_Type_HH_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "3c5cd92502977f0ae343dbb3206892a9621b4377edf296550eadd8222d00abbd",
+      "code_object_sha256": "5c504cb3992ea84bb128da61e48aae83c3278a0ea27d3280340d0b750005efe7",
+      "solution_count": 70,
+      "distinct_kernel_names": 55,
+      "kernel_names_sha256": "4b9b5221589b892e9819dd3a86eb3c301b17ac199122814271a1df8d83e7d70e",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 183511,
+        "decoded_bundle_bytes": 2378112,
+        "decoded_bundle_sha256": "2f59da19f12ccffd0cb2181210d0a625907660140258c932b0c103536346b653",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 2374016,
+        "gpu_image_sha256": "17ed0eddb45d0e41eedb180e062236c27117d2ea1ffa8c7d88585cd7ccbc22dc",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_HH_HH_HA_Bias_Aux_SAV_UA_Type_HH_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "3f8b691cf8484cbd14ab6e248f3057177df150c43d2ad52648a186ecfdc60ec9",
+      "code_object_sha256": "74df8e432b4c496a6ffb21a7ad3749ec3521fe9a844f04c7584935caf95855c5",
+      "solution_count": 82,
+      "distinct_kernel_names": 65,
+      "kernel_names_sha256": "326e3d0a4418b47080f9a724510cd1faccb0fefa6d6b7cd61aca203a646b37c0",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 242948,
+        "decoded_bundle_bytes": 2709840,
+        "decoded_bundle_sha256": "a264dfc859b0fcdcebf39176197ffd515d44f20a4aa0dbd3081f0e79a0491887",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 2705744,
+        "gpu_image_sha256": "758f57fcd4521e07c24ac7b87c14e63daff8287a46c533a8463b7fc0553960d1",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_HH_HH_HA_Bias_Aux_SAV_UA_Type_HH_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "fadb8ae1c14ce48912f8da6fc602ec9d5db4d84c4f42ecdf11bd0d5df302bc43",
+      "code_object_sha256": "1fd2b47e20d2bde3bb6b841bc358753d90f408bf6250c9aa794cac9aeac7ebad",
+      "solution_count": 73,
+      "distinct_kernel_names": 60,
+      "kernel_names_sha256": "58f87590e4bb03b3b6daa586be756a3113d61fc78a8de46fdbdd7d160d21580d",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 213394,
+        "decoded_bundle_bytes": 2467264,
+        "decoded_bundle_sha256": "940495bf7a4c4e4a871c5ca64b40a8353d1c381040da7e9d9993a036e71d8235",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 2463168,
+        "gpu_image_sha256": "71248456c5aa24488fe6e9ec3c301eecf352cc1c6c1e0d8629bf9c98065b01d9",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_HH_HH_HA_Bias_SAV_UA_Type_HH_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "1d86ffe3a383f8c13024cc710d93fa54fef9573b6ae8be12c525e26a06041b0e",
+      "code_object_sha256": "6f132bfccb389e7e4c231feeb8ab5ddfd81b74a46f28d2c2d2ec4719f4267ba0",
+      "solution_count": 51,
+      "distinct_kernel_names": 38,
+      "kernel_names_sha256": "95bffaa38dad013e212ed1f62266aaaf646afdfdf10c955de0d0f334a4005081",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 132741,
+        "decoded_bundle_bytes": 1497376,
+        "decoded_bundle_sha256": "425205471c844433403bfd7b97dfc30a67296e220b4e43d73921cc973d337a51",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 1493280,
+        "gpu_image_sha256": "953e21912c33425dc143c3d903ab2733a80f9a93de406defccc72085d0799643",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_HH_HH_HA_Bias_SAV_UA_Type_HH_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "9d17e13426fb13aa3117025a346e26bdcc33110bf2c905314265eb39b34497fe",
+      "code_object_sha256": "2d0a59f8f871cfea107459dc8a1ffa8e38bd7a7b300e0a87e7f694b5050b0f92",
+      "solution_count": 70,
+      "distinct_kernel_names": 55,
+      "kernel_names_sha256": "03e6d475f5dd82b21a9e5611215c611e440e59842d6afa25da6cc3c93a3ccd7f",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 180049,
+        "decoded_bundle_bytes": 2178560,
+        "decoded_bundle_sha256": "d1d411cd30e8265000b71bae7d8ea8d370f9d1867c596d3f0a636b08a64fc5dd",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 2174464,
+        "gpu_image_sha256": "391058b52b5e87cb15e50bfebcc5ae7910844476908ba7ca915e05cb4ece65a7",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_HH_HH_HA_Bias_SAV_UA_Type_HH_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "fa474c9bd00713d29921b82afe3db04ce18ab6805fbc4c8af80b762eddc2f3e9",
+      "code_object_sha256": "7d31c542a57bb27f1345496ec57bd6ad819109f4ab6152c28881ebe1cf757f4c",
+      "solution_count": 82,
+      "distinct_kernel_names": 65,
+      "kernel_names_sha256": "63a3088e7e39c7653fb7becfd403abe84d63d452e931f3c0b786cb8bade8c6ce",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 234394,
+        "decoded_bundle_bytes": 2481856,
+        "decoded_bundle_sha256": "bd2b454d76b5f6ed0886275ac48166884aad0a46e2905414f9074570d5f18900",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 2477760,
+        "gpu_image_sha256": "91ba99a64a116bd4bdca34915674253e4ef9a4d75c42ecc61ceaa0bca3ee9112",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_HH_HH_HA_Bias_SAV_UA_Type_HH_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "00cfcc7cf77dd2ed36966a7112e58ed94d47e323a09e47b0f2cae4007ba5cd5a",
+      "code_object_sha256": "4688aa42d21d83128070ccc780f0218021ba60625d2156d4b34db8d7c2dced45",
+      "solution_count": 121,
+      "distinct_kernel_names": 102,
+      "kernel_names_sha256": "5c984000dec6e06bb68b0d65aeb369530f59169e141f4df8fa7e7db74cbb2cf5",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 338332,
+        "decoded_bundle_bytes": 4521864,
+        "decoded_bundle_sha256": "8f8991c1c91789f658da2d27036c5120915058768c18bf65806f2ec0ae06b50b",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 4517768,
+        "gpu_image_sha256": "fdfb4f206882bff4e2cd1f94075cab1c4393a2ce5cdf6773474a30e324309200",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_HH_SH_HA_Bias_SAV_UA_Type_HS_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "7dc14d0b5bb0ea5761ac74826c832e520719973275bce392774fcf160d4e345d",
+      "code_object_sha256": "4d8a1abefa8ebeece9b4ab105097237abf51ddca32e81f5933b072e86b8f7293",
+      "solution_count": 7,
+      "distinct_kernel_names": 7,
+      "kernel_names_sha256": "f96d364a8962589177bdc25fd5be349bf3db9c75cd6b9a38099f05a767c3f637",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 53194,
+        "decoded_bundle_bytes": 387432,
+        "decoded_bundle_sha256": "9442fb81fa4724475546f0aa3cf5dbe823133820117b72cb6342feddbcd4293b",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 383336,
+        "gpu_image_sha256": "2dc057e2bbdd01587c66fec206e1411827e1aa2848318dae3ce65634e7fffc32",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_HH_SH_HA_Bias_SAV_UA_Type_HS_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "b89221e465b0c857ba7fab9437b64c9d1c2c49a5eb8d62c9f618ed714d1526cc",
+      "code_object_sha256": "b560a6b3560f777b9156d77d98e056d8204f6ce6520465876e8a0beb453ec383",
+      "solution_count": 6,
+      "distinct_kernel_names": 6,
+      "kernel_names_sha256": "98e532b112eab3216a62eb2b85dc7b8bac2459f2565dced34d226bb39f87d45a",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 45964,
+        "decoded_bundle_bytes": 274544,
+        "decoded_bundle_sha256": "a3fe6f19eeb8183fccd2d5817d3a7a4e84e90dff439ac1166c23da2b03d9681d",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 270448,
+        "gpu_image_sha256": "1f726c85d0e50b79384a66f8a548218545858c1ed230f4400bfe34f311840f58",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_HH_SH_HA_Bias_SAV_UA_Type_HS_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "ac9d92ef47f83e0a5f0666f22f057d1b2079c576790dcd0ac64ffc6bc69bdd92",
+      "code_object_sha256": "fcfcdd4e4efec162b469e4c45e9c847b52cda51d09481be44e1b73977be81a07",
+      "solution_count": 8,
+      "distinct_kernel_names": 8,
+      "kernel_names_sha256": "8a94ce921e2c5fcf570e7dea951c13111df32a5a9b5f21e14dfe6361ae88113f",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 52067,
+        "decoded_bundle_bytes": 360928,
+        "decoded_bundle_sha256": "c5f7d853b4e6370f8df02c470a8c4a4372a4cd23f7dcc3b7c765b87c91225330",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 356832,
+        "gpu_image_sha256": "1992fad87f7f6c6d8631cb9d8bbc65ca5616a529497361180ab92508f4cc0161",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_HH_SH_HA_Bias_SAV_UA_Type_HS_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "ed1e067fa76f3a56b20ddca6f54dfe858af15cdfef29859a63e14b2e36e69bb8",
+      "code_object_sha256": "443333fa10f2b4bd3817c2e3fc358d1c44760dab1c587d325e769bc2b3b8a7f4",
+      "solution_count": 3,
+      "distinct_kernel_names": 3,
+      "kernel_names_sha256": "3f4b34104c201b8222ef8e005416c3be33fa3b8017380c70eb6936421c458d2d",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 27170,
+        "decoded_bundle_bytes": 120704,
+        "decoded_bundle_sha256": "4beefa010b38e14aa99198bfe3f4199807ebf3785c77cc6bec133ab73646b6a2",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 116608,
+        "gpu_image_sha256": "4fb1d1de83c4bab7d4bdd1b8d551429860fee72a771c1d6cf2a84eccb604d771",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_HH_SH_HA_Bias_Type_HS_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "b2564a099cd1c9834d5404cb27ab6c367cc16c52f6b162c8f45371a14d3a08a1",
+      "code_object_sha256": "417a16c048909800d4c643f4f530fdd7cc62984598fbfe5916e9629c1fbb1d3d",
+      "solution_count": 4,
+      "distinct_kernel_names": 4,
+      "kernel_names_sha256": "6c7357f0ca6e05ef39f3a7f065e8797d0d79a0da7ee858ec54b7d1e2d0101513",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 18243,
+        "decoded_bundle_bytes": 145248,
+        "decoded_bundle_sha256": "bf25deda1bb1ade671182315510b19894cd069ce25b49f322a697a5d9b150065",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 141152,
+        "gpu_image_sha256": "adca64ee0098423e0c8f8612e17f71830a18941538b7e9055bf3bd50ec24b7bb",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_HH_SH_HA_Bias_Type_HS_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "30b976258e5db7c776c7583692ff67df06ddaa2175ee53ec5d02ff34ff812f40",
+      "code_object_sha256": "481acd79ff86538279945ca6f023ee19890ed963f82da8859fdfec9963deb73e",
+      "solution_count": 4,
+      "distinct_kernel_names": 4,
+      "kernel_names_sha256": "fe3b429ccef3ed8128468494c109a641ca022288c397180fd6137df4a5b26a4e",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 16192,
+        "decoded_bundle_bytes": 136480,
+        "decoded_bundle_sha256": "32f43bf11afddb7ab4302ce8eebdb2bf9774519a56ca3a1b68061874c98f3325",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 132384,
+        "gpu_image_sha256": "fe479f9db43ed24f21dfb75112812bf87d348aa27a20eb8896ca21505ddb467f",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_HH_SH_HA_Bias_Type_HS_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "7433674409bebdea8915c8f1cd0ae342ce3b867e525a752903d6b5a9391b0743",
+      "code_object_sha256": "0bcb06a2cd773cd3972bfcf8566e141f54e7089f6e14628ceda9299e4d395a9d",
+      "solution_count": 4,
+      "distinct_kernel_names": 4,
+      "kernel_names_sha256": "b345a01e5b88f3ca04a077125ede8f9851fccb27c4f077b77009493be8c68f86",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 16262,
+        "decoded_bundle_bytes": 124824,
+        "decoded_bundle_sha256": "1f676062d03e7c58174ffe4b261cc670f7870259aa04c5d5ecad03295ca5a790",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 120728,
+        "gpu_image_sha256": "189c3ca02c78df2d6a89d71d8f7c6187fd75e0258f711cf92e5fea355eb65ac8",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_I8I8_I8I8_HA_SAV_UA_Type_I8I8_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "05f15eb1c20c348c5ed0520793e3ec7b154ddc6089c4ff2c0e072f7d3b07a8bc",
+      "code_object_sha256": "a5f56860e5152b9b049dd81d1c5fb94e9c52ace2f2da8ccc97c46baee2336875",
+      "solution_count": 5,
+      "distinct_kernel_names": 5,
+      "kernel_names_sha256": "a4eb341e4c48f0c824de63b8d51f46ccdecbaabac9e668d435b636b5fe4ed1f1",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 31925,
+        "decoded_bundle_bytes": 193272,
+        "decoded_bundle_sha256": "4bd4bf5c8ddd98759ba5e55889d100bff156b887b1c65eb9168a643f5de62178",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 189176,
+        "gpu_image_sha256": "49ad0aed61bf89e86f0043c55a51d34ab28443a628a6a5db78e118cfd5df1e13",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_I8I8_I8I8_HA_SAV_UA_Type_I8I8_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "0ab9ae8665755d2a33812c90e4a6909869f78168947d6f62b56c83c50fbfee13",
+      "code_object_sha256": "1e22ff3c7a543b54cb5c2a778ae3e7f44cb9cb36487fe030dc358338a1f87d32",
+      "solution_count": 5,
+      "distinct_kernel_names": 5,
+      "kernel_names_sha256": "e2599c2f854d31f9e1083728fa6fc26fb9a6aa24201ddff70db52663ab0b6088",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 36910,
+        "decoded_bundle_bytes": 209176,
+        "decoded_bundle_sha256": "89d44362c0f109b433d6cbf0b41350e6143f74fa45b4c206278c2c23b27d4036",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 205080,
+        "gpu_image_sha256": "49fd59ad0903869c781f33206e6d88bf95c686dcb3adaf3f612a96abd7048b0c",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_I8I8_I8I8_HA_SAV_UA_Type_I8I8_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "1be5989abfc72f7f11470cd8b668f06c9c0337e9ae80ed03164e800add353500",
+      "code_object_sha256": "ac0fbf2dba3f231b658f10363d75ca9a87a5bc84a1ec83692aab81698751b109",
+      "solution_count": 7,
+      "distinct_kernel_names": 7,
+      "kernel_names_sha256": "02a445e589b6a77dc3edcc9da0d2353ad15ad89572ab04fe3f7ce244370db537",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 55061,
+        "decoded_bundle_bytes": 354512,
+        "decoded_bundle_sha256": "f97d0a6162d8695612823bd256272c857c93412a8308e58e838b3c3fb212ffa4",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 350416,
+        "gpu_image_sha256": "8f688c01e390b06168e21b2acb958cce1e498ffd4c340bea2f4645e74c237888",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_I8I8_I8I8_HA_SAV_UA_Type_I8I8_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "739ae557635e3e95d7637b281e82dc76ff464127d8c7e4e3f1294b3d56e216c7",
+      "code_object_sha256": "170e4c7ccb8972c2a21f4b7dd0dc362043feb9d682e23aeec2a22a4312a3175d",
+      "solution_count": 8,
+      "distinct_kernel_names": 8,
+      "kernel_names_sha256": "dd68e370f73fcea1cb00885af797ebb767bfc8a538b9a8c2f0ef107968f13f23",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 38271,
+        "decoded_bundle_bytes": 285480,
+        "decoded_bundle_sha256": "30ae17177958f7d38e068524375a942255b54b8852c91b1a4319ff40450d3872",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 281384,
+        "gpu_image_sha256": "7805ee2391a5e5b7925c8befaeac5640c33eec48040c82b3d9282322dbc923f2",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_I8I8_II8_HA_SAV_UA_Type_I8I_HPA_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "436f950dd9001e720a0674a2b3b6a13b33456d8ee701211b2ba912253ba65653",
+      "code_object_sha256": "8ca8bc86021e8e64a079b8c487a2cf6c27ce0ea5f18d4d1f4bc6b9151c1c888e",
+      "solution_count": 4,
+      "distinct_kernel_names": 4,
+      "kernel_names_sha256": "63969dfb42d5c021d20f2a90cf1e6caf366a25379506b0648dd533871429385a",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 27200,
+        "decoded_bundle_bytes": 148352,
+        "decoded_bundle_sha256": "05c43ca15efb00cbf60cef8d5ee3c750154659317ab0f6c1a10cc1324c260f23",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 144256,
+        "gpu_image_sha256": "a7a843c34073cbcfdd76dfcf4ed887f291f2aa4f4397dc8b01e1e1999d733f2d",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_I8I8_II8_HA_SAV_UA_Type_I8I_HPA_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "9dd035018bc4b19fe9008d7812e4cd48e1a5a0d7b90583186eb82acdb29ebd88",
+      "code_object_sha256": "ed5139a041fb38242c4b85dc218726a8e2d848567fe126a3cf548cc626d10e12",
+      "solution_count": 6,
+      "distinct_kernel_names": 6,
+      "kernel_names_sha256": "9d9a17a8e0ef7e13d4504856897bca4745177b7be262cfb6b9faaa820532aa5f",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 39294,
+        "decoded_bundle_bytes": 242440,
+        "decoded_bundle_sha256": "e6b08a069175d6cb49a1f1078ce52fed4d9de557006724750a420d1483b8128a",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 238344,
+        "gpu_image_sha256": "d911ee3b39956260f627326c61205b795b3445793f1e136319674efc7471d1c8",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_I8I8_II8_HA_SAV_UA_Type_I8I_HPA_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "7577a6a179b628741bd273f5a3142e93e33732da28f8b4d04284dc1881d0780a",
+      "code_object_sha256": "1cfafe2b9d48b0bd3710ff067501dc9f56ff84a3f43bd5d9d1d9cf1081799132",
+      "solution_count": 6,
+      "distinct_kernel_names": 6,
+      "kernel_names_sha256": "efcbd6c0c985031c9377542ad98c1774ca92ff0d535cfab2bdfecf4803665c8b",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 53130,
+        "decoded_bundle_bytes": 305960,
+        "decoded_bundle_sha256": "8c766954a4f78da4840a263446528639075acb58a72e7011ea6746c25989a4f1",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 301864,
+        "gpu_image_sha256": "93fd915c939a4df471c1f819db7d9a64aab14179f377e44ad24e8d26b7a45b5d",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_I8I8_II8_HA_SAV_UA_Type_I8I_HPA_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "e4f45fbcea2e10a24fc78d62512266114da8f46d5560042c27961bf2c1dc85db",
+      "code_object_sha256": "a5cb14b80219f8d8b3e621e1ce412705b5549dae5d116ea6a4e48f1a759c65cc",
+      "solution_count": 6,
+      "distinct_kernel_names": 6,
+      "kernel_names_sha256": "d37c472f2ba355f16226a2bdbd885e0b91dde41d928f6299dc768dfe8e0e0295",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 33687,
+        "decoded_bundle_bytes": 202688,
+        "decoded_bundle_sha256": "ef6801b9303681e736eefbef80589b50797a68f5c42086345d92944e0a3791d5",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 198592,
+        "gpu_image_sha256": "4a669ceff33ab6d3fbd788c0a301e6062f02f523327e0fcb776d033c04cb125c",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_SS_SS_HA_Bias_SAV_UA_Type_SS_Contraction_l_Ailk_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "19945c6e22de1323c12a687a6e271783557342770b8b558f38663d6eca7bd0f8",
+      "code_object_sha256": "41b8b6149d37d9aaff663fa451d7e15bdc18970bdd2ef2e7cfe3dcd2def3484e",
+      "solution_count": 4,
+      "distinct_kernel_names": 4,
+      "kernel_names_sha256": "1442c18a29daa17957d90de68581670834dc9c4d0ef01bdfcd8ae5ce5ef48386",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 15326,
+        "decoded_bundle_bytes": 97496,
+        "decoded_bundle_sha256": "f89e3f690071e650765c84970a89ce1d544dedbfd3ade2ad01a38567b1c2d175",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 93400,
+        "gpu_image_sha256": "981553cb6648402d329a8f9f89a23b80f2f83057f6dd665263cffa2588bbc683",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_SS_SS_HA_Bias_SAV_UA_Type_SS_Contraction_l_Ailk_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "bd2abd906a8fc0e35c8e23b8bb9e666dd3e98cacd7dbcb5af53795f60eb205e0",
+      "code_object_sha256": "315da7980e8a78d7317fbf344abf31dfa28d68009fa7477883edcc96e19b0e48",
+      "solution_count": 4,
+      "distinct_kernel_names": 4,
+      "kernel_names_sha256": "f64605ae82164b17585d59a49f2d35063f64416970f329cf36861f7123f924b0",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 15341,
+        "decoded_bundle_bytes": 97608,
+        "decoded_bundle_sha256": "2f6801d6eda1de842c8f4dcfd80f70f924eefb3a896c8c5e4378c97843790364",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 93512,
+        "gpu_image_sha256": "07dee9af17e394a5870636a660d4a5ec08aa7fd69f556aaf18e207329ec4113d",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_SS_SS_HA_Bias_SAV_UA_Type_SS_Contraction_l_Alik_Bjlk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "f7853a3251b83638252b3af75b041f4e9ee86c154d0a9c8b4f4e3eac5c0b48d1",
+      "code_object_sha256": "051857b318149e0f1ccc3a3b2e129228d50eeb8cb86c14f88b098f03e500a6d5",
+      "solution_count": 4,
+      "distinct_kernel_names": 4,
+      "kernel_names_sha256": "80ac503a87e389d10e2abe0e01bd35b49b25dfc667b3a9452d7d92fd1808225a",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 15407,
+        "decoded_bundle_bytes": 97560,
+        "decoded_bundle_sha256": "5d318f252bcdda8de1eb7297d670bce12e5fbb6b05089903990b6936640aa6a7",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 93464,
+        "gpu_image_sha256": "b6cdd886897d542e88b53302b976eb54be05e72d483567384b801017c557a98b",
+        "opaque_container_checksum_verified": false
+      }
+    },
+    {
+      "library": "TensileLibrary_SS_SS_HA_Bias_SAV_UA_Type_SS_Contraction_l_Alik_Bljk_Cijk_Dijk_gfx1151",
+      "metadata_sha256": "610542e841586357bbdff225458ded41771fafdb14d52fee6ea311b19947e3b5",
+      "code_object_sha256": "5e602a2c280a4fa0128df97687c1472bc6d075c37fed78958609eabf43f77326",
+      "solution_count": 4,
+      "distinct_kernel_names": 4,
+      "kernel_names_sha256": "ee98779e251f9ec158409ea1467a436b624747e3348c3f09f484015e7bba607d",
+      "all_kernel_functions_and_descriptors_defined": true,
+      "container": {
+        "bundle_version": 2,
+        "compression_method": 1,
+        "container_bytes": 15301,
+        "decoded_bundle_bytes": 97456,
+        "decoded_bundle_sha256": "895de8cfcd2ed8e4841dd702d101367db2538d7b72fbb2880d3c13d2e8d06354",
+        "empty_host_target": "host-x86_64-unknown-linux-gnu-",
+        "gpu_target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+        "gpu_image_bytes": 93360,
+        "gpu_image_sha256": "5684baeb3e7b936771f97c9e64c3885bbef63c8785ddac2864256910c5432280",
+        "opaque_container_checksum_verified": false
+      }
+    }
+  ],
+  "nested_unresolved_placeholders": 0,
+  "solution_records": 1271,
+  "distinct_solution_kernel_names": 1061,
+  "zero_sized_function_symbols": 1061,
+  "zero_sized_functions_checked_by_entry_within_executable_section": true,
+  "extended_operations": [
+    {
+      "function": "AMax_Ti_H_To_H_W_256_C_4",
+      "code_object": "extop_gfx1151.co"
+    },
+    {
+      "function": "AMax_Ti_H_To_S_W_256_C_4",
+      "code_object": "extop_gfx1151.co"
+    },
+    {
+      "function": "AMax_Ti_S_To_H_W_256_C_4",
+      "code_object": "extop_gfx1151.co"
+    },
+    {
+      "function": "AMax_Ti_S_To_S_W_256_C_4",
+      "code_object": "extop_gfx1151.co"
+    },
+    {
+      "function": "LayerNorm_DT_S_W_256_C_4_S_0",
+      "code_object": "extop_gfx1151.co"
+    },
+    {
+      "function": "LayerNorm_DT_S_W_256_C_4_S_1",
+      "code_object": "extop_gfx1151.co"
+    },
+    {
+      "function": "Softmax_DT_S_MT_16_16",
+      "code_object": "extop_gfx1151.co"
+    },
+    {
+      "function": "Softmax_DT_S_MT_1_256",
+      "code_object": "extop_gfx1151.co"
+    },
+    {
+      "function": "Softmax_DT_S_MT_2_128",
+      "code_object": "extop_gfx1151.co"
+    },
+    {
+      "function": "Softmax_DT_S_MT_4_64",
+      "code_object": "extop_gfx1151.co"
+    },
+    {
+      "function": "Softmax_DT_S_MT_8_32",
+      "code_object": "extop_gfx1151.co"
+    }
+  ],
+  "common_code_object": {
+    "file": "Kernels.so-000-gfx1151.hsaco",
+    "sha256": "7cd896a541a0944e3f1a0af090b0c84738ffc719fa3064829a72fa62bd666cc2",
+    "bytes": 8966856,
+    "kernel_descriptors": 1030,
+    "all_kernel_functions_and_descriptors_defined": true,
+    "retained_conservatively": true
+  },
+  "selected_runtime_data_files": 96,
+  "selected_runtime_data_bytes": 18849143,
+  "license": {
+    "file": "LICENSE-hipblaslt-Windows-ROCm-7.1.md",
+    "sha256": "b185aaa652b0bf066c37a0d6314ce4bf4521e4a3c9bf46edd2f6a777ac522223",
+    "bytes": 1080
+  },
+  "all_selected_files_hash_verified": true,
+  "all_explicit_metadata_file_references_resolved": true,
+  "all_referenced_kernel_functions_and_descriptors_defined": true,
+  "runtime_dynamic_dependency_closure_qualified": false,
+  "relocated_execution_qualified": false,
+  "native_model_launched": false,
+  "gpu_api_called": false,
+  "queued_experiment_changed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "raw_analysis": {
+    "file": "linux-core-hipblaslt-dependency-graph-20260922-r1.json",
+    "sha256": "26ff31e9270476715f62f133a3e622d47e7710971b79a28e1f7d35953b51fdc3"
+  },
+  "installed_host": "baiying",
+  "controller_host": "Jiawei-MacminideMac-mini.local",
+  "prior_public_inventory": {
+    "file": "linux-core-windows-dependencies-20260922.json",
+    "sha256": "d663589603ebbd5e13e8c4712278e867f240a8da6d5985f451355b586d83fdf2"
+  },
+  "queued_source_commit": "0a57516e8c7c1dba55a077eba9d38b6155a0620e"
+}

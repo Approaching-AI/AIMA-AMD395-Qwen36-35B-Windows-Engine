@@ -26,8 +26,13 @@ The [installed Windows dependency inventory](../benchmarks/correctness/linux-cor
 finds a6,012,312-byte hipBLASLt DLL. Its installed data directory contains1078
 files totaling434,067,673bytes across GPU architectures. The complete96-file
 gfx1151/shared-metadata selection is18,849,143bytes, with every SHA recorded.
-All46 sublibrary names found in the verified lazy index have matching data and
-code-object files. This is a lexical inventory check, not a runtime closure test.
+The later [structured data review](../benchmarks/correctness/linux-core-windows-data-graph-20260922.json)
+decodes all48 MessagePack files and resolves all46 lazy sublibraries without
+another nested placeholder. Their1271 solution entries name1061 distinct
+kernels; every function and64-byte descriptor is defined in its matching
+gfx1151 code object. All11 extended-operation functions/descriptors also exist.
+The common1030-kernel object is retained conservatively. The46 compressed
+containers have empty host entries and only a gfx1151 GPU payload.
 
 DLL plus selected data would add24,861,455bytes before the executable, existing
 HIP/driver requirements, Microsoft CRT and redistribution notices. COFF imports
@@ -35,6 +40,14 @@ explicitly include amdhip64_7, MSVCP140 and VCRUNTIME140/140_1, plus Windows API
 libraries. The actual relocated process must establish the complete runtime
 dependencies before that selection is packaged. No installed files or queued
 experiment settings have been changed by this inspection.
+
+The installed hipBLASLt MIT notice is1080bytes, SHA256
+`b185aaa652b0bf066c37a0d6314ce4bf4521e4a3c9bf46edd2f6a777ac522223`;
+it must accompany any redistribution. The structured review reused cached
+MessagePack, Zstandard and ELF parsers on the controller. They are evidence
+tools only and add no Windows runtime dependency. Resolving explicit file and
+symbol references does not establish the final process's dynamic dependencies
+or relocated execution.
 
 # Experimental packed Q1 normalization table
 
