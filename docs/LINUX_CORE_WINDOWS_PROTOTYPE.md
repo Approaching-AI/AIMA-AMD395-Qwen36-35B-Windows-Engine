@@ -109,10 +109,33 @@ exp2/reciprocal tables and scratch. OUT uses the original SM121 vector kernel;
 MoE uses the pinned provider's dynamic ABI with one logical token. Its FP32
 carrier remains at row8191 for terminal normalization. No dependency, artifact
 or device allocation is added. Cold q8192 text and disabled tensor observers
-are required; full512-token native qualification is pending. Local ASan/UBSan
+are required. Local ASan/UBSan
 checks pass68 attention rejection controls, two ordered40-layer MoE requests,
 the one-row pointer bindings, carrier ownership and135 MoE rejection controls.
 [CK result and terminal preparation](../benchmarks/correctness/linux-core-ck-profile-and-terminal-preparation-20260922.json).
+
+Source `00d34c5` passes native compilation and the complete512-token/callback
+GB10 boundary with first144/logit10.375. Both terminal activation records
+execute, and the projection profile contains189 calls with nine full OUTs.
+Load is27457.7687ms, TTFT23062.2803ms and TPOT229.610074ms. This observation
+is680.9565ms below the preceding uninstrumented CK baseline; no paired-repeat
+estimate is claimed. Final-layer attention falls to136.3701ms and MoE to
+24.6663ms. Projection diagnostics still total9299.884187ms, including
+3807.777714ms producer and4628.0469ms replay, with14 flagged event-timing calls.
+The terminal route is retained for subsequent cold-q8192 experiments; it
+does not qualify prefix, other contexts, the10-second target or release.
+[Complete terminal result](../benchmarks/correctness/linux-core-terminal-prefill-native-20260922.json).
+
+The standalone `linux_core_gemm_algorithms` diagnostic compares up to32
+hipBLASLt heuristics at the actual q8192 N8192/K2048, N4096/K2048 and
+N2048/K4096 shapes. Descriptors and the128MiB workspace limit match the port.
+BF16 inputs use small exact rational values, allowing an independent integer
+reference for every FP32 output, plus unchanged input and guard checks before
+and after repeated launches. Injected output and guard corruptions test the
+observer. Completed steady host timing includes stream drains. This is a
+component probe; an algorithm change still requires the full real-model GB10
+boundary and load/TTFT accounting. The diagnostic adds no runtime dependency
+or package artifact, and its native run is pending.
 
 The preceding complete decode-MoE repair (`5585977`) runs the real model on
 baiying. All 40 first-decode layer carriers

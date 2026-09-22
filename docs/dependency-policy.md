@@ -5,8 +5,10 @@ attention and projection headers, resident K/V, reciprocal/exp2 tables and
 scratch. Its single-row MoE call uses the pinned provider's existing
 `qrt_triton_moe_q8192_launch_full_v4_dynamic_async` export. There is no new
 dependency, packaged artifact or device allocation. The benefit under test
-is removing layer39 output rows with no downstream consumer; native512-token
-GB10 qualification remains required before retaining a runtime gain.
+is removing layer39 output rows with no downstream consumer; source00d34c5
+passes all512 GB10 outputs with a23062.2803ms TTFT observation. The broader
+performance and product gates remain open. The standalone algorithm sweep
+uses this same installed hipBLASLt distribution and is not packaged.
 
 The optional [Windows core prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md) imports
 327 unchanged files (29,415,573 bytes) from Linux native source
