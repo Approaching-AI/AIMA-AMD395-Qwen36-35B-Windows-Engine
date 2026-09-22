@@ -1,0 +1,317 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "kind": "same_input_projection_arithmetic_replay",
+  "position": 8192,
+  "input_token": 144,
+  "reference_capture_sha256": "8cf8705a62a2bd1d8ca6446ef5a2e154e37ad895c740ad9297a93f8d6de0bec4",
+  "reference_transaction": 1,
+  "qualified_row": 0,
+  "reference_input_norm_matches_native": true,
+  "weight_inventory": {
+    "host": "aitopatom-66c4",
+    "command": [
+      "/usr/bin/python3",
+      "<reference-work>/capture_original_core_projection_weights_r1.py"
+    ],
+    "command_file": "<reference-work>/capture_original_core_projection_weights_r1.py",
+    "command_file_sha256": "556cc2418edae719360ebac2c68420da71983b0542b5544c1d24d079c2a435e1",
+    "source_commit": "4a91bbff88a3f9563332c6eacda107c697975d4e",
+    "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+    "config_sha256": "93a4693fa9d8392fbfccd4b3c9873f4bfdcb14fdede978b123d07d19675efe99",
+    "files": [
+      {
+        "layer": 0,
+        "projection": "qkv",
+        "name": "model.language_model.layers.0.linear_attn.in_proj_qkv.weight",
+        "shard": "model-00001-of-00026.safetensors",
+        "shard_file_bytes": 3996199712,
+        "header_sha256": "69c3b8c645af1e7abc1cd7b02224c7e68571e10e2c15d3b638173d42aa407995",
+        "dtype": "BF16",
+        "shape": [
+          8192,
+          2048
+        ],
+        "data_offsets": [
+          1017118720,
+          1050673152
+        ],
+        "absolute_begin": 1017121568,
+        "file": "layer0-qkv-bf16.bin",
+        "bytes": 33554432,
+        "sha256": "b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f"
+      },
+      {
+        "layer": 0,
+        "projection": "z",
+        "name": "model.language_model.layers.0.linear_attn.in_proj_z.weight",
+        "shard": "model-00001-of-00026.safetensors",
+        "shard_file_bytes": 3996199712,
+        "header_sha256": "69c3b8c645af1e7abc1cd7b02224c7e68571e10e2c15d3b638173d42aa407995",
+        "dtype": "BF16",
+        "shape": [
+          4096,
+          2048
+        ],
+        "data_offsets": [
+          1050673152,
+          1067450368
+        ],
+        "absolute_begin": 1050676000,
+        "file": "layer0-z-bf16.bin",
+        "bytes": 16777216,
+        "sha256": "8cc5be8e1a62cc4088f800b3d4cd3ad1892b1ac871b0d5f76aec014b4b14cf16"
+      },
+      {
+        "layer": 0,
+        "projection": "a",
+        "name": "model.language_model.layers.0.linear_attn.in_proj_a.weight",
+        "shard": "model-00002-of-00026.safetensors",
+        "shard_file_bytes": 1284907696,
+        "header_sha256": "88769fdfc34f169920bc4130ef6b601399c05c3a5931a5248a6be39750f208b5",
+        "dtype": "BF16",
+        "shape": [
+          32,
+          2048
+        ],
+        "data_offsets": [
+          69760,
+          200832
+        ],
+        "absolute_begin": 109136,
+        "file": "layer0-a-bf16.bin",
+        "bytes": 131072,
+        "sha256": "16bea87b244f5a7b28d809e68e35148fc3fcbce533479a8479ba07bfe2b57c42"
+      },
+      {
+        "layer": 0,
+        "projection": "b",
+        "name": "model.language_model.layers.0.linear_attn.in_proj_b.weight",
+        "shard": "model-00002-of-00026.safetensors",
+        "shard_file_bytes": 1284907696,
+        "header_sha256": "88769fdfc34f169920bc4130ef6b601399c05c3a5931a5248a6be39750f208b5",
+        "dtype": "BF16",
+        "shape": [
+          32,
+          2048
+        ],
+        "data_offsets": [
+          200832,
+          331904
+        ],
+        "absolute_begin": 240208,
+        "file": "layer0-b-bf16.bin",
+        "bytes": 131072,
+        "sha256": "908969c4aa9b431756794610716ddf0474d93aee69b02f79de84710ab9b886ee"
+      }
+    ],
+    "model_loaded": false,
+    "gpu_used": false,
+    "inference_acceptance": false
+  },
+  "cpu_replay": {
+    "source_sha256": "bdd9473254760b24d9ac193e635ea9e7268482e68a4ec67116e8bca33ae5d94b",
+    "shared_math_sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+    "build_command": [
+      "clang++",
+      "-std=c++17",
+      "-O2",
+      "-ffp-contract=off",
+      "-fsanitize=address,undefined",
+      "-I",
+      "<repo>",
+      "<private-evidence>/linux_core_projection_replay_r1.cpp",
+      "-o",
+      "<private-evidence>/linux-core-projection-replay-r1/replay"
+    ],
+    "weight_inventory_sha256": "517beaeb467a1122e2bece872bf8449d90d1b26a4909c2c5ec103d69598f0070",
+    "runs": [
+      {
+        "projection": "qkv",
+        "command": [
+          "<private-evidence>/linux-core-projection-replay-r1/replay",
+          "<private-evidence>/linux-core-windows-gb10-gdn-step1-r1/observations/decode-linear-input_norm.bin",
+          "<private-evidence>/qrt-original-core-projection-weights-20260922-r1/layer0-qkv-bf16.bin",
+          "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-qkv-bf16.bin",
+          "<private-evidence>/linux-core-windows-gb10-gdn-step1-r1/observations/decode-linear-qkv_projection.bin"
+        ],
+        "result": [
+          {
+            "mode": 0,
+            "outputs": 8192,
+            "reference_mismatches": 0,
+            "native_mismatches": 4,
+            "reference_max_abs": 0
+          },
+          {
+            "mode": 1,
+            "outputs": 8192,
+            "reference_mismatches": 4,
+            "native_mismatches": 0,
+            "reference_max_abs": 0.0078125
+          }
+        ],
+        "inputs": [
+          {
+            "path": "<private-evidence>/linux-core-windows-gb10-gdn-step1-r1/observations/decode-linear-input_norm.bin",
+            "sha256": "7c09c89bddd2fb9fa4a775cd88e29c1dcf8f5368d34862bf131801568af634b9"
+          },
+          {
+            "path": "<private-evidence>/qrt-original-core-projection-weights-20260922-r1/layer0-qkv-bf16.bin",
+            "sha256": "b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f"
+          },
+          {
+            "path": "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-qkv-bf16.bin",
+            "sha256": "86f8e51acec175c221dc288b04d3c1c3806fef5761688881b8bd3f12bcf8f59d"
+          },
+          {
+            "path": "<private-evidence>/linux-core-windows-gb10-gdn-step1-r1/observations/decode-linear-qkv_projection.bin",
+            "sha256": "d701fb569f95003241c09bd96579650406167e3ff44d953dc229af59ef39d07a"
+          }
+        ]
+      },
+      {
+        "projection": "z",
+        "command": [
+          "<private-evidence>/linux-core-projection-replay-r1/replay",
+          "<private-evidence>/linux-core-windows-gb10-gdn-step1-r1/observations/decode-linear-input_norm.bin",
+          "<private-evidence>/qrt-original-core-projection-weights-20260922-r1/layer0-z-bf16.bin",
+          "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-z-projection-bf16.bin",
+          "<private-evidence>/linux-core-windows-gb10-gdn-step1-r1/observations/decode-linear-z_projection.bin"
+        ],
+        "result": [
+          {
+            "mode": 0,
+            "outputs": 4096,
+            "reference_mismatches": 0,
+            "native_mismatches": 5,
+            "reference_max_abs": 0
+          },
+          {
+            "mode": 1,
+            "outputs": 4096,
+            "reference_mismatches": 5,
+            "native_mismatches": 0,
+            "reference_max_abs": 0.015625
+          }
+        ],
+        "inputs": [
+          {
+            "path": "<private-evidence>/linux-core-windows-gb10-gdn-step1-r1/observations/decode-linear-input_norm.bin",
+            "sha256": "7c09c89bddd2fb9fa4a775cd88e29c1dcf8f5368d34862bf131801568af634b9"
+          },
+          {
+            "path": "<private-evidence>/qrt-original-core-projection-weights-20260922-r1/layer0-z-bf16.bin",
+            "sha256": "8cc5be8e1a62cc4088f800b3d4cd3ad1892b1ac871b0d5f76aec014b4b14cf16"
+          },
+          {
+            "path": "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-z-projection-bf16.bin",
+            "sha256": "765d005484e6e10a0517f61b1380caa330225922ad63572946ee15f47e7de9bc"
+          },
+          {
+            "path": "<private-evidence>/linux-core-windows-gb10-gdn-step1-r1/observations/decode-linear-z_projection.bin",
+            "sha256": "76261b1346e602a9c166e6cd1e7e85179d7665c07641152c636a96e0b91f2ed6"
+          }
+        ]
+      },
+      {
+        "projection": "a",
+        "command": [
+          "<private-evidence>/linux-core-projection-replay-r1/replay",
+          "<private-evidence>/linux-core-windows-gb10-gdn-step1-r1/observations/decode-linear-input_norm.bin",
+          "<private-evidence>/qrt-original-core-projection-weights-20260922-r1/layer0-a-bf16.bin",
+          "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-a-projection-bf16.bin",
+          "<private-evidence>/linux-core-windows-gb10-gdn-step1-r1/observations/decode-linear-a_projection.bin"
+        ],
+        "result": [
+          {
+            "mode": 0,
+            "outputs": 32,
+            "reference_mismatches": 0,
+            "native_mismatches": 0,
+            "reference_max_abs": 0
+          },
+          {
+            "mode": 1,
+            "outputs": 32,
+            "reference_mismatches": 0,
+            "native_mismatches": 0,
+            "reference_max_abs": 0
+          }
+        ],
+        "inputs": [
+          {
+            "path": "<private-evidence>/linux-core-windows-gb10-gdn-step1-r1/observations/decode-linear-input_norm.bin",
+            "sha256": "7c09c89bddd2fb9fa4a775cd88e29c1dcf8f5368d34862bf131801568af634b9"
+          },
+          {
+            "path": "<private-evidence>/qrt-original-core-projection-weights-20260922-r1/layer0-a-bf16.bin",
+            "sha256": "16bea87b244f5a7b28d809e68e35148fc3fcbce533479a8479ba07bfe2b57c42"
+          },
+          {
+            "path": "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-a-projection-bf16.bin",
+            "sha256": "daa698b8d09c7c25a26e7c80c2ba449531a9f2b1b113d8b55732281e23f4c08f"
+          },
+          {
+            "path": "<private-evidence>/linux-core-windows-gb10-gdn-step1-r1/observations/decode-linear-a_projection.bin",
+            "sha256": "daa698b8d09c7c25a26e7c80c2ba449531a9f2b1b113d8b55732281e23f4c08f"
+          }
+        ]
+      },
+      {
+        "projection": "b",
+        "command": [
+          "<private-evidence>/linux-core-projection-replay-r1/replay",
+          "<private-evidence>/linux-core-windows-gb10-gdn-step1-r1/observations/decode-linear-input_norm.bin",
+          "<private-evidence>/qrt-original-core-projection-weights-20260922-r1/layer0-b-bf16.bin",
+          "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-b-projection-bf16.bin",
+          "<private-evidence>/linux-core-windows-gb10-gdn-step1-r1/observations/decode-linear-b_projection.bin"
+        ],
+        "result": [
+          {
+            "mode": 0,
+            "outputs": 32,
+            "reference_mismatches": 0,
+            "native_mismatches": 0,
+            "reference_max_abs": 0
+          },
+          {
+            "mode": 1,
+            "outputs": 32,
+            "reference_mismatches": 0,
+            "native_mismatches": 0,
+            "reference_max_abs": 0
+          }
+        ],
+        "inputs": [
+          {
+            "path": "<private-evidence>/linux-core-windows-gb10-gdn-step1-r1/observations/decode-linear-input_norm.bin",
+            "sha256": "7c09c89bddd2fb9fa4a775cd88e29c1dcf8f5368d34862bf131801568af634b9"
+          },
+          {
+            "path": "<private-evidence>/qrt-original-core-projection-weights-20260922-r1/layer0-b-bf16.bin",
+            "sha256": "908969c4aa9b431756794610716ddf0474d93aee69b02f79de84710ab9b886ee"
+          },
+          {
+            "path": "<private-evidence>/qualified-gb10-q8192-decode-20260922-r1/raw/txn0001-linear-00-b-projection-bf16.bin",
+            "sha256": "767d46c295226c98820b34142fb5ed0478e859d6418b9163b2e55ccc6b8a6a46"
+          },
+          {
+            "path": "<private-evidence>/linux-core-windows-gb10-gdn-step1-r1/observations/decode-linear-b_projection.bin",
+            "sha256": "767d46c295226c98820b34142fb5ed0478e859d6418b9163b2e55ccc6b8a6a46"
+          }
+        ]
+      }
+    ],
+    "model_inference_acceptance": false
+  },
+  "replay_sha256": "8a67825767593c9f210739fd56ecf580d0d461d5a90d21a04753994bae98266d",
+  "original_outputs": 12352,
+  "sm121_reference_mismatches": 0,
+  "linux_arithmetic_native_mismatches": 0,
+  "observed_reference_differences": 9,
+  "model_inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

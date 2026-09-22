@@ -230,12 +230,66 @@ def gb10_gdn_overlays(linear, prefill):
     return linear, prefill
 
 
+def gb10_projection_overlays(sources, read):
+    engine = "native/src/native_resident_engine.hip.cpp"
+    sources[engine] = replace(sources[engine], '#include "aima/native_resident_engine.h"',
+        '#include "aima/native_resident_engine.h"\n#include "gb10_projection.h"')
+    sources[engine] = replace(sources[engine],
+        "    const NativeDecodePrepareMetrics prepared =",
+        "    aima_port::set_gb10_decode_token(metrics.output_token_ids.back());\n"
+        "    const NativeDecodePrepareMetrics prepared =")
+    linear = "native/src/native_linear_layer.hip.cpp"
+    sources[linear] = replace(sources[linear], '#include "gb10_gdn.h"',
+        '#include "gb10_gdn.h"\n#include "gb10_projection.h"')
+    sources[linear] = replace(sources[linear],
+        "    launch_prefill_rmsnorm_2048(\n"
+        "        input.device_pointer, input_norm_weight.device_pointer, input_norm, 1,\n"
+        "        stream);",
+        "    if (layer_index == 0) {\n"
+        "      aima_port::gb10_embedding_norm(input.device_pointer,\n"
+        "          input_norm_weight.device_pointer, input_norm, 1, stream);\n"
+        "    } else {\n"
+        "      launch_prefill_rmsnorm_2048(input.device_pointer,\n"
+        "          input_norm_weight.device_pointer, input_norm, 1, stream);\n"
+        "    }")
+    prefill = "native/src/native_linear_prefill.hip.cpp"
+    sources[prefill] = replace(sources[prefill], '#include "gb10_gdn.h"',
+        '#include "gb10_gdn.h"\n#include "gb10_projection.h"')
+    sources[prefill] = replace(sources[prefill],
+        "  if (use_vl_rmsnorm) {\n    launch_prefill_rmsnorm_2048(",
+        "  if (options.layer_index == 0) {\n"
+        "    aima_port::gb10_embedding_norm(x, input_norm_weight.device_pointer, h1, tokens);\n"
+        "    ++result.layer.native_pointwise_launches;\n"
+        "  } else if (use_vl_rmsnorm) {\n    launch_prefill_rmsnorm_2048(")
+    sources[prefill] = replace(sources[prefill],
+        "      (q8192_schedule ? 8 : 0);",
+        "      (q8192_schedule ? 8 : 0) -\n"
+        "      (options.layer_index == 0 && !use_vl_rmsnorm ? 1 : 0);")
+    path = "native/src/bf16_wvsplitk.hip.cpp"
+    sources[path] = replace(read(path), '#include "aima/bf16_wvsplitk.h"',
+        '#include "aima/bf16_wvsplitk.h"\n#include "gb10_projection.h"')
+    sources[path] = replace(sources[path],
+        '    throw std::invalid_argument("BF16 wvSplitK dimensions exceed int32");\n'
+        "  }\n  const int wave_limit = small_wave_limit(m, k);",
+        '    throw std::invalid_argument("BF16 wvSplitK dimensions exceed int32");\n'
+        "  }\n  aima_port::gb10_projection(weight_mk, activation_1k, bias_m, output_1m, m, k, stream);\n"
+        "  return;\n  const int wave_limit = small_wave_limit(m, k);")
+    sources[path] = replace(sources[path],
+        "  const int active_waves = minimum_divisor(\n"
+        "      static_cast<int>(total_rows), cu_count * kYTile, kGroupedWaves);",
+        "  aima_port::gb10_projection_group(projections, projection_count, activation_1k, k, stream);\n"
+        "  return;\n  const int active_waves = minimum_divisor(\n"
+        "      static_cast<int>(total_rows), cu_count * kYTile, kGroupedWaves);")
+
+
 def make_overlays(*, rectangular_ck=False, current_text_decode=False,
-                  gb10_convolution=False, gb10_gdn=False):
+                  gb10_convolution=False, gb10_gdn=False, gb10_projections=False):
     if gb10_convolution and not current_text_decode:
         raise ValueError("GB10 convolution requires current text decode ownership")
     if gb10_gdn and not gb10_convolution:
         raise ValueError("GB10 GDN requires GB10 convolution and current text decode")
+    if gb10_projections and not gb10_gdn:
+        raise ValueError("GB10 projections require the GB10 GDN experiment")
     read = lambda p: (UPSTREAM / p).read_text(encoding="utf-8")
     sources = {}
     loader = "benchmarks/shape-lab/native/src/torch_owned_safetensors_loader.hip.cpp"
@@ -292,6 +346,8 @@ def make_overlays(*, rectangular_ck=False, current_text_decode=False,
         if gb10_gdn:
             sources[linear], sources[linear_prefill] = gb10_gdn_overlays(
                 sources[linear], sources[linear_prefill])
+    if gb10_projections:
+        gb10_projection_overlays(sources, read)
     weights = "native/src/native_weight_store.hip.cpp"
     sources[weights] = replace(read(weights), "shard_storage.push_back(path.string());",
                              "shard_storage.push_back(path.u8string());")
@@ -343,6 +399,8 @@ def main():
                         help="Use RNE BF16 convolution products and the qualified SiLU table")
     parser.add_argument("--gb10-gdn", action="store_true",
                         help="Use existing Windows FLA and original GB10 Q2 decode arithmetic")
+    parser.add_argument("--gb10-projections", action="store_true",
+                        help="Use SM121 decode projections and full-vocabulary embedding RMS scales")
     args = parser.parse_args()
     inventory = verify_import()
     out = args.out.resolve()
@@ -350,7 +408,8 @@ def main():
         raise SystemExit("Output already exists; preserve it and choose a fresh directory")
     overlays = make_overlays(rectangular_ck=args.windows_rectangular_ck,
                              current_text_decode=args.current_text_decode,
-                             gb10_convolution=args.gb10_convolution, gb10_gdn=args.gb10_gdn)
+                             gb10_convolution=args.gb10_convolution, gb10_gdn=args.gb10_gdn,
+                             gb10_projections=args.gb10_projections)
     out.mkdir(parents=True)
     adapted = []
     for relative, text in overlays.items():
@@ -415,6 +474,8 @@ def main():
     sources.append(str(ROOT / "native/linux_core_port/probe.cpp"))
     if args.gb10_gdn:
         sources.append(str(ROOT / "native/linux_core_port/gb10_gdn.hip.cpp"))
+    if args.gb10_projections:
+        sources.append(str(ROOT / "native/linux_core_port/gb10_projection.hip.cpp"))
     generated = [dict(path=p.relative_to(out).as_posix(), bytes=p.stat().st_size,
                       sha256=digest(p.read_bytes())) for p in sorted(out.rglob("*")) if p.is_file()]
     report = dict(schema=1, upstream_revision=inventory["revision"],
@@ -452,6 +513,14 @@ def main():
             decode_beta="FP32", prefill_beta="BF16",
             prefill_tokens=8192, decode_tokens=1, intermediate_aot_observations=False,
             provider_calls_per_linear_prefill=1, model_qualified=False)
+    if args.gb10_projections:
+        report["optional_adaptations"]["gb10_projections"] = dict(
+            decode="existing Windows K16 width-26 SM121 projection arithmetic",
+            scope="singleton wvSplitK call sites, including grouped projections",
+            embedding_norm="live token IDs select full-vocabulary model inverse-RMS scales",
+            embedding_table_bytes=993280, embedding_device_bytes=1026048,
+            embedding_table_sha256="f4e37f759c586bfc8fcc4d74cefdd89235f0f0c0c90cd286147e331e87509e67",
+            prefill_dense_changed=False, model_qualified=False)
     (out / "prepare.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: report[k] for k in ("upstream_revision", "imported_files", "imported_bytes", "image_bytes")}
                      | dict(images=len(images), compilation_units=len(sources), overlays=len(adapted))))

@@ -2,10 +2,28 @@
 
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
-It is not enabled in the Windows product. Source `0a57516` now builds and runs
-the real model natively on baiying. The original q8192 first token and logit
-match GB10, but output 115 diverges. Complete continuation, performance and
-release qualification remain open.
+It is not enabled in the Windows product. The complete GDN replacement and
+its output-only prefill sampler (`c43685e`) run the real model on baiying.
+The original q8192 first token and logit match GB10, but output 91 diverges.
+Complete continuation, performance and release qualification remain open.
+
+The latest sampler preserves all 512 outputs and all 71 earlier observations.
+Across 128 fixed prefill rows, three of 262,144 input-normalization values
+differ; they belong to the same actual token ID 36. Reapplying the existing
+full-vocabulary embedding inverse table removes all three differences. With
+identical input, SM121 K16 arithmetic also matches all 12,352 first-decode
+QKV/Z/A/B reference values, while a CPU replay of Linux wvSplitK reproduces
+the native nine differences. Six sampled prefill rows separately reproduce
+all reference QKV values with the SM121 accumulator and original input.
+[Arithmetic diagnosis](../benchmarks/correctness/linux-core-projection-arithmetic-diagnosis-20260922.json),
+[prefill and preparation evidence](../benchmarks/correctness/linux-core-gb10-projection-preparation-20260922.json).
+
+`--gb10-projections` now opts into that singleton projection arithmetic and
+first-layer embedding normalization on top of `--gb10-gdn`. Prefill dense
+GEMMs retain their current arithmetic. Grouped projections retain one launch;
+actual request token IDs select normalization scales. ASan/UBSan host checks
+pass for elementwise normalization, binding, bounds and artifact failures;
+GPU projection correctness requires the next full native model run.
 
 The latest ordinary Windows q8192 control is 23272.0441 ms TTFT. Structural
 projection and QK alternatives preserved component bits but increased their

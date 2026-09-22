@@ -17,6 +17,9 @@
 #ifdef AIMA_PORT_GB10_GDN
 #include "gb10_gdn.h"
 #endif
+#ifdef AIMA_PORT_GB10_PROJECTIONS
+#include "gb10_projection.h"
+#endif
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -174,6 +177,9 @@ int run(const std::vector<std::string>& argv) {
           static_cast<Observation*>(owner)->capture(name, device, bytes, "bf16");
         }, observation.get());
   }
+#endif
+#ifdef AIMA_PORT_GB10_PROJECTIONS
+  aima_port::Gb10ProjectionOwner projections(request.input_token_ids);
 #endif
   aima::NativeResidentEngineOptions options;
   options.weights.model_dir = model;

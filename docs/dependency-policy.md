@@ -52,6 +52,18 @@ measured request. This experiment adds no installed library or Python/CUDA
 runtime. Its memory, loading, correctness and performance costs must be measured
 on the real model before product selection or packaging.
 
+The optional `--gb10-projections` experiment reuses the existing Windows
+K16/width-26 arithmetic headers for singleton dense projections. It adds no
+library. First-layer normalization uses the existing complete 248,320-entry
+model embedding inverse table, SHA
+`f4e37f759c586bfc8fcc4d74cefdd89235f0f0c0c90cd286147e331e87509e67`.
+Its 993,280 bytes and 32,768 bytes of live prompt token IDs are uploaded before
+command-ready; the temporary host table is then released. Decode selects the
+actual previously emitted token. No captured activation or expected output
+is a runtime input. The table is pinned separately from the later dynamic
+normalization table packaged by the other runtime. This experiment requires
+real-model qualification and complete model/table binding before release.
+
 The [installed Windows dependency inventory](../benchmarks/correctness/linux-core-windows-dependencies-20260922.json)
 finds a6,012,312-byte hipBLASLt DLL. Its installed data directory contains1078
 files totaling434,067,673bytes across GPU architectures. The complete96-file
