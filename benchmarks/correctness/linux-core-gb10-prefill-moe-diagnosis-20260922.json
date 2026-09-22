@@ -1,0 +1,3264 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "kind": "original_q8192_prefill_moe_and_cross_layer_diagnosis",
+  "host": "aitopatom-66c4",
+  "command_file": "/home/qujing/run-qrt-gb10-q8192-moe-linear-20260922-r2.py",
+  "command_file_sha256": "7f962052b7612391b203f12fb6764f49d4bda116985d05bdc61d2ed20d7d93c7",
+  "command": [
+    "docker",
+    "run",
+    "--name",
+    "qrt-gb10-q8192-moe-linear-20260922-r2",
+    "--hostname",
+    "aitopatom-66c4",
+    "--gpus",
+    "all",
+    "--network",
+    "none",
+    "--memory",
+    "108g",
+    "--shm-size",
+    "8g",
+    "--cpus",
+    "8",
+    "-e",
+    "PYTHONPATH=/work/scripts",
+    "-e",
+    "QRT_GB10_OBSERVE_FLASHINFER_AUTOTUNER=1",
+    "-e",
+    "VLLM_ALLOW_LONG_MAX_MODEL_LEN=1",
+    "-e",
+    "VLLM_WORKER_MULTIPROC_METHOD=spawn",
+    "-v",
+    "/home/qujing/qrt-gb10-q8192-moe-linear-20260922-r2:/work",
+    "-v",
+    "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-q8192-moe-linear-20260922-r2/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-q8192-moe-linear-20260922-r2/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-q8192-moe-linear-20260922-r2/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-q8192-moe-linear-20260922-r2/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-q8192-moe-linear-20260922-r2/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-q8192-moe-linear-20260922-r2/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-q8192-moe-linear-20260922-r2/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
+    "-v",
+    "/home/qujing/qrt-gb10-q8192-moe-linear-20260922-r2/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
+    "-e",
+    "QRT_GB10_PREFILL_MOE_SELECTED_ROWS=1",
+    "-e",
+    "QRT_GB10_PREFILL_MOE_ROUTED_ROWS=1",
+    "-e",
+    "QRT_GB10_BOUNDARY_MOE_LAYERS=0,1,2",
+    "-e",
+    "QRT_GB10_CASE_BOUNDARY_LINEAR_LAYERS={\"q8192-out512\":[0,1,2]}",
+    "-e",
+    "QRT_GB10_CASE_PREFILL_POSITIONS={\"q8192-out512\":[63,1023,2111,3391,4159,6079,7167,8191]}",
+    "-w",
+    "/work",
+    "--entrypoint",
+    "timeout",
+    "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+    "--signal=TERM",
+    "--kill-after=10",
+    "630",
+    "python3",
+    "scripts/capture_gb10_token_matrix.py",
+    "--runtime-boundaries",
+    "--source-commit",
+    "708cacf9acb6b9197b76c98c30610ddf9ad1fd9d",
+    "--oracle-q7169",
+    "contracts/arbitrary_q7169_gb10_oracle.json",
+    "--oracle-q8192",
+    "contracts/hprefill_q8192_gb10_oracle.json",
+    "--output-dir",
+    "capture",
+    "--expected-host",
+    "aitopatom-66c4",
+    "--timeout-seconds",
+    "600",
+    "--execute"
+  ],
+  "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+  "observer_commit": "708cacf9acb6b9197b76c98c30610ddf9ad1fd9d",
+  "dependency_commit": "f963ff0c890dd94e0167057b19428e539e097628",
+  "source_manifest_sha256": "a28236af793c7bd69949cd2f9f115a810a1517b79e6c57d1e5ebc36b9c9f79a8",
+  "dispatch_sha256": "13673c8f7d431f07b295f94e1652dd66f5960dfc793dc3b9f81a4b078691e85a",
+  "capture_sha256": "355329686dd5cdeb0e20e9f25662697cf289cb02f7313d1845097248c260b08a",
+  "compact_download_manifest_sha256": "c004a9baa71d44aed35836b536be12dcf2cadcb472153bcf366f464aceef3d9a",
+  "compact_download_files": 643,
+  "compact_download_bytes": 56791625,
+  "returncode": 0,
+  "wall_seconds": 359.5582078680163,
+  "host_guard_pass": true,
+  "minimum_host_available_bytes": 13284352000,
+  "gpu_processes_after": "",
+  "frozen_autotune_cache_no_misses": true,
+  "postprocessing_recovery": {
+    "command_file": "/home/qujing/recover-qrt-gb10-q8192-moe-linear-20260922-r2.py",
+    "command_file_sha256": "5f91e927532bbc50686dd5fc4699f7ebc14bd236efb13042da83a1892df0879c",
+    "original_dispatch_core_sha256": "13c5af87a241c8998e5b5d80c735a0627f2cbf120db09fb9bc3c3429e4738c8b",
+    "original_capture_sha256": "355329686dd5cdeb0e20e9f25662697cf289cb02f7313d1845097248c260b08a",
+    "reason": "qualification metadata belongs to armed.runtime_boundaries, not worker.runtime_boundaries",
+    "inference_rerun": false,
+    "original_files_modified": false
+  },
+  "original_matrix_checks": [
+    {
+      "name": "q7169-out32",
+      "prompt_matches": true,
+      "all_outputs_match": true,
+      "first_token_matches": true,
+      "first_logit_matches": true
+    },
+    {
+      "name": "q8192-out32",
+      "prompt_matches": true,
+      "all_outputs_match": true,
+      "first_token_matches": true,
+      "first_logit_matches": true
+    },
+    {
+      "name": "q7168-out32",
+      "prompt_matches": true,
+      "all_outputs_match": true,
+      "first_token_matches": true,
+      "first_logit_matches": true
+    },
+    {
+      "name": "q7170-out32",
+      "prompt_matches": true,
+      "all_outputs_match": true,
+      "first_token_matches": true,
+      "first_logit_matches": true
+    },
+    {
+      "name": "q8191-out32",
+      "prompt_matches": true,
+      "all_outputs_match": true,
+      "first_token_matches": true,
+      "first_logit_matches": true
+    },
+    {
+      "name": "q8193-out32",
+      "prompt_matches": true,
+      "all_outputs_match": true,
+      "first_token_matches": true,
+      "first_logit_matches": true
+    },
+    {
+      "name": "q7169-out512",
+      "prompt_matches": true,
+      "all_outputs_match": true,
+      "first_token_matches": true,
+      "first_logit_matches": true
+    },
+    {
+      "name": "q8192-out512",
+      "prompt_matches": true,
+      "all_outputs_match": true,
+      "first_token_matches": true,
+      "first_logit_matches": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "q7169-out32",
+      "first_token": 82,
+      "first_logit": 9.25,
+      "output_token_ids": [
+        82,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220
+      ]
+    },
+    {
+      "name": "q8192-out32",
+      "first_token": 144,
+      "first_logit": 10.375,
+      "output_token_ids": [
+        144,
+        255,
+        82,
+        57,
+        79,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196
+      ]
+    },
+    {
+      "name": "q7168-out32",
+      "first_token": 220,
+      "first_logit": 9.5625,
+      "output_token_ids": [
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196
+      ]
+    },
+    {
+      "name": "q7170-out32",
+      "first_token": 94,
+      "first_logit": 18.25,
+      "output_token_ids": [
+        94,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220
+      ]
+    },
+    {
+      "name": "q8191-out32",
+      "first_token": 168589,
+      "first_logit": 11.375,
+      "output_token_ids": [
+        168589,
+        57,
+        82,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220
+      ]
+    },
+    {
+      "name": "q8193-out32",
+      "first_token": 220,
+      "first_logit": 9.75,
+      "output_token_ids": [
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220
+      ]
+    },
+    {
+      "name": "q7169-out512",
+      "first_token": 82,
+      "first_logit": 9.25,
+      "output_token_ids": [
+        82,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        7701,
+        421,
+        279,
+        1414,
+        488,
+        3766,
+        369,
+        16421,
+        47739,
+        11,
+        8222,
+        264,
+        6311,
+        314,
+        4055,
+        5587,
+        11,
+        17210,
+        11,
+        321,
+        83123,
+        4105,
+        421,
+        635,
+        524,
+        1304,
+        53916,
+        22157,
+        466,
+        264,
+        63049,
+        3992,
+        13,
+        1049,
+        5686,
+        1040,
+        264,
+        1067,
+        314,
+        795,
+        20600,
+        11,
+        10845,
+        5787,
+        11,
+        466,
+        264,
+        328,
+        5882,
+        1554,
+        1,
+        303,
+        279,
+        1414,
+        9191,
+        1817,
+        13,
+        271,
+        2592,
+        488,
+        10287,
+        310,
+        2466,
+        264,
+        3050,
+        3296,
+        11,
+        4191,
+        264,
+        3255,
+        11,
+        466,
+        3300,
+        1928,
+        11,
+        4338,
+        1380,
+        310,
+        25,
+        271,
+        16,
+        13,
+        2972,
+        674,
+        10289,
+        678,
+        1876,
+        332,
+        303,
+        2708,
+        11,
+        5129,
+        1414,
+        13,
+        198,
+        17,
+        13,
+        2972,
+        3840,
+        678,
+        10845,
+        332,
+        413,
+        488,
+        21103,
+        411,
+        494,
+        264,
+        999,
+        466,
+        3779,
+        13,
+        198,
+        18,
+        13,
+        2972,
+        58387,
+        2193,
+        332,
+        748,
+        353,
+        628,
+        2577,
+        3418,
+        1092,
+        488,
+        1144,
+        1438,
+        440,
+        13,
+        271,
+        40,
+        1044,
+        1532,
+        310,
+        1438,
+        0,
+        5044,
+        2579,
+        1845,
+        310,
+        311,
+        49493,
+        678,
+        3134,
+        303,
+        264,
+        32680,
+        3443,
+        13,
+        248046,
+        198,
+        248044,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248046,
+        198,
+        248044,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248046,
+        198,
+        248045,
+        846,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466,
+        47739,
+        13,
+        16018,
+        488,
+        4338,
+        35932,
+        466,
+        3300,
+        777,
+        3447,
+        883,
+        1092,
+        488,
+        2224,
+        9859,
+        30,
+        353,
+        2688,
+        1532,
+        310,
+        1438,
+        0,
+        248046,
+        198,
+        248045,
+        846,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466,
+        47739,
+        13,
+        16018,
+        488,
+        4338,
+        35932,
+        466,
+        3300,
+        777,
+        3447,
+        883,
+        1092,
+        488,
+        2224,
+        9859,
+        30,
+        353,
+        2688,
+        1532,
+        310,
+        1438,
+        0,
+        248046,
+        198,
+        248045,
+        846,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466,
+        47739,
+        13,
+        16018,
+        488,
+        4338,
+        35932,
+        466,
+        3300,
+        777,
+        3447,
+        883,
+        1092,
+        488,
+        2224,
+        9859,
+        30,
+        353,
+        2688,
+        1532,
+        310,
+        1438,
+        0,
+        248046,
+        198,
+        248045,
+        846,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466,
+        47739,
+        13,
+        16018,
+        488,
+        4338,
+        35932,
+        466,
+        3300,
+        777,
+        3447,
+        883,
+        1092,
+        488,
+        2224,
+        9859,
+        30,
+        353,
+        2688,
+        1532,
+        310,
+        1438,
+        0,
+        248046,
+        198,
+        248045,
+        846,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466,
+        47739,
+        13,
+        16018,
+        488,
+        4338,
+        35932,
+        466,
+        3300,
+        777,
+        3447,
+        883,
+        1092,
+        488,
+        2224,
+        9859,
+        30,
+        353,
+        2688,
+        1532,
+        310,
+        1438,
+        0,
+        248046,
+        198,
+        248045,
+        846,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466,
+        47739,
+        13,
+        16018,
+        488,
+        4338,
+        35932,
+        466,
+        3300,
+        777,
+        3447,
+        883,
+        1092,
+        488,
+        2224,
+        9859,
+        30,
+        353,
+        2688,
+        1532,
+        310,
+        1438,
+        0,
+        248046,
+        198,
+        248045,
+        846,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466,
+        47739,
+        13,
+        16018,
+        488,
+        4338,
+        35932,
+        466,
+        3300,
+        777
+      ]
+    },
+    {
+      "name": "q8192-out512",
+      "first_token": 144,
+      "first_logit": 10.375,
+      "output_token_ids": [
+        144,
+        255,
+        82,
+        57,
+        79,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        271,
+        248068,
+        271,
+        248069,
+        271,
+        760,
+        1414,
+        488,
+        3766,
+        7701,
+        310,
+        381,
+        2972,
+        5816,
+        82987,
+        11,
+        7132,
+        36412,
+        11,
+        466,
+        19873,
+        41915,
+        159034,
+        1049,
+        5435,
+        264,
+        6311,
+        314,
+        4055,
+        5587,
+        11,
+        17210,
+        11,
+        321,
+        33358,
+        314,
+        6163,
+        4105,
+        421,
+        635,
+        524,
+        1304,
+        53916,
+        22157,
+        466,
+        19214,
+        13976,
+        13,
+        1061,
+        3428,
+        8311,
+        4016,
+        310,
+        25,
+        271,
+        16,
+        13,
+        2972,
+        14266,
+        5787,
+        332,
+        318,
+        68,
+        1257,
+        2487,
+        8306,
+        264,
+        7620,
+        999,
+        466,
+        264,
+        999,
+        440,
+        264,
+        2086,
+        3542,
+        10845,
+        1040,
+        19464,
+        12,
+        23,
+        11,
+        18867,
+        12,
+        16,
+        11,
+        466,
+        25662,
+        11667,
+        1580,
+        430,
+        13983,
+        1414,
+        553,
+        198,
+        17,
+        13,
+        2972,
+        1008,
+        20600,
+        332,
+        318,
+        68,
+        1257,
+        2487,
+        31084,
+        4003,
+        11,
+        12977,
+        1412,
+        11,
+        466,
+        17822,
+        59026,
+        553,
+        198,
+        18,
+        13,
+        2972,
+        1037,
+        2845,
+        278,
+        1454,
+        49850,
+        362,
+        332,
+        318,
+        68,
+        1257,
+        2487,
+        24656,
+        466,
+        24315,
+        1973,
+        5976,
+        45543,
+        553,
+        271,
+        13962,
+        3437,
+        1394,
+        2885,
+        3054,
+        25,
+        198,
+        12,
+        2972,
+        3840,
+        279,
+        2450,
+        92217,
+        1368,
+        411,
+        3571,
+        494,
+        264,
+        999,
+        11,
+        5790,
+        424,
+        725,
+        8660,
+        440,
+        279,
+        4252,
+        10845,
+        466,
+        3061,
+        13,
+        198,
+        12,
+        2972,
+        674,
+        60346,
+        466,
+        11394,
+        92217,
+        1368,
+        424,
+        725,
+        494,
+        264,
+        4003,
+        11,
+        1380,
+        311,
+        14445,
+        10313,
+        466,
+        47455,
+        494,
+        264,
+        15264,
+        13,
+        198,
+        12,
+        2972,
+        58387,
+        2193,
+        92217,
+        1368,
+        488,
+        1366,
+        1092,
+        411,
+        1414,
+        348,
+        5274,
+        9,
+        3875,
+        318,
+        68,
+        1257,
+        2487,
+        264,
+        2128,
+        11,
+        1970,
+        11,
+        2099,
+        795,
+        681,
+        4191,
+        777,
+        3447,
+        748,
+        353,
+        628,
+        1438,
+        16401,
+        466,
+        13792,
+        424,
+        13,
+        271,
+        9764,
+        728,
+        1366,
+        1204,
+        353,
+        628,
+        7543,
+        4473,
+        0,
+        25677,
+        232,
+        248044,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248046,
+        198,
+        248044,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248046,
+        198,
+        248045,
+        846,
+        198,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466,
+        23644,
+        13,
+        16018,
+        488,
+        4338,
+        3300,
+        777,
+        3447,
+        466,
+        35932,
+        1092,
+        488,
+        2224,
+        9859,
+        30,
+        353,
+        2688,
+        1532,
+        310,
+        1438,
+        0,
+        25677,
+        232,
+        248046,
+        198,
+        248044,
+        248045,
+        248045,
+        248045,
+        248045,
+        248046,
+        198,
+        248045,
+        846,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466,
+        23644,
+        13,
+        16018,
+        488,
+        4338,
+        3300,
+        777,
+        3447,
+        466,
+        35932,
+        1092,
+        488,
+        2224,
+        9859,
+        30,
+        353,
+        2688,
+        1532,
+        310,
+        1438,
+        0,
+        25677,
+        232,
+        248046,
+        198,
+        248045,
+        846,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466,
+        23644,
+        13,
+        16018,
+        488,
+        4338,
+        3300,
+        777,
+        3447,
+        466,
+        35932,
+        1092,
+        488,
+        2224,
+        9859
+      ]
+    }
+  ],
+  "reference_qualified": true,
+  "comparison": {
+    "native_commit": "acced066560bbafc480fee3ccf761e2c245de099",
+    "native_run_sha256": "d35dddd32b2fa3f9c7feda81eda28368d9c6fd888149ab2c7cfe985dd4c1d35e",
+    "native_observer_manifest_sha256": "8ea31a16652cd2c6b5cca26b873251f1521d460d4901e2ff36439f20f25a6838",
+    "reference_dispatch_sha256": "13673c8f7d431f07b295f94e1652dd66f5960dfc793dc3b9f81a4b078691e85a",
+    "reference_capture_sha256": "355329686dd5cdeb0e20e9f25662697cf289cb02f7313d1845097248c260b08a",
+    "reference_case_sha256": "fc5309b9fb8061519499792f859cfba9fd9d1b830da570c854878fef55464e36",
+    "reference_download_manifest_sha256": "c004a9baa71d44aed35836b536be12dcf2cadcb472153bcf366f464aceef3d9a",
+    "reference_qualified": true,
+    "positions": [
+      63,
+      1023,
+      2111,
+      3391,
+      4159,
+      6079,
+      7167,
+      8191
+    ],
+    "rows": [
+      {
+        "name": "input-norm",
+        "native_file": "prefill-input-norm-sampled.bin",
+        "native_sha256": "09c4ae8312b4d74b810dd682e3d0b05eecf543a3d904518647ed8ac5387df575",
+        "reference_file": "txn0000-layer-00-input-rmsnorm-bf16.bin",
+        "reference_sha256": "2f2c342b0f74ed1d8847163b904296e3606deb821d5ea3c07f5d80788613c23e",
+        "dtype": "bf16",
+        "width": 2048,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0
+      },
+      {
+        "name": "qkv",
+        "native_file": "prefill-qkv-sampled.bin",
+        "native_sha256": "4972110efbc0c2640ae8085c441f7e55142a381227c35368a3e308eb1dee42ee",
+        "reference_file": "txn0000-linear-00-qkv-bf16.bin",
+        "reference_sha256": "3aa65f72052ec90b28ad4675ed7ba6ab588da508a01e3ed4a199d41ea11385b7",
+        "dtype": "bf16",
+        "width": 8192,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 8192,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 8192,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 8192,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 8192,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 8192,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 8192,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 8192,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 8192,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0
+      },
+      {
+        "name": "z",
+        "native_file": "prefill-z-sampled.bin",
+        "native_sha256": "c44174ed242202b072807674f78c6820dbd388d0f733efd85051c4a94154055f",
+        "reference_file": "txn0000-linear-00-z-projection-bf16.bin",
+        "reference_sha256": "b8221884a710ce3a9dabf59eb233a1905eb2edfcb524a047d9b157b626543ae6",
+        "dtype": "bf16",
+        "width": 4096,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0
+      },
+      {
+        "name": "a",
+        "native_file": "prefill-a-sampled.bin",
+        "native_sha256": "7ab0dab82ed4ac56c01dabfed312f2d9a32e22fd59c32116bbc69dede1b6f1c2",
+        "reference_file": "txn0000-linear-00-a-projection-bf16.bin",
+        "reference_sha256": "f9cba795711a1b03ea2dfc1a7c46fc99010e3d60d6a0185474f8e379ebe8f951",
+        "dtype": "bf16",
+        "width": 32,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 32,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 32,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 32,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 32,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 32,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 32,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 32,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 32,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0
+      },
+      {
+        "name": "b",
+        "native_file": "prefill-b-sampled.bin",
+        "native_sha256": "6504d4bccc5b6f9ac96e2232cba2e9691a6461bd41692b67d30fb74be2dff884",
+        "reference_file": "txn0000-linear-00-b-projection-bf16.bin",
+        "reference_sha256": "983b36afb8408193ff7d2d0963253c2c495aacfb3d6035c1ee45351b7cafa7b4",
+        "dtype": "bf16",
+        "width": 32,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 32,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 32,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 32,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 32,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 32,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 32,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 32,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 32,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0
+      },
+      {
+        "name": "core",
+        "native_file": "prefill-core-sampled.bin",
+        "native_sha256": "268858f871128ae72140fae8fcc01cd5ee83b39e5cb43c9a877fee8e4c2963c8",
+        "reference_file": "txn0000-linear-00-core-bf16.bin",
+        "reference_sha256": "632556844af7a6c5096b4b48fbbdb551cc082af3cd786e5681394d615d7566a4",
+        "dtype": "bf16",
+        "width": 4096,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0
+      },
+      {
+        "name": "gated",
+        "native_file": "prefill-gated-sampled.bin",
+        "native_sha256": "fa2c2b02bc59cd73b4a3194adb49a6b9e238e43e2fb1a1e303cfdbd78a861837",
+        "reference_file": "txn0000-linear-00-gated-bf16.bin",
+        "reference_sha256": "493ee4f9831e6e828784d9944110be9fbc97fdccd9e9ffedf7ca4f8a0ae00f2f",
+        "dtype": "bf16",
+        "width": 4096,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 4096,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0
+      },
+      {
+        "name": "attention-out",
+        "native_file": "prefill-attention-out-sampled.bin",
+        "native_sha256": "bc613c20ee196deae5d5434a46da8152593f5a78021c3fa108141d4d83267367",
+        "reference_file": "txn0000-linear-00-output-projection-bf16.bin",
+        "reference_sha256": "26aa082b7a46bf6329d4e1975f77c639b86ec57f0271895dd28b0a56f525519f",
+        "dtype": "bf16",
+        "width": 2048,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0
+      },
+      {
+        "name": "post-attention-norm",
+        "native_file": "prefill-post-attention-norm-sampled.bin",
+        "native_sha256": "b780456523d58f710671a85acc674d8ee45901d60e7be3ccde91496b4d4ed372",
+        "reference_file": "txn0000-moe-00-input-bf16.bin",
+        "reference_sha256": "4d4d9754873fe6d212a1c25a59dd7d72479794b58e495b411e530f9cb775d753",
+        "dtype": "bf16",
+        "width": 2048,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0
+      },
+      {
+        "name": "post-attention-residual",
+        "native_file": "prefill-post-attention-residual-sampled.bin",
+        "native_sha256": "1e4affcd25c659a6ab2ddccc775163dcd0cedfdc00a6b3057d49c65d83ee9e75",
+        "reference_file": "txn0000-layer-00-residual-bf16.bin",
+        "reference_sha256": "77aa86340fb2634ce46491fe0f19e87da689be595264580e4820b6c39fb0d593",
+        "dtype": "bf16",
+        "width": 2048,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0
+      },
+      {
+        "name": "shared-gate",
+        "native_file": "prefill-shared-gate-sampled.bin",
+        "native_sha256": "2b9eb2842fbe48b6533490e15005051eb67a312c8376e0e9737026a3a8f1d620",
+        "reference_file": "txn0000-moe-00-shared-gate-bf16.bin",
+        "reference_sha256": "5741f7495f3d67c161c5953e287e11b01f5adda6ba836be9912ef4c082fe8c6e",
+        "dtype": "bf16",
+        "width": 1,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 1,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 1,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 1,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 1,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 1,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 1,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 1,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 1,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0
+      },
+      {
+        "name": "shared-gate-projection",
+        "native_file": "prefill-shared-gate-projection-sampled.bin",
+        "native_sha256": "593b9a12aa76bc29d9dcf76adf7488cf8e870882d8208a3ce42873b5c4ed26a7",
+        "reference_file": "txn0000-moe-00-shared-gate-up-bf16.bin",
+        "reference_sha256": "8f091d340dba7cdca60ed6bc74b80cce56d6d38b13717aa1ec7a6e79d836d87b",
+        "dtype": "bf16",
+        "width": 512,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0
+      },
+      {
+        "name": "shared-up-projection",
+        "native_file": "prefill-shared-up-projection-sampled.bin",
+        "native_sha256": "466d050af8ed7ae6379928915965e8d80803e101e909ed88a3eed72b8efa93d0",
+        "reference_file": "txn0000-moe-00-shared-gate-up-bf16.bin",
+        "reference_sha256": "8f091d340dba7cdca60ed6bc74b80cce56d6d38b13717aa1ec7a6e79d836d87b",
+        "dtype": "bf16",
+        "width": 512,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0
+      },
+      {
+        "name": "shared-activation",
+        "native_file": "prefill-shared-activation-sampled.bin",
+        "native_sha256": "9792b3f4e29a9af2b1c142a828eebb171adcc887d94b96885e27272948aaecc7",
+        "reference_file": "txn0000-moe-00-shared-activated-bf16.bin",
+        "reference_sha256": "e1a45c4568d7ed04be8534b7d899c3242943192f090ec3223867174b289188e0",
+        "dtype": "bf16",
+        "width": 512,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 160,
+              "maximum_absolute_error": 0.001953125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 133,
+              "maximum_absolute_error": 0.00390625,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 135,
+              "maximum_absolute_error": 0.001953125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 117,
+              "maximum_absolute_error": 0.0009765625,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 134,
+              "maximum_absolute_error": 0.001953125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 145,
+              "maximum_absolute_error": 0.00390625,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 146,
+              "maximum_absolute_error": 0.00390625,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 512,
+              "bf16_mismatches": 162,
+              "maximum_absolute_error": 0.001953125,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 1132,
+        "maximum_absolute_error": 0.00390625
+      },
+      {
+        "name": "shared-down",
+        "native_file": "prefill-shared-down-sampled.bin",
+        "native_sha256": "09c2515313b48fa8b3d30912fb9c746ad11b9fb8574840f1e52262aedd64844a",
+        "reference_file": "txn0000-moe-00-shared-down-bf16.bin",
+        "reference_sha256": "a3150f384edb98e1f2b97ca492cd7cee37e85934cc0be420c620063c505d37bf",
+        "dtype": "bf16",
+        "width": 2048,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 972,
+              "maximum_absolute_error": 0.0009765625,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 878,
+              "maximum_absolute_error": 0.0009765625,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 1022,
+              "maximum_absolute_error": 0.00048828125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 892,
+              "maximum_absolute_error": 0.00048828125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 863,
+              "maximum_absolute_error": 0.00048828125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 1126,
+              "maximum_absolute_error": 0.00048828125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 1005,
+              "maximum_absolute_error": 0.00048828125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 1059,
+              "maximum_absolute_error": 0.00054931640625,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 7817,
+        "maximum_absolute_error": 0.0009765625
+      },
+      {
+        "name": "shared-output",
+        "native_file": "prefill-shared-output-sampled.bin",
+        "native_sha256": "b82a81482554adb59362b246807e8c921162f2398c48cfdf8ece3bd8fb8805a7",
+        "reference_file": "txn0000-moe-00-shared-bf16.bin",
+        "reference_sha256": "6fad5796bffa1475640a3426582b0fff732602144cd4a6afafa1a8c70a571edb",
+        "dtype": "bf16",
+        "width": 2048,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 901,
+              "maximum_absolute_error": 6.103515625e-05,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 805,
+              "maximum_absolute_error": 0.0001220703125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 935,
+              "maximum_absolute_error": 6.103515625e-05,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 834,
+              "maximum_absolute_error": 6.103515625e-05,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 755,
+              "maximum_absolute_error": 6.103515625e-05,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 1040,
+              "maximum_absolute_error": 6.103515625e-05,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 912,
+              "maximum_absolute_error": 6.103515625e-05,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 982,
+              "maximum_absolute_error": 6.103515625e-05,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 7164,
+        "maximum_absolute_error": 0.0001220703125
+      },
+      {
+        "name": "router",
+        "native_file": "prefill-router-sampled.bin",
+        "native_sha256": "f5602f0e0a6df5eae38c18a7a0e66728ea8e2df6ab05bbfc48e968508aa69673",
+        "reference_file": "txn0000-moe-00-router-bf16.bin",
+        "reference_sha256": "b5ab170ade7fc9d5c58adbbc9739c230bafe30d2e22892152bcf13391344d113",
+        "dtype": "bf16",
+        "width": 256,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 256,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 256,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 256,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 256,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 256,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 256,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 256,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 256,
+              "bf16_mismatches": 0,
+              "maximum_absolute_error": 0,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0
+      },
+      {
+        "name": "routed-output",
+        "native_file": "prefill-routed-output-sampled.bin",
+        "native_sha256": "78dbab39091571d0a6232f05a59bb3e151c41f90b041128d380b397bb6a5e6c9",
+        "reference_file": "txn0000-moe-00-expert-part-1-bf16.bin",
+        "reference_sha256": "f3e821a39ae2a6954d77f3ccdf8cd5d23c462943453bf7efce4dcd8100e712e8",
+        "dtype": "bf16",
+        "width": 2048,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 1162,
+              "maximum_absolute_error": 6.103515625e-05,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 834,
+              "maximum_absolute_error": 0.0001220703125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 1162,
+              "maximum_absolute_error": 6.103515625e-05,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 1137,
+              "maximum_absolute_error": 0.0001220703125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 1027,
+              "maximum_absolute_error": 0.0001220703125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 944,
+              "maximum_absolute_error": 0.0001220703125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 259,
+              "maximum_absolute_error": 0.00048828125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 815,
+              "maximum_absolute_error": 0.0001220703125,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 7340,
+        "maximum_absolute_error": 0.00048828125
+      },
+      {
+        "name": "combined-moe",
+        "native_file": "prefill-combined-moe-sampled.bin",
+        "native_sha256": "99d90ca7504be4d5ef931d13bcbeaa30508aa9b69c69b6051fd8dce6e6ed286f",
+        "reference_file": "txn0000-moe-00-output-bf16.bin",
+        "reference_sha256": "5abe9206144390568e601f979f301e9b972dd404f9421d035f998acb40965e90",
+        "dtype": "bf16",
+        "width": 2048,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 1076,
+              "maximum_absolute_error": 0.0001220703125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 795,
+              "maximum_absolute_error": 0.000244140625,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 1067,
+              "maximum_absolute_error": 0.0001220703125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 1035,
+              "maximum_absolute_error": 0.0001220703125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 968,
+              "maximum_absolute_error": 0.0001220703125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 943,
+              "maximum_absolute_error": 0.0001220703125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 355,
+              "maximum_absolute_error": 0.00048828125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 874,
+              "maximum_absolute_error": 0.0001220703125,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 7113,
+        "maximum_absolute_error": 0.00048828125
+      },
+      {
+        "name": "layer-output",
+        "native_file": "prefill-layer-output-sampled.bin",
+        "native_sha256": "a13c8d3c9306e1075dbb5f77766c1e6265b8c594e4a200fcc03aefef84ad6cc4",
+        "reference_file": "txn0000-layer-00-combined-f32.bin",
+        "reference_sha256": "ddbe42791051874424319d62c07eb9916b0b4358c453f6e74b7d028d36994e9c",
+        "dtype": "f32",
+        "width": 2048,
+        "parts": [
+          {
+            "position": 63,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 610,
+              "maximum_absolute_error": 0.0003662109375,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 1023,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 450,
+              "maximum_absolute_error": 0.0009765625,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 2111,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 618,
+              "maximum_absolute_error": 0.0009765625,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 3391,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 718,
+              "maximum_absolute_error": 0.00048828125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 4159,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 619,
+              "maximum_absolute_error": 0.001220703125,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 6079,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 587,
+              "maximum_absolute_error": 0.00146484375,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 7167,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 227,
+              "maximum_absolute_error": 0.0006103515625,
+              "nonfinite_pairs": 0
+            }
+          },
+          {
+            "position": 8191,
+            "result": {
+              "elements": 2048,
+              "bf16_mismatches": 463,
+              "maximum_absolute_error": 0.00048828125,
+              "nonfinite_pairs": 0
+            }
+          }
+        ],
+        "bf16_mismatches": 4292,
+        "maximum_absolute_error": 0.00146484375
+      }
+    ],
+    "original_shared_activation_replay": {
+      "command": [
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-shared-activation-replay-r1/replay",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-prefill-moe-reference-comparison-r1/reference-gate.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-prefill-moe-reference-comparison-r1/reference-up.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-shared-activated-bf16.bin",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/gated-compat-tables-r1/silu-f32.bin"
+      ],
+      "result": {
+        "elements": 4096,
+        "fp32_silu_mismatches": 1132,
+        "bf16_silu_mismatches": 0,
+        "arithmetic_difference": 1132
+      },
+      "exe_sha256": "7b94b93ebda1c6a393fd4cddc49fac6b52fe866b4947442a5bb0ee56ccd7faa1"
+    },
+    "original_router_weight_dtype": "float32",
+    "router_weights_not_exactly_representable_bf16": 64,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_acceptance": false,
+    "full_result_sha256": "a5ce4d8a1fb0c6aa02eef1a2047d006f971ee579bc0b9b470ce9ec8579a5836d"
+  },
+  "prefill_cross_layer_norm_replay": {
+    "command": [
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-cross-layer-norm-replay-r1/replay",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qualified-gb10-q8192-decode-20260922-r1/raw/txn0000-layer-00-residual-bf16.bin",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qualified-gb10-q8192-decode-20260922-r1/raw/txn0000-layer-00-hidden-bf16.bin",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-cross-layer-norm-replay-r1/layer1-input-norm-weight.bin",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qualified-gb10-q8192-decode-20260922-r1/raw/txn0000-layer-01-input-rmsnorm-bf16.bin",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-prefill-cross-norm-replay-r1/native-layer1-last-input-norm.bin",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-prefill-cross-norm-replay-r1/original"
+    ],
+    "exe_sha256": "a1388c2d33f0f383c14cc1f8f25973c83c76da972491ff8f47f97f3c8c53de5b",
+    "source_sha256": "e530330904e0821c3d53ca1a6ec643fb36025bcd4bd442778d96cd31ac2236d1",
+    "inputs": [
+      {
+        "path": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qualified-gb10-q8192-decode-20260922-r1/raw/txn0000-layer-00-residual-bf16.bin",
+        "sha256": "9baf8e8b33e2156688f2003420c3399ca2a3547303646f0d7ee62d679cfcc1c4"
+      },
+      {
+        "path": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qualified-gb10-q8192-decode-20260922-r1/raw/txn0000-layer-00-hidden-bf16.bin",
+        "sha256": "e5bef0f359973063a4de1cc7a010512c9424199d3bf7fc1d991a1b4a00b2e6e1"
+      },
+      {
+        "path": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-cross-layer-norm-replay-r1/layer1-input-norm-weight.bin",
+        "sha256": "ed4ca80e09d39e7edc8667a8c3b125dfae990a40993eb065c6871a77209549ef"
+      },
+      {
+        "path": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qualified-gb10-q8192-decode-20260922-r1/raw/txn0000-layer-01-input-rmsnorm-bf16.bin",
+        "sha256": "c7b4192d89839ea2f1c115b8f4729a8068b8dfc1ba758cbe89ab9211dbc22db3"
+      },
+      {
+        "path": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-prefill-cross-norm-replay-r1/native-layer1-last-input-norm.bin",
+        "sha256": "7780feb0c4bc0336188fcbf7750bca8fdab90cd24e7baef38a2f1af0b6d91da8"
+      },
+      {
+        "path": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin",
+        "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+      }
+    ],
+    "native_run_sha256": "2d8753479cd7597dbeb65aa32f896e89a8b9e88d85d30938cc4f898ba8071ea9",
+    "qualified_reference_sha256": "64723e2fc871e315e4c1efec3ba675c7fdda43c8e2facf8664acc532d2b327d1",
+    "results": [
+      {
+        "mode": 0,
+        "elements": 2048,
+        "reference_mismatches": 0,
+        "native_mismatches": 547,
+        "sum_bits": 1058767821,
+        "inverse_bits": 1114102907
+      },
+      {
+        "mode": 1,
+        "elements": 2048,
+        "reference_mismatches": 163,
+        "native_mismatches": 447,
+        "sum_bits": 1058759454,
+        "inverse_bits": 1114109127
+      },
+      {
+        "mode": 2,
+        "elements": 2048,
+        "reference_mismatches": 163,
+        "native_mismatches": 447,
+        "sum_bits": 1058759453,
+        "inverse_bits": 1114109128
+      }
+    ],
+    "host_only": true,
+    "original_operands": true,
+    "native_upstream_moe_differs": true,
+    "inference_acceptance": false
+  },
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_acceptance": false
+}

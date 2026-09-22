@@ -132,6 +132,38 @@ rounded layer carrier. The existing reference lacks prefill MoE internals;
 a bounded fresh capture uses unchanged reference sources and frozen tuning,
 adds selected-row observations and must reproduce all1216 original outputs.
 
+The first expanded reference attempt fails its original q7169 control:
+first220/logit9.375 instead of82/9.25; the remaining31 outputs match. All500
+surfaces shared with an earlier rejected reference and its full first logits
+are bit-identical. The first observed difference from the qualified reference
+is after layer3 attention, but earlier agreement covers the selected row, not
+all context rows. No new reference is accepted. Host checks and frozen tuning
+checks pass. A bounded retry keeps the source archive, math and observation
+configuration byte-identical; the cause of this reference variation remains
+unresolved.
+[Rejected reference control](../benchmarks/correctness/gb10-q8192-moe-control-rejection-20260922.json).
+
+That retry reproduces all8 original cases and1216 outputs in359.5582s, with
+host and tuning checks intact. Its completed capture is qualified. A separate
+postprocessor corrects an `armed` versus `worker` metadata lookup error; the
+original run, logs and capture stay unchanged. All643 downloaded artifacts,
+56791625bytes, are SHA-verified.
+
+At all8 selected q8192 positions, native layer-zero input norm, QKV/z/a/b,
+recurrent core, gated core, output projection, MoE norm/residual, shared
+projections and router logits match exactly. Shared activation first differs
+in1132/4096 values. Original-operand replay matches all4096 using BF16 SiLU
+before multiplication and reproduces exactly those1132 differences using
+FP32 SiLU. All64 observed original routing weights are FP32 values not exactly
+representable as BF16, the frozen q8192 closure's ABI. Routed output differs
+in7340/16384 values; that count alone does not isolate its projection errors.
+The combined MoE output differs in7113 values, and its layer carrier in4292.
+Separately, original prefill residual operands reproduce all2048 layer-one
+norm values with unrounded variance; rounding the carrier first creates163
+differences. The next implementation addresses the complete prefill MoE and
+its cross-layer variance boundary.
+[Qualified prefill diagnosis](../benchmarks/correctness/linux-core-gb10-prefill-moe-diagnosis-20260922.json).
+
 Diagnostic load/TTFT/TPOT are25810.6137/28908.8576/67.1387918ms. All host checks
 and cleanup pass, with93 verified observations totaling19296194bytes. No
 performance or release qualification is claimed.
