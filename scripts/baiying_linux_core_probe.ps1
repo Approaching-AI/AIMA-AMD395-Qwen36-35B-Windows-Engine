@@ -53,6 +53,9 @@ if($Phase -eq 'build') {
         source_manifest_sha256=$manifestSha;model='none; native compilation and host I/O contracts'
         model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false
     }
+    if($m.current_text_decode -eq $true) {
+        $spec.arguments+=@('--current-text-decode')
+    }
     $null=New-Item -ItemType Directory -Path (Join-Path $repo 'build') -Force
     [IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 12),$utf8)
     & $guard -SpecPath $specPath -OutDir $out -TimeoutSeconds 1740|Out-Null

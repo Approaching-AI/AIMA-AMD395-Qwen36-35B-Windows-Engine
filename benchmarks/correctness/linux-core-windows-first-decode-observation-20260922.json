@@ -1,0 +1,4108 @@
+{
+  "source_commit": "893a22c284a252e2b8758f83e06a2a395a15f7b2",
+  "host": "BAIYING",
+  "model": "D:/models/Qwen3.6-35B-A3B",
+  "command_file": "P:/projects/AIMA-public-linux-core-observer-20260922-r1/scripts/baiying_linux_core_probe.ps1",
+  "source_manifest_sha256": "765222a3e1d88d2b82c6a7f478f65d9aabc2407b430473069424b9bd6ab823d0",
+  "run_sha256": "eeaffb3dab298b2f6da03920466707f2f6cb33b28bfced83ae2965ebf83c0dd5",
+  "capture_verified_sha256": "2cdd2f803a2ef7394fccdd49117e33628fcf89453340bfbec707b4b53f1c86bf",
+  "reference_capture_sha256": "8cf8705a62a2bd1d8ca6446ef5a2e154e37ad895c740ad9297a93f8d6de0bec4",
+  "reference_dispatch_sha256": "1af4c07fd8492bbea916326bc960c8646e6ee9e1a98a3ead8bc6aabb861efbc6",
+  "reference_download_sha256": "64723e2fc871e315e4c1efec3ba675c7fdda43c8e2facf8664acc532d2b327d1",
+  "original_input_history_matches": true,
+  "position": 8192,
+  "input_token": 144,
+  "output_index": 1,
+  "actual_output": 255,
+  "expected_output": 255,
+  "unchanged_original512_outputs_and_first_logit": true,
+  "comparator": {
+    "command": [
+      "c++",
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "build/recovery-20260910/compare_numeric_surface_r1.cpp",
+      "-o",
+      "build/recovery-20260910/compare-numeric-surface-r1"
+    ],
+    "returncode": 0,
+    "source_sha256": "9bae70f3901dc98bcf39ca01aac2e5a8f3f40f28816bf507b0a3fa0867fb2ca5",
+    "executable_sha256": "9cb20ae1f9be35922b806dc8212c9def97d072615cb2242255b13a8deb071ee1",
+    "timeout_seconds": 30
+  },
+  "comparisons": [
+    {
+      "native_file": "prefill-state.bin",
+      "native_sha256": "940d08a743abe2cd8bc9a872fab0c01ee084b71687d9ff0e1fba4355bec52b4f",
+      "reference_label": "linear-00-prefill-state-after",
+      "reference_transaction": 0,
+      "reference_file": "txn0000-linear-00-prefill-state-after-f32.bin",
+      "reference_sha256": "df7054595e55c391c1a3a4099a7b32d74c8a51cfe233480ec559642f038b3e38",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 524288,
+        "f32_bit_mismatches": 496140,
+        "bf16_mismatches": 390364,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.1292424201965332,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3122532153,
+            "reference_bits": 3123038644,
+            "native": -0.0006029490032233298,
+            "reference": -0.0006324306596070528
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 973582715,
+            "reference_bits": 973994052,
+            "native": 0.0005176287959329784,
+            "reference": 0.0005415717605501413
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 3130516986,
+            "reference_bits": 3130302655,
+            "native": -0.001158892409875989,
+            "reference": -0.0011339409975335002
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 985094056,
+            "reference_bits": 985349617,
+            "native": 0.0013987915590405464,
+            "reference": 0.0014285427751019597
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3141067792,
+            "reference_bits": 3141171977,
+            "native": -0.0028212107717990875,
+            "reference": -0.002845468232408166
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 996286945,
+            "reference_bits": 996185930,
+            "native": 0.00345050566829741,
+            "reference": 0.0034269862808287144
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3138924778,
+            "reference_bits": 3138993648,
+            "native": -0.0023222514428198338,
+            "reference": -0.0023382864892482758
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1008974477,
+            "reference_bits": 1008950770,
+            "native": 0.009993207640945911,
+            "reference": 0.009971128776669502
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "prefill-conv.bin",
+      "native_sha256": "1c16f6543a9c8a34fae2c2f5d8a3ce8807b0353ae46971bfe90ae5854f88598e",
+      "reference_label": "linear-00-conv-history-before",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-linear-00-conv-history-before-bf16.bin",
+      "reference_sha256": "a9430e3bdd77a82d89005875d9ad7dd74d9e6712f2dc817ef2f065dcc86dc085",
+      "reference_offset_elements": 0,
+      "layout": "feature-major first3 of4 at declared offset0",
+      "comparison": {
+        "elements": 24576,
+        "f32_bit_mismatches": 169,
+        "bf16_mismatches": 169,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.00390625,
+        "first_bf16_differences": [
+          {
+            "column": 430,
+            "native_index": 430,
+            "reference_index": 430,
+            "native_bits": 60817408,
+            "reference_bits": 60948480,
+            "native": 9.4039548065783e-37,
+            "reference": 9.521504241660529e-37
+          },
+          {
+            "column": 431,
+            "native_index": 431,
+            "reference_index": 431,
+            "native_bits": 2213150720,
+            "reference_bits": 2212954112,
+            "native": -1.3753283904620764e-36,
+            "reference": -1.357695975199742e-36
+          },
+          {
+            "column": 457,
+            "native_index": 457,
+            "reference_index": 457,
+            "native_bits": 2215968768,
+            "reference_bits": 2216034304,
+            "native": -1.7514865827252084e-36,
+            "reference": -1.7632415262334313e-36
+          },
+          {
+            "column": 458,
+            "native_index": 458,
+            "reference_index": 458,
+            "native_bits": 2230124544,
+            "reference_bits": 2230190080,
+            "native": -5.571843222897643e-36,
+            "reference": -5.5953531099140885e-36
+          },
+          {
+            "column": 507,
+            "native_index": 507,
+            "reference_index": 507,
+            "native_bits": 72941568,
+            "reference_bits": 73007104,
+            "native": 2.550822741284364e-36,
+            "reference": 2.5625776847925868e-36
+          },
+          {
+            "column": 508,
+            "native_index": 508,
+            "reference_index": 508,
+            "native_bits": 2215116800,
+            "reference_bits": 2215182336,
+            "native": -1.598672317118311e-36,
+            "reference": -1.610427260626534e-36
+          },
+          {
+            "column": 512,
+            "native_index": 512,
+            "reference_index": 512,
+            "native_bits": 80281600,
+            "reference_bits": 80347136,
+            "native": 4.725487290305596e-36,
+            "reference": 4.7489971773220415e-36
+          },
+          {
+            "column": 559,
+            "native_index": 559,
+            "reference_index": 559,
+            "native_bits": 2207907840,
+            "reference_bits": 2208038912,
+            "native": -9.051306501331614e-37,
+            "reference": -9.168855936413843e-37
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-0.bin",
+      "native_sha256": "df9030fa4795dc8bbf740d83c51502c72b9ceb80d37c372f62a4207004fa7467",
+      "reference_label": "layer-00-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-00-combined-f32.bin",
+      "reference_sha256": "307776727f5fa675c2176050d6613a1c5ddcc01cbd2c3d90f3f8351ae8f635d2",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 1752,
+        "bf16_mismatches": 1424,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.00115966796875,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3175350272,
+            "reference_bits": 3175284736,
+            "native": -0.0478515625,
+            "reference": -0.047607421875
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 3127115776,
+            "reference_bits": 3127377920,
+            "native": -0.0008697509765625,
+            "reference": -0.000885009765625
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 1018167296,
+            "reference_bits": 1018068992,
+            "native": 0.021484375,
+            "reference": 0.02130126953125
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 3154640896,
+            "reference_bits": 3154378752,
+            "native": -0.00830078125,
+            "reference": -0.008056640625
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3164340224,
+            "reference_bits": 3164209152,
+            "native": -0.01904296875,
+            "reference": -0.018798828125
+          },
+          {
+            "column": 9,
+            "native_index": 9,
+            "reference_index": 9,
+            "native_bits": 3157852160,
+            "reference_bits": 3157721088,
+            "native": -0.01129150390625,
+            "reference": -0.01116943359375
+          },
+          {
+            "column": 11,
+            "native_index": 11,
+            "reference_index": 11,
+            "native_bits": 3163357184,
+            "reference_bits": 3163160576,
+            "native": -0.0172119140625,
+            "reference": -0.016845703125
+          },
+          {
+            "column": 12,
+            "native_index": 12,
+            "reference_index": 12,
+            "native_bits": 3167289344,
+            "reference_bits": 3167247360,
+            "native": -0.0245361328125,
+            "reference": -0.024457931518554688
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-1.bin",
+      "native_sha256": "9e00358b3da0c6560fb6eacddf7fe950602d4f11290884d26cf503241cfb207d",
+      "reference_label": "layer-01-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-01-combined-f32.bin",
+      "reference_sha256": "56f8ea46c3eb738acabefea5518f1e9d4c09d0e7dea93f07373ef2b327e4e8c5",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 1881,
+        "bf16_mismatches": 1550,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.00146484375,
+        "first_bf16_differences": [
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1003552768,
+            "reference_bits": 1002700800,
+            "native": 0.006378173828125,
+            "reference": 0.0059814453125
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 1016987648,
+            "reference_bits": 1016866816,
+            "native": 0.019287109375,
+            "reference": 0.019062042236328125
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 3163029504,
+            "reference_bits": 3162931200,
+            "native": -0.0166015625,
+            "reference": -0.01641845703125
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3171221504,
+            "reference_bits": 3171180544,
+            "native": -0.032470703125,
+            "reference": -0.032318115234375
+          },
+          {
+            "column": 9,
+            "native_index": 9,
+            "reference_index": 9,
+            "native_bits": 3162832896,
+            "reference_bits": 3162800128,
+            "native": -0.0162353515625,
+            "reference": -0.01617431640625
+          },
+          {
+            "column": 10,
+            "native_index": 10,
+            "reference_index": 10,
+            "native_bits": 3166175232,
+            "reference_bits": 3166257152,
+            "native": -0.0224609375,
+            "reference": -0.022613525390625
+          },
+          {
+            "column": 11,
+            "native_index": 11,
+            "reference_index": 11,
+            "native_bits": 3153264640,
+            "reference_bits": 3152281600,
+            "native": -0.007415771484375,
+            "reference": -0.0069580078125
+          },
+          {
+            "column": 12,
+            "native_index": 12,
+            "reference_index": 12,
+            "native_bits": 3154968576,
+            "reference_bits": 3154903040,
+            "native": -0.00860595703125,
+            "reference": -0.008544921875
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-2.bin",
+      "native_sha256": "35e1847d7475078b7bb8479b2d7585bae65a2848c42e7c989a13ae9fdbd25f77",
+      "reference_label": "layer-02-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-02-combined-f32.bin",
+      "reference_sha256": "067a444ae6d018630323b35ac31bd55ff8c783679c1137ddd91114ab46df2079",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 1957,
+        "bf16_mismatches": 1729,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0078125,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3164471296,
+            "reference_bits": 3164110848,
+            "native": -0.019287109375,
+            "reference": -0.01861572265625
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1033437184,
+            "reference_bits": 1033371648,
+            "native": 0.07470703125,
+            "reference": 0.07421875
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 1021313024,
+            "reference_bits": 1020968960,
+            "native": 0.02734375,
+            "reference": 0.026702880859375
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 3128950784,
+            "reference_bits": 3127902208,
+            "native": -0.0009765625,
+            "reference": -0.00091552734375
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 1027407872,
+            "reference_bits": 1027276800,
+            "native": 0.046142578125,
+            "reference": 0.045654296875
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3176398848,
+            "reference_bits": 3176267776,
+            "native": -0.0517578125,
+            "reference": -0.05126953125
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1032847360,
+            "reference_bits": 1032777728,
+            "native": 0.0703125,
+            "reference": 0.069793701171875
+          },
+          {
+            "column": 8,
+            "native_index": 8,
+            "reference_index": 8,
+            "native_bits": 1005191168,
+            "reference_bits": 1004961792,
+            "native": 0.00714111328125,
+            "reference": 0.0070343017578125
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-3.bin",
+      "native_sha256": "9e6cf54bc90ae54f70897b6db72f71a4f5f746ea08f1b89a1c191f31424d5e89",
+      "reference_label": "layer-03-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-03-combined-f32.bin",
+      "reference_sha256": "e2c1a8093ee44c39655708d85cb8db2d14e0ec7ac20b50d12bdcb7c9e1b4b5dc",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 1998,
+        "bf16_mismatches": 1752,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.00390625,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3171024896,
+            "reference_bits": 3170959360,
+            "native": -0.03173828125,
+            "reference": -0.031494140625
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1030094848,
+            "reference_bits": 1029980160,
+            "native": 0.05615234375,
+            "reference": 0.05572509765625
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 997392384,
+            "reference_bits": 996147200,
+            "native": 0.0037078857421875,
+            "reference": 0.00341796875
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 3163881472,
+            "reference_bits": 3163979776,
+            "native": -0.0181884765625,
+            "reference": -0.01837158203125
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 1024196608,
+            "reference_bits": 1024057344,
+            "native": 0.0341796875,
+            "reference": 0.033660888671875
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 3165519872,
+            "reference_bits": 3165290496,
+            "native": -0.021240234375,
+            "reference": -0.02081298828125
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3165978624,
+            "reference_bits": 3165880320,
+            "native": -0.0220947265625,
+            "reference": -0.02191162109375
+          },
+          {
+            "column": 8,
+            "native_index": 8,
+            "reference_index": 8,
+            "native_bits": 993918976,
+            "reference_bits": 992116736,
+            "native": 0.002899169921875,
+            "reference": 0.00247955322265625
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-4.bin",
+      "native_sha256": "76f142b5ef340fcb6dced975b1716557a5fd221dba17685ed155fa68d4025ce4",
+      "reference_label": "layer-04-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-04-combined-f32.bin",
+      "reference_sha256": "6d79252bc0d84bba2276659adf9a8dab124f1793864bc4225c797d474ae5192d",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 1996,
+        "bf16_mismatches": 1765,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.009765625,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3172859904,
+            "reference_bits": 3173040128,
+            "native": -0.03857421875,
+            "reference": -0.03924560546875
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1024655360,
+            "reference_bits": 1024516096,
+            "native": 0.035888671875,
+            "reference": 0.035369873046875
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 999817216,
+            "reference_bits": 1000210432,
+            "native": 0.004638671875,
+            "reference": 0.00482177734375
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 3166699520,
+            "reference_bits": 3166945280,
+            "native": -0.0234375,
+            "reference": -0.023895263671875
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 1025245184,
+            "reference_bits": 1024942080,
+            "native": 0.0380859375,
+            "reference": 0.036956787109375
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 3166830592,
+            "reference_bits": 3166437376,
+            "native": -0.023681640625,
+            "reference": -0.02294921875
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3154640896,
+            "reference_bits": 3153920000,
+            "native": -0.00830078125,
+            "reference": -0.007720947265625
+          },
+          {
+            "column": 8,
+            "native_index": 8,
+            "reference_index": 8,
+            "native_bits": 3164078080,
+            "reference_bits": 3164241920,
+            "native": -0.0185546875,
+            "reference": -0.01885986328125
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-5.bin",
+      "native_sha256": "707cd0aa151d202210ae1b493e51b63ec6ed6990663ba4d0fc40673ce92630ab",
+      "reference_label": "layer-05-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-05-combined-f32.bin",
+      "reference_sha256": "cf8e91edb96ea1d661f334c0e057774dccf2d0894ebad54429d3e4ae1d49b08b",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2037,
+        "bf16_mismatches": 1963,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.00738525390625,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3175284736,
+            "reference_bits": 3175579648,
+            "native": -0.047607421875,
+            "reference": -0.0487060546875
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1019543552,
+            "reference_bits": 1018970112,
+            "native": 0.0240478515625,
+            "reference": 0.022979736328125
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 1018298368,
+            "reference_bits": 1017118720,
+            "native": 0.021728515625,
+            "reference": 0.01953125
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 3156475904,
+            "reference_bits": 3158441984,
+            "native": -0.010009765625,
+            "reference": -0.0118408203125
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 1024458752,
+            "reference_bits": 1023733760,
+            "native": 0.03515625,
+            "reference": 0.0324554443359375
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 3164733440,
+            "reference_bits": 3165782016,
+            "native": -0.019775390625,
+            "reference": -0.021728515625
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3145334784,
+            "reference_bits": 3148480512,
+            "native": -0.003814697265625,
+            "reference": -0.00518798828125
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1024983040,
+            "reference_bits": 1024425984,
+            "native": 0.037109375,
+            "reference": 0.0350341796875
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-6.bin",
+      "native_sha256": "130d293705deb9453803f89ac289ad4db6af3ac396dec846f78b702330d0982f",
+      "reference_label": "layer-06-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-06-combined-f32.bin",
+      "reference_sha256": "f8911d902815e4f9b68af4aff27327a7d23fa4206b75d2302610bfe430db8aa9",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2041,
+        "bf16_mismatches": 2000,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.01904296875,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3172073472,
+            "reference_bits": 3171807232,
+            "native": -0.03564453125,
+            "reference": -0.0346527099609375
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1009844224,
+            "reference_bits": 1011974144,
+            "native": 0.01080322265625,
+            "reference": 0.012786865234375
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 1004929024,
+            "reference_bits": 1002307584,
+            "native": 0.00701904296875,
+            "reference": 0.00579833984375
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 3163029504,
+            "reference_bits": 3162767360,
+            "native": -0.0166015625,
+            "reference": -0.01611328125
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 1024000000,
+            "reference_bits": 1022296064,
+            "native": 0.033447265625,
+            "reference": 0.0291748046875
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 3163029504,
+            "reference_bits": 3163545600,
+            "native": -0.0166015625,
+            "reference": -0.0175628662109375
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3161194496,
+            "reference_bits": 3161817088,
+            "native": -0.014404296875,
+            "reference": -0.014984130859375
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1027932160,
+            "reference_bits": 1027227648,
+            "native": 0.048095703125,
+            "reference": 0.04547119140625
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-7.bin",
+      "native_sha256": "a1761df1d79ff112c30410c05f1833ca38577e78f65249181bd6bff2c5965c2a",
+      "reference_label": "layer-07-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-07-combined-f32.bin",
+      "reference_sha256": "f3d0ac6d01d9fa96c467de1ead38823083603e14163d0d255dd799ee48b01366",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2039,
+        "bf16_mismatches": 1995,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0079345703125,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3168665600,
+            "reference_bits": 3167780864,
+            "native": -0.027099609375,
+            "reference": -0.02545166015625
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1016397824,
+            "reference_bits": 1016840192,
+            "native": 0.0181884765625,
+            "reference": 0.019012451171875
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 3141664768,
+            "reference_bits": 3147464704,
+            "native": -0.002960205078125,
+            "reference": -0.0047149658203125
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 3164733440,
+            "reference_bits": 3164192768,
+            "native": -0.019775390625,
+            "reference": -0.018768310546875
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 1018429440,
+            "reference_bits": 1016201216,
+            "native": 0.02197265625,
+            "reference": 0.017822265625
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 3163160576,
+            "reference_bits": 3163455488,
+            "native": -0.016845703125,
+            "reference": -0.01739501953125
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3150053376,
+            "reference_bits": 3148939264,
+            "native": -0.00592041015625,
+            "reference": -0.005401611328125
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1027080192,
+            "reference_bits": 1026420736,
+            "native": 0.044921875,
+            "reference": 0.0424652099609375
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-8.bin",
+      "native_sha256": "7453b07e44eb7e52093d0068bcd98b650c347d45fa075c95c224d4239336a5f2",
+      "reference_label": "layer-08-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-08-combined-f32.bin",
+      "reference_sha256": "5a4f65d9631f7a6f67d41388950c26a8efc2482a6e1fcb27a2c6465be2208044",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2040,
+        "bf16_mismatches": 1998,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.008392333984375,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3171287040,
+            "reference_bits": 3169779712,
+            "native": -0.03271484375,
+            "reference": -0.0291748046875
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1011351552,
+            "reference_bits": 1010171904,
+            "native": 0.01220703125,
+            "reference": 0.0111083984375
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 3162636288,
+            "reference_bits": 3163045888,
+            "native": -0.015869140625,
+            "reference": -0.016632080078125
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 3165323264,
+            "reference_bits": 3164471296,
+            "native": -0.0208740234375,
+            "reference": -0.019287109375
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 1013579776,
+            "reference_bits": 1009451008,
+            "native": 0.0142822265625,
+            "reference": 0.01043701171875
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 3168272384,
+            "reference_bits": 3168075776,
+            "native": -0.0263671875,
+            "reference": -0.0260009765625
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3134193664,
+            "reference_bits": 947912704,
+            "native": -0.0015869140625,
+            "reference": 6.103515625e-05
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1020919808,
+            "reference_bits": 1018953728,
+            "native": 0.026611328125,
+            "reference": 0.02294921875
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-9.bin",
+      "native_sha256": "65c2b42e9a2ac9f124b4c5c407df11bcc86b73b768844f5f6b5d33b4be6faea4",
+      "reference_label": "layer-09-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-09-combined-f32.bin",
+      "reference_sha256": "6a179702f0ec16b58a1950d842031680c94fcdf36521f473f64ae95f13ddd182",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2040,
+        "bf16_mismatches": 2005,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.01055908203125,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3172139008,
+            "reference_bits": 3171749888,
+            "native": -0.035888671875,
+            "reference": -0.0344390869140625
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1011089408,
+            "reference_bits": 1007845376,
+            "native": 0.011962890625,
+            "reference": 0.008941650390625
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 3159359488,
+            "reference_bits": 3161391104,
+            "native": -0.0126953125,
+            "reference": -0.01458740234375
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 3164602368,
+            "reference_bits": 3164168192,
+            "native": -0.01953125,
+            "reference": -0.0187225341796875
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3146776576,
+            "reference_bits": 3156901888,
+            "native": -0.00439453125,
+            "reference": -0.010406494140625
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 3156410368,
+            "reference_bits": 3150970880,
+            "native": -0.00994873046875,
+            "reference": -0.00634765625
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 1004666880,
+            "reference_bits": 1009172480,
+            "native": 0.00689697265625,
+            "reference": 0.0101776123046875
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1022361600,
+            "reference_bits": 1023479808,
+            "native": 0.029296875,
+            "reference": 0.0315093994140625
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-10.bin",
+      "native_sha256": "8ebc4dca166beed4b6b5ce3e9b80edf570a08afc593355fc40578fe65f66bc29",
+      "reference_label": "layer-10-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-10-combined-f32.bin",
+      "reference_sha256": "3118df93a965a516655be27982ddbde34ad587e729b36e02bb68bb6db802762c",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2042,
+        "bf16_mismatches": 2019,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.013092041015625,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3164864512,
+            "reference_bits": 3164438528,
+            "native": -0.02001953125,
+            "reference": -0.01922607421875
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 999424000,
+            "reference_bits": 3149660160,
+            "native": 0.00445556640625,
+            "reference": -0.0057373046875
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 3153592320,
+            "reference_bits": 3145990144,
+            "native": -0.007568359375,
+            "reference": -0.0040283203125
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1003225088,
+            "reference_bits": 996671488,
+            "native": 0.0062255859375,
+            "reference": 0.0035400390625
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3171614720,
+            "reference_bits": 3172646912,
+            "native": -0.033935546875,
+            "reference": -0.03778076171875
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 3156738048,
+            "reference_bits": 3148398592,
+            "native": -0.01025390625,
+            "reference": -0.00514984130859375
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 991428608,
+            "reference_bits": 1000472576,
+            "native": 0.0023193359375,
+            "reference": 0.00494384765625
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1022361600,
+            "reference_bits": 1022132224,
+            "native": 0.029296875,
+            "reference": 0.02886962890625
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-11.bin",
+      "native_sha256": "c431124fb82bd5b6310b8916638066e23695cc64becdfdae53a1d4d0e711caf6",
+      "reference_label": "layer-11-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-11-combined-f32.bin",
+      "reference_sha256": "b7c983f06bba9209bfbd6c66ca46aebe2ad731b54808e3477b414a445345c623",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2039,
+        "bf16_mismatches": 2013,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.015411376953125,
+        "first_bf16_differences": [
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1009123328,
+            "reference_bits": 999948288,
+            "native": 0.0101318359375,
+            "reference": 0.00469970703125
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 1009647616,
+            "reference_bits": 1011941376,
+            "native": 0.0106201171875,
+            "reference": 0.01275634765625
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1010040832,
+            "reference_bits": 1007960064,
+            "native": 0.010986328125,
+            "reference": 0.0090484619140625
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3170238464,
+            "reference_bits": 3171024896,
+            "native": -0.030029296875,
+            "reference": -0.03173828125
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 3155427328,
+            "reference_bits": 3153723392,
+            "native": -0.009033203125,
+            "reference": -0.00762939453125
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3164798976,
+            "reference_bits": 3163652096,
+            "native": -0.0198974609375,
+            "reference": -0.01776123046875
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1029963776,
+            "reference_bits": 1029390336,
+            "native": 0.0556640625,
+            "reference": 0.05352783203125
+          },
+          {
+            "column": 8,
+            "native_index": 8,
+            "reference_index": 8,
+            "native_bits": 3165126656,
+            "reference_bits": 3168370688,
+            "native": -0.0205078125,
+            "reference": -0.02655029296875
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-12.bin",
+      "native_sha256": "3133b597396396d6dad16b701e5c98165c44b7166e793d8fbf081ca9915474bd",
+      "reference_label": "layer-12-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-12-combined-f32.bin",
+      "reference_sha256": "934b167c4eecdbec6e773d68afdc5beb3cdafa94dacb7c11112cbb547d9ee91c",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2044,
+        "bf16_mismatches": 2021,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0179443359375,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3172139008,
+            "reference_bits": 3171106816,
+            "native": -0.035888671875,
+            "reference": -0.03204345703125
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 996081664,
+            "reference_bits": 3149414400,
+            "native": 0.0034027099609375,
+            "reference": -0.00562286376953125
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 998309888,
+            "reference_bits": 998375424,
+            "native": 0.003936767578125,
+            "reference": 0.00396728515625
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 3147235328,
+            "reference_bits": 984088576,
+            "native": -0.004608154296875,
+            "reference": 0.00128173828125
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3173384192,
+            "reference_bits": 3174424576,
+            "native": -0.04052734375,
+            "reference": -0.044403076171875
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 986447872,
+            "reference_bits": 1003618304,
+            "native": 0.001556396484375,
+            "reference": 0.00640869140625
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3169255424,
+            "reference_bits": 3167698944,
+            "native": -0.0281982421875,
+            "reference": -0.025299072265625
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1030225920,
+            "reference_bits": 1029038080,
+            "native": 0.056640625,
+            "reference": 0.052215576171875
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-13.bin",
+      "native_sha256": "8c199b62a23efc741797161476b536fb191abc2a245a1f49a24c9a2eedb24113",
+      "reference_label": "layer-13-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-13-combined-f32.bin",
+      "reference_sha256": "313f6367a957e8d9ae3eba784f5c57b2c6886c81fea333bb4745ec178428f576",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2042,
+        "bf16_mismatches": 2023,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.01898193359375,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3167158272,
+            "reference_bits": 3164733440,
+            "native": -0.0242919921875,
+            "reference": -0.019775390625
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1007484928,
+            "reference_bits": 993001472,
+            "native": 0.00860595703125,
+            "reference": 0.002685546875
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 3129868288,
+            "reference_bits": 3116105728,
+            "native": -0.0010833740234375,
+            "reference": -0.00035858154296875
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 3146645504,
+            "reference_bits": 3114795008,
+            "native": -0.00433349609375,
+            "reference": -0.0003204345703125
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3171352576,
+            "reference_bits": 3173251072,
+            "native": -0.032958984375,
+            "reference": -0.04003143310546875
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1016463360,
+            "reference_bits": 1018609664,
+            "native": 0.018310546875,
+            "reference": 0.022308349609375
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3171090432,
+            "reference_bits": 3170385920,
+            "native": -0.031982421875,
+            "reference": -0.030303955078125
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1027604480,
+            "reference_bits": 1027293184,
+            "native": 0.046875,
+            "reference": 0.04571533203125
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-14.bin",
+      "native_sha256": "cb87e8113d93c2d9a0bbd013fdf2fbc0207090771d3b5445b56963c1d5afdf3f",
+      "reference_label": "layer-14-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-14-combined-f32.bin",
+      "reference_sha256": "e271c846773dfbcd0399426a92a990fccb67017ec655404601a58e4601ea75b9",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2047,
+        "bf16_mismatches": 2026,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0241851806640625,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3163684864,
+            "reference_bits": 3161522176,
+            "native": -0.017822265625,
+            "reference": -0.01470947265625
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1008271360,
+            "reference_bits": 1004503040,
+            "native": 0.00933837890625,
+            "reference": 0.0068206787109375
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 3155492864,
+            "reference_bits": 3149611008,
+            "native": -0.00909423828125,
+            "reference": -0.00571441650390625
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1001521152,
+            "reference_bits": 1001603072,
+            "native": 0.00543212890625,
+            "reference": 0.00547027587890625
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3173580800,
+            "reference_bits": 3175262208,
+            "native": -0.041259765625,
+            "reference": -0.04752349853515625
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1019871232,
+            "reference_bits": 1020397568,
+            "native": 0.024658203125,
+            "reference": 0.025638580322265625
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3168534528,
+            "reference_bits": 3167559680,
+            "native": -0.02685546875,
+            "reference": -0.0250396728515625
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1028128768,
+            "reference_bits": 1027582976,
+            "native": 0.048828125,
+            "reference": 0.046794891357421875
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-15.bin",
+      "native_sha256": "f0b4ae012e979de35df0350def84397b54a28ab565f642cd6623a6a631086aa4",
+      "reference_label": "layer-15-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-15-combined-f32.bin",
+      "reference_sha256": "40bfdd78f4025d9fbf27070d4963d37614e01b1307624af3a61b9b76790c8736",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2046,
+        "bf16_mismatches": 2023,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.033203125,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3160801280,
+            "reference_bits": 3158065152,
+            "native": -0.0140380859375,
+            "reference": -0.0114898681640625
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1002307584,
+            "reference_bits": 1001111552,
+            "native": 0.00579833984375,
+            "reference": 0.00524139404296875
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 3149135872,
+            "reference_bits": 3138256896,
+            "native": -0.0054931640625,
+            "reference": -0.002166748046875
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 999686144,
+            "reference_bits": 1003716608,
+            "native": 0.00457763671875,
+            "reference": 0.0064544677734375
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3173646336,
+            "reference_bits": 3174842368,
+            "native": -0.04150390625,
+            "reference": -0.04595947265625
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1020854272,
+            "reference_bits": 1022312448,
+            "native": 0.0264892578125,
+            "reference": 0.029205322265625
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3173908480,
+            "reference_bits": 3173744640,
+            "native": -0.04248046875,
+            "reference": -0.0418701171875
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1028128768,
+            "reference_bits": 1027227648,
+            "native": 0.048828125,
+            "reference": 0.04547119140625
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-16.bin",
+      "native_sha256": "c69462bff9e617ad774a5df2c02aac4dfcb66ffc5a5749d86f27ef2da297bdb9",
+      "reference_label": "layer-16-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-16-combined-f32.bin",
+      "reference_sha256": "18bcd516ee80b1dd6117e4728e43bdf0dedadf1f4e6d8f755301df46db3d9074",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2045,
+        "bf16_mismatches": 2028,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0196685791015625,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 981991424,
+            "reference_bits": 990003200,
+            "native": 0.00103759765625,
+            "reference": 0.001987457275390625
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1001652224,
+            "reference_bits": 998817792,
+            "native": 0.0054931640625,
+            "reference": 0.00417327880859375
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 3150577664,
+            "reference_bits": 3136815104,
+            "native": -0.00616455078125,
+            "reference": -0.00189208984375
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 968622080,
+            "reference_bits": 998395904,
+            "native": 0.00035858154296875,
+            "reference": 0.0039768218994140625
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3172597760,
+            "reference_bits": 3173826560,
+            "native": -0.03759765625,
+            "reference": -0.04217529296875
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1021509632,
+            "reference_bits": 1023759360,
+            "native": 0.0277099609375,
+            "reference": 0.032550811767578125
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3171549184,
+            "reference_bits": 3171123200,
+            "native": -0.03369140625,
+            "reference": -0.0321044921875
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1028521984,
+            "reference_bits": 1027932160,
+            "native": 0.05029296875,
+            "reference": 0.048095703125
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-17.bin",
+      "native_sha256": "0d6b51309fcae23b713cac4406189e925bcad5f08269aeec85c121d3eba844fe",
+      "reference_label": "layer-17-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-17-combined-f32.bin",
+      "reference_sha256": "c0d805bd3327378f54b4071e953e8f8ca517edcbb1631b292d19ac72a8bf9d32",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2042,
+        "bf16_mismatches": 2026,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.033203125,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3157065728,
+            "reference_bits": 3155427328,
+            "native": -0.01055908203125,
+            "reference": -0.009033203125
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 3143565312,
+            "reference_bits": 3150315520,
+            "native": -0.0034027099609375,
+            "reference": -0.00604248046875
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 984612864,
+            "reference_bits": 994836480,
+            "native": 0.0013427734375,
+            "reference": 0.00311279296875
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 3136290816,
+            "reference_bits": 1000341504,
+            "native": -0.0018310546875,
+            "reference": 0.0048828125
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3174694912,
+            "reference_bits": 3175516160,
+            "native": -0.04541015625,
+            "reference": -0.04846954345703125
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1022033920,
+            "reference_bits": 1023250432,
+            "native": 0.0286865234375,
+            "reference": 0.03095245361328125
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3166044160,
+            "reference_bits": 3163160576,
+            "native": -0.022216796875,
+            "reference": -0.016845703125
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1027735552,
+            "reference_bits": 1026449408,
+            "native": 0.04736328125,
+            "reference": 0.042572021484375
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-18.bin",
+      "native_sha256": "d9532caa77b47d8d21292c98bfbfe90a3c660353baa96af790b10c88f0bd89c6",
+      "reference_label": "layer-18-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-18-combined-f32.bin",
+      "reference_sha256": "74c933a6dae2791471e68b6ecf6b58aa6e5982b761434d06012d302b5521d05d",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2044,
+        "bf16_mismatches": 2024,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.021728515625,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3164995584,
+            "reference_bits": 3164274688,
+            "native": -0.020263671875,
+            "reference": -0.0189208984375
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1009647616,
+            "reference_bits": 1002831872,
+            "native": 0.0106201171875,
+            "reference": 0.00604248046875
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 3150381056,
+            "reference_bits": 3145859072,
+            "native": -0.006072998046875,
+            "reference": -0.00396728515625
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1001652224,
+            "reference_bits": 1013579776,
+            "native": 0.0054931640625,
+            "reference": 0.0142822265625
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3174367232,
+            "reference_bits": 3175268352,
+            "native": -0.044189453125,
+            "reference": -0.04754638671875
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1018560512,
+            "reference_bits": 1020751872,
+            "native": 0.022216796875,
+            "reference": 0.02629852294921875
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3168665600,
+            "reference_bits": 3167223808,
+            "native": -0.027099609375,
+            "reference": -0.0244140625
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1031012352,
+            "reference_bits": 1030029312,
+            "native": 0.0595703125,
+            "reference": 0.055908203125
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-19.bin",
+      "native_sha256": "7bb89e9658adaae6d1a0c0ec61ce627329cb7f6b6bf291504348059135fc216b",
+      "reference_label": "layer-19-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-19-combined-f32.bin",
+      "reference_sha256": "851f44401ec883175b85db0c07513f328aec2214519330355af83ff4edc4a8cd",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2043,
+        "bf16_mismatches": 2023,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.02032470703125,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3164405760,
+            "reference_bits": 3164536832,
+            "native": -0.0191650390625,
+            "reference": -0.0194091796875
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1010368512,
+            "reference_bits": 1007837184,
+            "native": 0.01129150390625,
+            "reference": 0.00893402099609375
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 3124756480,
+            "reference_bits": 979369984,
+            "native": -0.000732421875,
+            "reference": 0.0008544921875
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 3144155136,
+            "reference_bits": 1001848832,
+            "native": -0.0035400390625,
+            "reference": 0.005584716796875
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3175874560,
+            "reference_bits": 3177050112,
+            "native": -0.0498046875,
+            "reference": -0.0541839599609375
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1014038528,
+            "reference_bits": 1017348096,
+            "native": 0.01470947265625,
+            "reference": 0.01995849609375
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1033371648,
+            "reference_bits": 1032781824,
+            "native": 0.07421875,
+            "reference": 0.06982421875
+          },
+          {
+            "column": 8,
+            "native_index": 8,
+            "reference_index": 8,
+            "native_bits": 3162636288,
+            "reference_bits": 3167584256,
+            "native": -0.015869140625,
+            "reference": -0.02508544921875
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-20.bin",
+      "native_sha256": "dd9c1b30152ac8ee973511c0622e9592e38e1b94718326486fc0defee8828f88",
+      "reference_label": "layer-20-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-20-combined-f32.bin",
+      "reference_sha256": "71407c318994bc30503addf15b5cde0bfdfd8aed9919a7028f2c73ccb9b2af66",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2043,
+        "bf16_mismatches": 2027,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.020771026611328125,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3167092736,
+            "reference_bits": 3165896704,
+            "native": -0.024169921875,
+            "reference": -0.021942138671875
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1023082496,
+            "reference_bits": 1019674624,
+            "native": 0.0306396484375,
+            "reference": 0.0242919921875
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 3145072640,
+            "reference_bits": 3145007104,
+            "native": -0.003753662109375,
+            "reference": -0.0037384033203125
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1001914368,
+            "reference_bits": 1009717248,
+            "native": 0.005615234375,
+            "reference": 0.010684967041015625
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3176529920,
+            "reference_bits": 3177914368,
+            "native": -0.05224609375,
+            "reference": -0.057403564453125
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1012334592,
+            "reference_bits": 1017102336,
+            "native": 0.01312255859375,
+            "reference": 0.019500732421875
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3170893824,
+            "reference_bits": 3171065856,
+            "native": -0.03125,
+            "reference": -0.031890869140625
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1035403264,
+            "reference_bits": 1034674176,
+            "native": 0.08935546875,
+            "reference": 0.08392333984375
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-21.bin",
+      "native_sha256": "0734203b8357e453ed21ea8262ef797906a5bf97104d769095eb79105ce9bd56",
+      "reference_label": "layer-21-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-21-combined-f32.bin",
+      "reference_sha256": "fd13e36c6adb63060ac08db00cb496c453be7058dd99ebd36368d26709e74c40",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2041,
+        "bf16_mismatches": 2025,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0250244140625,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3156738048,
+            "reference_bits": 3161456640,
+            "native": -0.01025390625,
+            "reference": -0.0146484375
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1024065536,
+            "reference_bits": 1020854272,
+            "native": 0.03369140625,
+            "reference": 0.0264892578125
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 3129999360,
+            "reference_bits": 3130785792,
+            "native": -0.0010986328125,
+            "reference": -0.001190185546875
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1009647616,
+            "reference_bits": 1014317056,
+            "native": 0.0106201171875,
+            "reference": 0.0149688720703125
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3179020288,
+            "reference_bits": 3181346816,
+            "native": -0.0615234375,
+            "reference": -0.077880859375
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1015611392,
+            "reference_bits": 1017217024,
+            "native": 0.0167236328125,
+            "reference": 0.01971435546875
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3171876864,
+            "reference_bits": 3171459072,
+            "native": -0.034912109375,
+            "reference": -0.033355712890625
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1035272192,
+            "reference_bits": 1034657792,
+            "native": 0.08837890625,
+            "reference": 0.08380126953125
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-22.bin",
+      "native_sha256": "2e08ff120c3a6e857d610b1caf2109887114ca3e936d14c041bd361cd9e785e1",
+      "reference_label": "layer-22-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-22-combined-f32.bin",
+      "reference_sha256": "ddd866baaa09261f56495f4647f01a0e7c8f4f604c9d25451c26586dff80032c",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2046,
+        "bf16_mismatches": 2034,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.03173828125,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 1003028480,
+            "reference_bits": 998375424,
+            "native": 0.006134033203125,
+            "reference": 0.00396728515625
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1027866624,
+            "reference_bits": 1025220608,
+            "native": 0.0478515625,
+            "reference": 0.037994384765625
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 1007812608,
+            "reference_bits": 1003454464,
+            "native": 0.0089111328125,
+            "reference": 0.0063323974609375
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1005453312,
+            "reference_bits": 1017249792,
+            "native": 0.00726318359375,
+            "reference": 0.019775390625
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3180462080,
+            "reference_bits": 3181445120,
+            "native": -0.0712890625,
+            "reference": -0.07861328125
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1018298368,
+            "reference_bits": 1020919808,
+            "native": 0.021728515625,
+            "reference": 0.026611328125
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3171942400,
+            "reference_bits": 3171409920,
+            "native": -0.03515625,
+            "reference": -0.033172607421875
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1037565952,
+            "reference_bits": 1036512256,
+            "native": 0.10546875,
+            "reference": 0.09761810302734375
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-23.bin",
+      "native_sha256": "c92e66010c381a5b6c638c41cbad006c0c21db677d89b11a24ac383a624823a6",
+      "reference_label": "layer-23-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-23-combined-f32.bin",
+      "reference_sha256": "878fff6e2bc4403bf92ffa44b80c640b77fc9077f72af51eaf4924106b4965f0",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2044,
+        "bf16_mismatches": 2025,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0299072265625,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3151364096,
+            "reference_bits": 3153690624,
+            "native": -0.00653076171875,
+            "reference": -0.0076141357421875
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1031798784,
+            "reference_bits": 1028505600,
+            "native": 0.0625,
+            "reference": 0.05023193359375
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 1003880448,
+            "reference_bits": 995885056,
+            "native": 0.00653076171875,
+            "reference": 0.00335693359375
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1015611392,
+            "reference_bits": 1023148032,
+            "native": 0.0167236328125,
+            "reference": 0.03076171875
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3179806720,
+            "reference_bits": 3181075456,
+            "native": -0.06640625,
+            "reference": -0.07585906982421875
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 3141533696,
+            "reference_bits": 989986816,
+            "native": -0.0029296875,
+            "reference": 0.001983642578125
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3174760448,
+            "reference_bits": 3174899712,
+            "native": -0.045654296875,
+            "reference": -0.046173095703125
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1034158080,
+            "reference_bits": 1033314304,
+            "native": 0.080078125,
+            "reference": 0.07379150390625
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-24.bin",
+      "native_sha256": "2a9efd1db67ce8c2207f3d8b7664fbfa46146b4b7a5f2a1b8419aac1d4bffc82",
+      "reference_label": "layer-24-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-24-combined-f32.bin",
+      "reference_sha256": "349315bc1730d99e385abc0c4dc829fed10dcd6fd844e25dc532b1839578836b",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2047,
+        "bf16_mismatches": 2031,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.03078460693359375,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3141795840,
+            "reference_bits": 3152936960,
+            "native": -0.00299072265625,
+            "reference": -0.00726318359375
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1027473408,
+            "reference_bits": 1025187840,
+            "native": 0.04638671875,
+            "reference": 0.037872314453125
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 974651392,
+            "reference_bits": 3145990144,
+            "native": 0.000579833984375,
+            "reference": -0.0040283203125
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1024720896,
+            "reference_bits": 1028194304,
+            "native": 0.0361328125,
+            "reference": 0.049072265625
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3180986368,
+            "reference_bits": 3181990912,
+            "native": -0.0751953125,
+            "reference": -0.08267974853515625
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 967835648,
+            "reference_bits": 1006092288,
+            "native": 0.000335693359375,
+            "reference": 0.00756072998046875
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3171155968,
+            "reference_bits": 3171008512,
+            "native": -0.0322265625,
+            "reference": -0.03167724609375
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1033502720,
+            "reference_bits": 1032613888,
+            "native": 0.0751953125,
+            "reference": 0.068572998046875
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-25.bin",
+      "native_sha256": "8f3efaaa774fdd76abdacdc3b86d318c8709449a54d4a222404dad6345a782dd",
+      "reference_label": "layer-25-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-25-combined-f32.bin",
+      "reference_sha256": "fe677f46eaf1801b573033a12a9bfbbe9568f5a24c978dbb9cd1988616f5ad33",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2043,
+        "bf16_mismatches": 2027,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0337677001953125,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 1001652224,
+            "reference_bits": 995885056,
+            "native": 0.0054931640625,
+            "reference": 0.00335693359375
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1027538944,
+            "reference_bits": 1025736704,
+            "native": 0.046630859375,
+            "reference": 0.0399169921875
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 1001652224,
+            "reference_bits": 997720064,
+            "native": 0.0054931640625,
+            "reference": 0.0037841796875
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1019215872,
+            "reference_bits": 1025368064,
+            "native": 0.0234375,
+            "reference": 0.038543701171875
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3180265472,
+            "reference_bits": 3181223936,
+            "native": -0.06982421875,
+            "reference": -0.07696533203125
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 3124494336,
+            "reference_bits": 1006698496,
+            "native": -0.0007171630859375,
+            "reference": 0.00787353515625
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3171483648,
+            "reference_bits": 3170795520,
+            "native": -0.033447265625,
+            "reference": -0.03106689453125
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1036648448,
+            "reference_bits": 1035665408,
+            "native": 0.0986328125,
+            "reference": 0.09130859375
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-26.bin",
+      "native_sha256": "720856e13e69b15745796d8d11ab5bbca5042fd421975faae3583aca76f1a70a",
+      "reference_label": "layer-26-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-26-combined-f32.bin",
+      "reference_sha256": "e05855de819c73089562d2beebe6a89ed0461de7b0d34dd75093399746dfc13a",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2040,
+        "bf16_mismatches": 2018,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.046875,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3152478208,
+            "reference_bits": 3153330176,
+            "native": -0.007049560546875,
+            "reference": -0.0074462890625
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1024393216,
+            "reference_bits": 1023655936,
+            "native": 0.034912109375,
+            "reference": 0.03216552734375
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 1008205824,
+            "reference_bits": 1000341504,
+            "native": 0.00927734375,
+            "reference": 0.0048828125
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1015676928,
+            "reference_bits": 1023594496,
+            "native": 0.016845703125,
+            "reference": 0.0319366455078125
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3179806720,
+            "reference_bits": 3180773376,
+            "native": -0.06640625,
+            "reference": -0.0736083984375
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 3099590656,
+            "reference_bits": 1005060096,
+            "native": -9.1552734375e-05,
+            "reference": 0.007080078125
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3175415808,
+            "reference_bits": 3173965824,
+            "native": -0.048095703125,
+            "reference": -0.042694091796875
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1034813440,
+            "reference_bits": 1034055680,
+            "native": 0.0849609375,
+            "reference": 0.079315185546875
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-27.bin",
+      "native_sha256": "57915466c9a4d0867ec969bc08e474f39e3642ef72ccc9b90d986a4d53da13d7",
+      "reference_label": "layer-27-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-27-combined-f32.bin",
+      "reference_sha256": "caad7268d8dffc585bdcad77c24d83b38af56020f79b12d6c5fc7287f612a465",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2044,
+        "bf16_mismatches": 2018,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0390625,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 1008205824,
+            "reference_bits": 1008001024,
+            "native": 0.00927734375,
+            "reference": 0.00908660888671875
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1025900544,
+            "reference_bits": 1025437696,
+            "native": 0.04052734375,
+            "reference": 0.0388031005859375
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 1014169600,
+            "reference_bits": 1011384320,
+            "native": 0.01483154296875,
+            "reference": 0.012237548828125
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1020133376,
+            "reference_bits": 1025851392,
+            "native": 0.025146484375,
+            "reference": 0.04034423828125
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3183411200,
+            "reference_bits": 3184615424,
+            "native": -0.09326171875,
+            "reference": -0.10223388671875
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1006632960,
+            "reference_bits": 1014038528,
+            "native": 0.0078125,
+            "reference": 0.01470947265625
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3172204544,
+            "reference_bits": 3168567296,
+            "native": -0.0361328125,
+            "reference": -0.02691650390625
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1031602176,
+            "reference_bits": 1030766592,
+            "native": 0.061767578125,
+            "reference": 0.05865478515625
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-28.bin",
+      "native_sha256": "ea486d3ebf82846879d12d3864632a2ee22d97925cbfabd60c42d96c6fcc904c",
+      "reference_label": "layer-28-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-28-combined-f32.bin",
+      "reference_sha256": "d544961d47215242c2371869341768e04da5dbf9e16bce3cfff3f3ae59e6ed4b",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2043,
+        "bf16_mismatches": 2029,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.03106689453125,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3142057984,
+            "reference_bits": 3129999360,
+            "native": -0.0030517578125,
+            "reference": -0.0010986328125
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1025114112,
+            "reference_bits": 1023574016,
+            "native": 0.03759765625,
+            "reference": 0.0318603515625
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 1011023872,
+            "reference_bits": 1011646464,
+            "native": 0.01190185546875,
+            "reference": 0.012481689453125
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1019412480,
+            "reference_bits": 1024499712,
+            "native": 0.0238037109375,
+            "reference": 0.035308837890625
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3182297088,
+            "reference_bits": 3182968832,
+            "native": -0.0849609375,
+            "reference": -0.0899658203125
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1009713152,
+            "reference_bits": 1016250368,
+            "native": 0.01068115234375,
+            "reference": 0.017913818359375
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3172794368,
+            "reference_bits": 3168935936,
+            "native": -0.038330078125,
+            "reference": -0.0276031494140625
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1033109504,
+            "reference_bits": 1032732672,
+            "native": 0.072265625,
+            "reference": 0.0694580078125
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-29.bin",
+      "native_sha256": "275f9a3dfd5cf4e7ad4723d68624e91ba70642e7c4d13c4f3737510248759dea",
+      "reference_label": "layer-29-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-29-combined-f32.bin",
+      "reference_sha256": "16908ae84c6db58e760c7fd72e670478f2679a7f34571bbddfdbd2bebb0cfacd",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2038,
+        "bf16_mismatches": 2027,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0361328125,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 990380032,
+            "reference_bits": 994705408,
+            "native": 0.0020751953125,
+            "reference": 0.003082275390625
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1028128768,
+            "reference_bits": 1026965504,
+            "native": 0.048828125,
+            "reference": 0.04449462890625
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 3165978624,
+            "reference_bits": 3164438528,
+            "native": -0.0220947265625,
+            "reference": -0.01922607421875
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1018036224,
+            "reference_bits": 1022525440,
+            "native": 0.021240234375,
+            "reference": 0.02960205078125
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3184787456,
+            "reference_bits": 3185147904,
+            "native": -0.103515625,
+            "reference": -0.106201171875
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1011351552,
+            "reference_bits": 1010696192,
+            "native": 0.01220703125,
+            "reference": 0.0115966796875
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3178430464,
+            "reference_bits": 3175284736,
+            "native": -0.059326171875,
+            "reference": -0.047607421875
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1032716288,
+            "reference_bits": 1031610368,
+            "native": 0.0693359375,
+            "reference": 0.061798095703125
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-30.bin",
+      "native_sha256": "727a0c1a7fce41beef64abda961e2ad409b5e106db25fce13a8d71d67cc0f95d",
+      "reference_label": "layer-30-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-30-combined-f32.bin",
+      "reference_sha256": "9bce251b40ea0eec1e9febae37bfafe3e9716d156049db33881d89b4ee10ec87",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2042,
+        "bf16_mismatches": 2023,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.03265380859375,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 1013514240,
+            "reference_bits": 1010515968,
+            "native": 0.01422119140625,
+            "reference": 0.0114288330078125
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1032454144,
+            "reference_bits": 1031053312,
+            "native": 0.0673828125,
+            "reference": 0.059722900390625
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 1007157248,
+            "reference_bits": 1007812608,
+            "native": 0.00830078125,
+            "reference": 0.0089111328125
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 991952896,
+            "reference_bits": 1010958336,
+            "native": 0.00244140625,
+            "reference": 0.0118408203125
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3186229248,
+            "reference_bits": 3186708480,
+            "native": -0.1142578125,
+            "reference": -0.117828369140625
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1025769472,
+            "reference_bits": 1025163264,
+            "native": 0.0400390625,
+            "reference": 0.03778076171875
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3171090432,
+            "reference_bits": 3166371840,
+            "native": -0.031982421875,
+            "reference": -0.0228271484375
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1033633792,
+            "reference_bits": 1032601600,
+            "native": 0.076171875,
+            "reference": 0.0684814453125
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-31.bin",
+      "native_sha256": "044983bc0a6ca8859139a4aebfeee47c7edaaf34d055fd74bf16e5f39360ac39",
+      "reference_label": "layer-31-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-31-combined-f32.bin",
+      "reference_sha256": "c72ceea0df6a5265cd0d03a02333297f175cc543eedad9940bcd45bfdde82a74",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2043,
+        "bf16_mismatches": 2025,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.034759521484375,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3162767360,
+            "reference_bits": 3161194496,
+            "native": -0.01611328125,
+            "reference": -0.014404296875
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1024327680,
+            "reference_bits": 1023934464,
+            "native": 0.03466796875,
+            "reference": 0.033203125
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 1014104064,
+            "reference_bits": 1010761728,
+            "native": 0.0147705078125,
+            "reference": 0.01165771484375
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1023344640,
+            "reference_bits": 1023901696,
+            "native": 0.0311279296875,
+            "reference": 0.0330810546875
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3181314048,
+            "reference_bits": 3182422016,
+            "native": -0.07763671875,
+            "reference": -0.0858917236328125
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1020395520,
+            "reference_bits": 1016299520,
+            "native": 0.025634765625,
+            "reference": 0.01800537109375
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3164995584,
+            "reference_bits": 3158310912,
+            "native": -0.020263671875,
+            "reference": -0.01171875
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1031143424,
+            "reference_bits": 1027342336,
+            "native": 0.06005859375,
+            "reference": 0.0458984375
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-32.bin",
+      "native_sha256": "a109f14eacbd437e167865b1b2ac2925915ae61f5cbf5b43d24e2edf2b17532e",
+      "reference_label": "layer-32-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-32-combined-f32.bin",
+      "reference_sha256": "13b511e67d208b21c043ad208ee6b3b9ce2eff0afb2044e6c6d86e870203b0a3",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2042,
+        "bf16_mismatches": 2025,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0478515625,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3173842944,
+            "reference_bits": 3170951168,
+            "native": -0.042236328125,
+            "reference": -0.031463623046875
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1015808000,
+            "reference_bits": 1015545856,
+            "native": 0.01708984375,
+            "reference": 0.0166015625
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 1008336896,
+            "reference_bits": 3128950784,
+            "native": 0.0093994140625,
+            "reference": -0.0009765625
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1026424832,
+            "reference_bits": 1028292608,
+            "native": 0.04248046875,
+            "reference": 0.0494384765625
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3183017984,
+            "reference_bits": 3184173056,
+            "native": -0.09033203125,
+            "reference": -0.09893798828125
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1025048576,
+            "reference_bits": 1023148032,
+            "native": 0.037353515625,
+            "reference": 0.03076171875
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 3179151360,
+            "reference_bits": 3179577344,
+            "native": -0.06201171875,
+            "reference": -0.064697265625
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1032585216,
+            "reference_bits": 1028161536,
+            "native": 0.068359375,
+            "reference": 0.0489501953125
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-33.bin",
+      "native_sha256": "70d5f493df0eeb260cf32521958256cd1b03f2974e1a7269351bb1576dafa8da",
+      "reference_label": "layer-33-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-33-combined-f32.bin",
+      "reference_sha256": "73f0ed74d59f989049c89e3bb721a15a1c3605329eac7c9ea668b76f2562e4e4",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2026,
+        "bf16_mismatches": 1991,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0703125,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3185377280,
+            "reference_bits": 3184820224,
+            "native": -0.10791015625,
+            "reference": -0.103759765625
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 3151626240,
+            "reference_bits": 3152805888,
+            "native": -0.00665283203125,
+            "reference": -0.0072021484375
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 1022492672,
+            "reference_bits": 1013972992,
+            "native": 0.029541015625,
+            "reference": 0.0146484375
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1042677760,
+            "reference_bits": 1043415040,
+            "native": 0.162109375,
+            "reference": 0.173095703125
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3189047296,
+            "reference_bits": 3189571584,
+            "native": -0.1455078125,
+            "reference": -0.1533203125
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1027604480,
+            "reference_bits": 1024106496,
+            "native": 0.046875,
+            "reference": 0.033843994140625
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 1033502720,
+            "reference_bits": 1032617984,
+            "native": 0.0751953125,
+            "reference": 0.068603515625
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1039532032,
+            "reference_bits": 1037074432,
+            "native": 0.1201171875,
+            "reference": 0.101806640625
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-34.bin",
+      "native_sha256": "b9e59e5742998bb45a61e571e494f83ba9e2f69fec5b6f31c86a3274137ea76d",
+      "reference_label": "layer-34-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-34-combined-f32.bin",
+      "reference_sha256": "2c69d302021600e0cd7b9aad2f982538d9c1d0ce4912b28c8345493659265044",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2038,
+        "bf16_mismatches": 2005,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.14453125,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3174891520,
+            "reference_bits": 3174367232,
+            "native": -0.046142578125,
+            "reference": -0.044189453125
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 3157786624,
+            "reference_bits": 3155427328,
+            "native": -0.01123046875,
+            "reference": -0.009033203125
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 1001914368,
+            "reference_bits": 3152281600,
+            "native": 0.005615234375,
+            "reference": -0.0069580078125
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1041235968,
+            "reference_bits": 1041707008,
+            "native": 0.140625,
+            "reference": 0.14764404296875
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3188064256,
+            "reference_bits": 3188920320,
+            "native": -0.130859375,
+            "reference": -0.14361572265625
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1036058624,
+            "reference_bits": 1034682368,
+            "native": 0.09423828125,
+            "reference": 0.083984375
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 1028980736,
+            "reference_bits": 1026926592,
+            "native": 0.052001953125,
+            "reference": 0.04434967041015625
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1040252928,
+            "reference_bits": 1038041088,
+            "native": 0.1259765625,
+            "reference": 0.1090087890625
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-35.bin",
+      "native_sha256": "3337312c72fb350e95a680fb019a4429e37e1cd9e567a3ea8e1c003107762e2c",
+      "reference_label": "layer-35-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-35-combined-f32.bin",
+      "reference_sha256": "76ff4b89705e25df58253e84dfd03e713f306a5af6d3d1005dae374c3d3b0b08",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2033,
+        "bf16_mismatches": 1993,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.2109375,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3179675648,
+            "reference_bits": 3177709568,
+            "native": -0.0654296875,
+            "reference": -0.056640625
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1031471104,
+            "reference_bits": 1032241152,
+            "native": 0.061279296875,
+            "reference": 0.0657958984375
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 3172401152,
+            "reference_bits": 3177185280,
+            "native": -0.036865234375,
+            "reference": -0.0546875
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1035337728,
+            "reference_bits": 1035943936,
+            "native": 0.0888671875,
+            "reference": 0.0933837890625
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3190816768,
+            "reference_bits": 3191898112,
+            "native": -0.171875,
+            "reference": -0.18798828125
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1035993088,
+            "reference_bits": 1034420224,
+            "native": 0.09375,
+            "reference": 0.08203125
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 1036124160,
+            "reference_bits": 1034010624,
+            "native": 0.0947265625,
+            "reference": 0.0789794921875
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1034092544,
+            "reference_bits": 1033306112,
+            "native": 0.07958984375,
+            "reference": 0.07373046875
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-36.bin",
+      "native_sha256": "bb598348f298b8bd2a8b2e8a95b4064d2a5eb77393609de83e9e940004a9302c",
+      "reference_label": "layer-36-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-36-combined-f32.bin",
+      "reference_sha256": "6fb835b8e2178da8e2ecdafccb630a048610db5ac481a06bf77f047ec196e5cc",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2031,
+        "bf16_mismatches": 1999,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.181640625,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 1017905152,
+            "reference_bits": 1018167296,
+            "native": 0.02099609375,
+            "reference": 0.021484375
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1042153472,
+            "reference_bits": 1042612224,
+            "native": 0.154296875,
+            "reference": 0.1611328125
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 1040449536,
+            "reference_bits": 1038811136,
+            "native": 0.12890625,
+            "reference": 0.11474609375
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1004404736,
+            "reference_bits": 1015611392,
+            "native": 0.00677490234375,
+            "reference": 0.0167236328125
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3192848384,
+            "reference_bits": 3193892864,
+            "native": -0.2021484375,
+            "reference": -0.21771240234375
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1041104896,
+            "reference_bits": 1040482304,
+            "native": 0.138671875,
+            "reference": 0.12939453125
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 1045561344,
+            "reference_bits": 1044152320,
+            "native": 0.205078125,
+            "reference": 0.18408203125
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1041760256,
+            "reference_bits": 1041039360,
+            "native": 0.1484375,
+            "reference": 0.1376953125
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-37.bin",
+      "native_sha256": "208db2f64ee0be6368a9b2bca385b20938f8f5fc3ee235cfb81b0ab7b95474de",
+      "reference_label": "layer-37-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-37-combined-f32.bin",
+      "reference_sha256": "5eea8a8fb033f53a985cb7fcc867e171ac78a49a3257947cbb26edcf3154e9f2",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2031,
+        "bf16_mismatches": 1985,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.20703125,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 1022623744,
+            "reference_bits": 1023279104,
+            "native": 0.02978515625,
+            "reference": 0.031005859375
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1044840448,
+            "reference_bits": 1045528576,
+            "native": 0.1943359375,
+            "reference": 0.20458984375
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 1028784128,
+            "reference_bits": 1024589824,
+            "native": 0.05126953125,
+            "reference": 0.03564453125
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 3184132096,
+            "reference_bits": 3182477312,
+            "native": -0.0986328125,
+            "reference": -0.0863037109375
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3191668736,
+            "reference_bits": 3192623104,
+            "native": -0.1845703125,
+            "reference": -0.19879150390625
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1034747904,
+            "reference_bits": 1032945664,
+            "native": 0.08447265625,
+            "reference": 0.071044921875
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 1042350080,
+            "reference_bits": 1041485824,
+            "native": 0.1572265625,
+            "reference": 0.14434814453125
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 1042677760,
+            "reference_bits": 1042407424,
+            "native": 0.162109375,
+            "reference": 0.1580810546875
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-38.bin",
+      "native_sha256": "19235fea0cef14eaab10fc031819763dd79073e945b7b407e2a7c262fc78bc54",
+      "reference_label": "layer-38-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-38-combined-f32.bin",
+      "reference_sha256": "c160f26e6b6666fff91854c1289c7198c16bb3e23685f0a721f20dcfcbcccb4d",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2034,
+        "bf16_mismatches": 1992,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.09375,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 3182624768,
+            "reference_bits": 3183345664,
+            "native": -0.08740234375,
+            "reference": -0.0927734375
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1045561344,
+            "reference_bits": 1046437888,
+            "native": 0.205078125,
+            "reference": 0.2181396484375
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 1036976128,
+            "reference_bits": 1035091968,
+            "native": 0.10107421875,
+            "reference": 0.0870361328125
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1026031616,
+            "reference_bits": 1024327680,
+            "native": 0.041015625,
+            "reference": 0.03466796875
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3189243904,
+            "reference_bits": 3189448704,
+            "native": -0.1484375,
+            "reference": -0.1514892578125
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1041891328,
+            "reference_bits": 1041006592,
+            "native": 0.150390625,
+            "reference": 0.13720703125
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 1042743296,
+            "reference_bits": 1041940480,
+            "native": 0.1630859375,
+            "reference": 0.151123046875
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 3176398848,
+            "reference_bits": 3175743488,
+            "native": -0.0517578125,
+            "reference": -0.04931640625
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-39.bin",
+      "native_sha256": "1e337f913c76e5cc45996718e089ebf5cd86a9d49cde5f2bc15e598ae0aa011e",
+      "reference_label": "layer-39-combined",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-layer-39-combined-f32.bin",
+      "reference_sha256": "2e6db88f62f4b1b2d07e30dccf5d54fea468150d853b789ba5d4fd3a6650f019",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 2006,
+        "bf16_mismatches": 1935,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.59375,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 1047527424,
+            "reference_bits": 1048150016,
+            "native": 0.234375,
+            "reference": 0.24365234375
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1066270720,
+            "reference_bits": 1066369024,
+            "native": 1.109375,
+            "reference": 1.12109375
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 3190751232,
+            "reference_bits": 3191767040,
+            "native": -0.1708984375,
+            "reference": -0.18603515625
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1064042496,
+            "reference_bits": 1063731200,
+            "native": 0.921875,
+            "reference": 0.9033203125
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3194945536,
+            "reference_bits": 3196813312,
+            "native": -0.2333984375,
+            "reference": -0.2724609375
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1039663104,
+            "reference_bits": 1036910592,
+            "native": 0.12109375,
+            "reference": 0.1005859375
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 1039073280,
+            "reference_bits": 1035485184,
+            "native": 0.11669921875,
+            "reference": 0.0899658203125
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 3205234688,
+            "reference_bits": 3204870144,
+            "native": -0.546875,
+            "reference": -0.525146484375
+          }
+        ]
+      }
+    },
+    {
+      "native_file": "decode-boundary-40.bin",
+      "native_sha256": "436c69f1b8e5082b3aed6fc5d07acc8e6442b014a72adf9261c9886042b5d33d",
+      "reference_label": "final-norm",
+      "reference_transaction": 1,
+      "reference_file": "txn0001-final-norm-bf16.bin",
+      "reference_sha256": "8dc463afa50d9ba83c98df765d6a9b3b96fc57c32dcda1eae8e3c730a06e8614",
+      "reference_offset_elements": 0,
+      "layout": "identity",
+      "comparison": {
+        "elements": 2048,
+        "f32_bit_mismatches": 1947,
+        "bf16_mismatches": 1947,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.5625,
+        "first_bf16_differences": [
+          {
+            "column": 0,
+            "native_index": 0,
+            "reference_index": 0,
+            "native_bits": 1056964608,
+            "reference_bits": 1057357824,
+            "native": 0.5,
+            "reference": 0.5234375
+          },
+          {
+            "column": 1,
+            "native_index": 1,
+            "reference_index": 1,
+            "native_bits": 1075380224,
+            "reference_bits": 1075642368,
+            "native": 2.390625,
+            "reference": 2.453125
+          },
+          {
+            "column": 2,
+            "native_index": 2,
+            "reference_index": 2,
+            "native_bits": 3200319488,
+            "reference_bits": 3201499136,
+            "native": -0.376953125,
+            "reference": -0.412109375
+          },
+          {
+            "column": 3,
+            "native_index": 3,
+            "reference_index": 3,
+            "native_bits": 1073741824,
+            "reference_bits": 1073545216,
+            "native": 2,
+            "reference": 1.9765625
+          },
+          {
+            "column": 4,
+            "native_index": 4,
+            "reference_index": 4,
+            "native_bits": 3204055040,
+            "reference_bits": 3205758976,
+            "native": -0.48828125,
+            "reference": -0.578125
+          },
+          {
+            "column": 5,
+            "native_index": 5,
+            "reference_index": 5,
+            "native_bits": 1048772608,
+            "reference_bits": 1046216704,
+            "native": 0.255859375,
+            "reference": 0.21484375
+          },
+          {
+            "column": 6,
+            "native_index": 6,
+            "reference_index": 6,
+            "native_bits": 1047789568,
+            "reference_bits": 1044250624,
+            "native": 0.23828125,
+            "reference": 0.185546875
+          },
+          {
+            "column": 7,
+            "native_index": 7,
+            "reference_index": 7,
+            "native_bits": 3214540800,
+            "reference_bits": 3214213120,
+            "native": -1.203125,
+            "reference": -1.1640625
+          }
+        ]
+      }
+    }
+  ],
+  "uncompared_files": [],
+  "reference_conv_derived_sha256": "ee3ab8a465dff6a08062896318cec9e87693e96e37ed558aac391c4fdffed784",
+  "reference_q2_selected_row": {
+    "row": 0,
+    "position": 8192,
+    "input_token_id": 144,
+    "logit_row": 0,
+    "matches_generated_history": true
+  },
+  "missing_requested_callbacks": [
+    "decode_linear_layer0_observer",
+    "decode_layer0_tail_observer"
+  ],
+  "callback_scope": "The text decode path returns before current-vLLM detailed callbacks in native_linear_layer.hip.cpp; no detailed linear values were captured.",
+  "layer_carrier_scope": "Native BF16 accumulated output is compared with GB10 hidden.float()+residual.float(); BF16 mismatches describe the rounded carrier, while FP32-bit differences alone do not qualify a numerical error.",
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "kind": "linux_core_windows_unchanged_first_decode_observation",
+  "comparison_sha256": "68c8c2de8459231ee8e6e9efa251deccdf271857e1b53068daa75086e8999231",
+  "capture": {
+    "metadata": {
+      "archive": "P:/projects/AIMA-public-linux-core-observer-20260922-r1/build/linux-core-windows-q8192-step1-r1/observations.tar.gz",
+      "sha256": "d36fcfb92f8d8145d220c17e401bf8e2ba8b34815048b2bd84b6d83922b1cfb7",
+      "bytes": 2042526,
+      "raw_bytes": 2314240,
+      "files": 43,
+      "manifest_sha256": "309918cae490cb8cc3fede0aea1aadf596e136814561cc7424b3b2597774e98c"
+    },
+    "run_sha256": "eeaffb3dab298b2f6da03920466707f2f6cb33b28bfced83ae2965ebf83c0dd5",
+    "source_manifest_sha256": "765222a3e1d88d2b82c6a7f478f65d9aabc2407b430473069424b9bd6ab823d0",
+    "baseline_run_sha256": "4cb213bdd6ebdde83f734986fb72180e82cd81139cb64e4f99705a8646c060fa",
+    "unchanged_original512_outputs_and_first_logit": true,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "manifest_sha256": "309918cae490cb8cc3fede0aea1aadf596e136814561cc7424b3b2597774e98c"
+  },
+  "native_spec": {
+    "executable": "P:/projects/AIMA-public-linux-core-observer-20260922-r1/build/linux-core-windows-r1/qrt-linux-core-q8192-probe.exe",
+    "working_directory": "P:/projects/AIMA-public-linux-core-observer-20260922-r1",
+    "repo_commit": "893a22c284a252e2b8758f83e06a2a395a15f7b2",
+    "command_file": "P:/projects/AIMA-public-linux-core-observer-20260922-r1/scripts/baiying_linux_core_probe.ps1",
+    "command_file_sha256": "f46b8149c7d91f38199cb35707049315fe5cf79818299a98691b381465e5319f",
+    "model": "D:/models/Qwen3.6-35B-A3B",
+    "source_inputs": [
+      {
+        "path": "P:/projects/linux-core-q8192-prompt-r1.u32",
+        "bytes": 32768,
+        "sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96"
+      },
+      {
+        "path": "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query/qrt_ck_fmha_sm121.dll",
+        "sha256": "2ab47f4443fa8bb30b521c75b1c6785e8ce1a998b97021bd252aaed77c3aa64b",
+        "bytes": 2106368
+      },
+      {
+        "path": "P:/projects/AIMA-public-linux-core-observer-20260922-r1/third_party/aima_linux/native/aot/gfx1151/vision-attention-v0.3.0/kernels/d09fefdcb1ddb6cb-_fwd_kernel.hsaco",
+        "bytes": 51056,
+        "sha256": "8327e42d99f5d34667b59d481dabc8e1d7cf9675361df974d85f5d6005109a9e"
+      },
+      {
+        "path": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-exp2-interpolated-b5752a88.bin",
+        "sha256": "b5752a88488d8e6382cc99a897ef822e97758e0a782930c174954a5299126eec",
+        "bytes": 38909480
+      },
+      {
+        "path": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-attention-rcp-d2e55754.bin",
+        "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+        "bytes": 8388640
+      }
+    ],
+    "arguments": [
+      "--model",
+      "D:/models/Qwen3.6-35B-A3B",
+      "--input-u32",
+      "P:/projects/linux-core-q8192-prompt-r1.u32",
+      "--ck-provider",
+      "D:/projects/AIMA-public-compact-suffix-query-20260919-r2/build/compact-suffix-query/qrt_ck_fmha_sm121.dll",
+      "--vision-image",
+      "P:/projects/AIMA-public-linux-core-observer-20260922-r1/third_party/aima_linux/native/aot/gfx1151/vision-attention-v0.3.0/kernels/d09fefdcb1ddb6cb-_fwd_kernel.hsaco",
+      "--load-report",
+      "P:/projects/AIMA-public-linux-core-observer-20260922-r1/build/linux-core-q8192-load-r1.json",
+      "--observe-directory",
+      "P:/projects/AIMA-public-linux-core-observer-20260922-r1/build/linux-core-step1-observations-r1",
+      "--observe-output-index",
+      "1",
+      "--observe-linear-layer",
+      "0"
+    ],
+    "diagnostic_observation": {
+      "directory": "P:/projects/AIMA-public-linux-core-observer-20260922-r1/build/linux-core-step1-observations-r1",
+      "output_index": 1,
+      "linear_layer": 0,
+      "file_bound": 128,
+      "raw_byte_bound": 33554432,
+      "output_only": true,
+      "expected_activation_inputs": false
+    },
+    "executable_sha256": "4da17097b17024014fc5ea51b7664f1c00704429a9f50a7cfd595768b6ba8317",
+    "build_metadata_sha256": "bfd4eb8982eeca3c60ff51e7e3acdeac1225d61d912a177beba6be5ce4a51e10",
+    "build_run_sha256": "88dd434a867eec6b3a16ac532eeb6c8ad8512820b913f14ee0b421680b2cc3ae",
+    "source_manifest_sha256": "765222a3e1d88d2b82c6a7f478f65d9aabc2407b430473069424b9bd6ab823d0",
+    "environment": {
+      "QRT_CK_FMHA_SM121_FULL_PREFIX": "1",
+      "QRT_CK_FMHA_SM121_EXP2_TABLE": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-exp2-interpolated-b5752a88.bin",
+      "QRT_CK_FMHA_SM121_RCP_TABLE": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-attention-rcp-d2e55754.bin",
+      "QRT_CK_SM121_NATIVE_BF16_MATRIX": "0",
+      "QRT_CK_SM121_TILED_EXACT_QK": "1",
+      "QRT_CK_SM121_NATIVE_PRODUCTS": "0",
+      "QRT_CK_SM121_MANTISSA_WMMA": "0",
+      "QRT_CK_SM121_PREPARED_VALUE": "0",
+      "QRT_CK_SM121_COMPACT_PV_REPLAY": "1",
+      "QRT_CK_SM121_WARP_SOFTMAX": "0",
+      "QRT_CK_SM121_PREFILL_QUERY_BATCH": "128",
+      "QRT_CK_SM121_COMPACT_PV_TRANSPOSE_VALUE": "1",
+      "QRT_CK_SM121_LONG_TRANSPOSE_VALUE": "1",
+      "QRT_CK_SM121_FINAL_PV_BOUND": "1",
+      "QRT_CK_SM121_DIRECT_PV_OPERANDS": "1",
+      "QRT_CK_SM121_LONG_DIRECT_PV_OPERANDS": "1",
+      "QRT_CK_SM121_LONG_ALL_PV_REPLAY": "0",
+      "QRT_CK_SM121_SELECTIVE_QK_PROBABILITY": "0",
+      "QRT_CK_SM121_FLOAT_ALIGNMENT_QK": "1",
+      "QRT_CK_SM121_PREPARED_DECODED_QK": "1",
+      "QRT_CK_SM121_LONG_PREPARED_DECODED_QK": "1",
+      "QRT_CK_SM121_PROFILE_COMPLETED_STAGES": "0",
+      "QRT_CK_SM121_SELECTIVE_QK_EXACT_TAIL": "0",
+      "QRT_CK_SM121_REGISTER_PV_RESCALE": "1",
+      "QRT_CK_SM121_EXACT_ATTENTION_PIPELINE": "1",
+      "QRT_CK_SM121_FUSED_PROBABILITY_PV": "1",
+      "QRT_CK_SM121_NARROW_DOMAIN_QK": "1",
+      "QRT_CK_SM121_LONG_ATTENTION_PIPELINE": "1",
+      "QRT_CK_SM121_LONG_FINAL_PV_BOUND": "1",
+      "AIMA_NATIVE_PREFILL_TIMELINE": "0"
+    },
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "build_metadata_sha256": "bfd4eb8982eeca3c60ff51e7e3acdeac1225d61d912a177beba6be5ce4a51e10",
+  "host_checks": {
+    "same_boot": true,
+    "no_engine_process": true,
+    "host_memory_reserve": true,
+    "commit_reserve": true,
+    "amd_gpu_ok": true
+  },
+  "after_processes": [],
+  "raw_file_count": 43,
+  "raw_bytes": 2314240,
+  "same_failed_original_continuation": {
+    "first_difference_index": 115,
+    "actual": 196,
+    "expected": 271,
+    "mismatches": 397
+  },
+  "state_layout_source": "native_linear_prefill.hip.cpp binds ht directly to linear_attention_initial_ssm_states_vllm; both reference and native payloads are [1,32,128,128] FP32.",
+  "no_single_hash_correctness_rejection": true,
+  "scope": "Selected original-row operand diagnosis. Neither differing hashes nor FP32-only residual storage differences are acceptance gates. The separate original 512-token boundary still fails."
+}

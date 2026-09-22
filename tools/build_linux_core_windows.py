@@ -30,6 +30,8 @@ def main():
     parser.add_argument("--timeout-seconds", type=int, default=1500)
     parser.add_argument("--windows-rectangular-ck", action="store_true",
                         help="Opt in to the Windows suffix ABI mapping; not model-qualified")
+    parser.add_argument("--current-text-decode", action="store_true",
+                        help="Use current upstream decode arithmetic for text; not model-qualified")
     args = parser.parse_args()
     host = socket.gethostname()
     if platform.system() != "Windows" or host.split(".")[0].lower() != "baiying":
@@ -100,6 +102,8 @@ def main():
         preparation = [sys.executable, ROOT / "tools/prepare_linux_core_windows.py", "--out", prepared]
         if args.windows_rectangular_ck:
             preparation.append("--windows-rectangular-ck")
+        if args.current_text_decode:
+            preparation.append("--current-text-decode")
         run("prepare", preparation, 120)
         plan = json.loads((prepared / "prepare.json").read_text())
         if "optional_adaptations" in plan:

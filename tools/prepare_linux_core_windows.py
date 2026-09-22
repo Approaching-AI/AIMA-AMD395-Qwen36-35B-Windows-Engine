@@ -151,7 +151,37 @@ def rectangular_ck_overlay(header, source):
     return header, source
 
 
-def make_overlays(*, rectangular_ck=False):
+def current_text_decode_overlay(text):
+    """Reuse current upstream decode arithmetic with ordinary text positions.
+
+    The upstream boolean named use_mrope also selects projection, recurrence,
+    normalization and MoE arithmetic. Its current path uses in-place state;
+    selecting only some of these call sites would leave incompatible swaps.
+    No M-RoPE plan or visual request is synthesized, and prefill is unchanged.
+    """
+    text = replace(text,
+        "    const NativeDecodePrepareMetrics prepared =\n"
+        "        mrope_plan != nullptr\n"
+        "            ? prepare_native_decode_step(\n"
+        "                  position, rotary_position, metrics.output_token_ids.back(),\n"
+        "                  impl_->weights, impl_->decode_invocations)\n"
+        "            : prepare_native_decode_step(\n"
+        "                  position, metrics.output_token_ids.back(), impl_->weights,\n"
+        "                  impl_->decode_invocations);",
+        "    // Windows current-text experiment: ordinary text keeps\n"
+        "    // rotary_position == position, with the current BF16 RoPE cache.\n"
+        "    const NativeDecodePrepareMetrics prepared =\n"
+        "        prepare_native_decode_step(\n"
+        "            position, rotary_position, metrics.output_token_ids.back(),\n"
+        "            impl_->weights, impl_->decode_invocations);")
+    return replace(text,
+        "        mrope_plan != nullptr, impl_->decode_shared_gate_plan.get(),\n"
+        "        mrope_plan != nullptr ? &impl_->decode_cross_layer_norms : nullptr);",
+        "        true, impl_->decode_shared_gate_plan.get(),\n"
+        "        &impl_->decode_cross_layer_norms);")
+
+
+def make_overlays(*, rectangular_ck=False, current_text_decode=False):
     read = lambda p: (UPSTREAM / p).read_text(encoding="utf-8")
     sources = {}
     loader = "benchmarks/shape-lab/native/src/torch_owned_safetensors_loader.hip.cpp"
@@ -169,6 +199,8 @@ def make_overlays(*, rectangular_ck=False):
         "        default_fmha_provider(4096), 4096);",
         "        options.ck_provider.empty() ? default_fmha_provider(4096)\n"
         "                                    : options.ck_provider, 4096);")
+    if current_text_decode:
+        sources[engine] = current_text_decode_overlay(sources[engine])
     weights = "native/src/native_weight_store.hip.cpp"
     sources[weights] = replace(read(weights), "shard_storage.push_back(path.string());",
                              "shard_storage.push_back(path.u8string());")
@@ -214,12 +246,15 @@ def main():
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--windows-rectangular-ck", action="store_true",
                         help="Generate the optional Windows suffix ABI mapping; not model-qualified")
+    parser.add_argument("--current-text-decode", action="store_true",
+                        help="Use current upstream decode arithmetic for text; not model-qualified")
     args = parser.parse_args()
     inventory = verify_import()
     out = args.out.resolve()
     if out.exists():
         raise SystemExit("Output already exists; preserve it and choose a fresh directory")
-    overlays = make_overlays(rectangular_ck=args.windows_rectangular_ck)
+    overlays = make_overlays(rectangular_ck=args.windows_rectangular_ck,
+                             current_text_decode=args.current_text_decode)
     out.mkdir(parents=True)
     adapted = []
     for relative, text in overlays.items():
@@ -298,6 +333,12 @@ def main():
             adapter_path=adapter.relative_to(ROOT).as_posix(),
             adapter_sha256=digest(adapter.read_bytes()),
             maximum_suffix_queries=8192, maximum_total_kv_tokens=262144)
+    if args.current_text_decode:
+        report.setdefault("optional_adaptations", {})["current_text_decode"] = dict(
+            arithmetic="upstream current-vLLM decode",
+            rotary_positions="ordinary text position, existing M-RoPE plan when supplied",
+            rotary_cache="BF16 rounded", linear_state="in place; no historical ping-pong swaps",
+            prefill_changed=False, model_qualified=False)
     (out / "prepare.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: report[k] for k in ("upstream_revision", "imported_files", "imported_bytes", "image_bytes")}
                      | dict(images=len(images), compilation_units=len(sources), overlays=len(adapted))))

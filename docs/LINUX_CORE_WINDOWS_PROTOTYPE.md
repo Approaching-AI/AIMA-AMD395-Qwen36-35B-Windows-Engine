@@ -162,9 +162,10 @@ L is one of the model's linear-attention layers. Default requests leave the
 existing callbacks empty. The option preserves q8192/out512 and reads no
 expected token, logit or activation.
 
-The imported engine's existing callbacks expose the selected layer's prefill
-state, its decode attention/MoE stages, all 40 decode layer outputs and final
-normalization at the chosen step. The collector synchronizes and copies only
+The imported engine's callbacks expose the selected layer's prefill state,
+all 40 decode layer outputs and final normalization at the chosen step. The
+current arithmetic branch additionally exposes decode attention/MoE stages;
+the historical text branch returns before those callbacks. The collector copies only
 device-to-host, records byte extents/dtypes/SHA values, and rejects existing
 directories, duplicate names, invalid paths, more than 128 files or 32 MiB.
 Observation times are explicitly diagnostic. This records an execution; it
@@ -173,6 +174,30 @@ does not repair or qualify the continuation.
 `tools/test_linux_core_observation.py --out build/FRESH_DIRECTORY` extracts
 the actual collector into an ASan/UBSan host harness with recording HIP calls.
 It verifies 45 output files byte-for-byte, input immutability, 17 rejection
-controls, and the host I/O/parser contract. Native model comparisons are still
-needed to confirm the observer preserves the original output and locate the
-remaining numerical difference.
+controls, and the host I/O/parser contract.
+
+Source `893a22c` completes the same native request with exactly the original
+512 outputs and first logit. Its 43 captured files total 2,314,240 bytes. At
+decode output index 1, the original GB10 transaction's qualified row consumes
+token 144 at position 8192. The layer-0 prefill state already differs in 496,140
+FP32 cells (maximum absolute difference 0.1292424202); its convolution history
+differs in 169 BF16 cells. The first decode layer's accumulated carrier has
+1,424 BF16 differences. These observations do not isolate the cause of output
+115. They establish that divergence precedes it and that the requested detailed
+callbacks were absent. [Native observation and comparison](../benchmarks/correctness/linux-core-windows-first-decode-observation-20260922.json).
+
+## Current arithmetic experiment
+
+`--current-text-decode` in the preparation/build tools selects the imported
+current-vLLM decode implementation for text. Upstream selects that implementation
+only with an M-RoPE plan; its historical text branch retains older projection,
+recurrence, normalization and MoE arithmetic. This experiment reuses the complete
+current decode path, including in-place linear state, cross-layer normalization
+and the BF16 rotary cache. Ordinary text still uses its actual scalar position;
+no visual request or M-RoPE plan is fabricated. Prefill is unchanged.
+
+The option changes only the generated resident-engine source. Default overlays
+remain byte-identical to `893a22c`, with and without the independent rectangular
+CK option. Preparation verifies all 327 imported files, 53 compilation units
+and 72 images. The next bounded native q8192/out512 run determines whether this
+route repairs continuation; these local checks do not qualify model arithmetic.

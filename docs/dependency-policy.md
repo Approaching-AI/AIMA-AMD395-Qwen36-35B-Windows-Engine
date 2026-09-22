@@ -4,8 +4,9 @@ The optional [Windows core prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md) imports
 327 unchanged files (29,415,573 bytes) from Linux native source
 `ec9934446911fdf376da8eebcd83e7b137efbb7c`. The concrete benefit under evaluation
 is replacing the current multi-second projection, recurrence and MoE route with
-the release's complete native resident computation. Windows speed and GB10
-correctness remain unmeasured, and the product does not select this prototype.
+the release's complete native resident computation. A native Windows q8192 run
+now completes, but its continuation fails GB10 at output 115. Its timings remain
+diagnostic, and the product does not select this prototype.
 
 The import includes source, generated schedules, AOT GPU images and upstream
 licenses. It reuses Windows HIP, hipBLASLt and the existing CK provider. Python
@@ -16,8 +17,9 @@ does not link ICU, FFmpeg, curl, image decoders or the Linux server frontend.
 The selected COFF registry embeds 1,319,512 bytes across 72 unique GPU images.
 The engine also requires its separately hashed vision-attention image and
 retains upstream visual weights/warmup and cache allocations. Their actual
-Windows loading and memory costs must be measured. The final executable size
-and redistributable DLL closure are not yet known. Existing Windows ROCm
+Windows loading and memory costs are included in the observed 24,186.8901 ms
+command-to-ready time. The first executable is 7,135,744 bytes; its final
+redistributable DLL closure is not yet qualified. Existing Windows ROCm
 hipBLASLt is present; no separate BLAS installation is introduced. Removing
 `third_party/aima_linux`, `native/linux_core_port` and their dedicated tools
 removes the experiment without changing the current runtime/package route.
