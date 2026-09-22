@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "preparation_source_parent_commit": "cda850216732cfa68ee23c981f28bd802d9ab60a",
+  "preparer_sha256": "c427a34d5e7205814267119961196c30c493a7f8a3cb1396c27524cda5bf9cb6",
+  "prepared_manifest_sha256": "479721b7ccef3780aab07c0448a8521657a3c250a167338582e4ad24d5886bd0",
+  "immutable_imports_verified": 327,
+  "embedded_images": 72,
+  "compilation_units": 60,
+  "overlay_proof": {
+    "path": "native/src/native_linear_prefill.hip.cpp",
+    "before_sha256": "0f06202e4234473097f9d70404b36b04494e3c2ea5863ef9173dd86292cb91e3",
+    "after_sha256": "8ea2e0cf72bad39d5541ffa39d57bf0a17a0fd7d36a40f60af5c6d428a379e50",
+    "all_arithmetic_and_bindings_unchanged": true,
+    "new_read_only_calls": 2
+  },
+  "unchanged_overlays": [
+    "native/src/native_resident_engine.hip.cpp",
+    "native/src/native_full_attention.hip.cpp",
+    "native/src/media_names.cpp",
+    "native/src/native_weight_store.hip.cpp",
+    "native/src/bf16_wvsplitk.hip.cpp",
+    "native/src/native_linear_layer.hip.cpp",
+    "native/src/native_decode_runner.hip.cpp",
+    "native/src/bf16_gemm.hip.cpp",
+    "native/src/native_routed_moe.hip.cpp",
+    "native/src/native_pointwise.hip.cpp",
+    "native/src/native_moe_prefill.hip.cpp",
+    "native/src/native_full_prefill.hip.cpp",
+    "native/src/native_full_layer.hip.cpp",
+    "native/include/aima/native_resident_engine.h",
+    "native/include/aima/native_full_prefill.h",
+    "benchmarks/shape-lab/native/src/torch_owned_safetensors_loader.hip.cpp"
+  ],
+  "observer_runtime_unchanged": true,
+  "existing_observer_validation_evidence_sha256": "56d8bc9300d0c37fe7f59b218918d00b6b7283ab610bdf799da929ec363bad6c",
+  "purpose": "Observe original native GDN convolution/core BF16 boundaries and existing whole FP32 prefill/decode states at layer0, using actual cold q8192/out512 tokens and original GB10 capture. Native MoE disabled to isolate the previously failed GDN path.",
+  "planned_environment": {
+    "AIMA_PORT_NATIVE_GDN_PREFILL": "1",
+    "AIMA_PORT_NATIVE_MOE_PREFILL": "0",
+    "AIMA_PORT_PREFILL_TERMINAL_ONLY": "0"
+  },
+  "new_device_allocations": 0,
+  "new_runtime_artifacts": 0,
+  "preparation_configuration_recovery": "The first local preparation mistakenly included the rectangular CK overlay flag. Its comparison failed; r2 uses the exact flags in the qualified native build and changes only the two observation calls. No remote build used the extra flag.",
+  "native_build_pending": true,
+  "model_qualification_pending": true,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

@@ -211,7 +211,10 @@ def gb10_gdn_overlays(linear, prefill):
         "  const bool native_gdn_prefill = aima_port::gb10_native_gdn_prefill_enabled(\n"
         "      tokens, options.has_initial_state);\n"
         "  if (native_gdn_prefill) {\n"
+        "    aima_port::observe_gdn_prefill(options.layer_index, \"prefill-conv-sampled\",\n"
+        "        invocations.tensor_pointer(base + 1, \"o_ptr\"), 8192, tokens);\n"
         + "\n".join("  " + line for line in original_core.splitlines()) + "\n"
+        "    aima_port::observe_gdn_prefill(options.layer_index, \"prefill-core-sampled\", core, 4096, tokens);\n"
         '    std::fprintf(stderr, "{\\\"event\\\":\\\"native_gdn_prefill\\\",\\\"layer\\\":%zu,'
         '\\\"tokens\\\":%zu,\\\"stages\\\":7,\\\"cold\\\":true}\\n", options.layer_index, tokens);\n'
         "  } else {\n"
