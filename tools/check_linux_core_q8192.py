@@ -87,6 +87,25 @@ def check_tokens(events, oracle, commit):
                 performance_acceptance=False, release_qualified=False)
 
 
+def source_input_inventory(entries):
+    """Compare immutable file identities independently of host sort order."""
+    require(isinstance(entries, list) and entries, "Source inventory is empty or invalid")
+    result, aliases = {}, set()
+    for entry in entries:
+        require(isinstance(entry, dict) and isinstance(entry.get("path"), str) and entry["path"],
+                "Source inventory path is invalid")
+        path = entry["path"]
+        alias = path_key(path)
+        require(alias not in aliases, "Source inventory contains a duplicate path")
+        require(type(entry.get("bytes")) is int and entry["bytes"] >= 0 and
+                isinstance(entry.get("sha256"), str) and len(entry["sha256"]) == 64 and
+                all(c in "0123456789abcdef" for c in entry["sha256"]),
+                "Source inventory byte extent or digest is invalid")
+        aliases.add(alias)
+        result[path] = entry
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run", type=Path, required=True)
@@ -115,8 +134,10 @@ def main():
         require(record["spec"]["repo_commit"] == commit, "Guarded source commit differs")
     require(build["completed"] is True and build["dirty_tree"] is False and build["repo_commit"] == commit and
             build["upstream_commit"] == UPSTREAM_COMMIT, "Build provenance is incomplete")
-    require(build["source_inputs"] == plan["build_source_inputs"] and
-            build_run["spec"]["source_inputs"] == plan["build_source_inputs"], "Compiled source inputs differ")
+    expected_inputs = source_input_inventory(plan["build_source_inputs"])
+    require(source_input_inventory(build["source_inputs"]) == expected_inputs and
+            source_input_inventory(build_run["spec"]["source_inputs"]) == expected_inputs,
+            "Compiled source inputs differ")
     require(run["spec"]["build_metadata_sha256"] == sha(args.build_metadata.read_bytes()) and
             run["spec"]["build_run_sha256"] == sha(args.build_run.read_bytes()) and
             run["spec"]["source_manifest_sha256"] == sha(args.plan.read_bytes()), "Run/build/plan binding differs")
