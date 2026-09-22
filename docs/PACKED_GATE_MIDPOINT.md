@@ -6,8 +6,14 @@ i/i+16, then uses the existing 16-lane shuffle. Launch geometry and carriers
 are preserved. This replaces the earlier double-precision midpoint patch.
 The actual edited helper matches all 31,744 BF16/widened-carrier comparisons
 across the two original 124-step histories. Three captured GB10 regressions
-are retained as hash-bound fixtures and pass ASan/UBSan. Native candidate
-compilation, full operator replay and complete model checks remain pending.
+are retained as hash-bound fixtures and pass ASan/UBSan. Native source
+`c90feccdfc01661b582c5a1db101f2660dc8642c` compiles on baiying and passes all
+865 original component cases, 6,664 configurations and 7,672,332 compared
+elements. This includes both complete gate histories, all three known failed
+cells, QKV controls and the preceding broad projection/shared-activation
+suite. Guards, immutable inputs and host cleanup pass. The complete whole
+runtime, CLI and prefix probe are now building; model acceptance remains
+pending. [Native component evidence](../benchmarks/correctness/packed-gate32-native-20260923.json).
 
 The preceding c268 256k run first emits the wrong token at suffix output 124.
 Its earlier numerical cause is a packed B projection at input position263238:
