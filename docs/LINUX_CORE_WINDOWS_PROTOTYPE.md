@@ -77,6 +77,16 @@ at 883 values, down from 93279 with the imported uncorrected image. These are
 operator diagnostics; the full-model continuation boundary remains unchanged.
 [Original first64 stage comparisons](../benchmarks/correctness/linux-core-native-gdn-firstchunk-stages-20260923.json).
 
+Compiling all six original stages with GB10's frozen tile choices does not
+remove the arithmetic differences. A direct BF16 beta ABI also exposes RTZ
+products on AMD: all4096 first-row U values match truncation, while GB10 matches
+RNE and1916 values distinguish the two. Restoring FP32 multiplication and the
+explicit BF16 W boundary avoids that failure. The aligned batch still differs
+at119 core values, versus133 previously, and leaves independent state/output
+errors. These experimental images are not selected for the runtime. The
+qualified GDN path remains the basis for further product performance work.
+[Aligned block and product-rounding diagnosis](../benchmarks/correctness/linux-core-native-gdn-aligned-blocks-20260923.json).
+
 Native MoE correction `f210ff3` also passes the original cold q8192/out512
 boundary: all 512 tokens/callbacks, first 144 and logit 10.375 (zero error).
 It replaces the expert gate/up and weighted-down AOT products with FP32 WMMA

@@ -1,0 +1,2625 @@
+{
+  "schema": 1,
+  "kind": "original GDN block alignment and BF16 truncation diagnosis",
+  "host": "baiying",
+  "base_checkout_commit": "867d528a890cef2172e49b6fe4ebeb9cfcb052db",
+  "model_reference": "Original q8192/out512 layer0 first64 inputs; no model loaded for component runs",
+  "original_reference_sha256": "0ad2d6d51303a1c97f8b81151d781d134be92d6f47b75266e992ad33b2b73d8e",
+  "original_core_values": 262144,
+  "original_core_mismatches": 0,
+  "original_selected_configs": [
+    {
+      "kernel": "chunk_local_cumsum_scalar_kernel",
+      "key": [
+        1,
+        32,
+        64,
+        true,
+        false,
+        "torch.float32",
+        "torch.float32",
+        "torch.int32",
+        "torch.int32"
+      ],
+      "winner": {
+        "kwargs": {},
+        "num_warps": 1,
+        "num_ctas": 1,
+        "num_stages": 3,
+        "maxnreg": null,
+        "pre_hook": null,
+        "ir_override": null
+      },
+      "source_sha256": "8e0f038c472f94121365f02116e2df5df27aefef625f16aa94501b2b0e1b1dad"
+    },
+    {
+      "kernel": "chunk_scaled_dot_kkt_fwd_kernel",
+      "key": [
+        32,
+        128,
+        64,
+        true,
+        "torch.bfloat16",
+        "torch.float32",
+        "torch.bfloat16",
+        "torch.float32",
+        "torch.int32",
+        "torch.int32"
+      ],
+      "winner": {
+        "kwargs": {
+          "BK": 64
+        },
+        "num_warps": 8,
+        "num_ctas": 1,
+        "num_stages": 4,
+        "maxnreg": null,
+        "pre_hook": null,
+        "ir_override": null
+      },
+      "source_sha256": "7f19539a0ca9da30f25880cefd8b107ea0d78821008eea54c4719066e5194d86"
+    },
+    {
+      "kernel": "merge_16x16_to_64x64_inverse_kernel",
+      "key": [
+        32,
+        64,
+        true,
+        "torch.float32",
+        "torch.bfloat16",
+        "torch.int32",
+        "torch.int32"
+      ],
+      "winner": {
+        "kwargs": {},
+        "num_warps": 2,
+        "num_ctas": 1,
+        "num_stages": 2,
+        "maxnreg": null,
+        "pre_hook": null,
+        "ir_override": null
+      },
+      "source_sha256": "46a4e551ce9c36f168ff2c1b5a77dd956fb49da07bf25e1efc9bb5f6835c952b"
+    },
+    {
+      "kernel": "recompute_w_u_fwd_kernel",
+      "key": [
+        32,
+        128,
+        128,
+        64,
+        64,
+        64,
+        true,
+        "torch.bfloat16",
+        "torch.bfloat16",
+        "torch.bfloat16",
+        "torch.bfloat16",
+        "torch.bfloat16",
+        "torch.bfloat16",
+        "torch.float32",
+        "torch.int32",
+        "torch.int32"
+      ],
+      "winner": {
+        "kwargs": {},
+        "num_warps": 4,
+        "num_ctas": 1,
+        "num_stages": 4,
+        "maxnreg": null,
+        "pre_hook": null,
+        "ir_override": null
+      },
+      "source_sha256": "cadbd97d2dd3e89889e36d8cd48bf6a2472bc1011698bf2156799d8d5fb30633"
+    },
+    {
+      "kernel": "chunk_gated_delta_rule_fwd_kernel_h_blockdim64",
+      "key": [
+        32,
+        128,
+        128,
+        64,
+        "torch.bfloat16",
+        "torch.bfloat16",
+        "torch.bfloat16",
+        "torch.bfloat16",
+        "torch.float32",
+        "torch.bfloat16",
+        "torch.float32",
+        "torch.float32",
+        "torch.int32",
+        "torch.int64"
+      ],
+      "winner": {
+        "kwargs": {
+          "BV": 64
+        },
+        "num_warps": 4,
+        "num_ctas": 1,
+        "num_stages": 2,
+        "maxnreg": null,
+        "pre_hook": null,
+        "ir_override": null
+      },
+      "source_sha256": "1f7a24cb9300115c6c83e4d46ae6c944d6e136300f0b4a169412444701b73d58"
+    },
+    {
+      "kernel": "chunk_fwd_kernel_o",
+      "key": [
+        32,
+        128,
+        128,
+        64,
+        "torch.bfloat16",
+        "torch.bfloat16",
+        "torch.bfloat16",
+        "torch.bfloat16",
+        "torch.float32",
+        "torch.bfloat16",
+        "torch.int32",
+        "torch.int32"
+      ],
+      "winner": {
+        "kwargs": {
+          "BK": 64,
+          "BV": 64
+        },
+        "num_warps": 4,
+        "num_ctas": 1,
+        "num_stages": 2,
+        "maxnreg": null,
+        "pre_hook": null,
+        "ir_override": null
+      },
+      "source_sha256": "0a798660a92dc596f2f13b429a2039a384f620235bf5e21b014a6b054bb22404"
+    }
+  ],
+  "offline_compilations": [
+    {
+      "folder": "native-gdn-aligned-blocks-r1",
+      "result_sha256": "2b37e34728744092f794a75022702a9eecd5b76a95278f3c69070d0ecf3a2d49",
+      "dispatch_sha256": "0aae33dbfe6b6f7c46bc33657296894992071a2fc23ae7010bb085f6d671e10f",
+      "source_jobs_sha256": "cbe0f1202bcee80e3b340cb6fe3c6ce98c0fc4d44f6ad5c0e934d00142d7b2cb",
+      "cpu_only": true,
+      "gpu_executed": false
+    },
+    {
+      "folder": "native-gdn-aligned-blocks-r2",
+      "result_sha256": "31eab30135a041cc6c0088ed76b67ce210242edf30553c928434c50928ce0037",
+      "dispatch_sha256": "c490ceb7dbabc9a6948121241c8411905e45734ab04808f99ae043178b08f3cc",
+      "source_jobs_sha256": "27c55b591632d1df1fd491fbeadd30574666d5916caf41c163117058a2281587",
+      "cpu_only": true,
+      "gpu_executed": false
+    }
+  ],
+  "bf16_product_diagnosis": {
+    "host": "baiying",
+    "source_commit": "867d528a890cef2172e49b6fe4ebeb9cfcb052db",
+    "component_result_sha256": "fd63f0fcf71c35fd7ef9df79bf24bfd625d3b7bc71df3319f66a0e6afdcb3ff4",
+    "component_run_sha256": "a7944ed675ea990cf7c63e76b335794491eb57da763920ced78ec3e5f1fb0dde",
+    "original_reference_sha256": "0ad2d6d51303a1c97f8b81151d781d134be92d6f47b75266e992ad33b2b73d8e",
+    "original_v_sha256": "aae2198e6dd5958287b74e72c3f9ee632187359e56a1278a8e025274b022d928",
+    "original_beta_sha256": "52a3cba515756489423250a169f36c48299ce65242e9eaa9397d77c643f28b3b",
+    "native_isolated_u_sha256": "a9624571f9f482716872331e43b7812014ec92c1399bcd034c92af7405223aea",
+    "original_u_sha256": "a2343bd6508a1f46e611578eddbfc22b19657efb2c7f2b59cb01c14cd44462bf",
+    "control": "The first inverse row is an identity row. U equals the BF16 V*beta product on that row.",
+    "comparison": {
+      "elements": 4096,
+      "original_rne_mismatches": 0,
+      "native_rne_mismatches": 1916,
+      "native_rtz_mismatches": 0,
+      "rne_rtz_differences": 1916
+    },
+    "conclusion": "The original BF16 operand path on AMD returns RTZ products for every first-row cell; the original GB10 reference matches RNE for every cell. Keep explicit FP32 multiplication and BF16 RNE before dot.",
+    "inference_acceptance": false
+  },
+  "component_results": [
+    {
+      "case": "native-gdn-aligned-firstchunk-native-r2",
+      "result_sha256": "fd63f0fcf71c35fd7ef9df79bf24bfd625d3b7bc71df3319f66a0e6afdcb3ff4",
+      "run_sha256": "a7944ed675ea990cf7c63e76b335794491eb57da763920ced78ec3e5f1fb0dde",
+      "command_file": "P:/projects/native-gdn-aligned-firstchunk-20260923-r2/dispatch.ps1",
+      "command_file_sha256": "f581247e31cb75ab1fbcbfe314128437ba478a73511eb36560c7ab463942eb5c",
+      "worker_sha256": "a061789ccfac8fd8086107f1e45d4b0129615af62c6f8d54128fc45375e4e4fd",
+      "manifest_sha256": "187bcca80f64f4d9ab8f616c3622fb0385728e0442fa31c86d426d0106ecec43",
+      "images": {
+        "3": {
+          "path": "P:/projects/native-gdn-aligned-firstchunk-20260923-r2/3.hsaco",
+          "bytes": 6736,
+          "sha256": "c0da333f1de9b50090cd127ccd667814da666bd129716902dd0edea4589dacd6",
+          "symbol": "chunk_local_cumsum_scalar_kernel",
+          "source_sha256": "9e0ad91bfae7db6d29de2dfa14de029f2c57b55d4222cf34fc05f069582eab91",
+          "original_source_sha256": "aa14bf2e7cbeae888408c103bed5811364698856032a3a96c7040e35174bda00",
+          "compilation_report_sha256": "2b37e34728744092f794a75022702a9eecd5b76a95278f3c69070d0ecf3a2d49"
+        },
+        "4": {
+          "path": "P:/projects/native-gdn-aligned-firstchunk-20260923-r2/4.hsaco",
+          "bytes": 19152,
+          "sha256": "3ea151fc6b7b781f6a9589c92935e4d0e27682ea45ea893085ac326d8a9886c9",
+          "symbol": "chunk_scaled_dot_kkt_fwd_kernel",
+          "source_sha256": "90a690ca0d108c13dfc89b6eee2bf245c6ebdbed36d013c021a26bd9325e658d",
+          "original_source_sha256": "6dda2245d14ebd61d93cd4fa17e0b31d291c47f243c3ade36a302b905d8e5488",
+          "compilation_report_sha256": "2b37e34728744092f794a75022702a9eecd5b76a95278f3c69070d0ecf3a2d49"
+        },
+        "5": {
+          "path": "P:/projects/native-gdn-aligned-firstchunk-20260923-r2/5.hsaco",
+          "bytes": 28072,
+          "sha256": "ee489cf91a34429e0ca42c1e7040a7fe495a747413df66fdee7a6a5156c399c8",
+          "symbol": "merge_16x16_to_64x64_inverse_kernel",
+          "source_sha256": "159460a7711458247699196a00b81edf6b10fdb8b79c74f6b7347c378833493f",
+          "original_source_sha256": "0117db52028e1e577665bab75658233f4edb8dccc54820907343112e6001715f",
+          "compilation_report_sha256": "2b37e34728744092f794a75022702a9eecd5b76a95278f3c69070d0ecf3a2d49"
+        },
+        "6": {
+          "path": "P:/projects/native-gdn-aligned-firstchunk-20260923-r2/6.hsaco",
+          "bytes": 86256,
+          "sha256": "a480ac13841905950254b0e8b146957eb327b798dded2dac9b8151877f81bc9a",
+          "symbol": "recompute_w_u_fwd_kernel",
+          "source_sha256": "d015a6a10744d4a57e77a602670ed6f2b099b32222e0dd06af93668bfc68496e",
+          "original_source_sha256": "f71518e77f0bbdcbd79ea2a6da3b75eb0394341b33bdce35a30979eb745f0834",
+          "compilation_report_sha256": "2b37e34728744092f794a75022702a9eecd5b76a95278f3c69070d0ecf3a2d49"
+        },
+        "7": {
+          "path": "P:/projects/native-gdn-aligned-firstchunk-20260923-r2/7.hsaco",
+          "bytes": 99896,
+          "sha256": "f147e5f7e71dd58a56b344f7d67783cbc58ff6800eeaba4a24b3364bd8fe28c8",
+          "symbol": "chunk_gated_delta_rule_fwd_kernel_h_blockdim64",
+          "source_sha256": "5fa236007ed471a85e2d7ee084142a82fdaaf8a8d16e1b5617627f0ca3aed61b",
+          "original_source_sha256": "81a4549225deebb7e8dfaabccf9db03c1d7ab69356a78f5c0d2651f97e7fd1c5",
+          "compilation_report_sha256": "2b37e34728744092f794a75022702a9eecd5b76a95278f3c69070d0ecf3a2d49"
+        },
+        "8": {
+          "path": "P:/projects/native-gdn-aligned-firstchunk-20260923-r2/8.hsaco",
+          "bytes": 44736,
+          "sha256": "bbf42e9095affa5472275129c98813828ee9c67f5476b3f5c13655151f894240",
+          "symbol": "chunk_fwd_kernel_o",
+          "source_sha256": "05e2058c96bfc5743dae95c3f779539d361d83b5055d1b61dc4a5c2b157c186c",
+          "original_source_sha256": "f3491a16a6a644212ae52978ada43e27af1ed58d7558ffd67411a37d2b7a6522",
+          "compilation_report_sha256": "2b37e34728744092f794a75022702a9eecd5b76a95278f3c69070d0ecf3a2d49"
+        }
+      },
+      "comparisons": [
+        {
+          "mode": "chain",
+          "surface": "g-cumsum",
+          "native_sha256": "261146a6670e02d714f216a69da81de05eb4a77308ace24c0fe385d9282c4d5f",
+          "reference_sha256": "261146a6670e02d714f216a69da81de05eb4a77308ace24c0fe385d9282c4d5f",
+          "comparison": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0,
+            "first_bf16_differences": []
+          }
+        },
+        {
+          "mode": "chain",
+          "surface": "kkt",
+          "native_sha256": "1617e3776e9da14e2826f6b4bad6289d828e01e814fe473572819e5ba168a5fc",
+          "reference_sha256": "f19978444adc985945406b2ac7abfc9a0ea2091f50c1cbbde5f6c7ea23f16e0b",
+          "comparison": {
+            "elements": 131072,
+            "f32_bit_mismatches": 53527,
+            "bf16_mismatches": 29154,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0037965774536132812,
+            "first_bf16_differences": [
+              {
+                "column": 2048,
+                "native_index": 2048,
+                "reference_index": 2048,
+                "native_bits": 1036609253,
+                "reference_bits": 1036682464,
+                "native": 0.09834078699350357,
+                "reference": 0.09888625144958496
+              },
+              {
+                "column": 2112,
+                "native_index": 2112,
+                "reference_index": 2112,
+                "native_bits": 1046028587,
+                "reference_bits": 1046097650,
+                "native": 0.21204058825969696,
+                "reference": 0.21306970715522766
+              },
+              {
+                "column": 2176,
+                "native_index": 2176,
+                "reference_index": 2176,
+                "native_bits": 1053921458,
+                "reference_bits": 1053996583,
+                "native": 0.409307062625885,
+                "reference": 0.4115459620952606
+              },
+              {
+                "column": 2304,
+                "native_index": 2304,
+                "reference_index": 2304,
+                "native_bits": 1021624004,
+                "reference_bits": 1021679209,
+                "native": 0.027922995388507843,
+                "reference": 0.028025822713971138
+              },
+              {
+                "column": 2496,
+                "native_index": 2496,
+                "reference_index": 2496,
+                "native_bits": 3176045969,
+                "reference_bits": 3176112428,
+                "native": -0.05044323578476906,
+                "reference": -0.05069081485271454
+              },
+              {
+                "column": 2560,
+                "native_index": 2560,
+                "reference_index": 2560,
+                "native_bits": 1035752871,
+                "reference_bits": 1035788720,
+                "native": 0.09196024388074875,
+                "reference": 0.09222733974456787
+              },
+              {
+                "column": 2752,
+                "native_index": 2752,
+                "reference_index": 2752,
+                "native_bits": 2612855983,
+                "reference_bits": 2612916764,
+                "native": -3.12704538560256e-22,
+                "reference": -3.142388667100236e-22
+              },
+              {
+                "column": 2816,
+                "native_index": 2816,
+                "reference_index": 2816,
+                "native_bits": 3190548829,
+                "reference_bits": 3190594457,
+                "native": -0.16788239777088165,
+                "reference": -0.16856230795383453
+              }
+            ]
+          }
+        },
+        {
+          "mode": "chain",
+          "surface": "inverse",
+          "native_sha256": "d6ccf87ee0b218a907ade394963e1ba92617b1b801fc45a4b914742219f421d5",
+          "reference_sha256": "ea6d0ea1068f1874c850253b5e91053c7dc03b986905fb072b642382ceb58ced",
+          "comparison": {
+            "elements": 131072,
+            "f32_bit_mismatches": 33708,
+            "bf16_mismatches": 33708,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.00390625,
+            "first_bf16_differences": [
+              {
+                "column": 2048,
+                "native_index": 2048,
+                "reference_index": 2048,
+                "native_bits": 3184066560,
+                "reference_bits": 3184197632,
+                "native": -0.09814453125,
+                "reference": -0.09912109375
+              },
+              {
+                "column": 2112,
+                "native_index": 2112,
+                "reference_index": 2112,
+                "native_bits": 3193503744,
+                "reference_bits": 3193569280,
+                "native": -0.2119140625,
+                "reference": -0.212890625
+              },
+              {
+                "column": 2176,
+                "native_index": 2176,
+                "reference_index": 2176,
+                "native_bits": 3201433600,
+                "reference_bits": 3201499136,
+                "native": -0.41015625,
+                "reference": -0.412109375
+              },
+              {
+                "column": 2304,
+                "native_index": 2304,
+                "reference_index": 2304,
+                "native_bits": 3169124352,
+                "reference_bits": 3169189888,
+                "native": -0.0279541015625,
+                "reference": -0.028076171875
+              },
+              {
+                "column": 2496,
+                "native_index": 2496,
+                "reference_index": 2496,
+                "native_bits": 1028587520,
+                "reference_bits": 1028653056,
+                "native": 0.050537109375,
+                "reference": 0.05078125
+              },
+              {
+                "column": 2560,
+                "native_index": 2560,
+                "reference_index": 2560,
+                "native_bits": 3183214592,
+                "reference_bits": 3183280128,
+                "native": -0.091796875,
+                "reference": -0.09228515625
+              },
+              {
+                "column": 2752,
+                "native_index": 2752,
+                "reference_index": 2752,
+                "native_bits": 465371136,
+                "reference_bits": 465436672,
+                "native": 3.1267427154504446e-22,
+                "reference": 3.143286327701505e-22
+              },
+              {
+                "column": 2816,
+                "native_index": 2816,
+                "reference_index": 2816,
+                "native_bits": 1043070976,
+                "reference_bits": 1043136512,
+                "native": 0.16796875,
+                "reference": 0.1689453125
+              }
+            ]
+          }
+        },
+        {
+          "mode": "chain",
+          "surface": "w",
+          "native_sha256": "d4a3747acbed5328ae67e51f804f1799b746806ce6747b823107ea6bc9297ae8",
+          "reference_sha256": "e1bfe5a9d821daa9ee7778942f4119848a59705f0eacf6cc7d8ac726f8749d56",
+          "comparison": {
+            "elements": 262144,
+            "f32_bit_mismatches": 142471,
+            "bf16_mismatches": 142471,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0029296875,
+            "first_bf16_differences": [
+              {
+                "column": 1,
+                "native_index": 1,
+                "reference_index": 1,
+                "native_bits": 925106176,
+                "reference_bits": 925171712,
+                "native": 9.775161743164062e-06,
+                "reference": 9.834766387939453e-06
+              },
+              {
+                "column": 4,
+                "native_index": 4,
+                "reference_index": 4,
+                "native_bits": 3139764224,
+                "reference_bits": 3139829760,
+                "native": -0.0025177001953125,
+                "reference": -0.002532958984375
+              },
+              {
+                "column": 6,
+                "native_index": 6,
+                "reference_index": 6,
+                "native_bits": 993787904,
+                "reference_bits": 993853440,
+                "native": 0.00286865234375,
+                "reference": 0.0028839111328125
+              },
+              {
+                "column": 8,
+                "native_index": 8,
+                "reference_index": 8,
+                "native_bits": 3151167488,
+                "reference_bits": 3151233024,
+                "native": -0.006439208984375,
+                "reference": -0.0064697265625
+              },
+              {
+                "column": 11,
+                "native_index": 11,
+                "reference_index": 11,
+                "native_bits": 3124428800,
+                "reference_bits": 3124494336,
+                "native": -0.000713348388671875,
+                "reference": -0.0007171630859375
+              },
+              {
+                "column": 13,
+                "native_index": 13,
+                "reference_index": 13,
+                "native_bits": 952958976,
+                "reference_bits": 953024512,
+                "native": 9.775161743164062e-05,
+                "reference": 9.822845458984375e-05
+              },
+              {
+                "column": 14,
+                "native_index": 14,
+                "reference_index": 14,
+                "native_bits": 985202688,
+                "reference_bits": 985268224,
+                "native": 0.00141143798828125,
+                "reference": 0.0014190673828125
+              },
+              {
+                "column": 15,
+                "native_index": 15,
+                "reference_index": 15,
+                "native_bits": 957612032,
+                "reference_bits": 957677568,
+                "native": 0.000141143798828125,
+                "reference": 0.00014209747314453125
+              }
+            ]
+          }
+        },
+        {
+          "mode": "chain",
+          "surface": "u",
+          "native_sha256": "1036656ecade5e6996a9fd727cc17efaa3dc538ab1c3a52894f7cfdfa7be85fe",
+          "reference_sha256": "a2343bd6508a1f46e611578eddbfc22b19657efb2c7f2b59cb01c14cd44462bf",
+          "comparison": {
+            "elements": 262144,
+            "f32_bit_mismatches": 169161,
+            "bf16_mismatches": 169161,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.125,
+            "first_bf16_differences": [
+              {
+                "column": 4,
+                "native_index": 4,
+                "reference_index": 4,
+                "native_bits": 974389248,
+                "reference_bits": 974454784,
+                "native": 0.0005645751953125,
+                "reference": 0.000568389892578125
+              },
+              {
+                "column": 5,
+                "native_index": 5,
+                "reference_index": 5,
+                "native_bits": 3093364736,
+                "reference_bits": 3093430272,
+                "native": -5.364418029785156e-05,
+                "reference": -5.3882598876953125e-05
+              },
+              {
+                "column": 6,
+                "native_index": 6,
+                "reference_index": 6,
+                "native_bits": 965869568,
+                "reference_bits": 965935104,
+                "native": 0.000278472900390625,
+                "reference": 0.0002803802490234375
+              },
+              {
+                "column": 7,
+                "native_index": 7,
+                "reference_index": 7,
+                "native_bits": 975503360,
+                "reference_bits": 975568896,
+                "native": 0.000629425048828125,
+                "reference": 0.00063323974609375
+              },
+              {
+                "column": 10,
+                "native_index": 10,
+                "reference_index": 10,
+                "native_bits": 985399296,
+                "reference_bits": 985464832,
+                "native": 0.001434326171875,
+                "reference": 0.00144195556640625
+              },
+              {
+                "column": 17,
+                "native_index": 17,
+                "reference_index": 17,
+                "native_bits": 934739968,
+                "reference_bits": 934805504,
+                "native": 2.181529998779297e-05,
+                "reference": 2.193450927734375e-05
+              },
+              {
+                "column": 19,
+                "native_index": 19,
+                "reference_index": 19,
+                "native_bits": 972161024,
+                "reference_bits": 972226560,
+                "native": 0.000461578369140625,
+                "reference": 0.0004634857177734375
+              },
+              {
+                "column": 24,
+                "native_index": 24,
+                "reference_index": 24,
+                "native_bits": 974651392,
+                "reference_bits": 974716928,
+                "native": 0.000579833984375,
+                "reference": 0.000583648681640625
+              }
+            ]
+          }
+        },
+        {
+          "mode": "chain",
+          "surface": "h",
+          "native_sha256": "30e14955ebf1352266dc2ff8067e68104607e750abb9d3b36582b8af909fcb58",
+          "reference_sha256": "30e14955ebf1352266dc2ff8067e68104607e750abb9d3b36582b8af909fcb58",
+          "comparison": {
+            "elements": 524288,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0,
+            "first_bf16_differences": []
+          }
+        },
+        {
+          "mode": "chain",
+          "surface": "v-new",
+          "native_sha256": "1036656ecade5e6996a9fd727cc17efaa3dc538ab1c3a52894f7cfdfa7be85fe",
+          "reference_sha256": "a2343bd6508a1f46e611578eddbfc22b19657efb2c7f2b59cb01c14cd44462bf",
+          "comparison": {
+            "elements": 262144,
+            "f32_bit_mismatches": 169161,
+            "bf16_mismatches": 169161,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.125,
+            "first_bf16_differences": [
+              {
+                "column": 4,
+                "native_index": 4,
+                "reference_index": 4,
+                "native_bits": 974389248,
+                "reference_bits": 974454784,
+                "native": 0.0005645751953125,
+                "reference": 0.000568389892578125
+              },
+              {
+                "column": 5,
+                "native_index": 5,
+                "reference_index": 5,
+                "native_bits": 3093364736,
+                "reference_bits": 3093430272,
+                "native": -5.364418029785156e-05,
+                "reference": -5.3882598876953125e-05
+              },
+              {
+                "column": 6,
+                "native_index": 6,
+                "reference_index": 6,
+                "native_bits": 965869568,
+                "reference_bits": 965935104,
+                "native": 0.000278472900390625,
+                "reference": 0.0002803802490234375
+              },
+              {
+                "column": 7,
+                "native_index": 7,
+                "reference_index": 7,
+                "native_bits": 975503360,
+                "reference_bits": 975568896,
+                "native": 0.000629425048828125,
+                "reference": 0.00063323974609375
+              },
+              {
+                "column": 10,
+                "native_index": 10,
+                "reference_index": 10,
+                "native_bits": 985399296,
+                "reference_bits": 985464832,
+                "native": 0.001434326171875,
+                "reference": 0.00144195556640625
+              },
+              {
+                "column": 17,
+                "native_index": 17,
+                "reference_index": 17,
+                "native_bits": 934739968,
+                "reference_bits": 934805504,
+                "native": 2.181529998779297e-05,
+                "reference": 2.193450927734375e-05
+              },
+              {
+                "column": 19,
+                "native_index": 19,
+                "reference_index": 19,
+                "native_bits": 972161024,
+                "reference_bits": 972226560,
+                "native": 0.000461578369140625,
+                "reference": 0.0004634857177734375
+              },
+              {
+                "column": 24,
+                "native_index": 24,
+                "reference_index": 24,
+                "native_bits": 974651392,
+                "reference_bits": 974716928,
+                "native": 0.000579833984375,
+                "reference": 0.000583648681640625
+              }
+            ]
+          }
+        },
+        {
+          "mode": "chain",
+          "surface": "state",
+          "native_sha256": "bbba0196d801f86e362a75679bf62784c3efa8b0e29d98ed1340feed5635ca4c",
+          "reference_sha256": "5925e0c0f2174eed0ea82f4b980d999fe91272aec2ba341071b044bd7fc7d861",
+          "comparison": {
+            "elements": 524288,
+            "f32_bit_mismatches": 473100,
+            "bf16_mismatches": 306973,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.07972288131713867,
+            "first_bf16_differences": [
+              {
+                "column": 0,
+                "native_index": 0,
+                "reference_index": 0,
+                "native_bits": 985676764,
+                "reference_bits": 985714615,
+                "native": 0.001466627698391676,
+                "reference": 0.0014710341347381473
+              },
+              {
+                "column": 1,
+                "native_index": 1,
+                "reference_index": 1,
+                "native_bits": 3122033249,
+                "reference_bits": 3122147486,
+                "native": -0.0005739089683629572,
+                "reference": -0.000580558436922729
+              },
+              {
+                "column": 3,
+                "native_index": 3,
+                "reference_index": 3,
+                "native_bits": 3097377484,
+                "reference_bits": 3097224690,
+                "native": -7.544978871010244e-05,
+                "reference": -7.43380660424009e-05
+              },
+              {
+                "column": 5,
+                "native_index": 5,
+                "reference_index": 5,
+                "native_bits": 982794670,
+                "reference_bits": 982837462,
+                "native": 0.001131107797846198,
+                "reference": 0.0011360894422978163
+              },
+              {
+                "column": 7,
+                "native_index": 7,
+                "reference_index": 7,
+                "native_bits": 986496550,
+                "reference_bits": 986546954,
+                "native": 0.0015620633494108915,
+                "reference": 0.0015679311472922564
+              },
+              {
+                "column": 8,
+                "native_index": 8,
+                "reference_index": 8,
+                "native_bits": 3118778428,
+                "reference_bits": 3118825988,
+                "native": -0.00043636735063046217,
+                "reference": -0.0004377515288069844
+              },
+              {
+                "column": 10,
+                "native_index": 10,
+                "reference_index": 10,
+                "native_bits": 964718166,
+                "reference_bits": 964360260,
+                "native": 0.0002449626917950809,
+                "reference": 0.00023934344062581658
+              },
+              {
+                "column": 11,
+                "native_index": 11,
+                "reference_index": 11,
+                "native_bits": 3130935094,
+                "reference_bits": 3130984534,
+                "native": -0.001207566587254405,
+                "reference": -0.0012133221607655287
+              }
+            ]
+          }
+        },
+        {
+          "mode": "chain",
+          "surface": "core",
+          "native_sha256": "08967ab789285ab219a742234da9d62f4961a97056d28c7251bc7f15d77c34cc",
+          "reference_sha256": "ba7a97a1ad8f9dc6b9c314d45706dbc24a3b040c35c62af5e612897de358f9b6",
+          "comparison": {
+            "elements": 262144,
+            "f32_bit_mismatches": 127336,
+            "bf16_mismatches": 127336,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0078125,
+            "first_bf16_differences": [
+              {
+                "column": 4,
+                "native_index": 4,
+                "reference_index": 4,
+                "native_bits": 939655168,
+                "reference_bits": 939720704,
+                "native": 3.0994415283203125e-05,
+                "reference": 3.123283386230469e-05
+              },
+              {
+                "column": 5,
+                "native_index": 5,
+                "reference_index": 5,
+                "native_bits": 3058040832,
+                "reference_bits": 3058106368,
+                "native": -2.950429916381836e-06,
+                "reference": -2.9653310775756836e-06
+              },
+              {
+                "column": 6,
+                "native_index": 6,
+                "reference_index": 6,
+                "native_bits": 931135488,
+                "reference_bits": 931201024,
+                "native": 1.52587890625e-05,
+                "reference": 1.537799835205078e-05
+              },
+              {
+                "column": 7,
+                "native_index": 7,
+                "reference_index": 7,
+                "native_bits": 940638208,
+                "reference_bits": 940703744,
+                "native": 3.457069396972656e-05,
+                "reference": 3.4809112548828125e-05
+              },
+              {
+                "column": 10,
+                "native_index": 10,
+                "reference_index": 10,
+                "native_bits": 950337536,
+                "reference_bits": 950403072,
+                "native": 7.867813110351562e-05,
+                "reference": 7.915496826171875e-05
+              },
+              {
+                "column": 17,
+                "native_index": 17,
+                "reference_index": 17,
+                "native_bits": 899743744,
+                "reference_bits": 899809280,
+                "native": 1.1995434761047363e-06,
+                "reference": 1.2069940567016602e-06
+              },
+              {
+                "column": 26,
+                "native_index": 26,
+                "reference_index": 26,
+                "native_bits": 943063040,
+                "reference_bits": 943128576,
+                "native": 4.3392181396484375e-05,
+                "reference": 4.363059997558594e-05
+              },
+              {
+                "column": 27,
+                "native_index": 27,
+                "reference_index": 27,
+                "native_bits": 935854080,
+                "reference_bits": 935919616,
+                "native": 2.384185791015625e-05,
+                "reference": 2.396106719970703e-05
+              }
+            ]
+          }
+        },
+        {
+          "mode": "isolated",
+          "surface": "g-cumsum",
+          "native_sha256": "261146a6670e02d714f216a69da81de05eb4a77308ace24c0fe385d9282c4d5f",
+          "reference_sha256": "261146a6670e02d714f216a69da81de05eb4a77308ace24c0fe385d9282c4d5f",
+          "comparison": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0,
+            "first_bf16_differences": []
+          }
+        },
+        {
+          "mode": "isolated",
+          "surface": "kkt",
+          "native_sha256": "1617e3776e9da14e2826f6b4bad6289d828e01e814fe473572819e5ba168a5fc",
+          "reference_sha256": "f19978444adc985945406b2ac7abfc9a0ea2091f50c1cbbde5f6c7ea23f16e0b",
+          "comparison": {
+            "elements": 131072,
+            "f32_bit_mismatches": 53527,
+            "bf16_mismatches": 29154,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0037965774536132812,
+            "first_bf16_differences": [
+              {
+                "column": 2048,
+                "native_index": 2048,
+                "reference_index": 2048,
+                "native_bits": 1036609253,
+                "reference_bits": 1036682464,
+                "native": 0.09834078699350357,
+                "reference": 0.09888625144958496
+              },
+              {
+                "column": 2112,
+                "native_index": 2112,
+                "reference_index": 2112,
+                "native_bits": 1046028587,
+                "reference_bits": 1046097650,
+                "native": 0.21204058825969696,
+                "reference": 0.21306970715522766
+              },
+              {
+                "column": 2176,
+                "native_index": 2176,
+                "reference_index": 2176,
+                "native_bits": 1053921458,
+                "reference_bits": 1053996583,
+                "native": 0.409307062625885,
+                "reference": 0.4115459620952606
+              },
+              {
+                "column": 2304,
+                "native_index": 2304,
+                "reference_index": 2304,
+                "native_bits": 1021624004,
+                "reference_bits": 1021679209,
+                "native": 0.027922995388507843,
+                "reference": 0.028025822713971138
+              },
+              {
+                "column": 2496,
+                "native_index": 2496,
+                "reference_index": 2496,
+                "native_bits": 3176045969,
+                "reference_bits": 3176112428,
+                "native": -0.05044323578476906,
+                "reference": -0.05069081485271454
+              },
+              {
+                "column": 2560,
+                "native_index": 2560,
+                "reference_index": 2560,
+                "native_bits": 1035752871,
+                "reference_bits": 1035788720,
+                "native": 0.09196024388074875,
+                "reference": 0.09222733974456787
+              },
+              {
+                "column": 2752,
+                "native_index": 2752,
+                "reference_index": 2752,
+                "native_bits": 2612855983,
+                "reference_bits": 2612916764,
+                "native": -3.12704538560256e-22,
+                "reference": -3.142388667100236e-22
+              },
+              {
+                "column": 2816,
+                "native_index": 2816,
+                "reference_index": 2816,
+                "native_bits": 3190548829,
+                "reference_bits": 3190594457,
+                "native": -0.16788239777088165,
+                "reference": -0.16856230795383453
+              }
+            ]
+          }
+        },
+        {
+          "mode": "isolated",
+          "surface": "inverse",
+          "native_sha256": "83906dd2e9ce108e6e8fbefab432a1bd6100b45498b76bc669428dd79687ebcd",
+          "reference_sha256": "ea6d0ea1068f1874c850253b5e91053c7dc03b986905fb072b642382ceb58ced",
+          "comparison": {
+            "elements": 131072,
+            "f32_bit_mismatches": 6,
+            "bf16_mismatches": 6,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.000244140625,
+            "first_bf16_differences": [
+              {
+                "column": 24768,
+                "native_index": 24768,
+                "reference_index": 24768,
+                "native_bits": 2585985024,
+                "reference_bits": 2586050560,
+                "native": -3.370760996153588e-23,
+                "reference": -3.3914405114674135e-23
+              },
+              {
+                "column": 63561,
+                "native_index": 63561,
+                "reference_index": 63561,
+                "native_bits": 3173777408,
+                "reference_bits": 3173711872,
+                "native": -0.0419921875,
+                "reference": -0.041748046875
+              },
+              {
+                "column": 86235,
+                "native_index": 86235,
+                "reference_index": 86235,
+                "native_bits": 439812096,
+                "reference_bits": 436928512,
+                "native": 3.7843513024301016e-23,
+                "reference": 2.874452628621771e-23
+              },
+              {
+                "column": 105481,
+                "native_index": 105481,
+                "reference_index": 105481,
+                "native_bits": 2716532736,
+                "reference_bits": 2716598272,
+                "native": -1.5924219408380846e-18,
+                "reference": -1.599198204416119e-18
+              },
+              {
+                "column": 124647,
+                "native_index": 124647,
+                "reference_index": 124647,
+                "native_bits": 966590464,
+                "reference_bits": 966524928,
+                "native": 0.0002994537353515625,
+                "reference": 0.00029754638671875
+              },
+              {
+                "column": 126512,
+                "native_index": 126512,
+                "reference_index": 126512,
+                "native_bits": 3040215040,
+                "reference_bits": 3040149504,
+                "native": -6.780028343200684e-07,
+                "reference": -6.742775440216064e-07
+              }
+            ]
+          }
+        },
+        {
+          "mode": "isolated",
+          "surface": "w",
+          "native_sha256": "b0e0055535807f8975dd114592f7d2253e2f5183111d38c483f3dd74487ab015",
+          "reference_sha256": "e1bfe5a9d821daa9ee7778942f4119848a59705f0eacf6cc7d8ac726f8749d56",
+          "comparison": {
+            "elements": 262144,
+            "f32_bit_mismatches": 131995,
+            "bf16_mismatches": 131995,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.00390625,
+            "first_bf16_differences": [
+              {
+                "column": 1,
+                "native_index": 1,
+                "reference_index": 1,
+                "native_bits": 925106176,
+                "reference_bits": 925171712,
+                "native": 9.775161743164062e-06,
+                "reference": 9.834766387939453e-06
+              },
+              {
+                "column": 4,
+                "native_index": 4,
+                "reference_index": 4,
+                "native_bits": 3139764224,
+                "reference_bits": 3139829760,
+                "native": -0.0025177001953125,
+                "reference": -0.002532958984375
+              },
+              {
+                "column": 6,
+                "native_index": 6,
+                "reference_index": 6,
+                "native_bits": 993787904,
+                "reference_bits": 993853440,
+                "native": 0.00286865234375,
+                "reference": 0.0028839111328125
+              },
+              {
+                "column": 8,
+                "native_index": 8,
+                "reference_index": 8,
+                "native_bits": 3151167488,
+                "reference_bits": 3151233024,
+                "native": -0.006439208984375,
+                "reference": -0.0064697265625
+              },
+              {
+                "column": 11,
+                "native_index": 11,
+                "reference_index": 11,
+                "native_bits": 3124428800,
+                "reference_bits": 3124494336,
+                "native": -0.000713348388671875,
+                "reference": -0.0007171630859375
+              },
+              {
+                "column": 13,
+                "native_index": 13,
+                "reference_index": 13,
+                "native_bits": 952958976,
+                "reference_bits": 953024512,
+                "native": 9.775161743164062e-05,
+                "reference": 9.822845458984375e-05
+              },
+              {
+                "column": 14,
+                "native_index": 14,
+                "reference_index": 14,
+                "native_bits": 985202688,
+                "reference_bits": 985268224,
+                "native": 0.00141143798828125,
+                "reference": 0.0014190673828125
+              },
+              {
+                "column": 15,
+                "native_index": 15,
+                "reference_index": 15,
+                "native_bits": 957612032,
+                "reference_bits": 957677568,
+                "native": 0.000141143798828125,
+                "reference": 0.00014209747314453125
+              }
+            ]
+          }
+        },
+        {
+          "mode": "isolated",
+          "surface": "u",
+          "native_sha256": "a9624571f9f482716872331e43b7812014ec92c1399bcd034c92af7405223aea",
+          "reference_sha256": "a2343bd6508a1f46e611578eddbfc22b19657efb2c7f2b59cb01c14cd44462bf",
+          "comparison": {
+            "elements": 262144,
+            "f32_bit_mismatches": 160897,
+            "bf16_mismatches": 160897,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.125,
+            "first_bf16_differences": [
+              {
+                "column": 4,
+                "native_index": 4,
+                "reference_index": 4,
+                "native_bits": 974389248,
+                "reference_bits": 974454784,
+                "native": 0.0005645751953125,
+                "reference": 0.000568389892578125
+              },
+              {
+                "column": 5,
+                "native_index": 5,
+                "reference_index": 5,
+                "native_bits": 3093364736,
+                "reference_bits": 3093430272,
+                "native": -5.364418029785156e-05,
+                "reference": -5.3882598876953125e-05
+              },
+              {
+                "column": 6,
+                "native_index": 6,
+                "reference_index": 6,
+                "native_bits": 965869568,
+                "reference_bits": 965935104,
+                "native": 0.000278472900390625,
+                "reference": 0.0002803802490234375
+              },
+              {
+                "column": 7,
+                "native_index": 7,
+                "reference_index": 7,
+                "native_bits": 975503360,
+                "reference_bits": 975568896,
+                "native": 0.000629425048828125,
+                "reference": 0.00063323974609375
+              },
+              {
+                "column": 10,
+                "native_index": 10,
+                "reference_index": 10,
+                "native_bits": 985399296,
+                "reference_bits": 985464832,
+                "native": 0.001434326171875,
+                "reference": 0.00144195556640625
+              },
+              {
+                "column": 17,
+                "native_index": 17,
+                "reference_index": 17,
+                "native_bits": 934739968,
+                "reference_bits": 934805504,
+                "native": 2.181529998779297e-05,
+                "reference": 2.193450927734375e-05
+              },
+              {
+                "column": 19,
+                "native_index": 19,
+                "reference_index": 19,
+                "native_bits": 972161024,
+                "reference_bits": 972226560,
+                "native": 0.000461578369140625,
+                "reference": 0.0004634857177734375
+              },
+              {
+                "column": 24,
+                "native_index": 24,
+                "reference_index": 24,
+                "native_bits": 974651392,
+                "reference_bits": 974716928,
+                "native": 0.000579833984375,
+                "reference": 0.000583648681640625
+              }
+            ]
+          }
+        },
+        {
+          "mode": "isolated",
+          "surface": "h",
+          "native_sha256": "30e14955ebf1352266dc2ff8067e68104607e750abb9d3b36582b8af909fcb58",
+          "reference_sha256": "30e14955ebf1352266dc2ff8067e68104607e750abb9d3b36582b8af909fcb58",
+          "comparison": {
+            "elements": 524288,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0,
+            "first_bf16_differences": []
+          }
+        },
+        {
+          "mode": "isolated",
+          "surface": "v-new",
+          "native_sha256": "a2343bd6508a1f46e611578eddbfc22b19657efb2c7f2b59cb01c14cd44462bf",
+          "reference_sha256": "a2343bd6508a1f46e611578eddbfc22b19657efb2c7f2b59cb01c14cd44462bf",
+          "comparison": {
+            "elements": 262144,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0,
+            "first_bf16_differences": []
+          }
+        },
+        {
+          "mode": "isolated",
+          "surface": "state",
+          "native_sha256": "f54c8681187411cd1fad1139b4bec2f11258d094979dc231636a49f7802161f1",
+          "reference_sha256": "5925e0c0f2174eed0ea82f4b980d999fe91272aec2ba341071b044bd7fc7d861",
+          "comparison": {
+            "elements": 524288,
+            "f32_bit_mismatches": 256249,
+            "bf16_mismatches": 124,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 2.86102294921875e-06,
+            "first_bf16_differences": [
+              {
+                "column": 3765,
+                "native_index": 3765,
+                "reference_index": 3765,
+                "native_bits": 824246272,
+                "reference_bits": 824377344,
+                "native": 2.342858351767063e-09,
+                "reference": 2.371962182223797e-09
+              },
+              {
+                "column": 30776,
+                "native_index": 30776,
+                "reference_index": 30776,
+                "native_bits": 989691899,
+                "reference_bits": 989691904,
+                "native": 0.0019340509315952659,
+                "reference": 0.001934051513671875
+              },
+              {
+                "column": 44737,
+                "native_index": 44737,
+                "reference_index": 44737,
+                "native_bits": 837434880,
+                "reference_bits": 837484544,
+                "native": 6.817344910814427e-09,
+                "reference": 6.83940015733242e-09
+              },
+              {
+                "column": 55816,
+                "native_index": 55816,
+                "reference_index": 55816,
+                "native_bits": 3050864644,
+                "reference_bits": 3050864640,
+                "native": -1.6130511539813597e-06,
+                "reference": -1.6130506992340088e-06
+              },
+              {
+                "column": 64115,
+                "native_index": 64115,
+                "reference_index": 64115,
+                "native_bits": 954171376,
+                "reference_bits": 954171392,
+                "native": 0.00010657298844307661,
+                "reference": 0.00010657310485839844
+              },
+              {
+                "column": 73924,
+                "native_index": 73924,
+                "reference_index": 73924,
+                "native_bits": 3105325056,
+                "reference_bits": 3105325055,
+                "native": -0.00014448165893554688,
+                "reference": -0.00014448164438363165
+              },
+              {
+                "column": 88664,
+                "native_index": 88664,
+                "reference_index": 88664,
+                "native_bits": 946176004,
+                "reference_bits": 946175998,
+                "native": 5.471707845572382e-05,
+                "reference": 5.471705662785098e-05
+              },
+              {
+                "column": 98888,
+                "native_index": 98888,
+                "reference_index": 98888,
+                "native_bits": 907640764,
+                "reference_bits": 907640832,
+                "native": 2.287312781845685e-06,
+                "reference": 2.2873282432556152e-06
+              }
+            ]
+          }
+        },
+        {
+          "mode": "isolated",
+          "surface": "core",
+          "native_sha256": "794b511e908f5b4c0cd5669fac4602df085bd719408e6af3598a94528502cf9a",
+          "reference_sha256": "ba7a97a1ad8f9dc6b9c314d45706dbc24a3b040c35c62af5e612897de358f9b6",
+          "comparison": {
+            "elements": 262144,
+            "f32_bit_mismatches": 13,
+            "bf16_mismatches": 13,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 7.62939453125e-06,
+            "first_bf16_differences": [
+              {
+                "column": 33017,
+                "native_index": 33017,
+                "reference_index": 33017,
+                "native_bits": 842399744,
+                "reference_bits": 842334208,
+                "native": 1.0593794286251068e-08,
+                "reference": 1.05355866253376e-08
+              },
+              {
+                "column": 109682,
+                "native_index": 109682,
+                "reference_index": 109682,
+                "native_bits": 3023568896,
+                "reference_bits": 3023503360,
+                "native": -1.7136335372924805e-07,
+                "reference": -1.7043203115463257e-07
+              },
+              {
+                "column": 135128,
+                "native_index": 135128,
+                "reference_index": 135128,
+                "native_bits": 2964324352,
+                "reference_bits": 2964258816,
+                "native": -1.280568540096283e-09,
+                "reference": -1.2732925824820995e-09
+              },
+              {
+                "column": 175479,
+                "native_index": 175479,
+                "reference_index": 175479,
+                "native_bits": 2954231808,
+                "reference_bits": 2954100736,
+                "native": -5.456968210637569e-10,
+                "reference": -5.384208634495735e-10
+              },
+              {
+                "column": 209608,
+                "native_index": 209608,
+                "reference_index": 209608,
+                "native_bits": 820903936,
+                "reference_bits": 820969472,
+                "native": 1.7316779121756554e-09,
+                "reference": 1.7389538697898388e-09
+              },
+              {
+                "column": 232322,
+                "native_index": 232322,
+                "reference_index": 232322,
+                "native_bits": 975765504,
+                "reference_bits": 975699968,
+                "native": 0.000644683837890625,
+                "reference": 0.000640869140625
+              },
+              {
+                "column": 232325,
+                "native_index": 232325,
+                "reference_index": 232325,
+                "native_bits": 884277248,
+                "reference_bits": 892993536,
+                "native": 3.371387720108032e-07,
+                "reference": 6.92903995513916e-07
+              },
+              {
+                "column": 232328,
+                "native_index": 232328,
+                "reference_index": 232328,
+                "native_bits": 3086876672,
+                "reference_bits": 3086942208,
+                "native": -3.0279159545898438e-05,
+                "reference": -3.039836883544922e-05
+              }
+            ]
+          }
+        }
+      ],
+      "cleanup_pass": true
+    },
+    {
+      "case": "native-gdn-aligned-firstchunk-native-r3",
+      "result_sha256": "385dad2defc65b92aae90864271cc00d849f932ee9f36d46b372505500ec85a3",
+      "run_sha256": "b319de62fc33523d1785b2ff16342903be11e6b109c8d17bc4ccbc46b0b91f88",
+      "command_file": "P:/projects/native-gdn-aligned-firstchunk-20260923-r3/dispatch.ps1",
+      "command_file_sha256": "f17eeea460eeecc2feba30ff3851f20994325791d457ffaa99edea2d73c98986",
+      "worker_sha256": "6913fff1994090da1fd70087a9c9afe65b6372453dc4382b65c38ed5b08e47a4",
+      "manifest_sha256": "2b1db917e78822efa09035b5a35b73a0559df720aa445e76cf32b278594529af",
+      "images": {
+        "3": {
+          "path": "P:/projects/native-gdn-aligned-firstchunk-20260923-r3/3.hsaco",
+          "bytes": 6736,
+          "sha256": "c0da333f1de9b50090cd127ccd667814da666bd129716902dd0edea4589dacd6",
+          "symbol": "chunk_local_cumsum_scalar_kernel",
+          "source_sha256": "9e0ad91bfae7db6d29de2dfa14de029f2c57b55d4222cf34fc05f069582eab91",
+          "original_source_sha256": "aa14bf2e7cbeae888408c103bed5811364698856032a3a96c7040e35174bda00",
+          "compilation_report_sha256": "31eab30135a041cc6c0088ed76b67ce210242edf30553c928434c50928ce0037"
+        },
+        "4": {
+          "path": "P:/projects/native-gdn-aligned-firstchunk-20260923-r3/4.hsaco",
+          "bytes": 38080,
+          "sha256": "0d663c1213c1e8607aeef706469fbe767d44ce30dbcdae693eb87b3c2441ecc6",
+          "symbol": "chunk_scaled_dot_kkt_fwd_kernel",
+          "source_sha256": "90a690ca0d108c13dfc89b6eee2bf245c6ebdbed36d013c021a26bd9325e658d",
+          "original_source_sha256": "6dda2245d14ebd61d93cd4fa17e0b31d291c47f243c3ade36a302b905d8e5488",
+          "compilation_report_sha256": "31eab30135a041cc6c0088ed76b67ce210242edf30553c928434c50928ce0037"
+        },
+        "5": {
+          "path": "P:/projects/native-gdn-aligned-firstchunk-20260923-r3/5.hsaco",
+          "bytes": 28072,
+          "sha256": "ee489cf91a34429e0ca42c1e7040a7fe495a747413df66fdee7a6a5156c399c8",
+          "symbol": "merge_16x16_to_64x64_inverse_kernel",
+          "source_sha256": "159460a7711458247699196a00b81edf6b10fdb8b79c74f6b7347c378833493f",
+          "original_source_sha256": "0117db52028e1e577665bab75658233f4edb8dccc54820907343112e6001715f",
+          "compilation_report_sha256": "31eab30135a041cc6c0088ed76b67ce210242edf30553c928434c50928ce0037"
+        },
+        "6": {
+          "path": "P:/projects/native-gdn-aligned-firstchunk-20260923-r3/6.hsaco",
+          "bytes": 110296,
+          "sha256": "68b931032b8bece7fa1c436e94e3758124d01c6621b415a203a27a2067be5378",
+          "symbol": "recompute_w_u_fwd_kernel",
+          "source_sha256": "194b1c3e146f28e0354c59247638df8bf5d6783309a089c75bacbfdfd2efbd78",
+          "original_source_sha256": "f71518e77f0bbdcbd79ea2a6da3b75eb0394341b33bdce35a30979eb745f0834",
+          "compilation_report_sha256": "31eab30135a041cc6c0088ed76b67ce210242edf30553c928434c50928ce0037"
+        },
+        "7": {
+          "path": "P:/projects/native-gdn-aligned-firstchunk-20260923-r3/7.hsaco",
+          "bytes": 99896,
+          "sha256": "f147e5f7e71dd58a56b344f7d67783cbc58ff6800eeaba4a24b3364bd8fe28c8",
+          "symbol": "chunk_gated_delta_rule_fwd_kernel_h_blockdim64",
+          "source_sha256": "5fa236007ed471a85e2d7ee084142a82fdaaf8a8d16e1b5617627f0ca3aed61b",
+          "original_source_sha256": "81a4549225deebb7e8dfaabccf9db03c1d7ab69356a78f5c0d2651f97e7fd1c5",
+          "compilation_report_sha256": "31eab30135a041cc6c0088ed76b67ce210242edf30553c928434c50928ce0037"
+        },
+        "8": {
+          "path": "P:/projects/native-gdn-aligned-firstchunk-20260923-r3/8.hsaco",
+          "bytes": 44736,
+          "sha256": "bbf42e9095affa5472275129c98813828ee9c67f5476b3f5c13655151f894240",
+          "symbol": "chunk_fwd_kernel_o",
+          "source_sha256": "05e2058c96bfc5743dae95c3f779539d361d83b5055d1b61dc4a5c2b157c186c",
+          "original_source_sha256": "f3491a16a6a644212ae52978ada43e27af1ed58d7558ffd67411a37d2b7a6522",
+          "compilation_report_sha256": "31eab30135a041cc6c0088ed76b67ce210242edf30553c928434c50928ce0037"
+        }
+      },
+      "comparisons": [
+        {
+          "mode": "chain",
+          "surface": "g-cumsum",
+          "native_sha256": "261146a6670e02d714f216a69da81de05eb4a77308ace24c0fe385d9282c4d5f",
+          "reference_sha256": "261146a6670e02d714f216a69da81de05eb4a77308ace24c0fe385d9282c4d5f",
+          "comparison": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0,
+            "first_bf16_differences": []
+          }
+        },
+        {
+          "mode": "chain",
+          "surface": "kkt",
+          "native_sha256": "aaa5a0ba2e0c1ecfe819ccfb0f43259c049c1f524154658668f07630074d3de7",
+          "reference_sha256": "f19978444adc985945406b2ac7abfc9a0ea2091f50c1cbbde5f6c7ea23f16e0b",
+          "comparison": {
+            "elements": 131072,
+            "f32_bit_mismatches": 39378,
+            "bf16_mismatches": 2,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 5.960464477539062e-07,
+            "first_bf16_differences": [
+              {
+                "column": 93889,
+                "native_index": 93889,
+                "reference_index": 93889,
+                "native_bits": 3081274651,
+                "reference_bits": 3081272517,
+                "native": -2.0089142708457075e-05,
+                "reference": -2.0085260985069908e-05
+              },
+              {
+                "column": 130112,
+                "native_index": 130112,
+                "reference_index": 130112,
+                "native_bits": 834371587,
+                "reference_bits": 834371583,
+                "native": 5.456969542905199e-09,
+                "reference": 5.4569677665483596e-09
+              }
+            ]
+          }
+        },
+        {
+          "mode": "chain",
+          "surface": "inverse",
+          "native_sha256": "dee4c257f13fa846094e201430aa10f836da7c8becb5d37fa8b766daa147f109",
+          "reference_sha256": "ea6d0ea1068f1874c850253b5e91053c7dc03b986905fb072b642382ceb58ced",
+          "comparison": {
+            "elements": 131072,
+            "f32_bit_mismatches": 38,
+            "bf16_mismatches": 38,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.000244140625,
+            "first_bf16_differences": [
+              {
+                "column": 6336,
+                "native_index": 6336,
+                "reference_index": 6336,
+                "native_bits": 2939486208,
+                "reference_bits": 2939551744,
+                "native": -1.646185410209e-10,
+                "reference": -1.6552803572267294e-10
+              },
+              {
+                "column": 21249,
+                "native_index": 21249,
+                "reference_index": 21249,
+                "native_bits": 993918976,
+                "reference_bits": 993853440,
+                "native": 0.002899169921875,
+                "reference": 0.0028839111328125
+              },
+              {
+                "column": 24768,
+                "native_index": 24768,
+                "reference_index": 24768,
+                "native_bits": 2585985024,
+                "reference_bits": 2586050560,
+                "native": -3.370760996153588e-23,
+                "reference": -3.3914405114674135e-23
+              },
+              {
+                "column": 55426,
+                "native_index": 55426,
+                "reference_index": 55426,
+                "native_bits": 961413120,
+                "reference_bits": 961347584,
+                "native": 0.0001964569091796875,
+                "reference": 0.00019550323486328125
+              },
+              {
+                "column": 59265,
+                "native_index": 59265,
+                "reference_index": 59265,
+                "native_bits": 3149004800,
+                "reference_bits": 3149070336,
+                "native": -0.00543212890625,
+                "reference": -0.005462646484375
+              },
+              {
+                "column": 62536,
+                "native_index": 62536,
+                "reference_index": 62536,
+                "native_bits": 3018522624,
+                "reference_bits": 3018457088,
+                "native": -1.0943040251731873e-07,
+                "reference": -1.0896474123001099e-07
+              },
+              {
+                "column": 63561,
+                "native_index": 63561,
+                "reference_index": 63561,
+                "native_bits": 3173777408,
+                "reference_bits": 3173711872,
+                "native": -0.0419921875,
+                "reference": -0.041748046875
+              },
+              {
+                "column": 63748,
+                "native_index": 63748,
+                "reference_index": 63748,
+                "native_bits": 495255552,
+                "reference_bits": 495190016,
+                "native": 3.520480687025686e-21,
+                "reference": 3.494010907423989e-21
+              }
+            ]
+          }
+        },
+        {
+          "mode": "chain",
+          "surface": "w",
+          "native_sha256": "0a6c2e3d9de20d9cdc836bbda689ae1751e64bb0e1d85bf1987accb2c655b8a5",
+          "reference_sha256": "e1bfe5a9d821daa9ee7778942f4119848a59705f0eacf6cc7d8ac726f8749d56",
+          "comparison": {
+            "elements": 262144,
+            "f32_bit_mismatches": 1005,
+            "bf16_mismatches": 1005,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.000244140625,
+            "first_bf16_differences": [
+              {
+                "column": 2932,
+                "native_index": 2932,
+                "reference_index": 2932,
+                "native_bits": 0,
+                "reference_bits": 65536,
+                "native": 0,
+                "reference": 9.183549615799121e-41
+              },
+              {
+                "column": 2939,
+                "native_index": 2939,
+                "reference_index": 2939,
+                "native_bits": 0,
+                "reference_bits": 2147549184,
+                "native": 0,
+                "reference": -9.183549615799121e-41
+              },
+              {
+                "column": 5371,
+                "native_index": 5371,
+                "reference_index": 5371,
+                "native_bits": 3105554432,
+                "reference_bits": 3105488896,
+                "native": -0.00014781951904296875,
+                "reference": -0.0001468658447265625
+              },
+              {
+                "column": 5504,
+                "native_index": 5504,
+                "reference_index": 5504,
+                "native_bits": 0,
+                "reference_bits": 2147483648,
+                "native": 0,
+                "reference": 0
+              },
+              {
+                "column": 5507,
+                "native_index": 5507,
+                "reference_index": 5507,
+                "native_bits": 0,
+                "reference_bits": 2147483648,
+                "native": 0,
+                "reference": 0
+              },
+              {
+                "column": 5510,
+                "native_index": 5510,
+                "reference_index": 5510,
+                "native_bits": 0,
+                "reference_bits": 2147483648,
+                "native": 0,
+                "reference": 0
+              },
+              {
+                "column": 5511,
+                "native_index": 5511,
+                "reference_index": 5511,
+                "native_bits": 0,
+                "reference_bits": 2147483648,
+                "native": 0,
+                "reference": 0
+              },
+              {
+                "column": 5515,
+                "native_index": 5515,
+                "reference_index": 5515,
+                "native_bits": 0,
+                "reference_bits": 2147483648,
+                "native": 0,
+                "reference": 0
+              }
+            ]
+          }
+        },
+        {
+          "mode": "chain",
+          "surface": "u",
+          "native_sha256": "5cd430a13945b1979eaa9bb2403d279c94d469a6eae2413e7e5a8b50040f74ae",
+          "reference_sha256": "a2343bd6508a1f46e611578eddbfc22b19657efb2c7f2b59cb01c14cd44462bf",
+          "comparison": {
+            "elements": 262144,
+            "f32_bit_mismatches": 142,
+            "bf16_mismatches": 142,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.001953125,
+            "first_bf16_differences": [
+              {
+                "column": 4294,
+                "native_index": 4294,
+                "reference_index": 4294,
+                "native_bits": 986644480,
+                "reference_bits": 986710016,
+                "native": 0.00157928466796875,
+                "reference": 0.0015869140625
+              },
+              {
+                "column": 15905,
+                "native_index": 15905,
+                "reference_index": 15905,
+                "native_bits": 3117088768,
+                "reference_bits": 3117023232,
+                "native": -0.0003871917724609375,
+                "reference": -0.000385284423828125
+              },
+              {
+                "column": 15955,
+                "native_index": 15955,
+                "reference_index": 15955,
+                "native_bits": 1000407040,
+                "reference_bits": 1000341504,
+                "native": 0.004913330078125,
+                "reference": 0.0048828125
+              },
+              {
+                "column": 16653,
+                "native_index": 16653,
+                "reference_index": 16653,
+                "native_bits": 950337536,
+                "reference_bits": 950272000,
+                "native": 7.867813110351562e-05,
+                "reference": 7.82012939453125e-05
+              },
+              {
+                "column": 16696,
+                "native_index": 16696,
+                "reference_index": 16696,
+                "native_bits": 915865600,
+                "reference_bits": 915800064,
+                "native": 4.500150680541992e-06,
+                "reference": 4.470348358154297e-06
+              },
+              {
+                "column": 27538,
+                "native_index": 27538,
+                "reference_index": 27538,
+                "native_bits": 991166464,
+                "reference_bits": 991100928,
+                "native": 0.00225830078125,
+                "reference": 0.0022430419921875
+              },
+              {
+                "column": 32676,
+                "native_index": 32676,
+                "reference_index": 32676,
+                "native_bits": 941293568,
+                "reference_bits": 941228032,
+                "native": 3.695487976074219e-05,
+                "reference": 3.6716461181640625e-05
+              },
+              {
+                "column": 42367,
+                "native_index": 42367,
+                "reference_index": 42367,
+                "native_bits": 887816192,
+                "reference_bits": 887750656,
+                "native": 4.377216100692749e-07,
+                "reference": 4.3585896492004395e-07
+              }
+            ]
+          }
+        },
+        {
+          "mode": "chain",
+          "surface": "h",
+          "native_sha256": "30e14955ebf1352266dc2ff8067e68104607e750abb9d3b36582b8af909fcb58",
+          "reference_sha256": "30e14955ebf1352266dc2ff8067e68104607e750abb9d3b36582b8af909fcb58",
+          "comparison": {
+            "elements": 524288,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0,
+            "first_bf16_differences": []
+          }
+        },
+        {
+          "mode": "chain",
+          "surface": "v-new",
+          "native_sha256": "5cd430a13945b1979eaa9bb2403d279c94d469a6eae2413e7e5a8b50040f74ae",
+          "reference_sha256": "a2343bd6508a1f46e611578eddbfc22b19657efb2c7f2b59cb01c14cd44462bf",
+          "comparison": {
+            "elements": 262144,
+            "f32_bit_mismatches": 142,
+            "bf16_mismatches": 142,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.001953125,
+            "first_bf16_differences": [
+              {
+                "column": 4294,
+                "native_index": 4294,
+                "reference_index": 4294,
+                "native_bits": 986644480,
+                "reference_bits": 986710016,
+                "native": 0.00157928466796875,
+                "reference": 0.0015869140625
+              },
+              {
+                "column": 15905,
+                "native_index": 15905,
+                "reference_index": 15905,
+                "native_bits": 3117088768,
+                "reference_bits": 3117023232,
+                "native": -0.0003871917724609375,
+                "reference": -0.000385284423828125
+              },
+              {
+                "column": 15955,
+                "native_index": 15955,
+                "reference_index": 15955,
+                "native_bits": 1000407040,
+                "reference_bits": 1000341504,
+                "native": 0.004913330078125,
+                "reference": 0.0048828125
+              },
+              {
+                "column": 16653,
+                "native_index": 16653,
+                "reference_index": 16653,
+                "native_bits": 950337536,
+                "reference_bits": 950272000,
+                "native": 7.867813110351562e-05,
+                "reference": 7.82012939453125e-05
+              },
+              {
+                "column": 16696,
+                "native_index": 16696,
+                "reference_index": 16696,
+                "native_bits": 915865600,
+                "reference_bits": 915800064,
+                "native": 4.500150680541992e-06,
+                "reference": 4.470348358154297e-06
+              },
+              {
+                "column": 27538,
+                "native_index": 27538,
+                "reference_index": 27538,
+                "native_bits": 991166464,
+                "reference_bits": 991100928,
+                "native": 0.00225830078125,
+                "reference": 0.0022430419921875
+              },
+              {
+                "column": 32676,
+                "native_index": 32676,
+                "reference_index": 32676,
+                "native_bits": 941293568,
+                "reference_bits": 941228032,
+                "native": 3.695487976074219e-05,
+                "reference": 3.6716461181640625e-05
+              },
+              {
+                "column": 42367,
+                "native_index": 42367,
+                "reference_index": 42367,
+                "native_bits": 887816192,
+                "reference_bits": 887750656,
+                "native": 4.377216100692749e-07,
+                "reference": 4.3585896492004395e-07
+              }
+            ]
+          }
+        },
+        {
+          "mode": "chain",
+          "surface": "state",
+          "native_sha256": "6fb0ad80bb8264de8a1b0454a53329b7a972c3d5e48a25b17b747c01e35491dc",
+          "reference_sha256": "5925e0c0f2174eed0ea82f4b980d999fe91272aec2ba341071b044bd7fc7d861",
+          "comparison": {
+            "elements": 524288,
+            "f32_bit_mismatches": 263221,
+            "bf16_mismatches": 1176,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 1.0847943485714495e-05,
+            "first_bf16_differences": [
+              {
+                "column": 1550,
+                "native_index": 1550,
+                "reference_index": 1550,
+                "native_bits": 3110727210,
+                "reference_bits": 3110767404,
+                "native": -0.00022309334599412978,
+                "reference": -0.00022367824567481875
+              },
+              {
+                "column": 1552,
+                "native_index": 1552,
+                "reference_index": 1552,
+                "native_bits": 3127735884,
+                "reference_bits": 3127740010,
+                "native": -0.0009058460127562284,
+                "reference": -0.0009060861775651574
+              },
+              {
+                "column": 1556,
+                "native_index": 1556,
+                "reference_index": 1556,
+                "native_bits": 3110555589,
+                "reference_bits": 3110575045,
+                "native": -0.00022059593175072223,
+                "reference": -0.00022087905381340533
+              },
+              {
+                "column": 1574,
+                "native_index": 1574,
+                "reference_index": 1574,
+                "native_bits": 962625294,
+                "reference_bits": 962627692,
+                "native": 0.00021409636246971786,
+                "reference": 0.00021413125796243548
+              },
+              {
+                "column": 1584,
+                "native_index": 1584,
+                "reference_index": 1584,
+                "native_bits": 3076472774,
+                "reference_bits": 3076722608,
+                "native": -1.3306684195413254e-05,
+                "reference": -1.3533906894735992e-05
+              },
+              {
+                "column": 1589,
+                "native_index": 1589,
+                "reference_index": 1589,
+                "native_bits": 3123732577,
+                "reference_bits": 3123740737,
+                "native": -0.000672822876367718,
+                "reference": -0.0006732978508807719
+              },
+              {
+                "column": 1593,
+                "native_index": 1593,
+                "reference_index": 1593,
+                "native_bits": 946359383,
+                "reference_bits": 946425432,
+                "native": 5.538420737138949e-05,
+                "reference": 5.5624492233619094e-05
+              },
+              {
+                "column": 1609,
+                "native_index": 1609,
+                "reference_index": 1609,
+                "native_bits": 3089540517,
+                "reference_bits": 3089233312,
+                "native": -3.97317526221741e-05,
+                "reference": -3.861414734274149e-05
+              }
+            ]
+          }
+        },
+        {
+          "mode": "chain",
+          "surface": "core",
+          "native_sha256": "c0135f70bbbf09575de84e2b085f91d9171e02da2a873b46ff682996ff18a1ef",
+          "reference_sha256": "ba7a97a1ad8f9dc6b9c314d45706dbc24a3b040c35c62af5e612897de358f9b6",
+          "comparison": {
+            "elements": 262144,
+            "f32_bit_mismatches": 119,
+            "bf16_mismatches": 119,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 7.62939453125e-06,
+            "first_bf16_differences": [
+              {
+                "column": 8390,
+                "native_index": 8390,
+                "reference_index": 8390,
+                "native_bits": 951648256,
+                "reference_bits": 951713792,
+                "native": 8.821487426757812e-05,
+                "reference": 8.869171142578125e-05
+              },
+              {
+                "column": 33017,
+                "native_index": 33017,
+                "reference_index": 33017,
+                "native_bits": 842399744,
+                "reference_bits": 842334208,
+                "native": 1.0593794286251068e-08,
+                "reference": 1.05355866253376e-08
+              },
+              {
+                "column": 55946,
+                "native_index": 55946,
+                "reference_index": 55946,
+                "native_bits": 3110469632,
+                "reference_bits": 3110404096,
+                "native": -0.0002193450927734375,
+                "reference": -0.00021839141845703125
+              },
+              {
+                "column": 82118,
+                "native_index": 82118,
+                "reference_index": 82118,
+                "native_bits": 971440128,
+                "reference_bits": 971505664,
+                "native": 0.0004405975341796875,
+                "reference": 0.0004425048828125
+              },
+              {
+                "column": 105098,
+                "native_index": 105098,
+                "reference_index": 105098,
+                "native_bits": 3110535168,
+                "reference_bits": 3110469632,
+                "native": -0.00022029876708984375,
+                "reference": -0.0002193450927734375
+              },
+              {
+                "column": 109682,
+                "native_index": 109682,
+                "reference_index": 109682,
+                "native_bits": 3023568896,
+                "reference_bits": 3023503360,
+                "native": -1.7136335372924805e-07,
+                "reference": -1.7043203115463257e-07
+              },
+              {
+                "column": 130901,
+                "native_index": 130901,
+                "reference_index": 130901,
+                "native_bits": 3111649280,
+                "reference_bits": 3111583744,
+                "native": -0.00023651123046875,
+                "reference": -0.00023555755615234375
+              },
+              {
+                "column": 131248,
+                "native_index": 131248,
+                "reference_index": 131248,
+                "native_bits": 977207296,
+                "reference_bits": 977272832,
+                "native": 0.000728607177734375,
+                "reference": 0.000732421875
+              }
+            ]
+          }
+        },
+        {
+          "mode": "isolated",
+          "surface": "g-cumsum",
+          "native_sha256": "261146a6670e02d714f216a69da81de05eb4a77308ace24c0fe385d9282c4d5f",
+          "reference_sha256": "261146a6670e02d714f216a69da81de05eb4a77308ace24c0fe385d9282c4d5f",
+          "comparison": {
+            "elements": 2048,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0,
+            "first_bf16_differences": []
+          }
+        },
+        {
+          "mode": "isolated",
+          "surface": "kkt",
+          "native_sha256": "aaa5a0ba2e0c1ecfe819ccfb0f43259c049c1f524154658668f07630074d3de7",
+          "reference_sha256": "f19978444adc985945406b2ac7abfc9a0ea2091f50c1cbbde5f6c7ea23f16e0b",
+          "comparison": {
+            "elements": 131072,
+            "f32_bit_mismatches": 39378,
+            "bf16_mismatches": 2,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 5.960464477539062e-07,
+            "first_bf16_differences": [
+              {
+                "column": 93889,
+                "native_index": 93889,
+                "reference_index": 93889,
+                "native_bits": 3081274651,
+                "reference_bits": 3081272517,
+                "native": -2.0089142708457075e-05,
+                "reference": -2.0085260985069908e-05
+              },
+              {
+                "column": 130112,
+                "native_index": 130112,
+                "reference_index": 130112,
+                "native_bits": 834371587,
+                "reference_bits": 834371583,
+                "native": 5.456969542905199e-09,
+                "reference": 5.4569677665483596e-09
+              }
+            ]
+          }
+        },
+        {
+          "mode": "isolated",
+          "surface": "inverse",
+          "native_sha256": "83906dd2e9ce108e6e8fbefab432a1bd6100b45498b76bc669428dd79687ebcd",
+          "reference_sha256": "ea6d0ea1068f1874c850253b5e91053c7dc03b986905fb072b642382ceb58ced",
+          "comparison": {
+            "elements": 131072,
+            "f32_bit_mismatches": 6,
+            "bf16_mismatches": 6,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.000244140625,
+            "first_bf16_differences": [
+              {
+                "column": 24768,
+                "native_index": 24768,
+                "reference_index": 24768,
+                "native_bits": 2585985024,
+                "reference_bits": 2586050560,
+                "native": -3.370760996153588e-23,
+                "reference": -3.3914405114674135e-23
+              },
+              {
+                "column": 63561,
+                "native_index": 63561,
+                "reference_index": 63561,
+                "native_bits": 3173777408,
+                "reference_bits": 3173711872,
+                "native": -0.0419921875,
+                "reference": -0.041748046875
+              },
+              {
+                "column": 86235,
+                "native_index": 86235,
+                "reference_index": 86235,
+                "native_bits": 439812096,
+                "reference_bits": 436928512,
+                "native": 3.7843513024301016e-23,
+                "reference": 2.874452628621771e-23
+              },
+              {
+                "column": 105481,
+                "native_index": 105481,
+                "reference_index": 105481,
+                "native_bits": 2716532736,
+                "reference_bits": 2716598272,
+                "native": -1.5924219408380846e-18,
+                "reference": -1.599198204416119e-18
+              },
+              {
+                "column": 124647,
+                "native_index": 124647,
+                "reference_index": 124647,
+                "native_bits": 966590464,
+                "reference_bits": 966524928,
+                "native": 0.0002994537353515625,
+                "reference": 0.00029754638671875
+              },
+              {
+                "column": 126512,
+                "native_index": 126512,
+                "reference_index": 126512,
+                "native_bits": 3040215040,
+                "reference_bits": 3040149504,
+                "native": -6.780028343200684e-07,
+                "reference": -6.742775440216064e-07
+              }
+            ]
+          }
+        },
+        {
+          "mode": "isolated",
+          "surface": "w",
+          "native_sha256": "03354948a82362ee57e9b1c0fa6033a17abb4c64e3ed159760c231465e4f565e",
+          "reference_sha256": "e1bfe5a9d821daa9ee7778942f4119848a59705f0eacf6cc7d8ac726f8749d56",
+          "comparison": {
+            "elements": 262144,
+            "f32_bit_mismatches": 883,
+            "bf16_mismatches": 883,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.000244140625,
+            "first_bf16_differences": [
+              {
+                "column": 2932,
+                "native_index": 2932,
+                "reference_index": 2932,
+                "native_bits": 0,
+                "reference_bits": 65536,
+                "native": 0,
+                "reference": 9.183549615799121e-41
+              },
+              {
+                "column": 2939,
+                "native_index": 2939,
+                "reference_index": 2939,
+                "native_bits": 0,
+                "reference_bits": 2147549184,
+                "native": 0,
+                "reference": -9.183549615799121e-41
+              },
+              {
+                "column": 5371,
+                "native_index": 5371,
+                "reference_index": 5371,
+                "native_bits": 3105554432,
+                "reference_bits": 3105488896,
+                "native": -0.00014781951904296875,
+                "reference": -0.0001468658447265625
+              },
+              {
+                "column": 5504,
+                "native_index": 5504,
+                "reference_index": 5504,
+                "native_bits": 0,
+                "reference_bits": 2147483648,
+                "native": 0,
+                "reference": 0
+              },
+              {
+                "column": 5507,
+                "native_index": 5507,
+                "reference_index": 5507,
+                "native_bits": 0,
+                "reference_bits": 2147483648,
+                "native": 0,
+                "reference": 0
+              },
+              {
+                "column": 5510,
+                "native_index": 5510,
+                "reference_index": 5510,
+                "native_bits": 0,
+                "reference_bits": 2147483648,
+                "native": 0,
+                "reference": 0
+              },
+              {
+                "column": 5511,
+                "native_index": 5511,
+                "reference_index": 5511,
+                "native_bits": 0,
+                "reference_bits": 2147483648,
+                "native": 0,
+                "reference": 0
+              },
+              {
+                "column": 5515,
+                "native_index": 5515,
+                "reference_index": 5515,
+                "native_bits": 0,
+                "reference_bits": 2147483648,
+                "native": 0,
+                "reference": 0
+              }
+            ]
+          }
+        },
+        {
+          "mode": "isolated",
+          "surface": "u",
+          "native_sha256": "0c59bcf837233a55c02e562d9450d5fcf1e506fbbec34796615270812a62ae49",
+          "reference_sha256": "a2343bd6508a1f46e611578eddbfc22b19657efb2c7f2b59cb01c14cd44462bf",
+          "comparison": {
+            "elements": 262144,
+            "f32_bit_mismatches": 32,
+            "bf16_mismatches": 32,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0001220703125,
+            "first_bf16_differences": [
+              {
+                "column": 4294,
+                "native_index": 4294,
+                "reference_index": 4294,
+                "native_bits": 986644480,
+                "reference_bits": 986710016,
+                "native": 0.00157928466796875,
+                "reference": 0.0015869140625
+              },
+              {
+                "column": 15905,
+                "native_index": 15905,
+                "reference_index": 15905,
+                "native_bits": 3117088768,
+                "reference_bits": 3117023232,
+                "native": -0.0003871917724609375,
+                "reference": -0.000385284423828125
+              },
+              {
+                "column": 15955,
+                "native_index": 15955,
+                "reference_index": 15955,
+                "native_bits": 1000407040,
+                "reference_bits": 1000341504,
+                "native": 0.004913330078125,
+                "reference": 0.0048828125
+              },
+              {
+                "column": 16653,
+                "native_index": 16653,
+                "reference_index": 16653,
+                "native_bits": 950337536,
+                "reference_bits": 950272000,
+                "native": 7.867813110351562e-05,
+                "reference": 7.82012939453125e-05
+              },
+              {
+                "column": 16696,
+                "native_index": 16696,
+                "reference_index": 16696,
+                "native_bits": 915865600,
+                "reference_bits": 915800064,
+                "native": 4.500150680541992e-06,
+                "reference": 4.470348358154297e-06
+              },
+              {
+                "column": 27538,
+                "native_index": 27538,
+                "reference_index": 27538,
+                "native_bits": 991166464,
+                "reference_bits": 991100928,
+                "native": 0.00225830078125,
+                "reference": 0.0022430419921875
+              },
+              {
+                "column": 32676,
+                "native_index": 32676,
+                "reference_index": 32676,
+                "native_bits": 941293568,
+                "reference_bits": 941228032,
+                "native": 3.695487976074219e-05,
+                "reference": 3.6716461181640625e-05
+              },
+              {
+                "column": 42367,
+                "native_index": 42367,
+                "reference_index": 42367,
+                "native_bits": 887816192,
+                "reference_bits": 887750656,
+                "native": 4.377216100692749e-07,
+                "reference": 4.3585896492004395e-07
+              }
+            ]
+          }
+        },
+        {
+          "mode": "isolated",
+          "surface": "h",
+          "native_sha256": "30e14955ebf1352266dc2ff8067e68104607e750abb9d3b36582b8af909fcb58",
+          "reference_sha256": "30e14955ebf1352266dc2ff8067e68104607e750abb9d3b36582b8af909fcb58",
+          "comparison": {
+            "elements": 524288,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0,
+            "first_bf16_differences": []
+          }
+        },
+        {
+          "mode": "isolated",
+          "surface": "v-new",
+          "native_sha256": "a2343bd6508a1f46e611578eddbfc22b19657efb2c7f2b59cb01c14cd44462bf",
+          "reference_sha256": "a2343bd6508a1f46e611578eddbfc22b19657efb2c7f2b59cb01c14cd44462bf",
+          "comparison": {
+            "elements": 262144,
+            "f32_bit_mismatches": 0,
+            "bf16_mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0,
+            "first_bf16_differences": []
+          }
+        },
+        {
+          "mode": "isolated",
+          "surface": "state",
+          "native_sha256": "f54c8681187411cd1fad1139b4bec2f11258d094979dc231636a49f7802161f1",
+          "reference_sha256": "5925e0c0f2174eed0ea82f4b980d999fe91272aec2ba341071b044bd7fc7d861",
+          "comparison": {
+            "elements": 524288,
+            "f32_bit_mismatches": 256249,
+            "bf16_mismatches": 124,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 2.86102294921875e-06,
+            "first_bf16_differences": [
+              {
+                "column": 3765,
+                "native_index": 3765,
+                "reference_index": 3765,
+                "native_bits": 824246272,
+                "reference_bits": 824377344,
+                "native": 2.342858351767063e-09,
+                "reference": 2.371962182223797e-09
+              },
+              {
+                "column": 30776,
+                "native_index": 30776,
+                "reference_index": 30776,
+                "native_bits": 989691899,
+                "reference_bits": 989691904,
+                "native": 0.0019340509315952659,
+                "reference": 0.001934051513671875
+              },
+              {
+                "column": 44737,
+                "native_index": 44737,
+                "reference_index": 44737,
+                "native_bits": 837434880,
+                "reference_bits": 837484544,
+                "native": 6.817344910814427e-09,
+                "reference": 6.83940015733242e-09
+              },
+              {
+                "column": 55816,
+                "native_index": 55816,
+                "reference_index": 55816,
+                "native_bits": 3050864644,
+                "reference_bits": 3050864640,
+                "native": -1.6130511539813597e-06,
+                "reference": -1.6130506992340088e-06
+              },
+              {
+                "column": 64115,
+                "native_index": 64115,
+                "reference_index": 64115,
+                "native_bits": 954171376,
+                "reference_bits": 954171392,
+                "native": 0.00010657298844307661,
+                "reference": 0.00010657310485839844
+              },
+              {
+                "column": 73924,
+                "native_index": 73924,
+                "reference_index": 73924,
+                "native_bits": 3105325056,
+                "reference_bits": 3105325055,
+                "native": -0.00014448165893554688,
+                "reference": -0.00014448164438363165
+              },
+              {
+                "column": 88664,
+                "native_index": 88664,
+                "reference_index": 88664,
+                "native_bits": 946176004,
+                "reference_bits": 946175998,
+                "native": 5.471707845572382e-05,
+                "reference": 5.471705662785098e-05
+              },
+              {
+                "column": 98888,
+                "native_index": 98888,
+                "reference_index": 98888,
+                "native_bits": 907640764,
+                "reference_bits": 907640832,
+                "native": 2.287312781845685e-06,
+                "reference": 2.2873282432556152e-06
+              }
+            ]
+          }
+        },
+        {
+          "mode": "isolated",
+          "surface": "core",
+          "native_sha256": "794b511e908f5b4c0cd5669fac4602df085bd719408e6af3598a94528502cf9a",
+          "reference_sha256": "ba7a97a1ad8f9dc6b9c314d45706dbc24a3b040c35c62af5e612897de358f9b6",
+          "comparison": {
+            "elements": 262144,
+            "f32_bit_mismatches": 13,
+            "bf16_mismatches": 13,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 7.62939453125e-06,
+            "first_bf16_differences": [
+              {
+                "column": 33017,
+                "native_index": 33017,
+                "reference_index": 33017,
+                "native_bits": 842399744,
+                "reference_bits": 842334208,
+                "native": 1.0593794286251068e-08,
+                "reference": 1.05355866253376e-08
+              },
+              {
+                "column": 109682,
+                "native_index": 109682,
+                "reference_index": 109682,
+                "native_bits": 3023568896,
+                "reference_bits": 3023503360,
+                "native": -1.7136335372924805e-07,
+                "reference": -1.7043203115463257e-07
+              },
+              {
+                "column": 135128,
+                "native_index": 135128,
+                "reference_index": 135128,
+                "native_bits": 2964324352,
+                "reference_bits": 2964258816,
+                "native": -1.280568540096283e-09,
+                "reference": -1.2732925824820995e-09
+              },
+              {
+                "column": 175479,
+                "native_index": 175479,
+                "reference_index": 175479,
+                "native_bits": 2954231808,
+                "reference_bits": 2954100736,
+                "native": -5.456968210637569e-10,
+                "reference": -5.384208634495735e-10
+              },
+              {
+                "column": 209608,
+                "native_index": 209608,
+                "reference_index": 209608,
+                "native_bits": 820903936,
+                "reference_bits": 820969472,
+                "native": 1.7316779121756554e-09,
+                "reference": 1.7389538697898388e-09
+              },
+              {
+                "column": 232322,
+                "native_index": 232322,
+                "reference_index": 232322,
+                "native_bits": 975765504,
+                "reference_bits": 975699968,
+                "native": 0.000644683837890625,
+                "reference": 0.000640869140625
+              },
+              {
+                "column": 232325,
+                "native_index": 232325,
+                "reference_index": 232325,
+                "native_bits": 884277248,
+                "reference_bits": 892993536,
+                "native": 3.371387720108032e-07,
+                "reference": 6.92903995513916e-07
+              },
+              {
+                "column": 232328,
+                "native_index": 232328,
+                "reference_index": 232328,
+                "native_bits": 3086876672,
+                "reference_bits": 3086942208,
+                "native": -3.0279159545898438e-05,
+                "reference": -3.039836883544922e-05
+              }
+            ]
+          }
+        }
+      ],
+      "cleanup_pass": true
+    }
+  ],
+  "initial_component_upload_correction": {
+    "kind": "diagnostic chain upload correction",
+    "first_attempt": "native-gdn-aligned-firstchunk-native-r1",
+    "first_attempt_chain_valid": false,
+    "reason": "Worker changed beta ABI toBF16 but cold-chain upload still populated only the FP32 beta buffer. Isolated stages upload original BF16 beta correctly. No model or performance acceptance is made.",
+    "corrected_worker_sha256": "a061789ccfac8fd8086107f1e45d4b0129615af62c6f8d54128fc45375e4e4fd",
+    "fresh_attempt": "native-gdn-aligned-firstchunk-native-r2"
+  },
+  "conclusion": "The original BF16 multiplication path on AMD truncates; explicit FP32 products with BF16 RNE are required. Aligning original matrix tiles and retaining FP32 beta still leaves independent KKT,inverse,W/U,state and output differences, with119 chain core differences versus133 in the prior native module. This batch does not justify replacing the qualified product GDN path.",
+  "images_selected_for_runtime": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}
