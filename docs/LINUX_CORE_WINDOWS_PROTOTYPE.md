@@ -51,8 +51,20 @@ compilation uses the pinned Triton 3.6.0 environment with GPU access disabled.
 Windows gains no Python or Triton dependency. The existing 96MiB matrix scratch
 is reused, and host ASan/UBSan verifies 49 rejected W/U bindings plus the actual
 AOT module ABI, image identity and launch geometry. GPU arithmetic and the
-complete GB10 continuation gate remain pending for this new image.
+complete GB10 continuation gate are evaluated separately from these host checks.
 [W/U repair preparation](../benchmarks/correctness/linux-core-native-gdn-wu-preparation-20260923.json).
+
+Source `867d528` completes the real q8192/out512 trial but fails 395 tokens,
+first at index 2 (220 versus 82). The first token and logit remain 144/10.375.
+The W/U correction reduces sampled layer0 core differences from 5039 to 3370
+and maximum final-state error from 0.049892806 to 0.021411896; 401699 FP32
+state values still differ. Original input projections and normalized Q/K/V
+remain exact at the eight sampled positions. Load is 27483.8565ms, diagnostic
+TTFT 20500.7038ms and TPOT 228.230562ms. All 60 build units, 72 imported images,
+the separately embedded W/U module, 30 GDN activations and cleanup complete.
+The route remains unqualified; earlier output divergence despite smaller
+layer0 errors requires further stage comparisons against original operands.
+[Native W/U correction result](../benchmarks/correctness/linux-core-native-gdn-wu-native-20260923.json).
 
 Native MoE correction `f210ff3` also passes the original cold q8192/out512
 boundary: all 512 tokens/callbacks, first 144 and logit 10.375 (zero error).
