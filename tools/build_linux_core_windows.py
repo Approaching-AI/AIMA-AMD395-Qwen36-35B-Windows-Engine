@@ -69,7 +69,7 @@ def main():
                   performance_acceptance=False)
     def publish():
         (out / "build-provenance.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
-    def run(label, command, seconds=180):
+    def run(label, command, seconds=180, cwd=ROOT):
         remaining = int(deadline - time.monotonic())
         if remaining <= 0:
             raise TimeoutError("Total compilation deadline reached")
@@ -78,7 +78,7 @@ def main():
         start = time.monotonic()
         stdout_path, stderr_path = out / (label + ".stdout.txt"), out / (label + ".stderr.txt")
         with stdout_path.open("xb") as stdout, stderr_path.open("xb") as stderr:
-            process = subprocess.Popen(command, cwd=ROOT, stdout=stdout, stderr=stderr)
+            process = subprocess.Popen(command, cwd=cwd, stdout=stdout, stderr=stderr)
             timed_out = False
             try:
                 code = process.wait(timeout=timeout)
@@ -87,7 +87,7 @@ def main():
                 subprocess.run(["taskkill.exe", "/PID", str(process.pid), "/T", "/F"],
                                capture_output=True, timeout=15, check=False)
                 code = process.wait(timeout=10)
-        commands.append(dict(label=label, argv=command, timeout_seconds=timeout,
+        commands.append(dict(label=label, argv=command, cwd=str(cwd), timeout_seconds=timeout,
                              exit_code=code, timed_out=timed_out,
                              wall_ms=(time.monotonic() - start) * 1000,
                              stdout_sha256=sha(stdout_path), stderr_sha256=sha(stderr_path)))
@@ -220,8 +220,13 @@ def main():
             objects.append(target)
         # The existing process owner recognizes qrt* engine processes.
         executable = out / "qrt-linux-core-q8192-probe.exe"
-        run("link", [hipcc, "--offload-arch=gfx1151", "-fno-gpu-rdc", *objects,
-                     "-L", out, "-lhipblaslt", "-Xlinker", "/STACK:268435456", "-o", executable], 180)
+        # hipcc's Windows wrapper builds a cmd.exe command line internally.
+        # Repeating the full build path for every object can exceed its 8191
+        # character limit even when Python's CreateProcess call succeeds.
+        # All link inputs live in out; resolve their short names from there.
+        run("link", [hipcc, "--offload-arch=gfx1151", "-fno-gpu-rdc",
+                     *(p.name for p in objects), "-L", ".", "-lhipblaslt",
+                     "-Xlinker", "/STACK:268435456", "-o", executable.name], 180, cwd=out)
         record["artifacts"] = [dict(path=str(p), bytes=p.stat().st_size, sha256=sha(p))
                                for p in (executable, obj, out / "host-contract.exe", out / "hipblaslt.lib")]
         # Recheck every source and generated input after compilation.
