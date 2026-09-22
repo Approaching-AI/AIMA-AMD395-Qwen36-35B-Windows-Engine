@@ -1,15 +1,16 @@
 # Linux sibling fixes reviewed for the next Windows release
 
-## September 22 Windows status and September 21 release refresh
+## September 22 status
 
-The [API refresh](../benchmarks/correctness/linux-windows-release-review-refresh-20260921-r2.json)
-at 2026-09-21T18:16:13Z rechecks the latest five releases: `.10`, `.9`, `.7`,
-`.6` and `.5`. All five identities and bodies match the preceding review.
+The [API refresh](../benchmarks/correctness/linux-windows-release-review-refresh-20260922.json)
+at 2026-09-22T00:37:27Z rechecks the latest five releases: `.10`, `.9`, `.7`,
+`.6` and `.5`. All five identities and bodies match the preceding review;
+the latest release's asset identities, sizes and digests are also unchanged.
 The latest `.10` tag still resolves to `0522a57caf24bf21e0e6fcc5b234a7fc361fbc94`,
 with declared native source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
 The source review below remains applicable. This refresh executes no model.
-It preserves the earlier15:18 comparison and the intervening local receipt
-selection error; the corrected reader compares the successful published record.
+The earlier comparisons and observer failure remain preserved in their own
+receipts. This refresh changes no source, runtime option or model boundary.
 
 The current Windows whole provider and C CLI at `3560785` pass
 [ordinary and native controls](../benchmarks/correctness/packed-gate-midpoint-products-20260922.json):
