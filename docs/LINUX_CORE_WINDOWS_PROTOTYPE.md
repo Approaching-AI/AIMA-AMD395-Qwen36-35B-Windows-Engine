@@ -11,6 +11,13 @@ The earlier `9447947` run also has all72 second-decode
 comparisons matching in BF16 and a bitwise-exact final normalization.
 Performance, other product shapes, prefix continuation and release remain open.
 
+The next [ordered GDN components](NATIVE_GDN_ORDERED_COMPONENTS.md) explicitly
+preserve the original inverse reduction and BF16 U accumulator. CUDA checks
+match47,425,536 original BF16 values across the current first chunk, historical
+complete q7169 and tail boundaries, plus262,144 characterized FP32 U values.
+Both compile for gfx1151. AMD execution and full pipeline integration remain
+pending; the current product and qualified prototype are unchanged.
+
 The profile-off control preserves the qualified compute settings and the
 original full GB10 checker. Its single TTFT observation is368.2925ms below the
 instrumented `0c80a89` result; no paired repetitions establish that difference
