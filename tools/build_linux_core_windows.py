@@ -128,7 +128,8 @@ def main():
         if args.gb10_normalization:
             source_paths += [ROOT / "native/providers/gdn" / name for name in (
                 "sm121_q2_gated_math.h", "sm121_mtp_residual.h",
-                "sm121_mtp_residual_math.h", "sm121_mtp_math.h")]
+                "sm121_mtp_residual_math.h", "sm121_mtp_math.h",
+                "sm121_mtp_kv_math.h", "sm121_bf16_fma.h")]
         record["source_inputs"] = [dict(path=p.relative_to(ROOT).as_posix(), bytes=p.stat().st_size,
                                         sha256=sha(p)) for p in sorted(source_paths) if p.is_file()]
         prepared = out / "prepared"

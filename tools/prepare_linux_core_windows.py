@@ -368,7 +368,7 @@ def gb10_normalization_overlays(sources, read):
     path = "native/src/native_full_prefill.hip.cpp"
     text = replace(sources[path], '#include "aima/native_full_prefill.h"',
         '#include "aima/native_full_prefill.h"\n#include "gb10_normalization.h"')
-    sources[path] = replace(text,
+    text = replace(text,
         '  diagnostic_stage("after_output_projection");\n  if (use_mrope) {',
         '  diagnostic_stage("after_output_projection");\n'
         "  if (execution_tokens == 8192) {\n"
@@ -377,6 +377,16 @@ def gb10_normalization_overlays(sources, read):
         "        post_attention_norm, execution_tokens);\n"
         "    ++result.layer.native_pointwise_launches;\n"
         "  } else if (use_mrope) {")
+    sources[path] = replace(text,
+        "  if (use_mrope) {\n    launch_full_attention_head_norm_mrope_prefill(",
+        "  if (aima_port::gb10_full_head_norm_rope_enabled()) {\n"
+        "    if (use_mrope) throw std::invalid_argument(\"GB10 full-head prototype requires ordinary text positions\");\n"
+        "    aima_port::gb10_full_head_norm_rope(q_gate, raw_k, split_projections ? nullptr : raw_v,\n"
+        "        q_norm_weight.device_pointer, k_norm_weight.device_pointer, q, normalized_k,\n"
+        "        split_projections ? nullptr : normalized_v, execution_tokens,\n"
+        "        split_projections ? 8192 : 9216, split_projections ? 512 : 9216,\n"
+        "        split_projections ? 0 : 9216, options.cache_position_start);\n"
+        "  } else if (use_mrope) {\n    launch_full_attention_head_norm_mrope_prefill(")
     path = "native/src/native_routed_moe.hip.cpp"
     text = replace(read(path), '#include "aima/native_routed_moe.h"',
         '#include "aima/native_routed_moe.h"\n#include "gb10_normalization.h"')
@@ -401,10 +411,20 @@ def gb10_normalization_overlays(sources, read):
         '  observe_boundary(tail_observer, "shared_gate_logits",')
     sources[path] = text
     path = "native/src/native_full_layer.hip.cpp"
-    sources[path] = replace(read(path),
+    text = replace(read(path),
         "  ++metrics.native_pointwise_launches;\n  if (attention_observer != nullptr) {",
         "  metrics.native_pointwise_launches += use_mrope && next_input_norm != nullptr ? 2 : 1;\n"
         "  if (attention_observer != nullptr) {")
+    text = replace(text, '#include "aima/native_full_layer.h"',
+        '#include "aima/native_full_layer.h"\n#include "gb10_normalization.h"')
+    sources[path] = replace(text,
+        "  if (use_mrope) {\n    if ((mrope_cosine_fp32 == nullptr)",
+        "  if (aima_port::gb10_full_head_norm_rope_enabled()) {\n"
+        "    aima_port::gb10_full_head_norm_rope(qkv.device_pointer, raw_k, nullptr,\n"
+        "        q_norm_weight.device_pointer, k_norm_weight.device_pointer,\n"
+        "        q.device_pointer, k.device_pointer, nullptr, 1, 9216, 9216, 0, position, stream);\n"
+        "    ++metrics.native_pointwise_launches;\n"
+        "  } else if (use_mrope) {\n    if ((mrope_cosine_fp32 == nullptr)")
     # The existing output-only sampler gathers live prefill MoE boundaries.
     # No captured value is an input; GDN's FP32 output scratch is dead here.
     path = "native/src/native_moe_prefill.hip.cpp"
@@ -805,6 +825,14 @@ def main():
             prefill_moe_observations=12, decode_next_norm_observations=1,
             silu_table_sha256="f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c",
             rsqrt_table="borrowed from the live GB10 GDN owner",
+            optional_full_head_norm_rope=dict(
+                environment="AIMA_PORT_FULL_ATTENTION_ROPE_TABLE", tokens=[1, 8192],
+                head_norm="Q two stride64 warps; K four stride128 warps; SM121 reciprocal root",
+                rope="rounded BF16 sine product and single-round BF16 FMA",
+                layout="position_cos32_sin32", positions=262144,
+                table_bytes=33554432, device_bytes=33554432,
+                table_sha256="ba12ce218327d4cf23aac7dfacd8e9efbc99fd207611a8466227089838ef0e80",
+                ordinary_text_only=True),
             model_qualified=False)
     if args.gb10_moe:
         report["optional_adaptations"]["gb10_moe"] = dict(

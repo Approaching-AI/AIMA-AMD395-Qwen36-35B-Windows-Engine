@@ -26,6 +26,13 @@ void set_table(const char* path) {
   setenv("AIMA_PORT_GATED_SILU_TABLE", path, 1);
 #endif
 }
+void set_rope_table(const char* path) {
+#ifdef _WIN32
+  _putenv_s("AIMA_PORT_FULL_ATTENTION_ROPE_TABLE", path);
+#else
+  setenv("AIMA_PORT_FULL_ATTENTION_ROPE_TABLE", path, 1);
+#endif
+}
 void check_original_prefill_midpoint(const float* silu, const char* rsqrt_path) {
   // Original qualified q8192 prefill, layer0/position57/head24. The complete
   // input core SHA256 is 30dbf01ee37d2f5c98e72c470e96c41892b32d01a7f048ea950e186898c12834.
@@ -71,7 +78,8 @@ void check_original_prefill_midpoint(const float* silu, const char* rsqrt_path) 
   assert(qrt_sm121_q2::gated_value(core[51],0xbf4f,0x3f70,short_inverse,silu)==0xbae5);
 }
 int main(int argc, char** argv) {
-  assert(argc == 4);
+  assert(argc == 5);
+  set_rope_table("");
   uint16_t input[16]{}, residual[16]{}, weight[16]{}, output[16]{}, norm[16]{};
   auto gated = [&](std::size_t n) { gb10_gated_norm(input, residual, weight, output, n, fake_stream); };
   auto residual_norm = [&](std::size_t n) { gb10_residual_norm(input, residual, weight, output, norm, n, fake_stream); };
@@ -85,6 +93,8 @@ int main(int argc, char** argv) {
   {
     Gb10NormalizationOwner owner;
     assert(active && active->silu);
+    assert(!gb10_full_head_norm_rope_enabled());
+    reject([&]{gb10_full_head_norm_rope(input,residual,nullptr,weight,weight,output,norm,nullptr,1,9216,9216,0,8192);});
     check_original_prefill_midpoint(active->silu,argv[3]);
     std::vector<uint16_t> row(2048), original;
     for (unsigned i=0; i<2048; ++i) row[i] = uint16_t(i*29u);
@@ -138,10 +148,61 @@ int main(int argc, char** argv) {
   const auto path = std::filesystem::u8path(argv[2]);
   { std::ofstream file(path, std::ios::binary); file << "bad"; }
   reject([&]{read_silu(path);});
+  reject([&]{read_rope(path);});
+  { std::vector<uint16_t> wrong(262144*64); std::ofstream file(path,std::ios::binary);
+    file.write(reinterpret_cast<const char*>(wrong.data()),wrong.size()*2); }
+  reject([&]{read_rope(path);});
+  set_rope_table(path.u8string().c_str());
+  reject([&]{Gb10NormalizationOwner wrong_rope;});
+  set_rope_table(argv[4]);
+  set_table(argv[1]);
+  const auto previous_launches = launches.size();
+  {
+    Gb10NormalizationOwner owner;
+    assert(gb10_full_head_norm_rope_enabled() && active->rope);
+    auto call = [&](const void* q, const void* k, const void* v, const void* qw, const void* kw,
+                    void* qo, void* ko, void* vo, std::size_t n, std::size_t qs,
+                    std::size_t ks, std::size_t vs, std::size_t pos) {
+      gb10_full_head_norm_rope(q,k,v,qw,kw,qo,ko,vo,n,qs,ks,vs,pos,fake_stream);
+    };
+    for (const auto rows : {1u,8192u}) {
+      call(input,residual,nullptr,weight,weight,output,norm,nullptr,rows,8192,512,0,262144-rows);
+      const auto& x=launches.back();
+      assert(x.name=="full_head_norm_rope_kernel" && x.grid.x==rows && x.grid.y==18 && x.block.x==256 && x.stream==fake_stream);
+      assert(x.args==std::vector<std::uintptr_t>({value(input),value(residual),0,value(weight),value(weight),value(output),value(norm),0,8192,512,0,262144-rows,value(fake_root_table),value(active->rope)}));
+    }
+    uint16_t copied[16]{};
+    call(input,residual,input,weight,weight,output,norm,copied,8192,9216,9216,9216,0);
+    const auto& copied_launch=launches.back();
+    assert(copied_launch.args==std::vector<std::uintptr_t>({value(input),value(residual),value(input),value(weight),value(weight),value(output),value(norm),value(copied),9216,9216,9216,0,value(fake_root_table),value(active->rope)}));
+    for (unsigned null_index=0;null_index<6;++null_index) {
+      const void* inputs[]={input,residual,weight,weight};void* outputs[]={output,norm};
+      if(null_index<4)inputs[null_index]=nullptr;else outputs[null_index-4]=nullptr;
+      reject([&]{call(inputs[0],inputs[1],nullptr,inputs[2],inputs[3],outputs[0],outputs[1],nullptr,1,9216,9216,0,8192);});
+    }
+    for(const auto rows:{0u,2u,8191u,8193u})
+      reject([&]{call(input,residual,nullptr,weight,weight,output,norm,nullptr,rows,9216,9216,0,0);});
+    reject([&]{call(input,residual,nullptr,weight,weight,output,norm,nullptr,1,9216,9216,0,262144);});
+    reject([&]{call(input,residual,nullptr,weight,weight,output,norm,nullptr,8192,9216,9216,0,262144-8191);});
+    reject([&]{call(input,residual,nullptr,weight,weight,output,norm,nullptr,1,0,9216,0,0);});
+    reject([&]{call(input,residual,nullptr,weight,weight,output,norm,nullptr,1,9216,511,0,0);});
+    reject([&]{call(input,residual,nullptr,weight,weight,output,output,nullptr,1,9216,9216,0,0);});
+    reject([&]{call(input,residual,input,weight,weight,output,norm,nullptr,1,9216,9216,0,0);});
+    reject([&]{call(input,residual,nullptr,weight,weight,output,norm,copied,1,9216,9216,9216,0);});
+    reject([&]{call(input,residual,input,weight,weight,output,norm,copied,1,9216,9216,0,0);});
+    reject([&]{call(input,residual,nullptr,weight,weight,output,norm,nullptr,1,9216,9216,512,0);});
+    for(auto alias:{output,norm})
+      reject([&]{call(input,residual,input,weight,weight,output,norm,alias,1,9216,9216,9216,0);});
+    fake_gdn_alive=false;
+    reject([&]{call(input,residual,nullptr,weight,weight,output,norm,nullptr,1,9216,9216,0,0);});
+    fake_gdn_alive=true;
+  }
+  assert(!gb10_full_head_norm_rope_enabled() && launches.size()==previous_launches+3);
+  set_rope_table("");
   { std::vector<float> wrong(65536); std::ofstream file(path, std::ios::binary);
     file.write(reinterpret_cast<const char*>(wrong.data()), wrong.size()*4); }
   reject([&]{read_silu(path);});
   std::cout << "{\"table_ownership_and_sha_verified\":true,\"borrowed_rsqrt_binding_verified\":true,"
-      "\"dispatches_verified\":5,\"prefill_and_short_gated_layouts_separated\":true,\"residual_alias_snapshot_verified\":true,\"invalid_bindings_and_artifacts_rejected\":" << rejected
+      "\"dispatches_verified\":8,\"full_head_norm_rope_dispatches_verified\":3,\"optional_rope_owner_and_disabled_mode_verified\":true,\"prefill_and_short_gated_layouts_separated\":true,\"residual_alias_snapshot_verified\":true,\"invalid_bindings_and_artifacts_rejected\":" << rejected
       << ",\"original_prefill_midpoint_passes\":true,\"short_layout_negative_control_differs\":true,\"gpu_reduction_executed\":false}\n";
 }

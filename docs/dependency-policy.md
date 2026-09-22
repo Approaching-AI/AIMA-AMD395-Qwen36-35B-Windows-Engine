@@ -5,8 +5,19 @@ The optional [Windows core prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md) imports
 `ec9934446911fdf376da8eebcd83e7b137efbb7c`. The concrete benefit under evaluation
 is replacing the current multi-second projection, recurrence and MoE route with
 the release's complete native resident computation. A native Windows q8192 run
-now completes, but its latest continuation fails GB10 at output 2. Its timings remain
+now completes, but its latest continuation fails GB10 at output115. Its timings remain
 diagnostic, and the product does not select this prototype.
+
+The optional `AIMA_PORT_FULL_ATTENTION_ROPE_TABLE` extension to the normalization
+owner reuses the existing model-config rotary table, SHA256
+`ba12ce218327d4cf23aac7dfacd8e9efbc99fd207611a8466227089838ef0e80`.
+It covers262144 ordinary text positions with32 BF16 cosine/sine pairs each.
+The exact file and persistent device copy each add33554432bytes; the temporary
+host copy is released after upload. Preparation and hashing count toward model
+and engine load time. The table contains no prompt, activation or expected
+output. Existing Windows Q/K normalization and single-round BF16 RoPE arithmetic
+headers add no library. This replaces the observed differing head normalization,
+RoPE rounding and coefficient paths; whole-model qualification remains required.
 
 The import includes source, generated schedules, AOT GPU images and upstream
 licenses. It reuses Windows HIP, hipBLASLt and the existing CK provider. Python

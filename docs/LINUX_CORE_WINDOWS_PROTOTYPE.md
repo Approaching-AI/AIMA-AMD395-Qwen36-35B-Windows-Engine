@@ -256,8 +256,33 @@ MoE stages. K/V caches preserve their token-major layout, split into8192
 prefill rows and the decode tail. Linear captures are disabled in this mode;
 first64 capture is incompatible. The8MiB/file,32MiB/collection and128-file
 bounds remain unchanged. ASan/UBSan verifies179 captured files at both decode
-index limits and25 rejection controls. This is output-only diagnosis;
-native full-attention capture and its numerical comparison remain pending.
+index limits and25 rejection controls. This is output-only diagnosis.
+
+Source9fe809d completes all58 native units and records67 verified observations.
+All512 outputs and the first logit are unchanged. First-decode layer3 QKV
+matches, as do all4194816 values in the complete8193-row V cache. Q/K after
+RoPE differ in411/57 BF16 values, entirely within their rotated64 channels.
+The prefill K cache differs in244282 values, including19 unrotated values.
+Context differs in1806 values and the layer output in944. The existing original
+reference is qualified and matches291 common surfaces from the latest capture.
+Its first32 outputs match the frozen continuation. Load/TTFT/TPOT are
+27247.5223/31075.3178/67.201921ms, with clean host checks. Synchronized prefill
+profiling records15961.2196ms linear attention,10032.9056ms full attention and
+5073.0936ms MoE. These remain diagnostic timings.
+
+The optional normalization owner now accepts `AIMA_PORT_FULL_ATTENTION_ROPE_TABLE`.
+It reuses the existing Windows SM121 head reduction and single-round BF16 RoPE
+helpers for ordinary text q8192 prefill and singleton decode. The fixed rotary
+table derives from model configuration and covers262144 positions; no observed
+tensor is a runtime input. Four original decode rows across q7169/q8192 match
+all36864 normalization/rotary endpoints in CPU replay. Replaying the old rotary
+formula with original coefficients still differs from native in7 Q and1 K
+values, so it does not separately isolate every coefficient/normalization
+effect. Native verification must also resolve the19 unrotated prefill errors.
+ASan/UBSan passes8 dispatch checks and54 invalid-binding/artifact controls.
+The import remains327 unchanged files,58 compile units and16 overlays.
+Native execution of this replacement remains pending.
+[Full-attention diagnosis and preparation](../benchmarks/correctness/linux-core-full-head-norm-rope-preparation-20260922.json).
 
 The upstream release refresh at09:56UTC finds the same five releases and
 unchanged bodies; latest remains v1.5.1-native-vl.10/tag0522a57, declaring
