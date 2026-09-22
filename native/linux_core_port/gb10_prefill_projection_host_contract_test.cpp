@@ -14,23 +14,39 @@ int main() {
   constexpr unsigned rows = 32, width = 64, groups = rows * width / 16;
   std::vector<uint16_t> original(rows * width), transposed(rows * width);
   std::vector<half::Row> contiguous(groups + 1), gathered(groups + 1);
-  for (unsigned i = 0; i < original.size(); ++i) original[i] = uint16_t(0x3f00u + i % 32u);
+  std::vector<half::Row> group_major(groups + 1), group_major_gathered(groups + 1);
+  for (unsigned i = 0; i < original.size(); ++i) original[i] = uint16_t(0x3f00u + i % 32u + (i / width) * 3u);
   original[3] = 1; original[48] = 0x8000; original[101] = 0;
   for (unsigned row = 0; row < rows; ++row)
     for (unsigned k = 0; k < width; ++k) transposed[k * rows + row] = original[row * width + k];
   contiguous.back().control = gathered.back().control = 0x12345678;
+  group_major.back().control = group_major_gathered.back().control = 0x12345678;
   blockDim = dim3(256);
   for (unsigned i = 0; i < groups + 256; ++i) {
     blockIdx = dim3(i / 256, 0, 0); threadIdx = dim3(i % 256);
     prepare_operands(original.data(), contiguous.data(), rows, width, true);
     prepare_operands(transposed.data(), gathered.data(), rows, width, false);
+    prepare_operands(original.data(), group_major.data(), rows, width, true, true);
+    prepare_operands(transposed.data(), group_major_gathered.data(), rows, width, false, true);
   }
   for (unsigned i = 0; i < groups; ++i) {
     assert(memcmp(&contiguous[i], &gathered[i], sizeof(half::Row)) == 0);
+    const auto slot = (i % (width / 16u)) * rows + i / (width / 16u);
+    assert(memcmp(&contiguous[i], &group_major[slot], sizeof(half::Row)) == 0);
+    assert(memcmp(&contiguous[i], &group_major_gathered[slot], sizeof(half::Row)) == 0);
     for (unsigned k = 0; k < 16; ++k) assert(half::original(contiguous[i], k) == original[i * 16 + k]);
   }
   assert(half::unit(contiguous[0]) == -32768);
   assert(contiguous.back().control == 0x12345678 && gathered.back().control == 0x12345678);
+  assert(group_major.back().control == 0x12345678 && group_major_gathered.back().control == 0x12345678);
+  for (unsigned row = 0; row < rows; ++row)
+    for (unsigned group = 0; group < width / 16u; ++group)
+      for (unsigned lane = 0; lane < 4; ++lane) {
+        threadIdx = dim3(lane);
+        const auto first = staged::load(contiguous[group], contiguous[row * (width / 16u) + group]);
+        const auto second = staged::load(contiguous[group], group_major[group * rows + row]);
+        assert(memcmp(&first, &second, sizeof(first)) == 0);
+      }
 
   // Exercise actual classification/compaction, including a full bounded
   // window. The atomics are sequential host operations; replay is recorded.
@@ -140,6 +156,11 @@ int main() {
     replay_selected(contiguous.data(), contiguous.data(), batch_output.data(), 32, 64,
         counts.data(), selected.data());
     assert(batch_output == shifted_output);
+    std::array<uint16_t, 33> major_output; major_output.fill(0x1234);
+    blockIdx = dim3(0, 1, 0);
+    replay_selected_group_major(contiguous.data(), group_major.data(), major_output.data(), 32, 64,
+        counts.data(), selected.data());
+    assert(major_output == shifted_output);
   }
 
   // Real selector execution over a complete expert-ordered queue. Reverse
@@ -276,6 +297,17 @@ int main() {
   gb10_prefill_projection_finish(original.data(), transposed.data(), output.data(), 8192, 1, 2048, true, nullptr);
   assert(fake_events == std::vector<std::string>({"prepare_operands", "prepare_operands", "row_l2", "row_l2", "memset", "select_and_round", "replay_selected"}));
   assert(state.batched_projections == 2 && state.batched_windows == 98);
+  state.group_major_weights = true;
+  for (bool batch : {false, true}) {
+    state.batch_replay = batch;
+    fake_events.clear(); fake_projection_launches.clear();
+    gb10_prefill_projection_finish(original.data(), transposed.data(), output.data(), 8192, 12352, 4096, true, nullptr);
+    assert(std::count(fake_events.begin(), fake_events.end(), "replay_selected_group_major") == (batch ? 1 : 97));
+    assert(std::count(fake_events.begin(), fake_events.end(), "replay_selected") == 0);
+    for (const auto& launch : fake_projection_launches) if (launch.name == "replay_selected_group_major")
+      assert(launch.grid.x == 256 && launch.grid.y == (batch ? 97 : 1));
+  }
+  state.group_major_weights = false;
   state.batch_replay = false;
   assert(!gb10_prefill_projection_wmma_enabled(4096));
   assert(!gb10_prefill_projection_tuned_gemm_enabled(8192,2048));
@@ -425,6 +457,8 @@ int main() {
                "\"batch_selector_empty_full_partial_guards_pass\":true,\"batch_queue_address_routing_pass\":true,"
                "\"batch_profile_max_windows\":97,\"batch_profile_events_per_projection\":7,"
                "\"batch_profile_counter_copies\":1,\"batch_unprofiled_dispatch_pass\":true,"
+               "\"group_major_layout_values\":4096,\"group_major_guards_and_operand_lanes_pass\":true,"
+               "\"group_major_replay_addressing_pass\":true,\"group_major_both_submission_modes_pass\":true,"
                "\"input_immutable\":true,\"selector_edges_pass\":true,"
                "\"queued_kernel_order_pass\":true,\"invalid_bindings_rejected\":" << rejected_bindings << ","
                "\"profile_max_windows\":97,\"profile_lifetime_pass\":true,"

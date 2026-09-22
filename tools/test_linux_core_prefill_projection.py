@@ -88,6 +88,7 @@ template<class K,class... A> void projection_launch(const char* name,dim3 grid,
     run.check_returncode()
     inputs = [source, ROOT / "native/linux_core_port/gb10_prefill_projection.hip.cpp",
               ROOT / "native/linux_core_port/gb10_prefill_projection.h", Path(__file__),
+              ROOT / "native/providers/moe_accumulator/sm121_staged_half_projection.h",
               ROOT / "tools/test_linux_core_gdn.py"]
     report = dict(result=json.loads(run.stdout), build_command=command,
         inputs=[dict(path=p.relative_to(ROOT).as_posix(), sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in inputs],

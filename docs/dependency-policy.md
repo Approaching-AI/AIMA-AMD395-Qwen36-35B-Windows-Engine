@@ -1,5 +1,13 @@
 # Experimental Linux compute core
 
+The optional `AIMA_PORT_PREFILL_GROUP_MAJOR_WEIGHTS=1` layout reorders existing
+prepared dense replay weights by K16 group before output row. It adds no device
+or host allocation, dependency, runtime artifact or transfer. Its intended
+benefit is improving weight reuse across nearby sparse replay candidates;
+the exact dot still loads identical operands in ascending K16 order. Both
+contiguous and fused source weight views are supported. GPU correctness and
+the q8192 timing comparison must establish whether this layout is useful.
+
 The optional `AIMA_PORT_PREFILL_BATCH_REPLAY=1` dense projection route allocates
 404750336 bytes of candidate indices and388 bytes of counters before READY.
 Relative to the existing non-routed queue, this adds400556416 device bytes

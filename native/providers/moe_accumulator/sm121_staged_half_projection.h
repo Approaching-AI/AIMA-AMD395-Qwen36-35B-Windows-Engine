@@ -82,9 +82,9 @@ __device__ __forceinline__ Value accumulate(Value carry,const LaneOperands& oper
     }
     return active==65535u?transformed_group<true>(carry,operands,active):transformed_group<false>(carry,operands,active);
 }
-template<unsigned StagingGroups,bool Audit=false>
+template<unsigned StagingGroups,bool Audit=false,bool StridedRight=false>
 __device__ __forceinline__ float dot(const Row* left,const Row* right,unsigned width,
-    uint32_t* raw_trace=nullptr,Stats* stats=nullptr) {
+    uint32_t* raw_trace=nullptr,Stats* stats=nullptr,unsigned right_stride=1u) {
     static_assert(StagingGroups==1u || StagingGroups==2u || StagingGroups==4u || StagingGroups==8u);
     const unsigned lane=threadIdx.x&3u,groups=width/16u;Value carry{0u,-133,false};Stats counts;
 #pragma unroll 1
@@ -92,7 +92,8 @@ __device__ __forceinline__ float dot(const Row* left,const Row* right,unsigned w
         LaneOperands operands[StagingGroups];
         const unsigned count=groups-base<StagingGroups?groups-base:StagingGroups;
 #pragma unroll
-        for(unsigned i=0u;i<StagingGroups;++i)if(i<count)operands[i]=load(left[base+i],right[base+i]);
+        for(unsigned i=0u;i<StagingGroups;++i)if(i<count)operands[i]=load(
+            left[base+i],right[std::size_t(base+i)*(StridedRight?right_stride:1u)]);
 #pragma unroll
         for(unsigned i=0u;i<StagingGroups;++i)if(i<count) {
             bool transformed;carry=accumulate(carry,operands[i],Audit?&transformed:nullptr);

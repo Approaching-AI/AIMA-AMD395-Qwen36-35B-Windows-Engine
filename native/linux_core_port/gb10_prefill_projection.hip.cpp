@@ -118,6 +118,7 @@ struct State {
   bool coarse_full = false, full_output = false, coarse_produced = false;
   bool tuned_gemm = false, tuned_gemm_input_only = false;
   bool routed = false, batch_replay = false, batch_armed = false;
+  bool group_major_weights = false;
   unsigned batched_projections = 0, batched_windows = 0;
 };
 State* active = nullptr;
@@ -186,7 +187,7 @@ static __global__ void fallback_matmul(const uint16_t* input, const uint16_t* we
 // Reuse the qualified lossless BF16 -> scaled-FP16 K16 representation. A
 // fused [K,N] weight view is gathered by output row without altering K order.
 static __global__ void prepare_operands(const uint16_t* source, half::Row* output,
-    unsigned rows, unsigned width, bool contiguous) {
+    unsigned rows, unsigned width, bool contiguous, bool group_major = false) {
   const unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
   const unsigned groups = width / 16u;
   if (index >= rows * groups) return;
@@ -197,7 +198,7 @@ static __global__ void prepare_operands(const uint16_t* source, half::Row* outpu
     const unsigned k = group * 16u + i;
     original[i] = source[contiguous ? std::size_t(row) * width + k : std::size_t(k) * rows + row];
   }
-  output[std::size_t(row) * groups + group] = half::prepare(original);
+  output[group_major ? std::size_t(group) * rows + row : std::size_t(row) * groups + group] = half::prepare(original);
 }
 
 // Same F64 Cauchy-Schwarz norm bound and outward inflation as the existing
@@ -268,7 +269,8 @@ static __global__ void select_and_round(const float* raw, uint16_t* output,
   output[index] = qrt_sm121_q1::bf16(value);
 }
 
-static __global__ void replay_selected(const half::Row* inputs,
+template<bool GroupMajor>
+__device__ __forceinline__ void replay_window(const half::Row* inputs,
     const half::Row* weights, uint16_t* output, unsigned rows, unsigned width,
     const unsigned* count, const unsigned* indices) {
   count += blockIdx.y;
@@ -278,10 +280,30 @@ static __global__ void replay_selected(const half::Row* inputs,
   for (unsigned candidate = blockIdx.x * 64u + threadIdx.x / 4u;
        candidate < size; candidate += gridDim.x * 64u) {
     const unsigned index = indices[candidate], token = index / rows, row = index % rows;
-    const float corrected = staged::dot<2>(inputs + std::size_t(token) * groups,
-        weights + std::size_t(row) * groups, width);
+    const float corrected = staged::dot<2, false, GroupMajor>(inputs + std::size_t(token) * groups,
+        weights + (GroupMajor ? row : std::size_t(row) * groups), width, nullptr, nullptr, rows);
     if (!lane) output[index] = qrt_sm121_q1::bf16(corrected);
   }
+}
+static __global__ void replay_selected(const half::Row* inputs, const half::Row* weights,
+    uint16_t* output, unsigned rows, unsigned width, const unsigned* count, const unsigned* indices) {
+  replay_window<false>(inputs, weights, output, rows, width, count, indices);
+}
+static __global__ void replay_selected_group_major(const half::Row* inputs, const half::Row* weights,
+    uint16_t* output, unsigned rows, unsigned width, const unsigned* count, const unsigned* indices) {
+  replay_window<true>(inputs, weights, output, rows, width, count, indices);
+}
+void launch_dense_replay(State& s, uint16_t* output, unsigned rows, unsigned width, unsigned windows) {
+  if (s.group_major_weights) {
+    hipLaunchKernelGGL(replay_selected_group_major, dim3(256, windows), dim3(256), 0,
+        nullptr, s.inputs.as<half::Row>(), s.weights.as<half::Row>(), output, rows, width,
+        s.count.as<unsigned>(), s.indices.as<unsigned>());
+  } else {
+    hipLaunchKernelGGL(replay_selected, dim3(256, windows), dim3(256), 0,
+        nullptr, s.inputs.as<half::Row>(), s.weights.as<half::Row>(), output, rows, width,
+        s.count.as<unsigned>(), s.indices.as<unsigned>());
+  }
+  check(hipGetLastError());
 }
 
 // Keep the expert accumulator in FP32 until admission and original SM121
@@ -422,10 +444,10 @@ void launch_routed(State& s, const uint16_t* input, const uint16_t* weights,
   check(hipGetLastError());
   if (profile) profile->mark(1);
   hipLaunchKernelGGL(prepare_operands, dim3((input_rows * (k / 16u) + 255u) / 256u), dim3(256), 0,
-      nullptr, input, s.inputs.as<half::Row>(), input_rows, k, true);
+      nullptr, input, s.inputs.as<half::Row>(), input_rows, k, true, false);
   check(hipGetLastError());
   hipLaunchKernelGGL(prepare_operands, dim3((weight_rows * (k / 16u) + 255u) / 256u), dim3(256), 0,
-      nullptr, weights, s.weights.as<half::Row>(), weight_rows, k, true);
+      nullptr, weights, s.weights.as<half::Row>(), weight_rows, k, true, false);
   check(hipGetLastError());
   if (profile) profile->mark(2);
   hipLaunchKernelGGL(row_l2, dim3(input_rows), dim3(256), 0, nullptr,
@@ -475,6 +497,7 @@ Gb10PrefillProjectionOwner::Gb10PrefillProjectionOwner() : impl_(std::make_uniqu
   auto& s = impl_->state;
   s.routed = enabled("AIMA_PORT_NATIVE_MOE_PREFILL");
   s.batch_replay = enabled("AIMA_PORT_PREFILL_BATCH_REPLAY");
+  s.group_major_weights = enabled("AIMA_PORT_PREFILL_GROUP_MAJOR_WEIGHTS");
   s.raw.allocate((s.routed ? std::size_t(routed_rows) * 2048u : std::size_t(max_tokens) * max_rows) * sizeof(float));
   s.inputs.allocate(std::size_t(max_tokens) * (max_k / 16u) * sizeof(half::Row));
   s.weights.allocate((s.routed ? std::size_t(routed_experts) * 1024u * (2048u / 16u) :
@@ -503,10 +526,10 @@ Gb10PrefillProjectionOwner::~Gb10PrefillProjectionOwner() {
     if (s.batch_replay)
       std::fprintf(stderr, "{\"event\":\"prefill_batch_replay_summary\","
           "\"submitted_projections\":%u,\"windows\":%u,\"selector_grids\":%u,\"replay_grids\":%u,"
-          "\"device_synchronized\":%s,\"warmup_excluded\":%s,\"diagnostic_only\":true}\n",
+          "\"device_synchronized\":%s,\"warmup_excluded\":%s,\"group_major_weights\":%s,\"diagnostic_only\":true}\n",
           s.batched_projections, s.batched_windows, s.batched_projections,
           s.batched_projections, status == hipSuccess ? "true" : "false",
-          s.batch_armed ? "true" : "false");
+          s.batch_armed ? "true" : "false", s.group_major_weights ? "true" : "false");
     active = nullptr;
   }
 }
@@ -637,10 +660,10 @@ void gb10_prefill_projection_finish(const void* input, const void* weights,
   const auto* w = static_cast<const uint16_t*>(weights);
   auto* y = static_cast<uint16_t*>(output);
   hipLaunchKernelGGL(prepare_operands, dim3((t * (k / 16u) + 255u) / 256u), dim3(256), 0,
-      nullptr, x, s.inputs.as<half::Row>(), t, k, true);
+      nullptr, x, s.inputs.as<half::Row>(), t, k, true, false);
   check(hipGetLastError());
   hipLaunchKernelGGL(prepare_operands, dim3((n * (k / 16u) + 255u) / 256u), dim3(256), 0,
-      nullptr, w, s.weights.as<half::Row>(), n, k, contiguous);
+      nullptr, w, s.weights.as<half::Row>(), n, k, contiguous, s.group_major_weights);
   check(hipGetLastError());
   if (profile) profile->mark(2);
   if (!coarse_output) {
@@ -669,10 +692,7 @@ void gb10_prefill_projection_finish(const void* input, const void* weights,
         coarse_output ? s.coarse_errors.as<float>() : nullptr);
     check(hipGetLastError());
     if (profile) profile->mark(5);
-    hipLaunchKernelGGL(replay_selected, dim3(256, windows), dim3(256), 0,
-        nullptr, s.inputs.as<half::Row>(), s.weights.as<half::Row>(), y, n, k,
-        s.count.as<unsigned>(), s.indices.as<unsigned>());
-    check(hipGetLastError());
+    launch_dense_replay(s, y, n, k, windows);
     if (profile) {
       profile->mark(6);
       check(hipMemcpyAsync(profile->counts.data, s.count.data,
@@ -697,10 +717,7 @@ void gb10_prefill_projection_finish(const void* input, const void* weights,
         coarse_output ? s.coarse_errors.as<float>() : nullptr);
     check(hipGetLastError());
     if (profile) profile->mark(5 + 3 * window);
-    hipLaunchKernelGGL(replay_selected, dim3(256), dim3(256), 0,
-        nullptr, s.inputs.as<half::Row>(), s.weights.as<half::Row>(), y, n, k,
-        s.count.as<unsigned>(), s.indices.as<unsigned>());
-    check(hipGetLastError());
+    launch_dense_replay(s, y, n, k, 1u);
     if (profile) {
       profile->mark(6 + 3 * window);
       check(hipMemcpyAsync(profile->counts.as<unsigned>() + window, s.count.data,

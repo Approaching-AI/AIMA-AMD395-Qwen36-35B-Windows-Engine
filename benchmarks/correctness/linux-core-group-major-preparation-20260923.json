@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "parent_source_commit": "21e32349d70b246fa6ed288d9259bf97d4a84875",
+  "change": "Optional K16-group-major prepared weights for exact dense replay",
+  "control": {
+    "path": "benchmarks/correctness/linux-core-batch-replay-native-20260923.json",
+    "sha256": "d6c774ad8bb509aa540e5ee9c703e1023cdeaa63ecb76cb372f7e2a7d04cf6f4"
+  },
+  "option": {
+    "environment": "AIMA_PORT_PREFILL_GROUP_MAJOR_WEIGHTS",
+    "enabled_value": "1",
+    "scope": "prepared dense replay weights only; both source weight views",
+    "layout": "K16 group, output row, existing lossless scaled-half Row",
+    "input_layout_unchanged": true,
+    "exact_group_order_unchanged": true,
+    "additional_device_bytes": 0,
+    "additional_runtime_artifacts": 0,
+    "model_qualified": false
+  },
+  "local_host_contract": {
+    "result": {
+      "lossless_operand_values": 2048,
+      "both_weight_layouts_match": true,
+      "full_window_candidates": 1048576,
+      "window_guards_pass": true,
+      "batch_selector_empty_full_partial_guards_pass": true,
+      "batch_queue_address_routing_pass": true,
+      "batch_profile_max_windows": 97,
+      "batch_profile_events_per_projection": 7,
+      "batch_profile_counter_copies": 1,
+      "batch_unprofiled_dispatch_pass": true,
+      "group_major_layout_values": 4096,
+      "group_major_guards_and_operand_lanes_pass": true,
+      "group_major_replay_addressing_pass": true,
+      "group_major_both_submission_modes_pass": true,
+      "input_immutable": true,
+      "selector_edges_pass": true,
+      "queued_kernel_order_pass": true,
+      "invalid_bindings_rejected": 221,
+      "profile_max_windows": 97,
+      "profile_lifetime_pass": true,
+      "profile_warmup_excluded": true,
+      "profile_completed_events_only": true,
+      "linear_output_scoped_layers": 30,
+      "linear_output_scope_unwind_pass": true,
+      "full_output_scoped_layers": 10,
+      "full_output_scope_unwind_pass": true,
+      "coarse_interval_exceptional_edges_pass": true,
+      "invalid_event_time_reported": true,
+      "producer_configuration_controls": 16,
+      "tuned_input_output_scopes_disjoint": true,
+      "routed_full_window_candidates": 4194304,
+      "routed_sorted_scatter_guards_pass": true,
+      "routed_weighted_endpoint_edges_pass": true,
+      "routed_invalid_dispatch_rejected": true,
+      "routed_profile_windows": 54,
+      "gpu_replay_executed": false
+    },
+    "build_command": [
+      "clang++",
+      "-std=c++17",
+      "-O1",
+      "-ffp-contract=off",
+      "-fsanitize=address,undefined",
+      "-I",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-group-major-host-r3/stub",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
+      "-o",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-group-major-host-r3/host-contract"
+    ],
+    "inputs": [
+      {
+        "path": "native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
+        "sha256": "5e08aa2c4816f225fd856ff9a563b441b5cd9736963dcf4fa1ab41278d70d5c4"
+      },
+      {
+        "path": "native/linux_core_port/gb10_prefill_projection.hip.cpp",
+        "sha256": "a55e02e56807bec178f4d7490a29ad2f9c205ae4a1deb96f4408ba8eb1d6b8a0"
+      },
+      {
+        "path": "native/linux_core_port/gb10_prefill_projection.h",
+        "sha256": "5c0c8f9ec5fdfc6e3a8c7c11891ce662f40011d2827d44f290f3cdab3830a765"
+      },
+      {
+        "path": "tools/test_linux_core_prefill_projection.py",
+        "sha256": "5e01a0bd45a5fcf4f7b90725e48d14cecf08f0eefbc88a67840613a0a8d9bf87"
+      },
+      {
+        "path": "native/providers/moe_accumulator/sm121_staged_half_projection.h",
+        "sha256": "951654c2221729fb665c5577ff6463be00a93c63ea9fdc52001b361e707de721"
+      },
+      {
+        "path": "tools/test_linux_core_gdn.py",
+        "sha256": "69c5dc9b72075555ddd9c17a6770f04cffc530a13431b5ea98473e4c3d871e44"
+      }
+    ],
+    "stub_sha256": "7f34928c44a556c3c75024d4c0182b5adf45fdf7b4ed9c3d25dac8888c318a9b",
+    "host_only": true,
+    "model_inference_acceptance": false
+  },
+  "local_host_contract_sha256": "397a27fc88ef119da5a1a6f94659a3d27e9b447bac918cd6dd72bd958410e2b1",
+  "preparation": {
+    "record_sha256": "d4d82d626c96d67acfc0acd3a8537c82b8a8c1d10e039f5a5dc95a31a7658e3b",
+    "imported_files": 327,
+    "native_units": 60,
+    "overlays": 17,
+    "images": 72,
+    "all_overlays_and_images_unchanged": true
+  },
+  "source_inputs": [
+    {
+      "path": "native/linux_core_port/gb10_prefill_projection.hip.cpp",
+      "bytes": 40578,
+      "sha256": "a55e02e56807bec178f4d7490a29ad2f9c205ae4a1deb96f4408ba8eb1d6b8a0"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_staged_half_projection.h",
+      "bytes": 6165,
+      "sha256": "951654c2221729fb665c5577ff6463be00a93c63ea9fdc52001b361e707de721"
+    },
+    {
+      "path": "native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
+      "bytes": 28745,
+      "sha256": "5e08aa2c4816f225fd856ff9a563b441b5cd9736963dcf4fa1ab41278d70d5c4"
+    },
+    {
+      "path": "tools/test_linux_core_prefill_projection.py",
+      "bytes": 4933,
+      "sha256": "5e01a0bd45a5fcf4f7b90725e48d14cecf08f0eefbc88a67840613a0a8d9bf87"
+    },
+    {
+      "path": "tools/prepare_linux_core_windows.py",
+      "bytes": 86941,
+      "sha256": "4e89a38f27bb5f491a6a9248d6b5cd1b3030331f5ffb29e934397bd81e28f435"
+    }
+  ],
+  "operand_encoding_and_accumulate_helpers_unchanged": true,
+  "group_order": "ascending K16 with two prefetched groups, identical to the qualified replay",
+  "selection_and_output_predicates_unchanged": true,
+  "local_compile_corrections": "Host ABI compilation rejected missing explicit layout arguments on dense and routed preparation launches; all launch arguments are now explicit and the final ASan/UBSan run passes.",
+  "gpu_math_claim_from_host_stubs": false,
+  "model_inference_acceptance": false,
+  "windows_build_qualified": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

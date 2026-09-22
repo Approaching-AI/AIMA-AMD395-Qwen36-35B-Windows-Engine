@@ -3,10 +3,10 @@
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
 It is not enabled in the Windows product. The fastest qualified observation,
-`cee6aa8` passes the complete cold q8192/out512 correctness boundary on baiying
+`21e3234` passes the complete cold q8192/out512 correctness boundary on baiying
 with the real model: all512 tokens and callbacks match GB10, with
-first144/logit10.375. Loading is27716.7622ms, TTFT20289.1186ms and
-TPOT227.849377ms with detailed projection events and timeline disabled.
+first144/logit10.375. Loading is27593.4027ms, TTFT20086.8502ms and
+TPOT226.471535ms with detailed projection events and timeline disabled.
 The earlier `9447947` run also has all72 second-decode
 comparisons matching in BF16 and a bitwise-exact final normalization.
 Performance, other product shapes, prefix continuation and release remain open.
@@ -27,8 +27,26 @@ the preceding q8192 profile contains4284 windows across189 projections. Actual
 post-READY submission counts are emitted once on owner teardown. ASan/UBSan
 checks empty/full/partial windows, queue addressing,97-window dispatch and221
 invalid bindings. All17 generated overlays and72 imported images match the
-control. GPU arithmetic, actual activation and product timing remain pending.
+control.
 [Batch replay preparation](../benchmarks/correctness/linux-core-batch-replay-preparation-20260923.json).
+
+The real `21e3234` trial verifies189 selector/replay pairs covering4284 windows,
+with all512 GB10 tokens/callbacks and first144/logit10.375 matching. Native build
+and cleanup pass. Its TTFT is202.2684ms below the unbatched profile-off control;
+that small unpaired difference does not establish a stable retained speedup
+for the extra memory. The option provides a qualified basis for broader replay
+layout work. Performance and release targets remain unmet.
+[Native batch replay result](../benchmarks/correctness/linux-core-batch-replay-native-20260923.json).
+
+The next optional `AIMA_PORT_PREFILL_GROUP_MAJOR_WEIGHTS=1` layout stores the
+same prepared weight rows with the K16 group outermost. Nearby candidates can
+then read neighboring output rows within a smaller region, while each dot
+still consumes the original groups in ascending order. The input layout,
+scaled-half values, carry arithmetic and allocation size remain unchanged.
+Host checks compare both source views, all four operand lanes, tail guards,
+and both sequential/batched dispatch. Native correctness and timing remain
+pending; locality is a hypothesis until the product test completes.
+[Group-major weight preparation](../benchmarks/correctness/linux-core-group-major-preparation-20260923.json).
 
 Native GDN observation `fce7fdd` reproduces all 512 outputs from the failed
 chunk32 experiment, including 486 differences from GB10 and the first at
