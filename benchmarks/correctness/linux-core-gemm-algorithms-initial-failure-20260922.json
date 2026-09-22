@@ -1,0 +1,114 @@
+{
+  "source_commit": "42f112ad1141c64b86699ad9575c497327f81f09",
+  "host": "baiying",
+  "model_loaded": false,
+  "command_file": "P:\\projects\\AIMA-public-linux-core-gemm-algorithms-20260922-r1\\scripts\\baiying_linux_core_gemm_probe.ps1",
+  "run_record_sha256": "ddb85c8fa3b31728f55481260028e16e905246efca83ed4d51dffce5fc51ca49",
+  "stdout_sha256": "2313efd5274808978fa48f35086baf1715350dbbdb37ed28e76221a64108b706",
+  "stderr": "GEMM algorithm probe failed: Algorithm changed exact outputs, inputs or guards\n",
+  "exit_code": 1,
+  "host_checks_pass": true,
+  "build": {
+    "host": "baiying",
+    "source_commit": "42f112ad1141c64b86699ad9575c497327f81f09",
+    "dirty_tree": false,
+    "source_inputs": [
+      {
+        "path": "P:\\projects\\AIMA-public-linux-core-gemm-algorithms-20260922-r1\\native\\diagnostics\\linux_core_gemm_algorithms.hip.cpp",
+        "bytes": 11028,
+        "sha256": "9cd01ec2500ec5626129366322969d486a60d32c90712c33eb7680cb60589e17"
+      },
+      {
+        "path": "P:\\projects\\AIMA-public-linux-core-gemm-algorithms-20260922-r1\\tools\\build_linux_core_gemm_probe.py",
+        "bytes": 3978,
+        "sha256": "1940dd9a7807b24b09cea87944458ec0cf74c7486c061e7bb60cdf18e1d34f1d"
+      },
+      {
+        "path": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "bytes": 454040,
+        "sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939"
+      },
+      {
+        "path": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\clang++.exe",
+        "bytes": 104265112,
+        "sha256": "4d543f9d4f582f426af5614b393af2be5edde8b4d1dd55ee242b6c2f4be9fefd"
+      },
+      {
+        "path": "C:\\Program Files\\AMD\\ROCm\\7.1\\lib\\libhipblaslt.dll.a",
+        "bytes": 318010,
+        "sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da"
+      },
+      {
+        "path": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\libhipblaslt.dll",
+        "bytes": 6012312,
+        "sha256": "9f97d95c3b7257efcab992914b4e1c1b3b71b0693a6ad5d61a8f3cbf08a96dee"
+      },
+      {
+        "path": "C:\\Program Files\\AMD\\ROCm\\7.1\\include\\hipblaslt\\hipblaslt.h",
+        "bytes": 51267,
+        "sha256": "029e4b8537bfa7630ac7312a2b8118067f01b6fa8d8b591df5ed1ed3be414941"
+      }
+    ],
+    "completed": true,
+    "model_loaded": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "command": [
+      "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+      "-std=c++17",
+      "-O3",
+      "--offload-arch=gfx1151",
+      "-fno-gpu-rdc",
+      "-DNOMINMAX",
+      "-DWIN32_LEAN_AND_MEAN",
+      "-I",
+      "P:\\projects\\AIMA-public-linux-core-gemm-algorithms-20260922-r1\\build\\gemm-algorithms-native-r1",
+      "P:\\projects\\AIMA-public-linux-core-gemm-algorithms-20260922-r1\\native\\diagnostics\\linux_core_gemm_algorithms.hip.cpp",
+      "-L",
+      "P:\\projects\\AIMA-public-linux-core-gemm-algorithms-20260922-r1\\build\\gemm-algorithms-native-r1",
+      "-lhipblaslt",
+      "-o",
+      "P:\\projects\\AIMA-public-linux-core-gemm-algorithms-20260922-r1\\build\\gemm-algorithms-native-r1\\qrt-linux-core-gemm-algorithms.exe"
+    ],
+    "identity_sha256": "249169a6d6db7dc68ef6cfd9a4f13bfdaec8906cb4e652c2b334cd735620a458",
+    "timeout_seconds": 180,
+    "exit_code": 0,
+    "timed_out": false,
+    "wall_ms": 1880.5273999460042,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "57053a069c82b0358e75bbebe3d519068bdfff0bbdaf79239143de79918c17fd",
+    "artifact": {
+      "path": "P:\\projects\\AIMA-public-linux-core-gemm-algorithms-20260922-r1\\build\\gemm-algorithms-native-r1\\qrt-linux-core-gemm-algorithms.exe",
+      "bytes": 206336,
+      "sha256": "a168cd955d27618c3f0cd119f8e9cccfa8f1578666cd00aac06595ffe82efa87"
+    }
+  },
+  "events": [
+    {
+      "event": "start",
+      "host": "baiying",
+      "source_commit": "42f112ad1141c64b86699ad9575c497327f81f09",
+      "model_loaded": false,
+      "inference_acceptance": false
+    },
+    {
+      "event": "shape",
+      "m": 8192,
+      "n": 8192,
+      "k": 2048,
+      "heuristics": 9,
+      "library_version": 100100,
+      "workspace_limit": 134217728
+    },
+    {
+      "event": "algorithm_start",
+      "n": 8192,
+      "k": 2048,
+      "index": 0
+    }
+  ],
+  "diagnosis": "First heuristic fails exact validation; output/input/guard category not yet recorded. No algorithm timing accepted.",
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

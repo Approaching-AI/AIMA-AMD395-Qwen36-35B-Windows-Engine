@@ -149,7 +149,17 @@ void sweep(unsigned n,unsigned k) {
       hip(hipMemcpy(failures.data(),bad.pointer,12u,hipMemcpyDeviceToHost),"failure read");return failures;
     };
     const auto first=validate();
-    if(first!=std::array<unsigned,3>{})throw std::runtime_error("Algorithm changed exact outputs, inputs or guards");
+    if(first!=std::array<unsigned,3>{}) {
+      std::printf("{\"event\":\"validation_failure\",\"n\":%u,\"k\":%u,\"index\":%d,\"output_mismatches\":%u,\"input_mismatches\":%u,\"guard_mismatches\":%u}\n",
+          n,k,index,first[0],first[1],first[2]);
+      for(unsigned t:{0u,1u,30u,31u,m-1u})for(unsigned row:{0u,1u,28u,29u,n-1u}) {
+        float actual=0;hip(hipMemcpy(&actual,y.data<float>()+guard+std::size_t(t)*n+row,4u,hipMemcpyDeviceToHost),"failure sample");
+        std::printf("{\"event\":\"failure_sample\",\"token\":%u,\"row\":%u,\"actual\":%.9g,\"expected\":%.9g}\n",
+            t,row,double(actual),double(expected[(t%31u)*29u+row%29u])*0.00390625);
+      }
+      std::fflush(stdout);
+      throw std::runtime_error("Algorithm changed exact outputs, inputs or guards");
+    }
     // Positive controls demonstrate that the numerical and guard checkers
     // detect independent corruptions; restore the real output before timing.
     if(!completed) {
