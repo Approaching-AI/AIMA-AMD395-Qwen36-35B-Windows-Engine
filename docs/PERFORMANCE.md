@@ -114,15 +114,18 @@ comparisons first differ in layer5's incoming recurrent state, head13. The
 The earlier cause is now traced to a BF16 midpoint in B/head13 at263238.
 The [repair](PACKED_GATE_MIDPOINT.md) passes actual original-operand GPU
 components and the five short model controls. The complete256k rerun is
-active and remains unqualified. Native wall is
+active and remains unqualified. The preceding c268 run's native wall is
 22598962.712 ms with clean host checks. No256k or performance acceptance is
 claimed. [Completed run and actual state evidence](../benchmarks/correctness/single-tail-q1-prefix256k-step124-native-20260921.json).
 [Prior failure](../benchmarks/correctness/retired-reference-mode-prefix256k-20260921.json)
 and [qualified same-history reference](../benchmarks/correctness/gb10-prefix256-step124-reference-20260921.json).
 
-The c268 server builds on Windows and passes all 54 Rust tests. Its new
-portable package, actual HTTP matrix, three native retirement cases, 13-case
-cold matrix and one-hour soak remain open. The older unpublished
+The c268 server builds on Windows and passes all 54 Rust tests. The
+[new package preparation](../benchmarks/correctness/packed-gate-midpoint-package-prepared-20260922.json)
+retains that binary's actual source after verifying all25 build inputs are
+unchanged in356, and binds the repaired whole provider and CLI. Its archive,
+actual HTTP matrix, three native retirement cases,13-case cold matrix and
+one-hour soak remain open. The older unpublished
 [R6 package](CURRENT_PACKAGE_R6.md) has its own source inventory and service
 checks. Neither its observations nor Linux release results qualify the new
 artifact. [Linux release review and Windows scope](SIBLING_REVIEW.md).

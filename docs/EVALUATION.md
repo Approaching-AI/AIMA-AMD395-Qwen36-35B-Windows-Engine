@@ -43,6 +43,21 @@ All completed builds and short runs pass host checks and process cleanup.
 The preceding c268 server passed54 Rust tests, but server/package qualification
 with the repaired provider remains open. The complete256k rerun is now active.
 
+The [repaired package preparation](../benchmarks/correctness/packed-gate-midpoint-package-prepared-20260922.json)
+binds the actual356 whole provider and CLI, the existing c268 server and three
+numerical providers. All25 server build inputs are unchanged in356; the server
+keeps its original commit, binary and working checkout. Read-only Windows
+checks verify all six component artifacts and both copies of those25 inputs.
+The initial unrun configuration's server-checkout mismatch is preserved and
+corrected in the bound revision. The535-option profile and34 portable paths
+match the original-model control after the three declared portability changes.
+
+All original HTTP, prefix, control-plane,13-case cold and3600-second soak
+workloads are preserved. Preparation rejects five profile faults, three server
+provenance faults,20 missing-evidence cases and12 corrupted historical records;
+two dispatch checks prevent starting behind unfinished host owners. Five
+PowerShell scripts parse on Windows. No archive has been created or tested.
+
 A separate [Linux core Windows prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md)
 is queued after that owner. Source0a57516 ports the pinned Linux compute core
 while preserving the original GB10 oracle and token/logit requirements. Its
@@ -107,8 +122,9 @@ first logits. The complete256k continuation is active and still unqualified.
 The three native retirement cases and final portable archive remain open.
 The actual whole DLL, CLI and static-C-core server must be bound together for
 the final 45 protocol, 15 prefix and 55 control-plane requests, the 13 cold
-cases with 1856 outputs, and the complete 3600-second soak. Earlier unbound
-package preparations are historical. No new release or retained-performance
+cases with 1856 outputs, and the complete 3600-second soak. The new preparation
+does not qualify those final-archive results. Earlier package preparations are
+historical. No new release or retained-performance
 acceptance is claimed.
 
 ## Historical observations and preparations

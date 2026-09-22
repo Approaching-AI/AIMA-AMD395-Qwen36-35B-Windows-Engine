@@ -53,3 +53,10 @@ original output IDs, callbacks and first logits. Ordinary q8192 load is
 The complete256k continuation is running and remains unqualified. No retained
 performance or release acceptance is claimed.
 [Native failure, causal replay and candidate checks](../benchmarks/correctness/layer5-small-gate-midpoint-diagnosis-20260922.json).
+
+The [portable package preparation](../benchmarks/correctness/packed-gate-midpoint-package-prepared-20260922.json)
+binds the actual repaired whole provider and CLI. The server retains its c268
+binary and source identity: all25 build inputs are unchanged in356 and both
+Windows checkouts are hash-verified. Six component files and the portable
+profile are checked. The original HTTP, cold and one-hour workloads remain
+intact, but no new archive, HTTP result or soak result exists yet.
