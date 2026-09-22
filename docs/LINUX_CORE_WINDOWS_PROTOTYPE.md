@@ -38,15 +38,23 @@ for the extra memory. The option provides a qualified basis for broader replay
 layout work. Performance and release targets remain unmet.
 [Native batch replay result](../benchmarks/correctness/linux-core-batch-replay-native-20260923.json).
 
-The next optional `AIMA_PORT_PREFILL_GROUP_MAJOR_WEIGHTS=1` layout stores the
+The optional `AIMA_PORT_PREFILL_GROUP_MAJOR_WEIGHTS=1` layout stores the
 same prepared weight rows with the K16 group outermost. Nearby candidates can
 then read neighboring output rows within a smaller region, while each dot
 still consumes the original groups in ascending order. The input layout,
 scaled-half values, carry arithmetic and allocation size remain unchanged.
 Host checks compare both source views, all four operand lanes, tail guards,
-and both sequential/batched dispatch. Native correctness and timing remain
-pending; locality is a hypothesis until the product test completes.
+and both sequential/batched dispatch.
 [Group-major weight preparation](../benchmarks/correctness/linux-core-group-major-preparation-20260923.json).
+
+Source `747bb00` completes the real q8192/out512 test with the new layout and
+all189 batch pairs verified. All512 tokens and callbacks, first144/logit10.375,
+Windows build and cleanup pass. Load is27473.2794ms, but TTFT regresses to
+24138.978ms,4052.1278ms above the batched row-major control. TPOT is229.758258ms.
+The layout remains disabled and is rejected for retained performance. Fewer
+submissions and this alternate layout have not removed the multi-second
+arithmetic cost; the 10-second and retained targets remain open.
+[Group-major native result](../benchmarks/correctness/linux-core-group-major-native-20260923.json).
 
 Native GDN observation `fce7fdd` reproduces all 512 outputs from the failed
 chunk32 experiment, including 486 differences from GB10 and the first at
