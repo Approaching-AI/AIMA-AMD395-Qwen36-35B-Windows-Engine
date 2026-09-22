@@ -106,7 +106,52 @@ def full_prefill_overlay(text):
                    "  legacy_launch_ = nullptr;\n  dynamic_launch_ = nullptr;")
 
 
-def make_overlays():
+def rectangular_ck_overlay(header, source):
+    """Opt-in mapping of contiguous Linux KV to the existing Windows ABI."""
+    header = replace(header, '#include "aima/native_decode_executor.h"',
+                     '#include "aima/native_decode_executor.h"\n#include "ck_suffix_adapter.h"')
+    header = replace(header, "  DynamicLaunchFn dynamic_launch_ = nullptr;",
+                     "  DynamicLaunchFn dynamic_launch_ = nullptr;\n"
+                     "  aima_port::CkSuffixLaunch suffix_launch_ = nullptr;")
+    source = replace(source,
+        '          dlsym(handle_, "qrt_ck_fmha_dynamic_bf16_launch"));\n'
+        "      if (context_tokens != 8192 &&\n"
+        "          (context_tokens > 8192 || dynamic_launch_ == nullptr)) {",
+        '          dlsym(handle_, "qrt_ck_fmha_dynamic_bf16_launch"));\n'
+        "      suffix_launch_ = reinterpret_cast<aima_port::CkSuffixLaunch>(\n"
+        '          dlsym(handle_, "qrt_ck_fmha_sm121_suffix_bf16_v1"));\n'
+        "      metrics_.rectangular_context_abi = suffix_launch_ != nullptr;\n"
+        "      if (context_tokens != 8192 && dynamic_launch_ == nullptr) {")
+    source = replace(source,
+        "    if (rectangular_launch_ == nullptr) {\n"
+        "      throw std::runtime_error(\n"
+        '          "native FMHA provider lacks the rectangular context ABI");\n'
+        "    }\n"
+        "    status = rectangular_launch_(\n"
+        "        q_bf16, k_bf16, v_bf16, output_f32,\n"
+        "        static_cast<unsigned int>(query_tokens),\n"
+        "        static_cast<unsigned int>(kv_tokens), stream);",
+        "    if (rectangular_launch_ != nullptr) {\n"
+        "      status = rectangular_launch_(\n"
+        "          q_bf16, k_bf16, v_bf16, output_f32,\n"
+        "          static_cast<unsigned int>(query_tokens),\n"
+        "          static_cast<unsigned int>(kv_tokens), stream);\n"
+        "    } else if (suffix_launch_ != nullptr) {\n"
+        "      const auto views = aima_port::ck_suffix_views(\n"
+        "          q_bf16, k_bf16, v_bf16, output_f32, query_tokens, kv_tokens);\n"
+        "      status = suffix_launch_(views.q, views.prefix_k, views.prefix_v,\n"
+        "          views.suffix_k, views.suffix_v, views.output, stream,\n"
+        "          views.prefix_tokens, views.query_tokens);\n"
+        "    } else {\n"
+        "      throw std::runtime_error(\n"
+        '          "native FMHA provider lacks the rectangular context ABI");\n'
+        "    }")
+    source = replace(source, "  dynamic_launch_ = nullptr;",
+                     "  dynamic_launch_ = nullptr;\n  suffix_launch_ = nullptr;")
+    return header, source
+
+
+def make_overlays(*, rectangular_ck=False):
     read = lambda p: (UPSTREAM / p).read_text(encoding="utf-8")
     sources = {}
     loader = "benchmarks/shape-lab/native/src/torch_owned_safetensors_loader.hip.cpp"
@@ -139,6 +184,9 @@ def make_overlays():
         "  DynamicLaunchFn dynamic_launch_ = nullptr;")
     prefill = "native/src/native_full_prefill.hip.cpp"
     sources[prefill] = full_prefill_overlay(read(prefill))
+    if rectangular_ck:
+        sources[header], sources[prefill] = rectangular_ck_overlay(
+            sources[header], sources[prefill])
     # These two upstream enum-to-string functions have no media I/O dependency.
     media = read("native/src/native_media.cpp")
     names = media[media.index("std::string_view native_media_kind_name("):]
@@ -164,12 +212,14 @@ def verify_import():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--windows-rectangular-ck", action="store_true",
+                        help="Generate the optional Windows suffix ABI mapping; not model-qualified")
     args = parser.parse_args()
     inventory = verify_import()
     out = args.out.resolve()
     if out.exists():
         raise SystemExit("Output already exists; preserve it and choose a fresh directory")
-    overlays = make_overlays()
+    overlays = make_overlays(rectangular_ck=args.windows_rectangular_ck)
     out.mkdir(parents=True)
     adapted = []
     for relative, text in overlays.items():
@@ -242,6 +292,12 @@ def main():
         image_bytes=sum(x["bytes"] for x in images),
         vision_image=str(aot / "vision-attention-v0.3.0/kernels/d09fefdcb1ddb6cb-_fwd_kernel.hsaco"),
         windows_build_qualified=False, model_correctness_qualified=False, performance_qualified=False)
+    if args.windows_rectangular_ck:
+        adapter = ROOT / "native/linux_core_port/ck_suffix_adapter.h"
+        report["optional_adaptations"] = dict(windows_rectangular_ck=True,
+            adapter_path=adapter.relative_to(ROOT).as_posix(),
+            adapter_sha256=digest(adapter.read_bytes()),
+            maximum_suffix_queries=8192, maximum_total_kv_tokens=262144)
     (out / "prepare.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: report[k] for k in ("upstream_revision", "imported_files", "imported_bytes", "image_bytes")}
                      | dict(images=len(images), compilation_units=len(sources), overlays=len(adapted))))

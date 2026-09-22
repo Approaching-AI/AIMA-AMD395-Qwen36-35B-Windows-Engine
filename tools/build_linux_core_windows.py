@@ -28,6 +28,8 @@ def main():
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--rocm", type=Path, default=Path("C:/Program Files/AMD/ROCm/7.1"))
     parser.add_argument("--timeout-seconds", type=int, default=1500)
+    parser.add_argument("--windows-rectangular-ck", action="store_true",
+                        help="Opt in to the Windows suffix ABI mapping; not model-qualified")
     args = parser.parse_args()
     host = socket.gethostname()
     if platform.system() != "Windows" or host.split(".")[0].lower() != "baiying":
@@ -95,8 +97,13 @@ def main():
         record["source_inputs"] = [dict(path=p.relative_to(ROOT).as_posix(), bytes=p.stat().st_size,
                                         sha256=sha(p)) for p in sorted(source_paths) if p.is_file()]
         prepared = out / "prepared"
-        run("prepare", [sys.executable, ROOT / "tools/prepare_linux_core_windows.py", "--out", prepared], 120)
+        preparation = [sys.executable, ROOT / "tools/prepare_linux_core_windows.py", "--out", prepared]
+        if args.windows_rectangular_ck:
+            preparation.append("--windows-rectangular-ck")
+        run("prepare", preparation, 120)
         plan = json.loads((prepared / "prepare.json").read_text())
+        if "optional_adaptations" in plan:
+            record["optional_adaptations"] = plan["optional_adaptations"]
         record["prepare_sha256"] = sha(prepared / "prepare.json")
         identity = '#pragma once\n#define AIMA_PORT_SOURCE_COMMIT ' + json.dumps(commit) + \
             '\n#define AIMA_PORT_UPSTREAM_COMMIT ' + json.dumps(inventory["revision"]) + '\n'

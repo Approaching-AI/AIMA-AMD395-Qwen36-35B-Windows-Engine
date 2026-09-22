@@ -1,0 +1,107 @@
+{
+  "kind": "linux_core_windows_ck_suffix_cpu_preparation",
+  "checked_at": "2026-09-22T00:56:17.611175+00:00",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "os": "Darwin",
+  "parent_commit": "1be71ff2bb6e7b3a0750399a48a61212789ab7f1",
+  "source_files": [
+    {
+      "path": "native/linux_core_port/ck_suffix_adapter.h",
+      "bytes": 3167,
+      "sha256": "2008de279727d45bda3c6208686fcda8d51d7bb39db5e8a3a4a14ad682857626"
+    },
+    {
+      "path": "tools/prepare_linux_core_windows.py",
+      "bytes": 17322,
+      "sha256": "2ccf0993e6ebed0c00d542a2d579e6d64066ac700c122f92819421ccaf9ea540"
+    },
+    {
+      "path": "tools/build_linux_core_windows.py",
+      "bytes": 8719,
+      "sha256": "cb15c8354d53ba990d5c14790e6f0fcebb0d1fdbd6aa294752f1af74eb4c3048"
+    },
+    {
+      "path": "tools/test_linux_core_ck_suffix.py",
+      "bytes": 14781,
+      "sha256": "9cd7cc3b8e89d8556d4404dd93ead850e7cc77c520c46e45635ba0449ff59704"
+    }
+  ],
+  "command": [
+    "python3.12",
+    "tools/test_linux_core_ck_suffix.py",
+    "--out",
+    "build/linux-core-ck-suffix-local-r2"
+  ],
+  "result": {
+    "schema": 1,
+    "baseline_source_commit": "0a57516e8c7c1dba55a077eba9d38b6155a0620e",
+    "default_overlay_count": 7,
+    "default_overlays_byte_identical": true,
+    "queued_observer_byte_identical": true,
+    "queued_observer_sha256": "34c100c340851576c914efce856aa60629b9068795a0284a2484d8327b0377de",
+    "adapter_sha256": "2008de279727d45bda3c6208686fcda8d51d7bb39db5e8a3a4a14ad682857626",
+    "generated_provider_declaration_sha256": "9dc267af5c174f9d56fc3555adf078951a420312f0c475a5963f93bd8b6f3100",
+    "generated_provider_methods_sha256": "9a97589fb23a7c28b17692a5717ca12ef0cc0ce7e0f783cf5c318c3384ca5920",
+    "stages": [
+      "prepare",
+      "build-suffix",
+      "build-no-suffix",
+      "build-no-dynamic",
+      "build-generic",
+      "build-contract",
+      "contract"
+    ],
+    "contract": {
+      "checked": 34,
+      "rejections": 31,
+      "gpu_executed": false,
+      "inference_acceptance": false
+    },
+    "recording_library_variants": 4,
+    "numerical_comparison": false,
+    "windows_build_qualified": false,
+    "model_correctness_qualified": false,
+    "performance_acceptance": false
+  },
+  "result_sha256": "298478d378711a742b30a4bff533decae2c8469e8ff824ae9c6dfde0cb40235b",
+  "stage_receipts": [
+    {
+      "file": "prepare.json",
+      "sha256": "1549cd3a8082a98be1d247cb2416ff2d041d810d0a3736c407f27987e2329b12"
+    },
+    {
+      "file": "build-suffix.json",
+      "sha256": "4806c4419aca9dc846f6a437f83e6fef756c519b4f4857f8fd614776b1f684bc"
+    },
+    {
+      "file": "build-no-suffix.json",
+      "sha256": "a4d3d0165b5a1619ed993b02ed0f5b7c335ff0dfd06621717c167d66c9360e40"
+    },
+    {
+      "file": "build-no-dynamic.json",
+      "sha256": "74e836e114fce6ef59710b1fb81391c6cbe0eb17850a5696021aa1770e5a8a20"
+    },
+    {
+      "file": "build-generic.json",
+      "sha256": "e369366528eb1e16f612d23683215e48c6c4f97b3a37f4141aa05f1e2fa01801"
+    },
+    {
+      "file": "build-contract.json",
+      "sha256": "c2780a7e210674b54dad90e8d5605d50708ac9de35f0309442a06ed3a8e83ec7"
+    },
+    {
+      "file": "contract.json",
+      "sha256": "8481cfab3fa9d895d708ccf83c040bda9f403e9db2e843f08a21e3b4ac97739a"
+    }
+  ],
+  "prior_failure": {
+    "file": "build/linux-core-ck-suffix-local-r1/build-contract.json",
+    "sha256": "0d0dac9f6fbba926616f30c74b962a264f1961a404d334d699d35dc0179201e4",
+    "reason": "Test fixture initializer list mixed nullptr_t and void pointer; made the null pointer type explicit before rerunning."
+  },
+  "queued_experiment_changed": false,
+  "windows_build_qualified": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

@@ -109,3 +109,32 @@ data files total18,849,143bytes; the DLL adds6,012,312bytes. Actual relocated
 execution is still needed to qualify that file set. A non-compiling driver query
 confirms automatic MSVC, Windows SDK and linker discovery. The queued source,
 environment and product boundary remain unchanged.
+
+## Optional continuation ABI preparation
+
+Later source adds `--windows-rectangular-ck` to the preparation and build tools.
+The queued `0a57516` experiment does not use it. The default seven overlays are
+byte-identical to that frozen source, and its GB10 observer is unchanged.
+
+The option maps Linux's contiguous token-major BF16 KV cache to the existing
+Windows `qrt_ck_fmha_sm121_suffix_bf16_v1` export. It splits K and V at
+`kv_tokens - query_tokens`, preserves the original compact Q, local F32 output
+and stream, and performs no host read, allocation or copy of device data.
+The DLL retains ownership of attention computation and staging. Square q8192
+still uses the original entry point; other admitted square lengths use the
+existing dynamic entry point. A provider exposing Linux's generic rectangular
+ABI keeps that path.
+
+This optional suffix mapping admits at most8192 queries and262144 total KV
+tokens. It checks non-null, aligned, non-wrapping spans and rejects output/input
+overlap before dispatch. Those are the current imported engine bounds; this
+does not yet enable the263168-token256k prefix request or expand the q8192 probe.
+Missing exports and failed launches remain errors.
+
+The [CPU adapter evidence](../benchmarks/correctness/linux-core-ck-suffix-local-20260922.json)
+records ASan/UBSan checks of the actual generated loader methods against four
+recording libraries. All34 checks and31 rejection controls pass, including
+maximum geometry, repeated KV addresses, generic-ABI precedence, absent symbols,
+provider failure and release cleanup. These libraries only record arguments;
+they perform no inference. Native Windows compilation and GB10-attached context
+and prefix runs remain required before selecting this option.
