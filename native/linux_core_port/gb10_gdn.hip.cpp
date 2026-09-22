@@ -196,10 +196,12 @@ void observe_gdn_prefill(std::size_t layer, const char* name, const void* values
   if (!active || !active->observer || layer != active->observer_layer) return;
   if (!values || values == active->output.data || !name || tokens != 8192 ||
       (columns != 1 && columns != 32 && columns != 256 && columns != 512 &&
-       columns != 2048 && columns != 4096 && columns != 8192))
+       columns != 2048 && columns != 4096 && columns != 8192 && columns != 16384))
     throw std::runtime_error("GDN prefill observation geometry is invalid");
   // This buffer is dead at each caller: before the FLA call, or after its
   // output has been converted into the engine's distinct BF16 destination.
+  // The widest routed-MoE surface gathers 4MiB into the existing 128MiB
+  // allocation. The source keeps its full [8192,8,2048] row stride.
   hipLaunchKernelGGL(sample_prefill, dim3((128u * columns + 255u) / 256u), dim3(256), 0, nullptr,
       static_cast<const uint16_t*>(values), active->output.as<uint16_t>(), static_cast<unsigned>(columns));
   check(hipGetLastError(), "GDN prefill observation gather");

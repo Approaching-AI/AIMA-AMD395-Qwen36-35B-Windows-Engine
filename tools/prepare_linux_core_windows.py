@@ -631,6 +631,15 @@ def gb10_moe_overlays(sources, read):
     body = replace(body, "  launch_bf16_add_pair(\n      routed_moe, shared_scaled,\n      after_attention, combined_moe,\n"
         "      layer_output, tokens * kHidden);\n  ++result.layer.native_pointwise_launches;",
         "  // The native finish already publishes the rounded carrier and retains its FP32 sum.")
+    for stage, name, pointer, columns in (
+        ("after_expert_gate_up", "routed-gate-up", "expert_gate_up", 8192),
+        ("after_expert_activation", "routed-activation", "expert_activated", 4096),
+        ("after_expert_down", "routed-weighted", "expert_down", 16384),
+    ):
+        marker = f'  diagnostic_stage("{stage}");'
+        body = replace(body, marker, marker + "\n" +
+            f'  aima_port::observe_gdn_prefill(options.layer_index, "prefill-{name}-sampled", '
+            f'{pointer}, {columns}, tokens);')
     sources[path] = text[:begin] + code + body + text[end:]
     path = "native/src/native_linear_prefill.hip.cpp"
     text = replace(sources[path], '#include "gb10_normalization.h"',

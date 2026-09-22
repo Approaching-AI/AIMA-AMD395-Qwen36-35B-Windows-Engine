@@ -10,7 +10,7 @@ TPOT228.040989ms. The earlier `9447947` run also has all72 second-decode
 comparisons matching in BF16 and a bitwise-exact final normalization.
 Performance, other product shapes, prefix continuation and release remain open.
 
-The next optional comparison, `AIMA_PORT_NATIVE_MOE_PREFILL=1`, replaces
+The optional comparison, `AIMA_PORT_NATIVE_MOE_PREFILL=1`, replaces
 layers0..38 of the approximately4927.5989ms MoE wall with imported expert
 GEMMs. It uses the existing FP32-routing-weight images with q8192 live grids,
 four corrected dense projections, the original scalar gate reduction,
@@ -22,9 +22,27 @@ shared and98304 routed activations. FP32 SiLU before the up product fails this
 same reference; both branches require the BF16 table endpoint. ASan/UBSan
 checks complete native layer lifetimes, borrowed table owners and rejection
 of incomplete or invalid device state. Only the MoE overlay changes; the other
-16 overlays and all327 imported files remain identical. This is preparation,
-not a qualification of the expert GEMMs or a performance result.
+16 overlays and all327 imported files remain identical.
 [Native MoE preparation](../benchmarks/correctness/linux-core-native-moe-preparation-20260923.json).
+
+Source `2cbd9a4` builds all60 units and completes the native q8192/out512 run,
+but394 tokens differ from GB10, first at index115 (196 versus271).
+First144/logit10.3125 is within the unchanged0.125 tolerance. Diagnostic
+TTFT is19009.101ms, loading27531.8107ms and TPOT230.662252ms. All39 native MoE
+markers,345 projections and both terminal paths execute. MoE wall is3215.4904ms;
+linear8696.9268ms and full attention7090.3181ms remain close to the qualified
+baseline. Eighty-nine projection calls report invalid HIP elapsed intervals,
+so GPU stage sums remain diagnostic. The continuation failure rejects this
+route despite the shorter independently measured TTFT.
+
+The follow-up adds only three output observation calls: expert gate/up,
+post-activation and weighted down. Sampling now accepts the full16384-channel
+weighted row, with a4MiB gather into the existing128MiB scratch. ASan/UBSan
+checks2199680 sampled values, row strides, guard bytes and unchanged inputs.
+All arithmetic is unchanged. The next diagnostic compares real layer0
+operands with the existing original GB10 capture; its timings are not product
+performance evidence.
+[Native MoE failure and observation preparation](../benchmarks/correctness/linux-core-native-moe-negative-and-observation-20260923.json).
 
 Source `a56baa9` omits `--gb10-prefill-projections` and uses the imported
 hipBLASLt BF16 dense producer while retaining every other repair. It builds

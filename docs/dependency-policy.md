@@ -38,8 +38,10 @@ decode owner and the sigmoid table from the GDN owner. The two idle provider
 conversion slabs hold routing weights and the device error flag; the existing
 FP32 output slab retains the residual carrier. No additional library, artifact,
 weight copy or device allocation is required. The external MoE provider remains
-loaded for the terminal row and for an isolated comparison. Full-model expert
-arithmetic and performance are pending; CPU pointwise replay is not acceptance.
+loaded for the terminal row and for an isolated comparison. Source2cbd9a4
+fails394 of512 GB10 tokens; its diagnostic TTFT19009.101ms is not retained.
+The follow-up output-only expert observations reuse the same scratch, adding
+no dependency or runtime allocation. CPU pointwise replay is not acceptance.
 
 The optional [Windows core prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md) imports
 327 unchanged files (29,415,573 bytes) from Linux native source

@@ -6,6 +6,7 @@ using namespace aima_port;
 static unsigned calls=0;static int returned=1;static bool seeded=false;
 static float* expected_state=nullptr;
 static const void* expected_first64=nullptr;
+static unsigned observed_columns=32;
 int cold(const float* raw,const float* gate,float* output,float* state,int decay,void* stream,int32_t tokens) {
   assert(active && raw==active->raw.data && gate==active->gates.data && output==active->output.data);
   assert(state==expected_state && decay==0 && stream==nullptr && tokens==8192);++calls;
@@ -22,7 +23,7 @@ void observed(const char*name,const void*pointer,std::size_t bytes,void*context)
     fake_events.push_back("observed_first64");return;
   }
   assert(std::string(name)=="prefill-a-sampled" && pointer==active->output.data);
-  assert(bytes==128*32*2 && context==&calls);fake_events.push_back("observed");
+  assert(bytes==128*observed_columns*2 && context==&calls);fake_events.push_back("observed");
 }
 template<class F> void reject(F fn){bool bad=false;try{fn();}catch(const std::exception&){bad=true;}assert(bad);}
 int main(int argc,char**argv) {
@@ -59,9 +60,9 @@ int main(int argc,char**argv) {
   for(unsigned i=0;i<128*32;++i)assert(samples[i]==preserved[((i/32+1)*64-1)*32+i%32]);
   for(unsigned i=128*32;i<samples.size();++i)assert(samples[i]==0x1234);
   assert(sample_input==preserved);
-  for (unsigned columns : {1u, 256u, 512u}) {
+  for (unsigned columns : {1u, 256u, 512u, 16384u}) {
     std::vector<uint16_t> input(8192u*columns), output(128u*columns+256u,0x1234);
-    for(unsigned i=0;i<input.size();++i) input[i]=uint16_t(i*37u);
+    for(unsigned i=0;i<input.size();++i) input[i]=uint16_t((i/columns)*17u+(i%columns)*29u+(i/columns)/256u);
     const auto copy=input;
     for(unsigned i=0;i<output.size();++i){blockIdx=dim3(i/256);threadIdx=dim3(i%256);sample_prefill(input.data(),output.data(),columns);}
     for(unsigned i=0;i<128u*columns;++i)assert(output[i]==copy[((i/columns+1)*64-1)*columns+i%columns]);
@@ -105,6 +106,10 @@ int main(int argc,char**argv) {
   observe_gdn_prefill(1,"prefill-a-sampled",a.data(),32,8192);assert(fake_events.empty());
   observe_gdn_prefill(0,"prefill-a-sampled",a.data(),32,8192);
   assert(fake_events==std::vector<std::string>({"sample_prefill","observed"}));
+  observed_columns=16384;fake_events.clear();
+  observe_gdn_prefill(0,"prefill-a-sampled",a.data(),16384,8192);
+  assert(fake_events==std::vector<std::string>({"sample_prefill","observed"}));
+  observed_columns=32;
   reject([&]{set_gdn_prefill_observer(0,observed,&calls);});
   reject([&]{observe_gdn_prefill(0,"prefill-a-sampled",nullptr,32,8192);});
   reject([&]{observe_gdn_prefill(0,"prefill-a-sampled",s.output.data,32,8192);});
@@ -127,5 +132,5 @@ int main(int argc,char**argv) {
   assert(read(file,asset)==std::vector<unsigned char>({'a','b','c'}));
   {std::ofstream f(file,std::ios::binary);f<<"abd";}reject([&]{read(file,asset);});
   {std::ofstream f(file,std::ios::binary);f<<"ab";}reject([&]{read(file,asset);});
-  std::cout<<"{\"conversion_values_checked\":33027,\"sampled_values_checked\":102528,\"sampling_input_unchanged\":true,\"first64_original_pointer_and_extent\":true,\"sampling_guards_pass\":true,\"observer_faults_rejected\":5,\"guards_pass\":true,\"provider_order_pass\":true,\"seeded_state_forwarded\":true,\"decode_q2_flags\":true,\"injected_provider_failure_rejected\":true,\"invalid_bindings_rejected\":6,\"artifact_faults_rejected\":2,\"native_prefill_rejections\":11,\"native_prefill_cold_scope_pass\":true}\n";
+  std::cout<<"{\"conversion_values_checked\":33027,\"sampled_values_checked\":2199680,\"sampling_input_unchanged\":true,\"first64_original_pointer_and_extent\":true,\"sampling_guards_pass\":true,\"observer_faults_rejected\":5,\"guards_pass\":true,\"provider_order_pass\":true,\"seeded_state_forwarded\":true,\"decode_q2_flags\":true,\"injected_provider_failure_rejected\":true,\"invalid_bindings_rejected\":6,\"artifact_faults_rejected\":2,\"native_prefill_rejections\":11,\"native_prefill_cold_scope_pass\":true}\n";
 }
