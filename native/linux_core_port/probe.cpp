@@ -11,6 +11,9 @@
 #include <locale>
 #include <memory>
 #include <sstream>
+#ifdef AIMA_PORT_GB10_CONVOLUTION
+#include "gb10_convolution.h"
+#endif
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -156,6 +159,9 @@ int run(const std::vector<std::string>& argv) {
               << ",\"observation_output_only\":true,\"diagnostic_timings_only\":true";
   }
   std::cout << "}" << std::endl;
+#ifdef AIMA_PORT_GB10_CONVOLUTION
+  aima_port::ConvolutionSiluOwner convolution_silu;
+#endif
   aima::NativeResidentEngineOptions options;
   options.weights.model_dir = model;
   options.weights.native_report = report;

@@ -199,5 +199,36 @@ no visual request or M-RoPE plan is fabricated. Prefill is unchanged.
 The option changes only the generated resident-engine source. Default overlays
 remain byte-identical to `893a22c`, with and without the independent rectangular
 CK option. Preparation verifies all 327 imported files, 53 compilation units
-and 72 images. The next bounded native q8192/out512 run determines whether this
-route repairs continuation; these local checks do not qualify model arithmetic.
+and 72 images.
+
+Source `80b2da8` builds and completes q8192/out512 with the current decode
+selection. Output 115 still differs (196 versus 271); 392 positions differ in
+total. The first token/logit remains 144/10.375. Its 71 output-only files show
+that prefill state/history are byte-identical to the preceding run. Decode
+layer-0 input normalization and A/B projections match GB10 exactly; QKV differs
+in four BF16 values, but convolution differs in 4211. Timings remain diagnostic:
+23893.8577 ms load, 11378.9941 ms TTFT and 34.4807977 ms TPOT.
+
+The installed disassembler shows BF16 multiplication through
+`v_dot2_bf16_bf16`, which truncates toward zero. CPU replay with the actual
+native inputs and that rounding reproduces all 8192 observed convolution
+values. Round-to-nearest products with original GB10 inputs instead reproduce
+all 8192 reference decode values and the original q8192 prefill last row's
+4096 V values. Applying that arithmetic to native decode inputs leaves four
+differences. This identifies the selected convolution error, without attributing
+the entire output-115 failure to it.
+[Native result and arithmetic diagnosis](../benchmarks/correctness/linux-core-current-decode-convolution-diagnosis-20260922.json).
+
+`--gb10-convolution`, together with `--current-text-decode`, replaces canonical
+q8192 prefill and singleton decode convolution with explicit BF16 RNE products,
+ordered FP32 addition and the existing model-independent SiLU table. The table
+is required through `AIMA_PORT_SILU_TABLE`; its size, SHA and complete layout
+are checked before upload. Its allocation and load count toward command-to-ready.
+The prefill kernel processes 32 rows per tile and commits final history only
+after all readers of initial history finish. Other prefill buckets retain their
+imported route and have no new qualification claim.
+
+ASan/UBSan execution of the actual kernel bodies checks 1,089,536 outputs across
+tile boundaries, a partial tile, cold/seeded history, and three decode updates.
+The actual arithmetic header also reproduces the selected GB10 decode values.
+Native GPU execution and the complete original token boundary remain required.

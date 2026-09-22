@@ -181,7 +181,10 @@ def current_text_decode_overlay(text):
         "        &impl_->decode_cross_layer_norms);")
 
 
-def make_overlays(*, rectangular_ck=False, current_text_decode=False):
+def make_overlays(*, rectangular_ck=False, current_text_decode=False,
+                  gb10_convolution=False):
+    if gb10_convolution and not current_text_decode:
+        raise ValueError("GB10 convolution requires current text decode ownership")
     read = lambda p: (UPSTREAM / p).read_text(encoding="utf-8")
     sources = {}
     loader = "benchmarks/shape-lab/native/src/torch_owned_safetensors_loader.hip.cpp"
@@ -201,6 +204,40 @@ def make_overlays(*, rectangular_ck=False, current_text_decode=False):
         "                                    : options.ck_provider, 4096);")
     if current_text_decode:
         sources[engine] = current_text_decode_overlay(sources[engine])
+    if gb10_convolution:
+        linear = "native/src/native_linear_layer.hip.cpp"
+        sources[linear] = replace(read(linear),
+            '#include "aima/native_linear_layer.h"',
+            '#include "aima/native_linear_layer.h"\n#include "gb10_convolution.h"')
+        sources[linear] = replace(sources[linear],
+            "  launch_current_causal_conv(projected_qkv, conv_weight.device_pointer,\n"
+            "                             conv_state_before, direct_conv_state_index,\n"
+            "                             executor, stream);",
+            "  aima_port::gb10_decode_convolution(\n"
+            "      projected_qkv, conv_weight.device_pointer, conv_state_before, stream);\n"
+            "  ++metrics.native_pointwise_launches;")
+        sources[linear] = replace(sources[linear],
+            "  metrics.aot_launches += 3;", "  metrics.aot_launches += 2;")
+        linear_prefill = "native/src/native_linear_prefill.hip.cpp"
+        sources[linear_prefill] = replace(read(linear_prefill),
+            '#include "aima/native_linear_prefill.h"',
+            '#include "aima/native_linear_prefill.h"\n#include "gb10_convolution.h"')
+        sources[linear_prefill] = replace(sources[linear_prefill],
+            "  launch_attention_aot(1);",
+            "  if (q8192_schedule) {\n"
+            "    aima_port::gb10_prefill_convolution(\n"
+            "        qkv, invocations.tensor_pointer(base + 1, \"w_ptr\"),\n"
+            "        invocations.tensor_pointer(base + 1, \"initial_states_ptr\"),\n"
+            "        invocations.tensor_pointer(base + 1, \"o_ptr\"),\n"
+            "        tokens, options.has_initial_state);\n"
+            "    result.layer.native_pointwise_launches += 2;\n"
+            "  } else {\n"
+            "    launch_attention_aot(1);\n"
+            "  }")
+        sources[linear_prefill] = replace(sources[linear_prefill],
+            "      attention_launches - (use_vl_rmsnorm ? 2 : 0);",
+            "      attention_launches - (use_vl_rmsnorm ? 2 : 0) -\n"
+            "      (q8192_schedule ? 1 : 0);")
     weights = "native/src/native_weight_store.hip.cpp"
     sources[weights] = replace(read(weights), "shard_storage.push_back(path.string());",
                              "shard_storage.push_back(path.u8string());")
@@ -248,13 +285,16 @@ def main():
                         help="Generate the optional Windows suffix ABI mapping; not model-qualified")
     parser.add_argument("--current-text-decode", action="store_true",
                         help="Use current upstream decode arithmetic for text; not model-qualified")
+    parser.add_argument("--gb10-convolution", action="store_true",
+                        help="Use RNE BF16 convolution products and the qualified SiLU table")
     args = parser.parse_args()
     inventory = verify_import()
     out = args.out.resolve()
     if out.exists():
         raise SystemExit("Output already exists; preserve it and choose a fresh directory")
     overlays = make_overlays(rectangular_ck=args.windows_rectangular_ck,
-                             current_text_decode=args.current_text_decode)
+                             current_text_decode=args.current_text_decode,
+                             gb10_convolution=args.gb10_convolution)
     out.mkdir(parents=True)
     adapted = []
     for relative, text in overlays.items():
@@ -339,6 +379,13 @@ def main():
             rotary_positions="ordinary text position, existing M-RoPE plan when supplied",
             rotary_cache="BF16 rounded", linear_state="in place; no historical ping-pong swaps",
             prefill_changed=False, model_qualified=False)
+    if args.gb10_convolution:
+        report["optional_adaptations"]["gb10_convolution"] = dict(
+            product_rounding="BF16 round-to-nearest ties-to-even",
+            accumulation="sequential FP32", prefill_tokens=8192, decode_tokens=1,
+            prefill_changed=True,
+            silu_table_sha256="673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8",
+            model_qualified=False)
     (out / "prepare.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: report[k] for k in ("upstream_revision", "imported_files", "imported_bytes", "image_bytes")}
                      | dict(images=len(images), compilation_units=len(sources), overlays=len(adapted))))

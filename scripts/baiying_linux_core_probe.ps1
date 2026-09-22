@@ -56,6 +56,9 @@ if($Phase -eq 'build') {
     if($m.current_text_decode -eq $true) {
         $spec.arguments+=@('--current-text-decode')
     }
+    if($m.gb10_convolution -eq $true) {
+        $spec.arguments+=@('--gb10-convolution')
+    }
     $null=New-Item -ItemType Directory -Path (Join-Path $repo 'build') -Force
     [IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 12),$utf8)
     & $guard -SpecPath $specPath -OutDir $out -TimeoutSeconds 1740|Out-Null

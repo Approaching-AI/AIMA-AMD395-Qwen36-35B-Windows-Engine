@@ -24,6 +24,15 @@ hipBLASLt is present; no separate BLAS installation is introduced. Removing
 `third_party/aima_linux`, `native/linux_core_port` and their dedicated tools
 removes the experiment without changing the current runtime/package route.
 
+The optional GB10 convolution repair reuses the existing 648,036-byte
+model-independent SiLU table, SHA256
+`673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8`.
+It adds one file, 648,036 bytes of persistent device storage and one temporary
+host copy during loading, with no new library or installed package. The table
+enumerates FP32 activation behavior independently of model tokens. This avoids
+the demonstrated AMD BF16 product truncation and preserves the GB10 activation
+boundary. Native qualification of the new convolution implementation is pending.
+
 The [installed Windows dependency inventory](../benchmarks/correctness/linux-core-windows-dependencies-20260922.json)
 finds a6,012,312-byte hipBLASLt DLL. Its installed data directory contains1078
 files totaling434,067,673bytes across GPU architectures. The complete96-file

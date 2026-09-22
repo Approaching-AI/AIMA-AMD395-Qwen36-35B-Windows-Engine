@@ -32,6 +32,8 @@ def main():
                         help="Opt in to the Windows suffix ABI mapping; not model-qualified")
     parser.add_argument("--current-text-decode", action="store_true",
                         help="Use current upstream decode arithmetic for text; not model-qualified")
+    parser.add_argument("--gb10-convolution", action="store_true",
+                        help="Use the GB10 convolution rounding and SiLU boundary")
     args = parser.parse_args()
     host = socket.gethostname()
     if platform.system() != "Windows" or host.split(".")[0].lower() != "baiying":
@@ -96,6 +98,9 @@ def main():
         source_paths += list((ROOT / "native/linux_core_port").glob("*"))
         source_paths += [ROOT / "tools" / name for name in (
             "prepare_linux_core_windows.py", "build_linux_core_windows.py", "linux_core_coff.py")]
+        if args.gb10_convolution:
+            source_paths += [ROOT / "native/providers/gdn" / name for name in (
+                "sm121_silu_table.h", "sm121_exp2_table.h")]
         record["source_inputs"] = [dict(path=p.relative_to(ROOT).as_posix(), bytes=p.stat().st_size,
                                         sha256=sha(p)) for p in sorted(source_paths) if p.is_file()]
         prepared = out / "prepared"
@@ -104,6 +109,8 @@ def main():
             preparation.append("--windows-rectangular-ck")
         if args.current_text_decode:
             preparation.append("--current-text-decode")
+        if args.gb10_convolution:
+            preparation.append("--gb10-convolution")
         run("prepare", preparation, 120)
         plan = json.loads((prepared / "prepare.json").read_text())
         if "optional_adaptations" in plan:
@@ -126,6 +133,8 @@ def main():
                     upstream / "native/include", upstream / "native/generated"]
         flags = ["-std=c++17", "-O3", "-DNDEBUG", "--offload-arch=gfx1151",
                  "-DHIP_ENABLE_WARP_SYNC_BUILTINS=1", "-fno-gpu-rdc", "-DNOMINMAX", "-DWIN32_LEAN_AND_MEAN"]
+        if args.gb10_convolution:
+            flags.append("-DAIMA_PORT_GB10_CONVOLUTION=1")
         flags += [x for p in includes for x in ("-I", p)]
         record["compile_flags"] = [str(x) for x in flags]
         objects = [obj]
