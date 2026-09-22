@@ -170,6 +170,10 @@ const unsigned char* gb10_exp2_table() {
   if (!active || !active->exp2.data) throw std::runtime_error("GDN exp2 owner is absent");
   return active->exp2.as<unsigned char>();
 }
+const uint16_t* gb10_sigmoid_table() {
+  if (!active || !active->prefill_beta.data) throw std::runtime_error("GDN sigmoid owner is absent");
+  return active->prefill_beta.as<uint16_t>();
+}
 
 void set_gdn_prefill_observer(std::size_t layer, GdnPrefillObserver callback,
                               void* context, bool first64) {

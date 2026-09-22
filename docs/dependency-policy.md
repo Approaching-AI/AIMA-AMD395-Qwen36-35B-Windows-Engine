@@ -5,7 +5,7 @@ The optional [Windows core prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md) imports
 `ec9934446911fdf376da8eebcd83e7b137efbb7c`. The concrete benefit under evaluation
 is replacing the current multi-second projection, recurrence and MoE route with
 the release's complete native resident computation. A native Windows q8192 run
-now completes, but its latest continuation fails GB10 at output index2. Its timings remain
+now completes, but its latest continuation fails GB10 at output index3. Its timings remain
 diagnostic, and the product does not select this prototype.
 
 The optional `AIMA_PORT_FULL_ATTENTION_ROPE_TABLE` extension to the normalization
@@ -28,7 +28,21 @@ It adds one persistent device copy and606208bytes of scratch at the probe's
 9216-token capacity. The transient host table copy is released after upload;
 all hashing/allocation/upload work occurs before READY. It addresses355
 first-decode context differences observed with identical complete Q/K/V.
-The borrowed cache planes remain in place, and native correctness is pending.
+The borrowed cache planes remain in place. Native08e5694 removes all355 context
+differences; its remaining full-layer3 mismatch starts at MoE output.
+
+The optional `AIMA_PORT_DECODE_MOE=1` adapter reuses the existing complete
+SM121 MoE headers and borrowed model weights, without adding a library.
+It borrows the GDN owner's BF16 sigmoid table. Existing SiLU131096-byte
+(`97a2a729266bb0681983aa5b2c6ddffafeaab1bab99c7658a0524b09331a11ac`)
+and router-exp33554432-byte
+(`b2a42c4a626469c986e33e43f16f41bde9d84de94347cd9ceaa1bd68d36bcdf0`)
+artifacts gain separate device copies. A4-byte error flag and8192-byte terminal
+operand snapshot bring additional device storage to33693724bytes. Preparation
+and hashing are included before READY; temporary host table copies are freed.
+Stage outputs use existing engine buffers, with no model-weight copy. This
+replaces the observed differing decode routing/expert route; native whole-model
+qualification remains required.
 
 The import includes source, generated schedules, AOT GPU images and upstream
 licenses. It reuses Windows HIP, hipBLASLt and the existing CK provider. Python

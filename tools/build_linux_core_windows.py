@@ -139,6 +139,11 @@ def main():
                 "sm121_pv_final_bound.h", "sm121_strided_pair.h")]
             source_paths += [ROOT / "native/providers/sm121_attention_capacity.h",
                              ROOT / "native/src/qrt_context_limits.h"]
+        if args.gb10_moe:
+            source_paths += [ROOT / "native/providers/gdn" / name for name in (
+                "sm121_mtp_moe.h", "sm121_mtp_moe_layout.h", "sm121_mtp_moe_math.h", "sm121_mtp_projection.h")]
+            source_paths += [ROOT / "native/providers/moe_accumulator" / name for name in (
+                "sm121_router_exp.h", "sm121_shared_gate.h")]
         record["source_inputs"] = [dict(path=p.relative_to(ROOT).as_posix(), bytes=p.stat().st_size,
                                         sha256=sha(p)) for p in sorted(source_paths) if p.is_file()]
         prepared = out / "prepared"
@@ -199,7 +204,7 @@ def main():
         for index, source in enumerate(plan["sources"]):
             target = out / f"unit-{index:02d}.obj"
             arithmetic_flags = (["-fno-fast-math", "-fno-reciprocal-math", "-ffp-contract=off"]
-                                if Path(source).name == "gb10_decode_attention.hip.cpp" else [])
+                                if Path(source).name in ("gb10_decode_attention.hip.cpp", "gb10_decode_moe.hip.cpp") else [])
             run(f"compile-{index:02d}", [hipcc, *flags, *arithmetic_flags, "-c", source, "-o", target])
             objects.append(target)
         # The existing process owner recognizes qrt* engine processes.

@@ -31,6 +31,7 @@
 #endif
 #ifdef AIMA_PORT_GB10_MOE
 #include "gb10_moe.h"
+#include "gb10_decode_moe.h"
 #endif
 #ifdef _WIN32
 #include <windows.h>
@@ -267,6 +268,7 @@ int run(const std::vector<std::string>& argv) {
 #endif
 #ifdef AIMA_PORT_GB10_MOE
   aima_port::Gb10MoeOwner moe;
+  aima_port::Gb10DecodeMoeOwner decode_moe;
 #endif
   aima::NativeResidentEngineOptions options;
   options.weights.model_dir = model;

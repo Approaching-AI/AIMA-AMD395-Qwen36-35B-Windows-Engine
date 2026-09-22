@@ -558,6 +558,61 @@ def gb10_moe_overlays(sources, read):
     sources[path] = replace(text, "  metrics.aot_launches = 2;", "  metrics.aot_launches = gb10_terminal ? 1 : 2;")
 
 
+def gb10_decode_moe_overlays(sources):
+    for name, guard, boundary in (
+        ("native_linear_layer", "use_current_vllm_projections",
+         '  if (next_input_norm != nullptr)\n    observe_boundary(tail_observer, "next_input_norm",'),
+        ("native_full_layer", "use_mrope", '  if (attention_observer != nullptr) {')):
+        path = f"native/src/{name}.hip.cpp"
+        text = replace(sources[path], f'#include "aima/{name}.h"',
+            f'#include "aima/{name}.h"\n#include "gb10_decode_moe.h"')
+        if '#include "gb10_normalization.h"' not in text:
+            text = replace(text, '#include "gb10_decode_moe.h"',
+                '#include "gb10_decode_moe.h"\n#include "gb10_normalization.h"')
+        begin = text.index("  hipStream_t shared_expert_stream = stream;")
+        end = text.index(boundary, begin)
+        original = text[begin:end]
+        branch = (
+            "  if (aima_port::gb10_decode_moe_enabled()) {\n"
+            f'    if (!{guard}) throw std::invalid_argument("GB10 decode MoE requires current text decode");\n'
+            "    const aima_port::Gb10DecodeMoeWeights weights{\n"
+            "        router_weight.device_pointer, shared_expert_gate_weight.device_pointer,\n"
+            "        shared_gate_weight.device_pointer, shared_up_weight.device_pointer,\n"
+            "        shared_down_weight.device_pointer, routed_gate_up_weight.device_pointer,\n"
+            "        routed_down_weight.device_pointer};\n"
+            "    const aima_port::Gb10DecodeMoeBuffers buffers{\n"
+            "        shared_input.device_pointer, activated.device_pointer, shared_down.device_pointer,\n"
+            "        shared_scaled.device_pointer, router_logits.device_pointer,\n"
+            "        router_indices.device_pointer, router_weights.device_pointer,\n"
+            "        routed_gate_up.device_pointer, routed_activation.device_pointer,\n"
+            "        routed_weighted.device_pointer, routed_moe.device_pointer, combined_moe.device_pointer};\n"
+            "    aima_port::gb10_decode_moe(layer_index, post_attention_norm, weights, buffers, stream);\n"
+            "    metrics.native_projection_launches += 7;\n"
+            "    metrics.native_pointwise_launches += 3;\n"
+            "    if (next_input_norm != nullptr) {\n"
+            "      aima_port::gb10_residual_norm(combined_moe.device_pointer, after_attn.device_pointer,\n"
+            "          next_input_norm->weight_bf16, output.device_pointer,\n"
+            "          next_input_norm->output_bf16, 1, stream);\n"
+            "    } else {\n"
+            "      if (layer_index != 39) throw std::invalid_argument(\"GB10 decode MoE requires next-layer normalization\");\n"
+            "      aima_port::gb10_decode_moe_save_terminal(combined_moe.device_pointer,\n"
+            "          after_attn.device_pointer, output.device_pointer, stream);\n"
+            "      launch_bf16_add(combined_moe.device_pointer, after_attn.device_pointer,\n"
+            "          output.device_pointer, kHidden, stream);\n"
+            "    }\n"
+            "    ++metrics.native_pointwise_launches;\n"
+            "  } else {\n" + "".join("  " + line for line in original.splitlines(keepends=True)) + "  }\n")
+        sources[path] = text[:begin] + branch + text[end:]
+    path = "native/src/native_decode_runner.hip.cpp"
+    text = replace(sources[path], '#include "gb10_moe.h"',
+        '#include "gb10_moe.h"\n#include "gb10_decode_moe.h"')
+    sources[path] = replace(text,
+        "  const bool gb10_terminal = aima_port::gb10_moe_terminal_norm(final_hidden_row,",
+        "  const bool gb10_terminal = aima_port::gb10_decode_moe_terminal_norm(final_hidden_row,\n"
+        "      gb10_weight->device_pointer, gb10_output->device_pointer, stream) ||\n"
+        "      aima_port::gb10_moe_terminal_norm(final_hidden_row,")
+
+
 def make_overlays(*, rectangular_ck=False, current_text_decode=False,
                   gb10_convolution=False, gb10_gdn=False, gb10_projections=False,
                   gb10_prefill_projections=False, gb10_normalization=False, gb10_moe=False):
@@ -656,6 +711,7 @@ def make_overlays(*, rectangular_ck=False, current_text_decode=False,
         gb10_normalization_overlays(sources, read)
     if gb10_moe:
         gb10_moe_overlays(sources, read)
+        gb10_decode_moe_overlays(sources)
     # These two upstream enum-to-string functions have no media I/O dependency.
     media = read("native/src/native_media.cpp")
     names = media[media.index("std::string_view native_media_kind_name("):]
@@ -781,6 +837,7 @@ def main():
         sources.append(str(ROOT / "native/linux_core_port/gb10_decode_attention.hip.cpp"))
     if args.gb10_moe:
         sources.append(str(ROOT / "native/linux_core_port/gb10_moe.hip.cpp"))
+        sources.append(str(ROOT / "native/linux_core_port/gb10_decode_moe.hip.cpp"))
     generated = [dict(path=p.relative_to(out).as_posix(), bytes=p.stat().st_size,
                       sha256=digest(p.read_bytes())) for p in sorted(out.rglob("*")) if p.is_file()]
     report = dict(schema=1, upstream_revision=inventory["revision"],
@@ -870,6 +927,13 @@ def main():
             norm="unrounded FP32 MoE carrier variance, BF16 normalized numerator",
             carrier_bytes=201326592, provider_internal_dispatch="opaque; completed inside TTFT",
             scope="cold q8192; ordered layers and final row consumed exactly once",
+            optional_decode=dict(environment="AIMA_PORT_DECODE_MOE", enabled_value="1",
+                arithmetic="existing original SM121 complete MoE primitives, singleton live rows",
+                resident_buffers=True, cache_copies=0, weight_copies=0,
+                sigmoid="borrowed from GDN owner", additional_device_bytes=33693724,
+                layers_per_token=40, flag_check="after layer39 before token publication",
+                shared_weights="separate original gate/up planes", default_stream_only=True,
+                terminal="8192-byte operand snapshot preserves unrounded final RMS variance"),
             model_qualified=False)
     (out / "prepare.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: report[k] for k in ("upstream_revision", "imported_files", "imported_bytes", "image_bytes")}

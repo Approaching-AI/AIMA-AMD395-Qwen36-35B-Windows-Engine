@@ -2,15 +2,34 @@
 
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
-It is not enabled in the Windows product. The latest head-normalization/RoPE
-repair (`73ce357`) runs the real model on baiying. First-decode layer outputs
-0–2, full-layer3 QKV/Q/K/V and all 8193 cached K/V rows now match GB10 exactly.
-Identical Q/K/V still produce 355 differing BF16 attention-context values.
-First144/logit10.375 passes; continuation differs at index2 and in400 of512
-tokens. The next change replaces the decode attention core with existing
-Windows SM121 arithmetic. Complete correctness and release remain open.
+It is not enabled in the Windows product. The latest decode-attention repair
+(`08e5694`) runs the real model on baiying. First-decode full-layer3 is exact
+through attention, gating, output projection, residual and post normalization.
+Its MoE output differs in30 BF16 values, with7 differences after residual add.
+First144/logit10.375 passes; continuation differs at index3 and in463 of512
+tokens. The next change replaces complete decode MoE arithmetic and preserves
+the final unrounded residual operands. Correctness and release remain open.
 
-The latest bounded run loads in27227.3378ms, with diagnostic TTFT30973.0705ms
+The attention-repair run builds all59 native units, loads in27430.1645ms,
+and measures diagnostic TTFT30923.1363ms and TPOT84.6361949ms. All67 observed
+files and host checks pass. Original arithmetic applied to native operands
+finds4 of8 different FP32 router weights, with identical expert choices;
+the checked activation, sum and shared-scale operations agree. This does not
+separately qualify native expert projections.
+[Native attention result](../benchmarks/correctness/linux-core-decode-attention-native-20260922.json).
+
+The optional `AIMA_PORT_DECODE_MOE=1` replacement uses existing SM121 routing,
+shared/expert projections, activations and sums on the engine's real buffers.
+It keeps separate gate/up model weights, borrows the GDN sigmoid table, and
+loads the existing original SiLU/router-exp artifacts before READY. Ordered
+layers0–39 accumulate a device error flag, checked before publishing each token.
+The last layer snapshots its two BF16 operands so final RMSNorm uses the
+unrounded FP32 residual sum for variance. ASan/UBSan checks80 layer bindings,
+two complete terminal lifetimes and85 rejection/failure cases. Native execution
+is pending; existing component qualification does not establish whole-model
+success. [MoE preparation](../benchmarks/correctness/linux-core-decode-moe-preparation-20260922.json).
+
+The preceding head-repair run loads in27227.3378ms, with diagnostic TTFT30973.0705ms
 and TPOT67.3512951ms. Its output-only observer captures67 verified files;
 host checks and cleanup pass. These timings are not accepted performance.
 [Native head repair and attention isolation](../benchmarks/correctness/linux-core-full-head-native-and-decode-attention-preparation-20260922.json).
@@ -23,7 +42,8 @@ table and SHA-validates `AIMA_PORT_ATTENTION_RCP_TABLE` before READY.
 The default-stream scratch is allocated once; no history copy, request-time
 allocation or reference activation input is introduced. Five host dispatch
 bindings and38 rejection/failure controls pass ASan/UBSan. These checks do
-not execute GPU attention arithmetic; native verification remains pending.
+not execute GPU attention arithmetic; the subsequent08e5694 run above verifies
+this attention path against the original, with remaining MoE differences.
 
 The latest sampler preserves all 512 outputs and all 71 earlier observations.
 Across 128 fixed prefill rows, three of 262,144 input-normalization values

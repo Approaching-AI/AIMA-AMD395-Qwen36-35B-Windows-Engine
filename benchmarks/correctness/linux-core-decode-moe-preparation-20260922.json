@@ -1,0 +1,1275 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "kind": "native_core_complete_decode_moe_preparation",
+  "native_predecessor_source": "08e56947b8c71da542c5aff9842e01ba3812d880",
+  "native_predecessor_sha256": "7c2374a6d46ee7efaa07343fd85e76dc0daa6dd045cbbb842181a370a75e76ed",
+  "diagnosis": "Full3 attention through post norm is original-bit-exact; MoE has30 BF16 differences, four native routing weights differ from original arithmetic.",
+  "existing_component_qualification": {
+    "kind": "original_complete_q2_attention_layer_native_comparison",
+    "host": "baiying",
+    "source_commit": "f1fa5e537ba84b562a9673a15e59cee2c60e50c3",
+    "model": "D:/models/Qwen3.6-35B-A3B",
+    "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+    "reference_model": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "reference_host": "gb10-4t",
+    "manifest_sha256": "0a339270c839184aace3aead4bab317e2143f50ef2c0f43412127b5d5a116bac",
+    "command_file": "run-q2-attention-layer-native-r2.ps1",
+    "command_file_sha256": "19f34d4eab694d26af8ec381b155cdfc22b52fca5b0187eec1f7b58ebc104fe0",
+    "dispatch_sha256": "c9120b94c59dd91ba98d97c7c4e5fb3f560e6cb20dd7488695dc0b1a1badd50d",
+    "dispatch_binding_sha256": "eea21dfd67e5113bc6599ec3ca496b1d18b5ea305f5de877325557db2a9a257f",
+    "original_references": [
+      {
+        "file": "qrt-gb10-q2-target-rows-20260920-r2/boundary-analysis.json",
+        "sha256": "038fed2bfd7ed59f4c084a42f4c99219cece995f906bc7384ebeff86a4a24836"
+      }
+    ],
+    "original_cpu_comparison_sha256": "6249a3bdc6cc5e3be313945be83c25e9ecb4b86b5a5c3fb4fc464f86af0ba3ef",
+    "original_block_cpu_comparison_sha256": "a16a7bbb88125ae8fb721c6610ebb65c0608385d4b8501dd315e352eb85f7a0b",
+    "original_target_head_cpu_comparison_sha256": "5169894a62e9ef840268944638ecec50ec34fb9b848bb30b07162cab061fffbf",
+    "original_moe_comparison_sha256": "6a1ab6a1cd8b8c50c66f7bc85b2b793291ee650b0b304f4fed5f1f0b113df99f",
+    "original_norm_comparison_sha256": "6afdf0508dec667cf3959030ffcc1dfc469d2ba28567d8ca87ecb1ee34cf3c05",
+    "evidence_archive": {
+      "evidence_archive": "D:\\projects\\q2-attention-layer-native-r2-evidence.tar.gz",
+      "sha256": "e7afceaa8449f2c5d35de3a538a62dd952636b6950d8b1705e292548ef173c1e",
+      "bytes": 501928
+    },
+    "downloaded_manifest_sha256": "2c5f101cff677678df91aaf74d06b56e838117c9d797b3ba29e8de646be3128b",
+    "comparisons": [
+      {
+        "case": "q7169-out32-txn1",
+        "run_sha256": "2852048dd090f4517f0ed4a7260e62fc579dd292c28915df775d58709cb1e6d5",
+        "report": {
+          "kind": "original_q2_complete_attention_layer",
+          "first_position": 7169,
+          "configurations": 16,
+          "cache_layouts": 8,
+          "history_tail_poison_bf16": [
+            32705,
+            16256
+          ],
+          "stages": [
+            {
+              "stage": "context",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "gated",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "input_norm",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "k_norm",
+              "elements": 16384,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "k_rope",
+              "elements": 16384,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "moe_input",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "moe_output",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "output",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "output_residual",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "q_norm",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "q_rope",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "qkv",
+              "elements": 294912,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "staged_kv",
+              "elements": 32768,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "compared_elements": 1212416,
+          "bit_mismatches": 0,
+          "guard_errors": 0,
+          "immutable_input_errors": 0,
+          "invalid_flag_errors": 0,
+          "mask_or_publication_errors": 0,
+          "nonfinite": 0,
+          "passed": true,
+          "native_execution": true,
+          "resident_cache_published": false,
+          "model_loaded": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q7169-out32-txn2",
+        "run_sha256": "1266a2cb974c92f65585a3af18193888d6bf21d2c3676ee5b33d73d76855990b",
+        "report": {
+          "kind": "original_q2_complete_attention_layer",
+          "first_position": 7170,
+          "configurations": 16,
+          "cache_layouts": 8,
+          "history_tail_poison_bf16": [
+            32705,
+            16256
+          ],
+          "stages": [
+            {
+              "stage": "context",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "gated",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "input_norm",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "k_norm",
+              "elements": 16384,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "k_rope",
+              "elements": 16384,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "moe_input",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "moe_output",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "output",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "output_residual",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "q_norm",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "q_rope",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "qkv",
+              "elements": 294912,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "staged_kv",
+              "elements": 32768,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "compared_elements": 1212416,
+          "bit_mismatches": 0,
+          "guard_errors": 0,
+          "immutable_input_errors": 0,
+          "invalid_flag_errors": 0,
+          "mask_or_publication_errors": 0,
+          "nonfinite": 0,
+          "passed": true,
+          "native_execution": true,
+          "resident_cache_published": false,
+          "model_loaded": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q7169-out32-txn3",
+        "run_sha256": "dc8076bc176a5f2e9c96b36a28613b89ca0d1b08821efd86fc0f4f0b9e645011",
+        "report": {
+          "kind": "original_q2_complete_attention_layer",
+          "first_position": 7171,
+          "configurations": 16,
+          "cache_layouts": 8,
+          "history_tail_poison_bf16": [
+            32705,
+            16256
+          ],
+          "stages": [
+            {
+              "stage": "context",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "gated",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "input_norm",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "k_norm",
+              "elements": 16384,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "k_rope",
+              "elements": 16384,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "moe_input",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "moe_output",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "output",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "output_residual",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "q_norm",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "q_rope",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "qkv",
+              "elements": 294912,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "staged_kv",
+              "elements": 32768,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "compared_elements": 1212416,
+          "bit_mismatches": 0,
+          "guard_errors": 0,
+          "immutable_input_errors": 0,
+          "invalid_flag_errors": 0,
+          "mask_or_publication_errors": 0,
+          "nonfinite": 0,
+          "passed": true,
+          "native_execution": true,
+          "resident_cache_published": false,
+          "model_loaded": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q8192-out32-txn1",
+        "run_sha256": "6b7329c44d0caf43e5c2f25cc71679d3358f9be3878963b0cdcb88e6692b3dd9",
+        "report": {
+          "kind": "original_q2_complete_attention_layer",
+          "first_position": 8192,
+          "configurations": 16,
+          "cache_layouts": 8,
+          "history_tail_poison_bf16": [
+            32705,
+            16256
+          ],
+          "stages": [
+            {
+              "stage": "context",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "gated",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "input_norm",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "k_norm",
+              "elements": 16384,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "k_rope",
+              "elements": 16384,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "moe_input",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "moe_output",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "output",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "output_residual",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "q_norm",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "q_rope",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "qkv",
+              "elements": 294912,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "staged_kv",
+              "elements": 32768,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "compared_elements": 1212416,
+          "bit_mismatches": 0,
+          "guard_errors": 0,
+          "immutable_input_errors": 0,
+          "invalid_flag_errors": 0,
+          "mask_or_publication_errors": 0,
+          "nonfinite": 0,
+          "passed": true,
+          "native_execution": true,
+          "resident_cache_published": false,
+          "model_loaded": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q8192-out32-txn2",
+        "run_sha256": "eb41d05e9f3e6ebba3717c0781d86b7b17793d95d93d20dbf17454975de97e5c",
+        "report": {
+          "kind": "original_q2_complete_attention_layer",
+          "first_position": 8194,
+          "configurations": 16,
+          "cache_layouts": 8,
+          "history_tail_poison_bf16": [
+            32705,
+            16256
+          ],
+          "stages": [
+            {
+              "stage": "context",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "gated",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "input_norm",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "k_norm",
+              "elements": 16384,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "k_rope",
+              "elements": 16384,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "moe_input",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "moe_output",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "output",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "output_residual",
+              "elements": 65536,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "q_norm",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "q_rope",
+              "elements": 131072,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "qkv",
+              "elements": 294912,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "stage": "staged_kv",
+              "elements": 32768,
+              "bit_mismatches": 0,
+              "first_difference": [
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "compared_elements": 1212416,
+          "bit_mismatches": 0,
+          "guard_errors": 0,
+          "immutable_input_errors": 0,
+          "invalid_flag_errors": 0,
+          "mask_or_publication_errors": 0,
+          "nonfinite": 0,
+          "passed": true,
+          "native_execution": true,
+          "resident_cache_published": false,
+          "model_loaded": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q7169-out32-txn1-head",
+        "run_sha256": "fa988cc416d0135ad8fcdc78a9ea46a0905561844ce0ddf657c947cb33a3ca65",
+        "report": {
+          "kind": "original_q2_target_head",
+          "first_position": 7169,
+          "configurations": 3,
+          "maximum_blocks": [
+            257,
+            1024,
+            4096
+          ],
+          "compared_elements": 1489920,
+          "bit_mismatches": 0,
+          "first_difference": [
+            0,
+            0,
+            0
+          ],
+          "guard_errors": 0,
+          "immutable_input_errors": 0,
+          "invalid_flag_errors": 0,
+          "sampling_errors": 0,
+          "expected_samples": [
+            {
+              "token": 220,
+              "logit": 9.9375
+            },
+            {
+              "token": 244,
+              "logit": 18.25
+            }
+          ],
+          "actual_samples": [
+            {
+              "token": 220,
+              "logit": 9.9375
+            },
+            {
+              "token": 244,
+              "logit": 18.25
+            },
+            {
+              "token": 220,
+              "logit": 9.9375
+            },
+            {
+              "token": 244,
+              "logit": 18.25
+            },
+            {
+              "token": 220,
+              "logit": 9.9375
+            },
+            {
+              "token": 244,
+              "logit": 18.25
+            }
+          ],
+          "passed": true,
+          "native_execution": true,
+          "resident_cache_published": false,
+          "model_loaded": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q7169-out32-txn2-head",
+        "run_sha256": "2316b840dd8993891bb16368a204531a639cbfc639323bd41e8333ca95046111",
+        "report": {
+          "kind": "original_q2_target_head",
+          "first_position": 7170,
+          "configurations": 3,
+          "maximum_blocks": [
+            257,
+            1024,
+            4096
+          ],
+          "compared_elements": 1489920,
+          "bit_mismatches": 0,
+          "first_difference": [
+            0,
+            0,
+            0
+          ],
+          "guard_errors": 0,
+          "immutable_input_errors": 0,
+          "invalid_flag_errors": 0,
+          "sampling_errors": 0,
+          "expected_samples": [
+            {
+              "token": 196,
+              "logit": 11
+            },
+            {
+              "token": 244,
+              "logit": 18.125
+            }
+          ],
+          "actual_samples": [
+            {
+              "token": 196,
+              "logit": 11
+            },
+            {
+              "token": 244,
+              "logit": 18.125
+            },
+            {
+              "token": 196,
+              "logit": 11
+            },
+            {
+              "token": 244,
+              "logit": 18.125
+            },
+            {
+              "token": 196,
+              "logit": 11
+            },
+            {
+              "token": 244,
+              "logit": 18.125
+            }
+          ],
+          "passed": true,
+          "native_execution": true,
+          "resident_cache_published": false,
+          "model_loaded": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q7169-out32-txn3-head",
+        "run_sha256": "a76a5ecb7df8c58ef473707976ee1a64d66107266dd152653ae081ca36666077",
+        "report": {
+          "kind": "original_q2_target_head",
+          "first_position": 7171,
+          "configurations": 3,
+          "maximum_blocks": [
+            257,
+            1024,
+            4096
+          ],
+          "compared_elements": 1489920,
+          "bit_mismatches": 0,
+          "first_difference": [
+            0,
+            0,
+            0
+          ],
+          "guard_errors": 0,
+          "immutable_input_errors": 0,
+          "invalid_flag_errors": 0,
+          "sampling_errors": 0,
+          "expected_samples": [
+            {
+              "token": 220,
+              "logit": 9.375
+            },
+            {
+              "token": 220,
+              "logit": 9.6875
+            }
+          ],
+          "actual_samples": [
+            {
+              "token": 220,
+              "logit": 9.375
+            },
+            {
+              "token": 220,
+              "logit": 9.6875
+            },
+            {
+              "token": 220,
+              "logit": 9.375
+            },
+            {
+              "token": 220,
+              "logit": 9.6875
+            },
+            {
+              "token": 220,
+              "logit": 9.375
+            },
+            {
+              "token": 220,
+              "logit": 9.6875
+            }
+          ],
+          "passed": true,
+          "native_execution": true,
+          "resident_cache_published": false,
+          "model_loaded": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q8192-out32-txn1-head",
+        "run_sha256": "354680ffa2a91db5b499f5cc4dd543aefdccc21bac452eadb546724763520099",
+        "report": {
+          "kind": "original_q2_target_head",
+          "first_position": 8192,
+          "configurations": 3,
+          "maximum_blocks": [
+            257,
+            1024,
+            4096
+          ],
+          "compared_elements": 1489920,
+          "bit_mismatches": 0,
+          "first_difference": [
+            0,
+            0,
+            0
+          ],
+          "guard_errors": 0,
+          "immutable_input_errors": 0,
+          "invalid_flag_errors": 0,
+          "sampling_errors": 0,
+          "expected_samples": [
+            {
+              "token": 255,
+              "logit": 17.875
+            },
+            {
+              "token": 82,
+              "logit": 9.5625
+            }
+          ],
+          "actual_samples": [
+            {
+              "token": 255,
+              "logit": 17.875
+            },
+            {
+              "token": 82,
+              "logit": 9.5625
+            },
+            {
+              "token": 255,
+              "logit": 17.875
+            },
+            {
+              "token": 82,
+              "logit": 9.5625
+            },
+            {
+              "token": 255,
+              "logit": 17.875
+            },
+            {
+              "token": 82,
+              "logit": 9.5625
+            }
+          ],
+          "passed": true,
+          "native_execution": true,
+          "resident_cache_published": false,
+          "model_loaded": false,
+          "inference_acceptance": false
+        }
+      },
+      {
+        "case": "q8192-out32-txn2-head",
+        "run_sha256": "7276ab9f3ca01e32f7bbe12013378895b276dd8f0064589dc9fdb4afb30f7126",
+        "report": {
+          "kind": "original_q2_target_head",
+          "first_position": 8194,
+          "configurations": 3,
+          "maximum_blocks": [
+            257,
+            1024,
+            4096
+          ],
+          "compared_elements": 1489920,
+          "bit_mismatches": 0,
+          "first_difference": [
+            0,
+            0,
+            0
+          ],
+          "guard_errors": 0,
+          "immutable_input_errors": 0,
+          "invalid_flag_errors": 0,
+          "sampling_errors": 0,
+          "expected_samples": [
+            {
+              "token": 57,
+              "logit": 9.75
+            },
+            {
+              "token": 104,
+              "logit": 19.75
+            }
+          ],
+          "actual_samples": [
+            {
+              "token": 57,
+              "logit": 9.75
+            },
+            {
+              "token": 104,
+              "logit": 19.75
+            },
+            {
+              "token": 57,
+              "logit": 9.75
+            },
+            {
+              "token": 104,
+              "logit": 19.75
+            },
+            {
+              "token": 57,
+              "logit": 9.75
+            },
+            {
+              "token": 104,
+              "logit": 19.75
+            }
+          ],
+          "passed": true,
+          "native_execution": true,
+          "resident_cache_published": false,
+          "model_loaded": false,
+          "inference_acceptance": false
+        }
+      }
+    ],
+    "all_bit_exact": true,
+    "all_host_guards_pass": true,
+    "model_loaded": false,
+    "target_runtime_integration": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false
+  },
+  "existing_component_qualification_sha256": "cd871deb94fb9b0d587c1ac18560089c7accafc67d2162237036f8b1e78b5691",
+  "component_scope": "Five original complete Q2 full-layer3 cases on gfx1151; singleton adapter and resident integration still require native verification.",
+  "local_contract": {
+    "result": {
+      "complete_layer_bindings": 80,
+      "complete_token_lifetimes": 2,
+      "rejected_controls": 85,
+      "persistent_device_error_checked": true,
+      "terminal_operands_preserved": true,
+      "all_allocations_released": true,
+      "kernel_arithmetic_executed": false
+    },
+    "build_command": [
+      "clang++",
+      "-std=c++17",
+      "-O1",
+      "-fno-fast-math",
+      "-ffp-contract=off",
+      "-fsanitize=address,undefined",
+      "-I",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-decode-moe-local-r2/stub",
+      "-I",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/include",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_decode_moe_host_contract_test.cpp",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/src/sha256.cpp",
+      "-o",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-decode-moe-local-r2/host-contract"
+    ],
+    "inputs": [
+      {
+        "path": "native/linux_core_port/gb10_decode_moe_host_contract_test.cpp",
+        "sha256": "0a3af4e35b573d1e2d97698cb7f393e07d87d9148dfca0238a37be7bdaa75e0f"
+      },
+      {
+        "path": "tools/test_linux_core_decode_moe.py",
+        "sha256": "bc8fd34f97661acc400e21db94116abe3be43b48d86e50ba5945be7c0dce2b76"
+      },
+      {
+        "path": "tools/test_linux_core_decode_attention.py",
+        "sha256": "254015605f9ddcae07e7d83e014369655bc055c52bdbe293ebfc0e0f99c6a95e"
+      },
+      {
+        "path": "native/linux_core_port/gb10_decode_moe.hip.cpp",
+        "sha256": "4f179758bebf31b44054f40c0279af0c129a410e3c1d1f1ab21b588385c8687b"
+      },
+      {
+        "path": "native/linux_core_port/gb10_decode_moe.h",
+        "sha256": "e5aab76b2f3d1ecc5befb384f17838cdef4852eed08cb08ae0845f96b9bfd52f"
+      },
+      {
+        "path": "native/linux_core_port/gb10_gdn.h",
+        "sha256": "99fe145001f56a956725cf2098f72e308257b521913552e028fdee5904095fc8"
+      },
+      {
+        "path": "native/linux_core_port/gb10_gdn.hip.cpp",
+        "sha256": "f5787d1dc00937250f4701ba66eec8763b573cce9cc0fb4b4136e49e16ce2163"
+      },
+      {
+        "path": "native/providers/gdn/sm121_mtp_moe.h",
+        "sha256": "df38e91dae5bc127961813be746da1d5bd8ce8dc0e2fb01782f3aeac896cb52d"
+      },
+      {
+        "path": "native/providers/gdn/sm121_mtp_moe_math.h",
+        "sha256": "1bca67f5dd6a672d0f0d79f90bf0d3a992c6908dea235b3b028efa29900fb349"
+      },
+      {
+        "path": "native/providers/gdn/sm121_mtp_moe_layout.h",
+        "sha256": "aa25ff78b71bd698db2745b2e7a84cfebd565b9d143a81bc4f7e7a302617ff1f"
+      },
+      {
+        "path": "native/providers/gdn/sm121_mtp_projection.h",
+        "sha256": "ffae24eed114ae3c4e53b6d59087fc54570bea49a9de9ffc0f997be71ef8bcf0"
+      }
+    ],
+    "stub_sha256": "c9b980d3e4c70af069993821585cb4ddfd5a196f6c3da4ffe9b4f063de841370",
+    "silu_table_sha256": "97a2a729266bb0681983aa5b2c6ddffafeaab1bab99c7658a0524b09331a11ac",
+    "router_table_sha256": "b2a42c4a626469c986e33e43f16f41bde9d84de94347cd9ceaa1bd68d36bcdf0",
+    "host_only": true,
+    "kernel_arithmetic_executed": false,
+    "model_inference_acceptance": false
+  },
+  "local_contract_sha256": "e17ee7897e8e8ae445e52c24d24117161ec2d34ef0dd6cec994f9396365a0c6a",
+  "overlay_preparation_sha256": "006560d74d6aed7501c452b86ae9119c01b3d78af2546927c66e3d8e1fce1373",
+  "route": {
+    "environment": "AIMA_PORT_DECODE_MOE",
+    "enabled_value": "1",
+    "query_rows": 1,
+    "ordered_layers": 40,
+    "default_stream_only": true,
+    "borrowed_weights": true,
+    "borrowed_stage_buffers": true,
+    "separate_shared_gate_up_weights": true,
+    "primitives": "existing sm121_mtp_moe.h dense/router/shared_gate/routed/activate/finish",
+    "sigmoid": "borrowed SHA-validated GDN prefill-beta table32923b94",
+    "silu": "existing97a2a729",
+    "router_exp": "existingb2a42c4a",
+    "additional_device_bytes": 33693724,
+    "invalid_flag": "accumulate through layer39, read before token publication, poison on failure",
+    "terminal_normalization": "snapshot both last-layer BF16 operands before the carrier overwrites them; use their unrounded FP32 sum variance"
+  },
+  "source_inputs_added": 9,
+  "compile_units": 60,
+  "overlays": 17,
+  "native_executed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}
