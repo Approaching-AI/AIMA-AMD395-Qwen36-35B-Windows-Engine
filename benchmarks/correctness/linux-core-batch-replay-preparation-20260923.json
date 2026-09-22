@@ -1,0 +1,162 @@
+{
+  "schema": 1,
+  "parent_source_commit": "cee6aa8f63c8a34a035ba5512d9f9c74dc8a89df",
+  "change": "Optional batched dense selective replay",
+  "control_artifact": {
+    "path": "benchmarks/correctness/linux-core-profile-off-native-20260923.json",
+    "sha256": "4e0c4145849a5ce72a4a761f053215192eb5d8280a6c9a76bbd7765334337c13"
+  },
+  "local_host_contract": {
+    "result": {
+      "lossless_operand_values": 2048,
+      "both_weight_layouts_match": true,
+      "full_window_candidates": 1048576,
+      "window_guards_pass": true,
+      "batch_selector_empty_full_partial_guards_pass": true,
+      "batch_queue_address_routing_pass": true,
+      "batch_profile_max_windows": 97,
+      "batch_profile_events_per_projection": 7,
+      "batch_profile_counter_copies": 1,
+      "batch_unprofiled_dispatch_pass": true,
+      "input_immutable": true,
+      "selector_edges_pass": true,
+      "queued_kernel_order_pass": true,
+      "invalid_bindings_rejected": 221,
+      "profile_max_windows": 97,
+      "profile_lifetime_pass": true,
+      "profile_warmup_excluded": true,
+      "profile_completed_events_only": true,
+      "linear_output_scoped_layers": 30,
+      "linear_output_scope_unwind_pass": true,
+      "full_output_scoped_layers": 10,
+      "full_output_scope_unwind_pass": true,
+      "coarse_interval_exceptional_edges_pass": true,
+      "invalid_event_time_reported": true,
+      "producer_configuration_controls": 16,
+      "tuned_input_output_scopes_disjoint": true,
+      "routed_full_window_candidates": 4194304,
+      "routed_sorted_scatter_guards_pass": true,
+      "routed_weighted_endpoint_edges_pass": true,
+      "routed_invalid_dispatch_rejected": true,
+      "routed_profile_windows": 54,
+      "gpu_replay_executed": false
+    },
+    "build_command": [
+      "clang++",
+      "-std=c++17",
+      "-O1",
+      "-ffp-contract=off",
+      "-fsanitize=address,undefined",
+      "-I",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-batch-replay-host-r3/stub",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
+      "-o",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-batch-replay-host-r3/host-contract"
+    ],
+    "inputs": [
+      {
+        "path": "native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
+        "sha256": "66f735f0bfb7e8966d2402b4fd1581e6ccda713247706d9f4a0b648e65e7f738"
+      },
+      {
+        "path": "native/linux_core_port/gb10_prefill_projection.hip.cpp",
+        "sha256": "6c291bf66351aa17023141760d75e7cb95cd62d04c19264c563278fa246f1ab1"
+      },
+      {
+        "path": "native/linux_core_port/gb10_prefill_projection.h",
+        "sha256": "5c0c8f9ec5fdfc6e3a8c7c11891ce662f40011d2827d44f290f3cdab3830a765"
+      },
+      {
+        "path": "tools/test_linux_core_prefill_projection.py",
+        "sha256": "121bf2b7632c2d6460a9c9adaa6695c0d1a4bd001d814498c0816b5bb4f440f1"
+      },
+      {
+        "path": "tools/test_linux_core_gdn.py",
+        "sha256": "69c5dc9b72075555ddd9c17a6770f04cffc530a13431b5ea98473e4c3d871e44"
+      }
+    ],
+    "stub_sha256": "7f34928c44a556c3c75024d4c0182b5adf45fdf7b4ed9c3d25dac8888c318a9b",
+    "host_only": true,
+    "model_inference_acceptance": false
+  },
+  "local_host_contract_sha256": "257dff1935c1f98f61f832ef6c67e9aaf0186d75ea7994d3791f5735caaaf719",
+  "preparation": {
+    "record_sha256": "4bc6feeba4e9e8badfb2514542a08108cc0a58532e864ced245a6a003271bf61",
+    "imported_files": 327,
+    "native_units": 60,
+    "overlays": 17,
+    "imported_images": 72,
+    "all_overlays_and_images_unchanged": true
+  },
+  "option": {
+    "environment": "AIMA_PORT_PREFILL_BATCH_REPLAY",
+    "enabled_value": "1",
+    "scope": "dense projections only; one 2D selector grid then one 2D replay grid",
+    "maximum_windows": 97,
+    "independent_window_counters": true,
+    "queue_cells": 101187584,
+    "queue_bytes": 404750336,
+    "counter_bytes": 388,
+    "additional_device_bytes": 400556416,
+    "arithmetic": "same admission predicate, ascending K16 carry order and BF16 endpoint",
+    "additional_runtime_artifacts": 0,
+    "model_qualified": false
+  },
+  "source_inputs": [
+    {
+      "path": "native/linux_core_port/gb10_prefill_projection.hip.cpp",
+      "bytes": 39373,
+      "sha256": "6c291bf66351aa17023141760d75e7cb95cd62d04c19264c563278fa246f1ab1"
+    },
+    {
+      "path": "native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
+      "bytes": 26381,
+      "sha256": "66f735f0bfb7e8966d2402b4fd1581e6ccda713247706d9f4a0b648e65e7f738"
+    },
+    {
+      "path": "tools/test_linux_core_prefill_projection.py",
+      "bytes": 4845,
+      "sha256": "121bf2b7632c2d6460a9c9adaa6695c0d1a4bd001d814498c0816b5bb4f440f1"
+    },
+    {
+      "path": "tools/prepare_linux_core_windows.py",
+      "bytes": 86476,
+      "sha256": "b5879e6272f781dc5f0bd6e4692f67d98cf3446c2931de353d55b45970a20cd1"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_staged_half_projection.h",
+      "bytes": 6059,
+      "sha256": "a6e580c1e4e8a27a8f5502bdd9e2e71c60a0029b0c3cb28efb9342c28635f672"
+    },
+    {
+      "path": "native/providers/moe_accumulator/bf16_midpoint_selector.h",
+      "bytes": 1722,
+      "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_coarse_projection_matrix.h",
+      "bytes": 6976,
+      "sha256": "314582249a1b628d894308872db7dfafb2dd1607dfaefdf816187eff73d179da"
+    }
+  ],
+  "arithmetic_headers_unchanged": true,
+  "profile_enabled_and_disabled_dispatch_tested": true,
+  "actual_gpu_dot_correctness_from_host_stubs": false,
+  "expected_product_submissions": {
+    "projections": 189,
+    "windows": 4284,
+    "selector_grids": 189,
+    "replay_grids": 189,
+    "counter_resets": 189,
+    "basis": "previous qualified detailed q8192 profile; native activation remains to be measured"
+  },
+  "pending": [
+    "Windows gfx1151 build",
+    "real q8192/out512 with original GB10 boundary",
+    "native batch activation and profile-off timing comparison"
+  ],
+  "windows_build_qualified": false,
+  "model_inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

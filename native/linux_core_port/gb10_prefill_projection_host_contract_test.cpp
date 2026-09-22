@@ -21,7 +21,7 @@ int main() {
   contiguous.back().control = gathered.back().control = 0x12345678;
   blockDim = dim3(256);
   for (unsigned i = 0; i < groups + 256; ++i) {
-    blockIdx = dim3(i / 256); threadIdx = dim3(i % 256);
+    blockIdx = dim3(i / 256, 0, 0); threadIdx = dim3(i % 256);
     prepare_operands(original.data(), contiguous.data(), rows, width, true);
     prepare_operands(transposed.data(), gathered.data(), rows, width, false);
   }
@@ -40,7 +40,7 @@ int main() {
   std::vector<float> left(8192, 1.f), right(128, 1.f);
   unsigned count = 0;
   for (unsigned i = 0; i < window_capacity + 256; ++i) {
-    blockIdx = dim3(i / 256); threadIdx = dim3(i % 256);
+    blockIdx = dim3(i / 256, 0, 0); threadIdx = dim3(i % 256);
     select_and_round(raw.data(), output.data(), left.data(), right.data(), 128,
                      0, window_capacity, 1000, &count, indices.data());
   }
@@ -63,7 +63,7 @@ int main() {
   // With an explicitly zero admission bound, only the fixed radius and tiny
   // endpoint predicate select; the zero row is exact without replay.
   for (unsigned i = 0; i < 16; ++i) {
-    blockIdx = dim3(0); threadIdx = dim3(i);
+    blockIdx = dim3(0, 0, 0); threadIdx = dim3(i);
     select_and_round(raw.data(), output.data(), left.data(), right.data(), 128,
                      5, 8, 0, &count, indices.data());
   }
@@ -72,7 +72,7 @@ int main() {
   for (unsigned i = 0; i < count; ++i) assert(indices[i] == expected[i]);
   assert(output[12] == 0 && output[4] == 0x1234 && output[13] == 0x1234);
   // A value beyond the fixed radius is admitted by the independent bound.
-  count = 0; blockIdx = dim3(0); threadIdx = dim3(0);
+  count = 0; blockIdx = dim3(0, 0, 0); threadIdx = dim3(0);
   select_and_round(raw.data(), output.data(), left.data(), right.data(), 128,
                    8, 1, 100000, &count, indices.data());
   assert(count == 1 && indices[0] == 8);
@@ -86,12 +86,61 @@ int main() {
   std::fill(left.begin(), left.end(), NAN); std::fill(right.begin(), right.end(), NAN);
   output[4] = output[12] = 0x1234; count = 0;
   for (unsigned i = 0; i < 16; ++i) {
-    blockIdx = dim3(0); threadIdx = dim3(i);
+    blockIdx = dim3(0, 0, 0); threadIdx = dim3(i);
     select_and_round(raw.data(), output.data(), left.data(), right.data(), 128,
         5, 7, 0, &count, indices.data(), errors.data());
   }
   assert(count == 4 && indices[0] == 6 && indices[1] == 8 && indices[2] == 9 && indices[3] == 10);
   assert(output[4] == 0x1234 && output[12] == 0x1234 && output[11] == 0x3f80);
+
+  // Execute the real 2D selector with an empty window, a worst-case full
+  // window, and a partial tail. Each queue owns its own count and extent.
+  {
+    constexpr unsigned cells = 2u * window_capacity + 17u;
+    std::vector<float> values(cells, 1.f), il2((cells + 127u) / 128u, 1.f), wl2(128, 1.f);
+    std::vector<uint16_t> rounded(cells + 64u, 0x1234);
+    std::vector<unsigned> selected(cells + 64u, 0xdeadbeef);
+    std::array<unsigned, 4> counts{0, 0, 0, 0x12345678};
+    for (unsigned i = window_capacity; i < 2u * window_capacity; ++i)
+      values[i] = qrt_sm121_exp2::value(0x3f808000);
+    for (unsigned i = 2u * window_capacity; i < cells; i += 2u)
+      values[i] = qrt_sm121_exp2::value(0x3f808000);
+    for (unsigned window = 0; window < 4; ++window)
+      for (unsigned i = 0; i < window_capacity + 256u; ++i) {
+        blockIdx = dim3(i / 256u, window, 0); threadIdx = dim3(i % 256u);
+        select_and_round(values.data(), rounded.data(), il2.data(), wl2.data(), 128,
+            0, cells, 0, counts.data(), selected.data());
+      }
+    assert((counts == std::array<unsigned, 4>{0, window_capacity, 9, 0x12345678}));
+    for (unsigned i = 0; i < window_capacity; ++i) {
+      assert(selected[i] == 0xdeadbeef);
+      assert(selected[window_capacity + i] == window_capacity + i);
+    }
+    for (unsigned i = 0; i < 9; ++i)
+      assert(selected[2u * window_capacity + i] == 2u * window_capacity + 2u * i);
+    for (unsigned i = 2u * window_capacity + 9; i < selected.size(); ++i)
+      assert(selected[i] == 0xdeadbeef);
+    for (unsigned i = 0; i < cells; ++i) assert(rounded[i] == 0x3f80);
+    for (unsigned i = cells; i < rounded.size(); ++i) assert(rounded[i] == 0x1234);
+
+    // Only address routing is tested here: host shuffle stubs cannot establish
+    // GPU dot correctness. A nonzero window must read its own queue/counter.
+    counts = {0, 1, 0, 0x12345678}; selected[window_capacity] = 7;
+    std::array<uint16_t, 33> batch_output, shifted_output;
+    batch_output.fill(0x1234); shifted_output.fill(0x1234);
+    gridDim = dim3(1); blockIdx = dim3(0, 1, 0); threadIdx = dim3(0);
+    replay_selected(contiguous.data(), contiguous.data(), batch_output.data(), 32, 64,
+        counts.data(), selected.data());
+    blockIdx = dim3(0, 0, 0);
+    replay_selected(contiguous.data(), contiguous.data(), shifted_output.data(), 32, 64,
+        counts.data() + 1, selected.data() + window_capacity);
+    assert(batch_output == shifted_output && batch_output[7] != 0x1234);
+    for (unsigned i = 0; i < batch_output.size(); ++i)
+      if (i != 7) assert(batch_output[i] == 0x1234);
+    replay_selected(contiguous.data(), contiguous.data(), batch_output.data(), 32, 64,
+        counts.data(), selected.data());
+    assert(batch_output == shifted_output);
+  }
 
   // Real selector execution over a complete expert-ordered queue. Reverse
   // route order makes confusing a sorted row with a logical route observable.
@@ -111,7 +160,7 @@ int main() {
     int32_t padded = routed_rows;
     uint32_t invalid = 0;
     for (unsigned i = 0; i < cells + 256u; ++i) {
-      blockIdx = dim3(i / 256u); threadIdx = dim3(i % 256u);
+      blockIdx = dim3(i / 256u, 0, 0); threadIdx = dim3(i % 256u);
       select_routed<false>(values.data(), rounded.data(), il2.data(), wl2.data(), ids.data(),
           route_weights.data(), sorted.data(), experts.data(), &padded, 0, cells,
           &routed_candidates, selected.data(), &invalid);
@@ -129,7 +178,7 @@ int main() {
     values[1] = 2.f; values[2] = qrt_sm121_exp2::value(0xc0008000);
     count = 0;
     for (unsigned i = 0; i < 3; ++i) {
-      blockIdx = dim3(0); threadIdx = dim3(i);
+      blockIdx = dim3(0, 0, 0); threadIdx = dim3(i);
       select_routed<true>(values.data(), rounded.data(), il2.data(), wl2.data(), ids.data(),
           route_weights.data(), sorted.data(), experts.data(), &padded, 0, 3,
           &count, selected.data(), &invalid);
@@ -138,7 +187,7 @@ int main() {
     assert(rounded[0] == 0x3f80 && rounded[1] == 0x3f80 && rounded[2] == 0xbf80);
     auto one = [&] {
       count = 0; invalid = 0; rounded[0] = 0x1234;
-      blockIdx = dim3(0); threadIdx = dim3(0);
+      blockIdx = dim3(0, 0, 0); threadIdx = dim3(0);
       select_routed<true>(values.data(), rounded.data(), il2.data(), wl2.data(), ids.data(),
           route_weights.data(), sorted.data(), experts.data(), &padded, 0, 1,
           &count, selected.data(), &invalid);
@@ -168,7 +217,8 @@ int main() {
   reject([&]{gb10_prefill_projection_buffer(8192, 32, 2048, nullptr);});
   State state;
   for (Device* d : {&state.raw, &state.inputs, &state.weights, &state.input_l2,
-                   &state.weight_l2, &state.indices, &state.count}) d->allocate(64);
+                   &state.weight_l2, &state.indices}) d->allocate(64);
+  state.count.allocate(max_windows * sizeof(unsigned));
   active = &state;
   assert(gb10_prefill_projection_buffer(8192, 32, 2048, nullptr) == state.raw.data);
   reject([&]{gb10_prefill_projection_buffer(8192, 32, 2048, reinterpret_cast<void*>(1));});
@@ -207,8 +257,26 @@ int main() {
   fake_negative_elapsed = true;
   assert(state.profile->ms(0, 1) < 0 && state.profile->invalid_intervals == 1);
   fake_negative_elapsed = false;
+  state.batch_replay = true;
+  fake_events.clear(); fake_projection_launches.clear();
+  gb10_prefill_projection_buffer(8192, 12352, 4096, nullptr);
+  gb10_prefill_projection_finish(original.data(), transposed.data(), output.data(), 8192, 12352, 4096, true, nullptr);
+  assert(fake_count_copies == 99 && fake_count_host_bytes == 97 * sizeof(unsigned));
+  assert(fake_profile_serial == 309 && !state.profile->inflight && state.profile->ordinal == 3);
+  assert(std::count(fake_events.begin(), fake_events.end(), "select_and_round") == 1);
+  assert(std::count(fake_events.begin(), fake_events.end(), "replay_selected") == 1);
+  assert(fake_projection_launches.size() == 6);
+  assert(fake_projection_launches[4].name == "select_and_round");
+  assert(fake_projection_launches[4].grid.x == 4096 && fake_projection_launches[4].grid.y == 97);
+  assert(fake_projection_launches[5].name == "replay_selected");
+  assert(fake_projection_launches[5].grid.x == 256 && fake_projection_launches[5].grid.y == 97);
   state.profile.reset();
   assert(fake_live_profile_events == 0);
+  fake_events.clear();
+  gb10_prefill_projection_finish(original.data(), transposed.data(), output.data(), 8192, 1, 2048, true, nullptr);
+  assert(fake_events == std::vector<std::string>({"prepare_operands", "prepare_operands", "row_l2", "row_l2", "memset", "select_and_round", "replay_selected"}));
+  assert(state.batched_projections == 2 && state.batched_windows == 98);
+  state.batch_replay = false;
   assert(!gb10_prefill_projection_wmma_enabled(4096));
   assert(!gb10_prefill_projection_tuned_gemm_enabled(8192,2048));
   state.tuned_gemm = true;
@@ -354,6 +422,9 @@ int main() {
   assert(!gb10_prefill_projection_wmma_enabled(4096));
   std::cout << "{\"lossless_operand_values\":2048,\"both_weight_layouts_match\":true,"
                "\"full_window_candidates\":1048576,\"window_guards_pass\":true,"
+               "\"batch_selector_empty_full_partial_guards_pass\":true,\"batch_queue_address_routing_pass\":true,"
+               "\"batch_profile_max_windows\":97,\"batch_profile_events_per_projection\":7,"
+               "\"batch_profile_counter_copies\":1,\"batch_unprofiled_dispatch_pass\":true,"
                "\"input_immutable\":true,\"selector_edges_pass\":true,"
                "\"queued_kernel_order_pass\":true,\"invalid_bindings_rejected\":" << rejected_bindings << ","
                "\"profile_max_windows\":97,\"profile_lifetime_pass\":true,"

@@ -1,5 +1,15 @@
 # Experimental Linux compute core
 
+The optional `AIMA_PORT_PREFILL_BATCH_REPLAY=1` dense projection route allocates
+404750336 bytes of candidate indices and388 bytes of counters before READY.
+Relative to the existing non-routed queue, this adds400556416 device bytes
+(about382MiB), with no new dependency, runtime artifact or host tensor copy.
+The benefit under test is reducing4284 sequential window submissions in the
+qualified q8192 case to one selector/replay pair per projection. Every window
+still reserves its complete worst-case capacity; numerical admission and exact
+replay remain unchanged. Native model correctness, load and timing must qualify
+the tradeoff. Routed expert replay continues to use its existing window loop.
+
 The optional chunk64 native GDN route adds 100663296 bytes of persistent A/Ai
 device scratch before READY. Its W/U follow-up embeds one 119768-byte gfx1151
 module alongside the unchanged 72 imported COFF images. The concrete benefit

@@ -69,8 +69,10 @@ struct Profile {
     invalid_intervals = 0; inflight = true;
     mark(0);
   }
-  void finish(unsigned windows, bool contiguous, unsigned ppb, bool linear_output) {
-    check(hipEventSynchronize(events.at(3 + 3 * windows).value));
+  void finish(unsigned windows, bool contiguous, unsigned ppb, bool linear_output,
+      bool batched = false) {
+    const unsigned final_event = batched ? 6u : 3u + 3u * windows;
+    check(hipEventSynchronize(events.at(final_event).value));
     check(hipMemcpy(host_counts.data(), counts.data, windows * sizeof(unsigned), hipMemcpyDeviceToHost));
     double selection_ms = 0, replay_ms = 0;
     unsigned long long candidates = 0;
@@ -78,15 +80,18 @@ struct Profile {
       const unsigned capacity = std::min(window_size, selection_cells - i * window_size);
       if (host_counts[i] > capacity) throw std::runtime_error("Prefill projection profile count exceeds window");
       candidates += host_counts[i];
-      selection_ms += ms(4 + 3 * i, 5 + 3 * i);
-      replay_ms += ms(5 + 3 * i, 6 + 3 * i);
+      if (!batched) {
+        selection_ms += ms(4 + 3 * i, 5 + 3 * i);
+        replay_ms += ms(5 + 3 * i, 6 + 3 * i);
+      }
     }
+    if (batched) { selection_ms = ms(4, 5); replay_ms = ms(5, 6); }
     const float producer_ms = ms(0, 1), operands_ms = ms(1, 2), norm_ms = ms(2, 3);
-    const float total_ms = ms(0, 3 + 3 * windows);
+    const float total_ms = ms(0, final_event);
     std::fprintf(stderr, "{\"event\":\"%s\",\"ordinal\":%u,"
         "\"tokens\":%u,\"rows\":%u,\"reduction\":%u,\"weight_rows_contiguous\":%s,"
         "\"producer\":\"%s\",\"windows\":%u,\"cells\":%llu,\"candidates\":%llu,"
-        "\"selection_cells_capacity\":%u,\"window_capacity\":%u,"
+        "\"selection_cells_capacity\":%u,\"window_capacity\":%u,\"batched_replay\":%s,"
         "\"bound_ppb\":%u,\"linear_output\":%s,"
         "\"coarse_output\":%s,\"routed\":%s,\"weighted_output\":%s,\"invalid_elapsed_intervals\":%u,\"timing_valid\":%s,"
         "\"producer_ms\":%.6f,\"operands_ms\":%.6f,\"norm_bound_ms\":%.6f,"
@@ -98,7 +103,7 @@ struct Profile {
             (contiguous && gb10_prefill_projection_tuned_gemm_enabled(rows, width)
                 ? "hipblaslt-tuned-5651" : "hipblaslt"))), windows,
         static_cast<unsigned long long>(row_count) * rows, candidates,
-        selection_cells, window_size,
+        selection_cells, window_size, batched ? "true" : "false",
         ppb, linear_output ? "true" : "false",
         coarse_output ? "true" : "false", routed ? "true" : "false", weighted ? "true" : "false",
         invalid_intervals, invalid_intervals ? "false" : "true",
@@ -112,7 +117,8 @@ struct State {
   bool wmma = false, wmma_output_only = false, linear_bound = false, linear_output = false;
   bool coarse_full = false, full_output = false, coarse_produced = false;
   bool tuned_gemm = false, tuned_gemm_input_only = false;
-  bool routed = false;
+  bool routed = false, batch_replay = false, batch_armed = false;
+  unsigned batched_projections = 0, batched_windows = 0;
 };
 State* active = nullptr;
 bool enabled(const char* name) {
@@ -235,9 +241,15 @@ static __global__ void select_and_round(const float* raw, uint16_t* output,
     const float* input_l2, const float* weight_l2, unsigned rows,
     unsigned start, unsigned size, unsigned bound_ppb,
     unsigned* count, unsigned* indices, const float* errors = nullptr) {
+  const unsigned offset = blockIdx.y * window_capacity;
+  if (offset >= size) return;
+  const unsigned remaining = size - offset;
+  const unsigned capacity = remaining < window_capacity ? remaining : window_capacity;
   const unsigned local = blockIdx.x * blockDim.x + threadIdx.x;
-  if (local >= size) return;
-  const unsigned index = start + local, row = index % rows, token = index / rows;
+  if (local >= capacity) return;
+  count += blockIdx.y;
+  indices += offset;
+  const unsigned index = start + offset + local, row = index % rows, token = index / rows;
   if (errors) {
     const float value = raw[index];
     if (!coarse::bound::certified({value, errors[index]})) indices[atomicAdd(count, 1u)] = index;
@@ -259,6 +271,8 @@ static __global__ void select_and_round(const float* raw, uint16_t* output,
 static __global__ void replay_selected(const half::Row* inputs,
     const half::Row* weights, uint16_t* output, unsigned rows, unsigned width,
     const unsigned* count, const unsigned* indices) {
+  count += blockIdx.y;
+  indices += std::size_t(blockIdx.y) * window_capacity;
   const unsigned lane = threadIdx.x & 3u, groups = width / 16u;
   const unsigned size = *count;
   for (unsigned candidate = blockIdx.x * 64u + threadIdx.x / 4u;
@@ -460,14 +474,17 @@ Gb10PrefillProjectionOwner::Gb10PrefillProjectionOwner() : impl_(std::make_uniqu
   if (active) throw std::runtime_error("A prefill projection owner is already active");
   auto& s = impl_->state;
   s.routed = enabled("AIMA_PORT_NATIVE_MOE_PREFILL");
+  s.batch_replay = enabled("AIMA_PORT_PREFILL_BATCH_REPLAY");
   s.raw.allocate((s.routed ? std::size_t(routed_rows) * 2048u : std::size_t(max_tokens) * max_rows) * sizeof(float));
   s.inputs.allocate(std::size_t(max_tokens) * (max_k / 16u) * sizeof(half::Row));
   s.weights.allocate((s.routed ? std::size_t(routed_experts) * 1024u * (2048u / 16u) :
       std::size_t(max_rows) * (max_k / 16u)) * sizeof(half::Row));
   s.input_l2.allocate((s.routed ? routed_rows : max_tokens) * sizeof(float));
   s.weight_l2.allocate((s.routed ? routed_experts * 2048u : max_rows) * sizeof(float));
-  s.indices.allocate((s.routed ? routed_window_capacity : window_capacity) * sizeof(unsigned));
-  s.count.allocate(sizeof(unsigned));
+  const std::size_t queue_cells = s.batch_replay ? std::size_t(max_tokens) * max_rows :
+      (s.routed ? routed_window_capacity : window_capacity);
+  s.indices.allocate(queue_cells * sizeof(unsigned));
+  s.count.allocate((s.batch_replay ? max_windows : 1u) * sizeof(unsigned));
   if (enabled("AIMA_PORT_PREFILL_PROJECTION_PROFILE")) s.profile = std::make_unique<Profile>();
   s.wmma = enabled("AIMA_PORT_PREFILL_WMMA");
   s.wmma_output_only = enabled("AIMA_PORT_PREFILL_WMMA_OUTPUT_ONLY");
@@ -480,7 +497,18 @@ Gb10PrefillProjectionOwner::Gb10PrefillProjectionOwner() : impl_(std::make_uniqu
   active = &s;
 }
 Gb10PrefillProjectionOwner::~Gb10PrefillProjectionOwner() {
-  if (active == &impl_->state) { hipDeviceSynchronize(); active = nullptr; }
+  if (active == &impl_->state) {
+    const auto status = hipDeviceSynchronize();
+    const auto& s = impl_->state;
+    if (s.batch_replay)
+      std::fprintf(stderr, "{\"event\":\"prefill_batch_replay_summary\","
+          "\"submitted_projections\":%u,\"windows\":%u,\"selector_grids\":%u,\"replay_grids\":%u,"
+          "\"device_synchronized\":%s,\"warmup_excluded\":%s,\"diagnostic_only\":true}\n",
+          s.batched_projections, s.batched_windows, s.batched_projections,
+          s.batched_projections, status == hipSuccess ? "true" : "false",
+          s.batch_armed ? "true" : "false");
+    active = nullptr;
+  }
 }
 bool gb10_prefill_projection_shape(std::size_t tokens, std::size_t rows,
     std::size_t reduction, bool bias) {
@@ -498,6 +526,8 @@ void gb10_prefill_projection_profile_begin() {
     profile->ordinal = 0;
     profile->route_ordinal = 0;
   }
+  active->batch_armed = true;
+  active->batched_projections = active->batched_windows = 0;
 }
 bool gb10_prefill_projection_wmma_enabled(std::size_t reduction) {
   return active && active->wmma && (!active->wmma_output_only || reduction == 4096);
@@ -625,6 +655,37 @@ void gb10_prefill_projection_finish(const void* input, const void* weights,
   // scope identifies the actual linear call. Unscoped K4096 keeps 10000 ppb.
   // Complete GB10 continuation still qualifies every producer/selector pair.
   const unsigned ppb = coarse_output ? 0u : (k == 4096 && !s.linear_output ? 10000u : 1000u);
+  if (s.batch_replay) {
+    // Every window owns its counter and its full worst-case queue extent.
+    // One grid selects all windows, then one grid replays independent queues.
+    // Predicate, original K16 carry order and BF16 endpoints stay unchanged.
+    const unsigned cells = t * n;
+    const unsigned windows = (cells + window_capacity - 1u) / window_capacity;
+    if (profile) profile->mark(4);
+    check(hipMemsetAsync(s.count.data, 0, windows * sizeof(unsigned), nullptr));
+    hipLaunchKernelGGL(select_and_round, dim3((std::min(cells, window_capacity) + 255u) / 256u, windows),
+        dim3(256), 0, nullptr, s.raw.as<float>(), y, s.input_l2.as<float>(), s.weight_l2.as<float>(),
+        n, 0u, cells, ppb, s.count.as<unsigned>(), s.indices.as<unsigned>(),
+        coarse_output ? s.coarse_errors.as<float>() : nullptr);
+    check(hipGetLastError());
+    if (profile) profile->mark(5);
+    hipLaunchKernelGGL(replay_selected, dim3(256, windows), dim3(256), 0,
+        nullptr, s.inputs.as<half::Row>(), s.weights.as<half::Row>(), y, n, k,
+        s.count.as<unsigned>(), s.indices.as<unsigned>());
+    check(hipGetLastError());
+    if (profile) {
+      profile->mark(6);
+      check(hipMemcpyAsync(profile->counts.data, s.count.data,
+          windows * sizeof(unsigned), hipMemcpyDeviceToDevice, nullptr));
+      profile->finish(windows, contiguous, ppb, s.linear_output, true);
+    }
+    if (s.batch_armed) {
+      ++s.batched_projections;
+      s.batched_windows += windows;
+    }
+    s.coarse_produced = false;
+    return;
+  }
   unsigned window = 0;
   for (unsigned start = 0; start < t * n; start += window_capacity) {
     const unsigned size = std::min(window_capacity, t * n - start);

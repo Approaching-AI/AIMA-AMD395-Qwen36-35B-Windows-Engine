@@ -3,12 +3,32 @@
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
 It is not enabled in the Windows product. The fastest qualified observation,
-`0c80a89` passes the complete cold q8192/out512 correctness boundary on baiying
+`cee6aa8` passes the complete cold q8192/out512 correctness boundary on baiying
 with the real model: all512 tokens and callbacks match GB10, with
-first144/logit10.375. Loading is27608.3814ms, diagnostic TTFT20657.4111ms and
-TPOT228.040989ms. The earlier `9447947` run also has all72 second-decode
+first144/logit10.375. Loading is27716.7622ms, TTFT20289.1186ms and
+TPOT227.849377ms with detailed projection events and timeline disabled.
+The earlier `9447947` run also has all72 second-decode
 comparisons matching in BF16 and a bitwise-exact final normalization.
 Performance, other product shapes, prefix continuation and release remain open.
+
+The profile-off control preserves the qualified compute settings and the
+original full GB10 checker. Its single TTFT observation is368.2925ms below the
+instrumented `0c80a89` result; no paired repetitions establish that difference
+as a stable speedup. Both terminal paths and tuned input GEMM choices remain
+active. All60 Windows build units,72 imported images and host guards pass.
+[Profile-off model result](../benchmarks/correctness/linux-core-profile-off-native-20260923.json).
+
+An optional `AIMA_PORT_PREFILL_BATCH_REPLAY=1` route submits independent dense
+projection windows in one two-dimensional selector grid followed by one replay
+grid. Each window retains its own counter and full worst-case queue extent;
+the admission predicate, original ascending-K16 carry and BF16 endpoint are
+unchanged. The extra400556416 device bytes trade memory for fewer submissions:
+the preceding q8192 profile contains4284 windows across189 projections. Actual
+post-READY submission counts are emitted once on owner teardown. ASan/UBSan
+checks empty/full/partial windows, queue addressing,97-window dispatch and221
+invalid bindings. All17 generated overlays and72 imported images match the
+control. GPU arithmetic, actual activation and product timing remain pending.
+[Batch replay preparation](../benchmarks/correctness/linux-core-batch-replay-preparation-20260923.json).
 
 Native GDN observation `fce7fdd` reproduces all 512 outputs from the failed
 chunk32 experiment, including 486 differences from GB10 and the first at

@@ -57,7 +57,7 @@ inline int hipEventElapsedTime(float* ms,hipEvent_t first,hipEvent_t last) {
  if(fake_negative_elapsed)*ms=-*ms;return 0;
 }
 inline int hipMemcpyAsync(void* d,const void* s,size_t n,int kind,void* stream) {
- assert(!stream&&kind==hipMemcpyDeviceToDevice&&n==sizeof(unsigned));
+ assert(!stream&&kind==hipMemcpyDeviceToDevice&&n&&n%sizeof(unsigned)==0&&n<=97*sizeof(unsigned));
  memcpy(d,s,n);++fake_count_copies;fake_events.push_back("count-copy");return 0;
 }
 inline int profile_memcpy(void* d,const void* s,size_t n,int kind) {
@@ -65,6 +65,15 @@ inline int profile_memcpy(void* d,const void* s,size_t n,int kind) {
  fake_count_host_bytes=n;memcpy(d,s,n);return 0;
 }
 #define hipMemcpy profile_memcpy
+struct FakeProjectionLaunch { std::string name; dim3 grid; };
+inline std::vector<FakeProjectionLaunch> fake_projection_launches;
+template<class K,class... A> void projection_launch(const char* name,dim3 grid,
+    dim3 block,void* stream,K kernel,A... args) {
+ fake_projection_launches.push_back({name,grid});
+ fake_launch(name,grid,block,stream,kernel,args...);
+}
+#undef hipLaunchKernelGGL
+#define hipLaunchKernelGGL(k,g,b,z,s,...) projection_launch(#k,g,b,s,k,__VA_ARGS__)
 ''', encoding="utf-8")
     source = ROOT / "native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp"
     executable = out / "host-contract"
