@@ -7,14 +7,27 @@ It is not enabled in the Windows product. The complete decode-MoE repair
 match the original after BF16 rounding, and final normalization matches exactly.
 All 69 comparisons pass, including the complete full-layer3 path and its cached
 K/V. First144/logit10.375 passes; continuation still differs at index3 and in
-471 of512 tokens. Second-decode state propagation is the next observation.
-Correctness and release remain open.
+471 of512 tokens. Second-decode observation isolates an unwired gated
+normalization replacement at layer12. Correctness and release remain open.
 
 The MoE-repair run builds all60 native units, loads in27332.5239ms, and measures
 diagnostic TTFT30929.1631ms and TPOT231.562583ms. All67 captures and host checks
 pass. These timings are not accepted performance. The first-step observations
 do not qualify subsequent recurrent updates or the full continuation.
 [Native complete decode-MoE result](../benchmarks/correctness/linux-core-decode-moe-native-20260922.json).
+
+Two unchanged-source runs observe second decode at layers0 and12. Layer0 is
+exact through all captured stages and both recurrent states. Layer12's prefill
+state, both decode states and stages through recurrent output also match
+bitwise. Its gated normalization first differs at one BF16 value, column3765;
+projection19, post normalization4 and layer carrier177 values then differ.
+The current decode branch still called the imported AOT gated kernel despite
+the existing GB10 short-row helper. Original arithmetic reproduces all245760
+values across30 layers/two rows and the native layer12 operands. The overlay
+now calls that helper and updates launch accounting, adding no allocation or
+artifact. Host binding/artifact checks and generated-source preparation pass;
+native execution of this binding change remains pending.
+[Decode gated diagnosis and preparation](../benchmarks/correctness/linux-core-decode-gated-diagnosis-and-preparation-20260922.json).
 
 The attention-repair run builds all59 native units, loads in27430.1645ms,
 and measures diagnostic TTFT30923.1363ms and TPOT84.6361949ms. All67 observed

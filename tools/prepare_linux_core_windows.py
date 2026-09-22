@@ -422,7 +422,23 @@ def gb10_normalization_overlays(sources, read):
         "      next_norm_weight_bf16, output_bf16, next_norm_output_bf16, 1, stream);")
     sources[path] = text
     path = "native/src/native_linear_layer.hip.cpp"
-    text = replace(sources[path],
+    text = replace(sources[path], '#include "gb10_gdn.h"',
+        '#include "gb10_gdn.h"\n#include "gb10_normalization.h"')
+    text = replace(text,
+        "  // Current vLLM uses one row per Triton program for decode RMSNormGated.\n"
+        "  // The attention-output scratch is still dead here and supplies the 32-value\n"
+        "  // FP32 Rstd side output without growing the resident workspace.\n",
+        "  // Preserve original short-row reduction and FP32 SiLU arithmetic.\n")
+    text = replace(text,
+        "  launch_current_linear_gated_norm(\n"
+        "      recurrent_output, z_projection, linear_norm_weight.device_pointer,\n"
+        "      gated.device_pointer, attention_output.device_pointer, executor, stream);",
+        "  aima_port::gb10_gated_norm(recurrent_output, z_projection,\n"
+        "      linear_norm_weight.device_pointer, gated.device_pointer, 1, stream);")
+    text = replace(text,
+        "  metrics.aot_launches += 1;\n  launch_bf16_wvsplitk(",
+        "  ++metrics.native_pointwise_launches;\n  launch_bf16_wvsplitk(")
+    text = replace(text,
         '    ++metrics.native_pointwise_launches;\n  }\n  observe_boundary(tail_observer, "shared_gate_logits",',
         '    metrics.native_pointwise_launches += next_input_norm != nullptr ? 2 : 1;\n  }\n'
         '  if (next_input_norm != nullptr)\n'
@@ -750,7 +766,7 @@ def main():
     parser.add_argument("--gb10-prefill-projections", action="store_true",
                         help="Use FP32 q8192 GEMM outputs with existing SM121 staged exact replay")
     parser.add_argument("--gb10-normalization", action="store_true",
-                        help="Use GB10 prefill gated norm and unrounded residual variance")
+                        help="Use GB10 prefill/decode gated norm and unrounded residual variance")
     parser.add_argument("--gb10-moe", action="store_true",
                         help="Use the qualified Windows prefill MoE provider and live FP32 carriers")
     args = parser.parse_args()
@@ -897,7 +913,8 @@ def main():
         report["optional_adaptations"]["gb10_normalization"] = dict(
             gated="original q8192 sixteen-lane/eight-value prefill reduction; separate thirty-two-lane/four-value short decode; FP32 SiLU",
             residual="FP32 unrounded sum variance; BF16 residual numerator",
-            gated_prefill_tokens=8192, residual_maximum_tokens=8192,
+            gated_prefill_tokens=8192, gated_decode_tokens=1, residual_maximum_tokens=8192,
+            decode_gated_call_site="current linear decode replaces the imported AOT gated-normalization call",
             silu_table_bytes=262144, additional_device_bytes=266240,
             cross_layer_residual="one 4096-byte live row snapshot before the MoE tail; default stream only",
             prefill_moe_observations=12, decode_next_norm_observations=1,

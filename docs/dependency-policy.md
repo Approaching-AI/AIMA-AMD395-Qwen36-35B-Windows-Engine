@@ -44,6 +44,12 @@ Stage outputs use existing engine buffers, with no model-weight copy. This
 replaces the observed differing decode routing/expert route; native whole-model
 qualification remains required.
 
+The GB10 normalization overlay also binds current linear decode to its existing
+short-row helper. This removes an observed single BF16 gated-output difference
+with identical actual inputs. It reuses the loaded FP32 SiLU and reciprocal-root
+tables, adding zero artifact bytes and zero device allocation. Whole-model
+continuation remains the qualification boundary.
+
 The import includes source, generated schedules, AOT GPU images and upstream
 licenses. It reuses Windows HIP, hipBLASLt and the existing CK provider. Python
 standard-library code and LLVM assemble registries at build time only; Python,
