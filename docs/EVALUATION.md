@@ -17,6 +17,10 @@ The [follow-up path view receipt](../benchmarks/correctness/public-evidence-home
 normalizes three later reports while preserving their original bytes at the
 recorded repository revision. Run tools/publish_evidence.py before publishing
 new reports and check the result with tools/public_hygiene.py.
+The [September23 follow-up](../benchmarks/correctness/public-evidence-path-views-20260923.json)
+also normalizes470 home prefixes in34 later reports. Each original is retained
+at the recorded revision, and reversing only the aliases reconstructs every
+original JSON object exactly, including all numerical and artifact values.
 
 ## Current measured state — September 23
 

@@ -30,21 +30,21 @@
   "checker": {
     "command": [
       "python3.12",
-      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tools/check_linux_core_q8192.py",
+      "<evidence-home-1>/projects/AIMA-public-r1191-candidate/tools/check_linux_core_q8192.py",
       "--run",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-bf16-prefill-r1/product",
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-bf16-prefill-r1/product",
       "--build-metadata",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-bf16-prefill-r1/build-provenance.json",
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-bf16-prefill-r1/build-provenance.json",
       "--build-run",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-bf16-prefill-r1/build/run-record.json",
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-bf16-prefill-r1/build/run-record.json",
       "--plan",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-bf16-prefill-source-r1.json",
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-bf16-prefill-source-r1.json",
       "--output",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-bf16-prefill-r1/gb10-qualified.json"
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-bf16-prefill-r1/gb10-qualified.json"
     ],
     "returncode": 1,
     "stdout": "",
-    "stderr": "Traceback (most recent call last):\n  File \"/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tools/check_linux_core_q8192.py\", line 166, in <module>\n    main()\n  File \"/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tools/check_linux_core_q8192.py\", line 153, in main\n    report = check_tokens(events, oracle, commit)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tools/check_linux_core_q8192.py\", line 57, in check_tokens\n    require(token_hash(output) == oracle[\"expected\"][\"output_token_ids_u32le_sha256\"],\n  File \"/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tools/check_linux_core_q8192.py\", line 23, in require\n    raise ValueError(message)\nValueError: Output continuation differs from GB10\n",
+    "stderr": "Traceback (most recent call last):\n  File \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tools/check_linux_core_q8192.py\", line 166, in <module>\n    main()\n  File \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tools/check_linux_core_q8192.py\", line 153, in main\n    report = check_tokens(events, oracle, commit)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tools/check_linux_core_q8192.py\", line 57, in check_tokens\n    require(token_hash(output) == oracle[\"expected\"][\"output_token_ids_u32le_sha256\"],\n  File \"<evidence-home-1>/projects/AIMA-public-r1191-candidate/tools/check_linux_core_q8192.py\", line 23, in require\n    raise ValueError(message)\nValueError: Output continuation differs from GB10\n",
     "checker_sha256": "ba53cb02e0cd2d5c7b7aa72288ca06a7a43239d84370e87fd60119eca55a0c65"
   },
   "binary": {
@@ -728,10 +728,10 @@
         "-ffp-contract=off",
         "-fsanitize=address,undefined",
         "-I",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-prefill-profile-local-r2/stub",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-prefill-profile-local-r2/stub",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
         "-o",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-prefill-profile-local-r2/host-contract"
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-prefill-profile-local-r2/host-contract"
       ],
       "inputs": [
         {
@@ -799,5 +799,18 @@
   },
   "gb10_boundary_pass": false,
   "performance_acceptance": false,
-  "release_qualified": false
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "0032573e211dc3fcd5ca8f55199f2da9c3f035206ece8aac54e51c28a0d4c6a3",
+    "original_json_bytes": 17148,
+    "source_revision": "b192228318683bd98a8a960dc4321d74e54f7086",
+    "source_path": "benchmarks/correctness/linux-core-bf16-prefill-native-and-profile-preparation-20260922.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 13
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
 }

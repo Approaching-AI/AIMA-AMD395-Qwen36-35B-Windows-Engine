@@ -1425,10 +1425,10 @@
         "-ffp-contract=off",
         "-fsanitize=address,undefined",
         "-I",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-tuned-gemm-host-r1/stub",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-tuned-gemm-host-r1/stub",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
         "-o",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-tuned-gemm-host-r1/host-contract"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-tuned-gemm-host-r1/host-contract"
       ],
       "inputs": [
         {
@@ -1551,5 +1551,18 @@
     ],
     "native_build_pending": true,
     "gb10_product_run_pending": true
+  },
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "ffabf0be39d14840884a4697c6acced28cbfae62b17f5f58c6371ed164abff2f",
+    "original_json_bytes": 59173,
+    "source_revision": "b192228318683bd98a8a960dc4321d74e54f7086",
+    "source_path": "benchmarks/correctness/linux-core-gemm-algorithms-and-product-preparation-20260922.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 3
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
   }
 }

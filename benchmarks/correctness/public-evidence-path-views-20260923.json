@@ -1,0 +1,356 @@
+{
+  "kind": "public_evidence_home_path_views",
+  "utc": "2026-09-22T23:05:29.141447+00:00",
+  "original_source_revision": "b192228318683bd98a8a960dc4321d74e54f7086",
+  "files": [
+    {
+      "path": "benchmarks/correctness/gb10-q8192-moe-control-rejection-20260922.json",
+      "original_json_sha256": "2122fef41d7931343cd2d6bdfa4d1143cf9be93c28ea697910f384872f03a78f",
+      "original_json_bytes": 6357,
+      "public_json_sha256": "899c911d40c691ab06b844cfe4633c0c831d1041e95238be4810a7ce8dae1d61",
+      "public_json_bytes": 7138,
+      "replacement_count": 10,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-batch-replay-native-20260923.json",
+      "original_json_sha256": "d6c774ad8bb509aa540e5ee9c703e1023cdeaa63ecb76cb372f7e2a7d04cf6f4",
+      "original_json_bytes": 20349,
+      "public_json_sha256": "77915db64d5769809c686a8c8d912e8502bde9d7c1e50faaa8eefa1c7da2665c",
+      "public_json_bytes": 21054,
+      "replacement_count": 6,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-batch-replay-preparation-20260923.json",
+      "original_json_sha256": "46ab6d879e9214f920a591f4ca958922babe7caa8a1397dd1500a85a84da7d09",
+      "original_json_bytes": 6315,
+      "public_json_sha256": "5ea6adb860ddb6bd414725075e8f63c3dd099fce69fbab90bb4f74f1da577640",
+      "public_json_bytes": 7036,
+      "replacement_count": 3,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-bf16-prefill-native-and-profile-preparation-20260922.json",
+      "original_json_sha256": "0032573e211dc3fcd5ca8f55199f2da9c3f035206ece8aac54e51c28a0d4c6a3",
+      "original_json_bytes": 17148,
+      "public_json_sha256": "76718035dd7f1199146e281f10e654776ae4d52f5901716889550a143bf7f522",
+      "public_json_bytes": 17850,
+      "replacement_count": 13,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-ck-profile-and-terminal-preparation-20260922.json",
+      "original_json_sha256": "b1f598e0303b87ac559b48da78beed57159fb9667d69efad267c5938da06e72e",
+      "original_json_bytes": 34583,
+      "public_json_sha256": "d85fe3ba8119a6141af9d399ce0790b54aaff6ec1c4a728029b8327b0c78b247",
+      "public_json_bytes": 35289,
+      "replacement_count": 10,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-decode-attention-native-20260922.json",
+      "original_json_sha256": "7c2374a6d46ee7efaa07343fd85e76dc0daa6dd045cbbb842181a370a75e76ed",
+      "original_json_bytes": 103413,
+      "public_json_sha256": "2ed9f918146b2c5ed660228182466a3caaee187d83087dc31e7fcbd347a07611",
+      "public_json_bytes": 104115,
+      "replacement_count": 8,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-decode-gated-diagnosis-and-preparation-20260922.json",
+      "original_json_sha256": "e36125b467f4c421073978493596a561f217ff6588843a7f2c1a86ffda3f2ad2",
+      "original_json_bytes": 349258,
+      "public_json_sha256": "9da6d96258251d088213986c9bf7d47466148e28d30fa80883734d6de8524020",
+      "public_json_bytes": 349987,
+      "replacement_count": 5,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-decode-moe-preparation-20260922.json",
+      "original_json_sha256": "40705b77ec1b19d88e08cb06ff82f9e37017dc0f9f7db949861b1b162fa10592",
+      "original_json_bytes": 35558,
+      "public_json_sha256": "6c66cf6ceaf7270212d1778dd74cf71f1ec1b1c0d7684eecbe960a0e7e942778",
+      "public_json_bytes": 36270,
+      "replacement_count": 5,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-full-head-native-and-decode-attention-preparation-20260922.json",
+      "original_json_sha256": "9a7c4acf65f1aeb855767587b19705e19160039a97785ce199db1fddb50f51e1",
+      "original_json_bytes": 104424,
+      "public_json_sha256": "b93b37d3ab65956cbd8a6ff2cfa1cddee0890239d6bc74074df9965dc439cb9e",
+      "public_json_bytes": 105164,
+      "replacement_count": 5,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-full-head-norm-rope-preparation-20260922.json",
+      "original_json_sha256": "7949edac50c7a4ae76e18c5c0e9afd693cb1f02dd87cf768da9a697313084b43",
+      "original_json_bytes": 135231,
+      "public_json_sha256": "0ee361c41c1542595bdbb734d877e0cdddb1c0ec683516099aea0c7d443b33a9",
+      "public_json_bytes": 135931,
+      "replacement_count": 41,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-full-observation-local-20260922.json",
+      "original_json_sha256": "32f86feef82306b2751de2582c179dedd68c75eaeabef20c987fa2109a1caf8d",
+      "original_json_bytes": 3542,
+      "public_json_sha256": "e76a35e97a25c1e0a072a9827fb98325d4ed18416bd6745e563c8add310f6e93",
+      "public_json_bytes": 4230,
+      "replacement_count": 11,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-gated-prefill-layout-diagnosis-20260922.json",
+      "original_json_sha256": "b93b2112919e830c2b419178d8bfac3f8c1a939b103023119eafcda6eaea38e2",
+      "original_json_bytes": 107093,
+      "public_json_sha256": "bffcf1d2d04c2022fedceb2a1cc12c426793c0b1d19ff0d671f702c8c6f2452f",
+      "public_json_bytes": 107760,
+      "replacement_count": 49,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-gated-prefill-layout-native-20260922.json",
+      "original_json_sha256": "bc91beed52100b0217938ba720b8feb95c078c6c1bbda3fc436a2dbfc0b8f68b",
+      "original_json_bytes": 106517,
+      "public_json_sha256": "6a7429dd77cbe96bf344349e4219954224a0ab97bdbd2079982a05e70cd7e804",
+      "public_json_bytes": 107212,
+      "replacement_count": 11,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-gb10-moe-build-failure-20260922.json",
+      "original_json_sha256": "73ec5c3506d58b719af51f0ddf5824c6397957d7de8752f96e6c6274a260b210",
+      "original_json_bytes": 6324,
+      "public_json_sha256": "871481b492d5d9acc8c3e60540070a3e40eaefef105448f176eda6280cc14115",
+      "public_json_bytes": 7035,
+      "replacement_count": 5,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-gb10-moe-preparation-20260922.json",
+      "original_json_sha256": "f6bd242580456d13cbf17d23ee0a3aedb3c9e9169fb1a150ffcea98e0ac4fd48",
+      "original_json_bytes": 17711,
+      "public_json_sha256": "b05237c760dce3f9d7da401ef695cc4ab09797f5184410a1ca94ccc5cc71c635",
+      "public_json_bytes": 18370,
+      "replacement_count": 18,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-gb10-prefill-moe-diagnosis-20260922.json",
+      "original_json_sha256": "f956bcb3752236bc7100c356f2a9dfa48dfaa745cb49deae6dd2543ca0c65f82",
+      "original_json_bytes": 79482,
+      "public_json_sha256": "7eabdbb46648e9d8b37f25144d088b32be8fcc5c82ea95b2709ba5af7af61d4f",
+      "public_json_bytes": 80229,
+      "replacement_count": 30,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-gemm-algorithms-and-product-preparation-20260922.json",
+      "original_json_sha256": "ffabf0be39d14840884a4697c6acced28cbfae62b17f5f58c6371ed164abff2f",
+      "original_json_bytes": 59173,
+      "public_json_sha256": "ddcb6ff45009064d08b75df8c7ddf254fa615763e6536ebba54439f9d51f09e4",
+      "public_json_bytes": 59910,
+      "replacement_count": 3,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-group-major-native-20260923.json",
+      "original_json_sha256": "3339a7378db7312eac4a162627342fc70de9d0433d8bc4ce84d36ed99c937890",
+      "original_json_bytes": 20478,
+      "public_json_sha256": "0e119955b1110132e009bc55b6a584a048d55df4197591ae7d4309f178979a65",
+      "public_json_bytes": 21182,
+      "replacement_count": 6,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-group-major-preparation-20260923.json",
+      "original_json_sha256": "503bdeae9a69685cc1e8edc7304607986fbb0eaaa631a6f20800055cbdd8a79a",
+      "original_json_bytes": 6100,
+      "public_json_sha256": "d0a371331457bb14f3ad8274955d69a2ad3c472c65d2f6956c4b4df115f5e822",
+      "public_json_bytes": 6820,
+      "replacement_count": 3,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-native-attention-negative-and-ck-profile-20260922.json",
+      "original_json_sha256": "47ec012efd8ed96817076bc51c9d5fa21da653c77fef26b6462ad6d014e31d21",
+      "original_json_bytes": 23665,
+      "public_json_sha256": "cfd6dfee610b23347710ce83ab663d86054cc6b9a8e05c2240cb4822cb7a71bd",
+      "public_json_bytes": 24376,
+      "replacement_count": 10,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-native-gdn-boundary-and-chunk64-20260923.json",
+      "original_json_sha256": "6c47956607407b0cae50e00a24a542cc377ccd6c8da91d1aab14b42e247506b8",
+      "original_json_bytes": 79293,
+      "public_json_sha256": "73cb0a0afcf0e74d826fc84416f7eef82489457e541f6378edc9b2aa3fdf68d8",
+      "public_json_bytes": 79927,
+      "replacement_count": 27,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-native-gdn-chunk64-native-20260923.json",
+      "original_json_sha256": "6faf8076eb8034a179927f8390b47fc749262f0b6b6b60346e4bdf160c74f0ad",
+      "original_json_bytes": 128330,
+      "public_json_sha256": "3f713f320b176d702f3bf13cdb612967db619ddb3d1a5c6c39368b777233f087",
+      "public_json_bytes": 128947,
+      "replacement_count": 30,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-native-gdn-firstchunk-stages-20260923.json",
+      "original_json_sha256": "2272b41a0999a591122210f9f098ea838ca4b26ac6964a4cfa92f4590f92a899",
+      "original_json_bytes": 76734,
+      "public_json_sha256": "ac4dd516827aa0932301ecfb1938cb233b5cb23f59bee3703cdf53206c6d3cc2",
+      "public_json_bytes": 77482,
+      "replacement_count": 2,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-native-gdn-negative-20260923.json",
+      "original_json_sha256": "6fae5f2a647087919fe6225e2335252a63e27425d5faa4e3f48ab23cbd6df53d",
+      "original_json_bytes": 28165,
+      "public_json_sha256": "9b34eaa484f39aa1f51c6bca80d95e777940939938ac36fa90b8bb6bbb86264f",
+      "public_json_bytes": 28855,
+      "replacement_count": 10,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-native-gdn-preparation-20260923.json",
+      "original_json_sha256": "b57fb1df7748011822679ac2fe68492a186e6627945c3c8b36c8b32982d374dc",
+      "original_json_bytes": 10340,
+      "public_json_sha256": "571fde4cecea35b3f3418d429d9c671aabb86a93c172240eac2a602d2eb0c741",
+      "public_json_bytes": 11052,
+      "replacement_count": 5,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-native-gdn-wu-native-20260923.json",
+      "original_json_sha256": "78477c9fad0a91e3d10e1897976e75e3b1ff2587065f55f5de39b6f353033362",
+      "original_json_bytes": 129314,
+      "public_json_sha256": "2c4fbc0316a81f1e7b9ab4ef5c72079f97eb49fec2a4f2f38ec60404ebe2b3d5",
+      "public_json_bytes": 129926,
+      "replacement_count": 30,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-native-gdn-wu-preparation-20260923.json",
+      "original_json_sha256": "7b50ab95a12df85645831af77d73036bf6cee1f5da1042b839e7f75f1f0085ab",
+      "original_json_bytes": 9653,
+      "public_json_sha256": "36f1f6dd220ef814322e13dacec40b9613393aab9f4167eeeeff0b46f91886d0",
+      "public_json_bytes": 10392,
+      "replacement_count": 1,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-native-moe-boundary-and-replay-20260923.json",
+      "original_json_sha256": "0d48459a3420c01435038966b141e71ea52d6902e07063541723242091a1f891",
+      "original_json_bytes": 90049,
+      "public_json_sha256": "ced4337bf53c7cd83691b9c732f5a8f3ad65d7a3e5cf08b5d6f2429b43820da5",
+      "public_json_bytes": 90558,
+      "replacement_count": 58,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-native-moe-negative-and-observation-20260923.json",
+      "original_json_sha256": "56d8bc9300d0c37fe7f59b218918d00b6b7283ab610bdf799da929ec363bad6c",
+      "original_json_bytes": 45120,
+      "public_json_sha256": "3bc34a577c01cd99cb67a7e5246ea1c7b8ff78b5c0ae6fe13ba73cba989a33d2",
+      "public_json_bytes": 45806,
+      "replacement_count": 15,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-native-moe-preparation-20260923.json",
+      "original_json_sha256": "4714c105cc44c5a0aa8ac84e9a5384b9b13cbe2ba34657b869a99eb9697fbc3b",
+      "original_json_bytes": 44058,
+      "public_json_sha256": "6ba4ea0e6c921fdefb14226da2a4d7fb33a536cc9aa7a155d02120ad5c38b51d",
+      "public_json_bytes": 44723,
+      "replacement_count": 17,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-prefill-profile-and-wmma-preparation-20260922.json",
+      "original_json_sha256": "6a17149376928f197855f480536ec0f6011de71bf69ca23a2919f3ce1c7deb25",
+      "original_json_bytes": 128436,
+      "public_json_sha256": "b3c5b05aa087118da2ac5cbdd066a16219fe46fbdd16182673395b5360d4d88f",
+      "public_json_bytes": 129171,
+      "replacement_count": 3,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-prefill-wmma-native-and-coarse-preparation-20260922.json",
+      "original_json_sha256": "7910845098b6621ed7a00ffd1e2b5adf1dc382b1916041f25271964b87b053f7",
+      "original_json_bytes": 24076,
+      "public_json_sha256": "49b9eba1b31e87f8227aaac74f832ce39ba346d832974e99953da7f5a166dfe9",
+      "public_json_bytes": 24816,
+      "replacement_count": 3,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-profile-off-native-20260923.json",
+      "original_json_sha256": "4e0c4145849a5ce72a4a761f053215192eb5d8280a6c9a76bbd7765334337c13",
+      "original_json_bytes": 19979,
+      "public_json_sha256": "25c3c1470b7ec7d0ea58051762c17bb18f22f87429b7746be3f3a32f214e6b69",
+      "public_json_bytes": 20691,
+      "replacement_count": 4,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    },
+    {
+      "path": "benchmarks/correctness/linux-core-tuned-gemm-negative-and-input-preparation-20260923.json",
+      "original_json_sha256": "40254b5b56c89fa9e77052a6ae372b5c02883cede6103d4f735838f1e4659171",
+      "original_json_bytes": 31605,
+      "public_json_sha256": "29c88e705af15047b19ef52f280fb97ab3e6cceeecbb1c1cba35d9c5998da29c",
+      "public_json_bytes": 32305,
+      "replacement_count": 13,
+      "reversible_original_object_verified": true,
+      "numerical_and_artifact_values_preserved": true
+    }
+  ],
+  "file_count": 34,
+  "replacement_count": 470,
+  "originals_preserved_at_revision": true,
+  "original_objects_reconstructed_and_verified": true,
+  "embedded_artifact_hashes_changed": false,
+  "numeric_results_changed": false,
+  "windows_arithmetic_changed": false,
+  "inference_acceptance": false,
+  "release_qualified": false
+}

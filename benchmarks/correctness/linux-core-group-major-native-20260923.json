@@ -741,17 +741,17 @@
   "observer": {
     "command": [
       "python3.12",
-      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tools/check_linux_core_q8192.py",
+      "<evidence-home-1>/projects/AIMA-public-r1191-candidate/tools/check_linux_core_q8192.py",
       "--run",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-group-major-r1/product",
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-group-major-r1/product",
       "--build-metadata",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-group-major-r1/build-provenance.json",
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-group-major-r1/build-provenance.json",
       "--build-run",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-group-major-r1/build/run-record.json",
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-group-major-r1/build/run-record.json",
       "--plan",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-group-major-source-r1.json",
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-group-major-source-r1.json",
       "--output",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-group-major-r1/gb10-qualified.json"
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-group-major-r1/gb10-qualified.json"
     ],
     "returncode": 0,
     "stdout": "{\"gb10_boundary_pass\": true, \"prompt_tokens\": 8192, \"output_tokens\": 512, \"stream_callbacks\": 512, \"first_token_id\": 144, \"first_token_raw_logit\": 10.375, \"first_logit_absolute_error\": 0.0, \"first_logit_tolerance\": 0.125, \"ttft_ms\": 24138.978, \"tpot_ms\": 229.75825831702545, \"command_to_ready_ms\": 27473.2794, \"ttft_below_10000_ms\": false, \"retained_4187_415605_ms_ttft_met\": false, \"load_at_most_30000_ms\": true, \"performance_acceptance\": false, \"release_qualified\": false, \"host\": \"BAIYING\", \"model\": \"D:/models/Qwen3.6-35B-A3B\", \"command_file\": \"P:/projects/AIMA-public-linux-core-group-major-20260923-r1/scripts/baiying_linux_core_probe.ps1\", \"source_commit\": \"747bb00a6f02beb73ec510e6d217ebc660549f1c\", \"upstream_commit\": \"ec9934446911fdf376da8eebcd83e7b137efbb7c\", \"oracle_sha256\": \"7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1\", \"run_record_sha256\": \"37f38952c926d4adaaa745356fbf32ac8e0f8fb87c53e3a4d2becb585101cc3d\", \"stdout_sha256\": \"9970b3dd76f514d8e337b601fe2e37eeed91e4cbf1c056aab02e5e391de8d03e\", \"build_metadata_sha256\": \"4dc37847f0e881c7c8207ac81841310aaba55cbdc11f1b35531813c6ee2139f2\", \"source_manifest_sha256\": \"51b7557f636372a56f6f6b05d76ce714d4e2867ffe43add58b9f4d7cd840ce81\"}\n",
@@ -761,5 +761,18 @@
   "source_manifest_sha256": "51b7557f636372a56f6f6b05d76ce714d4e2867ffe43add58b9f4d7cd840ce81",
   "result_sha256": "0ad677773cd347a90468a2acef21f135e4b9f9c8415615bbf96096f52d5e707d",
   "performance_acceptance": false,
-  "release_qualified": false
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "3339a7378db7312eac4a162627342fc70de9d0433d8bc4ce84d36ed99c937890",
+    "original_json_bytes": 20478,
+    "source_revision": "b192228318683bd98a8a960dc4321d74e54f7086",
+    "source_path": "benchmarks/correctness/linux-core-group-major-native-20260923.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 6
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
 }

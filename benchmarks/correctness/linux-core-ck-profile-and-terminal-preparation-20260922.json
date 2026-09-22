@@ -1152,13 +1152,13 @@
         "-ffp-contract=off",
         "-fsanitize=address,undefined",
         "-I",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-terminal-attention-host-r1/stub",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-terminal-attention-host-r1/stub",
         "-I",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/include",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_decode_attention_host_contract_test.cpp",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/src/sha256.cpp",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/include",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_decode_attention_host_contract_test.cpp",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/src/sha256.cpp",
         "-o",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-terminal-attention-host-r1/host-contract"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-terminal-attention-host-r1/host-contract"
       ],
       "inputs": [
         {
@@ -1213,13 +1213,13 @@
         "-ffp-contract=off",
         "-fsanitize=address,undefined",
         "-I",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-terminal-moe-host-r1/stub",
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-terminal-moe-host-r1/stub",
         "-I",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/include",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_moe_host_contract_test.cpp",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/src/sha256.cpp",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/include",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_moe_host_contract_test.cpp",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/src/sha256.cpp",
         "-o",
-        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-terminal-moe-host-r1/host-contract"
+        "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-terminal-moe-host-r1/host-contract"
       ],
       "inputs": [
         {
@@ -1313,5 +1313,18 @@
     "gb10_boundary_unchanged": true,
     "performance_acceptance": false,
     "release_qualified": false
+  },
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "b1f598e0303b87ac559b48da78beed57159fb9667d69efad267c5938da06e72e",
+    "original_json_bytes": 34583,
+    "source_revision": "b192228318683bd98a8a960dc4321d74e54f7086",
+    "source_path": "benchmarks/correctness/linux-core-ck-profile-and-terminal-preparation-20260922.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 10
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
   }
 }
