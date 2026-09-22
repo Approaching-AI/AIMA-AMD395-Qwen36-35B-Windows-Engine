@@ -96,10 +96,39 @@ int main() {
   gb10_prefill_projection_fallback(original.data(), transposed.data(), 8192, 32, 2048, false, nullptr);
   gb10_prefill_projection_finish(original.data(), transposed.data(), output.data(), 8192, 32, 2048, false, nullptr);
   assert(fake_events == std::vector<std::string>({"fallback_matmul", "prepare_operands", "prepare_operands", "row_l2", "row_l2", "memset", "select_and_round", "replay_selected"}));
+
+  // Optional event/count storage is bounded independently of model tensors.
+  // Warmup is excluded, stale or nested measurement bindings are rejected,
+  // and the maximum 97-window shape cannot overrun its event/count arrays.
+  state.profile = std::make_unique<Profile>();
+  assert(max_windows == 97 && fake_live_profile_events == 295);
+  fake_events.clear();
+  gb10_prefill_projection_buffer(8192, 32, 2048, nullptr);
+  gb10_prefill_projection_finish(original.data(), transposed.data(), output.data(), 8192, 32, 2048, false, nullptr);
+  assert(fake_profile_serial == 0 && fake_count_copies == 0);
+  gb10_prefill_projection_profile_begin();
+  reject([&]{gb10_prefill_projection_finish(original.data(), transposed.data(), output.data(), 8192, 32, 2048, false, nullptr);});
+  gb10_prefill_projection_buffer(8192, 32, 2048, nullptr);
+  reject([&]{gb10_prefill_projection_buffer(8192, 32, 2048, nullptr);});
+  reject([&]{gb10_prefill_projection_profile_begin();});
+  reject([&]{gb10_prefill_projection_finish(original.data(), transposed.data(), output.data(), 8192, 33, 2048, false, nullptr);});
+  gb10_prefill_projection_fallback(original.data(), transposed.data(), 8192, 32, 2048, false, nullptr);
+  gb10_prefill_projection_finish(original.data(), transposed.data(), output.data(), 8192, 32, 2048, false, nullptr);
+  assert(fake_count_copies == 1 && fake_count_host_bytes == sizeof(unsigned));
+  assert(fake_profile_serial == 7 && !state.profile->inflight && state.profile->ordinal == 1);
+  gb10_prefill_projection_buffer(8192, 12352, 4096, nullptr);
+  gb10_prefill_projection_finish(original.data(), transposed.data(), output.data(), 8192, 12352, 4096, true, nullptr);
+  assert(fake_count_copies == 98 && fake_count_host_bytes == 97 * sizeof(unsigned));
+  assert(fake_profile_serial == 302 && !state.profile->inflight && state.profile->ordinal == 2);
+  state.profile.reset();
+  assert(fake_live_profile_events == 0);
   active = nullptr;
+  reject([&]{gb10_prefill_projection_profile_begin();});
   std::cout << "{\"lossless_operand_values\":2048,\"both_weight_layouts_match\":true,"
                "\"full_window_candidates\":1048576,\"window_guards_pass\":true,"
                "\"input_immutable\":true,\"selector_edges_pass\":true,"
-               "\"queued_kernel_order_pass\":true,\"invalid_bindings_rejected\":9,"
+               "\"queued_kernel_order_pass\":true,\"invalid_bindings_rejected\":14,"
+               "\"profile_max_windows\":97,\"profile_lifetime_pass\":true,"
+               "\"profile_warmup_excluded\":true,\"profile_completed_events_only\":true,"
                "\"gpu_replay_executed\":false}\n";
 }

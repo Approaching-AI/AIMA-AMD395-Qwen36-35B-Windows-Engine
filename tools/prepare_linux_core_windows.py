@@ -905,9 +905,15 @@ def main():
             producer="hipBLASLt BF16 inputs, FP32 destination; existing WMMA K16 geometry when no solution exists",
             replay="existing lossless scaled-half staged SM121 K16 arithmetic",
             selector="radius512 plus L2 upper bounds, 1000 ppb / K4096 10000 ppb",
-            maximum_window_cells=1048576, candidate_counts="device-owned; no host count copy",
+            maximum_window_cells=1048576, candidate_counts="device-owned; no host count copy unless optional profiling is armed",
             shared_scratch_stream="default stream only; nondefault streams rejected",
             device_scratch_bytes=598360324,
+            optional_profile=dict(environment="AIMA_PORT_PREFILL_PROJECTION_PROFILE", enabled_value="1",
+                arm="after load and READY; warmup excluded", completed_gpu_events=295,
+                maximum_windows=97, additional_device_count_bytes=388,
+                stages=["producer", "operands", "norm_bound", "selection", "replay"],
+                candidate_reads="one completed bounded count array per projection; never controls arithmetic",
+                timing="diagnostic; event, copy and synchronization overhead included in request"),
             model_qualified=False)
     if args.gb10_normalization:
         report["optional_adaptations"]["gb10_normalization"] = dict(

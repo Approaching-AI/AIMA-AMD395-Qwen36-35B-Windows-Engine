@@ -292,6 +292,9 @@ int run(const std::vector<std::string>& argv) {
   std::vector<std::uint32_t> callbacks;
   callbacks.reserve(512);
   double first_callback_ms = 0, last_callback_ms = 0;
+#ifdef AIMA_PORT_GB10_PREFILL_PROJECTIONS
+  aima_port::gb10_prefill_projection_profile_begin();
+#endif
   const auto started = Clock::now();
   request.token_callback = [&](std::uint32_t token, std::size_t index) {
     if (index != callbacks.size()) throw std::runtime_error("Callback index is not sequential");

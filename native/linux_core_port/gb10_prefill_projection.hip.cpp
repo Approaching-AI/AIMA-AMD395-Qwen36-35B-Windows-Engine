@@ -4,6 +4,10 @@
 #include "../providers/moe_accumulator/bf16_midpoint_selector.h"
 #include "../providers/gdn/sm121_q1_math.h"
 #include <algorithm>
+#include <array>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <stdexcept>
 
 namespace aima_port {
@@ -12,6 +16,10 @@ namespace staged = qrt_sm121_staged_half_projection;
 namespace half = qrt_sm121_scaled_half_products;
 constexpr unsigned max_tokens = 8192, max_rows = 12352, max_k = 4096;
 constexpr unsigned window_capacity = 1u << 20;
+constexpr unsigned max_windows = (max_tokens * max_rows + window_capacity - 1) / window_capacity;
+void check(hipError_t error) {
+  if (error != hipSuccess) throw std::runtime_error("Prefill projection GPU operation failed");
+}
 struct Device {
   void* data = nullptr;
   ~Device() { if (data) hipFree(data); }
@@ -20,13 +28,63 @@ struct Device {
   }
   template<class T> T* as() const { return static_cast<T*>(data); }
 };
+struct Event {
+  hipEvent_t value = nullptr;
+  Event() { check(hipEventCreate(&value)); }
+  ~Event() { if (value) hipEventDestroy(value); }
+  Event(const Event&) = delete;
+  Event& operator=(const Event&) = delete;
+};
+struct Profile {
+  // Four common boundaries and three boundaries per bounded replay window.
+  // No per-projection allocation or host read of a live selection counter.
+  std::array<Event, 4 + 3 * max_windows> events;
+  Device counts;
+  std::array<unsigned, max_windows> host_counts{};
+  bool armed = false, inflight = false, fallback = false;
+  unsigned ordinal = 0, rows = 0, width = 0;
+  Profile() { counts.allocate(max_windows * sizeof(unsigned)); }
+  void mark(unsigned index) { check(hipEventRecord(events.at(index).value, nullptr)); }
+  float ms(unsigned first, unsigned last) const {
+    float elapsed = 0;
+    check(hipEventElapsedTime(&elapsed, events.at(first).value, events.at(last).value));
+    return elapsed;
+  }
+  void begin(unsigned n, unsigned k) {
+    if (inflight) throw std::logic_error("Prefill projection profile already in flight");
+    rows = n; width = k; fallback = false; inflight = true;
+    mark(0);
+  }
+  void finish(unsigned windows, bool contiguous) {
+    check(hipEventSynchronize(events.at(3 + 3 * windows).value));
+    check(hipMemcpy(host_counts.data(), counts.data, windows * sizeof(unsigned), hipMemcpyDeviceToHost));
+    double selection_ms = 0, replay_ms = 0;
+    unsigned long long candidates = 0;
+    for (unsigned i = 0; i < windows; ++i) {
+      const unsigned capacity = std::min(window_capacity, max_tokens * rows - i * window_capacity);
+      if (host_counts[i] > capacity) throw std::runtime_error("Prefill projection profile count exceeds window");
+      candidates += host_counts[i];
+      selection_ms += ms(4 + 3 * i, 5 + 3 * i);
+      replay_ms += ms(5 + 3 * i, 6 + 3 * i);
+    }
+    std::fprintf(stderr, "{\"event\":\"prefill_projection_profile\",\"ordinal\":%u,"
+        "\"tokens\":%u,\"rows\":%u,\"reduction\":%u,\"weight_rows_contiguous\":%s,"
+        "\"producer\":\"%s\",\"windows\":%u,\"cells\":%llu,\"candidates\":%llu,"
+        "\"producer_ms\":%.6f,\"operands_ms\":%.6f,\"norm_bound_ms\":%.6f,"
+        "\"selection_ms\":%.6f,\"replay_ms\":%.6f,\"total_gpu_ms\":%.6f,"
+        "\"completed_gpu_events\":true,\"diagnostic_only\":true}\n",
+        ordinal++, max_tokens, rows, width, contiguous ? "true" : "false",
+        fallback ? "wmma-fallback" : "hipblaslt", windows,
+        static_cast<unsigned long long>(max_tokens) * rows, candidates,
+        ms(0, 1), ms(1, 2), ms(2, 3), selection_ms, replay_ms, ms(0, 3 + 3 * windows));
+    inflight = false;
+  }
+};
 struct State {
   Device raw, inputs, weights, input_l2, weight_l2, indices, count;
+  std::unique_ptr<Profile> profile;
 };
 State* active = nullptr;
-void check(hipError_t error) {
-  if (error != hipSuccess) throw std::runtime_error("Prefill projection GPU operation failed");
-}
 
 using WmmaBf16 = unsigned short __attribute__((ext_vector_type(16)));
 using WmmaF32 = float __attribute__((ext_vector_type(8)));
@@ -182,6 +240,8 @@ Gb10PrefillProjectionOwner::Gb10PrefillProjectionOwner() : impl_(std::make_uniqu
   s.weight_l2.allocate(max_rows * sizeof(float));
   s.indices.allocate(window_capacity * sizeof(unsigned));
   s.count.allocate(sizeof(unsigned));
+  const char* profile = std::getenv("AIMA_PORT_PREFILL_PROJECTION_PROFILE");
+  if (profile && std::strcmp(profile, "1") == 0) s.profile = std::make_unique<Profile>();
   active = &s;
 }
 Gb10PrefillProjectionOwner::~Gb10PrefillProjectionOwner() {
@@ -195,15 +255,26 @@ bool gb10_prefill_projection_shape(std::size_t tokens, std::size_t rows,
     throw std::invalid_argument("Unsupported GB10 prefill projection shape");
   return true;
 }
+void gb10_prefill_projection_profile_begin() {
+  if (!active) throw std::invalid_argument("Prefill projection profiling requires its owner");
+  if (auto* profile = active->profile.get()) {
+    if (profile->inflight) throw std::logic_error("Cannot reset an active prefill projection profile");
+    profile->armed = true;
+    profile->ordinal = 0;
+  }
+}
 void* gb10_prefill_projection_buffer(std::size_t tokens, std::size_t rows,
     std::size_t reduction, void* stream) {
-  return bound(tokens, rows, reduction, stream).raw.data;
+  auto& s = bound(tokens, rows, reduction, stream);
+  if (s.profile && s.profile->armed) s.profile->begin(static_cast<unsigned>(rows), static_cast<unsigned>(reduction));
+  return s.raw.data;
 }
 void gb10_prefill_projection_fallback(const void* input, const void* weights,
     std::size_t tokens, std::size_t rows, std::size_t reduction,
     bool contiguous, void* stream) {
   auto& s = bound(tokens, rows, reduction, stream);
   if (!input || !weights) throw std::invalid_argument("Invalid prefill WMMA binding");
+  if (s.profile && s.profile->armed) s.profile->fallback = true;
   hipLaunchKernelGGL(fallback_matmul, dim3((rows + 127u) / 128u, (tokens + 63u) / 64u),
       dim3(256), 0, nullptr, static_cast<const uint16_t*>(input),
       static_cast<const uint16_t*>(weights), s.raw.as<float>(),
@@ -219,6 +290,12 @@ void gb10_prefill_projection_finish(const void* input, const void* weights,
     throw std::invalid_argument("Invalid prefill projection input/output binding");
   const unsigned t = static_cast<unsigned>(tokens), n = static_cast<unsigned>(rows),
                  k = static_cast<unsigned>(reduction);
+  Profile* profile = s.profile && s.profile->armed ? s.profile.get() : nullptr;
+  if (profile) {
+    if (!profile->inflight || profile->rows != n || profile->width != k)
+      throw std::logic_error("Prefill projection profile producer/finish geometry differs");
+    profile->mark(1);
+  }
   const auto* x = static_cast<const uint16_t*>(input);
   const auto* w = static_cast<const uint16_t*>(weights);
   auto* y = static_cast<uint16_t*>(output);
@@ -228,25 +305,37 @@ void gb10_prefill_projection_finish(const void* input, const void* weights,
   hipLaunchKernelGGL(prepare_operands, dim3((n * (k / 16u) + 255u) / 256u), dim3(256), 0,
       nullptr, w, s.weights.as<half::Row>(), n, k, contiguous);
   check(hipGetLastError());
+  if (profile) profile->mark(2);
   hipLaunchKernelGGL(row_l2, dim3(t), dim3(256), 0, nullptr, x, s.input_l2.as<float>(), t, k, true);
   check(hipGetLastError());
   hipLaunchKernelGGL(row_l2, dim3(n), dim3(256), 0, nullptr, w, s.weight_l2.as<float>(), n, k, contiguous);
   check(hipGetLastError());
+  if (profile) profile->mark(3);
   // Existing QKV/shared/router bound is 1000 ppb; attention-output K4096
   // uses the existing wider 10000-ppb admission. Complete model gates decide
   // whether this producer/selector combination can be qualified.
   const unsigned ppb = k == 4096 ? 10000u : 1000u;
+  unsigned window = 0;
   for (unsigned start = 0; start < t * n; start += window_capacity) {
     const unsigned size = std::min(window_capacity, t * n - start);
+    if (profile) profile->mark(4 + 3 * window);
     check(hipMemsetAsync(s.count.data, 0, sizeof(unsigned), nullptr));
     hipLaunchKernelGGL(select_and_round, dim3((size + 255u) / 256u), dim3(256), 0,
         nullptr, s.raw.as<float>(), y, s.input_l2.as<float>(), s.weight_l2.as<float>(),
         n, start, size, ppb, s.count.as<unsigned>(), s.indices.as<unsigned>());
     check(hipGetLastError());
+    if (profile) profile->mark(5 + 3 * window);
     hipLaunchKernelGGL(replay_selected, dim3(256), dim3(256), 0,
         nullptr, s.inputs.as<half::Row>(), s.weights.as<half::Row>(), y, n, k,
         s.count.as<unsigned>(), s.indices.as<unsigned>());
     check(hipGetLastError());
+    if (profile) {
+      profile->mark(6 + 3 * window);
+      check(hipMemcpyAsync(profile->counts.as<unsigned>() + window, s.count.data,
+          sizeof(unsigned), hipMemcpyDeviceToDevice, nullptr));
+    }
+    ++window;
   }
+  if (profile) profile->finish(window, contiguous);
 }
 }  // namespace aima_port

@@ -57,6 +57,13 @@ This adds no dependency and removes598360324bytes of prefill replay scratch;
 the shared arithmetic headers remain bound in the source inventory because
 decode attention still includes them. This route comparison requires its own
 complete GB10 continuation result before any performance can be retained.
+Its first native experiment differs in385 of512 outputs and is not retained.
+
+Optional dense-projection profiling reuses HIP events already supplied by the
+runtime. It adds295 event handles and388 device bytes only when explicitly
+enabled, allocated before READY. Completed per-GEMM count reads and timing
+records diagnose the exact-replay cost without changing numerical selection.
+There is no new library, package or arithmetic artifact.
 
 The import includes source, generated schedules, AOT GPU images and upstream
 licenses. It reuses Windows HIP, hipBLASLt and the existing CK provider. Python

@@ -9,14 +9,26 @@ comparisons match in BF16, and final normalization matches bitwise. Loading is
 27601.089ms, diagnostic TTFT31045.7175ms and TPOT239.481255ms. Performance,
 other product shapes, prefix continuation and release remain unqualified.
 
-The next structural experiment omits `--gb10-prefill-projections` and uses the
-imported hipBLASLt BF16 dense producer while retaining every other repair.
-Normalization depends on the projection/GDN table owners, independently of
-the optional prefill replay. Its removal saves598360324bytes of scratch and
-the whole per-GEMM preparation/selection/replay pipeline. Preparation passes
-with327 unchanged imports,59 units,72 images and16 overlays; its numerical
-effect still requires the unchanged complete512-output GB10 boundary.
+Source `a56baa9` omits `--gb10-prefill-projections` and uses the imported
+hipBLASLt BF16 dense producer while retaining every other repair. It builds
+all59 units and completes the native request, but385 of512 tokens differ,
+starting at index115 (196 versus271). First144/logit10.4375 is within tolerance;
+that alone does not qualify the continuation. Loading is27261.5664ms,
+diagnostic TTFT14933.2741ms and TPOT232.780459ms. The BF16-only route is not
+retained. Its removal of598360324bytes of scratch and the whole preparation,
+selection and replay pipeline identifies a substantial cost to investigate.
 [Native correctness and dense-prefill preparation](../benchmarks/correctness/linux-core-decode-gated-native-and-bf16-prefill-preparation-20260922.json).
+
+The exact-replay route now has optional completed GPU profiling, enabled by
+`AIMA_PORT_PREFILL_PROJECTION_PROFILE=1` and armed after READY. It reports
+producer, operand preparation, norm-bound, selection and exact-replay times
+for each whole GEMM, plus candidate counts. The owner allocates295 events and
+a388-byte count array before READY, bounded to97 windows; counts are read
+only after completion and do not control arithmetic. Host ASan/UBSan checks
+cover maximum bounds, warmup exclusion, event lifetime and14 invalid bindings.
+Preparation preserves327 imports,60 units,72 images and17 overlays. Native
+correctness and profiling are pending; these timings include diagnostic overhead.
+[BF16-only native failure and profiling preparation](../benchmarks/correctness/linux-core-bf16-prefill-native-and-profile-preparation-20260922.json).
 
 The preceding complete decode-MoE repair (`5585977`) runs the real model on
 baiying. All 40 first-decode layer carriers

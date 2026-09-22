@@ -31,6 +31,35 @@ inline unsigned atomicOr(unsigned* p, unsigned v) { unsigned old=*p; *p|=v; retu
 inline int hipMemsetAsync(void* p, int v, size_t bytes, void*) {
  memset(p,v,bytes);fake_events.push_back("memset");return 0;
 }
+struct FakeProfileEvent { unsigned serial = 0; };
+using hipEvent_t = FakeProfileEvent*;
+inline unsigned fake_live_profile_events = 0, fake_profile_serial = 0;
+inline unsigned fake_profile_sync = 0, fake_count_copies = 0;
+inline size_t fake_count_host_bytes = 0;
+constexpr int hipMemcpyDeviceToDevice = 2, hipMemcpyDeviceToHost = 3;
+inline int hipEventCreate(hipEvent_t* p) {
+ *p=new FakeProfileEvent;++fake_live_profile_events;return 0;
+}
+inline int hipEventDestroy(hipEvent_t p) {delete p;--fake_live_profile_events;return 0;}
+inline int hipEventRecord(hipEvent_t p, void* stream) {
+ assert(!stream);p->serial=++fake_profile_serial;fake_events.push_back("event");return 0;
+}
+inline int hipEventSynchronize(hipEvent_t p) {
+ assert(p->serial);fake_profile_sync=p->serial;return 0;
+}
+inline int hipEventElapsedTime(float* ms,hipEvent_t first,hipEvent_t last) {
+ assert(first->serial&&last->serial>=first->serial&&last->serial<=fake_profile_sync);
+ *ms=float(last->serial-first->serial)*0.25f;return 0;
+}
+inline int hipMemcpyAsync(void* d,const void* s,size_t n,int kind,void* stream) {
+ assert(!stream&&kind==hipMemcpyDeviceToDevice&&n==sizeof(unsigned));
+ memcpy(d,s,n);++fake_count_copies;fake_events.push_back("count-copy");return 0;
+}
+inline int profile_memcpy(void* d,const void* s,size_t n,int kind) {
+ assert(kind==hipMemcpyDeviceToHost&&fake_profile_sync==fake_profile_serial);
+ fake_count_host_bytes=n;memcpy(d,s,n);return 0;
+}
+#define hipMemcpy profile_memcpy
 ''', encoding="utf-8")
     source = ROOT / "native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp"
     executable = out / "host-contract"
