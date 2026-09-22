@@ -2,12 +2,28 @@
 
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
-It is not enabled in the Windows product. The complete MoE and gated-prefill
-layout repair (`5c1252d`) runs the real model on baiying. All 15 observed
-layer-zero first64 surfaces and first-decode layer outputs 0–2 now match.
-The q8192 first token and logit pass, but output115 diverges and393 of512
-continuation tokens differ. The next observed layer boundary is full layer3.
-Complete continuation, performance and release qualification remain open.
+It is not enabled in the Windows product. The latest head-normalization/RoPE
+repair (`73ce357`) runs the real model on baiying. First-decode layer outputs
+0–2, full-layer3 QKV/Q/K/V and all 8193 cached K/V rows now match GB10 exactly.
+Identical Q/K/V still produce 355 differing BF16 attention-context values.
+First144/logit10.375 passes; continuation differs at index2 and in400 of512
+tokens. The next change replaces the decode attention core with existing
+Windows SM121 arithmetic. Complete correctness and release remain open.
+
+The latest bounded run loads in27227.3378ms, with diagnostic TTFT30973.0705ms
+and TPOT67.3512951ms. Its output-only observer captures67 verified files;
+host checks and cleanup pass. These timings are not accepted performance.
+[Native head repair and attention isolation](../benchmarks/correctness/linux-core-full-head-native-and-decode-attention-preparation-20260922.json).
+
+With `--gb10-normalization`, the optional `AIMA_PORT_DECODE_ATTENTION=1`
+owner reads the actual resident token-major K/V planes and compact Q row.
+It reuses existing SM121 K16 QK and original Q2 online softmax/PV kernels,
+including the denominator's explicit FMA. It borrows the GDN owner's exp2
+table and SHA-validates `AIMA_PORT_ATTENTION_RCP_TABLE` before READY.
+The default-stream scratch is allocated once; no history copy, request-time
+allocation or reference activation input is introduced. Five host dispatch
+bindings and38 rejection/failure controls pass ASan/UBSan. These checks do
+not execute GPU attention arithmetic; native verification remains pending.
 
 The latest sampler preserves all 512 outputs and all 71 earlier observations.
 Across 128 fixed prefill rows, three of 262,144 input-normalization values
@@ -278,10 +294,10 @@ tensor is a runtime input. Four original decode rows across q7169/q8192 match
 all36864 normalization/rotary endpoints in CPU replay. Replaying the old rotary
 formula with original coefficients still differs from native in7 Q and1 K
 values, so it does not separately isolate every coefficient/normalization
-effect. Native verification must also resolve the19 unrotated prefill errors.
+effect. The subsequent73ce357 native run resolves all19 unrotated prefill errors
+and every other observed Q/K/cache difference, as recorded above.
 ASan/UBSan passes8 dispatch checks and54 invalid-binding/artifact controls.
-The import remains327 unchanged files,58 compile units and16 overlays.
-Native execution of this replacement remains pending.
+That head-repair build retains327 unchanged files,58 compile units and16 overlays.
 [Full-attention diagnosis and preparation](../benchmarks/correctness/linux-core-full-head-norm-rope-preparation-20260922.json).
 
 The upstream release refresh at09:56UTC finds the same five releases and

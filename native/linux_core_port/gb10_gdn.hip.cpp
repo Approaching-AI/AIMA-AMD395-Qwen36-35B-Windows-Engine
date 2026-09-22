@@ -166,6 +166,10 @@ const unsigned char* gb10_rsqrt_table() {
   if (!active || !active->rsqrt.data) throw std::runtime_error("GDN rsqrt owner is absent");
   return active->rsqrt.as<unsigned char>();
 }
+const unsigned char* gb10_exp2_table() {
+  if (!active || !active->exp2.data) throw std::runtime_error("GDN exp2 owner is absent");
+  return active->exp2.as<unsigned char>();
+}
 
 void set_gdn_prefill_observer(std::size_t layer, GdnPrefillObserver callback,
                               void* context, bool first64) {

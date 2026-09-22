@@ -5,7 +5,7 @@ The optional [Windows core prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md) imports
 `ec9934446911fdf376da8eebcd83e7b137efbb7c`. The concrete benefit under evaluation
 is replacing the current multi-second projection, recurrence and MoE route with
 the release's complete native resident computation. A native Windows q8192 run
-now completes, but its latest continuation fails GB10 at output115. Its timings remain
+now completes, but its latest continuation fails GB10 at output index2. Its timings remain
 diagnostic, and the product does not select this prototype.
 
 The optional `AIMA_PORT_FULL_ATTENTION_ROPE_TABLE` extension to the normalization
@@ -18,6 +18,17 @@ and engine load time. The table contains no prompt, activation or expected
 output. Existing Windows Q/K normalization and single-round BF16 RoPE arithmetic
 headers add no library. This replaces the observed differing head normalization,
 RoPE rounding and coefficient paths; whole-model qualification remains required.
+
+The optional `AIMA_PORT_DECODE_ATTENTION=1` extension uses the already loaded
+GDN exp2 table and existing Windows SM121 attention headers, adding no library.
+Its `AIMA_PORT_ATTENTION_RCP_TABLE` file is the existing model-independent
+8,388,640-byte reciprocal artifact, SHA256
+`d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39`.
+It adds one persistent device copy and606208bytes of scratch at the probe's
+9216-token capacity. The transient host table copy is released after upload;
+all hashing/allocation/upload work occurs before READY. It addresses355
+first-decode context differences observed with identical complete Q/K/V.
+The borrowed cache planes remain in place, and native correctness is pending.
 
 The import includes source, generated schedules, AOT GPU images and upstream
 licenses. It reuses Windows HIP, hipBLASLt and the existing CK provider. Python

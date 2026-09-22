@@ -129,7 +129,16 @@ def main():
             source_paths += [ROOT / "native/providers/gdn" / name for name in (
                 "sm121_q2_gated_math.h", "sm121_mtp_residual.h",
                 "sm121_mtp_residual_math.h", "sm121_mtp_math.h",
-                "sm121_mtp_kv_math.h", "sm121_bf16_fma.h")]
+                "sm121_mtp_kv_math.h", "sm121_bf16_fma.h", "sm121_exp2_interpolated.h")]
+            source_paths += [ROOT / "native/providers/ck_fmha" / name for name in (
+                "blackwell_attention.h", "float_pv_replay.h", "inplace_probability_storage.h",
+                "long_attention_layout.h", "packed_probability_storage.h")]
+            source_paths += [ROOT / "native/providers/moe_accumulator" / name for name in (
+                "sm121_integer_core.h", "sm121_integer_parts.h", "sm121_mantissa_parts.h",
+                "sm121_native_product.h", "sm121_prepared_bf16.h", "sm121_pv_error_bound.h",
+                "sm121_pv_final_bound.h", "sm121_strided_pair.h")]
+            source_paths += [ROOT / "native/providers/sm121_attention_capacity.h",
+                             ROOT / "native/src/qrt_context_limits.h"]
         record["source_inputs"] = [dict(path=p.relative_to(ROOT).as_posix(), bytes=p.stat().st_size,
                                         sha256=sha(p)) for p in sorted(source_paths) if p.is_file()]
         prepared = out / "prepared"
@@ -189,7 +198,9 @@ def main():
         objects = [obj]
         for index, source in enumerate(plan["sources"]):
             target = out / f"unit-{index:02d}.obj"
-            run(f"compile-{index:02d}", [hipcc, *flags, "-c", source, "-o", target])
+            arithmetic_flags = (["-fno-fast-math", "-fno-reciprocal-math", "-ffp-contract=off"]
+                                if Path(source).name == "gb10_decode_attention.hip.cpp" else [])
+            run(f"compile-{index:02d}", [hipcc, *flags, *arithmetic_flags, "-c", source, "-o", target])
             objects.append(target)
         # The existing process owner recognizes qrt* engine processes.
         executable = out / "qrt-linux-core-q8192-probe.exe"

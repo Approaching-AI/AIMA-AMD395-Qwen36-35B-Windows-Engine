@@ -27,6 +27,7 @@
 #endif
 #ifdef AIMA_PORT_GB10_NORMALIZATION
 #include "gb10_normalization.h"
+#include "gb10_decode_attention.h"
 #endif
 #ifdef AIMA_PORT_GB10_MOE
 #include "gb10_moe.h"
@@ -262,6 +263,7 @@ int run(const std::vector<std::string>& argv) {
 #endif
 #ifdef AIMA_PORT_GB10_NORMALIZATION
   aima_port::Gb10NormalizationOwner normalization;
+  aima_port::Gb10DecodeAttentionOwner decode_attention(9216);
 #endif
 #ifdef AIMA_PORT_GB10_MOE
   aima_port::Gb10MoeOwner moe;

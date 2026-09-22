@@ -335,6 +335,26 @@ def gb10_prefill_projection_overlay(text):
 
 
 def gb10_normalization_overlays(sources, read):
+    path = "native/src/native_full_attention.hip.cpp"
+    text = replace(read(path), '#include "aima/native_full_attention.h"',
+        '#include "aima/native_full_attention.h"\n#include "gb10_decode_attention.h"')
+    text = replace(text,
+        '  hipStream_t stream = static_cast<hipStream_t>(stream_value);\n  auto* k_cache =',
+        '  if (aima_port::gb10_decode_attention_enabled() && position + 1 != cache_end)\n'
+        '    throw std::invalid_argument("GB10 decode query must be the final cache row");\n'
+        '  hipStream_t stream = static_cast<hipStream_t>(stream_value);\n  auto* k_cache =')
+    sources[path] = replace(text,
+        '  check_hip(hipGetLastError(), "write_kv_kernel");\n',
+        '  check_hip(hipGetLastError(), "write_kv_kernel");\n'
+        "  if (aima_port::gb10_decode_attention_enabled()) {\n"
+        "    aima_port::gb10_decode_attention(q, k_cache, v_cache, attention, cache_end, stream);\n"
+        "    NativeFullAttentionCoreMetrics metrics;\n"
+        "    metrics.layer_index = layer_index;\n"
+        "    metrics.cache_end = cache_end;\n"
+        "    metrics.pv_splits = 1;\n"
+        "    metrics.native_kernel_launches = 4;\n"
+        "    return metrics;\n"
+        "  }\n")
     path = "native/src/native_linear_prefill.hip.cpp"
     text = replace(sources[path], '#include "gb10_gdn.h"',
         '#include "gb10_gdn.h"\n#include "gb10_normalization.h"')
@@ -758,6 +778,7 @@ def main():
         sources.append(str(ROOT / "native/linux_core_port/gb10_prefill_projection.hip.cpp"))
     if args.gb10_normalization:
         sources.append(str(ROOT / "native/linux_core_port/gb10_normalization.hip.cpp"))
+        sources.append(str(ROOT / "native/linux_core_port/gb10_decode_attention.hip.cpp"))
     if args.gb10_moe:
         sources.append(str(ROOT / "native/linux_core_port/gb10_moe.hip.cpp"))
     generated = [dict(path=p.relative_to(out).as_posix(), bytes=p.stat().st_size,
@@ -833,6 +854,14 @@ def main():
                 table_bytes=33554432, device_bytes=33554432,
                 table_sha256="ba12ce218327d4cf23aac7dfacd8e9efbc99fd207611a8466227089838ef0e80",
                 ordinary_text_only=True),
+            optional_decode_attention=dict(
+                environment="AIMA_PORT_DECODE_ATTENTION", enabled_value="1",
+                cache="borrowed separate token-major K/V planes including the current row",
+                arithmetic="SM121 K16 QK, original Q2 softmax/PV with denominator FMA",
+                exp2="borrowed from live GB10 GDN owner", query_rows=1,
+                reciprocal_environment="AIMA_PORT_ATTENTION_RCP_TABLE", reciprocal_bytes=8388640,
+                reciprocal_sha256="d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+                scratch_bytes_at_probe_capacity=606208, default_stream_only=True),
             model_qualified=False)
     if args.gb10_moe:
         report["optional_adaptations"]["gb10_moe"] = dict(

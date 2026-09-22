@@ -26,6 +26,7 @@ void gb10_decode_gdn(std::size_t layer, const void* convolution,
                     hipStream_t stream);
 // Borrowed immutable table; valid only within the live GDN owner's lifetime.
 const unsigned char* gb10_rsqrt_table();
+const unsigned char* gb10_exp2_table();
 using GdnPrefillObserver = void (*)(const char*, const void*, std::size_t, void*);
 void set_gdn_prefill_observer(std::size_t layer, GdnPrefillObserver callback,
                               void* context, bool first64 = false);
