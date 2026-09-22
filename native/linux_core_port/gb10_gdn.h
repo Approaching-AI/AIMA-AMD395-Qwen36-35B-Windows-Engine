@@ -31,6 +31,9 @@ struct NativeGdnMatrices { void* matrix_f32; void* inverse_bf16; };
 NativeGdnMatrices gb10_prepare_native_gdn(std::size_t layer, const void* convolution,
     const void* a, const void* b, void* q, void* k, void* v, void* g, void* beta,
     std::size_t tokens);
+// Preserve BF16(K*beta) before the decay product in the original W/U boundary.
+void gb10_native_gdn_wu(const void* k, const void* v, const void* beta,
+    void* w, void* u, const void* inverse, const void* g, std::size_t tokens);
 void gb10_decode_gdn(std::size_t layer, const void* convolution,
                     const void* a, const void* b, void* output, void* state,
                     hipStream_t stream);

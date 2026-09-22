@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "gb10_gdn.h"
+#include "aima/aot_kernel.h"
 #include "aima/sha256.h"
 #include "dlfcn.h"
 #include "../providers/gdn/fla_checkpoint.h"
@@ -16,6 +17,7 @@ namespace aima_port {
 namespace {
 struct Asset { const char* name; std::size_t bytes; const char* sha256; };
 #include "gb10_gdn_assets.inc"
+#include "gb10_gdn_wu_image.inc"
 using Launch = qrt_fla_checkpoint::SeededLaunch;
 using Prepare = int (*)(const char*);
 using Release = void (*)();
@@ -72,6 +74,7 @@ struct State {
   std::array<Device, 40> gate;
   Device beta, prefill_beta, exp2, rsqrt, raw, gates, output, decode_ab;
   Device native_matrix, native_inverse;
+  std::unique_ptr<aima::AotKernel> native_wu;
   GdnPrefillObserver observer = nullptr;
   void* observer_context = nullptr;
   std::size_t observer_layer = 0;
@@ -208,6 +211,11 @@ Gb10GdnOwner::Gb10GdnOwner() : impl_(std::make_unique<Impl>()) {
   if (s.native_prefill) {
     s.native_matrix.allocate(8192ull * 32 * 64 * sizeof(float));
     s.native_inverse.allocate(8192ull * 32 * 64 * sizeof(uint16_t));
+    if (aima::sha256_bytes(gdn_wu_image, sizeof(gdn_wu_image)) != gdn_wu_image_sha256)
+      throw std::runtime_error("Native GDN W/U embedded image identity differs");
+    s.native_wu = std::make_unique<aima::AotKernel>(
+        std::vector<unsigned char>(gdn_wu_image, gdn_wu_image + sizeof(gdn_wu_image)),
+        "recompute_w_u_fwd_kernel");
   }
   active = &s;
 }
@@ -319,6 +327,28 @@ NativeGdnMatrices gb10_prepare_native_gdn(std::size_t layer, const void* conv,
       s.gate[layer].as<float>(), s.prefill_beta.as<uint16_t>(), static_cast<unsigned>(tokens));
   check(hipGetLastError(), "Native GDN original V and gate preparation");
   return {s.native_matrix.data, s.native_inverse.data};
+}
+void gb10_native_gdn_wu(const void* k, const void* v, const void* beta,
+    void* w, void* u, const void* inverse, const void* g, std::size_t tokens) {
+  if (!active || !active->native_prefill || !active->native_wu || tokens != 8192 ||
+      inverse != active->native_inverse.data)
+    throw std::invalid_argument("Native GDN W/U owner or geometry is invalid");
+  const void* pointers[] = {k, v, beta, w, u, inverse, g};
+  const std::size_t bytes[] = {tokens * 2048 * 2, tokens * 4096 * 2, tokens * 32 * 4,
+      tokens * 4096 * 2, tokens * 4096 * 2, tokens * 32 * 64 * 2, tokens * 32 * 4};
+  for (unsigned i = 0; i < 7; ++i) {
+    const auto first = reinterpret_cast<std::uintptr_t>(pointers[i]);
+    if (!first || first % ((i == 2 || i == 6) ? 4 : 2) || first > UINTPTR_MAX - bytes[i])
+      throw std::invalid_argument("Native GDN W/U pointer is invalid");
+    for (unsigned j = 0; j < i; ++j) {
+      const auto other = reinterpret_cast<std::uintptr_t>(pointers[j]);
+      if (first < other + bytes[j] && other < first + bytes[i])
+        throw std::invalid_argument("Native GDN W/U live spans overlap");
+    }
+  }
+  std::int32_t count = 8192;
+  active->native_wu->launch(aima::AotLaunchConfig{128, 32, 1, 2, 32, 8192},
+      std::vector<void*>{&k, &v, &beta, &w, &u, &inverse, &g, &count});
 }
 void gb10_decode_gdn(std::size_t layer, const void* conv, const void* a,
     const void* b, void* output, void* state, hipStream_t stream) {

@@ -128,6 +128,30 @@ int main(int argc,char**argv) {
   assert(matrices.matrix_f32==s.native_matrix.data&&matrices.inverse_bf16==s.native_inverse.data);
   assert(fake_events==std::vector<std::string>({"prepare_native_qk","prepare_native_v_gate"}));
   fake_events.clear();assert(preparation_rejections==65);
+  assert(aima::sha256_bytes(gdn_wu_image,sizeof(gdn_wu_image))==gdn_wu_image_sha256);
+  std::array<void*,7> wu_pointers{pointers[0],pointers[1],pointers[2],pointers[3],pointers[4],s.native_inverse.data,pointers[6]};
+  auto wu=[&](const std::array<void*,7>& p,unsigned tokens=8192){
+    gb10_native_gdn_wu(p[0],p[1],p[2],p[3],p[4],p[5],p[6],tokens);
+  };
+  unsigned wu_rejections=0;
+  auto bad_wu=[&](auto fn){reject(fn);++wu_rejections;assert(fake_events.empty());};
+  bad_wu([&]{wu(wu_pointers);}); // Module is not loaded yet.
+  s.native_wu=std::make_unique<aima::AotKernel>(
+      std::vector<unsigned char>(gdn_wu_image,gdn_wu_image+sizeof(gdn_wu_image)),"recompute_w_u_fwd_kernel");
+  for(unsigned i=0;i<7;++i){
+    auto p=wu_pointers;p[i]=nullptr;bad_wu([&]{wu(p);});
+    p=wu_pointers;p[i]=reinterpret_cast<void*>(reinterpret_cast<std::uintptr_t>(p[i])+1);bad_wu([&]{wu(p);});
+    p=wu_pointers;p[i]=reinterpret_cast<void*>(UINTPTR_MAX-3);bad_wu([&]{wu(p);});
+    for(unsigned j=0;j<i;++j){p=wu_pointers;p[i]=p[j];bad_wu([&]{wu(p);});}
+  }
+  auto wu_overlap=wu_pointers;wu_overlap[3]=reinterpret_cast<void*>(0x100000000ull+8192ull*2048*2-2);
+  bad_wu([&]{wu(wu_overlap);});
+  for(unsigned tokens:{0u,8191u,8193u})bad_wu([&]{wu(wu_pointers,tokens);});
+  active=nullptr;bad_wu([&]{wu(wu_pointers);});active=&s;
+  s.native_prefill=false;bad_wu([&]{wu(wu_pointers);});s.native_prefill=true;
+  wu(wu_pointers);assert(fake_events==std::vector<std::string>({"native_wu_module"}));
+  for(unsigned i=0;i<7;++i)assert(fake_module_pointers[i]==reinterpret_cast<std::uintptr_t>(wu_pointers[i]));
+  assert(wu_rejections==49);fake_events.clear();
   s.native_prefill=false;
   gb10_prefill_gdn(0,conv.data(),a.data(),b.data(),out,&state,8192,false);
   assert(calls==1&&state==17&&fake_events==std::vector<std::string>({"prepare_prefill","cold","copy_core"}));
@@ -175,5 +199,5 @@ int main(int argc,char**argv) {
   assert(read(file,asset)==std::vector<unsigned char>({'a','b','c'}));
   {std::ofstream f(file,std::ios::binary);f<<"abd";}reject([&]{read(file,asset);});
   {std::ofstream f(file,std::ios::binary);f<<"ab";}reject([&]{read(file,asset);});
-  std::cout<<"{\"native_conversion_values_checked\":12480,\"native_preparation_rejections\":65,\"gpu_qk_norm_tested\":false,\"conversion_values_checked\":33027,\"sampled_values_checked\":2199680,\"sampling_input_unchanged\":true,\"first64_original_pointer_and_extent\":true,\"sampling_guards_pass\":true,\"observer_faults_rejected\":5,\"guards_pass\":true,\"provider_order_pass\":true,\"seeded_state_forwarded\":true,\"decode_q2_flags\":true,\"injected_provider_failure_rejected\":true,\"invalid_bindings_rejected\":6,\"artifact_faults_rejected\":2,\"native_prefill_rejections\":11,\"native_prefill_cold_scope_pass\":true}\n";
+  std::cout<<"{\"native_wu_rejections\":49,\"native_wu_abi_and_image_pass\":true,\"native_conversion_values_checked\":12480,\"native_preparation_rejections\":65,\"gpu_qk_norm_tested\":false,\"conversion_values_checked\":33027,\"sampled_values_checked\":2199680,\"sampling_input_unchanged\":true,\"first64_original_pointer_and_extent\":true,\"sampling_guards_pass\":true,\"observer_faults_rejected\":5,\"guards_pass\":true,\"provider_order_pass\":true,\"seeded_state_forwarded\":true,\"decode_q2_flags\":true,\"injected_provider_failure_rejected\":true,\"invalid_bindings_rejected\":6,\"artifact_faults_rejected\":2,\"native_prefill_rejections\":11,\"native_prefill_cold_scope_pass\":true}\n";
 }

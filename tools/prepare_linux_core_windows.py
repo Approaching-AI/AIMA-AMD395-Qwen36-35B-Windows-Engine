@@ -236,8 +236,20 @@ def native_gdn_chunk64_launches():
                 "                          kStateElements * sizeof(float)),",
                 '                "hipMemset native chunk64 cold initial state");',
             ]
-        code += [f'      executor.launch_embedded("{new["kernel_hash"]}",',
-                 f'          AotLaunchConfig{{{", ".join(map(str, config))}}}, parameters);', "    }"]
+        if offset == 6:
+            code += [
+                "      aima_port::gb10_native_gdn_wu(",
+                '          invocations.tensor_pointer(base + 6, "k"),',
+                '          invocations.tensor_pointer(base + 6, "v"),',
+                '          invocations.tensor_pointer(base + 6, "beta"),',
+                '          invocations.tensor_pointer(base + 6, "w"),',
+                '          invocations.tensor_pointer(base + 6, "u"), matrices.inverse_bf16,',
+                '          invocations.tensor_pointer(base + 6, "g"), tokens);',
+                "    }",
+            ]
+        else:
+            code += [f'      executor.launch_embedded("{new["kernel_hash"]}",',
+                     f'          AotLaunchConfig{{{", ".join(map(str, config))}}}, parameters);', "    }"]
     return "\n".join(code) + "\n"
 
 
@@ -291,7 +303,7 @@ def gb10_gdn_overlays(linear, prefill):
         "    aima_port::observe_gdn_prefill(options.layer_index, \"prefill-core-sampled\", core, 4096, tokens);\n"
         '    std::fprintf(stderr, "{\\\"event\\\":\\\"native_gdn_prefill\\\",\\\"layer\\\":%zu,'
         '\\\"tokens\\\":%zu,\\\"stages\\\":6,\\\"chunk_tokens\\\":64,'
-        '\\\"original_preparation\\\":true,\\\"cold\\\":true}\\n", options.layer_index, tokens);\n'
+        '\\\"original_preparation\\\":true,\\\"wu_bf16_product\\\":true,\\\"cold\\\":true}\\n", options.layer_index, tokens);\n'
         "  } else {\n"
         "  aima_port::gb10_prefill_gdn(options.layer_index,\n"
         "      invocations.tensor_pointer(base + 1, \"o_ptr\"),\n"
@@ -1198,8 +1210,10 @@ def main():
         report["optional_adaptations"]["gb10_gdn"]["native_prefill_opt_in"] = dict(
             setting="AIMA_PORT_NATIVE_GDN_PREFILL=1", scope="cold q8192 only",
             preparation="original XOR16 Q/K normalization, BF16 beta, FP32 decay table",
-            core="six existing dynamic-T q1024 chunk64 images with live q8192 tensors",
-            additional_scratch_bytes=100663296, model_qualified=False)
+            core="five existing dynamic-T q1024 chunk64 images and embedded W/U with original BF16 K*beta",
+            additional_scratch_bytes=100663296, corrected_wu_image_bytes=119768,
+            corrected_wu_image_sha256="eaa96fb413d1501666a1949b4bdf8171ed22b2a5b9208290379430ed10f6b667",
+            model_qualified=False)
     if args.gb10_projections:
         report["optional_adaptations"]["gb10_projections"] = dict(
             decode="existing Windows K16 width-26 SM121 projection arithmetic",

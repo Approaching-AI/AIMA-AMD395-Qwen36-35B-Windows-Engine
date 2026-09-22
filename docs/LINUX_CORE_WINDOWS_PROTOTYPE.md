@@ -43,6 +43,17 @@ and TPOT222.559631ms are diagnostic only. The remaining block arithmetic
 requires correction; the chunk64 route is not qualified or retained for speed.
 [Native chunk64 GDN result](../benchmarks/correctness/linux-core-native-gdn-chunk64-native-20260923.json).
 
+The W/U follow-up preserves the original BF16 rounding of K times beta before
+multiplying FP32 decay. The imported FP32 beta interface had removed that
+intermediate rounding. One corrected gfx1151 module is embedded separately
+from the unchanged 72 imported COFF images; its image is 119768 bytes. Offline
+compilation uses the pinned Triton 3.6.0 environment with GPU access disabled.
+Windows gains no Python or Triton dependency. The existing 96MiB matrix scratch
+is reused, and host ASan/UBSan verifies 49 rejected W/U bindings plus the actual
+AOT module ABI, image identity and launch geometry. GPU arithmetic and the
+complete GB10 continuation gate remain pending for this new image.
+[W/U repair preparation](../benchmarks/correctness/linux-core-native-gdn-wu-preparation-20260923.json).
+
 Native MoE correction `f210ff3` also passes the original cold q8192/out512
 boundary: all 512 tokens/callbacks, first 144 and logit 10.375 (zero error).
 It replaces the expert gate/up and weighted-down AOT products with FP32 WMMA

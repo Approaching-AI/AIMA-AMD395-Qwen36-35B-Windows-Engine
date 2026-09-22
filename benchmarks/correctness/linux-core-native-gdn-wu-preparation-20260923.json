@@ -1,0 +1,300 @@
+{
+  "schema": 1,
+  "kind": "native GDN W/U BF16 product repair preparation",
+  "preceding_native_source": "01659ba526d02e9078caa7fa92cadb8321aacc36",
+  "preceding_native_result_sha256": "6faf8076eb8034a179927f8390b47fc749262f0b6b6b60346e4bdf160c74f0ad",
+  "diagnosis": {
+    "original_source": "vllm/model_executor/layers/fla/ops/wy_fast.py",
+    "original_source_sha256": "f71518e77f0bbdcbd79ea2a6da3b75eb0394341b33bdce35a30979eb745f0834",
+    "original_source_inspection_sha256": "8fef91976de8cd0abef219f95037bac334d39d0cdaa0fe7dd5a219e55c120e02",
+    "original_boundary": "BF16(K * beta) is computed before FP32 decay multiplication and final BF16 conversion",
+    "imported_abi": "FP32 beta had removed intermediate BF16 rounding",
+    "existing_native_reference": "native/providers/gdn/blackwell_wu_output.cpp"
+  },
+  "implementation": {
+    "scope": "opt-in cold q8192 only",
+    "runtime_arguments": [
+      "k",
+      "v",
+      "beta",
+      "w",
+      "u",
+      "A",
+      "g",
+      "T"
+    ],
+    "grid": [
+      128,
+      32,
+      1
+    ],
+    "block": [
+      64,
+      1,
+      1
+    ],
+    "shared_bytes": 8192,
+    "imported_images": 72,
+    "separate_corrected_modules": 1,
+    "corrected_image_bytes": 119768,
+    "corrected_image_sha256": "eaa96fb413d1501666a1949b4bdf8171ed22b2a5b9208290379430ed10f6b667",
+    "additional_device_scratch_bytes_from_this_change": 0,
+    "existing_matrix_scratch_bytes": 100663296,
+    "additional_host_and_module_storage": true,
+    "new_external_runtime_files": 0,
+    "new_runtime_libraries": 0,
+    "runtime_python_required": false
+  },
+  "offline_compilation": {
+    "host": "aitopatom-66c4",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--network",
+      "none",
+      "--memory",
+      "8g",
+      "--cpus",
+      "4",
+      "-v",
+      "/home/qujing/qrt-native-gdn-wu-offline-20260923-r1:/work",
+      "-e",
+      "CUDA_VISIBLE_DEVICES=-1",
+      "-e",
+      "HIP_VISIBLE_DEVICES=-1",
+      "-e",
+      "ROCR_VISIBLE_DEVICES=-1",
+      "--entrypoint",
+      "timeout",
+      "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+      "--signal=TERM",
+      "--kill-after=5",
+      "90",
+      "python3",
+      "/work/compile.py"
+    ],
+    "returncode": 0,
+    "dispatch_sha256": "ed9ea414802f6f71a449723cda4d384fcad36123c6325b9342efe8828766e934",
+    "compiler": {
+      "triton_version": "3.6.0",
+      "source_sha256": "4c74551737debbca8d4fa6e7293ae3a89dd23bf2fc7867ba8536d2da16ec35d2",
+      "signature": {
+        "k": "*bf16",
+        "v": "*bf16",
+        "w": "*bf16",
+        "u": "*bf16",
+        "A": "*bf16",
+        "beta": "*fp32",
+        "g": "*fp32",
+        "T": "i32"
+      },
+      "constants": {
+        "cu_seqlens": null,
+        "chunk_indices": null,
+        "H": 32,
+        "Hg": 16,
+        "K": 128,
+        "V": 128,
+        "BT": 64,
+        "BK": 64,
+        "BV": 64,
+        "IS_VARLEN": false
+      },
+      "options": {
+        "num_warps": 2,
+        "num_stages": 2,
+        "enable_fp_fusion": true
+      },
+      "target": {
+        "backend": "hip",
+        "arch": "gfx1151",
+        "warp_size": 32
+      },
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": true,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "458523b2dc65ea932dfcec8b6992f61a66fabd3c00073f34e4ced85464ef55ca",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "recompute_w_u_fwd_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 2,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 8192,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "kernel_hash": "458523b2dc65ea932dfcec8b6992f61a66fabd3c00073f34e4ced85464ef55ca",
+      "files": [
+        {
+          "file": "kernel.hsaco",
+          "bytes": 119768,
+          "sha256": "eaa96fb413d1501666a1949b4bdf8171ed22b2a5b9208290379430ed10f6b667"
+        },
+        {
+          "file": "kernel.ttir",
+          "bytes": 14285,
+          "sha256": "807c9def6f27c8a264a9830a791d84473fdcc143b977290852d2e21d01c967b9"
+        },
+        {
+          "file": "kernel.ttgir",
+          "bytes": 26208,
+          "sha256": "88b95995971518a633feff99e635e223a55cd1c8db9a085c84da79af7104340c"
+        },
+        {
+          "file": "kernel.llir",
+          "bytes": 826641,
+          "sha256": "d2d09d6fa2c871795e0bd7f3651bea157eca3cc093b524097b242ed6488915ac"
+        },
+        {
+          "file": "kernel.amdgcn",
+          "bytes": 821128,
+          "sha256": "61c7f0ffb0e8070f353b51f581179e8988cbfd6eb301cf5f94d8b370b28a178d"
+        }
+      ],
+      "wall_ms": 2054.3828250374645,
+      "cpu_only": true,
+      "gpu_executed": false,
+      "inference_acceptance": false,
+      "offline_dispatch_sha256": "ed9ea414802f6f71a449723cda4d384fcad36123c6325b9342efe8828766e934",
+      "embedded_image_sha256": "c38f8d6e101495dd9e06546e92c0384737f3eee9581e52bc75e597442902128a",
+      "kernel_source": "native/linux_core_port/gb10_gdn_wu.py",
+      "embedded_image": "native/linux_core_port/gb10_gdn_wu_image.inc"
+    },
+    "cpu_only": true,
+    "gpu_executed": false
+  },
+  "tracked_compiler_validation": {
+    "report_sha256": "0f235bfbf9ed2dd202b5cd3139d563fc554ce9502e16265d37a532f87bb3f374",
+    "dispatch_sha256": "2fec8b722e7d0b1f7aad50cb8c95ce151fa7da7b701cf33f702b41fa0bd29fa2",
+    "compiler_script_sha256": "19f7a18d564b7d4d676ba62d62951934df06f618b9f8ba2f8b5cd32a5542faaa",
+    "same_source_signature_constants_options_target_kernel_hash_and_metadata": true,
+    "generated_image": {
+      "file": "kernel.hsaco",
+      "bytes": 119824,
+      "sha256": "fc502a70a73fec7ca1edad46ded5a134edda1e85af0d39a0d4fc99b6c440eaf8"
+    },
+    "runtime_uses_original_image": true,
+    "binary_hashes_may_differ_due_to_source_and_debug_paths": true,
+    "cpu_only": true,
+    "gpu_executed": false
+  },
+  "source_inputs": [
+    {
+      "path": "native/linux_core_port/gb10_gdn.h",
+      "bytes": 2508,
+      "sha256": "8d5c731543c61627e64f6c46ade7a0e14df6b9135d63d1280061f44596382db5"
+    },
+    {
+      "path": "native/linux_core_port/gb10_gdn.hip.cpp",
+      "bytes": 19996,
+      "sha256": "4d596125390f9cefdefec86cb1f30bf5c0da4cc1ae03592996f33a4c79526bb9"
+    },
+    {
+      "path": "native/linux_core_port/gb10_gdn_wu.py",
+      "bytes": 3333,
+      "sha256": "4c74551737debbca8d4fa6e7293ae3a89dd23bf2fc7867ba8536d2da16ec35d2"
+    },
+    {
+      "path": "native/linux_core_port/gb10_gdn_wu_compile.json",
+      "bytes": 3272,
+      "sha256": "f91ce5009efddad7561302279bdaf6e68a55d1b9cf4ddd27d46234d5ac17d9b1"
+    },
+    {
+      "path": "native/linux_core_port/gb10_gdn_wu_image.inc",
+      "bytes": 733918,
+      "sha256": "c38f8d6e101495dd9e06546e92c0384737f3eee9581e52bc75e597442902128a"
+    },
+    {
+      "path": "tools/prepare_linux_core_windows.py",
+      "bytes": 85904,
+      "sha256": "7e919042a1bf3c92477aa268bd35d66bc70801405ff22a5b73bbacd6ea42dbc9"
+    },
+    {
+      "path": "tools/compile_linux_core_gdn_wu.py",
+      "bytes": 3926,
+      "sha256": "19f7a18d564b7d4d676ba62d62951934df06f618b9f8ba2f8b5cd32a5542faaa"
+    }
+  ],
+  "host_contract": {
+    "report_sha256": "913edcd1f0a9ca6989406519b804b531b1ace094f7d4ae23f06942240bc9a8df",
+    "native_wu_rejections": 49,
+    "native_wu_abi_and_image_pass": true,
+    "native_conversion_values_checked": 12480,
+    "native_preparation_rejections": 65,
+    "gpu_qk_norm_tested": false,
+    "conversion_values_checked": 33027,
+    "sampled_values_checked": 2199680,
+    "sampling_input_unchanged": true,
+    "first64_original_pointer_and_extent": true,
+    "sampling_guards_pass": true,
+    "observer_faults_rejected": 5,
+    "guards_pass": true,
+    "provider_order_pass": true,
+    "seeded_state_forwarded": true,
+    "decode_q2_flags": true,
+    "injected_provider_failure_rejected": true,
+    "invalid_bindings_rejected": 6,
+    "artifact_faults_rejected": 2,
+    "native_prefill_rejections": 11,
+    "native_prefill_cold_scope_pass": true,
+    "sanitizers": [
+      "address",
+      "undefined"
+    ],
+    "actual_gpu_arithmetic_tested": false
+  },
+  "preparation": {
+    "report_sha256": "aebd6304a343862a228f08b476da558a39bdcb16c4a4e5006ade51dd1a3e2793",
+    "imported_files": 327,
+    "compilation_units": 60,
+    "imported_images": 72,
+    "separate_embedded_modules": 1,
+    "changed_overlays": [
+      "native/src/native_linear_prefill.hip.cpp"
+    ],
+    "other_overlays_unchanged": 16,
+    "imported_images_unchanged": true
+  },
+  "native_model_execution_pending": true,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

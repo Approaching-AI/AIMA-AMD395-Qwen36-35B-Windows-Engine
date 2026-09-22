@@ -1,5 +1,17 @@
 # Experimental Linux compute core
 
+The optional chunk64 native GDN route adds 100663296 bytes of persistent A/Ai
+device scratch before READY. Its W/U follow-up embeds one 119768-byte gfx1151
+module alongside the unchanged 72 imported COFF images. The concrete benefit
+under test is restoring the original intermediate BF16 K-times-beta rounding
+without returning to the slower qualified recurrence. Image identity is checked
+before module loading. The module's host copy and HIP module storage are extra;
+there is no new file loaded by the runtime. Its 733918-byte generated C++ include
+and kernel source/provenance are retained in the source tree. Offline compilation
+uses the existing pinned Triton 3.6.0 container on CPU, with no GPU access; Python,
+Triton and CUDA are not Windows runtime dependencies. Native numerical, load-time
+and complete token qualification are required before this image can be retained.
+
 The optional cold-q8192 terminal-layer trial reuses the existing exact
 attention and projection headers, resident K/V, reciprocal/exp2 tables and
 scratch. Its single-row MoE call uses the pinned provider's existing
