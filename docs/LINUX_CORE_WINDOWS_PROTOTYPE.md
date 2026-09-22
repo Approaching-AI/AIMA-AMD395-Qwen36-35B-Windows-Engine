@@ -3,8 +3,8 @@
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
 It is not enabled in the Windows product. The GDN, singleton/dense projection
-and embedding-normalization replacement (`c6c7903`) runs the real model on baiying.
-The original q8192 first token and logit match GB10, but output 115 diverges.
+and normalization replacement (`6ea9adf`) runs the real model on baiying.
+The q8192 first token and logit pass the GB10 boundary, but output 115 diverges.
 Complete continuation, performance and release qualification remain open.
 
 The latest sampler preserves all 512 outputs and all 71 earlier observations.
@@ -57,7 +57,7 @@ Eligible plans with no BLAS solution now select the existing Windows provider's
 M64/N128/K16 WMMA producer geometry. The two weight layouts and K512/2048/4096
 are supported, followed by the same selection and exact replay. Unsupported
 short-context plans keep their original behavior, and a borrowed plan cannot
-reuse an empty fallback algorithm. This fallback still needs a native model run.
+reuse an empty fallback algorithm. The following run validates its native wiring.
 
 Source `c6c7903` now completes the native q8192/out512 request. Only the N1/K2048
 shared-gate plan needs WMMA fallback. All 1,048,576 sampled layer-zero QKV values,
@@ -86,6 +86,22 @@ and singleton decode. Its table owner borrows the GDN reciprocal-root table;
 the additional FP32 SiLU table is loaded before READY. Host checks verify table
 identity, lifetime requirements, output ordering and invalid bindings. They do
 not execute the GPU reductions or establish complete-model correctness.
+
+Source `6ea9adf` passes all 57 native compilation units and completes the real
+q8192/out512 run. The 1,055 prefill gated-norm and 107 decode residual-norm
+differences are eliminated. Every observed layer-zero prefill surface through
+output projection and all 524,288 FP32 state values match GB10. First decode
+matches through shared MoE. One FP32 routing weight and one BF16 routed output
+differ; the resulting layer-zero BF16 carrier still matches, while the next
+layer's carrier differs. These observations do not establish the next cause.
+
+Continuation still fails at output 115 (196 versus 271), with 395 differences.
+First token 144 and logit 10.3125 pass the 0.125 reference tolerance. Loading is
+25804.0586 ms, diagnostic TTFT28864.1257 ms and TPOT67.2769170 ms. Host checks
+and cleanup pass. These timings are not retained performance. The next
+observation selects layer one in the unchanged executable to separate its
+incoming normalization, prefill state and MoE boundaries.
+[Native normalization result](../benchmarks/correctness/linux-core-gb10-normalization-native-20260922.json).
 
 The latest ordinary Windows q8192 control is 23272.0441 ms TTFT. Structural
 projection and QK alternatives preserved component bits but increased their
