@@ -733,6 +733,31 @@ def make_overlays(*, rectangular_ck=False, current_text_decode=False,
         "  DynamicLaunchFn dynamic_launch_ = nullptr;")
     prefill = "native/src/native_full_prefill.hip.cpp"
     sources[prefill] = full_prefill_overlay(read(prefill))
+    # The imported resident owner already loads this embedded plan for VL.
+    # Trial its identical contiguous Q/K/V ABI on a cold ordinary-text q8192
+    # request; keep positional transforms, cache writes and decode separate.
+    sources[prefill] = replace(sources[prefill], "#include <cstdio>",
+        "#include <cstdio>\n#include <cstdlib>")
+    sources[prefill] = replace(sources[prefill],
+        "  const bool use_vl_unified_attention =\n"
+        "      use_mrope && active_tokens != tokens &&\n"
+        "      options.cache_position_start == 0;",
+        '  const char* native_text_setting = std::getenv("AIMA_PORT_NATIVE_ATTENTION_PREFILL");\n'
+        "  const bool use_native_text_attention = native_text_setting != nullptr &&\n"
+        "      native_text_setting[0] == '1' && native_text_setting[1] == '\\0' &&\n"
+        "      !use_mrope && tokens == 8192 && active_tokens == tokens &&\n"
+        "      options.cache_position_start == 0;\n"
+        "  const bool use_vl_unified_attention = use_native_text_attention ||\n"
+        "      (use_mrope && active_tokens != tokens &&\n"
+        "       options.cache_position_start == 0);")
+    sources[prefill] = replace(sources[prefill],
+        "    ++result.layer.native_vl_unified_attention_launches;\n",
+        "    ++result.layer.native_vl_unified_attention_launches;\n"
+        "    if (use_native_text_attention)\n"
+        '      std::fprintf(stderr, "{\\\"event\\\":\\\"native_attention_prefill\\\",'
+        '\\\"layer\\\":%zu,\\\"queries\\\":%zu,\\\"kv_tokens\\\":%zu,'
+        '\\\"embedded_kernel\\\":\\\"85618d461d690f5f7732dfd55b693df8c15642737aa2c1cf66b0674ffd4d7a30\\\"}\\n",\n'
+        "          options.layer_index, active_tokens, options.cache_position_start + active_tokens);\n")
     if gb10_prefill_projections:
         sources[prefill] = replace(sources[prefill], '#include "aima/native_full_prefill.h"',
             '#include "aima/native_full_prefill.h"\n#include "gb10_prefill_projection.h"')
@@ -887,6 +912,14 @@ def main():
         image_bytes=sum(x["bytes"] for x in images),
         vision_image=str(aot / "vision-attention-v0.3.0/kernels/d09fefdcb1ddb6cb-_fwd_kernel.hsaco"),
         windows_build_qualified=False, model_correctness_qualified=False, performance_qualified=False)
+    report["optional_native_attention_prefill"] = dict(
+        environment="AIMA_PORT_NATIVE_ATTENTION_PREFILL", enabled_value="1",
+        scope="ordinary text; exact8192 active queries; cold cache position zero",
+        backend="existing resident NativeVlUnifiedAttentionPlan; embedded kernel_unified_attention_2d",
+        query_output_layout="BF16 [8192,16,256]", kv_layout="resident token-major BF16 [capacity,2,256]",
+        positional_transform="unchanged GB10 head norm and ordinary RoPE when enabled",
+        gate="existing BF16-input sigmoid gate", decode_changed=False,
+        additional_device_bytes=0, additional_artifact_bytes=0, model_qualified=False)
     if args.windows_rectangular_ck:
         adapter = ROOT / "native/linux_core_port/ck_suffix_adapter.h"
         report["optional_adaptations"] = dict(windows_rectangular_ck=True,

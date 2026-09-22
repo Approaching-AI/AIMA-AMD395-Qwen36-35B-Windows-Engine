@@ -3,10 +3,10 @@
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
 It is not enabled in the Windows product. The latest qualified source
-`42c7983` passes the complete cold q8192/out512 correctness boundary on baiying
+`cbe133b` passes the complete cold q8192/out512 correctness boundary on baiying
 with the real model: all512 tokens and callbacks match GB10, with
-first144/logit10.375. Loading is27552.6066ms, diagnostic TTFT26516.5256ms and
-TPOT235.511273ms. The earlier `9447947` run also has all72 second-decode
+first144/logit10.375. Loading is27378.1457ms, diagnostic TTFT23743.2368ms and
+TPOT228.804659ms. The earlier `9447947` run also has all72 second-decode
 comparisons matching in BF16 and a bitwise-exact final normalization.
 Performance, other product shapes, prefix continuation and release remain open.
 
@@ -53,7 +53,7 @@ HIP elapsed readings; raw values are preserved as diagnostic anomalies.
 The independently measured wall time and unchanged GB10 token gate pass.
 [Completed projection profile and replacement preparation](../benchmarks/correctness/linux-core-prefill-profile-and-wmma-preparation-20260922.json).
 
-The next comparison keeps WMMA only for K4096 OUT
+Source `cbe133b` keeps WMMA only for K4096 OUT
 (`AIMA_PORT_PREFILL_WMMA_OUTPUT_ONLY=1`), uses hipBLASLt for inputs and enables
 `AIMA_PORT_PREFILL_FULL_COARSE=1` at the10 actual full-attention OUT call sites.
 The existing vector/domain C64 producer computes a center and interval;
@@ -66,9 +66,25 @@ Host ASan/UBSan checks30 linear and10 full scopes, interval edges, event
 lifetime and171 invalid bindings. Existing arithmetic checks pass4194304
 normalization cases and the original coarse-bound suite. Native preparation
 preserves327 imports,60 units and72 images, binding419 source inputs. Profiling
-now flags every negative elapsed interval without clamping it. Native GB10
-qualification of this combined route is pending.
+now flags every negative elapsed interval without clamping it. The native
+run passes all512 outputs/callbacks and first144/logit10.375. All10 full OUT
+and30 linear OUT scopes execute. TTFT falls2773.2888ms from the preceding
+run. Full OUT candidates fall to39589439 and diagnostic replay to826.95183ms.
+Seventy-three elapsed intervals across38 calls are flagged; stage sums remain
+diagnostic. The native request/callback wall clocks are separate and valid.
 [Native WMMA result and full-OUT preparation](../benchmarks/correctness/linux-core-prefill-wmma-native-and-coarse-preparation-20260922.json).
+
+The next experiment enables `AIMA_PORT_NATIVE_ATTENTION_PREFILL=1` for the
+already resident embedded `kernel_unified_attention_2d` plan on ordinary
+cold q8192 text. It uses the same contiguous normalized Q and resident K/V,
+existing metadata and dead FP32 scratch as its BF16 destination, then the
+existing BF16-input sigmoid gate. It applies only to8192 unpadded queries
+at cache position zero without M-RoPE; other routing and decode stay as before.
+Each actual invocation reports its layer, query/KV geometry and embedded
+kernel identity. No artifact or allocation is added. Prepared-source checks
+preserve327 imports,60 units and72 images. This arithmetic replacement needs
+its own complete GB10 continuation result before any runtime gain is retained.
+[Coarse native result and embedded-attention preparation](../benchmarks/correctness/linux-core-prefill-coarse-native-and-attention-preparation-20260922.json).
 
 The preceding complete decode-MoE repair (`5585977`) runs the real model on
 baiying. All 40 first-decode layer carriers

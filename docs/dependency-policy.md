@@ -73,6 +73,10 @@ arithmetic headers and adds67108864bytes of persistent error storage before
 READY. Eligibility reuses the dead norm-bound buffers. It introduces no DLL,
 table or new external dependency. The existing DPP/compact integer backend
 flags change compiled instructions without changing the arithmetic contract.
+The optional ordinary-text unified-attention trial uses the plan, embedded
+images, cache, metadata and scratch already loaded by the imported engine.
+It adds zero artifact bytes and zero device allocation. Complete GB10
+continuation must qualify this separate attention arithmetic choice.
 
 The import includes source, generated schedules, AOT GPU images and upstream
 licenses. It reuses Windows HIP, hipBLASLt and the existing CK provider. Python
