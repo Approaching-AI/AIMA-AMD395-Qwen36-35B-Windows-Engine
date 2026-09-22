@@ -2,9 +2,10 @@
 
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
-It is not enabled in the Windows product. The repaired `3560785` runtime
-continues its complete 256k regression independently. There is no Windows
-build, model correctness or performance qualification for this prototype yet.
+It is not enabled in the Windows product. Source `0a57516` now builds and runs
+the real model natively on baiying. The original q8192 first token and logit
+match GB10, but output 115 diverges. Complete continuation, performance and
+release qualification remain open.
 
 The latest ordinary Windows q8192 control is 23272.0441 ms TTFT. Structural
 projection and QK alternatives preserved component bits but increased their
@@ -89,19 +90,26 @@ rejection controls and both exact logit-tolerance edges. The host I/O test reads
 a Unicode-named sparse fixture beyond 4 GiB and checks truncation, EOF and invalid
 offset handling. Its POSIX branch does not qualify the Win32 branch.
 
-Read-only baiying inspection confirms the ROCm hipBLASLt library and required
-headers are installed, and the real model's config/index SHA values equal the
-imported layout. Native compilation and correctness-attached product measurement
-are still required before this route can be selected.
+Native Windows compilation now passes all 53 units, the Win32 Unicode/sparse
+file contract, and all 72 embedded image checks. The resulting executable is
+7,135,744 bytes. Its actual q8192/out512 run completes with all 512 callbacks,
+no oracle reads and clean host checks. The first 115 outputs match GB10;
+output 115 is 196 instead of 271. The first token/logit is 144/10.375, matching
+the original reference. Internal LM-head certification is not a GB10 result.
+
+Observed command-to-ready is 24,186.8901 ms, TTFT 11,467.4034 ms and TPOT
+28.6790133 ms. These are diagnostic timings from a failed continuation, not
+retained performance. The 10-second boundary and all original targets remain.
+[Completed native build and original-model result](../benchmarks/correctness/linux-core-windows-original-q8192-20260922.json).
 
 The [preparation evidence](../benchmarks/correctness/linux-core-windows-preparation-20260922.json)
 binds these checks to Windows experiment source
 `0a57516e8c7c1dba55a077eba9d38b6155a0620e`, including the actual PowerShell parser
-result on baiying. A controller is queued behind the repaired runtime's complete
-256k owner. It has not dispatched compilation or inference. Its fixed blueprint
-binds 335 build inputs, the original prompt, existing CK DLL and arithmetic
-tables; only the completed prior-owner receipt is filled after cleanup. The
-subsequent build and q8192/out512 phases must pass their own evidence checks.
+result on baiying. Its queued controller waited for the repaired runtime's
+complete 256k owner to exit and pass cleanup before dispatching the build and
+model run. The fixed blueprint binds 335 build inputs, the original prompt,
+existing CK DLL and arithmetic tables. The immutable continuation observer
+rejects the completed model output; no broader product claim follows.
 
 The later [dependency inventory](../benchmarks/correctness/linux-core-windows-dependencies-20260922.json)
 also records the installed gfx1151 hipBLASLt data and DLL imports. Its96 selected
@@ -120,7 +128,7 @@ qualify relocation or the experiment's numerical output.
 ## Optional continuation ABI preparation
 
 Later source adds `--windows-rectangular-ck` to the preparation and build tools.
-The queued `0a57516` experiment does not use it. The default seven overlays are
+The completed `0a57516` experiment does not use it. The default seven overlays are
 byte-identical to that frozen source, and its GB10 observer is unchanged.
 
 The option maps Linux's contiguous token-major BF16 KV cache to the existing

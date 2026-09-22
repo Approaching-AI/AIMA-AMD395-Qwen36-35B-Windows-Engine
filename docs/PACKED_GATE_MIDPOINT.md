@@ -1,6 +1,6 @@
 # Packed gate midpoint diagnosis
 
-The current c268256k run first emits the wrong token at suffix output124.
+The preceding c268 256k run first emits the wrong token at suffix output 124.
 Its earlier numerical cause is a packed B projection at input position263238:
 layer5, head13 produces BF16 `0xbebc` instead of original GB10 `0xbebd`.
 This is reproduced on baiying with the original normalized input and model
@@ -50,9 +50,27 @@ The ordinary q8192 and four native-MTP short model controls now pass all1,120
 original output IDs, callbacks and first logits. Ordinary q8192 load is
 21517.6512ms, TTFT23272.0441ms and TPOT101.032956ms.
 [Original-model short controls](../benchmarks/correctness/packed-gate-midpoint-products-20260922.json).
-The complete256k continuation is running and remains unqualified. No retained
-performance or release acceptance is claimed.
+The repaired complete 256k run now finishes with native exit 6. Its first 189
+suffix outputs match GB10; output 189 is 2468 instead of 8240. The previous
+output 124 now correctly equals 4980. Both first-token logits and retry
+restoration pass, but the later owner continuation, timed suffix and negative
+branches are not reached. No retained performance or release acceptance is
+claimed.
 [Native failure, causal replay and candidate checks](../benchmarks/correctness/layer5-small-gate-midpoint-diagnosis-20260922.json).
+
+At the same captured input positions 263290 and 263291, all compared surfaces
+through layer 7 now match bitwise, including the repaired layer 5 state.
+The earliest remaining observed difference is layer 8's incoming recurrent
+state. Its earlier cause, and the cause of output 189, are not yet established.
+The completed run retains all 1,559 raw observations with verified hashes,
+passes host checks and leaves no native process running.
+[Completed run and remaining mismatch](../benchmarks/correctness/packed-gate-midpoint-prefix256k-remaining-failure-20260922.json).
+
+Three CLI provenance fields in that run's emitted metadata still name the old
+build. The original success observer correctly rejects them. The pinned
+launch script instead verifies the repaired build metadata, and preflight
+records the repaired executable's exact SHA. The diagnostic account preserves
+both facts and the original records; it does not promote the failed run.
 
 The [portable package preparation](../benchmarks/correctness/packed-gate-midpoint-package-prepared-20260922-r2.json)
 binds the actual repaired whole provider and CLI. The server retains its c268
