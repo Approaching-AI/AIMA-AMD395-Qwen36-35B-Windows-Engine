@@ -17,6 +17,9 @@ bool gb10_prefill_projection_shape(std::size_t tokens, std::size_t rows,
                                    std::size_t reduction, bool bias);
 void* gb10_prefill_projection_buffer(std::size_t tokens, std::size_t rows,
                                     std::size_t reduction, void* stream);
+void gb10_prefill_projection_fallback(const void* input, const void* weights,
+    std::size_t tokens, std::size_t rows, std::size_t reduction,
+    bool weight_rows_contiguous, void* stream);
 void gb10_prefill_projection_finish(const void* input, const void* weights,
     void* output, std::size_t tokens, std::size_t rows, std::size_t reduction,
     bool weight_rows_contiguous, void* stream);

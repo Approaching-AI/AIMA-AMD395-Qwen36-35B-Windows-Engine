@@ -284,18 +284,28 @@ def gb10_projection_overlays(sources, read):
 
 def gb10_prefill_projection_overlay(text):
     text = replace(text, '#include "aima/bf16_gemm.h"',
-        '#include "aima/bf16_gemm.h"\n#include "gb10_prefill_projection.h"')
+        '#include "aima/bf16_gemm.h"\n#include "gb10_prefill_projection.h"\n#include <cstdio>')
     text = replace(text, "  bool bias_epilogue = false;",
-        "  bool bias_epilogue = false;\n  bool gb10_prefill = false;")
+        "  bool bias_epilogue = false;\n  bool gb10_prefill = false;\n  bool gb10_wmma = false;")
     text = replace(text, "  impl_->m = m;",
         "  impl_->gb10_prefill = aima_port::gb10_prefill_projection_shape(m, n, k, bias_epilogue);\n"
         "  // FP32 and BF16 destinations cannot share a selected BLAS algorithm.\n"
         "  // Keep the preceding source-geometry validation, then select a new\n"
         "  // algorithm when deriving a different destination type.\n"
         "  if (algorithm_source != nullptr &&\n"
-        "      algorithm_source->impl_->gb10_prefill != impl_->gb10_prefill)\n"
+        "      (algorithm_source->impl_->gb10_prefill != impl_->gb10_prefill ||\n"
+        "       algorithm_source->impl_->gb10_wmma))\n"
         "    algorithm_source = nullptr;\n"
         "  impl_->m = m;")
+    text = replace(text,
+        "      if (selected == heuristics.begin() + impl_->heuristic_count) {",
+        "      if (selected == heuristics.begin() + impl_->heuristic_count) {\n"
+        "        if (impl_->gb10_prefill) {\n"
+        "          impl_->gb10_wmma = true;\n"
+        '          std::fprintf(stderr, "GB10_PREFILL_WMMA m=%zu n=%zu k=%zu transposed=%u\\n",\n'
+        "              m, n, k, unsigned(right_operand_is_transposed));\n"
+        "          return;\n"
+        "        }")
     for name in ("c", "d"):
         text = replace(text,
             f"hipblasLtMatrixLayoutCreate(&impl_->{name}_layout, HIP_R_16BF,",
@@ -311,8 +321,13 @@ def gb10_prefill_projection_overlay(text):
     method = replace(method,
         "                 d, impl_->c_layout, d, impl_->d_layout, &impl_->algorithm,",
         "                 destination, impl_->c_layout, destination, impl_->d_layout, &impl_->algorithm,")
+    method = replace(method, "  check_blas(hipblasLtMatmul(",
+        "  if (impl_->gb10_wmma) {\n"
+        "    aima_port::gb10_prefill_projection_fallback(a, b, impl_->m, impl_->n,\n"
+        "        impl_->k, impl_->right_operand_is_transposed, stream);\n"
+        "  } else {\n  check_blas(hipblasLtMatmul(")
     method = replace(method, '             "hipblasLtMatmul");',
-        '             "hipblasLtMatmul");\n'
+        '             "hipblasLtMatmul");\n  }\n'
         "  if (impl_->gb10_prefill)\n"
         "    aima_port::gb10_prefill_projection_finish(a, b, d, impl_->m, impl_->n,\n"
         "        impl_->k, impl_->right_operand_is_transposed, stream);")
@@ -572,7 +587,7 @@ def main():
     if args.gb10_prefill_projections:
         report["optional_adaptations"]["gb10_prefill_projections"] = dict(
             tokens=8192, maximum_rows=12352, reductions=[512, 2048, 4096],
-            producer="existing hipBLASLt BF16 inputs, FP32 destination",
+            producer="hipBLASLt BF16 inputs, FP32 destination; existing WMMA K16 geometry when no solution exists",
             replay="existing lossless scaled-half staged SM121 K16 arithmetic",
             selector="radius512 plus L2 upper bounds, 1000 ppb / K4096 10000 ppb",
             maximum_window_cells=1048576, candidate_counts="device-owned; no host count copy",

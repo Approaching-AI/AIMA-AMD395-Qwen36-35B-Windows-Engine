@@ -24,6 +24,8 @@ def main():
 inline dim3 gridDim;
 inline unsigned __clz(unsigned v) { return __builtin_clz(v); }
 template<class T> T __shfl_xor(T v, unsigned, unsigned) { return v; }
+template<class A,class B,class C> C recording_wmma(A,B,C value) { return value; }
+#define __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32 recording_wmma
 inline unsigned atomicAdd(unsigned* p, unsigned v) { unsigned old=*p; *p+=v; return old; }
 inline unsigned atomicOr(unsigned* p, unsigned v) { unsigned old=*p; *p|=v; return old; }
 inline int hipMemsetAsync(void* p, int v, size_t bytes, void*) {

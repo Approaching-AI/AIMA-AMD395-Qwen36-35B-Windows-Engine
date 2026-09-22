@@ -93,8 +93,9 @@ int main() {
   reject([&]{gb10_prefill_projection_finish(nullptr, original.data(), output.data(), 8192, 32, 2048, true, nullptr);});
   reject([&]{gb10_prefill_projection_finish(original.data(), original.data(), state.raw.data, 8192, 32, 2048, true, nullptr);});
   fake_events.clear();
+  gb10_prefill_projection_fallback(original.data(), transposed.data(), 8192, 32, 2048, false, nullptr);
   gb10_prefill_projection_finish(original.data(), transposed.data(), output.data(), 8192, 32, 2048, false, nullptr);
-  assert(fake_events == std::vector<std::string>({"prepare_operands", "prepare_operands", "row_l2", "row_l2", "memset", "select_and_round", "replay_selected"}));
+  assert(fake_events == std::vector<std::string>({"fallback_matmul", "prepare_operands", "prepare_operands", "row_l2", "row_l2", "memset", "select_and_round", "replay_selected"}));
   active = nullptr;
   std::cout << "{\"lossless_operand_values\":2048,\"both_weight_layouts_match\":true,"
                "\"full_window_candidates\":1048576,\"window_guards_pass\":true,"

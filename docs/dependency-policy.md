@@ -74,6 +74,10 @@ The maximum candidate window has 1,048,576 cells, so even complete selection
 fits its buffer. Counts remain on the GPU. Seven earlier overlay modes are
 unchanged. No external library or offline asset is added; real-model numerical,
 memory and performance qualification remain required.
+If the installed hipBLASLt has no algorithm for an eligible FP32 destination,
+the optional path uses the existing provider's ascending-K16 WMMA geometry.
+This needs no extra library, table or device allocation, and its complete cost
+is included in the same request timing.
 
 The [installed Windows dependency inventory](../benchmarks/correctness/linux-core-windows-dependencies-20260922.json)
 finds a6,012,312-byte hipBLASLt DLL. Its installed data directory contains1078

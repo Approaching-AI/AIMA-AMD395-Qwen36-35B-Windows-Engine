@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "base_commit": "d126aa4e75b1cc8393b41e32385a4b63e407c16e",
+  "host_contract": {
+    "result": {
+      "lossless_operand_values": 2048,
+      "both_weight_layouts_match": true,
+      "full_window_candidates": 1048576,
+      "window_guards_pass": true,
+      "input_immutable": true,
+      "selector_edges_pass": true,
+      "queued_kernel_order_pass": true,
+      "invalid_bindings_rejected": 9,
+      "gpu_replay_executed": false
+    },
+    "build_command": [
+      "clang++",
+      "-std=c++17",
+      "-O1",
+      "-ffp-contract=off",
+      "-fsanitize=address,undefined",
+      "-I",
+      "<repo>/build/linux-core-gb10-prefill-projection-local-r1/host-r4/stub",
+      "<repo>/native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
+      "-o",
+      "<repo>/build/linux-core-gb10-prefill-projection-local-r1/host-r4/host-contract"
+    ],
+    "inputs": [
+      {
+        "path": "native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
+        "sha256": "ac5ed2cc4c9bd48958865e78d322d36ba46742392544e70c0963529eaa35bd5a"
+      },
+      {
+        "path": "native/linux_core_port/gb10_prefill_projection.hip.cpp",
+        "sha256": "130f75ec5847a3af2151b99260c9b24b15f132a76a3af5264e1ac22e5ef98ee9"
+      },
+      {
+        "path": "native/linux_core_port/gb10_prefill_projection.h",
+        "sha256": "9651601b7cd45c1da290ab978ac47f71b90a661314a9358a19862dced87c3bc1"
+      },
+      {
+        "path": "tools/test_linux_core_prefill_projection.py",
+        "sha256": "ed90b3590158ee840c0a917e743bd39939495af9d699a75edf24d3eedb985153"
+      },
+      {
+        "path": "tools/test_linux_core_gdn.py",
+        "sha256": "7d9d6e05b721f17b4245a9c31f6d78a2d729f7bd251c024e662db91c8d47f517"
+      }
+    ],
+    "stub_sha256": "08ebd464503ad2943d32d44df6a929d45cb1a753a484487f949153dbd100e70c",
+    "host_only": true,
+    "model_inference_acceptance": false
+  },
+  "generated_plan_sha256": "cfb58a0bcde773fcea464062e8e0e10b721422c3c5669b572bb87554b02a8e4f",
+  "native_result_sha256": "12c6b0002edccfa3df4ee6c74a97d93fce9046ddf6cfcf5e3c153148590681b6",
+  "native_model_qualified": false,
+  "performance_acceptance": false
+}

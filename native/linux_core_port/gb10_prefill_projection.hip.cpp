@@ -28,6 +28,56 @@ void check(hipError_t error) {
   if (error != hipSuccess) throw std::runtime_error("Prefill projection GPU operation failed");
 }
 
+using WmmaBf16 = unsigned short __attribute__((ext_vector_type(16)));
+using WmmaF32 = float __attribute__((ext_vector_type(8)));
+// Same ascending-K16 WMMA producer and M64/N128 LDS geometry as the existing
+// Windows provider, generalized to the imported engine's two weight views.
+// It covers shapes for which the installed hipBLASLt has no FP32 destination
+// solution; the same selector and exact replay follow either producer.
+static __global__ void fallback_matmul(const uint16_t* input, const uint16_t* weights,
+    float* output, unsigned tokens, unsigned rows, unsigned width, bool contiguous) {
+  constexpr unsigned stride = 66;
+  __shared__ uint16_t weight_tile[128][stride];
+  __shared__ uint16_t input_tile[64][stride];
+  const unsigned thread = threadIdx.x, wave = thread / 32u, lane = thread % 32u;
+  const unsigned source = lane % 16u, segment = lane / 16u;
+  const unsigned row_base = blockIdx.x * 128u, token_base = blockIdx.y * 64u;
+  WmmaF32 accumulators[4] = {};
+  for (unsigned base = 0; base < width; base += 64u) {
+    for (unsigned cell = thread; cell < 128u * 64u; cell += 256u) {
+      const unsigned row = contiguous ? cell / 64u : cell % 128u;
+      const unsigned k = contiguous ? cell % 64u : cell / 128u;
+      weight_tile[row][k] = row_base + row < rows ? weights[contiguous
+          ? std::size_t(row_base + row) * width + base + k
+          : std::size_t(base + k) * rows + row_base + row] : uint16_t(0);
+    }
+    for (unsigned cell = thread; cell < 64u * 64u; cell += 256u) {
+      const unsigned token = cell / 64u, k = cell % 64u;
+      input_tile[token][k] = token_base + token < tokens
+          ? input[std::size_t(token_base + token) * width + base + k] : uint16_t(0);
+    }
+    __syncthreads();
+    for (unsigned offset = 0; offset < 64u; offset += 16u) {
+      WmmaBf16 weight_fragment;
+      for (unsigned e = 0; e < 16; ++e) weight_fragment[e] = weight_tile[wave * 16u + source][offset + e];
+      for (unsigned fragment = 0; fragment < 4; ++fragment) {
+        WmmaBf16 input_fragment;
+        for (unsigned e = 0; e < 16; ++e) input_fragment[e] = input_tile[fragment * 16u + source][offset + e];
+        accumulators[fragment] = __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+            input_fragment, weight_fragment, accumulators[fragment]);
+      }
+    }
+    __syncthreads();
+  }
+  const unsigned row = row_base + wave * 16u + source;
+  if (row >= rows) return;
+  for (unsigned fragment = 0; fragment < 4; ++fragment)
+    for (unsigned e = 0; e < 8; ++e) {
+      const unsigned token = token_base + fragment * 16u + 2u * e + segment;
+      if (token < tokens) output[std::size_t(token) * rows + row] = accumulators[fragment][e];
+    }
+}
+
 // Reuse the qualified lossless BF16 -> scaled-FP16 K16 representation. A
 // fused [K,N] weight view is gathered by output row without altering K order.
 static __global__ void prepare_operands(const uint16_t* source, half::Row* output,
@@ -148,6 +198,18 @@ bool gb10_prefill_projection_shape(std::size_t tokens, std::size_t rows,
 void* gb10_prefill_projection_buffer(std::size_t tokens, std::size_t rows,
     std::size_t reduction, void* stream) {
   return bound(tokens, rows, reduction, stream).raw.data;
+}
+void gb10_prefill_projection_fallback(const void* input, const void* weights,
+    std::size_t tokens, std::size_t rows, std::size_t reduction,
+    bool contiguous, void* stream) {
+  auto& s = bound(tokens, rows, reduction, stream);
+  if (!input || !weights) throw std::invalid_argument("Invalid prefill WMMA binding");
+  hipLaunchKernelGGL(fallback_matmul, dim3((rows + 127u) / 128u, (tokens + 63u) / 64u),
+      dim3(256), 0, nullptr, static_cast<const uint16_t*>(input),
+      static_cast<const uint16_t*>(weights), s.raw.as<float>(),
+      static_cast<unsigned>(tokens), static_cast<unsigned>(rows),
+      static_cast<unsigned>(reduction), contiguous);
+  check(hipGetLastError());
 }
 void gb10_prefill_projection_finish(const void* input, const void* weights,
     void* output, std::size_t tokens, std::size_t rows, std::size_t reduction,

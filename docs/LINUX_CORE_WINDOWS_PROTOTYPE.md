@@ -48,6 +48,17 @@ selected 1,048,576-cell window, selector edges and invalid bindings. They do not
 execute GPU replay or qualify the model. The next native run measures the
 complete operation, including all preparation and correction work.
 
+Source `d126aa4` passes all 56 native compilation units but exits during model
+loading: the installed hipBLASLt returns no supported algorithm for one FP32
+destination plan. No READY event or output token is emitted. Native wall is
+25331.332 ms, exit2; host checks and cleanup pass.
+[Preserved setup failure](../benchmarks/correctness/linux-core-gb10-prefill-projection-native-setup-failure-20260922.json).
+Eligible plans with no BLAS solution now select the existing Windows provider's
+M64/N128/K16 WMMA producer geometry. The two weight layouts and K512/2048/4096
+are supported, followed by the same selection and exact replay. Unsupported
+short-context plans keep their original behavior, and a borrowed plan cannot
+reuse an empty fallback algorithm. This fallback still needs a native model run.
+
 The latest ordinary Windows q8192 control is 23272.0441 ms TTFT. Structural
 projection and QK alternatives preserved component bits but increased their
 measured execution times. This experiment instead evaluates the Linux release's
