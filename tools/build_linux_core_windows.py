@@ -38,6 +38,8 @@ def main():
                         help="Use the Windows FLA and GB10 Q2 arithmetic experiment")
     parser.add_argument("--gb10-projections", action="store_true",
                         help="Use SM121 decode projection and embedding normalization arithmetic")
+    parser.add_argument("--gb10-prefill-projections", action="store_true",
+                        help="Use FP32 prefill GEMMs with staged SM121 exact replay")
     args = parser.parse_args()
     host = socket.gethostname()
     if platform.system() != "Windows" or host.split(".")[0].lower() != "baiying":
@@ -113,6 +115,12 @@ def main():
             source_paths += [ROOT / "native/providers/moe_accumulator" / name for name in (
                 "sm121_wave16.h", "q1_moe_hawkeye_bf16_accumulator.h", "sm121_group16_modulo.h",
                 "sm121_lane_reduce.h", "sm121_canonical_normalize.h")]
+        if args.gb10_prefill_projections:
+            source_paths += [ROOT / "native/providers/moe_accumulator" / name for name in (
+                "bf16_midpoint_selector.h", "sm121_dot_certificate.h", "sm121_float_alignment.h",
+                "sm121_float_subgroup.h", "sm121_paired_products.h", "sm121_prepared_integer_pairs.h",
+                "sm121_scalar_projection.h", "sm121_scaled_half_products.h", "sm121_scaled_half_projection.h",
+                "sm121_staged_half_projection.h", "sm121_subgroup.h")]
         record["source_inputs"] = [dict(path=p.relative_to(ROOT).as_posix(), bytes=p.stat().st_size,
                                         sha256=sha(p)) for p in sorted(source_paths) if p.is_file()]
         prepared = out / "prepared"
@@ -127,6 +135,8 @@ def main():
             preparation.append("--gb10-gdn")
         if args.gb10_projections:
             preparation.append("--gb10-projections")
+        if args.gb10_prefill_projections:
+            preparation.append("--gb10-prefill-projections")
         run("prepare", preparation, 120)
         plan = json.loads((prepared / "prepare.json").read_text())
         if "optional_adaptations" in plan:
@@ -155,6 +165,8 @@ def main():
             flags.append("-DAIMA_PORT_GB10_GDN=1")
         if args.gb10_projections:
             flags.append("-DAIMA_PORT_GB10_PROJECTIONS=1")
+        if args.gb10_prefill_projections:
+            flags.append("-DAIMA_PORT_GB10_PREFILL_PROJECTIONS=1")
         flags += [x for p in includes for x in ("-I", p)]
         record["compile_flags"] = [str(x) for x in flags]
         objects = [obj]

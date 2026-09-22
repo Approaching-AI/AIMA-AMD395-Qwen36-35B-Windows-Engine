@@ -64,6 +64,17 @@ is a runtime input. The table is pinned separately from the later dynamic
 normalization table packaged by the other runtime. This experiment requires
 real-model qualification and complete model/table binding before release.
 
+The additional `--gb10-prefill-projections` option changes q8192 dense GEMM
+destinations to FP32 and reuses existing SM121 midpoint selection and staged
+scaled-half exact-replay headers. Its default-stream owner reserves 598,360,324
+bytes for FP32 outputs, lossless operand staging, row norm bounds and a bounded
+candidate queue. This allocation counts toward command-ready; operand
+preparation, classification and correction count toward measured prefill.
+The maximum candidate window has 1,048,576 cells, so even complete selection
+fits its buffer. Counts remain on the GPU. Seven earlier overlay modes are
+unchanged. No external library or offline asset is added; real-model numerical,
+memory and performance qualification remain required.
+
 The [installed Windows dependency inventory](../benchmarks/correctness/linux-core-windows-dependencies-20260922.json)
 finds a6,012,312-byte hipBLASLt DLL. Its installed data directory contains1078
 files totaling434,067,673bytes across GPU architectures. The complete96-file

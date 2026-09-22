@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "kind": "optional_q8192_prefill_projection_preparation",
+  "base_commit": "3268fb480c370f92f766f300b09d4b2a9ed76a50",
+  "host_contract": {
+    "result": {
+      "lossless_operand_values": 2048,
+      "both_weight_layouts_match": true,
+      "full_window_candidates": 1048576,
+      "window_guards_pass": true,
+      "input_immutable": true,
+      "selector_edges_pass": true,
+      "queued_kernel_order_pass": true,
+      "invalid_bindings_rejected": 9,
+      "gpu_replay_executed": false
+    },
+    "build_command": [
+      "clang++",
+      "-std=c++17",
+      "-O1",
+      "-ffp-contract=off",
+      "-fsanitize=address,undefined",
+      "-I",
+      "<repo>/build/linux-core-gb10-prefill-projection-local-r1/host-r3/stub",
+      "<repo>/native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
+      "-o",
+      "<repo>/build/linux-core-gb10-prefill-projection-local-r1/host-r3/host-contract"
+    ],
+    "inputs": [
+      {
+        "path": "native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
+        "sha256": "b60ecf6652b06f50cf9a924951efcde12bb76ccf35bb0acf5bf7393534b6c911"
+      },
+      {
+        "path": "native/linux_core_port/gb10_prefill_projection.hip.cpp",
+        "sha256": "ae27d2b4c1ff91ddfaf8aab9550ea0aca720727ff66c78c25960e0a1f093eac8"
+      },
+      {
+        "path": "native/linux_core_port/gb10_prefill_projection.h",
+        "sha256": "8e9d2b4f907c0a9956a05b782b5cc65f03021514797c848ea498b21b1375af3b"
+      },
+      {
+        "path": "tools/test_linux_core_prefill_projection.py",
+        "sha256": "826dd83da95e3ddb2669bc1f6e49ab50594b6f345e960f38a8e82694d9e9f1d0"
+      },
+      {
+        "path": "tools/test_linux_core_gdn.py",
+        "sha256": "7d9d6e05b721f17b4245a9c31f6d78a2d729f7bd251c024e662db91c8d47f517"
+      }
+    ],
+    "stub_sha256": "b6e8a5787fd9647482b0bbc7750df897a0a71705668b3b4398d278a3821f367b",
+    "host_only": true,
+    "model_inference_acceptance": false
+  },
+  "preparation": {
+    "prior_modes_byte_identical": 7,
+    "invalid_dependencies_rejected": 2,
+    "fp32_output_layouts": 2,
+    "original_biased_launch_unchanged": true,
+    "borrowed_algorithm_geometry_checked_before_type_reset": true,
+    "compilation_units": 56,
+    "embedded_images": 72,
+    "shared_device_scratch_bytes": 598360324,
+    "model_inference_acceptance": false
+  },
+  "generated_plan_sha256": "c94e13ca1b46a7c3fbc7a96ba1c9c657a01c17a9c6ea77e32d68c3c812a24ae0",
+  "numerical_route": {
+    "producer": "hipBLASLt BF16 inputs and FP32 outputs",
+    "operands": "existing lossless per-K16 scaled-half representation",
+    "exact_replay": "existing staged-half two-group prefetch; SM121 K16 width26",
+    "selector": "same fixed radius512 and Cauchy-Schwarz L2 estimate as existing provider; 1000 ppb, K4096 10000 ppb",
+    "device_queue_capacity": 1048576,
+    "device_owned_count": true,
+    "maximum_replay_blocks": 256,
+    "model_qualification_required": true
+  },
+  "model_loaded": false,
+  "native_build_qualified": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false
+}

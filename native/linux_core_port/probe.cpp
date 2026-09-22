@@ -20,6 +20,9 @@
 #ifdef AIMA_PORT_GB10_PROJECTIONS
 #include "gb10_projection.h"
 #endif
+#ifdef AIMA_PORT_GB10_PREFILL_PROJECTIONS
+#include "gb10_prefill_projection.h"
+#endif
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -180,6 +183,9 @@ int run(const std::vector<std::string>& argv) {
 #endif
 #ifdef AIMA_PORT_GB10_PROJECTIONS
   aima_port::Gb10ProjectionOwner projections(request.input_token_ids);
+#endif
+#ifdef AIMA_PORT_GB10_PREFILL_PROJECTIONS
+  aima_port::Gb10PrefillProjectionOwner prefill_projections;
 #endif
   aima::NativeResidentEngineOptions options;
   options.weights.model_dir = model;

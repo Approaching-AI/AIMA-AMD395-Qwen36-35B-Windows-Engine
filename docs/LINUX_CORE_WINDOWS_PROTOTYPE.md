@@ -36,6 +36,18 @@ retained performance. Host checks and cleanup pass.
 The next structural change targets dense prefill projection arithmetic using
 the existing matrix-producer and exact-replay approach.
 
+`--gb10-prefill-projections` implements that optional q8192 path. hipBLASLt
+produces FP32 scratch output; the existing radius/L2 selector admits cells for
+the existing lossless scaled-half SM121 replay. Both contiguous and fused
+transposed weight views preserve ascending K16 order. A bounded device queue
+avoids host count reads. Short-context plans select their own BLAS algorithm
+when their BF16 destination differs from the q8192 source plan's FP32 type.
+Shared scratch is restricted to the default stream and loaded before READY.
+Host tests execute preparation and classification with guard regions, a fully
+selected 1,048,576-cell window, selector edges and invalid bindings. They do not
+execute GPU replay or qualify the model. The next native run measures the
+complete operation, including all preparation and correction work.
+
 The latest ordinary Windows q8192 control is 23272.0441 ms TTFT. Structural
 projection and QK alternatives preserved component bits but increased their
 measured execution times. This experiment instead evaluates the Linux release's

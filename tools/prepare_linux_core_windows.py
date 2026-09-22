@@ -282,14 +282,54 @@ def gb10_projection_overlays(sources, read):
         "      static_cast<int>(total_rows), cu_count * kYTile, kGroupedWaves);")
 
 
+def gb10_prefill_projection_overlay(text):
+    text = replace(text, '#include "aima/bf16_gemm.h"',
+        '#include "aima/bf16_gemm.h"\n#include "gb10_prefill_projection.h"')
+    text = replace(text, "  bool bias_epilogue = false;",
+        "  bool bias_epilogue = false;\n  bool gb10_prefill = false;")
+    text = replace(text, "  impl_->m = m;",
+        "  impl_->gb10_prefill = aima_port::gb10_prefill_projection_shape(m, n, k, bias_epilogue);\n"
+        "  // FP32 and BF16 destinations cannot share a selected BLAS algorithm.\n"
+        "  // Keep the preceding source-geometry validation, then select a new\n"
+        "  // algorithm when deriving a different destination type.\n"
+        "  if (algorithm_source != nullptr &&\n"
+        "      algorithm_source->impl_->gb10_prefill != impl_->gb10_prefill)\n"
+        "    algorithm_source = nullptr;\n"
+        "  impl_->m = m;")
+    for name in ("c", "d"):
+        text = replace(text,
+            f"hipblasLtMatrixLayoutCreate(&impl_->{name}_layout, HIP_R_16BF,",
+            f"hipblasLtMatrixLayoutCreate(&impl_->{name}_layout,\n"
+            "                                            impl_->gb10_prefill ? HIP_R_32F : HIP_R_16BF,")
+    begin = text.index("void Bf16GemmPlan::launch(")
+    end = text.index("void Bf16GemmPlan::launch_with_bias(", begin)
+    method = text[begin:end]
+    method = replace(method, "  constexpr float alpha = 1.0f;",
+        "  void* destination = impl_->gb10_prefill\n"
+        "      ? aima_port::gb10_prefill_projection_buffer(impl_->m, impl_->n, impl_->k, stream) : d;\n"
+        "  constexpr float alpha = 1.0f;")
+    method = replace(method,
+        "                 d, impl_->c_layout, d, impl_->d_layout, &impl_->algorithm,",
+        "                 destination, impl_->c_layout, destination, impl_->d_layout, &impl_->algorithm,")
+    method = replace(method, '             "hipblasLtMatmul");',
+        '             "hipblasLtMatmul");\n'
+        "  if (impl_->gb10_prefill)\n"
+        "    aima_port::gb10_prefill_projection_finish(a, b, d, impl_->m, impl_->n,\n"
+        "        impl_->k, impl_->right_operand_is_transposed, stream);")
+    return text[:begin] + method + text[end:]
+
+
 def make_overlays(*, rectangular_ck=False, current_text_decode=False,
-                  gb10_convolution=False, gb10_gdn=False, gb10_projections=False):
+                  gb10_convolution=False, gb10_gdn=False, gb10_projections=False,
+                  gb10_prefill_projections=False):
     if gb10_convolution and not current_text_decode:
         raise ValueError("GB10 convolution requires current text decode ownership")
     if gb10_gdn and not gb10_convolution:
         raise ValueError("GB10 GDN requires GB10 convolution and current text decode")
     if gb10_projections and not gb10_gdn:
         raise ValueError("GB10 projections require the GB10 GDN experiment")
+    if gb10_prefill_projections and not gb10_projections:
+        raise ValueError("GB10 prefill projections require the GB10 projection experiment")
     read = lambda p: (UPSTREAM / p).read_text(encoding="utf-8")
     sources = {}
     loader = "benchmarks/shape-lab/native/src/torch_owned_safetensors_loader.hip.cpp"
@@ -348,6 +388,9 @@ def make_overlays(*, rectangular_ck=False, current_text_decode=False,
                 sources[linear], sources[linear_prefill])
     if gb10_projections:
         gb10_projection_overlays(sources, read)
+    if gb10_prefill_projections:
+        path = "native/src/bf16_gemm.hip.cpp"
+        sources[path] = gb10_prefill_projection_overlay(read(path))
     weights = "native/src/native_weight_store.hip.cpp"
     sources[weights] = replace(read(weights), "shard_storage.push_back(path.string());",
                              "shard_storage.push_back(path.u8string());")
@@ -401,6 +444,8 @@ def main():
                         help="Use existing Windows FLA and original GB10 Q2 decode arithmetic")
     parser.add_argument("--gb10-projections", action="store_true",
                         help="Use SM121 decode projections and full-vocabulary embedding RMS scales")
+    parser.add_argument("--gb10-prefill-projections", action="store_true",
+                        help="Use FP32 q8192 GEMM outputs with existing SM121 staged exact replay")
     args = parser.parse_args()
     inventory = verify_import()
     out = args.out.resolve()
@@ -409,7 +454,8 @@ def main():
     overlays = make_overlays(rectangular_ck=args.windows_rectangular_ck,
                              current_text_decode=args.current_text_decode,
                              gb10_convolution=args.gb10_convolution, gb10_gdn=args.gb10_gdn,
-                             gb10_projections=args.gb10_projections)
+                             gb10_projections=args.gb10_projections,
+                             gb10_prefill_projections=args.gb10_prefill_projections)
     out.mkdir(parents=True)
     adapted = []
     for relative, text in overlays.items():
@@ -476,6 +522,8 @@ def main():
         sources.append(str(ROOT / "native/linux_core_port/gb10_gdn.hip.cpp"))
     if args.gb10_projections:
         sources.append(str(ROOT / "native/linux_core_port/gb10_projection.hip.cpp"))
+    if args.gb10_prefill_projections:
+        sources.append(str(ROOT / "native/linux_core_port/gb10_prefill_projection.hip.cpp"))
     generated = [dict(path=p.relative_to(out).as_posix(), bytes=p.stat().st_size,
                       sha256=digest(p.read_bytes())) for p in sorted(out.rglob("*")) if p.is_file()]
     report = dict(schema=1, upstream_revision=inventory["revision"],
@@ -521,6 +569,16 @@ def main():
             embedding_table_bytes=993280, embedding_device_bytes=1026048,
             embedding_table_sha256="f4e37f759c586bfc8fcc4d74cefdd89235f0f0c0c90cd286147e331e87509e67",
             prefill_dense_changed=False, model_qualified=False)
+    if args.gb10_prefill_projections:
+        report["optional_adaptations"]["gb10_prefill_projections"] = dict(
+            tokens=8192, maximum_rows=12352, reductions=[512, 2048, 4096],
+            producer="existing hipBLASLt BF16 inputs, FP32 destination",
+            replay="existing lossless scaled-half staged SM121 K16 arithmetic",
+            selector="radius512 plus L2 upper bounds, 1000 ppb / K4096 10000 ppb",
+            maximum_window_cells=1048576, candidate_counts="device-owned; no host count copy",
+            shared_scratch_stream="default stream only; nondefault streams rejected",
+            device_scratch_bytes=598360324,
+            model_qualified=False)
     (out / "prepare.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: report[k] for k in ("upstream_revision", "imported_files", "imported_bytes", "image_bytes")}
                      | dict(images=len(images), compilation_units=len(sources), overlays=len(adapted))))
