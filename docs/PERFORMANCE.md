@@ -57,8 +57,11 @@ diagnostics. Component correctness or timing alone does not qualify inference.
 
 The [Linux core Windows prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md) evaluates a
 complete compute-core replacement after the component alternatives below proved
-slower. Its pinned source, OS adapters and local controls are prepared. It has
-no Windows build or product timing yet and does not replace any retained result.
+slower. Native builds and q8192 runs complete, but the latest source1c8b444
+still fails512-token continuation with470 mismatches. Its observed TTFT is
+31105.5724 ms. First64 comparisons isolate a gated-normalization reduction
+layout error; the prepared repair still requires native validation. These
+diagnostic runs do not replace a retained result.
 
 The last completed q8192 phase profile has the following top-level scopes.
 Its extra instrumentation makes its 27321.9776 ms TTFT diagnostic; it does

@@ -2,7 +2,7 @@
 #include "gb10_normalization.h"
 #include "gb10_gdn.h"
 #include "aima/sha256.h"
-#include "../providers/gdn/sm121_q2_gated_math.h"
+#include "gb10_normalization_math.h"
 #include "../providers/gdn/sm121_mtp_residual.h"
 #include <cstdlib>
 #include <filesystem>
@@ -31,9 +31,7 @@ std::vector<float> read_silu(const std::filesystem::path& path) {
     throw std::runtime_error("Gated SiLU table identity differs");
   return values;
 }
-// Eight independent 32-lane heads share a CTA. The arithmetic is the existing
-// original short-row norm: four adjacent BF16 values per lane and ordered
-// FP32 reduction. Prefill's captured host invstd stage is no longer consumed.
+// Eight independent 32-lane heads share a CTA on the short decode route.
 static __global__ void gated_kernel(const uint16_t* core, const uint16_t* z,
     const uint16_t* weight, uint16_t* output, const unsigned char* rsqrt,
     const float* silu, unsigned heads) {
@@ -46,6 +44,22 @@ static __global__ void gated_kernel(const uint16_t* core, const uint16_t* z,
   const float inverse = qrt_sm121_q2::gated_inverse(__shfl(sum, 0, 32), rsqrt);
   for (unsigned item = 0; item < 4; ++item) {
     const unsigned column = lane * 4u + item;
+    output[first + column] = qrt_sm121_q2::gated_value(core[first + column],
+        z[first + column], weight[column], inverse, silu);
+  }
+}
+static __global__ void gated_prefill_kernel(const uint16_t* core, const uint16_t* z,
+    const uint16_t* weight, uint16_t* output, const unsigned char* rsqrt,
+    const float* silu, unsigned heads) {
+  const unsigned head = blockIdx.x * 16u + threadIdx.x / 16u, lane = threadIdx.x & 15u;
+  if (head >= heads) return;
+  const std::size_t first = std::size_t(head) * 128u;
+  float sum = gated_prefill_lane_sum(core + first, lane);
+  for (unsigned offset = 8; offset; offset >>= 1)
+    sum = qrt_sm121_q1::add(sum, __shfl_xor(sum, offset, 16));
+  const float inverse = qrt_sm121_q2::gated_inverse(sum, rsqrt);
+  for (unsigned item = 0; item < 8; ++item) {
+    const unsigned column = lane * 8u + item;
     output[first + column] = qrt_sm121_q2::gated_value(core[first + column],
         z[first + column], weight[column], inverse, silu);
   }
@@ -74,10 +88,17 @@ void gb10_gated_norm(const void* core, const void* z, const void* weight,
   if (!active || !active->silu || !core || !z || !weight || !output || !tokens || tokens > 8192)
     throw std::invalid_argument("Invalid GB10 gated normalization binding");
   const auto* table = gb10_rsqrt_table();
-  hipLaunchKernelGGL(gated_kernel, dim3(tokens * 4u), dim3(256), 0,
-      static_cast<hipStream_t>(stream), static_cast<const uint16_t*>(core),
-      static_cast<const uint16_t*>(z), static_cast<const uint16_t*>(weight),
-      static_cast<uint16_t*>(output), table, active->silu, static_cast<unsigned>(tokens * 32u));
+  if (tokens == 8192) {
+    hipLaunchKernelGGL(gated_prefill_kernel, dim3(tokens * 2u), dim3(256), 0,
+        static_cast<hipStream_t>(stream), static_cast<const uint16_t*>(core),
+        static_cast<const uint16_t*>(z), static_cast<const uint16_t*>(weight),
+        static_cast<uint16_t*>(output), table, active->silu, static_cast<unsigned>(tokens * 32u));
+  } else {
+    hipLaunchKernelGGL(gated_kernel, dim3(tokens * 4u), dim3(256), 0,
+        static_cast<hipStream_t>(stream), static_cast<const uint16_t*>(core),
+        static_cast<const uint16_t*>(z), static_cast<const uint16_t*>(weight),
+        static_cast<uint16_t*>(output), table, active->silu, static_cast<unsigned>(tokens * 32u));
+  }
   if (hipGetLastError() != hipSuccess) throw std::runtime_error("GB10 gated normalization launch failed");
 }
 void gb10_residual_norm(const void* input, const void* residual, const void* weight,

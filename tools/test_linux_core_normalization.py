@@ -14,6 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--silu-table", type=Path, required=True)
+    parser.add_argument("--rsqrt-table", type=Path, required=True)
     args = parser.parse_args()
     out = args.out.resolve()
     out.mkdir(parents=True, exist_ok=False)
@@ -55,12 +56,14 @@ template<class K,class...A>void fake_launch(const char*name,dim3 grid,dim3 block
     build = subprocess.run(command, capture_output=True, text=True, timeout=90)
     (out / "build.stderr").write_text(build.stderr)
     build.check_returncode()
-    run = subprocess.run([str(executable), str(args.silu_table.resolve()), str(out / "bad-table.bin")],
+    run = subprocess.run([str(executable), str(args.silu_table.resolve()), str(out / "bad-table.bin"),
+                          str(args.rsqrt_table.resolve())],
         capture_output=True, text=True, timeout=30)
     (out / "run.stderr").write_text(run.stderr)
     run.check_returncode()
     inputs = [source, ROOT / "native/linux_core_port/gb10_normalization.hip.cpp",
               ROOT / "native/linux_core_port/gb10_normalization.h", Path(__file__),
+              ROOT / "native/linux_core_port/gb10_normalization_math.h",
               ROOT / "native/linux_core_port/gb10_gdn.h",
               ROOT / "tools/test_linux_core_gdn.py"]
     inputs += [ROOT / "native/providers/gdn" / name for name in (
@@ -70,6 +73,7 @@ template<class K,class...A>void fake_launch(const char*name,dim3 grid,dim3 block
     report = dict(result=json.loads(run.stdout), build_command=command,
         inputs=[dict(path=p.relative_to(ROOT).as_posix(), sha256=sha(p)) for p in inputs],
         stub_sha256=sha(stub), silu_table_sha256=sha(args.silu_table),
+        rsqrt_table_sha256=sha(args.rsqrt_table),
         host_only=True, model_inference_acceptance=False)
     (out / "result.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report["result"]))

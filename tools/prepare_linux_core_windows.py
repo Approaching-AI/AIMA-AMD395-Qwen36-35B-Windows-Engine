@@ -797,7 +797,7 @@ def main():
             model_qualified=False)
     if args.gb10_normalization:
         report["optional_adaptations"]["gb10_normalization"] = dict(
-            gated="original short-row ordered FP32 reduction and FP32 SiLU",
+            gated="original q8192 sixteen-lane/eight-value prefill reduction; separate thirty-two-lane/four-value short decode; FP32 SiLU",
             residual="FP32 unrounded sum variance; BF16 residual numerator",
             gated_prefill_tokens=8192, residual_maximum_tokens=8192,
             silu_table_bytes=262144, additional_device_bytes=266240,

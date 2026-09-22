@@ -211,7 +211,27 @@ adds read-only first64 rows of each selected prefill surface. Existing samples,
 tensor byte limits and all model arithmetic remain unchanged. The reference
 observer accepts up to96 distinct original positions to include this complete
 first chunk plus the existing eight positions. Host ASan/UBSan checks and33
-reference-observer tests pass; native/reference execution is pending.
+reference-observer tests pass. The expanded original GB10 capture reproduces
+all8 cases and1216 outputs, qualifying its71 selected prefill rows.
+
+Native source1c8b444 completes separate layer-zero and layer-one observations
+with all512 outputs unchanged. Layer-zero input norm, projections, raw
+convolution, gates and recurrent core match throughout the first64 rows.
+The first difference is gated RMSNorm at position57/channel3123: native BF16
+0xbae5 versus original0xbae6. It propagates into23 attention-output values,
+7 MoE inputs and313 next-layer input-norm values. Original-operand MoE carrier
+normalization matches all145408 values, so that arithmetic does not explain
+the earlier difference.
+
+The current repair gives q8192 gated RMSNorm its original sixteen-lane,
+eight-adjacent-value reduction. Short decode keeps its separate thirty-two-lane,
+four-value reduction. CPU replay of the old short layout reproduces the one
+native error exactly; the prefill layout matches all872448 original BF16
+endpoints across71 rows in layers0,1,2. The original decode rows also pass.
+ASan/UBSan verifies both dispatches and the original midpoint regression,
+including the failing short-layout negative control. Native repair execution
+is pending; the preceding470-token continuation failure remains unqualified.
+[First64 diagnosis and repair preparation](../benchmarks/correctness/linux-core-gated-prefill-layout-diagnosis-20260922.json).
 
 The upstream release refresh at09:56UTC finds the same five releases and
 unchanged bodies; latest remains v1.5.1-native-vl.10/tag0522a57, declaring
