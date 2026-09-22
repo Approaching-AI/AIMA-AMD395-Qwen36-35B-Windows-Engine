@@ -195,7 +195,7 @@ Projection GPU totals are producer1581.862139ms and replay4692.447539ms;
 is retained for further cold-q8192 trials; other contexts and release stay open.
 [Qualified input-only native result](../benchmarks/correctness/linux-core-tuned-input-native-20260923.json).
 
-The next isolated trial selects `AIMA_PORT_NATIVE_GDN_PREFILL=1`. It restores
+The isolated trial selects `AIMA_PORT_NATIVE_GDN_PREFILL=1`. It restores
 the imported seven-stage post-convolution GDN block, including original
 inverse scratch clearing and cold state zeroing. The generated block matches
 the pinned source byte-for-byte except indentation. Its final state continues
@@ -207,6 +207,18 @@ ASan/UBSan checks reject11 invalid scope/configuration/provider bindings.
 Only the linear-prefill overlay changes; native qualification must verify
 30 actual seven-stage activations and the complete original512-token boundary.
 [Native GDN preparation](../benchmarks/correctness/linux-core-native-gdn-preparation-20260923.json).
+
+Source `3bd7969` builds all60 units and executes all30 native GDN layers,
+with the70 tuned inputs,30 WMMA OUTs, nine coarse OUTs and terminal activations
+verified. It fails the original continuation observer at output1 (244 versus255),
+with486 total differences. First144/logit10.375 and512 actual callbacks pass.
+Load27499.1025ms, TTFT19730.6036ms and TPOT226.338971ms are diagnostic only;
+37 projection calls report invalid event intervals. Native GDN prefill is not
+retained. Subsequent trials restore the qualified FLA path and keep the
+`0c80a89` input-only baseline. Existing fused GDN state/output controls also
+already passed correctness but increased whole-model TTFT by549.8157ms in
+their original pair, so no gain is inferred from that flag.
+[Native GDN failure and prior fusion review](../benchmarks/correctness/linux-core-native-gdn-negative-20260923.json).
 
 The preceding complete decode-MoE repair (`5585977`) runs the real model on
 baiying. All 40 first-decode layer carriers

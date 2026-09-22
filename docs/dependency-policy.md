@@ -28,6 +28,8 @@ resident state binding and qualified decode adapter. The FLA owner and its
 tables stay loaded for this isolated comparison; there is no added library,
 artifact or device allocation. The benefit under test is replacing the
 multi-stage Windows prefill recurrence within the remaining linear wall.
+Its native3bd7969 trial fails486 of512 GB10 outputs and is not retained;
+the existing qualified FLA path remains selected for subsequent trials.
 
 The optional [Windows core prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md) imports
 327 unchanged files (29,415,573 bytes) from Linux native source
