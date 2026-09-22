@@ -3,10 +3,10 @@
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
 It is not enabled in the Windows product. The latest qualified source
-`00d34c5` passes the complete cold q8192/out512 correctness boundary on baiying
+`0c80a89` passes the complete cold q8192/out512 correctness boundary on baiying
 with the real model: all512 tokens and callbacks match GB10, with
-first144/logit10.375. Loading is27457.7687ms, diagnostic TTFT23062.2803ms and
-TPOT229.610074ms. The earlier `9447947` run also has all72 second-decode
+first144/logit10.375. Loading is27608.3814ms, diagnostic TTFT20657.4111ms and
+TPOT228.040989ms. The earlier `9447947` run also has all72 second-decode
 comparisons matching in BF16 and a bitwise-exact final normalization.
 Performance, other product shapes, prefix continuation and release remain open.
 
@@ -182,6 +182,31 @@ All16 producer configurations and180 rejection controls pass ASan/UBSan;
 all327 imported files and17 generated overlays remain unchanged. This is
 preparation, and neither projection family is yet identified as the cause.
 [Failed combined trial and input-only preparation](../benchmarks/correctness/linux-core-tuned-gemm-negative-and-input-preparation-20260923.json).
+
+The input-only run at `0c80a89` now passes the original q8192/out512 observer:
+all512 tokens and callbacks match, first144/logit10.375 has zero error. The
+actual70 tuned inputs,30 WMMA linear OUTs, nine coarse full OUTs and both
+terminal activations pass. Load27608.3814ms, TTFT20657.4111ms and
+TPOT228.040989ms are one correctness-attached observation. The TTFT reduction
+of2404.8692ms versus `00d34c5` is not a paired estimate and remains above10s.
+Projection GPU totals are producer1581.862139ms and replay4692.447539ms;
+29 calls flag invalid event intervals. Whole-wall linear attention is
+8635.9538ms, full attention7087.1113ms and MoE4927.5989ms. Input-only tuning
+is retained for further cold-q8192 trials; other contexts and release stay open.
+[Qualified input-only native result](../benchmarks/correctness/linux-core-tuned-input-native-20260923.json).
+
+The next isolated trial selects `AIMA_PORT_NATIVE_GDN_PREFILL=1`. It restores
+the imported seven-stage post-convolution GDN block, including original
+inverse scratch clearing and cold state zeroing. The generated block matches
+the pinned source byte-for-byte except indentation. Its final state continues
+to bind directly to the same resident vLLM state; no transpose is introduced.
+The qualified convolution, input/output projections, gated norm, attention,
+MoE and decode repairs remain selected. The existing FLA owner and arithmetic
+tables remain loaded, so no dependency, artifact or device allocation is added.
+ASan/UBSan checks reject11 invalid scope/configuration/provider bindings.
+Only the linear-prefill overlay changes; native qualification must verify
+30 actual seven-stage activations and the complete original512-token boundary.
+[Native GDN preparation](../benchmarks/correctness/linux-core-native-gdn-preparation-20260923.json).
 
 The preceding complete decode-MoE repair (`5585977`) runs the real model on
 baiying. All 40 first-decode layer carriers

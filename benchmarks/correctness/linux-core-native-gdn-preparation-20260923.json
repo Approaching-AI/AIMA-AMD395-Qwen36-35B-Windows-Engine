@@ -1,0 +1,313 @@
+{
+  "schema": 1,
+  "scope": "Optional cold q8192 original seven-stage GDN prefill core with qualified input projections, convolution, gated norm and decode repairs retained",
+  "environment": {
+    "AIMA_PORT_NATIVE_GDN_PREFILL": "1"
+  },
+  "host_contract": {
+    "result": {
+      "conversion_values_checked": 33027,
+      "sampled_values_checked": 102528,
+      "sampling_input_unchanged": true,
+      "first64_original_pointer_and_extent": true,
+      "sampling_guards_pass": true,
+      "observer_faults_rejected": 5,
+      "guards_pass": true,
+      "provider_order_pass": true,
+      "seeded_state_forwarded": true,
+      "decode_q2_flags": true,
+      "injected_provider_failure_rejected": true,
+      "invalid_bindings_rejected": 6,
+      "artifact_faults_rejected": 2,
+      "native_prefill_rejections": 11,
+      "native_prefill_cold_scope_pass": true
+    },
+    "build_command": [
+      "clang++",
+      "-std=c++17",
+      "-O1",
+      "-ffp-contract=off",
+      "-fsanitize=address,undefined",
+      "-I",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-native-gdn-host-r1/stub",
+      "-I",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/include",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_gdn_host_contract_test.cpp",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/src/sha256.cpp",
+      "-o",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-native-gdn-host-r1/host-contract"
+    ],
+    "inputs": [
+      {
+        "path": "native/linux_core_port/gb10_gdn_host_contract_test.cpp",
+        "sha256": "ccaa863b916db2fa758826d0c94522ee71159cb7162736063a5e1c64d5ac30a7"
+      },
+      {
+        "path": "native/linux_core_port/gb10_gdn.hip.cpp",
+        "sha256": "ad538bc3ae597663a27ebdfb7feb6d1b31202f8504f41c3f57adaa4adc334d53"
+      },
+      {
+        "path": "native/linux_core_port/gb10_gdn.h",
+        "sha256": "4a624799c65e9bf180d26a585c2e35b4e53652d38f2671b7fd2da36b74579566"
+      },
+      {
+        "path": "native/linux_core_port/gb10_gdn_assets.inc",
+        "sha256": "bc89be98894cac0bf5e9c6ae7eea11a42a934303fd62b99800b59a6c306ec125"
+      }
+    ],
+    "test_source_sha256": "7d9d6e05b721f17b4245a9c31f6d78a2d729f7bd251c024e662db91c8d47f517",
+    "stub_sha256": "f9360963a9dd3c4bd404f4870a400004079adb25880f6999178d90d85964cb30",
+    "host_only": true,
+    "model_inference_acceptance": false
+  },
+  "overlay": {
+    "imports_verified": 327,
+    "overlays": [
+      {
+        "path": "benchmarks/shape-lab/native/src/torch_owned_safetensors_loader.hip.cpp",
+        "sha256": "23a3b9e391c0de89bb6369f56e1a178874e97c2a3f9c9e7a7944c627f9f742e5"
+      },
+      {
+        "path": "native/include/aima/native_resident_engine.h",
+        "sha256": "9ddb538b22348b9df78b03946d684231903fcc4b89775e99dd69f04d2762a7e0"
+      },
+      {
+        "path": "native/src/native_resident_engine.hip.cpp",
+        "sha256": "2ec80226214a58fdec5e46441a513f7b5d2b6b3134b2b96061b987ef0380c6f3"
+      },
+      {
+        "path": "native/src/native_linear_layer.hip.cpp",
+        "sha256": "a0bc00ad05e493de1fb3274b15b3d2fabea3a6ba6539fe0efd666a61872dd1a6"
+      },
+      {
+        "path": "native/src/native_linear_prefill.hip.cpp",
+        "sha256": "0f06202e4234473097f9d70404b36b04494e3c2ea5863ef9173dd86292cb91e3"
+      },
+      {
+        "path": "native/src/bf16_wvsplitk.hip.cpp",
+        "sha256": "56441bc448ce7dfde504e899117b7d2c7d840c2343d5f0adc0b00a8d42ea576e"
+      },
+      {
+        "path": "native/src/bf16_gemm.hip.cpp",
+        "sha256": "5c6b334e8cbe47a0c47d81fb5122284d52e7556dfa2e302097324c38f151b846"
+      },
+      {
+        "path": "native/src/native_weight_store.hip.cpp",
+        "sha256": "c55c6a1a79535a8f896fb89e12fabaf8ef3bfb8bceb05db05258aa4bff44738e"
+      },
+      {
+        "path": "native/include/aima/native_full_prefill.h",
+        "sha256": "ab2ef4d8b8ba20f65de68e80e1cdb969b3965bd011c364f55458090a2612c7d9"
+      },
+      {
+        "path": "native/src/native_full_prefill.hip.cpp",
+        "sha256": "5ad99a163422fc1bff89dbd10c880825deaa1b6573a69c99d4532d6311da9f95"
+      },
+      {
+        "path": "native/src/native_full_attention.hip.cpp",
+        "sha256": "179e9682c34994a5811b4b206ad70dcd6c5bfcd8d0c36cb17aae1fd9d69d315e"
+      },
+      {
+        "path": "native/src/native_pointwise.hip.cpp",
+        "sha256": "8663684c0a8c70cf79afbc932aaea0a57447a41d6a0fcf39f434fca12a186150"
+      },
+      {
+        "path": "native/src/native_routed_moe.hip.cpp",
+        "sha256": "cb7bd10427167607967a0a9089556409fa78a6aeeca007ae31f2b900eed02d01"
+      },
+      {
+        "path": "native/src/native_full_layer.hip.cpp",
+        "sha256": "9faa898dda944114dcb7e13ace18832c135939a2a34c618a4d69fb9983478d48"
+      },
+      {
+        "path": "native/src/native_moe_prefill.hip.cpp",
+        "sha256": "243f791f030fd7305fd6c716d6fa3bc1f904d722bd4a5e332dd3e4c284a3cb52"
+      },
+      {
+        "path": "native/src/native_decode_runner.hip.cpp",
+        "sha256": "3e50bf36a3093a21ed272d8fb3e02f63df35c075760624310956a8b1d7954542"
+      },
+      {
+        "path": "native/src/media_names.cpp",
+        "sha256": "f15ebe386d1f038dcc434791bb4e911d8b93db61457c6c88842799ebc201948a"
+      }
+    ],
+    "changed_overlays": [
+      "native/src/native_linear_prefill.hip.cpp"
+    ],
+    "original_seven_stage_block_sha256": "0cefc3cf8112a1420918c940892c251ed54eb65d64103f427246398492f4cf40",
+    "original_stage_block_exact_except_indentation": true,
+    "initial_state_zero_and_inverse_scratch_clear_retained": true,
+    "direct_resident_state_binding_retained": true,
+    "checkpoint_and_fixture_guard_retained": true,
+    "decode_overlays_unchanged": true,
+    "projection_overlays_unchanged": true,
+    "aot_metric_accounts_for_seven_restored_stages": true,
+    "native_build_pending": true,
+    "inference_acceptance": false
+  },
+  "upstream_commit": "ec9934446911fdf376da8eebcd83e7b137efbb7c",
+  "prefill_schedule_sha256": "a4b8eaf4d7905f2530d78b0366503d9e1e1ca26377974c7a1c130c03230ddfbb",
+  "prefill_manifest_sha256": "8ea05788685ccfacddb28409ded478f1adaec2b52908ebdea138c089dce49d91",
+  "seven_stage_kernels": [
+    {
+      "prefill_sequence": 2,
+      "symbol": "_fused_post_conv_kernel",
+      "kernel_hash": "2532756e6bc2bbbf5012b8fc6a78813bb29fb9263594d9448077cb2dfaa406c9",
+      "grid": [
+        32,
+        48,
+        1
+      ],
+      "num_warps": 4,
+      "shared_memory_bytes": 0,
+      "warp_size": 32
+    },
+    {
+      "prefill_sequence": 3,
+      "symbol": "chunk_local_cumsum_scalar_kernel",
+      "kernel_hash": "15d1f114cab214794415d0970a2f03a7af8dd1645114425441a6e97e5e19fae2",
+      "grid": [
+        256,
+        32,
+        1
+      ],
+      "num_warps": 1,
+      "shared_memory_bytes": 0,
+      "warp_size": 32
+    },
+    {
+      "prefill_sequence": 4,
+      "symbol": "chunk_scaled_dot_kkt_fwd_kernel",
+      "kernel_hash": "f2f42dea08a1c899ea0926cd9aef07271ded7e1bb0a737be1864798497207f1f",
+      "grid": [
+        256,
+        32,
+        1
+      ],
+      "num_warps": 2,
+      "shared_memory_bytes": 8192,
+      "warp_size": 32
+    },
+    {
+      "prefill_sequence": 5,
+      "symbol": "merge_16x16_to_32x32_inverse_kernel",
+      "kernel_hash": "dfedab1755315b34a750fd01814fcb58bf997d984b5979971440bf1dcaebd619",
+      "grid": [
+        256,
+        32,
+        1
+      ],
+      "num_warps": 1,
+      "shared_memory_bytes": 1024,
+      "warp_size": 32
+    },
+    {
+      "prefill_sequence": 6,
+      "symbol": "recompute_w_u_fwd_kernel",
+      "kernel_hash": "4e552c43d1c47eea0ae95e58cfc57dd769141df12b7b318eee652dc5d9d2b583",
+      "grid": [
+        256,
+        32,
+        1
+      ],
+      "num_warps": 2,
+      "shared_memory_bytes": 4096,
+      "warp_size": 32
+    },
+    {
+      "prefill_sequence": 7,
+      "symbol": "chunk_gated_delta_rule_fwd_kernel_h_blockdim64",
+      "kernel_hash": "4609c777187886d99ea100a9b3f57c42b10da2993f07c815b9da8424e579406b",
+      "grid": [
+        4,
+        32,
+        1
+      ],
+      "num_warps": 4,
+      "shared_memory_bytes": 20480,
+      "warp_size": 32
+    },
+    {
+      "prefill_sequence": 8,
+      "symbol": "chunk_fwd_kernel_o",
+      "kernel_hash": "012d4fb61cdafc47c3597411f9b8534061f9e0c1f37ee2abb89f4217f1260d1d",
+      "grid": [
+        4,
+        256,
+        32
+      ],
+      "num_warps": 8,
+      "shared_memory_bytes": 20480,
+      "warp_size": 32
+    }
+  ],
+  "state_binding": {
+    "original_direct_ht_to_resident_vllm_state_preserved": true,
+    "shape": [
+      1,
+      32,
+      128,
+      128
+    ],
+    "dtype": "float32",
+    "bytes": 2097152,
+    "transpose_added": false,
+    "initial_state": "existing cold zeroing inside original block",
+    "state_layout_numerical_qualification_pending": true
+  },
+  "retained_qualified_input_route": {
+    "source_commit": "0c80a8996d7dd3a6868d896e5e75260ff6354d04",
+    "evidence": "linux-core-tuned-input-native-20260923.json",
+    "sha256": "6c32e99b02bf2a58790a846f9a9594ec128e966034df8ccefe33c7d1952f81a8"
+  },
+  "expected_actual_native_layers": [
+    0,
+    1,
+    2,
+    4,
+    5,
+    6,
+    8,
+    9,
+    10,
+    12,
+    13,
+    14,
+    16,
+    17,
+    18,
+    20,
+    21,
+    22,
+    24,
+    25,
+    26,
+    28,
+    29,
+    30,
+    32,
+    33,
+    34,
+    36,
+    37,
+    38
+  ],
+  "expected_actual_native_stages_per_layer": 7,
+  "additional_device_bytes": 0,
+  "additional_artifact_bytes": 0,
+  "existing_fla_owner_retained_for_decode_and_tables": true,
+  "original_gb10_checker_sha256": "ba53cb02e0cd2d5c7b7aa72288ca06a7a43239d84370e87fd60119eca55a0c65",
+  "gb10_boundary_unchanged": true,
+  "local_preparation_correction": "Initial overlay check used the pre-normalization metric expression; generated-source inspection found the final assignment overwrote a branch increment. Final assignment now includes the seven actual imported launches.",
+  "filesystem_reclamation": {
+    "receipt_sha256": "5742510be88702552ac0ac7dcba24ab05c8695e5f8eadd6e22acca4852f73f27",
+    "verified_duplicate_executables_removed": 7,
+    "bytes": 59786240,
+    "remote_binaries_retained": true
+  },
+  "native_build_pending": true,
+  "model_inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

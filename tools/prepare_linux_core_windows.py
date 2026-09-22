@@ -192,7 +192,7 @@ def gb10_gdn_overlays(linear, prefill):
     linear = replace(linear, "  metrics.aot_launches += 2;\n  launch_bf16_wvsplitk(",
                      "  metrics.aot_launches += 1;\n  launch_bf16_wvsplitk(")
     prefill = replace(prefill, '#include "gb10_convolution.h"',
-                      '#include "gb10_convolution.h"\n#include "gb10_gdn.h"')
+                      '#include "gb10_convolution.h"\n#include "gb10_gdn.h"\n#include <cstdio>')
     prefill = replace(prefill,
         "  const auto started = std::chrono::steady_clock::now();",
         "  // This optional experiment owns complete q8192 GDN arithmetic.\n"
@@ -206,12 +206,21 @@ def gb10_gdn_overlays(linear, prefill):
         "  const auto started = std::chrono::steady_clock::now();")
     begin = prefill.index("  launch_attention_aot(2);")
     end = prefill.index("  launch_attention_aot(8);", begin) + len("  launch_attention_aot(8);")
+    original_core = prefill[begin:end]
     prefill = replace(prefill, prefill[begin:end],
+        "  const bool native_gdn_prefill = aima_port::gb10_native_gdn_prefill_enabled(\n"
+        "      tokens, options.has_initial_state);\n"
+        "  if (native_gdn_prefill) {\n"
+        + "\n".join("  " + line for line in original_core.splitlines()) + "\n"
+        '    std::fprintf(stderr, "{\\\"event\\\":\\\"native_gdn_prefill\\\",\\\"layer\\\":%zu,'
+        '\\\"tokens\\\":%zu,\\\"stages\\\":7,\\\"cold\\\":true}\\n", options.layer_index, tokens);\n'
+        "  } else {\n"
         "  aima_port::gb10_prefill_gdn(options.layer_index,\n"
         "      invocations.tensor_pointer(base + 1, \"o_ptr\"),\n"
         "      a, b, core, final_state, tokens, options.has_initial_state);\n"
         "  // Two conversion kernels surround one existing FLA provider call.\n"
-        "  result.layer.native_pointwise_launches += 2;")
+        "  result.layer.native_pointwise_launches += 2;\n"
+        "  }")
     prefill = replace(prefill, "  if (q8192_schedule) {\n    aima_port::gb10_prefill_convolution(",
         "  aima_port::observe_gdn_prefill(options.layer_index, \"prefill-input-norm-sampled\", h1, 2048, tokens);\n"
         "  aima_port::observe_gdn_prefill(options.layer_index, \"prefill-qkv-sampled\", qkv, 8192, tokens);\n"
@@ -227,6 +236,9 @@ def gb10_gdn_overlays(linear, prefill):
         count=2)
     prefill = replace(prefill, "      (q8192_schedule ? 1 : 0);",
                       "      (q8192_schedule ? 8 : 0);")
+    prefill = replace(prefill,
+        "  result.layer.aot_launches =\n      attention_launches -",
+        "  result.layer.aot_launches = (native_gdn_prefill ? 7 : 0) +\n      attention_launches -")
     return linear, prefill
 
 

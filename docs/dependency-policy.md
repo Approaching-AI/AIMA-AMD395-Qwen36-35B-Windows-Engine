@@ -19,6 +19,15 @@ The scalar exact-replay selector and numerical model gates are unchanged.
 The combined three-shape trial fails475 of512 GB10 tokens and is not retained.
 The input-only follow-up reuses the same candidate for two input shapes and
 restores the existing WMMA linear OUT producer, adding no dependency or storage.
+Source0c80a89 passes all512 GB10 outputs with TTFT20657.4111ms and
+load27608.3814ms; other product gates remain open.
+
+The optional native-GDN prefill comparison restores seven existing embedded
+gfx1151 kernels and their existing invocation buffers. It preserves the
+resident state binding and qualified decode adapter. The FLA owner and its
+tables stay loaded for this isolated comparison; there is no added library,
+artifact or device allocation. The benefit under test is replacing the
+multi-stage Windows prefill recurrence within the remaining linear wall.
 
 The optional [Windows core prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md) imports
 327 unchanged files (29,415,573 bytes) from Linux native source

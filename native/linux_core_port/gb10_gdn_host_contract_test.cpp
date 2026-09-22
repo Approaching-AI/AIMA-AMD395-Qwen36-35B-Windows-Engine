@@ -72,8 +72,19 @@ int main(int argc,char**argv) {
   // are deliberately distinct; kernels are recorded rather than GPU-executed.
   State s;for(Device* d:{&s.raw,&s.gates,&s.output,&s.decode_ab,&s.gate[0],&s.beta,&s.prefill_beta,&s.exp2,&s.rsqrt})d->allocate(64);
   reject([&]{gb10_rsqrt_table();});
+  reject([&]{gb10_native_gdn_prefill_enabled(8192,false);});
+  assert(!native_prefill_setting(nullptr) && !native_prefill_setting("0") && native_prefill_setting("1"));
+  for (const char* value : {"", "true", "01", "2", "-1"}) reject([&]{native_prefill_setting(value);});
   s.cold=cold;s.seeded=seed;s.error=failure;active=&s;float state=17;expected_state=&state;
   assert(gb10_rsqrt_table() == s.rsqrt.as<unsigned char>());
+  assert(!gb10_native_gdn_prefill_enabled(8192,false));
+  s.native_prefill=true;
+  assert(gb10_native_gdn_prefill_enabled(8192,false));
+  for (std::size_t tokens : {0u,8191u,8193u}) reject([&]{gb10_native_gdn_prefill_enabled(tokens,false);});
+  reject([&]{gb10_native_gdn_prefill_enabled(8192,true);});
+  reject([&]{gb10_prefill_gdn(0,conv.data(),a.data(),b.data(),out,&state,8192,false);});
+  assert(fake_events.empty() && calls==0);
+  s.native_prefill=false;
   gb10_prefill_gdn(0,conv.data(),a.data(),b.data(),out,&state,8192,false);
   assert(calls==1&&state==17&&fake_events==std::vector<std::string>({"prepare_prefill","cold","copy_core"}));
   fake_events.clear();gb10_prefill_gdn(0,conv.data(),a.data(),b.data(),out,&state,8192,true);
@@ -116,5 +127,5 @@ int main(int argc,char**argv) {
   assert(read(file,asset)==std::vector<unsigned char>({'a','b','c'}));
   {std::ofstream f(file,std::ios::binary);f<<"abd";}reject([&]{read(file,asset);});
   {std::ofstream f(file,std::ios::binary);f<<"ab";}reject([&]{read(file,asset);});
-  std::cout<<"{\"conversion_values_checked\":33027,\"sampled_values_checked\":102528,\"sampling_input_unchanged\":true,\"first64_original_pointer_and_extent\":true,\"sampling_guards_pass\":true,\"observer_faults_rejected\":5,\"guards_pass\":true,\"provider_order_pass\":true,\"seeded_state_forwarded\":true,\"decode_q2_flags\":true,\"injected_provider_failure_rejected\":true,\"invalid_bindings_rejected\":6,\"artifact_faults_rejected\":2}\n";
+  std::cout<<"{\"conversion_values_checked\":33027,\"sampled_values_checked\":102528,\"sampling_input_unchanged\":true,\"first64_original_pointer_and_extent\":true,\"sampling_guards_pass\":true,\"observer_faults_rejected\":5,\"guards_pass\":true,\"provider_order_pass\":true,\"seeded_state_forwarded\":true,\"decode_q2_flags\":true,\"injected_provider_failure_rejected\":true,\"invalid_bindings_rejected\":6,\"artifact_faults_rejected\":2,\"native_prefill_rejections\":11,\"native_prefill_cold_scope_pass\":true}\n";
 }

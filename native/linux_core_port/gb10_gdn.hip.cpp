@@ -34,6 +34,11 @@ void require_setting(const char* name, const char* expected) {
   if (!value || std::string(value) != expected)
     throw std::runtime_error(std::string("Unsupported GDN setting: ") + name);
 }
+bool native_prefill_setting(const char* value) {
+  if (!value || std::string(value) == "0") return false;
+  if (std::string(value) == "1") return true;
+  throw std::invalid_argument("Native GDN prefill setting must be 0 or 1");
+}
 std::vector<unsigned char> read(const std::filesystem::path& path, const Asset& asset) {
   if (std::filesystem::file_size(path) != asset.bytes)
     throw std::runtime_error("GDN artifact size differs: " + path.u8string());
@@ -70,6 +75,7 @@ struct State {
   void* observer_context = nullptr;
   std::size_t observer_layer = 0;
   bool observer_first64 = false;
+  bool native_prefill = false;
   ~State() {
     if (library) {
       hipDeviceSynchronize();
@@ -134,6 +140,7 @@ Gb10GdnOwner::Gb10GdnOwner() : impl_(std::make_unique<Impl>()) {
   require_setting("QRT_FLA_GDN_SCALAR_FLOAT_STATE", "8");
   check(hipSetDevice(0), "GDN device");
   auto& s = impl_->state;
+  s.native_prefill = native_prefill_setting(std::getenv("AIMA_PORT_NATIVE_GDN_PREFILL"));
   const auto directory = selected("AIMA_PORT_GDN_PROVIDER_DIR");
   for (const auto& asset : provider_assets) read(directory / asset.name, asset);
   s.library = dlopen((directory / "qrt_fla_chunk_gdn_provider.dll").c_str(), RTLD_NOW | RTLD_LOCAL);
@@ -212,6 +219,7 @@ void observe_gdn_prefill(std::size_t layer, const char* name, const void* values
 void gb10_prefill_gdn(std::size_t layer, const void* conv, const void* a,
     const void* b, void* output, void* state, std::size_t tokens, bool has_initial) {
   auto& s = bound(layer, conv, a, b, output, state);
+  if (s.native_prefill) throw std::runtime_error("Native GDN prefill cannot dispatch the FLA adapter");
   if (tokens != 8192) throw std::runtime_error("GDN experiment requires exact q8192 prefill");
   observe_gdn_prefill(layer, "prefill-conv-sampled", conv, 8192, tokens);
   hipLaunchKernelGGL(prepare_prefill, dim3(tokens * 8192u / 256u), dim3(256), 0, nullptr,
@@ -227,6 +235,13 @@ void gb10_prefill_gdn(std::size_t layer, const void* conv, const void* a,
       s.output.as<float>(), static_cast<uint16_t*>(output), static_cast<unsigned>(tokens * 4096u));
   check(hipGetLastError(), "GDN prefill output conversion");
   observe_gdn_prefill(layer, "prefill-core-sampled", output, 4096, tokens);
+}
+bool gb10_native_gdn_prefill_enabled(std::size_t tokens, bool has_initial) {
+  if (!active) throw std::runtime_error("Native GDN prefill requires its owner");
+  if (!active->native_prefill) return false;
+  if (tokens != 8192 || has_initial)
+    throw std::invalid_argument("Native GDN prefill comparison requires cold q8192");
+  return true;
 }
 void gb10_decode_gdn(std::size_t layer, const void* conv, const void* a,
     const void* b, void* output, void* state, hipStream_t stream) {

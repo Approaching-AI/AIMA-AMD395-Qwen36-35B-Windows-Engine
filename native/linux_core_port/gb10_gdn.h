@@ -22,6 +22,9 @@ class Gb10GdnOwner {
 void gb10_prefill_gdn(std::size_t layer, const void* convolution,
                      const void* a, const void* b, void* output, void* state,
                      std::size_t tokens, bool has_initial_state);
+// Optional isolated comparison with the imported seven-stage prefill core.
+// Cold q8192 only; the resident state binding and decode arithmetic stay intact.
+bool gb10_native_gdn_prefill_enabled(std::size_t tokens, bool has_initial_state);
 void gb10_decode_gdn(std::size_t layer, const void* convolution,
                     const void* a, const void* b, void* output, void* state,
                     hipStream_t stream);
