@@ -11,6 +11,7 @@
 #include <iostream>
 #include <locale>
 #include <memory>
+#include <optional>
 #include <sstream>
 #ifdef AIMA_PORT_GB10_CONVOLUTION
 #include "gb10_convolution.h"
@@ -57,7 +58,11 @@ std::string host_name() {
 class Observation {
  public:
   Observation(const std::filesystem::path& directory, std::size_t index,
-              std::size_t layer) : directory_(directory), output_index_(index), layer_(layer) {
+              std::size_t layer, std::optional<std::size_t> full_layer = std::nullopt)
+      : directory_(directory), output_index_(index), layer_(layer), full_layer_(full_layer) {
+    if (full_layer_ && (*full_layer_ > 39 || *full_layer_ % 4 != 3 ||
+                       index == 0 || index > 511))
+      throw std::invalid_argument("Invalid full-attention observation selector");
     if (!std::filesystem::create_directory(directory_))
       throw std::runtime_error("Observation directory already exists");
     manifest_.open(directory_ / "manifest.jsonl", std::ios::binary);
@@ -86,23 +91,69 @@ class Observation {
     manifest_ << "{\"file\":" << aima_port::json_string(file)
               << ",\"bytes\":" << bytes << ",\"dtype\":" << aima_port::json_string(dtype)
               << ",\"sha256\":" << aima_port::json_string(digest)
-              << ",\"selected_decode_output_index\":" << output_index_ << ",\"linear_layer\":" << layer_
-              << ",\"output_only\":true}" << std::endl;
+              << ",\"selected_decode_output_index\":" << output_index_;
+    if (full_layer_) manifest_ << ",\"full_attention_layer\":" << *full_layer_;
+    else manifest_ << ",\"linear_layer\":" << layer_;
+    manifest_ << ",\"output_only\":true}" << std::endl;
     if (!manifest_) throw std::runtime_error("Observation manifest write failed");
     total_ += bytes; ++count_;
   }
   void bind(aima::NativeResidentRequestOptions& request) {
     request.decode_layer_observer_output_index = output_index_;
     request.decode_linear_observer_layer_index = layer_;
+    request.decode_layer_observer = [this](std::size_t boundary, const void* row) {
+      if (boundary > 40) throw std::runtime_error("Invalid decode layer boundary");
+      capture("decode-boundary-" + std::to_string(boundary), row, 2048 * 2, "bf16");
+    };
+    if (full_layer_) {
+      request.decode_full_attention_observer = [this](
+          const aima::NativeDecodeFullAttentionObservation& value) {
+        if (value.layer_index != *full_layer_) return;
+        if (value.cache_end != 8192 + output_index_ ||
+            value.key_cache == nullptr || value.value_cache == nullptr)
+          throw std::runtime_error("Full-attention observation cache extent differs");
+        const auto bf16 = [this](const char* name, const void* pointer, std::size_t count) {
+          capture(std::string("decode-full-") + name, pointer, count * 2, "bf16");
+        };
+        bf16("qkv", value.qkv_projection, 9216);
+        bf16("q-rope", value.query, 4096);
+        bf16("k-rope", value.current_key, 512);
+        bf16("value", value.current_value, 512);
+        // Each complete cache exceeds the existing per-file limit. Preserve
+        // the exact token-major layout in an 8192-row prefix and decode tail.
+        for (const auto& cache : {std::make_pair("cache-k", value.key_cache),
+                                  std::make_pair("cache-v", value.value_cache)}) {
+          bf16((std::string(cache.first) + "-prefill").c_str(), cache.second, 8192 * 512);
+          bf16((std::string(cache.first) + "-decode").c_str(),
+               static_cast<const unsigned char*>(cache.second) + 8192 * 512 * 2,
+               output_index_ * 512);
+        }
+        bf16("context", value.attention_output, 4096);
+        bf16("gated", value.gated_attention, 4096);
+        bf16("output", value.projected_attention, 2048);
+        bf16("attention-residual", value.attention_residual, 2048);
+        bf16("post-attention-norm", value.post_attention_norm, 2048);
+        bf16("shared-gate", value.shared_gate_logits, 1);
+        bf16("shared-gate-up", value.shared_gate_up_projection, 1024);
+        bf16("shared-activation", value.shared_activation, 512);
+        bf16("shared-down", value.shared_down_projection, 2048);
+        bf16("shared", value.shared_moe_output, 2048);
+        bf16("router", value.router_logits, 256);
+        capture("decode-full-router-weights", value.router_weights, 8 * 4, "f32");
+        capture("decode-full-router-indices", value.router_indices, 8 * 4, "i32");
+        bf16("routed-gate-up", value.routed_gate_up_projection, 8 * 1024);
+        bf16("routed-activation", value.routed_activation, 8 * 512);
+        bf16("routed-weighted", value.routed_weighted_expert_outputs, 8 * 2048);
+        bf16("routed", value.routed_moe_output, 2048);
+        bf16("combined", value.combined_moe_output, 2048);
+      };
+      return;
+    }
     request.prefill_linear_state_observer = [this](std::size_t layer, const void* conv,
         std::uint64_t conv_bytes, const void* state, std::uint64_t state_bytes) {
       if (layer != layer_) return;
       capture("prefill-conv", conv, conv_bytes, "bf16");
       capture("prefill-state", state, state_bytes, "f32");
-    };
-    request.decode_layer_observer = [this](std::size_t boundary, const void* row) {
-      if (boundary > 40) throw std::runtime_error("Invalid decode layer boundary");
-      capture("decode-boundary-" + std::to_string(boundary), row, 2048 * 2, "bf16");
     };
     auto stage = [this](const char* name, const void* device, std::uint64_t bytes,
                        aima::DecodeTensorDtype dtype) {
@@ -119,6 +170,7 @@ class Observation {
   std::filesystem::path directory_;
   std::ofstream manifest_;
   std::size_t output_index_, layer_, count_ = 0;
+  std::optional<std::size_t> full_layer_;
   std::uint64_t total_ = 0;
 };
 
@@ -132,6 +184,8 @@ int run(const std::vector<std::string>& argv) {
       std::string(first64_setting) != "1")
     throw std::invalid_argument("First64 observation requires 0 or 1");
   const bool first64 = first64_setting && std::string(first64_setting) == "1";
+  const auto full_layer = aima_port::full_attention_observation_layer(
+      std::getenv("AIMA_PORT_OBSERVE_FULL_LAYER"), args.count("--observe-directory"), first64);
   if (first64 && !args.count("--observe-directory"))
     throw std::invalid_argument("First64 observation requires an output directory");
 #ifndef AIMA_PORT_GB10_GDN
@@ -160,7 +214,7 @@ int run(const std::vector<std::string>& argv) {
     observation = std::make_unique<Observation>(
         std::filesystem::absolute(path("--observe-directory")),
         aima_port::observation_number(args.at("--observe-output-index"), 511),
-        aima_port::observation_number(args.at("--observe-linear-layer"), 39));
+        aima_port::observation_number(args.at("--observe-linear-layer"), 39), full_layer);
     observation->bind(request);
   }
   const auto quote = aima_port::json_string;
@@ -184,6 +238,7 @@ int run(const std::vector<std::string>& argv) {
               << ",\"observation_linear_layer\":" << args.at("--observe-linear-layer")
               << ",\"observation_prefill_first64\":" << (first64 ? "true" : "false")
               << ",\"observation_output_only\":true,\"diagnostic_timings_only\":true";
+    if (full_layer) std::cout << ",\"observation_full_attention_layer\":" << *full_layer;
   }
   std::cout << "}" << std::endl;
 #ifdef AIMA_PORT_GB10_CONVOLUTION
@@ -191,7 +246,7 @@ int run(const std::vector<std::string>& argv) {
 #endif
 #ifdef AIMA_PORT_GB10_GDN
   aima_port::Gb10GdnOwner gdn;
-  if (observation) {
+  if (observation && !full_layer) {
     aima_port::set_gdn_prefill_observer(
         aima_port::observation_number(args.at("--observe-linear-layer"), 39),
         [](const char* name, const void* device, std::size_t bytes, void* owner) {

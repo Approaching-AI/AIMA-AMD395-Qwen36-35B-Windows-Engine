@@ -2,9 +2,11 @@
 
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
-It is not enabled in the Windows product. The GDN, singleton/dense projection
-and normalization replacement (`6ea9adf`) runs the real model on baiying.
-The q8192 first token and logit pass the GB10 boundary, but output 115 diverges.
+It is not enabled in the Windows product. The complete MoE and gated-prefill
+layout repair (`5c1252d`) runs the real model on baiying. All 15 observed
+layer-zero first64 surfaces and first-decode layer outputs 0–2 now match.
+The q8192 first token and logit pass, but output115 diverges and393 of512
+continuation tokens differ. The next observed layer boundary is full layer3.
 Complete continuation, performance and release qualification remain open.
 
 The latest sampler preserves all 512 outputs and all 71 earlier observations.
@@ -229,9 +231,33 @@ four-value reduction. CPU replay of the old short layout reproduces the one
 native error exactly; the prefill layout matches all872448 original BF16
 endpoints across71 rows in layers0,1,2. The original decode rows also pass.
 ASan/UBSan verifies both dispatches and the original midpoint regression,
-including the failing short-layout negative control. Native repair execution
-is pending; the preceding470-token continuation failure remains unqualified.
+including the failing short-layout negative control.
 [First64 diagnosis and repair preparation](../benchmarks/correctness/linux-core-gated-prefill-layout-diagnosis-20260922.json).
+
+The native repair completes all58 Windows compilation units and the real
+q8192/out512 request. All15 first64 layer-zero surfaces match, as does the
+complete layer-zero prefill recurrent state. First-decode layer outputs0–2
+match after BF16 rounding; layer3 is the next observed difference, with944
+values differing. The first continuation mismatch moves from index1 to115,
+but393 output tokens still differ. First token144/logit10.3125 passes the
+original10.375 logit boundary within0.125. Diagnostic load/TTFT/TPOT are
+27736.6656/31262.7129/67.382747ms. Host checks and cleanup pass.
+An initial controller assertion rejected different ordering of385 identical
+source records after the successful build. Recovery verifies every path,
+length and SHA, preserves the failure and runs the previously unrun product
+phase once. The checker now compares source identities independent of array
+order and still rejects missing, changed, duplicate or extra inputs.
+[Native gated-prefill result](../benchmarks/correctness/linux-core-gated-prefill-layout-native-20260922.json).
+
+The optional `AIMA_PORT_OBSERVE_FULL_LAYER=3` probe selector captures the
+existing full-attention observer at the selected decode output index. It
+retains all41 layer boundaries and records QKV, RoPE, context, gating and
+MoE stages. K/V caches preserve their token-major layout, split into8192
+prefill rows and the decode tail. Linear captures are disabled in this mode;
+first64 capture is incompatible. The8MiB/file,32MiB/collection and128-file
+bounds remain unchanged. ASan/UBSan verifies179 captured files at both decode
+index limits and25 rejection controls. This is output-only diagnosis;
+native full-attention capture and its numerical comparison remain pending.
 
 The upstream release refresh at09:56UTC finds the same five releases and
 unchanged bodies; latest remains v1.5.1-native-vl.10/tag0522a57, declaring

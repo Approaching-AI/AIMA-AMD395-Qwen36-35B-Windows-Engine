@@ -30,6 +30,7 @@ def main():
 #include <sstream>
 namespace aima {
 enum class DecodeTensorDtype { kNone, kBfloat16, kFloat32, kInt32 };
+FULL_ATTENTION_OBSERVATION_DECLARATION
 struct NativeResidentRequestOptions {
   std::optional<std::size_t> decode_layer_observer_output_index;
   std::size_t decode_linear_observer_layer_index = 0;
@@ -37,6 +38,7 @@ struct NativeResidentRequestOptions {
   std::function<void(std::size_t,const void*)> decode_layer_observer;
   std::function<void(const char*,const void*,std::uint64_t,DecodeTensorDtype)> decode_linear_layer0_observer;
   decltype(decode_linear_layer0_observer) decode_layer0_tail_observer;
+  std::function<void(const NativeDecodeFullAttentionObservation&)> decode_full_attention_observer;
 };
 }
 constexpr int hipSuccess = 0;
@@ -57,18 +59,23 @@ template<class F> void rejects(F callback) {
   throw std::runtime_error("Invalid collector operation accepted");
 }
 '''
+    full_header = (ROOT/'third_party/aima_linux/native/include/aima/native_full_layer.h').read_text()
+    begin = full_header.index('struct NativeDecodeFullAttentionObservation {')
+    declaration = full_header[begin:full_header.index('\n};', begin) + 3]
+    prefix = prefix.replace('FULL_ATTENTION_OBSERVATION_DECLARATION', declaration)
     suffix = r'''
 int main(int argc, char** argv) {
   require(argc == 2);
   const std::filesystem::path root(argv[1]);
   require(std::filesystem::create_directory(root));
-  std::vector<unsigned char> device(8 << 20);
-  for (std::size_t i = 0; i < device.size(); ++i) device[i] = (i * 71 + 13) & 255;
+  std::vector<unsigned char> device((8192 + 511) * 512 * 2);
+  for (std::size_t i = 0; i < device.size(); ++i) device[i] = (i * 71 + 13 + (i >> 10) + (i >> 19)) & 255;
   const auto original = aima::sha256_bytes(device.data(), device.size());
   {
     Observation observed(root/"good", 115, 0);
     aima::NativeResidentRequestOptions request;
     observed.bind(request);
+    require(!request.decode_full_attention_observer);
     require(request.decode_layer_observer_output_index == 115 && request.decode_linear_observer_layer_index == 0);
     request.prefill_linear_state_observer(1, device.data(), 32, device.data(), 64);
     require(copy_calls == 0);
@@ -110,11 +117,42 @@ int main(int argc, char** argv) {
     for (unsigned i = 0; i < 128; ++i) files.capture("tiny-"+std::to_string(i), device.data(), 4, "f32");
     rejects([&]{ files.capture("over-count", device.data(), 4, "f32"); });
   }
+  for (const std::size_t index : {std::size_t(1), std::size_t(511)}) {
+    Observation observed(root/("full-" + std::to_string(index)), index, 0, 3);
+    aima::NativeResidentRequestOptions request;
+    observed.bind(request);
+    require(!request.prefill_linear_state_observer && !request.decode_linear_layer0_observer &&
+            !request.decode_layer0_tail_observer && bool(request.decode_full_attention_observer));
+    aima::NativeDecodeFullAttentionObservation value;
+    ASSIGN_FULL_ATTENTION_POINTERS
+    value.layer_index = 7; value.cache_end = 8192 + index;
+    const auto before = copy_calls;
+    request.decode_full_attention_observer(value);
+    require(copy_calls == before);
+    value.layer_index = 3; value.cache_end -= 1;
+    rejects([&]{ request.decode_full_attention_observer(value); });
+    require(copy_calls == before);
+    value.cache_end += 1; value.key_cache = nullptr;
+    rejects([&]{ request.decode_full_attention_observer(value); });
+    require(copy_calls == before); value.key_cache = device.data();
+    request.decode_full_attention_observer(value);
+    for (std::size_t layer = 0; layer <= 40; ++layer) request.decode_layer_observer(layer, device.data());
+    require(copy_calls == before + 67);
+  }
+  for (const std::size_t layer : {std::size_t(0), std::size_t(40)})
+    rejects([&]{ Observation invalid(root/"invalid-selector", 1, 0, layer); });
+  for (const std::size_t index : {std::size_t(0), std::size_t(512)})
+    rejects([&]{ Observation invalid(root/"invalid-selector", index, 0, 3); });
   require(aima::sha256_bytes(device.data(), device.size()) == original);
   std::cout << "{\"passed\":true,\"rejected_controls\":" << rejected
             << ",\"input_unchanged\":true,\"native_inference\":false}" << std::endl;
 }
 '''
+    pointers = [line.strip().split()[2] for line in declaration.splitlines()
+                if line.strip().startswith('const void* ')]
+    assert len(pointers) == 24
+    suffix = suffix.replace('ASSIGN_FULL_ATTENTION_POINTERS',
+                            '\n    '.join(f'value.{name} = device.data();' for name in pointers))
     harness = out/'collector.cpp'
     harness.write_text(prefix + collector + suffix)
     compiler = shutil.which('clang++')
@@ -140,17 +178,35 @@ int main(int argc, char** argv) {
     for entry in manifest:
         path = out/'fixtures/good'/entry['file']
         assert path.stat().st_size == entry['bytes'] and sha(path) == entry['sha256']
-        assert path.read_bytes() == bytes((i*71+13)&255 for i in range(entry['bytes']))
+        assert path.read_bytes() == bytes((i*71+13+(i>>10)+(i>>19))&255 for i in range(entry['bytes']))
+    full_verified = 0
+    for index in (1, 511):
+        directory = out/f'fixtures/full-{index}'
+        full = [json.loads(x) for x in (directory/'manifest.jsonl').read_text().splitlines()]
+        assert len(full) == 67 and sum(x['bytes'] for x in full) <= 32 << 20
+        assert len({x['file'] for x in full}) == 67
+        for entry in full:
+            path = directory/entry['file']
+            assert path.stat().st_size == entry['bytes'] and sha(path) == entry['sha256']
+            assert entry['full_attention_layer'] == 3 and entry['selected_decode_output_index'] == index
+            assert 'linear_layer' not in entry and 0 < entry['bytes'] <= 8 << 20
+            offset = 8192*512*2 if entry['file'].endswith('-decode.bin') else 0
+            expected = bytes((i*71+13+(i>>10)+(i>>19))&255 for i in range(offset, offset+entry['bytes']))
+            assert path.read_bytes() == expected
+        for key in ('k', 'v'):
+            assert (directory/f'decode-full-cache-{key}-prefill.bin').stat().st_size == 8192*512*2
+            assert (directory/f'decode-full-cache-{key}-decode.bin').stat().st_size == index*512*2
+        full_verified += len(full)
     run('host-contract-build',[compiler,*flags,include/'host_contract_test.cpp','-o',out/'host-contract'])
     host = json.loads(run('host-contract-run',[out/'host-contract',out/'host-fixtures']).stdout)
-    assert host['passed'] and result['passed'] and result['rejected_controls'] == 17
+    assert host['passed'] and result['passed'] and result['rejected_controls'] == 25
     report = dict(probe_sha256=sha(probe), harness_sha256=sha(harness), commands=commands,
-                  host_contract=host, collector=result, verified_files=len(manifest),
+                  host_contract=host, collector=result, verified_files=len(manifest)+full_verified,
                   generated_collector_from_actual_probe=True, gpu_executed=False,
                   inference_acceptance=False, performance_acceptance=False)
     with (out/'result.json').open('x') as f:
         json.dump(report,f,indent=2);f.write('\n')
-    print(json.dumps(dict(passed=True,collector_files=45,rejected_controls=17,host_contract_pass=True)))
+    print(json.dumps(dict(passed=True,collector_files=179,rejected_controls=25,host_contract_pass=True)))
 
 
 if __name__ == '__main__':

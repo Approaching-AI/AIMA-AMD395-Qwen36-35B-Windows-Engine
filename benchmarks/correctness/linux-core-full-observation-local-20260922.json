@@ -1,0 +1,85 @@
+{
+  "probe_sha256": "b23fedb1ca171a72e5b2300d71d4bc037c575239cdf83554829e1b880232fe02",
+  "harness_sha256": "4b6337ae141087ba220f636c9d12dca3052750ea669754e1f71d74e1b4a4f1d5",
+  "commands": [
+    {
+      "label": "collector-build",
+      "command": [
+        "/usr/bin/clang++",
+        "-std=c++17",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I",
+        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/linux_core_port",
+        "-I",
+        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/include",
+        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/collector.cpp",
+        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/src/sha256.cpp",
+        "-o",
+        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/collector"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "collector-run",
+      "command": [
+        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/collector",
+        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/fixtures"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "6a2977eb9cc38243758d8faf7cad20bd0d4daf44a7a1bc442f0be72961870ca2",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "host-contract-build",
+      "command": [
+        "/usr/bin/clang++",
+        "-std=c++17",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/linux_core_port/host_contract_test.cpp",
+        "-o",
+        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/host-contract"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "host-contract-run",
+      "command": [
+        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/host-contract",
+        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/host-fixtures"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "bf3396b77afd361e0b704c178665ad71db420452267b4e765a12d840d852160f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "host_contract": {
+    "passed": true,
+    "large_offset": 4294967313,
+    "tokens_checked": 8192,
+    "model_loaded": false
+  },
+  "collector": {
+    "passed": true,
+    "rejected_controls": 25,
+    "input_unchanged": true,
+    "native_inference": false
+  },
+  "verified_files": 179,
+  "generated_collector_from_actual_probe": true,
+  "gpu_executed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "schema": 1,
+  "date": "2026-09-22",
+  "local_result_sha256": "2a0441b221caa55628663d19eb2244494a0af0cf221cb22aa7097cfefa7b96e1"
+}

@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <fstream>
 #include <map>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -17,6 +18,15 @@ inline std::size_t observation_number(const std::string& value, std::size_t maxi
   const auto number = static_cast<std::size_t>(std::stoul(value));
   if (number > maximum) throw std::invalid_argument("Observation selector exceeds bound");
   return number;
+}
+
+inline std::optional<std::size_t> full_attention_observation_layer(
+    const char* setting, bool has_directory, bool first64) {
+  if (setting == nullptr) return std::nullopt;
+  const auto layer = observation_number(setting, 39);
+  if (layer % 4 != 3 || !has_directory || first64)
+    throw std::invalid_argument("Full-attention observation requires a full layer, output directory and no first64 capture");
+  return layer;
 }
 
 inline std::map<std::string, std::string> probe_arguments(

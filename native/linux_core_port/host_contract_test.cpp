@@ -118,6 +118,14 @@ int main(int argc, char** argv) {
     rejects([&] { aima_port::probe_arguments(malformed); });
     malformed = observed; malformed.resize(14);
     rejects([&] { aima_port::probe_arguments(malformed); });
+    require(!aima_port::full_attention_observation_layer(nullptr, false, false), "Unset full observer enabled");
+    for (const auto* valid : {"3", "7", "39"})
+      require(aima_port::full_attention_observation_layer(valid, true, false) ==
+                  aima_port::observation_number(valid, 39), "Full observer selector rejected");
+    for (const auto* invalid : {"", "0", "2", "38", "40", "-1", "03", "3x"})
+      rejects([&] { aima_port::full_attention_observation_layer(invalid, true, false); });
+    rejects([&] { aima_port::full_attention_observation_layer("3", false, false); });
+    rejects([&] { aima_port::full_attention_observation_layer("3", true, true); });
     require(aima_port::json_string(std::string("a\"\\\n\0", 5)) == "\"a\\\"\\\\\\u000a\\u0000\"",
             "JSON escaping failed");
     // Only remove the huge logical sparse fixture created by this test.
