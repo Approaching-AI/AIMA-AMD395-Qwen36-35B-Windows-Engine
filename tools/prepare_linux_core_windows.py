@@ -181,6 +181,66 @@ def current_text_decode_overlay(text):
         "        &impl_->decode_cross_layer_norms);")
 
 
+def native_gdn_chunk64_launches():
+    """Reuse the pinned dynamic-T chunk64 images with the live q8192 bindings.
+
+    A/Ai need twice the chunk32 storage. They are owner allocations; all other
+    tensors keep their original semantic bindings. Local parameter copies avoid
+    changing the persistent invocation table or its pointer ownership.
+    """
+    directory = UPSTREAM / "native/aot/gfx1151"
+    small = json.loads((directory / "q1024-output1/prefill-schedule.json").read_text())["schedule"]
+    large = json.loads((directory / "q8192-output2/prefill-schedule.json").read_text())["schedule"]
+    pointer_overrides = {4: {"A": "matrix_f32"},
+                         5: {"A": "matrix_f32", "Ai": "inverse_bf16"},
+                         6: {"A": "inverse_bf16"}}
+    code = []
+    for offset in range(3, 9):
+        old, new = large[offset], small[offset]
+        signature = lambda item: [(a["name"], a["abi_type"]) for a in item["arguments"]]
+        if signature(old) != signature(new) or old["layer_index"] != 0 or new["layer_index"] != 0:
+            raise ValueError("Native chunk64 GDN ABI changed")
+        if old["arguments"][-1] != {**new["arguments"][-1], "value": 8192}:
+            raise ValueError("Native chunk64 GDN token argument changed")
+        args = old["arguments"]
+        for a, b in zip(args[:-1], new["arguments"][:-1]):
+            if a["kind"] != b["kind"] or (a["kind"] != "tensor" and a != b):
+                raise ValueError("Native chunk64 GDN scalar contract changed")
+        grid = [128, 32, 1] if offset < 7 else [4, 32, 1] if offset == 7 else [2, 128, 32]
+        config = grid + [new["num_warps"], new["warp_size"], new["shared_memory_bytes"]]
+        code += [
+            "    {",
+            f"      const auto& invocation = launches[base + {offset}];",
+            "      if (!invocation.launch ||",
+            f'          std::string(invocation.launch->kernel_hash) != "{old["kernel_hash"]}" ||',
+            f"          invocation.launch->argument_count != {len(args)} ||",
+            f"          invocation.kernel_params.size() != {len(args)})",
+            '        throw std::runtime_error("Native chunk64 GDN source invocation changed");',
+            "      auto parameters = invocation.kernel_params;",
+            f"      parameters[{len(args) - 1}] = &native_tokens;",
+        ]
+        for name, member in pointer_overrides.get(offset, {}).items():
+            index = next(i for i, a in enumerate(args) if a["name"] == name)
+            code.append(f"      parameters[{index}] = &matrices.{member};")
+        if offset == 5:
+            code += [
+                "      constexpr std::size_t bytes = 8192ull * 32 * 64 * sizeof(std::uint16_t);",
+                "      check_hip(hipMemset(matrices.inverse_bf16, 0, bytes),",
+                '                "hipMemset native chunk64 inverse scratch");',
+                "      result.layer.state_scratch_zero_operations = 1;",
+                "      result.layer.state_scratch_zero_bytes = bytes;",
+            ]
+        if offset == 7:
+            code += [
+                '      check_hip(hipMemset(invocations.tensor_pointer(base + 7, "h0"), 0,',
+                "                          kStateElements * sizeof(float)),",
+                '                "hipMemset native chunk64 cold initial state");',
+            ]
+        code += [f'      executor.launch_embedded("{new["kernel_hash"]}",',
+                 f'          AotLaunchConfig{{{", ".join(map(str, config))}}}, parameters);', "    }"]
+    return "\n".join(code) + "\n"
+
+
 def gb10_gdn_overlays(linear, prefill):
     linear = replace(linear, '#include "gb10_convolution.h"',
                      '#include "gb10_convolution.h"\n#include "gb10_gdn.h"')
@@ -206,17 +266,32 @@ def gb10_gdn_overlays(linear, prefill):
         "  const auto started = std::chrono::steady_clock::now();")
     begin = prefill.index("  launch_attention_aot(2);")
     end = prefill.index("  launch_attention_aot(8);", begin) + len("  launch_attention_aot(8);")
-    original_core = prefill[begin:end]
     prefill = replace(prefill, prefill[begin:end],
         "  const bool native_gdn_prefill = aima_port::gb10_native_gdn_prefill_enabled(\n"
         "      tokens, options.has_initial_state);\n"
         "  if (native_gdn_prefill) {\n"
         "    aima_port::observe_gdn_prefill(options.layer_index, \"prefill-conv-sampled\",\n"
         "        invocations.tensor_pointer(base + 1, \"o_ptr\"), 8192, tokens);\n"
-        + "\n".join("  " + line for line in original_core.splitlines()) + "\n"
+        "    auto matrices = aima_port::gb10_prepare_native_gdn(options.layer_index,\n"
+        "        invocations.tensor_pointer(base + 1, \"o_ptr\"), a, b,\n"
+        "        invocations.tensor_pointer(base + 2, \"q_ptr\"),\n"
+        "        invocations.tensor_pointer(base + 2, \"k_ptr\"),\n"
+        "        invocations.tensor_pointer(base + 2, \"v_ptr\"),\n"
+        "        invocations.tensor_pointer(base + 2, \"g_ptr\"),\n"
+        "        invocations.tensor_pointer(base + 2, \"beta_ptr\"), tokens);\n"
+        "    result.layer.native_pointwise_launches += 2;\n"
+        "    aima_port::observe_gdn_prefill(options.layer_index, \"prefill-q-sampled\",\n"
+        "        invocations.tensor_pointer(base + 2, \"q_ptr\"), 2048, tokens);\n"
+        "    aima_port::observe_gdn_prefill(options.layer_index, \"prefill-k-sampled\",\n"
+        "        invocations.tensor_pointer(base + 2, \"k_ptr\"), 2048, tokens);\n"
+        "    aima_port::observe_gdn_prefill(options.layer_index, \"prefill-v-sampled\",\n"
+        "        invocations.tensor_pointer(base + 2, \"v_ptr\"), 4096, tokens);\n"
+        "    std::int32_t native_tokens = 8192;\n"
+        + native_gdn_chunk64_launches() +
         "    aima_port::observe_gdn_prefill(options.layer_index, \"prefill-core-sampled\", core, 4096, tokens);\n"
         '    std::fprintf(stderr, "{\\\"event\\\":\\\"native_gdn_prefill\\\",\\\"layer\\\":%zu,'
-        '\\\"tokens\\\":%zu,\\\"stages\\\":7,\\\"cold\\\":true}\\n", options.layer_index, tokens);\n'
+        '\\\"tokens\\\":%zu,\\\"stages\\\":6,\\\"chunk_tokens\\\":64,'
+        '\\\"original_preparation\\\":true,\\\"cold\\\":true}\\n", options.layer_index, tokens);\n'
         "  } else {\n"
         "  aima_port::gb10_prefill_gdn(options.layer_index,\n"
         "      invocations.tensor_pointer(base + 1, \"o_ptr\"),\n"
@@ -241,7 +316,7 @@ def gb10_gdn_overlays(linear, prefill):
                       "      (q8192_schedule ? 8 : 0);")
     prefill = replace(prefill,
         "  result.layer.aot_launches =\n      attention_launches -",
-        "  result.layer.aot_launches = (native_gdn_prefill ? 7 : 0) +\n      attention_launches -")
+        "  result.layer.aot_launches = (native_gdn_prefill ? 6 : 0) +\n      attention_launches -")
     return linear, prefill
 
 
@@ -1120,6 +1195,11 @@ def main():
             decode_beta="FP32", prefill_beta="BF16",
             prefill_tokens=8192, decode_tokens=1, intermediate_aot_observations=False,
             provider_calls_per_linear_prefill=1, model_qualified=False)
+        report["optional_adaptations"]["gb10_gdn"]["native_prefill_opt_in"] = dict(
+            setting="AIMA_PORT_NATIVE_GDN_PREFILL=1", scope="cold q8192 only",
+            preparation="original XOR16 Q/K normalization, BF16 beta, FP32 decay table",
+            core="six existing dynamic-T q1024 chunk64 images with live q8192 tensors",
+            additional_scratch_bytes=100663296, model_qualified=False)
     if args.gb10_projections:
         report["optional_adaptations"]["gb10_projections"] = dict(
             decode="existing Windows K16 width-26 SM121 projection arithmetic",

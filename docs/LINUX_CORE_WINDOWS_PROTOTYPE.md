@@ -10,6 +10,29 @@ TPOT228.040989ms. The earlier `9447947` run also has all72 second-decode
 comparisons matching in BF16 and a bitwise-exact final normalization.
 Performance, other product shapes, prefix continuation and release remain open.
 
+Native GDN observation `fce7fdd` reproduces all 512 outputs from the failed
+chunk32 experiment, including 486 differences from GB10 and the first at
+index 1 (244 versus 255). Layer0 input normalization and QKV/Z/A/B projections
+are bitwise exact. The prefill core differs at 11467 of32768 sampled BF16
+values, and its complete final state differs at443872 of524288 FP32 values
+(maximum absolute error0.09027356). Transposing each state matrix increases
+the error; a layout transpose does not explain the failure. The first decode
+receives this same incorrect state while its input projections and convolution
+remain exact. Instrumented TTFT20820.2864ms is diagnostic only.
+
+The next opt-in native GDN experiment replaces the fused preparation with
+the qualified XOR16 Q/K normalization, original BF16 beta and FP32 decay
+table. It reuses six already embedded dynamic-T chunk64 kernels, with live
+q8192 tensors and96MiB of owner-managed A/Ai scratch. Persistent invocation
+bindings remain unchanged; inverse storage and cold initial state are cleared
+at their semantic lifetime boundaries. CPU replay matches66048 original
+operand values, including32768 normalized Q/K values checked against the
+original vLLM normalization kernel on GB10. The initial raw Q/K capture is
+before normalization and is not a comparable normalized boundary. Host
+ASan/UBSan checks12480 conversion values and65 invalid preparation bindings.
+The native Windows build, full state and512-token result are still required.
+[GDN diagnosis and chunk64 preparation](../benchmarks/correctness/linux-core-native-gdn-boundary-and-chunk64-20260923.json).
+
 Native MoE correction `f210ff3` also passes the original cold q8192/out512
 boundary: all 512 tokens/callbacks, first 144 and logit 10.375 (zero error).
 It replaces the expert gate/up and weighted-down AOT products with FP32 WMMA

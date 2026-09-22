@@ -43,6 +43,20 @@ int main(int argc,char**argv) {
   for(unsigned i=0;i<gate_count;++i){assert(gate[i/32*64+i%32]==float((i%32)*65536+a[i]));assert(qrt_sm121_exp2::bits(gate[i/32*64+32+i%32])==uint32_t(beta[b[i]])<<16);}
   for(unsigned i=raw_count;i<raw.size();++i)assert(raw[i]==-111.f);
   for(unsigned i=T*64;i<gate.size();++i)assert(gate[i]==-222.f);
+  std::vector<uint16_t> native_v(T*4096+256,0x1234);
+  std::vector<float> native_g(gate_count+256,-555.f),native_beta(gate_count+256,-666.f);
+  for(unsigned i=0;i<T*4096+256;++i){
+    blockIdx=dim3(i/256);threadIdx=dim3(i%256);
+    prepare_native_v_gate(conv.data(),a.data(),b.data(),native_v.data(),native_g.data(),
+                         native_beta.data(),lut.data(),beta.data(),T);
+  }
+  for(unsigned i=0;i<T*4096;++i)assert(native_v[i]==conv[(i/4096)*8192+4096+i%4096]);
+  for(unsigned i=0;i<gate_count;++i){
+    assert(native_g[i]==gate[i/32*64+i%32]);
+    assert(qrt_sm121_exp2::bits(native_beta[i])==qrt_sm121_exp2::bits(gate[i/32*64+32+i%32]));
+  }
+  for(unsigned i=T*4096;i<native_v.size();++i)assert(native_v[i]==0x1234);
+  for(unsigned i=gate_count;i<native_g.size();++i)assert(native_g[i]==-555.f&&native_beta[i]==-666.f);
   std::vector<float> dr(8192+256,-333.f),ab(64+256,-444.f);
   for(unsigned i=0;i<8192+256;++i){blockIdx=dim3(i/256);threadIdx=dim3(i%256);prepare_decode(conv.data(),a.data(),b.data(),dr.data(),ab.data());}
   for(unsigned i=0;i<8192;++i)assert(qrt_sm121_exp2::bits(dr[i])==uint32_t(conv[i])<<16);
@@ -71,7 +85,7 @@ int main(int argc,char**argv) {
   }
   // Exercise the actual wrapper against a recording provider. Scratch owners
   // are deliberately distinct; kernels are recorded rather than GPU-executed.
-  State s;for(Device* d:{&s.raw,&s.gates,&s.output,&s.decode_ab,&s.gate[0],&s.beta,&s.prefill_beta,&s.exp2,&s.rsqrt})d->allocate(64);
+  State s;for(Device* d:{&s.raw,&s.gates,&s.output,&s.decode_ab,&s.gate[0],&s.beta,&s.prefill_beta,&s.exp2,&s.rsqrt,&s.native_matrix,&s.native_inverse})d->allocate(64);
   reject([&]{gb10_rsqrt_table();});
   reject([&]{gb10_native_gdn_prefill_enabled(8192,false);});
   assert(!native_prefill_setting(nullptr) && !native_prefill_setting("0") && native_prefill_setting("1"));
@@ -85,6 +99,35 @@ int main(int argc,char**argv) {
   reject([&]{gb10_native_gdn_prefill_enabled(8192,true);});
   reject([&]{gb10_prefill_gdn(0,conv.data(),a.data(),b.data(),out,&state,8192,false);});
   assert(fake_events.empty() && calls==0);
+  // These synthetic addresses test the wrapper's complete byte spans only.
+  // fake_launch never dereferences them and does not simulate GPU shuffle math.
+  std::array<void*,8> pointers{};
+  for(unsigned i=0;i<pointers.size();++i)pointers[i]=reinterpret_cast<void*>(0x100000000ull+i*0x10000000ull);
+  auto prepare=[&](const std::array<void*,8>& p,unsigned layer=0,unsigned tokens=8192){
+    return gb10_prepare_native_gdn(layer,p[0],p[1],p[2],p[3],p[4],p[5],p[6],p[7],tokens);
+  };
+  unsigned preparation_rejections=0;
+  auto bad_preparation=[&](auto fn){reject(fn);++preparation_rejections;assert(fake_events.empty());};
+  for(unsigned i=0;i<8;++i){
+    auto p=pointers;p[i]=nullptr;bad_preparation([&]{prepare(p);});
+    p=pointers;p[i]=reinterpret_cast<void*>(reinterpret_cast<std::uintptr_t>(p[i])+1);bad_preparation([&]{prepare(p);});
+    p=pointers;p[i]=reinterpret_cast<void*>(UINTPTR_MAX-3);bad_preparation([&]{prepare(p);});
+    for(unsigned j=0;j<i;++j){p=pointers;p[i]=p[j];bad_preparation([&]{prepare(p);});}
+  }
+  // Tail overlap must be rejected even when every starting address differs.
+  auto overlap=pointers;overlap[3]=reinterpret_cast<void*>(0x100000000ull+8192ull*8192*2-2);
+  bad_preparation([&]{prepare(overlap);});
+  for(unsigned layer:{3u,40u})bad_preparation([&]{prepare(pointers,layer);});
+  for(unsigned tokens:{0u,8191u,8193u})bad_preparation([&]{prepare(pointers,0,tokens);});
+  for(Device* d:{&s.gate[0],&s.rsqrt,&s.prefill_beta,&s.native_matrix,&s.native_inverse}){
+    void* saved=d->data;d->data=nullptr;bad_preparation([&]{prepare(pointers);});d->data=saved;
+  }
+  active=nullptr;bad_preparation([&]{prepare(pointers);});active=&s;
+  s.native_prefill=false;bad_preparation([&]{prepare(pointers);});s.native_prefill=true;
+  const auto matrices=prepare(pointers);
+  assert(matrices.matrix_f32==s.native_matrix.data&&matrices.inverse_bf16==s.native_inverse.data);
+  assert(fake_events==std::vector<std::string>({"prepare_native_qk","prepare_native_v_gate"}));
+  fake_events.clear();assert(preparation_rejections==65);
   s.native_prefill=false;
   gb10_prefill_gdn(0,conv.data(),a.data(),b.data(),out,&state,8192,false);
   assert(calls==1&&state==17&&fake_events==std::vector<std::string>({"prepare_prefill","cold","copy_core"}));
@@ -132,5 +175,5 @@ int main(int argc,char**argv) {
   assert(read(file,asset)==std::vector<unsigned char>({'a','b','c'}));
   {std::ofstream f(file,std::ios::binary);f<<"abd";}reject([&]{read(file,asset);});
   {std::ofstream f(file,std::ios::binary);f<<"ab";}reject([&]{read(file,asset);});
-  std::cout<<"{\"conversion_values_checked\":33027,\"sampled_values_checked\":2199680,\"sampling_input_unchanged\":true,\"first64_original_pointer_and_extent\":true,\"sampling_guards_pass\":true,\"observer_faults_rejected\":5,\"guards_pass\":true,\"provider_order_pass\":true,\"seeded_state_forwarded\":true,\"decode_q2_flags\":true,\"injected_provider_failure_rejected\":true,\"invalid_bindings_rejected\":6,\"artifact_faults_rejected\":2,\"native_prefill_rejections\":11,\"native_prefill_cold_scope_pass\":true}\n";
+  std::cout<<"{\"native_conversion_values_checked\":12480,\"native_preparation_rejections\":65,\"gpu_qk_norm_tested\":false,\"conversion_values_checked\":33027,\"sampled_values_checked\":2199680,\"sampling_input_unchanged\":true,\"first64_original_pointer_and_extent\":true,\"sampling_guards_pass\":true,\"observer_faults_rejected\":5,\"guards_pass\":true,\"provider_order_pass\":true,\"seeded_state_forwarded\":true,\"decode_q2_flags\":true,\"injected_provider_failure_rejected\":true,\"invalid_bindings_rejected\":6,\"artifact_faults_rejected\":2,\"native_prefill_rejections\":11,\"native_prefill_cold_scope_pass\":true}\n";
 }

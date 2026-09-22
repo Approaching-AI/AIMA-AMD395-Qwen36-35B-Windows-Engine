@@ -22,9 +22,15 @@ class Gb10GdnOwner {
 void gb10_prefill_gdn(std::size_t layer, const void* convolution,
                      const void* a, const void* b, void* output, void* state,
                      std::size_t tokens, bool has_initial_state);
-// Optional isolated comparison with the imported seven-stage prefill core.
+// Optional isolated comparison with the imported chunk-64 prefill core.
 // Cold q8192 only; the resident state binding and decode arithmetic stay intact.
 bool gb10_native_gdn_prefill_enabled(std::size_t tokens, bool has_initial_state);
+struct NativeGdnMatrices { void* matrix_f32; void* inverse_bf16; };
+// Prepare original Q/K normalization, BF16 beta and FP32 decay values into
+// the engine's live token-major tensors. Returned matrices belong to this owner.
+NativeGdnMatrices gb10_prepare_native_gdn(std::size_t layer, const void* convolution,
+    const void* a, const void* b, void* q, void* k, void* v, void* g, void* beta,
+    std::size_t tokens);
 void gb10_decode_gdn(std::size_t layer, const void* convolution,
                     const void* a, const void* b, void* output, void* state,
                     hipStream_t stream);

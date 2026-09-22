@@ -21,6 +21,7 @@ STUB = r'''
 #define __syncthreads() ((void)0)
 struct dim3{unsigned x,y,z;dim3(unsigned a=1,unsigned b=1,unsigned c=1):x(a),y(b),z(c){}};
 inline dim3 blockIdx,blockDim,threadIdx;
+inline float __shfl_xor(float value,unsigned,unsigned){return value;}
 using hipStream_t=void*;using hipError_t=int;
 constexpr int hipSuccess=0,hipMemcpyHostToDevice=1;
 inline int hipSetDevice(int){return 0;}

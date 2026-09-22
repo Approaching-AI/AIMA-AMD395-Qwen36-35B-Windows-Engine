@@ -216,7 +216,7 @@ def main():
             target = out / f"unit-{index:02d}.obj"
             arithmetic_flags = (["-fno-fast-math", "-fno-reciprocal-math", "-ffp-contract=off"]
                                 if Path(source).name in ("gb10_decode_attention.hip.cpp", "gb10_decode_moe.hip.cpp",
-                                                        "gb10_moe.hip.cpp") else [])
+                                                        "gb10_moe.hip.cpp", "gb10_gdn.hip.cpp") else [])
             run(f"compile-{index:02d}", [hipcc, *flags, *arithmetic_flags, "-c", source, "-o", target])
             objects.append(target)
         # The existing process owner recognizes qrt* engine processes.

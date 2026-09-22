@@ -71,6 +71,7 @@ struct State {
   Launch cold = nullptr, seeded = nullptr;
   std::array<Device, 40> gate;
   Device beta, prefill_beta, exp2, rsqrt, raw, gates, output, decode_ab;
+  Device native_matrix, native_inverse;
   GdnPrefillObserver observer = nullptr;
   void* observer_context = nullptr;
   std::size_t observer_layer = 0;
@@ -108,6 +109,44 @@ static __global__ void prepare_decode(const uint16_t* conv, const uint16_t* a,
   if (i < 32u) {
     ab[i] = qrt_sm121_q1::widen(a[i]);
     ab[32u + i] = qrt_sm121_q1::widen(b[i]);
+  }
+}
+// Same contiguous eight-values-per-lane and XOR16 reduction as the qualified
+// FLA normalizer. Read BF16 directly instead of materializing an FP32 carrier.
+static __global__ void prepare_native_qk(const uint16_t* conv, uint16_t* q,
+    uint16_t* k, unsigned tokens, const unsigned char* rsqrt) {
+  const unsigned row = blockIdx.x * 16u + threadIdx.x / 16u, lane = threadIdx.x % 16u;
+  if (row >= tokens * 16u) return;
+  const unsigned token = row / 16u, head = row % 16u;
+  float qv[8], kv[8];
+  for (unsigned i = 0; i < 8; ++i) {
+    const unsigned offset = token * 8192u + head * 128u + lane * 8u + i;
+    qv[i] = qrt_sm121_q1::widen(conv[offset]);
+    kv[i] = qrt_sm121_q1::widen(conv[offset + 2048u]);
+  }
+  float qs = qrt_sm121_q1::embedding_lane_sumsq(qv);
+  float ks = qrt_sm121_q1::embedding_lane_sumsq(kv);
+  for (unsigned delta = 8; delta; delta >>= 1) {
+    qs = qrt_sm121_q1::add(qs, __shfl_xor(qs, delta, 16));
+    ks = qrt_sm121_q1::add(ks, __shfl_xor(ks, delta, 16));
+  }
+  const float qr = qrt_sm121_rsqrt::evaluate(rsqrt, qrt_sm121_q1::add(qs, 1.e-6f));
+  const float kr = qrt_sm121_rsqrt::evaluate(rsqrt, qrt_sm121_q1::add(ks, 1.e-6f));
+  for (unsigned i = 0; i < 8; ++i) {
+    const unsigned offset = row * 128u + lane * 8u + i;
+    q[offset] = qrt_sm121_q1::bf16(qrt_sm121_q1::multiply(qv[i], qr));
+    k[offset] = qrt_sm121_q1::bf16(qrt_sm121_q1::multiply(kv[i], kr));
+  }
+}
+static __global__ void prepare_native_v_gate(const uint16_t* conv, const uint16_t* a,
+    const uint16_t* b, uint16_t* v, float* g, float* beta, const float* g_table,
+    const uint16_t* beta_table, unsigned tokens) {
+  const unsigned i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < tokens * 4096u) v[i] = conv[(i / 4096u) * 8192u + 4096u + i % 4096u];
+  if (i < tokens * 32u) {
+    g[i] = g_table[(i % 32u) * 65536u + a[i]];
+    // The imported ABI carries FP32 beta; the original prefill boundary is BF16.
+    beta[i] = qrt_sm121_q1::widen(beta_table[b[i]]);
   }
 }
 static __global__ void copy_core(const float* source, uint16_t* output, unsigned count) {
@@ -166,6 +205,10 @@ Gb10GdnOwner::Gb10GdnOwner() : impl_(std::make_unique<Impl>()) {
   s.gates.allocate(8192ull * 64 * sizeof(float));
   s.output.allocate(8192ull * 4096 * sizeof(float));
   s.decode_ab.allocate(64 * sizeof(float));
+  if (s.native_prefill) {
+    s.native_matrix.allocate(8192ull * 32 * 64 * sizeof(float));
+    s.native_inverse.allocate(8192ull * 32 * 64 * sizeof(uint16_t));
+  }
   active = &s;
 }
 Gb10GdnOwner::~Gb10GdnOwner() { if (active == &impl_->state) active = nullptr; }
@@ -244,6 +287,38 @@ bool gb10_native_gdn_prefill_enabled(std::size_t tokens, bool has_initial) {
   if (tokens != 8192 || has_initial)
     throw std::invalid_argument("Native GDN prefill comparison requires cold q8192");
   return true;
+}
+NativeGdnMatrices gb10_prepare_native_gdn(std::size_t layer, const void* conv,
+    const void* a, const void* b, void* q, void* k, void* v, void* g, void* beta,
+    std::size_t tokens) {
+  if (!active || !active->native_prefill || tokens != 8192 || layer >= 40 || layer % 4 == 3 ||
+      !active->gate[layer].data || !active->rsqrt.data || !active->prefill_beta.data ||
+      !active->native_matrix.data || !active->native_inverse.data)
+    throw std::invalid_argument("Native GDN preparation owner or geometry is invalid");
+  const void* pointers[] = {conv, a, b, q, k, v, g, beta};
+  const std::size_t bytes[] = {tokens * 8192 * 2, tokens * 32 * 2, tokens * 32 * 2,
+      tokens * 2048 * 2, tokens * 2048 * 2, tokens * 4096 * 2, tokens * 32 * 4, tokens * 32 * 4};
+  for (unsigned i = 0; i < 8; ++i) {
+    const auto first = reinterpret_cast<std::uintptr_t>(pointers[i]);
+    if (!first || first % (i >= 6 ? 4 : 2) || first > UINTPTR_MAX - bytes[i])
+      throw std::invalid_argument("Native GDN preparation pointer is invalid");
+    for (unsigned j = 0; j < i; ++j) {
+      const auto other = reinterpret_cast<std::uintptr_t>(pointers[j]);
+      if (first < other + bytes[j] && other < first + bytes[i])
+        throw std::invalid_argument("Native GDN preparation spans overlap");
+    }
+  }
+  auto& s = *active;
+  hipLaunchKernelGGL(prepare_native_qk, dim3(tokens), dim3(256), 0, nullptr,
+      static_cast<const uint16_t*>(conv), static_cast<uint16_t*>(q), static_cast<uint16_t*>(k),
+      static_cast<unsigned>(tokens), s.rsqrt.as<unsigned char>());
+  check(hipGetLastError(), "Native GDN original Q/K normalization");
+  hipLaunchKernelGGL(prepare_native_v_gate, dim3(tokens * 4096u / 256u), dim3(256), 0, nullptr,
+      static_cast<const uint16_t*>(conv), static_cast<const uint16_t*>(a), static_cast<const uint16_t*>(b),
+      static_cast<uint16_t*>(v), static_cast<float*>(g), static_cast<float*>(beta),
+      s.gate[layer].as<float>(), s.prefill_beta.as<uint16_t>(), static_cast<unsigned>(tokens));
+  check(hipGetLastError(), "Native GDN original V and gate preparation");
+  return {s.native_matrix.data, s.native_inverse.data};
 }
 void gb10_decode_gdn(std::size_t layer, const void* conv, const void* a,
     const void* b, void* output, void* state, hipStream_t stream) {
