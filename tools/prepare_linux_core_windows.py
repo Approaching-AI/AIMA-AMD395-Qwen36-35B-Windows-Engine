@@ -526,20 +526,6 @@ def gb10_normalization_overlays(sources, read):
 
 
 def gb10_moe_overlays(sources, read):
-    short = json.loads(read("native/aot/gfx1151/q1024-output1/manifest.json"))["kernels"]
-    full = json.loads(read("native/aot/gfx1151/q8192-output2/manifest.json"))["kernels"]
-    short = [k for k in short if k["symbol"] == "fused_moe_kernel"]
-    full = [k for k in full if k["symbol"] == "fused_moe_kernel"]
-    if len(short) != 2 or len(full) != 2:
-        raise ValueError("Native MoE embedded expert inventory changed")
-    for original in full:
-        alternate = next(k for k in short if k["compile_constants"] == original["compile_constants"])
-        abi = [dict(a) for a in original["regular_abi"]]
-        if len(abi) != 22 or abi[3] != dict(name="topk_weights_ptr", type="*bf16"):
-            raise ValueError("Native MoE original routing ABI changed")
-        abi[3]["type"] = "*fp32"
-        if abi != alternate["regular_abi"] or alternate["metadata"] != original["metadata"]:
-            raise ValueError("Native MoE FP32 expert specialization differs")
     path = "native/src/native_moe_prefill.hip.cpp"
     text = replace(sources[path], '#include "gb10_gdn.h"',
         '#include "gb10_gdn.h"\n#include "gb10_moe.h"')
@@ -577,9 +563,6 @@ def gb10_moe_overlays(sources, read):
     const char* original_hashes[] = {
       "30348a71be482206c3478c43d4e891d087ec60677e730fd73978cd643210e4b3",
       "bac31d75e972b351bad278870443786fbe02a3cd96343a7295f965b382ce5e72"};
-    const char* fp32_weight_hashes[] = {
-      "74400a9e30aef4eba9967cd09fabc00f6da884cd76c18ceecd1bc3c20793d4d9",
-      "c254dda5c1ad82ae91601f943510502690c185b9d333252ea8b02fb4736276cb"};
     if (std::string(invocation.launch->kernel_hash) != original_hashes[down] ||
         invocation.kernel_params.size() != 22 || invocation.slots.size() != 22 ||
         config.grid_x != (down ? 146944u : 73472u) || config.grid_y != 1 || config.grid_z != 1 ||
@@ -591,15 +574,11 @@ def gb10_moe_overlays(sources, read):
     for (unsigned i = 0; i < 15; ++i)
       if (invocation.slots[7 + i].int32_value != expected[i])
         throw std::runtime_error("Native GB10 MoE expert scalar differs");
-    auto params = invocation.kernel_params;
-    void* native_weights = native_moe.router_weights();
-    params[3] = &native_weights;
-    // The q1024 image has the same specialization and regular ABI except for
-    // the FP32 routing pointer. M, padded capacity and strides are runtime
-    // scalars; retain the live q8192 grid and all original operand pointers.
-    const AotLaunchConfig qualified{config.grid_x, config.grid_y, config.grid_z,
-        config.num_warps, config.warp_size, config.shared_memory_bytes};
-    executor.launch_embedded(fp32_weight_hashes[down], qualified, params);
+    // Preserve the captured live operand layout and dispatcher. The new
+    // producer retains FP32 accumulators and replays uncertain BF16 endpoints.
+    native_moe.project_experts(down != 0, down ? expert_activated : h2,
+        router_indices_i32, sorted_token_ids, expert_ids, num_tokens_post_padded,
+        down ? expert_down : expert_gate_up);
   };
 
 """
@@ -622,8 +601,10 @@ def gb10_moe_overlays(sources, read):
         "                router_indices_i32, topk_weights,\n                router_weights_are_bfloat16,\n"
         "                options.use_vl_router_semantics, tokens);",
         "  aima_port::gb10_native_moe_router(router_logits, router_indices_i32);")
-    body = replace(body, "  executor.launch(launches[moe_first]);", "  launch_native_expert(0);")
-    body = replace(body, "  executor.launch(launches[moe_first + 1]);", "  launch_native_expert(1);")
+    body = replace(body, "  executor.launch(launches[moe_first]);\n  ++result.layer.aot_launches;",
+        "  launch_native_expert(0);\n  ++result.layer.dense_gemm_launches;")
+    body = replace(body, "  executor.launch(launches[moe_first + 1]);\n  ++result.layer.aot_launches;",
+        "  launch_native_expert(1);\n  ++result.layer.dense_gemm_launches;")
     body = replace(body, "  launch_expert_activation(expert_gate_up, expert_activated, routed_rows);",
         "  aima_port::gb10_native_moe_expert_activation(expert_gate_up, expert_activated);")
     body = replace(body, "  launch_moe_sum(expert_down, routed_moe, tokens);",

@@ -12,6 +12,18 @@ const uint16_t* gb10_moe_silu_table() { if (!tables_live) throw std::runtime_err
 const uint32_t* gb10_moe_router_exp_table() { if (!tables_live) throw std::runtime_error("Missing table"); return exponent_values; }
 const unsigned char* gb10_rsqrt_table() { return roots; }
 void observe_gdn_prefill(std::size_t, const char*, const void*, std::size_t, std::size_t) {}
+unsigned routed_projection_calls = 0;
+void gb10_prefill_routed_projection(const void* input, const void* weights,
+    const void* ids, const void* route_weights, const void* sorted,
+    const void* experts, const void* padded, void* output, uint32_t* invalid, bool down) {
+  assert(active && active->native_inflight && active->native_stage == (down ? 6u : 4u));
+  assert(input == (down ? active->native_activation : active->native_input));
+  assert(weights == (down ? active->down[active->next_layer] : active->gate_up[active->next_layer]));
+  assert(ids == active->native_ids && route_weights == active->native_weights());
+  assert(sorted && experts && padded && output && invalid == active->native_invalid());
+  fake_events.push_back(down ? "routed_down_projection" : "routed_gate_up_projection");
+  ++routed_projection_calls;
+}
 }
 using namespace aima_port;
 unsigned calls = 0, dynamic_calls = 0, registrations = 0, rejected = 0;
@@ -172,6 +184,7 @@ int main(int argc, char** argv) {
        *logits=temporary.data()+3072, *ids=temporary.data()+3584, *expert=temporary.data()+4096,
        *activated=temporary.data()+4608, *weighted=temporary.data()+5120,
        *routed=temporary.data()+5632, *combined=temporary.data()+6144;
+  void *sorted=temporary.data()+6656, *experts=temporary.data()+7168, *padded=temporary.data()+7680;
   unsigned native_layers=0;
   for (unsigned layer=0;layer<39;++layer) {
     if(layer) assert(gb10_moe_input_norm(layer,output.data(),x.data(),residual.data(),8192));
@@ -185,14 +198,25 @@ int main(int argc, char** argv) {
     gb10_native_moe_shared_activation(gate,up,act);
     gb10_native_moe_shared_scale(sg,sd,shared);
     gb10_native_moe_router(logits,ids);
+    reject([&]{gb10_native_moe_expert_activation(expert,activated);});
+    reject([&]{scope.project_experts(false,residual.data(),ids,sorted,experts,padded,expert);});
+    reject([&]{scope.project_experts(false,x.data(),logits,sorted,experts,padded,expert);});
+    scope.project_experts(false,x.data(),ids,sorted,experts,padded,expert);
+    reject([&]{scope.project_experts(false,x.data(),ids,sorted,experts,padded,expert);});
+    reject([&]{gb10_native_moe_expert_activation(gate,activated);});
     gb10_native_moe_expert_activation(expert,activated);
+    reject([&]{scope.finish(weighted,shared,routed,combined);});
+    scope.project_experts(true,activated,ids,sorted,experts,padded,weighted);
+    reject([&]{scope.finish(expert,shared,routed,combined);});
     scope.finish(weighted,shared,routed,combined);
     assert(fake_events==std::vector<std::string>({"native_shared_gate","native_shared_activation",
-        "native_shared_scale","native_router","native_expert_activation","native_combine"}));
+        "native_shared_scale","native_router","routed_gate_up_projection","native_expert_activation",
+        "routed_down_projection","native_combine"}));
     assert(moe_launches.size()==6 && moe_launches[3].args[3]==moe_address(state.native_weights()) &&
         moe_launches[3].args[4]==moe_address(state.native_invalid()));
     assert(state.pending && !state.native_inflight && state.pending_carrier==output.data());
     reject([&]{scope.router_weights();}); reject([&]{scope.finish(weighted,shared,routed,combined);});
+    reject([&]{scope.project_experts(true,activated,ids,sorted,experts,padded,weighted);});
   }
   assert(gb10_moe_input_norm(39,output.data(),x.data(),residual.data(),8192));
   run(39,8192,true);
@@ -208,7 +232,9 @@ int main(int argc, char** argv) {
     gb10_native_moe_shared_activation(gate,up,act);
     gb10_native_moe_shared_scale(sg,sd,shared);
     gb10_native_moe_router(logits,ids);
+    scope.project_experts(false,x.data(),ids,sorted,experts,padded,expert);
     gb10_native_moe_expert_activation(expert,activated);
+    scope.project_experts(true,activated,ids,sorted,experts,padded,weighted);
     *state.native_invalid()=1;
     reject([&]{scope.finish(weighted,shared,routed,combined);});
     assert(!state.pending);
@@ -232,5 +258,6 @@ int main(int argc, char** argv) {
       "\"ordered_layer_calls\":80,\"terminal_row_only_calls\":1,\"terminal_consumed_once\":true,"
       "\"registered_weights_drained\":true,\"failed_provider_poisoned\":true,"
       "\"complete_native_layers\":" << native_layers << ",\"native_abandonment_and_device_error_poisoned\":true,"
+      "\"borrowed_routed_projection_calls\":" << routed_projection_calls << ","
       "\"invalid_bindings_and_artifacts_rejected\":" << rejected << ",\"gpu_reduction_executed\":false}\n";
 }

@@ -46,6 +46,7 @@ template<class K,class...A> void fake_launch(const char* name,dim3 grid,dim3 blo
     source = ROOT / "native/linux_core_port/gb10_moe_host_contract_test.cpp"
     executable = out / "host-contract"
     command = ["clang++", "-std=c++17", "-O1", "-fno-fast-math", "-ffp-contract=off", "-fsanitize=address,undefined",
+               "-DAIMA_PORT_GB10_PREFILL_PROJECTIONS=1",
                "-I", str(out / "stub"), "-I", str(ROOT / "third_party/aima_linux/native/include"),
                str(source), str(ROOT / "third_party/aima_linux/native/src/sha256.cpp"), "-o", str(executable)]
     build = subprocess.run(command, capture_output=True, text=True, timeout=90)
@@ -56,7 +57,8 @@ template<class K,class...A> void fake_launch(const char* name,dim3 grid,dim3 blo
     run.check_returncode()
     inputs = [source, Path(__file__), ROOT / "tools/test_linux_core_gdn.py"]
     inputs += [ROOT / "native/linux_core_port" / n for n in
-               ("gb10_moe.hip.cpp", "gb10_moe.h", "gb10_moe_math.h", "gb10_moe_assets.inc", "gb10_gdn.h", "gb10_decode_moe.h")]
+               ("gb10_moe.hip.cpp", "gb10_moe.h", "gb10_moe_math.h", "gb10_moe_assets.inc", "gb10_gdn.h",
+                "gb10_decode_moe.h", "gb10_prefill_projection.h")]
     inputs += [ROOT / "native/providers/gdn" / n for n in
                ("sm121_mtp_residual_math.h", "sm121_mtp_math.h", "sm121_q1_math.h", "sm121_mtp_moe_math.h")]
     inputs += [ROOT / "native/providers/moe_accumulator" / n for n in ("sm121_router_exp.h", "sm121_shared_gate.h")]

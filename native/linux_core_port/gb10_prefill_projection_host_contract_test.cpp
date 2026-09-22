@@ -93,6 +93,72 @@ int main() {
   assert(count == 4 && indices[0] == 6 && indices[1] == 8 && indices[2] == 9 && indices[3] == 10);
   assert(output[4] == 0x1234 && output[12] == 0x1234 && output[11] == 0x3f80);
 
+  // Real selector execution over a complete expert-ordered queue. Reverse
+  // route order makes confusing a sorted row with a logical route observable.
+  unsigned routed_candidates = 0;
+  {
+    constexpr unsigned cells = routed_window_capacity, route_count = cells / 1024u;
+    std::vector<float> values(cells, qrt_sm121_exp2::value(0x3f808000));
+    std::vector<uint16_t> rounded(cells + 256u, 0x1234);
+    std::vector<unsigned> selected(cells + 256u, 0xdeadbeef);
+    std::vector<int32_t> sorted(sorted_capacity, int32_t(routed_rows));
+    std::vector<int32_t> ids(routed_rows, 0), experts(sorted_capacity / 32u, 0);
+    std::vector<float> route_weights(routed_rows, 1.f), il2(routed_rows, 1.f), wl2(256u * 2048u, 1.f);
+    for (unsigned i = 0; i < route_count; ++i) {
+      sorted[i] = int32_t(route_count - 1u - i);
+      ids[sorted[i]] = experts[i / 32u] = int32_t((i / 32u) % 256u);
+    }
+    int32_t padded = routed_rows;
+    uint32_t invalid = 0;
+    for (unsigned i = 0; i < cells + 256u; ++i) {
+      blockIdx = dim3(i / 256u); threadIdx = dim3(i % 256u);
+      select_routed<false>(values.data(), rounded.data(), il2.data(), wl2.data(), ids.data(),
+          route_weights.data(), sorted.data(), experts.data(), &padded, 0, cells,
+          &routed_candidates, selected.data(), &invalid);
+    }
+    assert(routed_candidates == cells && !invalid);
+    for (unsigned i = 0; i < cells; ++i) {
+      assert(selected[i] == unsigned(sorted[i / 1024u]) * 1024u + i % 1024u);
+      assert(rounded[i] == 0x3f80 && qrt_sm121_exp2::bits(values[i]) == 0x3f808000);
+    }
+    for (unsigned i = cells; i < cells + 256u; ++i)
+      assert(selected[i] == 0xdeadbeef && rounded[i] == 0x1234);
+    // Down admission is applied after the FP32 routing multiply, before BF16.
+    sorted[0] = 0; ids[0] = experts[0] = 17; route_weights[0] = .5f;
+    values[0] = qrt_sm121_exp2::value(0x40008000);
+    values[1] = 2.f; values[2] = qrt_sm121_exp2::value(0xc0008000);
+    count = 0;
+    for (unsigned i = 0; i < 3; ++i) {
+      blockIdx = dim3(0); threadIdx = dim3(i);
+      select_routed<true>(values.data(), rounded.data(), il2.data(), wl2.data(), ids.data(),
+          route_weights.data(), sorted.data(), experts.data(), &padded, 0, 3,
+          &count, selected.data(), &invalid);
+    }
+    assert(count == 2 && selected[0] == 0 && selected[1] == 2 && !invalid);
+    assert(rounded[0] == 0x3f80 && rounded[1] == 0x3f80 && rounded[2] == 0xbf80);
+    auto one = [&] {
+      count = 0; invalid = 0; rounded[0] = 0x1234;
+      blockIdx = dim3(0); threadIdx = dim3(0);
+      select_routed<true>(values.data(), rounded.data(), il2.data(), wl2.data(), ids.data(),
+          route_weights.data(), sorted.data(), experts.data(), &padded, 0, 1,
+          &count, selected.data(), &invalid);
+    };
+    for (int32_t value : {-1, 256}) { ids[0] = value; one(); assert(invalid == 8 && !count); }
+    ids[0] = 18; one(); assert(invalid == 8 && !count); ids[0] = 17;
+    for (float value : {-1.f, 2.f, INFINITY, NAN}) {
+      route_weights[0] = value; one(); assert(invalid == 32 && !count);
+    }
+    route_weights[0] = .5f;
+    for (int32_t value : {-1, int32_t(routed_rows + 1)}) {
+      sorted[0] = value; one(); assert(invalid == 16 && !count && rounded[0] == 0x1234);
+    }
+    sorted[0] = routed_rows; one(); assert(!invalid && !count && rounded[0] == 0x1234);
+    sorted[0] = 0;
+    for (int32_t value : {65535, 65537, 73473}) {
+      padded = value; one(); assert(invalid == 4 && !count && rounded[0] == 0x1234);
+    }
+  }
+
   assert(!gb10_prefill_projection_shape(4096, 8192, 2048, false));
   assert(gb10_prefill_projection_shape(8192, 1, 2048, false));
   assert(gb10_prefill_projection_shape(8192, 12352, 4096, false));
@@ -244,6 +310,43 @@ int main() {
   try { Gb10PrefillFullOutputScope scope(8192, 3); throw std::runtime_error("scope-unwind"); }
   catch (const std::runtime_error&) {}
   assert(!state.full_output && full_scopes == 10);
+  // Both complete routed shapes reuse the bounded queue and maintain their
+  // own profiling ordinal, without contaminating dense projection counts.
+  std::array<uint64_t, 36> operand_storage{};
+  std::array<void*, 9> operands{};
+  for (unsigned i = 0; i < operands.size(); ++i) operands[i] = &operand_storage[i * 4];
+  auto routed_call = [&](bool down) {
+    gb10_prefill_routed_projection(operands[0], operands[1], operands[2], operands[3],
+        operands[4], operands[5], operands[6], operands[7], static_cast<uint32_t*>(operands[8]), down);
+  };
+  reject([&]{routed_call(false);});
+  state.routed = true;
+  for (unsigned i = 0; i < operands.size(); ++i) {
+    auto saved = operands[i];
+    operands[i] = nullptr; reject([&]{routed_call(false);});
+    operands[i] = static_cast<char*>(saved) + 1; reject([&]{routed_call(false);});
+    operands[i] = state.raw.data; reject([&]{routed_call(false);});
+    operands[i] = operands[(i + 1) % operands.size()]; reject([&]{routed_call(false);});
+    operands[i] = saved;
+  }
+  state.linear_output = true; reject([&]{routed_call(false);}); state.linear_output = false;
+  state.full_output = true; reject([&]{routed_call(false);}); state.full_output = false;
+  state.coarse_produced = true; reject([&]{routed_call(false);}); state.coarse_produced = false;
+  state.profile = std::make_unique<Profile>();
+  gb10_prefill_projection_profile_begin();
+  state.profile->inflight = true; reject([&]{routed_call(false);}); state.profile->inflight = false;
+  const auto previous_copies = fake_count_copies;
+  for (bool down : {false, true}) {
+    fake_events.clear(); routed_call(down);
+    const auto windows = down ? 36 : 18;
+    assert(std::count(fake_events.begin(), fake_events.end(), "(select_routed<Down>)") == windows);
+    assert(std::count(fake_events.begin(), fake_events.end(), "(replay_routed<Down>)") == windows);
+    assert(fake_count_host_bytes == windows * sizeof(unsigned));
+    assert(!state.profile->inflight && state.profile->ordinal == 0 && state.profile->routed);
+  }
+  assert(state.profile->route_ordinal == 2 && fake_count_copies == previous_copies + 54);
+  state.profile.reset(); assert(fake_live_profile_events == 0);
+  state.routed = false;
   active = nullptr;
   reject([&]{gb10_prefill_projection_profile_begin();});
   reject([&]{Gb10PrefillLinearOutputScope missing_owner(8192, 0);});
@@ -259,5 +362,8 @@ int main() {
                "\"full_output_scoped_layers\":10,\"full_output_scope_unwind_pass\":true,"
                "\"coarse_interval_exceptional_edges_pass\":true,\"invalid_event_time_reported\":true,"
                "\"producer_configuration_controls\":16,\"tuned_input_output_scopes_disjoint\":true,"
+               "\"routed_full_window_candidates\":" << routed_candidates << ","
+               "\"routed_sorted_scatter_guards_pass\":true,\"routed_weighted_endpoint_edges_pass\":true,"
+               "\"routed_invalid_dispatch_rejected\":true,\"routed_profile_windows\":54,"
                "\"gpu_replay_executed\":false}\n";
 }

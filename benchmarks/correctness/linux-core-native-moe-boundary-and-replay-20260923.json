@@ -1,0 +1,2928 @@
+{
+  "schema": 1,
+  "status": "native-expert-boundary-failure; corrective projection prepared",
+  "host": "baiying",
+  "source_commit": "3ddbe08a4c2d306eff963d250374ed50e3a5ad14",
+  "command_file": "P:/projects/AIMA-public-linux-core-native-moe-observe-20260923-r2/scripts/baiying_linux_core_probe.ps1",
+  "model": "D:/models/Qwen3.6-35B-A3B",
+  "diagnostic_only": true,
+  "observation_result": {
+    "actual": {
+      "event": "result",
+      "complete": true,
+      "host": "BAIYING",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "source_commit": "3ddbe08a4c2d306eff963d250374ed50e3a5ad14",
+      "upstream_commit": "ec9934446911fdf376da8eebcd83e7b137efbb7c",
+      "input_u32_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+      "first_token_raw_logit": 10.3125,
+      "ttft_ms": 19865.585,
+      "engine_prefill_ms": 19865.4012,
+      "tpot_ms": 224.27731193737768,
+      "request_wall_ms": 134471.687,
+      "command_to_ready_ms": 28198.7312,
+      "oracle_tensor_reads": 0,
+      "callback_count": 512,
+      "first_token_certified": true,
+      "all_decode_tokens_certified": true,
+      "prompt_execution": "cold-aot",
+      "prefix_cache_lookup": "disabled",
+      "output_token_ids": [
+        144,
+        255,
+        82,
+        57,
+        79,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        248046,
+        198,
+        248045,
+        846,
+        198,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        7701,
+        421,
+        279,
+        1414,
+        488,
+        3766,
+        369,
+        47739,
+        466,
+        5435,
+        264,
+        3349,
+        3202,
+        314,
+        4055,
+        5587,
+        321,
+        10845,
+        5787,
+        11,
+        3154,
+        424,
+        58256,
+        470,
+        13,
+        271,
+        12525,
+        488,
+        4338,
+        2972,
+        265,
+        10289,
+        678,
+        3296,
+        332,
+        466,
+        2972,
+        54966,
+        279,
+        4101,
+        1414,
+        332,
+        488,
+        1000,
+        1040,
+        728,
+        310,
+        1438,
+        440,
+        30,
+        353,
+        1044,
+        5354,
+        310,
+        7543,
+        488,
+        440,
+        866,
+        4602,
+        11,
+        4237,
+        8806,
+        11,
+        466,
+        6157,
+        488,
+        1144,
+        13,
+        248046,
+        198,
+        248044,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248046,
+        198,
+        248045,
+        846,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466,
+        4147,
+        13,
+        16018,
+        488,
+        4338,
+        3300,
+        777,
+        3447,
+        466,
+        2466,
+        264,
+        3050,
+        3296,
+        30,
+        353,
+        2688,
+        1532,
+        310,
+        1438,
+        0,
+        248046,
+        198,
+        248045,
+        846,
+        248046,
+        198,
+        248045,
+        74455,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466
+      ],
+      "gb10_correctness_evaluated": false
+    },
+    "gb10_boundary_pass": false,
+    "continuation_mismatches": 394,
+    "first_difference": [
+      {
+        "index": 115,
+        "actual": 196,
+        "expected": 271
+      }
+    ],
+    "source_manifest_sha256": "af822c3f2a668a2e9abfcc7a033fa30a08b1db2ab2394edf1d041c444cfc4c67",
+    "run_sha256": "1527db1f8d1983075289cad1fb53515852455fc205648ea6e0e9d4f35786c53b",
+    "performance_acceptance": false,
+    "release_qualified": false
+  },
+  "original_checker": {
+    "command": [
+      "python3.12",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tools/check_linux_core_q8192.py",
+      "--run",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/product",
+      "--build-metadata",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/build-provenance.json",
+      "--build-run",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/build/run-record.json",
+      "--plan",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-source-r2.json",
+      "--output",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/gb10-qualified.json"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Traceback (most recent call last):\n  File \"/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tools/check_linux_core_q8192.py\", line 166, in <module>\n    main()\n  File \"/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tools/check_linux_core_q8192.py\", line 153, in main\n    report = check_tokens(events, oracle, commit)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tools/check_linux_core_q8192.py\", line 57, in check_tokens\n    require(token_hash(output) == oracle[\"expected\"][\"output_token_ids_u32le_sha256\"],\n  File \"/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/tools/check_linux_core_q8192.py\", line 23, in require\n    raise ValueError(message)\nValueError: Output continuation differs from GB10\n",
+    "checker_sha256": "ba53cb02e0cd2d5c7b7aa72288ca06a7a43239d84370e87fd60119eca55a0c65"
+  },
+  "observation_output_tokens_identical_to_unobserved_failure": true,
+  "boundary_comparison": {
+    "schema": 1,
+    "host": "baiying",
+    "source_commit": "3ddbe08a4c2d306eff963d250374ed50e3a5ad14",
+    "model": "D:/models/Qwen3.6-35B-A3B",
+    "command_file": "P:/projects/AIMA-public-linux-core-native-moe-observe-20260923-r2/scripts/baiying_linux_core_probe.ps1",
+    "source_manifest_sha256": "af822c3f2a668a2e9abfcc7a033fa30a08b1db2ab2394edf1d041c444cfc4c67",
+    "native_run_sha256": "1527db1f8d1983075289cad1fb53515852455fc205648ea6e0e9d4f35786c53b",
+    "build_provenance_sha256": "fd0009cabe59e033e287bf6ed0f1b3fe857cb695376c04cc76043a3f1ded5158",
+    "observation_manifest_sha256": "799647200ae09dd892125095715fc9b31e8474163780163f07ed108cc088353e",
+    "observation_download_sha256": "11a3c977b06f2424d9e4cd94a0aeadcd6b42eaf21024e064964f98e046a86452",
+    "reference_capture_sha256": "355329686dd5cdeb0e20e9f25662697cf289cb02f7313d1845097248c260b08a",
+    "reference_case_sha256": "fc5309b9fb8061519499792f859cfba9fd9d1b830da570c854878fef55464e36",
+    "reference_download_manifest_sha256": "c004a9baa71d44aed35836b536be12dcf2cadcb472153bcf366f464aceef3d9a",
+    "reference_dispatch_sha256": "13673c8f7d431f07b295f94e1652dd66f5960dfc793dc3b9f81a4b078691e85a",
+    "comparison_script_sha256": "2a339c31bcf15497af64f70d39a36b3a50c8f1571198698f82ad3c0ca169fd4c",
+    "gb10_boundary_pass": false,
+    "continuation_mismatches": 394,
+    "token_first_difference": [
+      {
+        "index": 115,
+        "actual": 196,
+        "expected": 271
+      }
+    ],
+    "first_token_id": 144,
+    "first_token_raw_logit": 10.3125,
+    "reference_qualified": true,
+    "positions": [
+      63,
+      1023,
+      2111,
+      3391,
+      4159,
+      6079,
+      7167,
+      8191
+    ],
+    "native_sample_indices": [
+      0,
+      15,
+      32,
+      52,
+      64,
+      94,
+      111,
+      127
+    ],
+    "comparisons": [
+      {
+        "surface": "input-norm",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-input-norm-sampled.bin",
+        "native_sha256": "09c4ae8312b4d74b810dd682e3d0b05eecf543a3d904518647ed8ac5387df575",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-00-input-rmsnorm-bf16.bin",
+        "reference_sha256": "2f2c342b0f74ed1d8847163b904296e3606deb821d5ea3c07f5d80788613c23e",
+        "reference_dtype": "bf16",
+        "reference_columns": 2048,
+        "reference_column_offset": 0,
+        "columns": 2048,
+        "compared_values": 16384,
+        "mismatches": 0,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0,
+        "mean_absolute_error": 0.0,
+        "first_differences": [],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          }
+        ]
+      },
+      {
+        "surface": "qkv",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-qkv-sampled.bin",
+        "native_sha256": "4972110efbc0c2640ae8085c441f7e55142a381227c35368a3e308eb1dee42ee",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-qkv-bf16.bin",
+        "reference_sha256": "3aa65f72052ec90b28ad4675ed7ba6ab588da508a01e3ed4a199d41ea11385b7",
+        "reference_dtype": "bf16",
+        "reference_columns": 8192,
+        "reference_column_offset": 0,
+        "columns": 8192,
+        "compared_values": 65536,
+        "mismatches": 0,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0,
+        "mean_absolute_error": 0.0,
+        "first_differences": [],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          }
+        ]
+      },
+      {
+        "surface": "z",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-z-sampled.bin",
+        "native_sha256": "c44174ed242202b072807674f78c6820dbd388d0f733efd85051c4a94154055f",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-z-projection-bf16.bin",
+        "reference_sha256": "b8221884a710ce3a9dabf59eb233a1905eb2edfcb524a047d9b157b626543ae6",
+        "reference_dtype": "bf16",
+        "reference_columns": 4096,
+        "reference_column_offset": 0,
+        "columns": 4096,
+        "compared_values": 32768,
+        "mismatches": 0,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0,
+        "mean_absolute_error": 0.0,
+        "first_differences": [],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          }
+        ]
+      },
+      {
+        "surface": "a",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-a-sampled.bin",
+        "native_sha256": "7ab0dab82ed4ac56c01dabfed312f2d9a32e22fd59c32116bbc69dede1b6f1c2",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-a-projection-bf16.bin",
+        "reference_sha256": "f9cba795711a1b03ea2dfc1a7c46fc99010e3d60d6a0185474f8e379ebe8f951",
+        "reference_dtype": "bf16",
+        "reference_columns": 32,
+        "reference_column_offset": 0,
+        "columns": 32,
+        "compared_values": 256,
+        "mismatches": 0,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0,
+        "mean_absolute_error": 0.0,
+        "first_differences": [],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          }
+        ]
+      },
+      {
+        "surface": "b",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-b-sampled.bin",
+        "native_sha256": "6504d4bccc5b6f9ac96e2232cba2e9691a6461bd41692b67d30fb74be2dff884",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-b-projection-bf16.bin",
+        "reference_sha256": "983b36afb8408193ff7d2d0963253c2c495aacfb3d6035c1ee45351b7cafa7b4",
+        "reference_dtype": "bf16",
+        "reference_columns": 32,
+        "reference_column_offset": 0,
+        "columns": 32,
+        "compared_values": 256,
+        "mismatches": 0,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0,
+        "mean_absolute_error": 0.0,
+        "first_differences": [],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          }
+        ]
+      },
+      {
+        "surface": "core",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-core-sampled.bin",
+        "native_sha256": "268858f871128ae72140fae8fcc01cd5ee83b39e5cb43c9a877fee8e4c2963c8",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-core-bf16.bin",
+        "reference_sha256": "632556844af7a6c5096b4b48fbbdb551cc082af3cd786e5681394d615d7566a4",
+        "reference_dtype": "bf16",
+        "reference_columns": 4096,
+        "reference_column_offset": 0,
+        "columns": 4096,
+        "compared_values": 32768,
+        "mismatches": 0,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0,
+        "mean_absolute_error": 0.0,
+        "first_differences": [],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          }
+        ]
+      },
+      {
+        "surface": "gated",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-gated-sampled.bin",
+        "native_sha256": "8651ae3c610d4288b758576dc8aaf8838dee6cdd7e1743a2893ed9e29448eca0",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-gated-bf16.bin",
+        "reference_sha256": "493ee4f9831e6e828784d9944110be9fbc97fdccd9e9ffedf7ca4f8a0ae00f2f",
+        "reference_dtype": "bf16",
+        "reference_columns": 4096,
+        "reference_column_offset": 0,
+        "columns": 4096,
+        "compared_values": 32768,
+        "mismatches": 0,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0,
+        "mean_absolute_error": 0.0,
+        "first_differences": [],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          }
+        ]
+      },
+      {
+        "surface": "attention-out",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-attention-out-sampled.bin",
+        "native_sha256": "b071e0231c07f973b09084a796f78b5cbc955c4d24c4d925b43c3dc067cf8630",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-output-projection-bf16.bin",
+        "reference_sha256": "26aa082b7a46bf6329d4e1975f77c639b86ec57f0271895dd28b0a56f525519f",
+        "reference_dtype": "bf16",
+        "reference_columns": 2048,
+        "reference_column_offset": 0,
+        "columns": 2048,
+        "compared_values": 16384,
+        "mismatches": 0,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0,
+        "mean_absolute_error": 0.0,
+        "first_differences": [],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          }
+        ]
+      },
+      {
+        "surface": "post-attention-norm",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-post-attention-norm-sampled.bin",
+        "native_sha256": "5d495ec44069a128e035ff95b25b17c72598e0e95c43c2a2e0c2ae9a13df0786",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-input-bf16.bin",
+        "reference_sha256": "4d4d9754873fe6d212a1c25a59dd7d72479794b58e495b411e530f9cb775d753",
+        "reference_dtype": "bf16",
+        "reference_columns": 2048,
+        "reference_column_offset": 0,
+        "columns": 2048,
+        "compared_values": 16384,
+        "mismatches": 0,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0,
+        "mean_absolute_error": 0.0,
+        "first_differences": [],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          }
+        ]
+      },
+      {
+        "surface": "post-attention-residual",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-post-attention-residual-sampled.bin",
+        "native_sha256": "4772beccfc5acc29d476849acd04349bf9dac7fa5d9e7dc1eeef1b68d4041d66",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-00-residual-bf16.bin",
+        "reference_sha256": "77aa86340fb2634ce46491fe0f19e87da689be595264580e4820b6c39fb0d593",
+        "reference_dtype": "bf16",
+        "reference_columns": 2048,
+        "reference_column_offset": 0,
+        "columns": 2048,
+        "compared_values": 16384,
+        "mismatches": 0,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0,
+        "mean_absolute_error": 0.0,
+        "first_differences": [],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          }
+        ]
+      },
+      {
+        "surface": "shared-gate",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-shared-gate-sampled.bin",
+        "native_sha256": "2b9eb2842fbe48b6533490e15005051eb67a312c8376e0e9737026a3a8f1d620",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-shared-gate-bf16.bin",
+        "reference_sha256": "5741f7495f3d67c161c5953e287e11b01f5adda6ba836be9912ef4c082fe8c6e",
+        "reference_dtype": "bf16",
+        "reference_columns": 1,
+        "reference_column_offset": 0,
+        "columns": 1,
+        "compared_values": 8,
+        "mismatches": 0,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0,
+        "mean_absolute_error": 0.0,
+        "first_differences": [],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          }
+        ]
+      },
+      {
+        "surface": "shared-gate-projection",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-shared-gate-projection-sampled.bin",
+        "native_sha256": "d586aa9501615f0f445699831ab4b9b2eda1cf1735b2949799d481a367f96f8f",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-shared-gate-up-bf16.bin",
+        "reference_sha256": "8f091d340dba7cdca60ed6bc74b80cce56d6d38b13717aa1ec7a6e79d836d87b",
+        "reference_dtype": "bf16",
+        "reference_columns": 1024,
+        "reference_column_offset": 0,
+        "columns": 512,
+        "compared_values": 4096,
+        "mismatches": 0,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0,
+        "mean_absolute_error": 0.0,
+        "first_differences": [],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          }
+        ]
+      },
+      {
+        "surface": "shared-up-projection",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-shared-up-projection-sampled.bin",
+        "native_sha256": "fd5c30eff2794d576b50d57066cd5f1dab1d924c42becca5f19c266898f1d0fe",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-shared-gate-up-bf16.bin",
+        "reference_sha256": "8f091d340dba7cdca60ed6bc74b80cce56d6d38b13717aa1ec7a6e79d836d87b",
+        "reference_dtype": "bf16",
+        "reference_columns": 1024,
+        "reference_column_offset": 512,
+        "columns": 512,
+        "compared_values": 4096,
+        "mismatches": 0,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0,
+        "mean_absolute_error": 0.0,
+        "first_differences": [],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          }
+        ]
+      },
+      {
+        "surface": "shared-activation",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-shared-activation-sampled.bin",
+        "native_sha256": "2f67ddb285f70ab2aaf66271b0a21e2be65cfd8a0f2eff86c8cfaba50d509755",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-shared-activated-bf16.bin",
+        "reference_sha256": "e1a45c4568d7ed04be8534b7d899c3242943192f090ec3223867174b289188e0",
+        "reference_dtype": "bf16",
+        "reference_columns": 512,
+        "reference_column_offset": 0,
+        "columns": 512,
+        "compared_values": 4096,
+        "mismatches": 0,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0,
+        "mean_absolute_error": 0.0,
+        "first_differences": [],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          }
+        ]
+      },
+      {
+        "surface": "shared-down",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-shared-down-sampled.bin",
+        "native_sha256": "6df95ea5cde93578a3de1611aa8a1382e2de52d4cc3c7a30911f13ee17f369c8",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-shared-down-bf16.bin",
+        "reference_sha256": "a3150f384edb98e1f2b97ca492cd7cee37e85934cc0be420c620063c505d37bf",
+        "reference_dtype": "bf16",
+        "reference_columns": 2048,
+        "reference_column_offset": 0,
+        "columns": 2048,
+        "compared_values": 16384,
+        "mismatches": 0,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0,
+        "mean_absolute_error": 0.0,
+        "first_differences": [],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          }
+        ]
+      },
+      {
+        "surface": "shared-output",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-shared-output-sampled.bin",
+        "native_sha256": "7a2b7da70e21c12eb3c5844c9fdcf8dd53599ed27894d4af7b43307a516ea6c2",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-shared-bf16.bin",
+        "reference_sha256": "6fad5796bffa1475640a3426582b0fff732602144cd4a6afafa1a8c70a571edb",
+        "reference_dtype": "bf16",
+        "reference_columns": 2048,
+        "reference_column_offset": 0,
+        "columns": 2048,
+        "compared_values": 16384,
+        "mismatches": 0,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0,
+        "mean_absolute_error": 0.0,
+        "first_differences": [],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          }
+        ]
+      },
+      {
+        "surface": "router",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-router-sampled.bin",
+        "native_sha256": "77637d2ae90b9bc2b867d6ff6dada570437701527a34f7f44d154fc60444c46a",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-router-bf16.bin",
+        "reference_sha256": "b5ab170ade7fc9d5c58adbbc9739c230bafe30d2e22892152bcf13391344d113",
+        "reference_dtype": "bf16",
+        "reference_columns": 256,
+        "reference_column_offset": 0,
+        "columns": 256,
+        "compared_values": 2048,
+        "mismatches": 0,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0,
+        "mean_absolute_error": 0.0,
+        "first_differences": [],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          }
+        ]
+      },
+      {
+        "surface": "routed-gate-up",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-routed-gate-up-sampled.bin",
+        "native_sha256": "ee073ea09b054b990fa33d55ebe3213de211336cdbd4f6f9a7fdf834d2cb096d",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-routed-gate-up-bf16.bin",
+        "reference_sha256": "47a69e134bd897abe8bb378c82463dfa5df377f144ba5fd68cd83e1dd01dc42c",
+        "reference_dtype": "bf16",
+        "reference_columns": 8192,
+        "reference_column_offset": 0,
+        "columns": 8192,
+        "compared_values": 65536,
+        "mismatches": 20632,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.015625,
+        "mean_absolute_error": 3.352924977662042e-07,
+        "first_differences": [
+          {
+            "position": 63,
+            "column": 0,
+            "native_bf16": 33104,
+            "reference_bf16": 33022,
+            "native": -3.8203566401724344e-38,
+            "reference": -2.3326216024129768e-38
+          },
+          {
+            "position": 63,
+            "column": 1,
+            "native_bf16": 33810,
+            "reference_bf16": 33808,
+            "native": -1.7162217522005398e-36,
+            "reference": -1.692711865184094e-36
+          },
+          {
+            "position": 63,
+            "column": 4,
+            "native_bf16": 33875,
+            "reference_bf16": 33878,
+            "native": -2.4802930802350266e-36,
+            "reference": -2.5155579107596953e-36
+          },
+          {
+            "position": 63,
+            "column": 10,
+            "native_bf16": 33687,
+            "reference_bf16": 33686,
+            "native": -8.87498234870827e-37,
+            "reference": -8.816207631167156e-37
+          },
+          {
+            "position": 63,
+            "column": 11,
+            "native_bf16": 957,
+            "reference_bf16": 952,
+            "native": 1.1108421615270617e-36,
+            "reference": 1.0814548027565045e-36
+          },
+          {
+            "position": 63,
+            "column": 12,
+            "native_bf16": 620,
+            "reference_bf16": 615,
+            "native": 1.733854167462874e-37,
+            "reference": 1.6971199689996776e-37
+          },
+          {
+            "position": 63,
+            "column": 14,
+            "native_bf16": 33652,
+            "reference_bf16": 33655,
+            "native": -7.170515540015954e-37,
+            "reference": -7.258677616327625e-37
+          },
+          {
+            "position": 63,
+            "column": 16,
+            "native_bf16": 624,
+            "reference_bf16": 583,
+            "native": 1.7632415262334313e-37,
+            "reference": 1.46202109883522e-37
+          }
+        ],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 2947,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 1.1314133126664517e-37
+          },
+          {
+            "position": 1023,
+            "mismatches": 2315,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.00048828125
+          },
+          {
+            "position": 2111,
+            "mismatches": 2982,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.001953125
+          },
+          {
+            "position": 3391,
+            "mismatches": 3483,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 1.0212107172768623e-37
+          },
+          {
+            "position": 4159,
+            "mismatches": 2585,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 1.087332274510616e-37
+          },
+          {
+            "position": 6079,
+            "mismatches": 2246,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.001953125
+          },
+          {
+            "position": 7167,
+            "mismatches": 1772,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.001953125
+          },
+          {
+            "position": 8191,
+            "mismatches": 2302,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.015625
+          }
+        ]
+      },
+      {
+        "surface": "routed-activation",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-routed-activation-sampled.bin",
+        "native_sha256": "540c657a7859cac2d11c45617f32dce1619aab781a48b119f06733dc627d1578",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-routed-activated-bf16.bin",
+        "reference_sha256": "388977e56e8f047d2c4dcffe9168fa799994a33a71bfe01d5273cd51d8f4f7e1",
+        "reference_dtype": "bf16",
+        "reference_columns": 4096,
+        "reference_column_offset": 0,
+        "columns": 4096,
+        "compared_values": 32768,
+        "mismatches": 100,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.000244140625,
+        "mean_absolute_error": 1.86271336133359e-08,
+        "first_differences": [
+          {
+            "position": 63,
+            "column": 43,
+            "native_bf16": 0,
+            "reference_bf16": 32768,
+            "native": 0.0,
+            "reference": -0.0
+          },
+          {
+            "position": 63,
+            "column": 122,
+            "native_bf16": 0,
+            "reference_bf16": 32768,
+            "native": 0.0,
+            "reference": -0.0
+          },
+          {
+            "position": 63,
+            "column": 192,
+            "native_bf16": 0,
+            "reference_bf16": 32768,
+            "native": 0.0,
+            "reference": -0.0
+          },
+          {
+            "position": 63,
+            "column": 210,
+            "native_bf16": 0,
+            "reference_bf16": 32768,
+            "native": 0.0,
+            "reference": -0.0
+          },
+          {
+            "position": 63,
+            "column": 353,
+            "native_bf16": 0,
+            "reference_bf16": 32768,
+            "native": 0.0,
+            "reference": -0.0
+          },
+          {
+            "position": 63,
+            "column": 422,
+            "native_bf16": 0,
+            "reference_bf16": 32768,
+            "native": 0.0,
+            "reference": -0.0
+          },
+          {
+            "position": 63,
+            "column": 1700,
+            "native_bf16": 32768,
+            "reference_bf16": 0,
+            "native": -0.0,
+            "reference": 0.0
+          },
+          {
+            "position": 63,
+            "column": 2232,
+            "native_bf16": 32768,
+            "reference_bf16": 0,
+            "native": -0.0,
+            "reference": 0.0
+          }
+        ],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 19,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 12,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 1.4901161193847656e-08
+          },
+          {
+            "position": 2111,
+            "mismatches": 13,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.000244140625
+          },
+          {
+            "position": 3391,
+            "mismatches": 18,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 16,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 10,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0001220703125
+          },
+          {
+            "position": 7167,
+            "mismatches": 4,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 8,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.000244140625
+          }
+        ]
+      },
+      {
+        "surface": "routed-weighted",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-routed-weighted-sampled.bin",
+        "native_sha256": "f4e6fc632cd6c0948e59ab6ae2eb4e079663bbb1fbfd9528ae3f1e1a23efa6e8",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-routed-weighted-bf16.bin",
+        "reference_sha256": "bd0eeab896e7cc1dea27f20f7b0b7ac91350c11f3fa6664637f3bea8347ef9c9",
+        "reference_dtype": "bf16",
+        "reference_columns": 16384,
+        "reference_column_offset": 0,
+        "columns": 16384,
+        "compared_values": 131072,
+        "mismatches": 877,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 1.52587890625e-05,
+        "mean_absolute_error": 9.15590625538698e-09,
+        "first_differences": [
+          {
+            "position": 63,
+            "column": 1980,
+            "native_bf16": 45646,
+            "reference_bf16": 45648,
+            "native": -1.1990778148174286e-08,
+            "reference": -1.210719347000122e-08
+          },
+          {
+            "position": 63,
+            "column": 11439,
+            "native_bf16": 13958,
+            "reference_bf16": 13957,
+            "native": 3.993511199951172e-06,
+            "reference": 3.9637088775634766e-06
+          },
+          {
+            "position": 63,
+            "column": 15608,
+            "native_bf16": 13583,
+            "reference_bf16": 13584,
+            "native": 5.327165126800537e-07,
+            "reference": 5.364418029785156e-07
+          },
+          {
+            "position": 1023,
+            "column": 15968,
+            "native_bf16": 13349,
+            "reference_bf16": 13348,
+            "native": 1.5366822481155396e-07,
+            "reference": 1.5273690223693848e-07
+          },
+          {
+            "position": 2111,
+            "column": 12293,
+            "native_bf16": 14256,
+            "reference_bf16": 14257,
+            "native": 2.09808349609375e-05,
+            "reference": 2.110004425048828e-05
+          },
+          {
+            "position": 2111,
+            "column": 12294,
+            "native_bf16": 47494,
+            "reference_bf16": 47495,
+            "native": -0.000255584716796875,
+            "reference": -0.0002574920654296875
+          },
+          {
+            "position": 2111,
+            "column": 12296,
+            "native_bf16": 14781,
+            "reference_bf16": 14780,
+            "native": 0.0003604888916015625,
+            "reference": 0.00035858154296875
+          },
+          {
+            "position": 2111,
+            "column": 12304,
+            "native_bf16": 14727,
+            "reference_bf16": 14726,
+            "native": 0.0002574920654296875,
+            "reference": 0.000255584716796875
+          }
+        ],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 3,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 2.9802322387695312e-08
+          },
+          {
+            "position": 1023,
+            "mismatches": 1,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 9.313225746154785e-10
+          },
+          {
+            "position": 2111,
+            "mismatches": 473,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 3.814697265625e-06
+          },
+          {
+            "position": 3391,
+            "mismatches": 2,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 5.960464477539063e-08
+          },
+          {
+            "position": 4159,
+            "mismatches": 1,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 5.960464477539063e-08
+          },
+          {
+            "position": 6079,
+            "mismatches": 133,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 1.52587890625e-05
+          },
+          {
+            "position": 7167,
+            "mismatches": 1,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 1.862645149230957e-09
+          },
+          {
+            "position": 8191,
+            "mismatches": 263,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 1.52587890625e-05
+          }
+        ]
+      },
+      {
+        "surface": "routed-output",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-routed-output-sampled.bin",
+        "native_sha256": "4d6c1a63eca30a98b1259ef1c1f64c68d9fefd2586bfa5e18ad84fcb947452b4",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-expert-part-1-bf16.bin",
+        "reference_sha256": "f3e821a39ae2a6954d77f3ccdf8cd5d23c462943453bf7efce4dcd8100e712e8",
+        "reference_dtype": "bf16",
+        "reference_columns": 2048,
+        "reference_column_offset": 0,
+        "columns": 2048,
+        "compared_values": 16384,
+        "mismatches": 150,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 3.0517578125e-05,
+        "mean_absolute_error": 7.340713636949658e-08,
+        "first_differences": [
+          {
+            "position": 2111,
+            "column": 6,
+            "native_bf16": 47895,
+            "reference_bf16": 47896,
+            "native": -0.0023040771484375,
+            "reference": -0.0023193359375
+          },
+          {
+            "position": 2111,
+            "column": 23,
+            "native_bf16": 47829,
+            "reference_bf16": 47828,
+            "native": -0.00162506103515625,
+            "reference": -0.001617431640625
+          },
+          {
+            "position": 2111,
+            "column": 49,
+            "native_bf16": 15241,
+            "reference_bf16": 15240,
+            "native": 0.004180908203125,
+            "reference": 0.004150390625
+          },
+          {
+            "position": 2111,
+            "column": 79,
+            "native_bf16": 15117,
+            "reference_bf16": 15116,
+            "native": 0.0021514892578125,
+            "reference": 0.00213623046875
+          },
+          {
+            "position": 2111,
+            "column": 83,
+            "native_bf16": 47480,
+            "reference_bf16": 47481,
+            "native": -0.00023651123046875,
+            "reference": -0.00023746490478515625
+          },
+          {
+            "position": 2111,
+            "column": 95,
+            "native_bf16": 14632,
+            "reference_bf16": 14631,
+            "native": 0.00016021728515625,
+            "reference": 0.00015926361083984375
+          },
+          {
+            "position": 2111,
+            "column": 111,
+            "native_bf16": 15057,
+            "reference_bf16": 15058,
+            "native": 0.00159454345703125,
+            "reference": 0.0016021728515625
+          },
+          {
+            "position": 2111,
+            "column": 179,
+            "native_bf16": 14858,
+            "reference_bf16": 14859,
+            "native": 0.00052642822265625,
+            "reference": 0.000530242919921875
+          }
+        ],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 53,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 3.0517578125e-05
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 33,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 3.0517578125e-05
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 64,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 3.0517578125e-05
+          }
+        ]
+      },
+      {
+        "surface": "combined-moe",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-combined-moe-sampled.bin",
+        "native_sha256": "3458b79e1490fc98d61b291f56c0df26db339493f7eab361b85bfbde9c1c10b2",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-output-bf16.bin",
+        "reference_sha256": "5abe9206144390568e601f979f301e9b972dd404f9421d035f998acb40965e90",
+        "reference_dtype": "bf16",
+        "reference_columns": 2048,
+        "reference_column_offset": 0,
+        "columns": 2048,
+        "compared_values": 16384,
+        "mismatches": 93,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 6.103515625e-05,
+        "mean_absolute_error": 7.834751158952713e-08,
+        "first_differences": [
+          {
+            "position": 2111,
+            "column": 6,
+            "native_bf16": 48008,
+            "reference_bf16": 48009,
+            "native": -0.004150390625,
+            "reference": -0.004180908203125
+          },
+          {
+            "position": 2111,
+            "column": 49,
+            "native_bf16": 15236,
+            "reference_bf16": 15235,
+            "native": 0.0040283203125,
+            "reference": 0.003997802734375
+          },
+          {
+            "position": 2111,
+            "column": 79,
+            "native_bf16": 15094,
+            "reference_bf16": 15092,
+            "native": 0.0018768310546875,
+            "reference": 0.001861572265625
+          },
+          {
+            "position": 2111,
+            "column": 95,
+            "native_bf16": 47888,
+            "reference_bf16": 47889,
+            "native": -0.002197265625,
+            "reference": -0.0022125244140625
+          },
+          {
+            "position": 2111,
+            "column": 111,
+            "native_bf16": 15031,
+            "reference_bf16": 15032,
+            "native": 0.00139617919921875,
+            "reference": 0.00140380859375
+          },
+          {
+            "position": 2111,
+            "column": 179,
+            "native_bf16": 15087,
+            "reference_bf16": 15088,
+            "native": 0.00182342529296875,
+            "reference": 0.0018310546875
+          },
+          {
+            "position": 2111,
+            "column": 186,
+            "native_bf16": 15025,
+            "reference_bf16": 15026,
+            "native": 0.00135040283203125,
+            "reference": 0.0013580322265625
+          },
+          {
+            "position": 2111,
+            "column": 221,
+            "native_bf16": 47777,
+            "reference_bf16": 47776,
+            "native": -0.00122833251953125,
+            "reference": -0.001220703125
+          }
+        ],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 31,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 3.0517578125e-05
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 21,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 6.103515625e-05
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 41,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 3.0517578125e-05
+          }
+        ]
+      },
+      {
+        "surface": "layer-output",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-layer-output-sampled.bin",
+        "native_sha256": "2a663738d2dea7c4b6ad5ab5f87a16506cd34b65c4d1e7e8f5854024017b6a5c",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-00-combined-f32.bin",
+        "reference_sha256": "ddbe42791051874424319d62c07eb9916b0b4358c453f6e74b7d028d36994e9c",
+        "reference_dtype": "f32",
+        "reference_columns": 2048,
+        "reference_column_offset": 0,
+        "columns": 2048,
+        "compared_values": 16384,
+        "mismatches": 40,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0001220703125,
+        "mean_absolute_error": 6.984919309616089e-08,
+        "first_differences": [
+          {
+            "position": 2111,
+            "column": 6,
+            "native_bf16": 47784,
+            "reference_bf16": 47788,
+            "native": -0.00128173828125,
+            "reference": -0.001312255859375
+          },
+          {
+            "position": 2111,
+            "column": 79,
+            "native_bf16": 15152,
+            "reference_bf16": 15151,
+            "native": 0.002685546875,
+            "reference": 0.0026702880859375
+          },
+          {
+            "position": 2111,
+            "column": 179,
+            "native_bf16": 47492,
+            "reference_bf16": 47488,
+            "native": -0.00025177001953125,
+            "reference": -0.000244140625
+          },
+          {
+            "position": 2111,
+            "column": 523,
+            "native_bf16": 47821,
+            "reference_bf16": 47820,
+            "native": -0.00156402587890625,
+            "reference": -0.001556396484375
+          },
+          {
+            "position": 2111,
+            "column": 1304,
+            "native_bf16": 48370,
+            "reference_bf16": 48369,
+            "native": -0.029541015625,
+            "reference": -0.0294189453125
+          },
+          {
+            "position": 2111,
+            "column": 1376,
+            "native_bf16": 48018,
+            "reference_bf16": 48019,
+            "native": -0.00445556640625,
+            "reference": -0.004486083984375
+          },
+          {
+            "position": 2111,
+            "column": 1416,
+            "native_bf16": 15210,
+            "reference_bf16": 15208,
+            "native": 0.003570556640625,
+            "reference": 0.0035400390625
+          },
+          {
+            "position": 2111,
+            "column": 1596,
+            "native_bf16": 47762,
+            "reference_bf16": 47763,
+            "native": -0.0011138916015625,
+            "reference": -0.00112152099609375
+          }
+        ],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 10,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0001220703125
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 10,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 6.103515625e-05
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 20,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 6.103515625e-05
+          }
+        ]
+      },
+      {
+        "surface": "next-input-norm",
+        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-moe-observe-r2/observations/prefill-next-input-norm-sampled.bin",
+        "native_sha256": "1f4910597bf10e42c4a3cd45ecb234a0eb66c86dec9a9876637c9ad8dbbc5f7f",
+        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-01-input-rmsnorm-bf16.bin",
+        "reference_sha256": "7863f2807cbc99dc4b61bc435227a73a848af00364c64d0caf445cd4baf0fdeb",
+        "reference_dtype": "bf16",
+        "reference_columns": 2048,
+        "reference_column_offset": 0,
+        "columns": 2048,
+        "compared_values": 16384,
+        "mismatches": 41,
+        "nonfinite_pairs": 0,
+        "maximum_absolute_error": 0.0078125,
+        "mean_absolute_error": 4.695728421211243e-06,
+        "first_differences": [
+          {
+            "position": 2111,
+            "column": 6,
+            "native_bf16": 48567,
+            "reference_bf16": 48571,
+            "native": -0.08935546875,
+            "reference": -0.09130859375
+          },
+          {
+            "position": 2111,
+            "column": 79,
+            "native_bf16": 15910,
+            "reference_bf16": 15909,
+            "native": 0.162109375,
+            "reference": 0.1611328125
+          },
+          {
+            "position": 2111,
+            "column": 179,
+            "native_bf16": 48269,
+            "reference_bf16": 48265,
+            "native": -0.0172119140625,
+            "reference": -0.0167236328125
+          },
+          {
+            "position": 2111,
+            "column": 523,
+            "native_bf16": 48597,
+            "reference_bf16": 48596,
+            "native": -0.10400390625,
+            "reference": -0.103515625
+          },
+          {
+            "position": 2111,
+            "column": 1304,
+            "native_bf16": 49075,
+            "reference_bf16": 49074,
+            "native": -1.3984375,
+            "reference": -1.390625
+          },
+          {
+            "position": 2111,
+            "column": 1416,
+            "native_bf16": 15971,
+            "reference_bf16": 15969,
+            "native": 0.2216796875,
+            "reference": 0.2197265625
+          },
+          {
+            "position": 2111,
+            "column": 1596,
+            "native_bf16": 48511,
+            "reference_bf16": 48512,
+            "native": -0.062255859375,
+            "reference": -0.0625
+          },
+          {
+            "position": 2111,
+            "column": 1683,
+            "native_bf16": 48662,
+            "reference_bf16": 48661,
+            "native": -0.146484375,
+            "reference": -0.1455078125
+          }
+        ],
+        "per_position": [
+          {
+            "position": 63,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 1023,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 2111,
+            "mismatches": 10,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0078125
+          },
+          {
+            "position": 3391,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 4159,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 6079,
+            "mismatches": 10,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.00390625
+          },
+          {
+            "position": 7167,
+            "mismatches": 0,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.0
+          },
+          {
+            "position": 8191,
+            "mismatches": 21,
+            "nonfinite_pairs": 0,
+            "maximum_absolute_error": 0.00390625
+          }
+        ]
+      }
+    ],
+    "diagnostic_only": true,
+    "performance_acceptance": false
+  },
+  "boundary_comparison_sha256": "e3ffb3875dff7ae74bc16b8e30e3af65f776b52c3125431d7c83cf5e2e3cc618",
+  "expert_difference_classification": [
+    {
+      "surface": "routed-gate-up",
+      "bit_differences": 20632,
+      "signed_zero_only": 0,
+      "numerically_different": 20632,
+      "tiny_pair_differences": 20625
+    },
+    {
+      "surface": "routed-activation",
+      "bit_differences": 100,
+      "signed_zero_only": 95,
+      "numerically_different": 5,
+      "tiny_pair_differences": 95
+    },
+    {
+      "surface": "routed-weighted",
+      "bit_differences": 877,
+      "signed_zero_only": 0,
+      "numerically_different": 877,
+      "tiny_pair_differences": 0
+    }
+  ],
+  "diagnosis": "All seventeen sampled upstream/shared/router surfaces match bitwise. First observed differences are routed expert gate/up; downstream activation, weighted down and next-layer norm differ. Complete continuation still fails.",
+  "windows_link_repair": {
+    "native_build_completed": true,
+    "compile_units": 60,
+    "images": 72,
+    "link_exit_code": 0,
+    "link_cwd": "P:\\projects\\AIMA-public-linux-core-native-moe-observe-20260923-r2\\build\\linux-core-native-moe-observe-native-r2",
+    "build_provenance_sha256": "fd0009cabe59e033e287bf6ed0f1b3fe857cb695376c04cc76043a3f1ded5158",
+    "build_run_sha256": "867d446adf63dff2266c870df2540ec8b6b531ef5f226a138ea29431ba7d9d20"
+  },
+  "native_markers_sha256": "b6c4e9c76c1ac40de5eef123e0e1a32cb581dc1d2ff5fbd5740e99411285ab58",
+  "preparation": {
+    "imports_verified": 327,
+    "compilation_units": 60,
+    "images": 72,
+    "changed_overlays": [
+      "native/src/native_moe_prefill.hip.cpp"
+    ],
+    "other_16_overlays_unchanged": true,
+    "native_expert_aot_launches": 0,
+    "native_expert_dense_projections": 2,
+    "observer_calls_preserved": true,
+    "additional_device_workspace_bytes": 1241104128,
+    "additional_runtime_artifacts": 0,
+    "low_exponent_forced_replay": false,
+    "midpoint_radius": 512,
+    "error_bound_ppb": 1000,
+    "replay_window_capacity": 4194304,
+    "selector_scan": "existing expert-sorted route order",
+    "native_router_strict_division_flags": true,
+    "overlays": [
+      {
+        "path": "benchmarks/shape-lab/native/src/torch_owned_safetensors_loader.hip.cpp",
+        "sha256": "23a3b9e391c0de89bb6369f56e1a178874e97c2a3f9c9e7a7944c627f9f742e5"
+      },
+      {
+        "path": "native/include/aima/native_resident_engine.h",
+        "sha256": "9ddb538b22348b9df78b03946d684231903fcc4b89775e99dd69f04d2762a7e0"
+      },
+      {
+        "path": "native/src/native_resident_engine.hip.cpp",
+        "sha256": "2ec80226214a58fdec5e46441a513f7b5d2b6b3134b2b96061b987ef0380c6f3"
+      },
+      {
+        "path": "native/src/native_linear_layer.hip.cpp",
+        "sha256": "a0bc00ad05e493de1fb3274b15b3d2fabea3a6ba6539fe0efd666a61872dd1a6"
+      },
+      {
+        "path": "native/src/native_linear_prefill.hip.cpp",
+        "sha256": "0f06202e4234473097f9d70404b36b04494e3c2ea5863ef9173dd86292cb91e3"
+      },
+      {
+        "path": "native/src/bf16_wvsplitk.hip.cpp",
+        "sha256": "56441bc448ce7dfde504e899117b7d2c7d840c2343d5f0adc0b00a8d42ea576e"
+      },
+      {
+        "path": "native/src/bf16_gemm.hip.cpp",
+        "sha256": "5c6b334e8cbe47a0c47d81fb5122284d52e7556dfa2e302097324c38f151b846"
+      },
+      {
+        "path": "native/src/native_weight_store.hip.cpp",
+        "sha256": "c55c6a1a79535a8f896fb89e12fabaf8ef3bfb8bceb05db05258aa4bff44738e"
+      },
+      {
+        "path": "native/include/aima/native_full_prefill.h",
+        "sha256": "ab2ef4d8b8ba20f65de68e80e1cdb969b3965bd011c364f55458090a2612c7d9"
+      },
+      {
+        "path": "native/src/native_full_prefill.hip.cpp",
+        "sha256": "5ad99a163422fc1bff89dbd10c880825deaa1b6573a69c99d4532d6311da9f95"
+      },
+      {
+        "path": "native/src/native_full_attention.hip.cpp",
+        "sha256": "179e9682c34994a5811b4b206ad70dcd6c5bfcd8d0c36cb17aae1fd9d69d315e"
+      },
+      {
+        "path": "native/src/native_pointwise.hip.cpp",
+        "sha256": "8663684c0a8c70cf79afbc932aaea0a57447a41d6a0fcf39f434fca12a186150"
+      },
+      {
+        "path": "native/src/native_routed_moe.hip.cpp",
+        "sha256": "cb7bd10427167607967a0a9089556409fa78a6aeeca007ae31f2b900eed02d01"
+      },
+      {
+        "path": "native/src/native_full_layer.hip.cpp",
+        "sha256": "9faa898dda944114dcb7e13ace18832c135939a2a34c618a4d69fb9983478d48"
+      },
+      {
+        "path": "native/src/native_moe_prefill.hip.cpp",
+        "sha256": "109beed020e23a4712766309db95b4aebf83a4edec457e9f48716ebb69ec1107"
+      },
+      {
+        "path": "native/src/native_decode_runner.hip.cpp",
+        "sha256": "3e50bf36a3093a21ed272d8fb3e02f63df35c075760624310956a8b1d7954542"
+      },
+      {
+        "path": "native/src/media_names.cpp",
+        "sha256": "f15ebe386d1f038dcc434791bb4e911d8b93db61457c6c88842799ebc201948a"
+      }
+    ],
+    "host_projection_sha256": "5517a6f17fc8560c5043d935af0278a32d76cf3e402015eed80cd6d64dad465e",
+    "host_moe_sha256": "9157ab016e19be489ad001fada896e3613ff6f6e27f12f5159b93fe75f57cd56",
+    "prepared_manifest_sha256": "6b1575d44948f16734f19fd5e01a5c964b1848bf7644b836930127d0f6d4d337",
+    "native_build_pending": true,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "implementation_source_inputs": [
+      {
+        "path": "native/linux_core_port/gb10_moe.h",
+        "bytes": 2956,
+        "sha256": "64d70f06a8bed423a4ade13b5297c1a1ce23f44b444ff4d9d03157e61cc642fd"
+      },
+      {
+        "path": "native/linux_core_port/gb10_moe.hip.cpp",
+        "bytes": 24818,
+        "sha256": "769018f2a619dd461202a0ea8087fd6d9cc7eb5d1ff3ad4c650b74cdc4d28213"
+      },
+      {
+        "path": "native/linux_core_port/gb10_moe_host_contract_test.cpp",
+        "bytes": 15430,
+        "sha256": "57adf82163fec2c2d922b694631c16a1563a5fbb3e959dbc58100b9843a3609e"
+      },
+      {
+        "path": "native/linux_core_port/gb10_prefill_projection.h",
+        "bytes": 3181,
+        "sha256": "5c0c8f9ec5fdfc6e3a8c7c11891ce662f40011d2827d44f290f3cdab3830a765"
+      },
+      {
+        "path": "native/linux_core_port/gb10_prefill_projection.hip.cpp",
+        "bytes": 36293,
+        "sha256": "c757069e9ea13f4bc0f9338450dcddfbab9da06484b92562e95aa29755d81513"
+      },
+      {
+        "path": "native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
+        "bytes": 21810,
+        "sha256": "eb5171c2432741c5e0eb0fb7593bfe55070be22c8c52a25c055af8ef54bd81a8"
+      },
+      {
+        "path": "tools/build_linux_core_windows.py",
+        "bytes": 15249,
+        "sha256": "e354ed6f75f4a0909a7e108410df5ca31f2249717822d4f7da93c3342eb53e5f"
+      },
+      {
+        "path": "tools/prepare_linux_core_windows.py",
+        "bytes": 79662,
+        "sha256": "f8ecd2a3a373763d82d0651041a91bc8541f64433e394d4abd44afadcfa39eff"
+      },
+      {
+        "path": "tools/test_linux_core_moe.py",
+        "bytes": 3796,
+        "sha256": "b9a4c5e46590fe8479a9b23bd86355030469bd55be1129a8ae865ec50b1aeec8"
+      }
+    ],
+    "host_projection": {
+      "lossless_operand_values": 2048,
+      "both_weight_layouts_match": true,
+      "full_window_candidates": 1048576,
+      "window_guards_pass": true,
+      "input_immutable": true,
+      "selector_edges_pass": true,
+      "queued_kernel_order_pass": true,
+      "invalid_bindings_rejected": 221,
+      "profile_max_windows": 97,
+      "profile_lifetime_pass": true,
+      "profile_warmup_excluded": true,
+      "profile_completed_events_only": true,
+      "linear_output_scoped_layers": 30,
+      "linear_output_scope_unwind_pass": true,
+      "full_output_scoped_layers": 10,
+      "full_output_scope_unwind_pass": true,
+      "coarse_interval_exceptional_edges_pass": true,
+      "invalid_event_time_reported": true,
+      "producer_configuration_controls": 16,
+      "tuned_input_output_scopes_disjoint": true,
+      "routed_full_window_candidates": 4194304,
+      "routed_sorted_scatter_guards_pass": true,
+      "routed_weighted_endpoint_edges_pass": true,
+      "routed_invalid_dispatch_rejected": true,
+      "routed_profile_windows": 54,
+      "gpu_replay_executed": false
+    },
+    "host_moe": {
+      "conversion_values_checked": 18435,
+      "guard_elements_checked": 768,
+      "carrier_lane_sums_verified": 768,
+      "original_inputs_unchanged": true,
+      "ordered_layer_calls": 80,
+      "terminal_row_only_calls": 1,
+      "terminal_consumed_once": true,
+      "registered_weights_drained": true,
+      "failed_provider_poisoned": true,
+      "complete_native_layers": 39,
+      "native_abandonment_and_device_error_poisoned": true,
+      "borrowed_routed_projection_calls": 80,
+      "invalid_bindings_and_artifacts_rejected": 650,
+      "gpu_reduction_executed": false
+    }
+  },
+  "preparation_sha256": "10ddb66bff4be1a90bd93e87520ff6b6ecd37966a8467656d048eb751a1b9263",
+  "qualified_baseline_commit": "0c80a8996d7dd3a6868d896e5e75260ff6354d04",
+  "qualified_baseline_ttft_ms": 20657.4111,
+  "no_new_runtime_artifacts": true,
+  "whole_model_repair_pending": true,
+  "release_qualified": false,
+  "performance_acceptance": false,
+  "latest_linux_releases_review_sha256": "8c98f5e01eb7370da324453cfbaf8f654ac97c1ade6b21905ee40f5678b008b3",
+  "latest_linux_release": "v1.5.1-native-vl.10"
+}

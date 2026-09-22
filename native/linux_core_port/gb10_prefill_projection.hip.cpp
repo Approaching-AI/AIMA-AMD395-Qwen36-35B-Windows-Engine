@@ -18,7 +18,9 @@ namespace staged = qrt_sm121_staged_half_projection;
 namespace half = qrt_sm121_scaled_half_products;
 namespace coarse = qrt_sm121_coarse_projection_matrix;
 constexpr unsigned max_tokens = 8192, max_rows = 12352, max_k = 4096;
+constexpr unsigned routed_rows = 8192 * 8, routed_experts = 256, sorted_capacity = 73472;
 constexpr unsigned window_capacity = 1u << 20;
+constexpr unsigned routed_window_capacity = 4u << 20;
 constexpr unsigned max_windows = (max_tokens * max_rows + window_capacity - 1) / window_capacity;
 void check(hipError_t error) {
   if (error != hipSuccess) throw std::runtime_error("Prefill projection GPU operation failed");
@@ -45,7 +47,10 @@ struct Profile {
   Device counts;
   std::array<unsigned, max_windows> host_counts{};
   bool armed = false, inflight = false, fallback = false, coarse_output = false;
+  bool routed = false, weighted = false;
   unsigned ordinal = 0, rows = 0, width = 0, invalid_intervals = 0;
+  unsigned route_ordinal = 0, row_count = max_tokens;
+  unsigned selection_cells = 0, window_size = window_capacity;
   Profile() { counts.allocate(max_windows * sizeof(unsigned)); }
   void mark(unsigned index) { check(hipEventRecord(events.at(index).value, nullptr)); }
   float ms(unsigned first, unsigned last) {
@@ -55,9 +60,12 @@ struct Profile {
     if (elapsed < 0) ++invalid_intervals;
     return elapsed;
   }
-  void begin(unsigned n, unsigned k) {
+  void begin(unsigned n, unsigned k, bool experts = false, bool down = false) {
     if (inflight) throw std::logic_error("Prefill projection profile already in flight");
     rows = n; width = k; fallback = false; coarse_output = false;
+    routed = experts; weighted = down; row_count = experts ? routed_rows : max_tokens;
+    selection_cells = (experts ? sorted_capacity : max_tokens) * n;
+    window_size = experts ? routed_window_capacity : window_capacity;
     invalid_intervals = 0; inflight = true;
     mark(0);
   }
@@ -67,7 +75,7 @@ struct Profile {
     double selection_ms = 0, replay_ms = 0;
     unsigned long long candidates = 0;
     for (unsigned i = 0; i < windows; ++i) {
-      const unsigned capacity = std::min(window_capacity, max_tokens * rows - i * window_capacity);
+      const unsigned capacity = std::min(window_size, selection_cells - i * window_size);
       if (host_counts[i] > capacity) throw std::runtime_error("Prefill projection profile count exceeds window");
       candidates += host_counts[i];
       selection_ms += ms(4 + 3 * i, 5 + 3 * i);
@@ -75,21 +83,25 @@ struct Profile {
     }
     const float producer_ms = ms(0, 1), operands_ms = ms(1, 2), norm_ms = ms(2, 3);
     const float total_ms = ms(0, 3 + 3 * windows);
-    std::fprintf(stderr, "{\"event\":\"prefill_projection_profile\",\"ordinal\":%u,"
+    std::fprintf(stderr, "{\"event\":\"%s\",\"ordinal\":%u,"
         "\"tokens\":%u,\"rows\":%u,\"reduction\":%u,\"weight_rows_contiguous\":%s,"
         "\"producer\":\"%s\",\"windows\":%u,\"cells\":%llu,\"candidates\":%llu,"
+        "\"selection_cells_capacity\":%u,\"window_capacity\":%u,"
         "\"bound_ppb\":%u,\"linear_output\":%s,"
-        "\"coarse_output\":%s,\"invalid_elapsed_intervals\":%u,\"timing_valid\":%s,"
+        "\"coarse_output\":%s,\"routed\":%s,\"weighted_output\":%s,\"invalid_elapsed_intervals\":%u,\"timing_valid\":%s,"
         "\"producer_ms\":%.6f,\"operands_ms\":%.6f,\"norm_bound_ms\":%.6f,"
         "\"selection_ms\":%.6f,\"replay_ms\":%.6f,\"total_gpu_ms\":%.6f,"
         "\"completed_gpu_events\":true,\"diagnostic_only\":true}\n",
-        ordinal++, max_tokens, rows, width, contiguous ? "true" : "false",
-        coarse_output ? "coarse-c64" : (fallback ? "wmma-fallback" :
+        routed ? "routed_projection_profile" : "prefill_projection_profile",
+        routed ? route_ordinal++ : ordinal++, row_count, rows, width, contiguous ? "true" : "false",
+        routed ? "wmma-routed-k16" : (coarse_output ? "coarse-c64" : (fallback ? "wmma-fallback" :
             (contiguous && gb10_prefill_projection_tuned_gemm_enabled(rows, width)
-                ? "hipblaslt-tuned-5651" : "hipblaslt")), windows,
-        static_cast<unsigned long long>(max_tokens) * rows, candidates,
+                ? "hipblaslt-tuned-5651" : "hipblaslt"))), windows,
+        static_cast<unsigned long long>(row_count) * rows, candidates,
+        selection_cells, window_size,
         ppb, linear_output ? "true" : "false",
-        coarse_output ? "true" : "false", invalid_intervals, invalid_intervals ? "false" : "true",
+        coarse_output ? "true" : "false", routed ? "true" : "false", weighted ? "true" : "false",
+        invalid_intervals, invalid_intervals ? "false" : "true",
         producer_ms, operands_ms, norm_ms, selection_ms, replay_ms, total_ms);
     inflight = false;
   }
@@ -100,6 +112,7 @@ struct State {
   bool wmma = false, wmma_output_only = false, linear_bound = false, linear_output = false;
   bool coarse_full = false, full_output = false, coarse_produced = false;
   bool tuned_gemm = false, tuned_gemm_input_only = false;
+  bool routed = false;
 };
 State* active = nullptr;
 bool enabled(const char* name) {
@@ -256,6 +269,183 @@ static __global__ void replay_selected(const half::Row* inputs,
     if (!lane) output[index] = qrt_sm121_q1::bf16(corrected);
   }
 }
+
+// Keep the expert accumulator in FP32 until admission and original SM121
+// replay finish. The BF16-only imported AOT endpoint loses the midpoint
+// information needed to distinguish the AMD and reference dot reductions.
+template<bool Down>
+static __global__ void routed_matmul(const uint16_t* input, const uint16_t* weights,
+    const int32_t* sorted, const int32_t* experts, const int32_t* padded,
+    float* output, uint32_t* invalid) {
+  constexpr unsigned n = Down ? 2048u : 1024u, k = Down ? 512u : 2048u, stride = 66;
+  const int32_t count = *padded;
+  if (count < int32_t(routed_rows) || count > int32_t(sorted_capacity) || count % 32) {
+    if (!threadIdx.x) atomicOr(invalid, 4u);
+    return;
+  }
+  const unsigned route_base = blockIdx.y * 32u, row_base = blockIdx.x * 128u;
+  if (route_base >= unsigned(count)) return;
+  const int32_t expert = experts[blockIdx.y];
+  if (expert < 0 || expert >= int32_t(routed_experts)) {
+    if (!threadIdx.x) atomicOr(invalid, 8u);
+    return;
+  }
+  __shared__ uint16_t weight_tile[128][stride], input_tile[32][stride];
+  __shared__ unsigned routes[32];
+  const unsigned thread = threadIdx.x, wave = thread / 32u, lane = thread % 32u;
+  const unsigned source = lane % 16u, segment = lane / 16u;
+  if (thread < 32u) {
+    const int32_t route = sorted[route_base + thread];
+    if (route < 0 || route > int32_t(routed_rows)) atomicOr(invalid, 16u);
+    routes[thread] = route >= 0 && route < int32_t(routed_rows) ? unsigned(route) : routed_rows;
+  }
+  __syncthreads();
+  WmmaF32 accumulators[2] = {};
+  for (unsigned base = 0; base < k; base += 64u) {
+    for (unsigned cell = thread; cell < 128u * 64u; cell += 256u)
+      weight_tile[cell / 64u][cell % 64u] = weights[
+          (std::size_t(expert) * n + row_base + cell / 64u) * k + base + cell % 64u];
+    for (unsigned cell = thread; cell < 32u * 64u; cell += 256u) {
+      const unsigned route = routes[cell / 64u];
+      input_tile[cell / 64u][cell % 64u] = route < routed_rows
+          ? input[std::size_t(Down ? route : route / 8u) * k + base + cell % 64u] : uint16_t(0);
+    }
+    __syncthreads();
+    for (unsigned offset = 0; offset < 64u; offset += 16u) {
+      WmmaBf16 weight_fragment;
+      for (unsigned e = 0; e < 16; ++e) weight_fragment[e] = weight_tile[wave * 16u + source][offset + e];
+      for (unsigned fragment = 0; fragment < 2; ++fragment) {
+        WmmaBf16 input_fragment;
+        for (unsigned e = 0; e < 16; ++e) input_fragment[e] = input_tile[fragment * 16u + source][offset + e];
+        accumulators[fragment] = __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+            input_fragment, weight_fragment, accumulators[fragment]);
+      }
+    }
+    __syncthreads();
+  }
+  const unsigned row = row_base + wave * 16u + source;
+  for (unsigned fragment = 0; fragment < 2; ++fragment)
+    for (unsigned e = 0; e < 8; ++e) {
+      const unsigned route = routes[fragment * 16u + 2u * e + segment];
+      if (route < routed_rows) output[std::size_t(route) * n + row] = accumulators[fragment][e];
+    }
+}
+
+// Scan in the dispatcher's existing expert order. Candidate replay therefore
+// reuses adjacent expert weight rows without another expert sorting buffer.
+// The queue is bounded by the number of scanned cells, including padding.
+template<bool Down>
+static __global__ void select_routed(const float* raw, uint16_t* output,
+    const float* input_l2, const float* weight_l2, const int32_t* ids,
+    const float* route_weights, const int32_t* sorted, const int32_t* experts,
+    const int32_t* padded, unsigned start, unsigned size, unsigned* count,
+    unsigned* indices, uint32_t* invalid) {
+  constexpr unsigned n = Down ? 2048u : 1024u;
+  const unsigned local = blockIdx.x * blockDim.x + threadIdx.x;
+  if (local >= size) return;
+  const unsigned sorted_row = (start + local) / n, column = (start + local) % n;
+  const int32_t padded_rows = *padded;
+  if (padded_rows < int32_t(routed_rows) || padded_rows > int32_t(sorted_capacity) || padded_rows % 32) {
+    atomicOr(invalid, 4u); return;
+  }
+  if (sorted_row >= unsigned(padded_rows)) return;
+  const int32_t route = sorted[sorted_row];
+  if (route == int32_t(routed_rows)) return;
+  if (route < 0 || route >= int32_t(routed_rows)) { atomicOr(invalid, 16u); return; }
+  const int32_t expert = ids[route];
+  const unsigned index = unsigned(route) * n + column;
+  if (expert < 0 || expert >= int32_t(routed_experts) || expert != experts[sorted_row / 32u]) {
+    output[index] = 0; atomicOr(invalid, 8u); return;
+  }
+  const float scale = Down ? route_weights[route] : 1.f;
+  const float value = qrt_sm121_q1::multiply(raw[index], scale);
+  if ((qrt_sm121_exp2::bits(value) & 0x7f800000u) == 0x7f800000u ||
+      (qrt_sm121_exp2::bits(scale) & 0x7f800000u) == 0x7f800000u || scale < 0.f || scale > 1.f) {
+    output[index] = 0; atomicOr(invalid, 32u); return;
+  }
+  const unsigned bits = qrt_sm121_exp2::bits(value), low = bits & 65535u;
+  const unsigned distance = low >= 32768u ? low - 32768u : 32768u - low;
+  const float error = input_l2[Down ? unsigned(route) : unsigned(route) / 8u] *
+      weight_l2[unsigned(expert) * n + column] * 1.e-6f * scale;
+  if (distance <= 512u || qrt_bf16_midpoint::within_error(value, error))
+    indices[atomicAdd(count, 1u)] = index;
+  output[index] = qrt_sm121_q1::bf16(value);
+}
+
+template<bool Down>
+static __global__ void replay_routed(const half::Row* inputs, const half::Row* weights,
+    const int32_t* ids, const float* route_weights, uint16_t* output,
+    const unsigned* count, const unsigned* indices, uint32_t* invalid) {
+  constexpr unsigned n = Down ? 2048u : 1024u, k = Down ? 512u : 2048u, groups = k / 16u;
+  const unsigned lane = threadIdx.x & 3u, size = *count;
+  if (size > routed_window_capacity) { if (!threadIdx.x) atomicOr(invalid, 64u); return; }
+  for (unsigned candidate = blockIdx.x * 64u + threadIdx.x / 4u;
+       candidate < size; candidate += gridDim.x * 64u) {
+    const unsigned index = indices[candidate], route = index / n, column = index % n;
+    if (route >= routed_rows) { if (!lane) atomicOr(invalid, 64u); continue; }
+    const int32_t expert = ids[route];
+    if (expert < 0 || expert >= int32_t(routed_experts)) { if (!lane) atomicOr(invalid, 8u); continue; }
+    float value = staged::dot<2>(inputs + std::size_t(Down ? route : route / 8u) * groups,
+        weights + (std::size_t(expert) * n + column) * groups, k);
+    if (!lane) {
+      if constexpr (Down) value = qrt_sm121_q1::multiply(value, route_weights[route]);
+      if ((qrt_sm121_exp2::bits(value) & 0x7f800000u) == 0x7f800000u) atomicOr(invalid, 32u);
+      output[index] = qrt_sm121_q1::bf16(value);
+    }
+  }
+}
+
+template<bool Down>
+void launch_routed(State& s, const uint16_t* input, const uint16_t* weights,
+    const int32_t* ids, const float* route_weights, const int32_t* sorted,
+    const int32_t* experts, const int32_t* padded, uint16_t* output, uint32_t* invalid) {
+  constexpr unsigned n = Down ? 2048u : 1024u, k = Down ? 512u : 2048u;
+  constexpr unsigned input_rows = Down ? routed_rows : max_tokens, weight_rows = routed_experts * n;
+  Profile* profile = s.profile && s.profile->armed ? s.profile.get() : nullptr;
+  if (profile) profile->begin(n, k, true, Down);
+  hipLaunchKernelGGL((routed_matmul<Down>), dim3(n / 128u, sorted_capacity / 32u), dim3(256), 0,
+      nullptr, input, weights, sorted, experts, padded, s.raw.as<float>(), invalid);
+  check(hipGetLastError());
+  if (profile) profile->mark(1);
+  hipLaunchKernelGGL(prepare_operands, dim3((input_rows * (k / 16u) + 255u) / 256u), dim3(256), 0,
+      nullptr, input, s.inputs.as<half::Row>(), input_rows, k, true);
+  check(hipGetLastError());
+  hipLaunchKernelGGL(prepare_operands, dim3((weight_rows * (k / 16u) + 255u) / 256u), dim3(256), 0,
+      nullptr, weights, s.weights.as<half::Row>(), weight_rows, k, true);
+  check(hipGetLastError());
+  if (profile) profile->mark(2);
+  hipLaunchKernelGGL(row_l2, dim3(input_rows), dim3(256), 0, nullptr,
+      input, s.input_l2.as<float>(), input_rows, k, true);
+  check(hipGetLastError());
+  hipLaunchKernelGGL(row_l2, dim3(weight_rows), dim3(256), 0, nullptr,
+      weights, s.weight_l2.as<float>(), weight_rows, k, true);
+  check(hipGetLastError());
+  if (profile) profile->mark(3);
+  unsigned window = 0;
+  for (unsigned start = 0; start < sorted_capacity * n; start += routed_window_capacity) {
+    const unsigned size = std::min(routed_window_capacity, sorted_capacity * n - start);
+    if (profile) profile->mark(4 + 3 * window);
+    check(hipMemsetAsync(s.count.data, 0, sizeof(unsigned), nullptr));
+    hipLaunchKernelGGL((select_routed<Down>), dim3((size + 255u) / 256u), dim3(256), 0,
+        nullptr, s.raw.as<float>(), output, s.input_l2.as<float>(), s.weight_l2.as<float>(),
+        ids, route_weights, sorted, experts, padded, start, size, s.count.as<unsigned>(),
+        s.indices.as<unsigned>(), invalid);
+    check(hipGetLastError());
+    if (profile) profile->mark(5 + 3 * window);
+    hipLaunchKernelGGL((replay_routed<Down>), dim3(256), dim3(256), 0,
+        nullptr, s.inputs.as<half::Row>(), s.weights.as<half::Row>(), ids, route_weights,
+        output, s.count.as<unsigned>(), s.indices.as<unsigned>(), invalid);
+    check(hipGetLastError());
+    if (profile) {
+      profile->mark(6 + 3 * window);
+      check(hipMemcpyAsync(profile->counts.as<unsigned>() + window, s.count.data,
+          sizeof(unsigned), hipMemcpyDeviceToDevice, nullptr));
+    }
+    ++window;
+  }
+  if (profile) profile->finish(window, true, 1000u, false);
+}
+
 State& bound(std::size_t tokens, std::size_t rows, std::size_t reduction, void* stream) {
   if (!active || stream || !gb10_prefill_projection_shape(tokens, rows, reduction, false))
     throw std::invalid_argument("Prefill projection requires its q8192 default-stream owner");
@@ -269,12 +459,14 @@ struct Gb10PrefillProjectionOwner::Impl { State state; };
 Gb10PrefillProjectionOwner::Gb10PrefillProjectionOwner() : impl_(std::make_unique<Impl>()) {
   if (active) throw std::runtime_error("A prefill projection owner is already active");
   auto& s = impl_->state;
-  s.raw.allocate(std::size_t(max_tokens) * max_rows * sizeof(float));
+  s.routed = enabled("AIMA_PORT_NATIVE_MOE_PREFILL");
+  s.raw.allocate((s.routed ? std::size_t(routed_rows) * 2048u : std::size_t(max_tokens) * max_rows) * sizeof(float));
   s.inputs.allocate(std::size_t(max_tokens) * (max_k / 16u) * sizeof(half::Row));
-  s.weights.allocate(std::size_t(max_rows) * (max_k / 16u) * sizeof(half::Row));
-  s.input_l2.allocate(max_tokens * sizeof(float));
-  s.weight_l2.allocate(max_rows * sizeof(float));
-  s.indices.allocate(window_capacity * sizeof(unsigned));
+  s.weights.allocate((s.routed ? std::size_t(routed_experts) * 1024u * (2048u / 16u) :
+      std::size_t(max_rows) * (max_k / 16u)) * sizeof(half::Row));
+  s.input_l2.allocate((s.routed ? routed_rows : max_tokens) * sizeof(float));
+  s.weight_l2.allocate((s.routed ? routed_experts * 2048u : max_rows) * sizeof(float));
+  s.indices.allocate((s.routed ? routed_window_capacity : window_capacity) * sizeof(unsigned));
   s.count.allocate(sizeof(unsigned));
   if (enabled("AIMA_PORT_PREFILL_PROJECTION_PROFILE")) s.profile = std::make_unique<Profile>();
   s.wmma = enabled("AIMA_PORT_PREFILL_WMMA");
@@ -304,6 +496,7 @@ void gb10_prefill_projection_profile_begin() {
     if (profile->inflight) throw std::logic_error("Cannot reset an active prefill projection profile");
     profile->armed = true;
     profile->ordinal = 0;
+    profile->route_ordinal = 0;
   }
 }
 bool gb10_prefill_projection_wmma_enabled(std::size_t reduction) {
@@ -456,5 +649,30 @@ void gb10_prefill_projection_finish(const void* input, const void* weights,
   }
   if (profile) profile->finish(window, contiguous, ppb, s.linear_output);
   s.coarse_produced = false;
+}
+void gb10_prefill_routed_projection(const void* input, const void* weights,
+    const void* ids, const void* route_weights, const void* sorted_routes,
+    const void* block_experts, const void* padded_count, void* output,
+    uint32_t* invalid, bool down) {
+  if (!active || !active->routed || active->linear_output || active->full_output ||
+      active->coarse_produced || (active->profile && active->profile->inflight))
+    throw std::logic_error("Routed projection requires an idle native MoE projection owner");
+  const void* pointers[] = {input, weights, ids, route_weights, sorted_routes,
+                           block_experts, padded_count, output, invalid};
+  for (unsigned i = 0; i < 9; ++i) {
+    const unsigned alignment = i < 2 || i == 7 ? 2u : 4u;
+    if (!pointers[i] || reinterpret_cast<std::uintptr_t>(pointers[i]) % alignment)
+      throw std::invalid_argument("Routed projection operand is null or misaligned");
+    for (unsigned j = 0; j < i; ++j)
+      if (pointers[i] == pointers[j]) throw std::invalid_argument("Routed projection operands alias");
+    for (Device* d : {&active->raw, &active->inputs, &active->weights,
+                     &active->input_l2, &active->weight_l2, &active->indices, &active->count})
+      if (pointers[i] == d->data) throw std::invalid_argument("Routed projection operand aliases scratch");
+  }
+  const auto call = down ? launch_routed<true> : launch_routed<false>;
+  call(*active, static_cast<const uint16_t*>(input), static_cast<const uint16_t*>(weights),
+       static_cast<const int32_t*>(ids), static_cast<const float*>(route_weights),
+       static_cast<const int32_t*>(sorted_routes), static_cast<const int32_t*>(block_experts),
+       static_cast<const int32_t*>(padded_count), static_cast<uint16_t*>(output), invalid);
 }
 }  // namespace aima_port

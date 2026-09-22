@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 namespace aima_port {
 class Gb10PrefillProjectionOwner {
@@ -53,4 +54,11 @@ void gb10_prefill_projection_coarse(const void* input, const void* weights,
 void gb10_prefill_projection_finish(const void* input, const void* weights,
     void* output, std::size_t tokens, std::size_t rows, std::size_t reduction,
     bool weight_rows_contiguous, void* stream);
+// Native MoE uses the same live FP32 producer/selector/replay boundary. The
+// imported dispatcher owns sorted_capacity=73472 rows in 32-row expert blocks.
+// The projection owner borrows all operands and the MoE owner's error flag.
+void gb10_prefill_routed_projection(const void* input, const void* weights,
+    const void* ids, const void* route_weights, const void* sorted_routes,
+    const void* block_experts, const void* padded_count, void* output,
+    uint32_t* invalid, bool down);
 }

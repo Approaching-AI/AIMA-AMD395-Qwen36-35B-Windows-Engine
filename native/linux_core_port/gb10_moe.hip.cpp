@@ -4,6 +4,7 @@
 #include "gb10_moe_math.h"
 #include "gb10_gdn.h"
 #include "gb10_decode_moe.h"
+#include "gb10_prefill_projection.h"
 #include "../providers/gdn/sm121_mtp_moe_math.h"
 #include "aima/sha256.h"
 #include "dlfcn.h"
@@ -64,6 +65,11 @@ struct State {
   bool registered = false, pending = false, poisoned = false;
   bool native_prefill = false, native_inflight = false;
   unsigned native_stage = 0;
+  const void* native_input = nullptr;
+  const void* native_ids = nullptr;
+  const void* native_gate_up = nullptr;
+  const void* native_activation = nullptr;
+  const void* native_weighted = nullptr;
   std::size_t next_layer = 0;
   void* pending_carrier = nullptr;
   float* input() const { return storage; }
@@ -205,6 +211,9 @@ Gb10MoeOwner::Gb10MoeOwner() : impl_(std::make_unique<Impl>()) {
   verify(selected("QRT_QWEN36_CUDA_VLLM_SILU_BF16_DOMAIN_LUT_PATH"), moe_silu_table);
   auto& s = impl_->state;
   s.native_prefill = native_setting();
+#ifndef AIMA_PORT_GB10_PREFILL_PROJECTIONS
+  if (s.native_prefill) throw std::invalid_argument("Native MoE requires the prefill projection adapter");
+#endif
   s.library = dlopen(library.c_str(), RTLD_NOW | RTLD_LOCAL);
   if (!s.library) throw std::runtime_error("Cannot load the pinned MoE provider");
   auto prepare = reinterpret_cast<Prepare>(dlsym(s.library, "qrt_triton_moe_q8192_prepare"));
@@ -316,6 +325,8 @@ Gb10NativeMoeScope::Gb10NativeMoeScope(std::size_t layer, const void* input, con
   (void)gb10_moe_silu_table(); (void)gb10_moe_router_exp_table(); (void)gb10_sigmoid_table();
   check(hipMemsetAsync(s.native_invalid(), 0, sizeof(uint32_t), nullptr), "Native MoE error reset");
   owner_ = &s; s.native_inflight = true; s.native_stage = 0;
+  s.native_input = input; s.native_ids = nullptr; s.native_gate_up = nullptr;
+  s.native_activation = nullptr; s.native_weighted = nullptr;
 }
 Gb10NativeMoeScope::~Gb10NativeMoeScope() {
   if (!completed_ && owner_ && active == owner_) {
@@ -327,6 +338,22 @@ void* Gb10NativeMoeScope::router_weights() const {
   auto& s = bound();
   if (!s.native_inflight) throw std::logic_error("Native MoE scope is inactive");
   return s.native_weights();
+}
+void Gb10NativeMoeScope::project_experts(bool down, const void* input, const void* ids,
+    const void* sorted_routes, const void* block_experts, const void* padded_count, void* output) {
+  if (completed_ || owner_ != active) throw std::logic_error("Native MoE scope expired");
+  auto& s = native_stage(down ? 6u : 4u);
+  if (input != (down ? s.native_activation : s.native_input) || ids != s.native_ids)
+    throw std::invalid_argument("Native expert projection does not own its live operands");
+#ifdef AIMA_PORT_GB10_PREFILL_PROJECTIONS
+  gb10_prefill_routed_projection(input, down ? s.down[layer_] : s.gate_up[layer_], ids,
+      s.native_weights(), sorted_routes, block_experts, padded_count, output, s.native_invalid(), down);
+#else
+  throw std::logic_error("Native MoE was built without the prefill projection adapter");
+#endif
+  if (down) s.native_weighted = output;
+  else s.native_gate_up = output;
+  ++s.native_stage;
 }
 void gb10_native_moe_shared_gate(const void* input, const void* weight, void* output) {
   auto& s = native_stage(0); pointers(input, weight, output);
@@ -356,16 +383,20 @@ void gb10_native_moe_router(const void* logits, void* ids) {
       static_cast<const uint16_t*>(logits), gb10_moe_router_exp_table(), static_cast<uint32_t*>(ids),
       s.native_weights(), s.native_invalid());
   check(hipGetLastError(), "Native MoE router"); ++s.native_stage;
+  s.native_ids = ids;
 }
 void gb10_native_moe_expert_activation(const void* gate_up, void* output) {
-  auto& s = native_stage(4); pointers(gate_up, gb10_moe_silu_table(), output);
+  auto& s = native_stage(5); pointers(gate_up, gb10_moe_silu_table(), output);
+  if (gate_up != s.native_gate_up) throw std::invalid_argument("Native activation does not own its projection");
   hipLaunchKernelGGL(native_expert_activation, dim3(tokens * 8u * 512u / 256u), dim3(256), 0, nullptr,
       static_cast<const uint16_t*>(gate_up), static_cast<uint16_t*>(output), gb10_moe_silu_table(), tokens * 8u * 512u);
   check(hipGetLastError(), "Native MoE expert activation"); ++s.native_stage;
+  s.native_activation = output;
 }
 void Gb10NativeMoeScope::finish(const void* weighted, const void* shared, void* routed, void* combined) {
   if (completed_ || owner_ != active) throw std::logic_error("Native MoE scope expired");
-  auto& s = native_stage(5); pointers(weighted, shared, routed); pointers(weighted, shared, combined);
+  auto& s = native_stage(7); pointers(weighted, shared, routed); pointers(weighted, shared, combined);
+  if (weighted != s.native_weighted) throw std::invalid_argument("Native combine does not own its projection");
   pointers(residual_, shared, routed); pointers(residual_, shared, combined);
   if (routed == combined || output_ == routed || output_ == combined || output_ == weighted || output_ == shared)
     throw std::invalid_argument("Native MoE output aliases live intermediates");
@@ -379,8 +410,9 @@ void Gb10NativeMoeScope::finish(const void* weighted, const void* shared, void* 
   if (invalid) throw std::runtime_error("Native MoE rejected nonfinite operands");
   s.pending = true; s.pending_carrier = output_; s.next_layer = layer_ + 1;
   s.native_inflight = false; completed_ = true;
-  std::fprintf(stderr, "{\"event\":\"native_moe_prefill\",\"layer\":%zu,\"tokens\":8192,\"expert_kernels\":2,"
-      "\"router_weights\":\"float32\",\"silu\":\"bf16_table\",\"carrier\":\"unrounded_float32\"}\n", layer_);
+  std::fprintf(stderr, "{\"event\":\"native_moe_prefill\",\"layer\":%zu,\"tokens\":8192,\"expert_projections\":2,"
+      "\"router_weights\":\"float32\",\"silu\":\"bf16_table\",\"carrier\":\"unrounded_float32\","
+      "\"expert_projection\":\"fp32_wmma_sm121_replay\"}\n", layer_);
 }
 bool gb10_moe_input_norm(std::size_t layer, const void* carrier,
     const void* weight, void* output, std::size_t count) {
