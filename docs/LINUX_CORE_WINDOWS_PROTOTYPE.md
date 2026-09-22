@@ -275,3 +275,22 @@ actual conversion kernels (33027 values and guard regions), cold/seeded provider
 selection, FP32 state forwarding, decode arithmetic flags and injected failures
 under ASan/UBSan. This test records HIP launches without executing a model.
 Windows native compilation and the original q8192/out512 gate remain required.
+
+Source `4a91bbf` now passes native compilation and completes the original
+request. Its first 91 outputs match; output91 is248046 instead of196, with419
+differences in total. First144/10.375 remains correct. The layer0 prefill state
+has360427 FP32 differences, maximum0.0250058621; the first decode core has362
+BF16 differences. Crucially, same-input CPU replay matches every one of the
+GPU's524288 updated FP32 state cells and4096 BF16 core values. The remaining
+selected-step differences therefore enter through its inputs/state.
+Diagnostic load/TTFT/TPOT are25709.4953/11793.0976/38.2652184ms. Host checks
+and cleanup pass. [Native GDN result](../benchmarks/correctness/linux-core-gb10-gdn-native-failure-20260922.json).
+
+With the GDN option and an existing output-observation request, the probe also
+records the final row of each64-token prefill chunk. It samples normalization,
+QKV/Z/A/B projection, convolution, core, gated norm and attention output for the
+selected layer. The128 fixed row indices are63,127,...,8191. Sampling gathers
+into dead adapter scratch and uses the unchanged bounded output-only collector.
+No observation inputs are read. Additional host checks cover4096 samples,
+source immutability, redzones, layer selection and five observer faults. A native
+run must verify both the new data and unchanged model outputs.

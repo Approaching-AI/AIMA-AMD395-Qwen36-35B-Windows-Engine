@@ -167,6 +167,13 @@ int run(const std::vector<std::string>& argv) {
 #endif
 #ifdef AIMA_PORT_GB10_GDN
   aima_port::Gb10GdnOwner gdn;
+  if (observation) {
+    aima_port::set_gdn_prefill_observer(
+        aima_port::observation_number(args.at("--observe-linear-layer"), 39),
+        [](const char* name, const void* device, std::size_t bytes, void* owner) {
+          static_cast<Observation*>(owner)->capture(name, device, bytes, "bf16");
+        }, observation.get());
+  }
 #endif
   aima::NativeResidentEngineOptions options;
   options.weights.model_dir = model;

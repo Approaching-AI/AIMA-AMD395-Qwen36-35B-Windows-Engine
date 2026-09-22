@@ -66,6 +66,9 @@ struct State {
   Launch cold = nullptr, seeded = nullptr;
   std::array<Device, 40> gate;
   Device beta, prefill_beta, exp2, rsqrt, raw, gates, output, decode_ab;
+  GdnPrefillObserver observer = nullptr;
+  void* observer_context = nullptr;
+  std::size_t observer_layer = 0;
   ~State() {
     if (library) {
       hipDeviceSynchronize();
@@ -103,6 +106,12 @@ static __global__ void prepare_decode(const uint16_t* conv, const uint16_t* a,
 static __global__ void copy_core(const float* source, uint16_t* output, unsigned count) {
   const unsigned i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i < count) output[i] = qrt_sm121_q1::bf16(source[i]);
+}
+static __global__ void sample_prefill(const uint16_t* source, uint16_t* samples,
+                                     unsigned columns) {
+  const unsigned i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < 128u * columns)
+    samples[i] = source[((i / columns + 1u) * 64u - 1u) * columns + i % columns];
 }
 State& bound(std::size_t layer, const void* conv, const void* a, const void* b,
              void* output, void* state) {
@@ -153,10 +162,32 @@ Gb10GdnOwner::Gb10GdnOwner() : impl_(std::make_unique<Impl>()) {
 }
 Gb10GdnOwner::~Gb10GdnOwner() { if (active == &impl_->state) active = nullptr; }
 
+void set_gdn_prefill_observer(std::size_t layer, GdnPrefillObserver callback, void* context) {
+  if (!active || layer >= 40 || layer % 4 == 3 || !callback || !context || active->observer)
+    throw std::runtime_error("GDN prefill observation owner is invalid");
+  active->observer = callback;
+  active->observer_context = context;
+  active->observer_layer = layer;
+}
+void observe_gdn_prefill(std::size_t layer, const char* name, const void* values,
+                         std::size_t columns, std::size_t tokens) {
+  if (!active || !active->observer || layer != active->observer_layer) return;
+  if (!values || values == active->output.data || !name || tokens != 8192 ||
+      (columns != 32 && columns != 2048 && columns != 4096 && columns != 8192))
+    throw std::runtime_error("GDN prefill observation geometry is invalid");
+  // This buffer is dead at each caller: before the FLA call, or after its
+  // output has been converted into the engine's distinct BF16 destination.
+  hipLaunchKernelGGL(sample_prefill, dim3((128u * columns + 255u) / 256u), dim3(256), 0, nullptr,
+      static_cast<const uint16_t*>(values), active->output.as<uint16_t>(), static_cast<unsigned>(columns));
+  check(hipGetLastError(), "GDN prefill observation gather");
+  active->observer(name, active->output.data, 128u * columns * sizeof(uint16_t), active->observer_context);
+}
+
 void gb10_prefill_gdn(std::size_t layer, const void* conv, const void* a,
     const void* b, void* output, void* state, std::size_t tokens, bool has_initial) {
   auto& s = bound(layer, conv, a, b, output, state);
   if (tokens != 8192) throw std::runtime_error("GDN experiment requires exact q8192 prefill");
+  observe_gdn_prefill(layer, "prefill-conv-sampled", conv, 8192, tokens);
   hipLaunchKernelGGL(prepare_prefill, dim3(tokens * 8192u / 256u), dim3(256), 0, nullptr,
       static_cast<const uint16_t*>(conv), static_cast<const uint16_t*>(a), static_cast<const uint16_t*>(b),
       s.raw.as<float>(), s.gates.as<float>(), s.gate[layer].as<float>(), s.prefill_beta.as<uint16_t>(),
@@ -169,6 +200,7 @@ void gb10_prefill_gdn(std::size_t layer, const void* conv, const void* a,
   hipLaunchKernelGGL(copy_core, dim3(tokens * 4096u / 256u), dim3(256), 0, nullptr,
       s.output.as<float>(), static_cast<uint16_t*>(output), static_cast<unsigned>(tokens * 4096u));
   check(hipGetLastError(), "GDN prefill output conversion");
+  observe_gdn_prefill(layer, "prefill-core-sampled", output, 4096, tokens);
 }
 void gb10_decode_gdn(std::size_t layer, const void* conv, const void* a,
     const void* b, void* output, void* state, hipStream_t stream) {

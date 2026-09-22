@@ -15,6 +15,10 @@ int seed(const float* raw,const float* gate,float* output,float* state,int decay
   fake_events.back()="seeded";return result;
 }
 const char* failure(){return "injected provider failure";}
+void observed(const char*name,const void*pointer,std::size_t bytes,void*context) {
+  assert(std::string(name)=="prefill-a-sampled" && pointer==active->output.data);
+  assert(bytes==128*32*2 && context==&calls);fake_events.push_back("observed");
+}
 template<class F> void reject(F fn){bool bad=false;try{fn();}catch(const std::exception&){bad=true;}assert(bad);}
 int main(int argc,char**argv) {
   assert(argc==2);
@@ -43,6 +47,13 @@ int main(int argc,char**argv) {
   uint16_t out[]={0,0,0,0x1234};
   for(unsigned i=0;i<4;++i){blockIdx=dim3(0);threadIdx=dim3(i);copy_core(values,out,3);}
   assert(out[0]==0x3f80&&out[1]==0x3f82&&out[2]==0xbf82&&out[3]==0x1234);
+  std::vector<uint16_t> sample_input(8192*32),samples(128*32+256,0x1234);
+  for(unsigned i=0;i<sample_input.size();++i)sample_input[i]=uint16_t(i);
+  const auto preserved=sample_input;
+  for(unsigned i=0;i<samples.size();++i){blockIdx=dim3(i/256);threadIdx=dim3(i%256);sample_prefill(sample_input.data(),samples.data(),32);}
+  for(unsigned i=0;i<128*32;++i)assert(samples[i]==preserved[((i/32+1)*64-1)*32+i%32]);
+  for(unsigned i=128*32;i<samples.size();++i)assert(samples[i]==0x1234);
+  assert(sample_input==preserved);
   // Exercise the actual wrapper against a recording provider. Scratch owners
   // are deliberately distinct; kernels are recorded rather than GPU-executed.
   State s;for(Device* d:{&s.raw,&s.gates,&s.output,&s.decode_ab,&s.gate[0],&s.beta,&s.prefill_beta,&s.exp2,&s.rsqrt})d->allocate(64);
@@ -61,7 +72,18 @@ int main(int argc,char**argv) {
   reject([&]{gb10_decode_gdn(3,conv.data(),a.data(),b.data(),out,&state,nullptr);});
   reject([&]{gb10_decode_gdn(40,conv.data(),a.data(),b.data(),out,&state,nullptr);});
   reject([&]{gb10_decode_gdn(0,nullptr,a.data(),b.data(),out,&state,nullptr);});
-  reject([&]{Gb10GdnOwner duplicate;});active=nullptr;
+  reject([&]{Gb10GdnOwner duplicate;});
+  fake_stream=nullptr;fake_events.clear();
+  set_gdn_prefill_observer(0,observed,&calls);
+  observe_gdn_prefill(1,"prefill-a-sampled",a.data(),32,8192);assert(fake_events.empty());
+  observe_gdn_prefill(0,"prefill-a-sampled",a.data(),32,8192);
+  assert(fake_events==std::vector<std::string>({"sample_prefill","observed"}));
+  reject([&]{set_gdn_prefill_observer(0,observed,&calls);});
+  reject([&]{observe_gdn_prefill(0,"prefill-a-sampled",nullptr,32,8192);});
+  reject([&]{observe_gdn_prefill(0,"prefill-a-sampled",s.output.data,32,8192);});
+  reject([&]{observe_gdn_prefill(0,"prefill-a-sampled",a.data(),31,8192);});
+  reject([&]{observe_gdn_prefill(0,"prefill-a-sampled",a.data(),32,8191);});
+  active=nullptr;
   reject([&]{gb10_decode_gdn(0,conv.data(),a.data(),b.data(),out,&state,nullptr);});
   // The production input reader checks exact byte length and SHA, including
   // artifact replacement with unchanged length.
@@ -71,5 +93,5 @@ int main(int argc,char**argv) {
   assert(read(file,asset)==std::vector<unsigned char>({'a','b','c'}));
   {std::ofstream f(file,std::ios::binary);f<<"abd";}reject([&]{read(file,asset);});
   {std::ofstream f(file,std::ios::binary);f<<"ab";}reject([&]{read(file,asset);});
-  std::cout<<"{\"conversion_values_checked\":33027,\"guards_pass\":true,\"provider_order_pass\":true,\"seeded_state_forwarded\":true,\"decode_q2_flags\":true,\"injected_provider_failure_rejected\":true,\"invalid_bindings_rejected\":6,\"artifact_faults_rejected\":2}\n";
+  std::cout<<"{\"conversion_values_checked\":33027,\"sampled_values_checked\":4096,\"sampling_input_unchanged\":true,\"sampling_guards_pass\":true,\"observer_faults_rejected\":5,\"guards_pass\":true,\"provider_order_pass\":true,\"seeded_state_forwarded\":true,\"decode_q2_flags\":true,\"injected_provider_failure_rejected\":true,\"invalid_bindings_rejected\":6,\"artifact_faults_rejected\":2}\n";
 }

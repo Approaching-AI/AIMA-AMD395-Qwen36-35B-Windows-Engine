@@ -212,6 +212,19 @@ def gb10_gdn_overlays(linear, prefill):
         "      a, b, core, final_state, tokens, options.has_initial_state);\n"
         "  // Two conversion kernels surround one existing FLA provider call.\n"
         "  result.layer.native_pointwise_launches += 2;")
+    prefill = replace(prefill, "  if (q8192_schedule) {\n    aima_port::gb10_prefill_convolution(",
+        "  aima_port::observe_gdn_prefill(options.layer_index, \"prefill-input-norm-sampled\", h1, 2048, tokens);\n"
+        "  aima_port::observe_gdn_prefill(options.layer_index, \"prefill-qkv-sampled\", qkv, 8192, tokens);\n"
+        "  aima_port::observe_gdn_prefill(options.layer_index, \"prefill-z-sampled\", z, 4096, tokens);\n"
+        "  aima_port::observe_gdn_prefill(options.layer_index, \"prefill-a-sampled\", a, 32, tokens);\n"
+        "  aima_port::observe_gdn_prefill(options.layer_index, \"prefill-b-sampled\", b, 32, tokens);\n"
+        "  if (q8192_schedule) {\n    aima_port::gb10_prefill_convolution(")
+    prefill = replace(prefill,
+        "  output_plan.launch(gated, output_weight.device_pointer, attention_output);",
+        "  aima_port::observe_gdn_prefill(options.layer_index, \"prefill-gated-sampled\", gated, 4096, tokens);\n"
+        "  output_plan.launch(gated, output_weight.device_pointer, attention_output);\n"
+        "  aima_port::observe_gdn_prefill(options.layer_index, \"prefill-attention-out-sampled\", attention_output, 2048, tokens);",
+        count=2)
     prefill = replace(prefill, "      (q8192_schedule ? 1 : 0);",
                       "      (q8192_schedule ? 8 : 0);")
     return linear, prefill
