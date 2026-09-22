@@ -434,9 +434,93 @@ def gb10_normalization_overlays(sources, read):
     sources[path] = text
 
 
+
+def gb10_moe_overlays(sources, read):
+    path = "native/src/native_moe_prefill.hip.cpp"
+    text = replace(sources[path], '#include "gb10_gdn.h"',
+        '#include "gb10_gdn.h"\n#include "gb10_moe.h"')
+    text = replace(text, "  const std::size_t bucket_tokens = workspace.context_tokens();",
+        "  if (options.seed_post_attention || options.collect_oracle_comparisons ||\n"
+        "      options.run_routing_diagnostic || !options.boundary_oracle_dir.empty() ||\n"
+        "      !options.chain_output_oracle_dir.empty())\n"
+        "    throw std::invalid_argument(\"GB10 MoE requires live unseeded model operands\");\n"
+        "  const std::size_t bucket_tokens = workspace.context_tokens();")
+    anchor = "  // Match PyTorch's qualified hipBLASLt N=1 preference exactly."
+    code = """  const auto provider_started = std::chrono::steady_clock::now();
+  aima_port::gb10_prefill_moe(options.layer_index, h2, after_attention,
+      router_weight.device_pointer, invocations.tensor_pointer(moe_first, "b_ptr"),
+      invocations.tensor_pointer(moe_first + 1, "b_ptr"),
+      shared_gate_weight.device_pointer, shared_gate_proj_weight.device_pointer,
+      shared_up_proj_weight.device_pointer, shared_down_proj_weight.device_pointer,
+      layer_output, tokens);
+  // The two conversions are native launches; provider-internal dispatch is
+  // opaque here and its completed work stays in the enclosing TTFT interval.
+  result.layer.native_pointwise_launches = 2;
+  result.layer.wall_ms = std::chrono::duration<double, std::milli>(
+      std::chrono::steady_clock::now() - provider_started).count();
+  return result;
+
+"""
+    sources[path] = replace(text, anchor, code + anchor)
+    path = "native/src/native_linear_prefill.hip.cpp"
+    text = replace(sources[path], '#include "gb10_normalization.h"',
+        '#include "gb10_normalization.h"\n#include "gb10_moe.h"')
+    text = replace(text, "  if (options.layer_index == 0) {\n    aima_port::gb10_embedding_norm",
+        "  if (aima_port::gb10_moe_input_norm(options.layer_index, x,\n"
+        "          input_norm_weight.device_pointer, h1, tokens)) {\n"
+        "    ++result.layer.native_pointwise_launches;\n"
+        "  } else if (options.layer_index == 0) {\n    aima_port::gb10_embedding_norm")
+    sources[path] = replace(text,
+        "      (options.layer_index == 0 && !use_vl_rmsnorm ? 1 : 0);",
+        "      (!use_vl_rmsnorm ? 1 : 0);")
+    path = "native/src/native_full_prefill.hip.cpp"
+    text = replace(sources[path], '#include "gb10_normalization.h"',
+        '#include "gb10_normalization.h"\n#include "gb10_moe.h"')
+    sources[path] = replace(text, '  diagnostic_stage("before_input_norm");\n  if (use_mrope) {',
+        '  diagnostic_stage("before_input_norm");\n'
+        "  if (aima_port::gb10_moe_input_norm(options.layer_index, layer_input,\n"
+        "          input_norm_weight.device_pointer, normalized_input, execution_tokens)) {\n"
+        "    ++result.layer.native_pointwise_launches;\n"
+        "  } else if (use_mrope) {")
+    path = "native/src/native_resident_engine.hip.cpp"
+    text = replace(sources[path], '#include "gb10_projection.h"',
+        '#include "gb10_projection.h"\n#include "gb10_moe.h"')
+    text = replace(text, "  ~Impl() {", "  ~Impl() {\n    aima_port::gb10_moe_release_weights();")
+    text = replace(text, "  impl_->metrics.command_to_ready_wall_ms = elapsed_ms(started);",
+        """  const uint16_t* moe_gate_up[40]{};
+  const uint16_t* moe_down[40]{};
+  for (unsigned layer = 0; layer < 40; ++layer) {
+    const auto prefix = "model.language_model.layers." + std::to_string(layer) + ".mlp.experts.";
+    const auto* gu = impl_->weights.find(prefix + "gate_up_proj");
+    const auto* dn = impl_->weights.find(prefix + "down_proj");
+    if (!gu || !dn || !gu->device_pointer || !dn->device_pointer ||
+        gu->payload_bytes != 256ULL * 1024ULL * 2048ULL * 2ULL ||
+        dn->payload_bytes != 256ULL * 2048ULL * 512ULL * 2ULL)
+      throw std::runtime_error("GB10 MoE model registration shape differs");
+    moe_gate_up[layer] = static_cast<const uint16_t*>(gu->device_pointer);
+    moe_down[layer] = static_cast<const uint16_t*>(dn->device_pointer);
+  }
+  aima_port::gb10_moe_register_weights(moe_gate_up, moe_down, 40);
+  impl_->metrics.command_to_ready_wall_ms = elapsed_ms(started);""")
+    sources[path] = text
+    path = "native/src/native_decode_runner.hip.cpp"
+    text = replace(read(path), '#include "aima/native_decode_runner.h"',
+        '#include "aima/native_decode_runner.h"\n#include "gb10_moe.h"')
+    text = replace(text, "  executor.launch(launches[400], stream);",
+        """  const auto* gb10_weight = weights.find("model.language_model.norm.weight");
+  const auto* gb10_output = workspace.find("rmsnorm_final_output");
+  if (!gb10_weight || gb10_weight->payload_bytes != 4096 || !gb10_output ||
+      gb10_output->payload_bytes < 4096 || !gb10_output->device_pointer)
+    throw std::runtime_error("GB10 terminal normalization binding differs");
+  const bool gb10_terminal = aima_port::gb10_moe_terminal_norm(final_hidden_row,
+      gb10_weight->device_pointer, gb10_output->device_pointer, stream);
+  if (!gb10_terminal) executor.launch(launches[400], stream);""")
+    sources[path] = replace(text, "  metrics.aot_launches = 2;", "  metrics.aot_launches = gb10_terminal ? 1 : 2;")
+
+
 def make_overlays(*, rectangular_ck=False, current_text_decode=False,
                   gb10_convolution=False, gb10_gdn=False, gb10_projections=False,
-                  gb10_prefill_projections=False, gb10_normalization=False):
+                  gb10_prefill_projections=False, gb10_normalization=False, gb10_moe=False):
     if gb10_convolution and not current_text_decode:
         raise ValueError("GB10 convolution requires current text decode ownership")
     if gb10_gdn and not gb10_convolution:
@@ -447,6 +531,8 @@ def make_overlays(*, rectangular_ck=False, current_text_decode=False,
         raise ValueError("GB10 prefill projections require the GB10 projection experiment")
     if gb10_normalization and not gb10_prefill_projections:
         raise ValueError("GB10 normalization requires the GB10 prefill projection experiment")
+    if gb10_moe and not gb10_normalization:
+        raise ValueError("GB10 MoE requires the GB10 normalization experiment")
     read = lambda p: (UPSTREAM / p).read_text(encoding="utf-8")
     sources = {}
     loader = "benchmarks/shape-lab/native/src/torch_owned_safetensors_loader.hip.cpp"
@@ -528,6 +614,8 @@ def make_overlays(*, rectangular_ck=False, current_text_decode=False,
             sources[header], sources[prefill])
     if gb10_normalization:
         gb10_normalization_overlays(sources, read)
+    if gb10_moe:
+        gb10_moe_overlays(sources, read)
     # These two upstream enum-to-string functions have no media I/O dependency.
     media = read("native/src/native_media.cpp")
     names = media[media.index("std::string_view native_media_kind_name("):]
@@ -567,6 +655,8 @@ def main():
                         help="Use FP32 q8192 GEMM outputs with existing SM121 staged exact replay")
     parser.add_argument("--gb10-normalization", action="store_true",
                         help="Use GB10 prefill gated norm and unrounded residual variance")
+    parser.add_argument("--gb10-moe", action="store_true",
+                        help="Use the qualified Windows prefill MoE provider and live FP32 carriers")
     args = parser.parse_args()
     inventory = verify_import()
     out = args.out.resolve()
@@ -577,7 +667,7 @@ def main():
                              gb10_convolution=args.gb10_convolution, gb10_gdn=args.gb10_gdn,
                              gb10_projections=args.gb10_projections,
                              gb10_prefill_projections=args.gb10_prefill_projections,
-                             gb10_normalization=args.gb10_normalization)
+                             gb10_normalization=args.gb10_normalization, gb10_moe=args.gb10_moe)
     out.mkdir(parents=True)
     adapted = []
     for relative, text in overlays.items():
@@ -648,6 +738,8 @@ def main():
         sources.append(str(ROOT / "native/linux_core_port/gb10_prefill_projection.hip.cpp"))
     if args.gb10_normalization:
         sources.append(str(ROOT / "native/linux_core_port/gb10_normalization.hip.cpp"))
+    if args.gb10_moe:
+        sources.append(str(ROOT / "native/linux_core_port/gb10_moe.hip.cpp"))
     generated = [dict(path=p.relative_to(out).as_posix(), bytes=p.stat().st_size,
                       sha256=digest(p.read_bytes())) for p in sorted(out.rglob("*")) if p.is_file()]
     report = dict(schema=1, upstream_revision=inventory["revision"],
@@ -713,6 +805,14 @@ def main():
             prefill_moe_observations=12, decode_next_norm_observations=1,
             silu_table_sha256="f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c",
             rsqrt_table="borrowed from the live GB10 GDN owner",
+            model_qualified=False)
+    if args.gb10_moe:
+        report["optional_adaptations"]["gb10_moe"] = dict(
+            prefill="existing Windows MoE provider 9235750, live q8192 inputs and raw model weights",
+            registered_weight_layers=40, preparation_before_ready=True,
+            norm="unrounded FP32 MoE carrier variance, BF16 normalized numerator",
+            carrier_bytes=201326592, provider_internal_dispatch="opaque; completed inside TTFT",
+            scope="cold q8192; ordered layers and final row consumed exactly once",
             model_qualified=False)
     (out / "prepare.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: report[k] for k in ("upstream_revision", "imported_files", "imported_bytes", "image_bytes")}

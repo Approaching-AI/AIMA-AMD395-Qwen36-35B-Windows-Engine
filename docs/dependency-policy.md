@@ -5,7 +5,7 @@ The optional [Windows core prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md) imports
 `ec9934446911fdf376da8eebcd83e7b137efbb7c`. The concrete benefit under evaluation
 is replacing the current multi-second projection, recurrence and MoE route with
 the release's complete native resident computation. A native Windows q8192 run
-now completes, but its continuation fails GB10 at output 115. Its timings remain
+now completes, but its latest continuation fails GB10 at output 2. Its timings remain
 diagnostic, and the product does not select this prototype.
 
 The import includes source, generated schedules, AOT GPU images and upstream
@@ -94,6 +94,23 @@ can overwrite an alias. The existing residual-normalization kernel then
 computes the next layer's input with unrounded variance. This raises the
 normalization owner's added storage to266,240bytes; its copy and extra kernel
 are charged to decode timing. No reference activation is used by inference.
+
+The optional `--gb10-moe` replacement reuses Windows provider `9235750`, whose
+DLL, ten GPU images and two model-independent tables total34,678,280bytes.
+The DLL is914,432bytes; the tables enumerate router exponent and BF16 SiLU
+arithmetic. Existing HIP/hipBLASLt requirements remain. This repairs the
+demonstrated shared-activation rounding and BF16 routing ABI mismatch without
+introducing Python, Triton or CUDA at runtime. Its pinned assets and38 numeric
+settings are validated before model execution.
+
+The bridge reserves201,326,592bytes for two widened live inputs and one FP32
+output. Provider preparation and40-layer immutable weight metadata registration
+run before READY; provider work and its remaining request allocations count
+toward TTFT. The model unregisters those borrowed weight identities before
+freeing them. The unrounded output remains live through the following input
+norm or final prefill norm, then is reused. This initial experiment admits only
+the ordered cold q8192 path. Real-model timing, memory and continuation checks
+are required before extending or packaging it.
 
 The [installed Windows dependency inventory](../benchmarks/correctness/linux-core-windows-dependencies-20260922.json)
 finds a6,012,312-byte hipBLASLt DLL. Its installed data directory contains1078

@@ -42,6 +42,8 @@ def main():
                         help="Use FP32 prefill GEMMs with staged SM121 exact replay")
     parser.add_argument("--gb10-normalization", action="store_true",
                         help="Use GB10 prefill gated norm and unrounded residual variance")
+    parser.add_argument("--gb10-moe", action="store_true",
+                        help="Use the Windows prefill MoE provider and live FP32 carriers")
     args = parser.parse_args()
     host = socket.gethostname()
     if platform.system() != "Windows" or host.split(".")[0].lower() != "baiying":
@@ -145,6 +147,8 @@ def main():
             preparation.append("--gb10-prefill-projections")
         if args.gb10_normalization:
             preparation.append("--gb10-normalization")
+        if args.gb10_moe:
+            preparation.append("--gb10-moe")
         run("prepare", preparation, 120)
         plan = json.loads((prepared / "prepare.json").read_text())
         if "optional_adaptations" in plan:
@@ -177,6 +181,8 @@ def main():
             flags.append("-DAIMA_PORT_GB10_PREFILL_PROJECTIONS=1")
         if args.gb10_normalization:
             flags.append("-DAIMA_PORT_GB10_NORMALIZATION=1")
+        if args.gb10_moe:
+            flags.append("-DAIMA_PORT_GB10_MOE=1")
         flags += [x for p in includes for x in ("-I", p)]
         record["compile_flags"] = [str(x) for x in flags]
         objects = [obj]

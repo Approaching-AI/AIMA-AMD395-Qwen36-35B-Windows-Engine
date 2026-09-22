@@ -1,0 +1,370 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "kind": "linux_core_complete_prefill_moe_replacement_preparation",
+  "base_commit": "e475bc736af2052491f7d9f66898de1c08f667ed",
+  "provider_commit": "9235750e81a899f6843bb9dfd3f11165ad4cdce9",
+  "provider_build_metadata_sha256": "e318a189c68303b4918354e0d29ea6f849d20a6e9df19571a06c0289c8f824e9",
+  "asset_inspection_sha256": "0dcdbcbb14a7d9249418314cefc3336271dfe94a8c31bd78d8fa161cdff15333",
+  "assets": [
+    {
+      "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\q8192-moe\\q8192_selected_moe_down.hsaco",
+      "name": "q8192_selected_moe_down.hsaco",
+      "bytes": 11384,
+      "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+    },
+    {
+      "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\q8192-moe\\q8192_selected_moe_gate_up_silu.hsaco",
+      "name": "q8192_selected_moe_gate_up_silu.hsaco",
+      "bytes": 17752,
+      "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+    },
+    {
+      "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\q8192-moe\\q8192_selected_moe_route_count.hsaco",
+      "name": "q8192_selected_moe_route_count.hsaco",
+      "bytes": 4816,
+      "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+    },
+    {
+      "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\q8192-moe\\q8192_selected_moe_route_padded_prefix.hsaco",
+      "name": "q8192_selected_moe_route_padded_prefix.hsaco",
+      "bytes": 5040,
+      "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+    },
+    {
+      "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\q8192-moe\\q8192_selected_moe_route_prefix_by_program.hsaco",
+      "name": "q8192_selected_moe_route_prefix_by_program.hsaco",
+      "bytes": 4960,
+      "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+    },
+    {
+      "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\q8192-moe\\q8192_selected_moe_route_scatter.hsaco",
+      "name": "q8192_selected_moe_route_scatter.hsaco",
+      "bytes": 5608,
+      "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+    },
+    {
+      "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\q8192-moe\\q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+      "name": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+      "bytes": 7504,
+      "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+    },
+    {
+      "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\q8192-moe\\q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+      "name": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+      "bytes": 7736,
+      "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+    },
+    {
+      "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\q8192-moe\\q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+      "name": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+      "bytes": 6824,
+      "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+    },
+    {
+      "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\q8192-moe\\q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+      "name": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+      "bytes": 6696,
+      "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+    },
+    {
+      "path": "D:\\projects\\AIMA-public-moe-down-compact-20260917-r6\\build\\moe-down-compact-provider\\qrt_triton_moe_q8192_provider.dll",
+      "name": "qrt_triton_moe_q8192_provider.dll",
+      "bytes": 914432,
+      "sha256": "716379525ead68d583b36380261b467e8bfc37cd427f6577a24ee4519cda9891"
+    },
+    {
+      "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\tables\\cuda-router-ex2-fraction-f32.bin",
+      "name": "cuda-router-ex2-fraction-f32.bin",
+      "bytes": 33554432,
+      "sha256": "b2a42c4a626469c986e33e43f16f41bde9d84de94347cd9ceaa1bd68d36bcdf0"
+    },
+    {
+      "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\tables\\cuda-vllm-silu-bf16-domain.bin",
+      "name": "cuda-vllm-silu-bf16-domain.bin",
+      "bytes": 131096,
+      "sha256": "97a2a729266bb0681983aa5b2c6ddffafeaab1bab99c7658a0524b09331a11ac"
+    }
+  ],
+  "asset_bytes": 34678280,
+  "settings": {
+    "settings": {
+      "QRT_PREFILL_DESCRIPTOR_BATCH_PROFILE_MOE_SUBPHASES": "0",
+      "QRT_QWEN36_Q8192_ROUTER_BF16_LOGIT_ENDPOINT": "1",
+      "QRT_QWEN36_RETAINED_Q8192_FUSED_F32_SILU_COMPAT": "1",
+      "QRT_QWEN36_Q8192_ROUTER_HIPBLASLT_BF16": "1",
+      "QRT_QWEN36_CUDA_VLLM_ROUTER_HAWKEYE_MIDPOINT_RADIUS": "512",
+      "QRT_QWEN36_CUDA_VLLM_SHARED_HAWKEYE_MIDPOINT_RADIUS": "512",
+      "QRT_QWEN36_Q8192_VLLM_BF16_RESIDUAL_CARRIER": "1",
+      "QRT_QWEN36_EXACT_ARBITRARY_VLLM_SPLIT_VARIANCE": "1",
+      "QRT_QWEN36_Q8192_VLLM_SORTED_BF16_ROUTE_SUM": "0",
+      "QRT_QWEN36_CUDA_VLLM_MOE_HAWKEYE_MIDPOINT_RADIUS": "512",
+      "QRT_QWEN36_CUDA_VLLM_MOE_UP_HAWKEYE_MIDPOINT_RADIUS": "512",
+      "QRT_QWEN36_CUDA_VLLM_ROUTED_GATE_HAWKEYE_LOW_EXPONENT_THRESHOLD": "0",
+      "QRT_QWEN36_CUDA_VLLM_ROUTED_UP_HAWKEYE_LOW_EXPONENT_THRESHOLD": "0",
+      "QRT_QWEN36_CUDA_VLLM_ROUTED_DOWN_HAWKEYE_LOW_EXPONENT_THRESHOLD": "0",
+      "QRT_QWEN36_Q65536_VLLM_ROUTED_BF16_ENDPOINT": "1",
+      "QRT_QWEN36_Q65536_VLLM_ROUTE_SUM_VT4": "1",
+      "QRT_QWEN36_Q65536_VLLM_ROUTE_SUM_BF16_ENDPOINT": "1",
+      "QRT_QWEN36_SM121_ROUTED_HAWKEYE": "1",
+      "QRT_QWEN36_SM121_MOE_HAWKEYE_ABSOLUTE_ERROR_PPB": "512",
+      "QRT_QWEN36_MOE_COMPACT_ROUTED_HAWKEYE": "1",
+      "QRT_QWEN36_MOE_PREVALIDATED_FLOAT_REPLAY": "1",
+      "QRT_QWEN36_MOE_STAGED_HALF_REPLAY": "1",
+      "QRT_QWEN36_MOE_SHARED_PREVALIDATED_FLOAT_REPLAY": "1",
+      "QRT_QWEN36_MOE_PARTITION_REPLAY": "0",
+      "QRT_QWEN36_MOE_PREPARED_REPLAY": "0",
+      "QRT_QWEN36_MOE_FLOAT_REPLAY": "0",
+      "QRT_QWEN36_MOE_COMPACTION_WINDOW_BLOCKS": "16384",
+      "QRT_QWEN36_MOE_PARALLEL_GATE": "0",
+      "QRT_QWEN36_MOE_EXPERT_ORDER_REPLAY": "1",
+      "QRT_QWEN36_MOE_SHARED_STAGED_HALF_REPLAY": "0",
+      "QRT_QWEN36_MOE_DOWN_CONSUMER_FILTER": "0",
+      "QRT_QWEN36_MOE_CONSUMER_INTERVAL_AUDIT": "0",
+      "QRT_QWEN36_MOE_DOWN_CONSUMER_AUDIT": "0",
+      "QRT_QWEN36_MOE_DOWN_CONSUMER_COMPACT": "1",
+      "QRT_QWEN36_Q8192_SHARED_GATE_HIPBLASLT_HEURISTIC_INDEX": "0",
+      "QRT_QWEN36_Q8192_SHARED_PROJECTION_HIPBLASLT_HEURISTIC_INDEX": "0",
+      "QRT_QWEN36_Q8192_SHARED_DOWN_HIPBLASLT_HEURISTIC_INDEX": "0",
+      "QRT_QWEN36_CUDA_VLLM_ROUTED_DOWN_CONTRIBUTION_HAWKEYE_MIDPOINT_RADIUS": "512"
+    },
+    "profile_sha256": "f6b38bff3c58860e81fd4f5b21e576753c38321d57e0b9bad5cdd23244f4291c",
+    "source_commit": "9235750e81a899f6843bb9dfd3f11165ad4cdce9"
+  },
+  "host_contract": {
+    "result": {
+      "conversion_values_checked": 18435,
+      "guard_elements_checked": 768,
+      "carrier_lane_sums_verified": 768,
+      "original_inputs_unchanged": true,
+      "ordered_layer_calls": 40,
+      "terminal_consumed_once": true,
+      "registered_weights_drained": true,
+      "failed_provider_poisoned": true,
+      "invalid_bindings_and_artifacts_rejected": 133,
+      "gpu_reduction_executed": false
+    },
+    "build_command": [
+      "clang++",
+      "-std=c++17",
+      "-O1",
+      "-ffp-contract=off",
+      "-fsanitize=address,undefined",
+      "-I",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-gb10-moe-local-r1/host-r2/stub",
+      "-I",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/include",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_moe_host_contract_test.cpp",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/src/sha256.cpp",
+      "-o",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-gb10-moe-local-r1/host-r2/host-contract"
+    ],
+    "inputs": [
+      {
+        "path": "native/linux_core_port/gb10_moe_host_contract_test.cpp",
+        "sha256": "e338946b3ef7988a7df4750d0badc50701eb5fa28ee762167b4a461c83aa44d5"
+      },
+      {
+        "path": "tools/test_linux_core_moe.py",
+        "sha256": "1047d96753dcf448645891e8bbf5c0c19e6318682aca0619fb983ee815be1672"
+      },
+      {
+        "path": "tools/test_linux_core_gdn.py",
+        "sha256": "7d9d6e05b721f17b4245a9c31f6d78a2d729f7bd251c024e662db91c8d47f517"
+      },
+      {
+        "path": "native/linux_core_port/gb10_moe.hip.cpp",
+        "sha256": "b92c9df2cb3266bec6d75de7f50e618204d3dbf70580b25d7306abcc2e5de7e7"
+      },
+      {
+        "path": "native/linux_core_port/gb10_moe.h",
+        "sha256": "12c83e491d51eee3ac1fd396c966535797af9d00970902b37f88a6d309b30087"
+      },
+      {
+        "path": "native/linux_core_port/gb10_moe_math.h",
+        "sha256": "159f0626f1474d0ec1a6423b1630a4918069a25e03fbb7b54596eb83732649d9"
+      },
+      {
+        "path": "native/linux_core_port/gb10_moe_assets.inc",
+        "sha256": "5943d3e4960407fe3f173c69e61221627aa083aeceed998b214912a84d96d7fb"
+      },
+      {
+        "path": "native/linux_core_port/gb10_gdn.h",
+        "sha256": "c92de42d8a83324b56356df42295ca2f6f7f113b084a0d8e55772282c8898dd1"
+      },
+      {
+        "path": "native/providers/gdn/sm121_mtp_residual_math.h",
+        "sha256": "778b44d6f983e682409dc64aa50d1548d9dffc047d50012204c2ab135b69ac48"
+      },
+      {
+        "path": "native/providers/gdn/sm121_mtp_math.h",
+        "sha256": "0e58296175341d4ded1b69c5318808246721623b25b15404d00b6074d74ebddf"
+      },
+      {
+        "path": "native/providers/gdn/sm121_q1_math.h",
+        "sha256": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb"
+      }
+    ],
+    "stub_sha256": "3b80971b1997375c16bb70d5baeb6689c838b75a37207c67dcb956f7c19737cd",
+    "host_only": true,
+    "model_inference_acceptance": false
+  },
+  "host_contract_sha256": "c83f27dff2001a64a96f271416650ab5b63f5f559a44f8e008eb8f0ac6143d57",
+  "carrier_replay": {
+    "build_command": [
+      "clang++",
+      "-std=c++17",
+      "-O1",
+      "-ffp-contract=off",
+      "-fsanitize=address,undefined",
+      "-I",
+      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-moe-carrier-replay-r1/replay.cpp",
+      "-o",
+      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-moe-carrier-replay-r1/replay"
+    ],
+    "source_sha256": "2c87ef818d9f4aa02bca82def00031206219db4e5c007e9492d434e09162753a",
+    "exe_sha256": "b43790ccb16a643cf64179243409295953b9c9daf4cf476381c54b2b9b231c94",
+    "math_header_sha256": "159f0626f1474d0ec1a6423b1630a4918069a25e03fbb7b54596eb83732649d9",
+    "weight_record_sha256": "3c375ce4963f6ba12bc90a6f265477452c7791a6a5594c92ec2ea40cbfbe8787",
+    "reference_capture_sha256": "355329686dd5cdeb0e20e9f25662697cf289cb02f7313d1845097248c260b08a",
+    "runs": [
+      {
+        "name": "layer1",
+        "command": [
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-moe-carrier-replay-r1/replay",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-00-combined-f32.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-cross-layer-norm-replay-r1/layer1-input-norm-weight.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-01-input-rmsnorm-bf16.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        ],
+        "result": {
+          "elements": 16384,
+          "bf16_mismatches": 0
+        },
+        "input_sha256": [
+          "ddbe42791051874424319d62c07eb9916b0b4358c453f6e74b7d028d36994e9c",
+          "ed4ca80e09d39e7edc8667a8c3b125dfae990a40993eb065c6871a77209549ef",
+          "7863f2807cbc99dc4b61bc435227a73a848af00364c64d0caf445cd4baf0fdeb",
+          "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+        ]
+      },
+      {
+        "name": "terminal",
+        "command": [
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-moe-carrier-replay-r1/replay",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-39-combined-f32.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-moe-carrier-replay-r1/final-norm-weight.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-final-norm-bf16.bin",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+        ],
+        "result": {
+          "elements": 16384,
+          "bf16_mismatches": 0
+        },
+        "input_sha256": [
+          "479f293236e48db16ac53be2c547077174b6bfd9da15cdbbf147d9b17a08bf27",
+          "9a4ede401f74db51281f9d2d48213c62c11f63b6109e40b5dba690dd9df624c5",
+          "2ae466b0a94ff1e5c8d1705e80c01c2aa325ee19a38bec18b7e5efe1a95d284c",
+          "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+        ]
+      }
+    ],
+    "host_only": true,
+    "inference_acceptance": false
+  },
+  "carrier_replay_sha256": "8042f7d8f3136e316aac3c17337336eb5c1165c2ce47f22819dbaa3d1a2e3e78",
+  "preparation": {
+    "old_modes": [
+      {
+        "options": {},
+        "overlays": 7,
+        "byte_identical": true
+      },
+      {
+        "options": {
+          "rectangular_ck": true
+        },
+        "overlays": 7,
+        "byte_identical": true
+      },
+      {
+        "options": {
+          "rectangular_ck": true,
+          "current_text_decode": true
+        },
+        "overlays": 7,
+        "byte_identical": true
+      },
+      {
+        "options": {
+          "rectangular_ck": true,
+          "current_text_decode": true,
+          "gb10_convolution": true
+        },
+        "overlays": 9,
+        "byte_identical": true
+      },
+      {
+        "options": {
+          "rectangular_ck": true,
+          "current_text_decode": true,
+          "gb10_convolution": true,
+          "gb10_gdn": true
+        },
+        "overlays": 9,
+        "byte_identical": true
+      },
+      {
+        "options": {
+          "rectangular_ck": true,
+          "current_text_decode": true,
+          "gb10_convolution": true,
+          "gb10_gdn": true,
+          "gb10_projections": true
+        },
+        "overlays": 10,
+        "byte_identical": true
+      },
+      {
+        "options": {
+          "rectangular_ck": true,
+          "current_text_decode": true,
+          "gb10_convolution": true,
+          "gb10_gdn": true,
+          "gb10_projections": true,
+          "gb10_prefill_projections": true
+        },
+        "overlays": 11,
+        "byte_identical": true
+      },
+      {
+        "options": {
+          "rectangular_ck": true,
+          "current_text_decode": true,
+          "gb10_convolution": true,
+          "gb10_gdn": true,
+          "gb10_projections": true,
+          "gb10_prefill_projections": true,
+          "gb10_normalization": true
+        },
+        "overlays": 15,
+        "byte_identical": true
+      }
+    ],
+    "new_overlay_count": 16,
+    "registration_before_ready": true,
+    "release_before_model_free": true,
+    "missing_prerequisite_rejected": true,
+    "model_inference_acceptance": false
+  },
+  "prepared_sha256": "7ebe5d0e0e9b6e42003a43f00c8098b90ca221545a5b1e623e3ddfc3fd728848",
+  "compilation_units": 58,
+  "overlays": 16,
+  "images": 72,
+  "fixed_carrier_bytes": 201326592,
+  "reference_capture_sha256": "355329686dd5cdeb0e20e9f25662697cf289cb02f7313d1845097248c260b08a",
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_acceptance": false
+}

@@ -164,6 +164,20 @@ differences. The next implementation addresses the complete prefill MoE and
 its cross-layer variance boundary.
 [Qualified prefill diagnosis](../benchmarks/correctness/linux-core-gb10-prefill-moe-diagnosis-20260922.json).
 
+The optional `--gb10-moe` route replaces the complete prefill MoE with the
+existing Windows provider `9235750`, using live normalized inputs and model
+weights. It retains the unrounded FP32 layer output for the following input
+norm and terminal prefill norm. An ordered, single-consumption carrier check
+rejects stale, aliased or differently shaped bindings. All40 weight pairs are
+registered before READY and unregistered before model destruction.
+ASan/UBSan checks exercise40 ordered calls,133 rejected bindings/artifacts,
+18,435 conversion values and768 residual reduction lanes. Original-operand
+replay matches all16,384 observed layer-one norm values and all16,384 terminal
+norm values. Eight previous preparation modes remain byte-identical; this
+mode prepares58 native units,72 images and16 overlays. GPU/model acceptance
+is still pending.
+[MoE replacement preparation](../benchmarks/correctness/linux-core-gb10-moe-preparation-20260922.json).
+
 Diagnostic load/TTFT/TPOT are25810.6137/28908.8576/67.1387918ms. All host checks
 and cleanup pass, with93 verified observations totaling19296194bytes. No
 performance or release qualification is claimed.

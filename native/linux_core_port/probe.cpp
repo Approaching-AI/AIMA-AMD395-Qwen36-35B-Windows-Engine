@@ -26,6 +26,9 @@
 #ifdef AIMA_PORT_GB10_NORMALIZATION
 #include "gb10_normalization.h"
 #endif
+#ifdef AIMA_PORT_GB10_MOE
+#include "gb10_moe.h"
+#endif
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -192,6 +195,9 @@ int run(const std::vector<std::string>& argv) {
 #endif
 #ifdef AIMA_PORT_GB10_NORMALIZATION
   aima_port::Gb10NormalizationOwner normalization;
+#endif
+#ifdef AIMA_PORT_GB10_MOE
+  aima_port::Gb10MoeOwner moe;
 #endif
   aima::NativeResidentEngineOptions options;
   options.weights.model_dir = model;
