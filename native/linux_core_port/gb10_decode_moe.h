@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 
 namespace aima_port {
@@ -27,6 +28,10 @@ struct Gb10DecodeMoeBuffers {
   void *routed_gate_up, *routed_activation, *routed_weighted, *routed_output, *combined;
 };
 bool gb10_decode_moe_enabled();
+// Borrow immutable, identity-verified tables during cold prefill. The decode
+// owner stays alive through the complete request and remains idle here.
+const uint16_t* gb10_moe_silu_table();
+const uint32_t* gb10_moe_router_exp_table();
 // Ordered layers0..39 per token, default stream only. The device error flag
 // accumulates across the complete token and is checked at layer39 before any
 // token can be published. Launch/flag failures poison this request owner.

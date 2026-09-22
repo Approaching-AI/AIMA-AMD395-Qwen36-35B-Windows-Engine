@@ -95,6 +95,16 @@ Gb10DecodeMoeOwner::~Gb10DecodeMoeOwner() {
   if (active == &impl_->state) { hipDeviceSynchronize(); active = nullptr; }
 }
 bool gb10_decode_moe_enabled() { return active != nullptr; }
+const uint16_t* gb10_moe_silu_table() {
+  if (!active || active->poisoned || !active->silu.data)
+    throw std::runtime_error("MoE SiLU table owner is unavailable");
+  return active->silu.as<uint16_t>() + 12;
+}
+const uint32_t* gb10_moe_router_exp_table() {
+  if (!active || active->poisoned || !active->router_exp.data)
+    throw std::runtime_error("MoE router table owner is unavailable");
+  return active->router_exp.as<uint32_t>();
+}
 void gb10_decode_moe(std::size_t layer, const void* input, const Gb10DecodeMoeWeights& w,
     const Gb10DecodeMoeBuffers& o, void* stream) {
   if (!active || active->poisoned || active->needs_terminal_save || active->terminal_carrier ||

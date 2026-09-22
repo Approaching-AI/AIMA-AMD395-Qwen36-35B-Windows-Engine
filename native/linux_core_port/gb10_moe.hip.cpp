@@ -3,6 +3,8 @@
 #include <hip/hip_runtime.h>
 #include "gb10_moe_math.h"
 #include "gb10_gdn.h"
+#include "gb10_decode_moe.h"
+#include "../providers/gdn/sm121_mtp_moe_math.h"
 #include "aima/sha256.h"
 #include "dlfcn.h"
 #include <algorithm>
@@ -60,11 +62,16 @@ struct State {
   float* storage = nullptr;
   std::array<const uint16_t*, 40> gate_up{}, down{};
   bool registered = false, pending = false, poisoned = false;
+  bool native_prefill = false, native_inflight = false;
+  unsigned native_stage = 0;
   std::size_t next_layer = 0;
   void* pending_carrier = nullptr;
   float* input() const { return storage; }
   float* residual() const { return storage + elements; }
   float* output() const { return storage + 2u * elements; }
+  // These two provider conversion slabs are idle during a native layer.
+  uint32_t* native_invalid() const { return reinterpret_cast<uint32_t*>(input()); }
+  float* native_weights() const { return residual(); }
   ~State() {
     if (library) {
       hipDeviceSynchronize();
@@ -79,6 +86,70 @@ State& bound() {
   if (!active || !active->registered || active->poisoned || !active->storage)
     throw std::runtime_error("MoE owner and model registration are incomplete");
   return *active;
+}
+bool native_setting() {
+  const char* value = std::getenv("AIMA_PORT_NATIVE_MOE_PREFILL");
+  if (!value || !*value || std::string(value) == "0") return false;
+  if (std::string(value) != "1") throw std::invalid_argument("Unsupported native MoE mode");
+  return true;
+}
+State& native_stage(unsigned stage) {
+  auto& s = bound();
+  if (!s.native_prefill || !s.native_inflight || s.native_stage != stage)
+    throw std::logic_error("Native MoE stage order differs");
+  return s;
+}
+void pointers(const void* a, const void* b, const void* c) {
+  if (!a || !b || !c || reinterpret_cast<std::uintptr_t>(a) % 2u ||
+      reinterpret_cast<std::uintptr_t>(b) % 2u || reinterpret_cast<std::uintptr_t>(c) % 2u ||
+      a == c || b == c) throw std::invalid_argument("Invalid native MoE stage binding");
+}
+static __global__ void native_shared_gate(const uint16_t* input, const uint16_t* weight, uint16_t* output) {
+  constexpr unsigned lanes = qrt_sm121_shared_gate::lanes;
+  const unsigned token = blockIdx.x * 4u + threadIdx.x / lanes, lane = threadIdx.x % lanes;
+  float sum = qrt_sm121_shared_gate::lane_dot(input + std::size_t(token) * hidden, weight, lane);
+  for (unsigned mask = lanes / 2; mask; mask >>= 1)
+    sum = qrt_sm121_q1::add(sum, __shfl_down(sum, mask, lanes));
+  if (!lane) output[token] = qrt_sm121_q1::bf16(sum);
+}
+static __global__ void native_shared_activation(const uint16_t* gate, const uint16_t* up,
+    uint16_t* output, const uint16_t* silu, unsigned count) {
+  const unsigned i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < count) output[i] = qrt_sm121_mtp::moe_activate(gate[i], up[i], silu);
+}
+static __global__ void native_shared_scale(const uint16_t* gate, const uint16_t* down,
+    uint16_t* output, const uint16_t* sigmoid, unsigned count) {
+  const unsigned i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < count) output[i] = qrt_sm121_mtp::moe_shared_product(gate[i / hidden], down[i], sigmoid);
+}
+static __global__ void native_router(const uint16_t* logits, const uint32_t* exponent,
+    uint32_t* ids, float* weights, uint32_t* invalid) {
+  if (threadIdx.x) return;
+  const unsigned row = blockIdx.x;
+  if (!qrt_sm121_mtp::moe_route(logits + row * 256u, exponent, ids + row * 8u, weights + row * 8u)) {
+    // Keep dispatch in bounds even on a rejected nonfinite row. The persistent
+    // error flag is checked before the carrier can be consumed or published.
+    for (unsigned i = 0; i < 8; ++i) { ids[row * 8u + i] = 0; weights[row * 8u + i] = 0; }
+    atomicOr(invalid, 1u);
+  }
+}
+static __global__ void native_expert_activation(const uint16_t* gate_up, uint16_t* output,
+    const uint16_t* silu, unsigned count) {
+  const unsigned i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i >= count) return;
+  const unsigned base = (i / 512u) * 1024u + i % 512u;
+  output[i] = qrt_sm121_mtp::moe_activate(gate_up[base], gate_up[base + 512u], silu);
+}
+static __global__ void native_combine(const uint16_t* weighted, const uint16_t* shared,
+    const uint16_t* residual, uint16_t* routed, uint16_t* combined, float* carrier,
+    uint16_t* output, uint32_t* invalid, unsigned count) {
+  const unsigned i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i >= count) return;
+  const uint16_t r = qrt_sm121_mtp::moe_routed_sum(weighted + std::size_t(i / hidden) * 8u * hidden, i % hidden);
+  const uint16_t c = qrt_sm121_mtp::moe_output(shared[i], r);
+  const float value = qrt_sm121_q1::add(qrt_sm121_q1::widen(residual[i]), qrt_sm121_q1::widen(c));
+  routed[i] = r; combined[i] = c; carrier[i] = value; output[i] = qrt_sm121_q1::bf16(value);
+  if (!qrt_sm121_mtp::moe_finite(value)) atomicOr(invalid, 2u);
 }
 static __global__ void widen_moe_inputs(const uint16_t* x, const uint16_t* r,
     float* xf, float* rf, unsigned count) {
@@ -133,6 +204,7 @@ Gb10MoeOwner::Gb10MoeOwner() : impl_(std::make_unique<Impl>()) {
   verify(selected("QRT_QWEN36_CUDA_ROUTER_EX2_FRACTION_LUT_PATH"), moe_router_table);
   verify(selected("QRT_QWEN36_CUDA_VLLM_SILU_BF16_DOMAIN_LUT_PATH"), moe_silu_table);
   auto& s = impl_->state;
+  s.native_prefill = native_setting();
   s.library = dlopen(library.c_str(), RTLD_NOW | RTLD_LOCAL);
   if (!s.library) throw std::runtime_error("Cannot load the pinned MoE provider");
   auto prepare = reinterpret_cast<Prepare>(dlsym(s.library, "qrt_triton_moe_q8192_prepare"));
@@ -179,6 +251,7 @@ void gb10_moe_release_weights() noexcept {
   if (hipDeviceSynchronize() != hipSuccess || active->registration(nullptr, nullptr, 0) != 1)
     std::abort();
   active->registered = false; active->pending = false; active->pending_carrier = nullptr;
+  active->native_inflight = false;
   active->gate_up.fill(nullptr); active->down.fill(nullptr);
 }
 void gb10_prefill_moe(std::size_t layer, const void* input, const void* residual,
@@ -187,10 +260,12 @@ void gb10_prefill_moe(std::size_t layer, const void* input, const void* residual
     const void* shared_up_projection, const void* shared_down,
     void* output, std::size_t count, bool terminal_only) {
   auto& s = bound();
-  if (layer >= 40 || count != tokens || s.pending || s.next_layer != layer ||
+  if (layer >= 40 || count != tokens || s.pending || s.native_inflight || s.next_layer != layer ||
       !input || !residual || !router || !shared_gate || !shared_gate_projection ||
       !shared_up_projection || !shared_down || !output || gate_up != s.gate_up[layer] || down != s.down[layer])
     throw std::invalid_argument("Invalid complete q8192 MoE binding or layer order");
+  if (s.native_prefill && layer < 39)
+    throw std::invalid_argument("Native MoE layer reached the external provider");
   if (terminal_only && (layer != 39 || !s.dynamic_launch))
     throw std::invalid_argument("Invalid terminal MoE binding");
   const std::size_t offset = terminal_only ? elements - hidden : 0;
@@ -225,9 +300,92 @@ void gb10_prefill_moe(std::size_t layer, const void* input, const void* residual
     std::fprintf(stderr, "{\"event\":\"terminal_prefill_moe\",\"layer\":39,\"rows\":1,\"carrier_row\":8191}\n");
   else observe_gdn_prefill(layer, "prefill-layer-output-sampled", output, hidden, count);
 }
+bool gb10_native_moe_prefill_enabled(std::size_t layer, std::size_t count) {
+  auto& s = bound();
+  if (!s.native_prefill) return false;
+  if (layer >= 40 || count != tokens) throw std::invalid_argument("Native MoE requires cold q8192");
+  return layer < 39;
+}
+Gb10NativeMoeScope::Gb10NativeMoeScope(std::size_t layer, const void* input, const void* residual,
+    const void* gate_up, const void* down, void* output, std::size_t count)
+    : owner_(nullptr), residual_(residual), output_(output), layer_(layer) {
+  auto& s = bound();
+  if (!gb10_native_moe_prefill_enabled(layer, count) || s.pending || s.native_inflight || s.next_layer != layer ||
+      !input || !residual || !output || gate_up != s.gate_up[layer] || down != s.down[layer])
+    throw std::invalid_argument("Invalid native MoE layer binding");
+  (void)gb10_moe_silu_table(); (void)gb10_moe_router_exp_table(); (void)gb10_sigmoid_table();
+  check(hipMemsetAsync(s.native_invalid(), 0, sizeof(uint32_t), nullptr), "Native MoE error reset");
+  owner_ = &s; s.native_inflight = true; s.native_stage = 0;
+}
+Gb10NativeMoeScope::~Gb10NativeMoeScope() {
+  if (!completed_ && owner_ && active == owner_) {
+    active->poisoned = true; active->native_inflight = false;
+  }
+}
+void* Gb10NativeMoeScope::router_weights() const {
+  if (completed_ || owner_ != active) throw std::logic_error("Native MoE scope expired");
+  auto& s = bound();
+  if (!s.native_inflight) throw std::logic_error("Native MoE scope is inactive");
+  return s.native_weights();
+}
+void gb10_native_moe_shared_gate(const void* input, const void* weight, void* output) {
+  auto& s = native_stage(0); pointers(input, weight, output);
+  hipLaunchKernelGGL(native_shared_gate, dim3(tokens / 4u), dim3(64), 0, nullptr,
+      static_cast<const uint16_t*>(input), static_cast<const uint16_t*>(weight), static_cast<uint16_t*>(output));
+  check(hipGetLastError(), "Native MoE shared gate"); ++s.native_stage;
+}
+void gb10_native_moe_shared_activation(const void* gate, const void* up, void* output) {
+  auto& s = native_stage(1); pointers(gate, up, output);
+  hipLaunchKernelGGL(native_shared_activation, dim3(tokens * 512u / 256u), dim3(256), 0, nullptr,
+      static_cast<const uint16_t*>(gate), static_cast<const uint16_t*>(up), static_cast<uint16_t*>(output),
+      gb10_moe_silu_table(), tokens * 512u);
+  check(hipGetLastError(), "Native MoE shared activation"); ++s.native_stage;
+}
+void gb10_native_moe_shared_scale(const void* gate, const void* down, void* output) {
+  auto& s = native_stage(2); pointers(gate, down, output);
+  hipLaunchKernelGGL(native_shared_scale, dim3(elements / 256u), dim3(256), 0, nullptr,
+      static_cast<const uint16_t*>(gate), static_cast<const uint16_t*>(down), static_cast<uint16_t*>(output),
+      gb10_sigmoid_table(), unsigned(elements));
+  check(hipGetLastError(), "Native MoE shared scale"); ++s.native_stage;
+}
+void gb10_native_moe_router(const void* logits, void* ids) {
+  auto& s = native_stage(3); pointers(logits, s.native_weights(), ids);
+  if (reinterpret_cast<std::uintptr_t>(ids) % alignof(uint32_t))
+    throw std::invalid_argument("Native MoE router indices are misaligned");
+  hipLaunchKernelGGL(native_router, dim3(tokens), dim3(32), 0, nullptr,
+      static_cast<const uint16_t*>(logits), gb10_moe_router_exp_table(), static_cast<uint32_t*>(ids),
+      s.native_weights(), s.native_invalid());
+  check(hipGetLastError(), "Native MoE router"); ++s.native_stage;
+}
+void gb10_native_moe_expert_activation(const void* gate_up, void* output) {
+  auto& s = native_stage(4); pointers(gate_up, gb10_moe_silu_table(), output);
+  hipLaunchKernelGGL(native_expert_activation, dim3(tokens * 8u * 512u / 256u), dim3(256), 0, nullptr,
+      static_cast<const uint16_t*>(gate_up), static_cast<uint16_t*>(output), gb10_moe_silu_table(), tokens * 8u * 512u);
+  check(hipGetLastError(), "Native MoE expert activation"); ++s.native_stage;
+}
+void Gb10NativeMoeScope::finish(const void* weighted, const void* shared, void* routed, void* combined) {
+  if (completed_ || owner_ != active) throw std::logic_error("Native MoE scope expired");
+  auto& s = native_stage(5); pointers(weighted, shared, routed); pointers(weighted, shared, combined);
+  pointers(residual_, shared, routed); pointers(residual_, shared, combined);
+  if (routed == combined || output_ == routed || output_ == combined || output_ == weighted || output_ == shared)
+    throw std::invalid_argument("Native MoE output aliases live intermediates");
+  hipLaunchKernelGGL(native_combine, dim3(elements / 256u), dim3(256), 0, nullptr,
+      static_cast<const uint16_t*>(weighted), static_cast<const uint16_t*>(shared),
+      static_cast<const uint16_t*>(residual_), static_cast<uint16_t*>(routed), static_cast<uint16_t*>(combined),
+      s.output(), static_cast<uint16_t*>(output_), s.native_invalid(), unsigned(elements));
+  check(hipGetLastError(), "Native MoE combine");
+  uint32_t invalid = 0;
+  check(hipMemcpy(&invalid, s.native_invalid(), sizeof(invalid), hipMemcpyDeviceToHost), "Native MoE flag read");
+  if (invalid) throw std::runtime_error("Native MoE rejected nonfinite operands");
+  s.pending = true; s.pending_carrier = output_; s.next_layer = layer_ + 1;
+  s.native_inflight = false; completed_ = true;
+  std::fprintf(stderr, "{\"event\":\"native_moe_prefill\",\"layer\":%zu,\"tokens\":8192,\"expert_kernels\":2,"
+      "\"router_weights\":\"float32\",\"silu\":\"bf16_table\",\"carrier\":\"unrounded_float32\"}\n", layer_);
+}
 bool gb10_moe_input_norm(std::size_t layer, const void* carrier,
     const void* weight, void* output, std::size_t count) {
   auto& s = bound();
+  if (s.native_inflight) throw std::logic_error("Native MoE carrier is incomplete");
   if (layer >= 40 || count != tokens || !carrier || !weight || !output)
     throw std::invalid_argument("Invalid q8192 MoE norm extent");
   if (!layer) {
@@ -243,6 +401,7 @@ bool gb10_moe_input_norm(std::size_t layer, const void* carrier,
 }
 bool gb10_moe_terminal_norm(const void* carrier, const void* weight, void* output, void* stream) {
   auto& s = bound();
+  if (s.native_inflight) throw std::logic_error("Native MoE carrier is incomplete");
   if (!s.pending) return false;
   const auto last = reinterpret_cast<std::uintptr_t>(s.pending_carrier) + (elements - hidden) * sizeof(uint16_t);
   if (s.next_layer != 40 || stream || reinterpret_cast<std::uintptr_t>(carrier) != last)

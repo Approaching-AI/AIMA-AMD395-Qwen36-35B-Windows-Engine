@@ -526,6 +526,20 @@ def gb10_normalization_overlays(sources, read):
 
 
 def gb10_moe_overlays(sources, read):
+    short = json.loads(read("native/aot/gfx1151/q1024-output1/manifest.json"))["kernels"]
+    full = json.loads(read("native/aot/gfx1151/q8192-output2/manifest.json"))["kernels"]
+    short = [k for k in short if k["symbol"] == "fused_moe_kernel"]
+    full = [k for k in full if k["symbol"] == "fused_moe_kernel"]
+    if len(short) != 2 or len(full) != 2:
+        raise ValueError("Native MoE embedded expert inventory changed")
+    for original in full:
+        alternate = next(k for k in short if k["compile_constants"] == original["compile_constants"])
+        abi = [dict(a) for a in original["regular_abi"]]
+        if len(abi) != 22 or abi[3] != dict(name="topk_weights_ptr", type="*bf16"):
+            raise ValueError("Native MoE original routing ABI changed")
+        abi[3]["type"] = "*fp32"
+        if abi != alternate["regular_abi"] or alternate["metadata"] != original["metadata"]:
+            raise ValueError("Native MoE FP32 expert specialization differs")
     path = "native/src/native_moe_prefill.hip.cpp"
     text = replace(sources[path], '#include "gb10_gdn.h"',
         '#include "gb10_gdn.h"\n#include "gb10_moe.h"')
@@ -551,7 +565,73 @@ def gb10_moe_overlays(sources, read):
   return result;
 
 """
-    sources[path] = replace(text, anchor, code + anchor)
+    code = "  if (!aima_port::gb10_native_moe_prefill_enabled(options.layer_index, tokens)) {\n" + code + "  }\n"
+    code += """  if (bucket_tokens != 8192 || comparison_tokens != tokens)
+    throw std::invalid_argument("Native GB10 MoE requires complete q8192 operands");
+  aima_port::Gb10NativeMoeScope native_moe(options.layer_index, h2, after_attention,
+      invocations.tensor_pointer(moe_first, "b_ptr"), invocations.tensor_pointer(moe_first + 1, "b_ptr"),
+      layer_output, tokens);
+  const auto launch_native_expert = [&](unsigned down) {
+    const auto& invocation = launches[moe_first + down];
+    const auto& config = invocation.launch->config;
+    const char* original_hashes[] = {
+      "30348a71be482206c3478c43d4e891d087ec60677e730fd73978cd643210e4b3",
+      "bac31d75e972b351bad278870443786fbe02a3cd96343a7295f965b382ce5e72"};
+    const char* fp32_weight_hashes[] = {
+      "74400a9e30aef4eba9967cd09fabc00f6da884cd76c18ceecd1bc3c20793d4d9",
+      "c254dda5c1ad82ae91601f943510502690c185b9d333252ea8b02fb4736276cb"};
+    if (std::string(invocation.launch->kernel_hash) != original_hashes[down] ||
+        invocation.kernel_params.size() != 22 || invocation.slots.size() != 22 ||
+        config.grid_x != (down ? 146944u : 73472u) || config.grid_y != 1 || config.grid_z != 1 ||
+        config.num_warps != 4 || config.warp_size != 32 || config.shared_memory_bytes != 65536)
+      throw std::runtime_error("Native GB10 MoE captured expert launch differs");
+    const int width = down ? 512 : 2048, columns = down ? 2048 : 1024;
+    const int expected[] = {columns, width, 73472, 65536, width, columns * width, width, columns,
+                           0, 0, 0, 0, 0, 0, 0};
+    for (unsigned i = 0; i < 15; ++i)
+      if (invocation.slots[7 + i].int32_value != expected[i])
+        throw std::runtime_error("Native GB10 MoE expert scalar differs");
+    auto params = invocation.kernel_params;
+    void* native_weights = native_moe.router_weights();
+    params[3] = &native_weights;
+    // The q1024 image has the same specialization and regular ABI except for
+    // the FP32 routing pointer. M, padded capacity and strides are runtime
+    // scalars; retain the live q8192 grid and all original operand pointers.
+    const AotLaunchConfig qualified{config.grid_x, config.grid_y, config.grid_z,
+        config.num_warps, config.warp_size, config.shared_memory_bytes};
+    executor.launch_embedded(fp32_weight_hashes[down], qualified, params);
+  };
+
+"""
+    # Limit substitutions to the live body. The guarded oracle replay below
+    # remains untouched and is unreachable in this unseeded experiment.
+    begin = text.index(anchor)
+    end = text.index("  const std::size_t shared_bytes =", begin)
+    body = text[begin:end]
+    body = replace(body, "  shared_gate_plan.launch(h2, shared_gate_weight.device_pointer,\n                          shared_gate);",
+        "  aima_port::gb10_native_moe_shared_gate(h2, shared_gate_weight.device_pointer, shared_gate);\n"
+        "  ++result.layer.native_pointwise_launches;")
+    body = replace(body, "  result.layer.dense_gemm_launches += 3;", "  result.layer.dense_gemm_launches += 2;")
+    body = replace(body,
+        "  launch_shared_activation(shared_projected_gate,\n                           shared_projected_up,\n"
+        "                           shared_activated,\n                           options.use_vl_shared_expert_semantics, tokens);",
+        "  aima_port::gb10_native_moe_shared_activation(shared_projected_gate, shared_projected_up, shared_activated);")
+    body = replace(body, "  launch_shared_gate(shared_gate, shared_down,\n                     shared_scaled, tokens);",
+        "  aima_port::gb10_native_moe_shared_scale(shared_gate, shared_down, shared_scaled);")
+    body = replace(body, "  launch_router(router_logits, router_scores,\n                router_indices_i64,\n"
+        "                router_indices_i32, topk_weights,\n                router_weights_are_bfloat16,\n"
+        "                options.use_vl_router_semantics, tokens);",
+        "  aima_port::gb10_native_moe_router(router_logits, router_indices_i32);")
+    body = replace(body, "  executor.launch(launches[moe_first]);", "  launch_native_expert(0);")
+    body = replace(body, "  executor.launch(launches[moe_first + 1]);", "  launch_native_expert(1);")
+    body = replace(body, "  launch_expert_activation(expert_gate_up, expert_activated, routed_rows);",
+        "  aima_port::gb10_native_moe_expert_activation(expert_gate_up, expert_activated);")
+    body = replace(body, "  launch_moe_sum(expert_down, routed_moe, tokens);",
+        "  native_moe.finish(expert_down, shared_scaled, routed_moe, combined_moe);")
+    body = replace(body, "  launch_bf16_add_pair(\n      routed_moe, shared_scaled,\n      after_attention, combined_moe,\n"
+        "      layer_output, tokens * kHidden);\n  ++result.layer.native_pointwise_launches;",
+        "  // The native finish already publishes the rounded carrier and retains its FP32 sum.")
+    sources[path] = text[:begin] + code + body + text[end:]
     path = "native/src/native_linear_prefill.hip.cpp"
     text = replace(sources[path], '#include "gb10_normalization.h"',
         '#include "gb10_normalization.h"\n#include "gb10_moe.h"')
@@ -726,9 +806,9 @@ def terminal_prefill_overlays(sources):
     path = "native/src/native_moe_prefill.hip.cpp"
     text = replace(sources[path], '#include "gb10_moe.h"',
         '#include "gb10_moe.h"\n#include "gb10_decode_attention.h"')
-    sources[path] = replace(text, "      layer_output, tokens);",
+    sources[path] = replace(text, "      layer_output, tokens);\n  // The two conversions",
         "      layer_output, tokens, options.layer_index == 39 &&\n"
-        "      aima_port::gb10_prefill_terminal_only_enabled());")
+        "      aima_port::gb10_prefill_terminal_only_enabled());\n  // The two conversions")
 
 
 def make_overlays(*, rectangular_ck=False, current_text_decode=False,
@@ -1124,6 +1204,17 @@ def main():
             norm="unrounded FP32 MoE carrier variance, BF16 normalized numerator",
             carrier_bytes=201326592, provider_internal_dispatch="opaque; completed inside TTFT",
             scope="cold q8192; ordered layers and final row consumed exactly once",
+            optional_native_prefill=dict(environment="AIMA_PORT_NATIVE_MOE_PREFILL", enabled_value="1",
+                layers=list(range(39)), terminal_provider_unchanged=True,
+                experts="imported FP32-routing-weight AOT images with live q8192 scalar/grid ABI",
+                dense="four existing FP32 producer/GB10 replay projections per layer",
+                shared_gate="original CUDA GEMV sixteen-lane accumulation",
+                activation="BF16 SiLU table before BF16 up product, both shared and routed",
+                router="original FP32 softmax/ordered top8 using verified CUDA exponent table",
+                carrier="BF16 routed/shared combine then unrounded FP32 residual sum",
+                tables="borrowed from live GDN and decode MoE owners",
+                additional_device_bytes=0, additional_artifacts=0,
+                flag_check="after each complete native layer, before carrier handoff"),
             optional_decode=dict(environment="AIMA_PORT_DECODE_MOE", enabled_value="1",
                 arithmetic="existing original SM121 complete MoE primitives, singleton live rows",
                 resident_buffers=True, cache_copies=0, weight_copies=0,

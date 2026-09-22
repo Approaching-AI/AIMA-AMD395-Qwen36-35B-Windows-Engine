@@ -4,6 +4,12 @@
 #include <iostream>
 namespace aima_port {
 unsigned char roots[64];
+uint16_t silu_values[65536]{}, sigmoid_values[65536]{};
+uint32_t exponent_values[4]{};
+bool tables_live = true;
+const uint16_t* gb10_sigmoid_table() { if (!tables_live) throw std::runtime_error("Missing table"); return sigmoid_values; }
+const uint16_t* gb10_moe_silu_table() { if (!tables_live) throw std::runtime_error("Missing table"); return silu_values; }
+const uint32_t* gb10_moe_router_exp_table() { if (!tables_live) throw std::runtime_error("Missing table"); return exponent_values; }
 const unsigned char* gb10_rsqrt_table() { return roots; }
 void observe_gdn_prefill(std::size_t, const char*, const void*, std::size_t, std::size_t) {}
 }
@@ -40,6 +46,15 @@ template<class F> void reject(F fn) {
 }
 int main(int argc, char** argv) {
   assert(argc == 2);
+  for (const char* value : {"", "0", "1", "invalid"}) {
+#ifdef _WIN32
+    _putenv_s("AIMA_PORT_NATIVE_MOE_PREFILL",value);
+#else
+    setenv("AIMA_PORT_NATIVE_MOE_PREFILL",value,1);
+#endif
+    if (std::string(value)=="invalid") reject([]{native_setting();});
+    else assert(native_setting()==(std::string(value)=="1"));
+  }
   constexpr unsigned n = 3 * 2048;
   std::vector<uint16_t> x(n), residual(n), output(n + 256, 0x1234);
   std::vector<float> xf(n + 256, -111), rf(n + 256, -222), carrier(n);
@@ -138,6 +153,69 @@ int main(int argc, char** argv) {
   assert(gb10_moe_terminal_norm(last,x.data(),residual.data()));
   assert(!gb10_moe_terminal_norm(last,x.data(),residual.data()));
   assert(!gb10_moe_input_norm(0,x.data(),x.data(),output.data(),8192));
+  // Native layers reuse only the two idle provider conversion slabs. Verify
+  // the FP32 routing pointer, all launch boundaries and exactly-once carrier
+  // handoff, followed by the unchanged terminal provider at layer39.
+  state.native_prefill = true;
+  reject([&]{gb10_native_moe_prefill_enabled(0,8191);});
+  reject([&]{gb10_native_moe_prefill_enabled(40,8192);});
+  assert(!gb10_native_moe_prefill_enabled(39,8192));
+  reject([&]{run(0);});
+  auto native = [&](unsigned layer) {
+    return Gb10NativeMoeScope(layer,x.data(),residual.data(),gu[layer],dn[layer],output.data(),8192);
+  };
+  tables_live=false; reject([&]{auto missing=native(0);}); tables_live=true;
+  reject([&]{auto wrong=native(1);});
+  std::vector<uint16_t> temporary(8192);
+  void *sg=temporary.data(), *gate=temporary.data()+512, *up=temporary.data()+1024,
+       *act=temporary.data()+1536, *sd=temporary.data()+2048, *shared=temporary.data()+2560,
+       *logits=temporary.data()+3072, *ids=temporary.data()+3584, *expert=temporary.data()+4096,
+       *activated=temporary.data()+4608, *weighted=temporary.data()+5120,
+       *routed=temporary.data()+5632, *combined=temporary.data()+6144;
+  unsigned native_layers=0;
+  for (unsigned layer=0;layer<39;++layer) {
+    if(layer) assert(gb10_moe_input_norm(layer,output.data(),x.data(),residual.data(),8192));
+    fake_events.clear(); moe_launches.clear();
+    auto scope=native(layer); ++native_layers;
+    assert(scope.router_weights()==state.native_weights() && state.native_inflight);
+    reject([&]{auto duplicate=native(layer);});
+    reject([&]{scope.finish(weighted,shared,routed,combined);});
+    reject([&]{gb10_moe_input_norm(layer,output.data(),x.data(),residual.data(),8192);});
+    gb10_native_moe_shared_gate(x.data(),x.data(),sg);
+    gb10_native_moe_shared_activation(gate,up,act);
+    gb10_native_moe_shared_scale(sg,sd,shared);
+    gb10_native_moe_router(logits,ids);
+    gb10_native_moe_expert_activation(expert,activated);
+    scope.finish(weighted,shared,routed,combined);
+    assert(fake_events==std::vector<std::string>({"native_shared_gate","native_shared_activation",
+        "native_shared_scale","native_router","native_expert_activation","native_combine"}));
+    assert(moe_launches.size()==6 && moe_launches[3].args[3]==moe_address(state.native_weights()) &&
+        moe_launches[3].args[4]==moe_address(state.native_invalid()));
+    assert(state.pending && !state.native_inflight && state.pending_carrier==output.data());
+    reject([&]{scope.router_weights();}); reject([&]{scope.finish(weighted,shared,routed,combined);});
+  }
+  assert(gb10_moe_input_norm(39,output.data(),x.data(),residual.data(),8192));
+  run(39,8192,true);
+  assert(gb10_moe_terminal_norm(last,x.data(),residual.data()));
+  assert(!gb10_moe_input_norm(0,x.data(),x.data(),output.data(),8192));
+  {auto incomplete=native(0);}
+  assert(state.poisoned && !state.native_inflight); reject([&]{auto poisoned=native(0);});
+  // Explicit fixture reset isolates a device-error failure from abandonment.
+  state.poisoned=false;
+  {
+    auto scope=native(0);
+    gb10_native_moe_shared_gate(x.data(),x.data(),sg);
+    gb10_native_moe_shared_activation(gate,up,act);
+    gb10_native_moe_shared_scale(sg,sd,shared);
+    gb10_native_moe_router(logits,ids);
+    gb10_native_moe_expert_activation(expert,activated);
+    *state.native_invalid()=1;
+    reject([&]{scope.finish(weighted,shared,routed,combined);});
+    assert(!state.pending);
+  }
+  assert(state.poisoned && !state.native_inflight);
+  state.poisoned=false;state.native_prefill=false;
+  assert(!gb10_native_moe_prefill_enabled(0,8192));
   returned = 0; fake_events.clear(); reject([&]{run(0);});
   assert(state.poisoned && fake_events == std::vector<std::string>({"widen_moe_inputs","provider"}));
   reject([&]{run(0);});
@@ -153,5 +231,6 @@ int main(int argc, char** argv) {
       "\"carrier_lane_sums_verified\":768,\"original_inputs_unchanged\":true,"
       "\"ordered_layer_calls\":80,\"terminal_row_only_calls\":1,\"terminal_consumed_once\":true,"
       "\"registered_weights_drained\":true,\"failed_provider_poisoned\":true,"
+      "\"complete_native_layers\":" << native_layers << ",\"native_abandonment_and_device_error_poisoned\":true,"
       "\"invalid_bindings_and_artifacts_rejected\":" << rejected << ",\"gpu_reduction_executed\":false}\n";
 }

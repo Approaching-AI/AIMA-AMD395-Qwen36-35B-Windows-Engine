@@ -1,0 +1,976 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "kind": "native_moe_prefill_structural_replacement_preparation",
+  "source_base_commit": "197c086b1dd0a26f7dacb06333c20afc2bda82d3",
+  "qualified_baseline_source": "0c80a8996d7dd3a6868d896e5e75260ff6354d04",
+  "qualified_baseline_moe_wall_ms": 4927.5989,
+  "native_gdn_disabled": true,
+  "host": "JiaweiMnideMini.lan",
+  "checks": [
+    {
+      "path": "linux-core-native-moe-host-r2/result.json",
+      "sha256": "be1bc6a80944e95924b18311af62037c0314fd9dc102b3dbfe124f5d3ff8014d",
+      "record": {
+        "result": {
+          "conversion_values_checked": 18435,
+          "guard_elements_checked": 768,
+          "carrier_lane_sums_verified": 768,
+          "original_inputs_unchanged": true,
+          "ordered_layer_calls": 80,
+          "terminal_row_only_calls": 1,
+          "terminal_consumed_once": true,
+          "registered_weights_drained": true,
+          "failed_provider_poisoned": true,
+          "complete_native_layers": 39,
+          "native_abandonment_and_device_error_poisoned": true,
+          "invalid_bindings_and_artifacts_rejected": 338,
+          "gpu_reduction_executed": false
+        },
+        "build_command": [
+          "clang++",
+          "-std=c++17",
+          "-O1",
+          "-fno-fast-math",
+          "-ffp-contract=off",
+          "-fsanitize=address,undefined",
+          "-I",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-native-moe-host-r2/stub",
+          "-I",
+          "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/include",
+          "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_moe_host_contract_test.cpp",
+          "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/src/sha256.cpp",
+          "-o",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-native-moe-host-r2/host-contract"
+        ],
+        "inputs": [
+          {
+            "path": "native/linux_core_port/gb10_moe_host_contract_test.cpp",
+            "sha256": "66549e526e81c3861157e868a218e5d6696c1ecd3482c529b39ae9823171d9aa"
+          },
+          {
+            "path": "tools/test_linux_core_moe.py",
+            "sha256": "2568e5863267c3bb3593a01b4a4ea984584921c61a067515d38eb1d0a2eb3df7"
+          },
+          {
+            "path": "tools/test_linux_core_gdn.py",
+            "sha256": "7d9d6e05b721f17b4245a9c31f6d78a2d729f7bd251c024e662db91c8d47f517"
+          },
+          {
+            "path": "native/linux_core_port/gb10_moe.hip.cpp",
+            "sha256": "e0d7597ed046879646decc9b99a0cb480fa48913ec0d0b6529a0d0e908efb5a6"
+          },
+          {
+            "path": "native/linux_core_port/gb10_moe.h",
+            "sha256": "e61d311b9f1bb28dc84f744129eb8dd65dd6be41937c88cb010c71dc9c9782fd"
+          },
+          {
+            "path": "native/linux_core_port/gb10_moe_math.h",
+            "sha256": "159f0626f1474d0ec1a6423b1630a4918069a25e03fbb7b54596eb83732649d9"
+          },
+          {
+            "path": "native/linux_core_port/gb10_moe_assets.inc",
+            "sha256": "5943d3e4960407fe3f173c69e61221627aa083aeceed998b214912a84d96d7fb"
+          },
+          {
+            "path": "native/linux_core_port/gb10_gdn.h",
+            "sha256": "4a624799c65e9bf180d26a585c2e35b4e53652d38f2671b7fd2da36b74579566"
+          },
+          {
+            "path": "native/linux_core_port/gb10_decode_moe.h",
+            "sha256": "d49855c8af63dd2b82ed3e3471d21bfbb9807e2129fe145639977c380927361b"
+          },
+          {
+            "path": "native/providers/gdn/sm121_mtp_residual_math.h",
+            "sha256": "778b44d6f983e682409dc64aa50d1548d9dffc047d50012204c2ab135b69ac48"
+          },
+          {
+            "path": "native/providers/gdn/sm121_mtp_math.h",
+            "sha256": "0e58296175341d4ded1b69c5318808246721623b25b15404d00b6074d74ebddf"
+          },
+          {
+            "path": "native/providers/gdn/sm121_q1_math.h",
+            "sha256": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb"
+          },
+          {
+            "path": "native/providers/gdn/sm121_mtp_moe_math.h",
+            "sha256": "1bca67f5dd6a672d0f0d79f90bf0d3a992c6908dea235b3b028efa29900fb349"
+          },
+          {
+            "path": "native/providers/moe_accumulator/sm121_router_exp.h",
+            "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad"
+          },
+          {
+            "path": "native/providers/moe_accumulator/sm121_shared_gate.h",
+            "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f"
+          }
+        ],
+        "stub_sha256": "7049c66e8190969d7cda3600d0ae3ebab02b599c64d2b0a684b1f3a921011713",
+        "host_only": true,
+        "model_inference_acceptance": false
+      }
+    },
+    {
+      "path": "linux-core-native-moe-decode-host-r1/result.json",
+      "sha256": "fa9bb3c4c8105648f6f275045c9205db5594daf284ee438f81c9ceb9ece30774",
+      "record": {
+        "result": {
+          "complete_layer_bindings": 80,
+          "complete_token_lifetimes": 2,
+          "rejected_controls": 89,
+          "persistent_device_error_checked": true,
+          "terminal_operands_preserved": true,
+          "all_allocations_released": true,
+          "kernel_arithmetic_executed": false
+        },
+        "build_command": [
+          "clang++",
+          "-std=c++17",
+          "-O1",
+          "-fno-fast-math",
+          "-ffp-contract=off",
+          "-fsanitize=address,undefined",
+          "-I",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-native-moe-decode-host-r1/stub",
+          "-I",
+          "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/include",
+          "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_decode_moe_host_contract_test.cpp",
+          "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/src/sha256.cpp",
+          "-o",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-native-moe-decode-host-r1/host-contract"
+        ],
+        "inputs": [
+          {
+            "path": "native/linux_core_port/gb10_decode_moe_host_contract_test.cpp",
+            "sha256": "0c2b02a07fb20a6cf11109f2e7f8391e8a1d7b9a039b9f61b25a6a704fdf6bfe"
+          },
+          {
+            "path": "tools/test_linux_core_decode_moe.py",
+            "sha256": "bc8fd34f97661acc400e21db94116abe3be43b48d86e50ba5945be7c0dce2b76"
+          },
+          {
+            "path": "tools/test_linux_core_decode_attention.py",
+            "sha256": "254015605f9ddcae07e7d83e014369655bc055c52bdbe293ebfc0e0f99c6a95e"
+          },
+          {
+            "path": "native/linux_core_port/gb10_decode_moe.hip.cpp",
+            "sha256": "dd138cf327d7a2ea513f9e0f91acb43b4d199e67907cf18d81861ddd77a7a96e"
+          },
+          {
+            "path": "native/linux_core_port/gb10_decode_moe.h",
+            "sha256": "d49855c8af63dd2b82ed3e3471d21bfbb9807e2129fe145639977c380927361b"
+          },
+          {
+            "path": "native/linux_core_port/gb10_gdn.h",
+            "sha256": "4a624799c65e9bf180d26a585c2e35b4e53652d38f2671b7fd2da36b74579566"
+          },
+          {
+            "path": "native/linux_core_port/gb10_gdn.hip.cpp",
+            "sha256": "ad538bc3ae597663a27ebdfb7feb6d1b31202f8504f41c3f57adaa4adc334d53"
+          },
+          {
+            "path": "native/providers/gdn/sm121_mtp_moe.h",
+            "sha256": "df38e91dae5bc127961813be746da1d5bd8ce8dc0e2fb01782f3aeac896cb52d"
+          },
+          {
+            "path": "native/providers/gdn/sm121_mtp_moe_math.h",
+            "sha256": "1bca67f5dd6a672d0f0d79f90bf0d3a992c6908dea235b3b028efa29900fb349"
+          },
+          {
+            "path": "native/providers/gdn/sm121_mtp_moe_layout.h",
+            "sha256": "aa25ff78b71bd698db2745b2e7a84cfebd565b9d143a81bc4f7e7a302617ff1f"
+          },
+          {
+            "path": "native/providers/gdn/sm121_mtp_projection.h",
+            "sha256": "ffae24eed114ae3c4e53b6d59087fc54570bea49a9de9ffc0f997be71ef8bcf0"
+          }
+        ],
+        "stub_sha256": "c9b980d3e4c70af069993821585cb4ddfd5a196f6c3da4ffe9b4f063de841370",
+        "silu_table_sha256": "97a2a729266bb0681983aa5b2c6ddffafeaab1bab99c7658a0524b09331a11ac",
+        "router_table_sha256": "b2a42c4a626469c986e33e43f16f41bde9d84de94347cd9ceaa1bd68d36bcdf0",
+        "host_only": true,
+        "kernel_arithmetic_executed": false,
+        "model_inference_acceptance": false
+      }
+    },
+    {
+      "path": "linux-core-native-moe-overlay-r2/result.json",
+      "sha256": "a90d12ecc9fa8b90774a6bf3ae94f5034ee70d6fe374b7bd2fbc74444d65a0d6",
+      "record": {
+        "imports_verified": 327,
+        "overlays": [
+          {
+            "path": "benchmarks/shape-lab/native/src/torch_owned_safetensors_loader.hip.cpp",
+            "sha256": "23a3b9e391c0de89bb6369f56e1a178874e97c2a3f9c9e7a7944c627f9f742e5"
+          },
+          {
+            "path": "native/include/aima/native_resident_engine.h",
+            "sha256": "9ddb538b22348b9df78b03946d684231903fcc4b89775e99dd69f04d2762a7e0"
+          },
+          {
+            "path": "native/src/native_resident_engine.hip.cpp",
+            "sha256": "2ec80226214a58fdec5e46441a513f7b5d2b6b3134b2b96061b987ef0380c6f3"
+          },
+          {
+            "path": "native/src/native_linear_layer.hip.cpp",
+            "sha256": "a0bc00ad05e493de1fb3274b15b3d2fabea3a6ba6539fe0efd666a61872dd1a6"
+          },
+          {
+            "path": "native/src/native_linear_prefill.hip.cpp",
+            "sha256": "0f06202e4234473097f9d70404b36b04494e3c2ea5863ef9173dd86292cb91e3"
+          },
+          {
+            "path": "native/src/bf16_wvsplitk.hip.cpp",
+            "sha256": "56441bc448ce7dfde504e899117b7d2c7d840c2343d5f0adc0b00a8d42ea576e"
+          },
+          {
+            "path": "native/src/bf16_gemm.hip.cpp",
+            "sha256": "5c6b334e8cbe47a0c47d81fb5122284d52e7556dfa2e302097324c38f151b846"
+          },
+          {
+            "path": "native/src/native_weight_store.hip.cpp",
+            "sha256": "c55c6a1a79535a8f896fb89e12fabaf8ef3bfb8bceb05db05258aa4bff44738e"
+          },
+          {
+            "path": "native/include/aima/native_full_prefill.h",
+            "sha256": "ab2ef4d8b8ba20f65de68e80e1cdb969b3965bd011c364f55458090a2612c7d9"
+          },
+          {
+            "path": "native/src/native_full_prefill.hip.cpp",
+            "sha256": "5ad99a163422fc1bff89dbd10c880825deaa1b6573a69c99d4532d6311da9f95"
+          },
+          {
+            "path": "native/src/native_full_attention.hip.cpp",
+            "sha256": "179e9682c34994a5811b4b206ad70dcd6c5bfcd8d0c36cb17aae1fd9d69d315e"
+          },
+          {
+            "path": "native/src/native_pointwise.hip.cpp",
+            "sha256": "8663684c0a8c70cf79afbc932aaea0a57447a41d6a0fcf39f434fca12a186150"
+          },
+          {
+            "path": "native/src/native_routed_moe.hip.cpp",
+            "sha256": "cb7bd10427167607967a0a9089556409fa78a6aeeca007ae31f2b900eed02d01"
+          },
+          {
+            "path": "native/src/native_full_layer.hip.cpp",
+            "sha256": "9faa898dda944114dcb7e13ace18832c135939a2a34c618a4d69fb9983478d48"
+          },
+          {
+            "path": "native/src/native_moe_prefill.hip.cpp",
+            "sha256": "0b52d32bfc5cd891fda7726f015b7abc373742878ba337f3aed1ecc10d418a19"
+          },
+          {
+            "path": "native/src/native_decode_runner.hip.cpp",
+            "sha256": "3e50bf36a3093a21ed272d8fb3e02f63df35c075760624310956a8b1d7954542"
+          },
+          {
+            "path": "native/src/media_names.cpp",
+            "sha256": "f15ebe386d1f038dcc434791bb4e911d8b93db61457c6c88842799ebc201948a"
+          }
+        ],
+        "changed_overlays": [
+          "native/src/native_moe_prefill.hip.cpp"
+        ],
+        "previous_commit": "197c086b1dd0a26f7dacb06333c20afc2bda82d3",
+        "same_16_other_overlays": true,
+        "fp32_aot_specialization_and_abi_checked": true,
+        "terminals_unchanged": true,
+        "projection_and_gdn_and_decode_overlays_unchanged": true,
+        "native_build_pending": true,
+        "inference_acceptance": false
+      }
+    },
+    {
+      "path": "linux-core-native-moe-pointwise-replay-r2/result.json",
+      "sha256": "fb84fafbd13866d39c539b40865dfe0212964ef8952bacdd2ea1ffe6992ccb06",
+      "record": {
+        "build_command": [
+          "clang++",
+          "-std=c++17",
+          "-O1",
+          "-fno-fast-math",
+          "-ffp-contract=off",
+          "-fsanitize=address,undefined",
+          "-I",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-native-moe-host-r2/stub",
+          "-I",
+          "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/include",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/replay_native_moe_pointwise_r1.cpp",
+          "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/src/sha256.cpp",
+          "-o",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-native-moe-pointwise-replay-r2/replay"
+        ],
+        "returncode": 0,
+        "result": {
+          "layers": [
+            {
+              "layer": 0,
+              "rows": 8,
+              "differences": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "layer": 1,
+              "rows": 8,
+              "differences": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "layer": 2,
+              "rows": 8,
+              "differences": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "total_differences": 0,
+          "guards_and_nonfinite_rejection_pass": true
+        },
+        "host_only": true,
+        "inference_acceptance": false,
+        "source_sha256": "0703431cdf3586e464a30c8c23ceefe71d4999f3303e4af9ed6a989c803aa89b",
+        "executable_sha256": "623d111a675e8f445d99d441a2af79a8d2318ecfb5e3f234bd3e7959ce38acad",
+        "inputs": [
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-00-combined-f32.bin",
+            "sha256": "ddbe42791051874424319d62c07eb9916b0b4358c453f6e74b7d028d36994e9c",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-01-combined-f32.bin",
+            "sha256": "372ea61f7b56599627ece0a36c407078ea8d141e9cc6cac4fba0afe743a3d5dc",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-02-combined-f32.bin",
+            "sha256": "74d6367fa23ad6fe6cfbce5dc802a44eb56515660775cb503138103878b67e3b",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-03-combined-f32.bin",
+            "sha256": "e8c313b2870d8cc1fff4af12a4a8196387854cb9bd1c8beec8685bd743f3847d",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-04-combined-f32.bin",
+            "sha256": "eb25c3a784a76fea9ad2b1950863a5f329ddf11adcb76c951b4dc0aa5c039157",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-05-combined-f32.bin",
+            "sha256": "d674705f55348affd5a98cea4bb993be201ca8e0d5e38210b39027bce640ce41",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-06-combined-f32.bin",
+            "sha256": "c030d221011a20edbccb37816718e87927abb7888ce84c2bdf5cbeb3385ff008",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-07-combined-f32.bin",
+            "sha256": "9272daada5c701c07ba2e48d9aa93741b68bef200690d8778c244178ac16dd7d",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-08-combined-f32.bin",
+            "sha256": "d6caefe9f77624bc9bf4e911115745b1531e05ae04c6f5a918daa912ce5eddb5",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-09-combined-f32.bin",
+            "sha256": "d48b69d7e8547effe3d8c64bd0acf8dd2f3908a351a70724fbfef90e8c993624",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-10-combined-f32.bin",
+            "sha256": "a10cc3c9fece256b69c9a333ac56c8d1679aaba7d8ee2e3d7cfb3a0348f723d2",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-11-combined-f32.bin",
+            "sha256": "50752643d81393dbd4807cf5c46843747d43079cf7bde1f81661e74979694724",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-12-combined-f32.bin",
+            "sha256": "f063c6d3d26771148b4271430fac28faab97a25adc5adee2508797583a81ad8f",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-13-combined-f32.bin",
+            "sha256": "4d635e36a8fda96a2561dbf8856319622d019ba2bb2d9123b2d481de9d346110",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-14-combined-f32.bin",
+            "sha256": "e35c920084f3d32d59b6c076ebc305dce1e1bf2a51a1128aa3ab2329cb9e451b",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-15-combined-f32.bin",
+            "sha256": "d5054983cd01f2dc612313259a799f947e8764a85f140e6959e8d1f381dec614",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-16-combined-f32.bin",
+            "sha256": "9499013637e374a090e5a5b150d7afb942cc5a600d732bb605b6a0ed49550c33",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-17-combined-f32.bin",
+            "sha256": "f6f865577fcb4f34b07715e71e2e4480eb65f1c3ade69637eae13bf8e4b3e608",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-18-combined-f32.bin",
+            "sha256": "e663d7817003ed3434136a255a83546e92115351173207a691f1dc495f16deb9",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-19-combined-f32.bin",
+            "sha256": "c91c4cb8bd341c7227eb9b6e6f130cf8a4f55b157c6197a7df3728b74f566437",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-20-combined-f32.bin",
+            "sha256": "c5c9286b922fde37aa49391da6fec6f394e8bf53dba68bb176eef9683b0edcc8",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-21-combined-f32.bin",
+            "sha256": "953a52f2791f6654b14c94334db7cb9dcb322aeefd78329516288d7c16a78f65",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-22-combined-f32.bin",
+            "sha256": "39d6c9e7c48d4f05a31fa20e55615e23ac512afa354c28a8c8b1b288391a1986",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-23-combined-f32.bin",
+            "sha256": "0f59c235a1df598c09baaf9bb7c23c47527541b1347e9d345d5e9ed9685509a0",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-24-combined-f32.bin",
+            "sha256": "e6b8acee629aaf72f6fef94f3692eaadd88f7f8939aef57070fbe2215fe42ae7",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-25-combined-f32.bin",
+            "sha256": "f9534ba2ac65a999bf310c99b63929c9109eed443932160f2ffdb0b79cbf35fa",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-26-combined-f32.bin",
+            "sha256": "46af1487f967f65897a52734c7a237cc20afb53cefd70034c069fe2607772474",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-27-combined-f32.bin",
+            "sha256": "5b129ea6eaeb8b92e72011e6ec406c29548085d3a154d41bb92956e3284b59e5",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-28-combined-f32.bin",
+            "sha256": "1cc819ab80b5b190e49670ab57a45a29d2c7e2b323d2ca69d3d19fa60c76749e",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-29-combined-f32.bin",
+            "sha256": "af59681c047a0dda1c41853b5ed5af8540cad702f6ca65217d2f1970430f33c9",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-30-combined-f32.bin",
+            "sha256": "327c1a28d61b3b38d99651ff441e5fc2f00acabcdc1752f3541ac4daa5b64e0d",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-31-combined-f32.bin",
+            "sha256": "77c22c637fc0f61d62411846a7e56a390b53044b121ed89530fac4997ec48b37",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-32-combined-f32.bin",
+            "sha256": "87b44ca89ea7dc45dd919ffca1ee12b0c3700437fea03aa76b600f45208ffd8c",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-33-combined-f32.bin",
+            "sha256": "7dd4fba35051b26e1b3c5653675b986827f071bd05ad140d563d8e56674a104b",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-34-combined-f32.bin",
+            "sha256": "82f7922f43a16fd7c711d4f249c460adc75849e770f9d6e486c8cd38ec0fc616",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-35-combined-f32.bin",
+            "sha256": "b7d4d70c9554ea70e72598640933e94f51feabb1316e918b9814dd096d9849dc",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-36-combined-f32.bin",
+            "sha256": "ae1bae6f47dcdba67b8dc12296a73909f668419d2573e2b6b92b238d8b605ea0",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-37-combined-f32.bin",
+            "sha256": "349f28d74f469a501e44915ba37f2876276b72c7834526340b752d83ed654df1",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-38-combined-f32.bin",
+            "sha256": "c655d8d287147bf330a00f2a046389d82c6507a2d80ad97190cf6306373e0b90",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-39-combined-f32.bin",
+            "sha256": "479f293236e48db16ac53be2c547077174b6bfd9da15cdbbf147d9b17a08bf27",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-expert-part-0-bf16.bin",
+            "sha256": "6fad5796bffa1475640a3426582b0fff732602144cd4a6afafa1a8c70a571edb",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-expert-part-1-bf16.bin",
+            "sha256": "f3e821a39ae2a6954d77f3ccdf8cd5d23c462943453bf7efce4dcd8100e712e8",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-input-bf16.bin",
+            "sha256": "4d4d9754873fe6d212a1c25a59dd7d72479794b58e495b411e530f9cb775d753",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-next-hidden-bf16.bin",
+            "sha256": "5abe9206144390568e601f979f301e9b972dd404f9421d035f998acb40965e90",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-output-bf16.bin",
+            "sha256": "5abe9206144390568e601f979f301e9b972dd404f9421d035f998acb40965e90",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-residual-bf16.bin",
+            "sha256": "77aa86340fb2634ce46491fe0f19e87da689be595264580e4820b6c39fb0d593",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-routed-activated-bf16.bin",
+            "sha256": "388977e56e8f047d2c4dcffe9168fa799994a33a71bfe01d5273cd51d8f4f7e1",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-routed-gate-up-bf16.bin",
+            "sha256": "47a69e134bd897abe8bb378c82463dfa5df377f144ba5fd68cd83e1dd01dc42c",
+            "bytes": 131072
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-routed-weighted-bf16.bin",
+            "sha256": "bd0eeab896e7cc1dea27f20f7b0b7ac91350c11f3fa6664637f3bea8347ef9c9",
+            "bytes": 262144
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-router-bf16.bin",
+            "sha256": "b5ab170ade7fc9d5c58adbbc9739c230bafe30d2e22892152bcf13391344d113",
+            "bytes": 4096
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-shared-activated-bf16.bin",
+            "sha256": "e1a45c4568d7ed04be8534b7d899c3242943192f090ec3223867174b289188e0",
+            "bytes": 8192
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-shared-bf16.bin",
+            "sha256": "6fad5796bffa1475640a3426582b0fff732602144cd4a6afafa1a8c70a571edb",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-shared-down-bf16.bin",
+            "sha256": "a3150f384edb98e1f2b97ca492cd7cee37e85934cc0be420c620063c505d37bf",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-shared-gate-bf16.bin",
+            "sha256": "5741f7495f3d67c161c5953e287e11b01f5adda6ba836be9912ef4c082fe8c6e",
+            "bytes": 16
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-shared-gate-up-bf16.bin",
+            "sha256": "8f091d340dba7cdca60ed6bc74b80cce56d6d38b13717aa1ec7a6e79d836d87b",
+            "bytes": 16384
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-topk-ids-i32.bin",
+            "sha256": "261d0c6d2739f8c32aa925a0a6dc046f354af1c7cf8bf8dbc202b2d6001de1de",
+            "bytes": 256
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-topk-weights-f32.bin",
+            "sha256": "5f1d4357715291ca6ad27890af9c8721c84826d20524855e36f2f04f9f01179c",
+            "bytes": 256
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-01-expert-part-0-bf16.bin",
+            "sha256": "02b30a8fd835dfad7c6b2db75c1b9b640d0222d8e20bc4414609eceefc7a05e0",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-01-expert-part-1-bf16.bin",
+            "sha256": "8aa6ddc8dbed0024318e2293f7428fc3132a33df60beba8519e3a326a45cb01b",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-01-input-bf16.bin",
+            "sha256": "478fa052c7157007f156a04f9681c9fa7fbf8ff1555bcc870d4f536fb2ca7e7d",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-01-next-hidden-bf16.bin",
+            "sha256": "1a0354da4417b0820332ecb3fae52ab527a19bc6b00c58cc04dfa216dae476d3",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-01-output-bf16.bin",
+            "sha256": "1a0354da4417b0820332ecb3fae52ab527a19bc6b00c58cc04dfa216dae476d3",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-01-residual-bf16.bin",
+            "sha256": "87e8b13e0a4d337e5a136d3fe636f7215df7a0a6b1ce13114dff054ddb5f5353",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-01-routed-activated-bf16.bin",
+            "sha256": "3e664cb0f406417e2a9e23f9c5564a852d005c7af04912e51533240461e42a85",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-01-routed-gate-up-bf16.bin",
+            "sha256": "e2c82a1d54931dfed1c93ac5fa1a0549d45649903d0ec5e51b197e281c7d6492",
+            "bytes": 131072
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-01-routed-weighted-bf16.bin",
+            "sha256": "da1a37035d08226e7982acfa2a6732ae6d700a495f0b3a19720237d5d253980e",
+            "bytes": 262144
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-01-router-bf16.bin",
+            "sha256": "07791ee09b4ba4934bf94c725cee97f08042b65705f1b60192d2e3f75ec9d12c",
+            "bytes": 4096
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-01-shared-activated-bf16.bin",
+            "sha256": "d8756ccd46941b34f976ed89d8972dd37950fd73c116ac82615db1ab8d1726f0",
+            "bytes": 8192
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-01-shared-bf16.bin",
+            "sha256": "02b30a8fd835dfad7c6b2db75c1b9b640d0222d8e20bc4414609eceefc7a05e0",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-01-shared-down-bf16.bin",
+            "sha256": "ff64e0a7f55e7fa3dc377c425f66ef42656228d415e7e382c23ac973a91e70af",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-01-shared-gate-bf16.bin",
+            "sha256": "f0813603e2a1366b6f28b476a136d5d9bcee3e7c354e124e46ebfc87053c7dff",
+            "bytes": 16
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-01-shared-gate-up-bf16.bin",
+            "sha256": "b08af30dfa2f6dfd2448b0c86185650179c63e3f1574489abe54865e61a7bf1e",
+            "bytes": 16384
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-01-topk-ids-i32.bin",
+            "sha256": "26d51fee13498e869466c3d314c012f51b190e506f6aab0d7b31d26b3c6c77d1",
+            "bytes": 256
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-01-topk-weights-f32.bin",
+            "sha256": "b8b9ad9df104beae66fa1b67047edf060eda98748126c4307113fa8f8fae519e",
+            "bytes": 256
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-02-expert-part-0-bf16.bin",
+            "sha256": "b466a7f2b5e095f0aaa0056b3456bc62c3a0c202d5eaff8ac19e2f56171df418",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-02-expert-part-1-bf16.bin",
+            "sha256": "777df985612c080107473795a6a7f4d558a6271204e826d02bed5f3ae0c425fa",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-02-input-bf16.bin",
+            "sha256": "085df1c8befeeffd86a3c4318dda7340500e9f39f54dad77dcb22620a51b8780",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-02-next-hidden-bf16.bin",
+            "sha256": "8b394f3e586cce58623b2fe246f92b061ca16f690e9b9fea7f3aeedde8235525",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-02-output-bf16.bin",
+            "sha256": "8b394f3e586cce58623b2fe246f92b061ca16f690e9b9fea7f3aeedde8235525",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-02-residual-bf16.bin",
+            "sha256": "2eaf4fd4f85edb642a5c69f27b5c45ed3ce3e646f472fc9c3dab57158ac39b9d",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-02-routed-activated-bf16.bin",
+            "sha256": "69db14b9e9bcc4c30f06fb9d146b801517d52780f6bba4372e605c0d40d4bb78",
+            "bytes": 65536
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-02-routed-gate-up-bf16.bin",
+            "sha256": "52a06c58dcfd6fa260139e87912cb601b81f4fecc94707545dd9b617fc350f6a",
+            "bytes": 131072
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-02-routed-weighted-bf16.bin",
+            "sha256": "5d4ed08bdf4b1f53d75cd732b5436a7af03024b521e7275cd4e427058c80b837",
+            "bytes": 262144
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-02-router-bf16.bin",
+            "sha256": "e421ae188c30a45b4e8a1faca23621d54533373058de190b85a002a8e603d53b",
+            "bytes": 4096
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-02-shared-activated-bf16.bin",
+            "sha256": "f7f123528333ec48ec826e43578f9da32fe1e7a1674110d069ff6adbab6f03be",
+            "bytes": 8192
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-02-shared-bf16.bin",
+            "sha256": "b466a7f2b5e095f0aaa0056b3456bc62c3a0c202d5eaff8ac19e2f56171df418",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-02-shared-down-bf16.bin",
+            "sha256": "f14f6931c4117c30a6ba8924895740693b560bf896560eff69c6fcf5bfe6f2ab",
+            "bytes": 32768
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-02-shared-gate-bf16.bin",
+            "sha256": "ba1a7934f5981dcdfca13872788a75cdbe0e7e97c501d389722a3e83d7689657",
+            "bytes": 16
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-02-shared-gate-up-bf16.bin",
+            "sha256": "5fe85a1e69576d7d0c984a2ff1e023f8b34642e4e8657ad4780dc8c88f71562e",
+            "bytes": 16384
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-02-topk-ids-i32.bin",
+            "sha256": "1fe9d7f841bc7e64f356c93afbf28daf949fe34baa48cfb2a5877899cc366069",
+            "bytes": 256
+          },
+          {
+            "path": "qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-02-topk-weights-f32.bin",
+            "sha256": "800bc10cda9a267007710739379cd6d16d41e1c8efc78d8cc1ba9cdf05b0523f",
+            "bytes": 256
+          }
+        ],
+        "tables": [
+          {
+            "path": "qrt-moe-tables-20260910-r1/cuda-vllm-silu-bf16-domain.bin",
+            "sha256": "97a2a729266bb0681983aa5b2c6ddffafeaab1bab99c7658a0524b09331a11ac"
+          },
+          {
+            "path": "qrt-moe-tables-20260910-r1/cuda-router-ex2-fraction-f32.bin",
+            "sha256": "b2a42c4a626469c986e33e43f16f41bde9d84de94347cd9ceaa1bd68d36bcdf0"
+          },
+          {
+            "path": "qrt-gating-model-20260910-r1/sigmoid-beta-bf16.bin",
+            "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97"
+          }
+        ],
+        "command": [
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-native-moe-pointwise-replay-r2/replay",
+          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910"
+        ],
+        "compiled_source_inputs": [
+          {
+            "path": "native/linux_core_port/gb10_moe_host_contract_test.cpp",
+            "sha256": "66549e526e81c3861157e868a218e5d6696c1ecd3482c529b39ae9823171d9aa"
+          },
+          {
+            "path": "tools/test_linux_core_moe.py",
+            "sha256": "2568e5863267c3bb3593a01b4a4ea984584921c61a067515d38eb1d0a2eb3df7"
+          },
+          {
+            "path": "tools/test_linux_core_gdn.py",
+            "sha256": "7d9d6e05b721f17b4245a9c31f6d78a2d729f7bd251c024e662db91c8d47f517"
+          },
+          {
+            "path": "native/linux_core_port/gb10_moe.hip.cpp",
+            "sha256": "e0d7597ed046879646decc9b99a0cb480fa48913ec0d0b6529a0d0e908efb5a6"
+          },
+          {
+            "path": "native/linux_core_port/gb10_moe.h",
+            "sha256": "e61d311b9f1bb28dc84f744129eb8dd65dd6be41937c88cb010c71dc9c9782fd"
+          },
+          {
+            "path": "native/linux_core_port/gb10_moe_math.h",
+            "sha256": "159f0626f1474d0ec1a6423b1630a4918069a25e03fbb7b54596eb83732649d9"
+          },
+          {
+            "path": "native/linux_core_port/gb10_moe_assets.inc",
+            "sha256": "5943d3e4960407fe3f173c69e61221627aa083aeceed998b214912a84d96d7fb"
+          },
+          {
+            "path": "native/linux_core_port/gb10_gdn.h",
+            "sha256": "4a624799c65e9bf180d26a585c2e35b4e53652d38f2671b7fd2da36b74579566"
+          },
+          {
+            "path": "native/linux_core_port/gb10_decode_moe.h",
+            "sha256": "d49855c8af63dd2b82ed3e3471d21bfbb9807e2129fe145639977c380927361b"
+          },
+          {
+            "path": "native/providers/gdn/sm121_mtp_residual_math.h",
+            "sha256": "778b44d6f983e682409dc64aa50d1548d9dffc047d50012204c2ab135b69ac48"
+          },
+          {
+            "path": "native/providers/gdn/sm121_mtp_math.h",
+            "sha256": "0e58296175341d4ded1b69c5318808246721623b25b15404d00b6074d74ebddf"
+          },
+          {
+            "path": "native/providers/gdn/sm121_q1_math.h",
+            "sha256": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb"
+          },
+          {
+            "path": "native/providers/gdn/sm121_mtp_moe_math.h",
+            "sha256": "1bca67f5dd6a672d0f0d79f90bf0d3a992c6908dea235b3b028efa29900fb349"
+          },
+          {
+            "path": "native/providers/moe_accumulator/sm121_router_exp.h",
+            "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad"
+          },
+          {
+            "path": "native/providers/moe_accumulator/sm121_shared_gate.h",
+            "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f"
+          }
+        ],
+        "native_kernel_execution": false,
+        "surfaces": [
+          "shared_activation",
+          "routed_activation",
+          "shared_scaled",
+          "routed_sum",
+          "combined",
+          "router_ids",
+          "router_weights_f32_bits",
+          "unrounded_residual_f32_bits"
+        ],
+        "reference_capture_sha256": "355329686dd5cdeb0e20e9f25662697cf289cb02f7313d1845097248c260b08a",
+        "reference_case": "q8192-out512",
+        "reference_positions": [
+          63,
+          1023,
+          2111,
+          3391,
+          4159,
+          6079,
+          7167,
+          8191
+        ]
+      }
+    }
+  ],
+  "additional_device_bytes": 0,
+  "additional_artifacts": 0,
+  "native_windows_build_pending": true,
+  "expert_matrix_arithmetic_qualified": false,
+  "model_inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "baseline_evidence_sha256": "6c32e99b02bf2a58790a846f9a9594ec128e966034df8ccefe33c7d1952f81a8",
+  "reference_capture_evidence_sha256": "f956bcb3752236bc7100c356f2a9dfa48dfaa745cb49deae6dd2543ca0c65f82",
+  "fp32_silu_negative_control": {
+    "rows": [
+      {
+        "layer": 0,
+        "kind": "shared",
+        "elements": 4096,
+        "fp32_silu_differences": 1132,
+        "bf16_silu_differences": 0
+      },
+      {
+        "layer": 0,
+        "kind": "routed",
+        "elements": 32768,
+        "fp32_silu_differences": 5027,
+        "bf16_silu_differences": 0
+      },
+      {
+        "layer": 1,
+        "kind": "shared",
+        "elements": 4096,
+        "fp32_silu_differences": 1077,
+        "bf16_silu_differences": 0
+      },
+      {
+        "layer": 1,
+        "kind": "routed",
+        "elements": 32768,
+        "fp32_silu_differences": 8332,
+        "bf16_silu_differences": 0
+      },
+      {
+        "layer": 2,
+        "kind": "shared",
+        "elements": 4096,
+        "fp32_silu_differences": 1043,
+        "bf16_silu_differences": 0
+      },
+      {
+        "layer": 2,
+        "kind": "routed",
+        "elements": 32768,
+        "fp32_silu_differences": 8145,
+        "bf16_silu_differences": 0
+      }
+    ],
+    "host_only": true,
+    "model_acceptance": false
+  }
+}

@@ -22,7 +22,13 @@ def main():
 #define __forceinline__ inline
 #define __host__
 #include <type_traits>
+constexpr int hipMemcpyDeviceToHost=2;
 template<class T> T __shfl_xor(T v,unsigned,unsigned) { return v; }
+template<class T> T __shfl_down(T v,unsigned,unsigned) { return v; }
+inline unsigned atomicOr(unsigned* p,unsigned v) { const unsigned old=*p; *p|=v; return old; }
+inline int hipMemsetAsync(void* p,int value,size_t size,void* stream) {
+ assert(!stream && !value && size==4); memset(p,value,size); return 0;
+}
 struct RecordedMoeLaunch { unsigned blocks; std::vector<std::uintptr_t> args; };
 inline std::vector<RecordedMoeLaunch> moe_launches;
 template<class T>std::uintptr_t moe_address(T x) {
@@ -31,7 +37,7 @@ template<class T>std::uintptr_t moe_address(T x) {
 }
 template<class K,class...A> void fake_launch(const char* name,dim3 grid,dim3 block,void* stream,K kernel,A...args) {
  if(false)kernel(args...);
- assert(!stream && block.x==256 && (grid.x==65536 || grid.x==8192 || grid.x==8 || grid.x==1));
+ assert(!stream && (block.x==256 || block.x==64 || block.x==32) && grid.x>0 && grid.x<=131072);
  moe_launches.push_back({grid.x,{moe_address(args)...}});
  fake_events.push_back(name);
 }
@@ -39,7 +45,7 @@ template<class K,class...A> void fake_launch(const char* name,dim3 grid,dim3 blo
 ''')
     source = ROOT / "native/linux_core_port/gb10_moe_host_contract_test.cpp"
     executable = out / "host-contract"
-    command = ["clang++", "-std=c++17", "-O1", "-ffp-contract=off", "-fsanitize=address,undefined",
+    command = ["clang++", "-std=c++17", "-O1", "-fno-fast-math", "-ffp-contract=off", "-fsanitize=address,undefined",
                "-I", str(out / "stub"), "-I", str(ROOT / "third_party/aima_linux/native/include"),
                str(source), str(ROOT / "third_party/aima_linux/native/src/sha256.cpp"), "-o", str(executable)]
     build = subprocess.run(command, capture_output=True, text=True, timeout=90)
@@ -50,9 +56,10 @@ template<class K,class...A> void fake_launch(const char* name,dim3 grid,dim3 blo
     run.check_returncode()
     inputs = [source, Path(__file__), ROOT / "tools/test_linux_core_gdn.py"]
     inputs += [ROOT / "native/linux_core_port" / n for n in
-               ("gb10_moe.hip.cpp", "gb10_moe.h", "gb10_moe_math.h", "gb10_moe_assets.inc", "gb10_gdn.h")]
+               ("gb10_moe.hip.cpp", "gb10_moe.h", "gb10_moe_math.h", "gb10_moe_assets.inc", "gb10_gdn.h", "gb10_decode_moe.h")]
     inputs += [ROOT / "native/providers/gdn" / n for n in
-               ("sm121_mtp_residual_math.h", "sm121_mtp_math.h", "sm121_q1_math.h")]
+               ("sm121_mtp_residual_math.h", "sm121_mtp_math.h", "sm121_q1_math.h", "sm121_mtp_moe_math.h")]
+    inputs += [ROOT / "native/providers/moe_accumulator" / n for n in ("sm121_router_exp.h", "sm121_shared_gate.h")]
     sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
     report = dict(result=json.loads(run.stdout), build_command=command,
                   inputs=[dict(path=p.relative_to(ROOT).as_posix(), sha256=sha(p)) for p in inputs],

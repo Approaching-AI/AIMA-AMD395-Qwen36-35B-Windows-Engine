@@ -31,6 +31,16 @@ multi-stage Windows prefill recurrence within the remaining linear wall.
 Its native3bd7969 trial fails486 of512 GB10 outputs and is not retained;
 the existing qualified FLA path remains selected for subsequent trials.
 
+The optional native-MoE prefill trial targets the remaining4.93-second MoE
+wall using two already embedded FP32-routing-weight expert images and their
+q8192 runtime grids. It borrows verified SiLU/router tables from the live
+decode owner and the sigmoid table from the GDN owner. The two idle provider
+conversion slabs hold routing weights and the device error flag; the existing
+FP32 output slab retains the residual carrier. No additional library, artifact,
+weight copy or device allocation is required. The external MoE provider remains
+loaded for the terminal row and for an isolated comparison. Full-model expert
+arithmetic and performance are pending; CPU pointwise replay is not acceptance.
+
 The optional [Windows core prototype](LINUX_CORE_WINDOWS_PROTOTYPE.md) imports
 327 unchanged files (29,415,573 bytes) from Linux native source
 `ec9934446911fdf376da8eebcd83e7b137efbb7c`. The concrete benefit under evaluation

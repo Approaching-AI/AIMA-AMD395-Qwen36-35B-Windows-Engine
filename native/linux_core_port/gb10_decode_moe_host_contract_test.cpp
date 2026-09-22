@@ -34,6 +34,7 @@ int main(int argc,char** argv){
  auto save=[&]{gb10_decode_moe_save_terminal(o.combined,residual.data(),residual.data(),nullptr);};
  auto terminal=[&]{return gb10_decode_moe_terminal_norm(residual.data(),weight.data(),norm.data(),nullptr);};
  reject([&]{call(0);});reject(save);assert(!terminal());
+ reject([]{gb10_moe_silu_table();});reject([]{gb10_moe_router_exp_table();});
  setting("AIMA_PORT_DECODE_MOE","");fake_gdn_alive=false;
  {Gb10DecodeMoeOwner disabled;assert(!active && !gb10_decode_moe_enabled());}
  setting("AIMA_PORT_DECODE_MOE","bad");reject([]{Gb10DecodeMoeOwner invalid;});
@@ -52,6 +53,8 @@ int main(int argc,char** argv){
  unsigned complete_layers=0;
  {
   Gb10DecodeMoeOwner owner;assert(active && allocations==4);reject([]{Gb10DecodeMoeOwner duplicate;});
+  assert(gb10_moe_silu_table()==active->silu.as<uint16_t>()+12);
+  assert(gb10_moe_router_exp_table()==active->router_exp.as<uint32_t>());
   reject([&]{call(1);});reject([&]{call(40);});reject(save);
   reject([&]{gb10_decode_moe(0,input.data(),w,o,pointer(1));});
   reject([&]{gb10_decode_moe(0,nullptr,w,o,nullptr);});
@@ -91,6 +94,7 @@ int main(int argc,char** argv){
   }
  }
  assert(!active && allocations==0 && norm_calls==2 && snapshots==4);
+ reject([]{gb10_moe_silu_table();});reject([]{gb10_moe_router_exp_table();});
  for(unsigned stage:{1u,7u,10u}){Gb10DecodeMoeOwner owner;fail_launch=launches.size()+stage;reject([&]{call(0);});assert(active->poisoned);fail_launch=0;reject([&]{call(0);});}
  {Gb10DecodeMoeOwner owner;
   for(unsigned layer=0;layer<39;++layer){inject_flag=layer==5 ? 4u : 0u;call(layer);}inject_flag=0;

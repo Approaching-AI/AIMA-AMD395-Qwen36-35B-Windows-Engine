@@ -10,6 +10,22 @@ TPOT228.040989ms. The earlier `9447947` run also has all72 second-decode
 comparisons matching in BF16 and a bitwise-exact final normalization.
 Performance, other product shapes, prefix continuation and release remain open.
 
+The next optional comparison, `AIMA_PORT_NATIVE_MOE_PREFILL=1`, replaces
+layers0..38 of the approximately4927.5989ms MoE wall with imported expert
+GEMMs. It uses the existing FP32-routing-weight images with q8192 live grids,
+four corrected dense projections, the original scalar gate reduction,
+BF16 SiLU tables, FP32 routing, and the unrounded residual carrier. Layer39
+retains the qualified terminal provider, and native GDN remains disabled.
+Direct CPU replay of original GB10 operands matches all eight pointwise and
+routing surfaces across three layers/eight positions, including all12288
+shared and98304 routed activations. FP32 SiLU before the up product fails this
+same reference; both branches require the BF16 table endpoint. ASan/UBSan
+checks complete native layer lifetimes, borrowed table owners and rejection
+of incomplete or invalid device state. Only the MoE overlay changes; the other
+16 overlays and all327 imported files remain identical. This is preparation,
+not a qualification of the expert GEMMs or a performance result.
+[Native MoE preparation](../benchmarks/correctness/linux-core-native-moe-preparation-20260923.json).
+
 Source `a56baa9` omits `--gb10-prefill-projections` and uses the imported
 hipBLASLt BF16 dense producer while retaining every other repair. It builds
 all59 units and completes the native request, but385 of512 tokens differ,
