@@ -231,4 +231,20 @@ imported route and have no new qualification claim.
 ASan/UBSan execution of the actual kernel bodies checks 1,089,536 outputs across
 tile boundaries, a partial tile, cold/seeded history, and three decode updates.
 The actual arithmetic header also reproduces the selected GB10 decode values.
-Native GPU execution and the complete original token boundary remain required.
+
+Source `eeaecd7` now builds and completes the native request. Its GPU convolution
+matches the RNE host calculation for all 8192 actual input channels, leaving
+the same four upstream differences against GB10. The selected prefill state
+has 443991 FP32 differences (maximum absolute difference 0.0930145979), compared
+with 496140 before the repair. However, complete continuation worsens: output
+4 is 220 instead of 79, with 475 differing positions. First144/10.375 remains
+correct. Diagnostic load/TTFT/TPOT are 24015.5654/11174.6623/34.6410432 ms.
+All host checks and cleanup pass; no native process remains.
+[Completed convolution repair and remaining failure](../benchmarks/correctness/linux-core-gb10-convolution-native-failure-20260922.json).
+
+The component fix remains experimental and is not a retained product result.
+The next structural investigation covers the complete GDN prefill and decode
+boundaries, including reuse of the existing Windows reference-compatible FLA
+provider. The imported packed singleton recurrence differs from the GB10
+reference's observed two-row speculative transaction; its numerical effect
+must be measured with actual operands.

@@ -31,7 +31,9 @@ It adds one file, 648,036 bytes of persistent device storage and one temporary
 host copy during loading, with no new library or installed package. The table
 enumerates FP32 activation behavior independently of model tokens. This avoids
 the demonstrated AMD BF16 product truncation and preserves the GB10 activation
-boundary. Native qualification of the new convolution implementation is pending.
+boundary. The native convolution now reproduces the intended RNE calculation
+on the captured input. The complete model still fails, so this table-backed
+experiment has no product or release qualification.
 
 The [installed Windows dependency inventory](../benchmarks/correctness/linux-core-windows-dependencies-20260922.json)
 finds a6,012,312-byte hipBLASLt DLL. Its installed data directory contains1078
