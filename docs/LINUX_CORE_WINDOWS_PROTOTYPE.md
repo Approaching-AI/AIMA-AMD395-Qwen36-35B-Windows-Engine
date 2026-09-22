@@ -74,7 +74,7 @@ Seventy-three elapsed intervals across38 calls are flagged; stage sums remain
 diagnostic. The native request/callback wall clocks are separate and valid.
 [Native WMMA result and full-OUT preparation](../benchmarks/correctness/linux-core-prefill-wmma-native-and-coarse-preparation-20260922.json).
 
-The next experiment enables `AIMA_PORT_NATIVE_ATTENTION_PREFILL=1` for the
+Source `3e091e4` enables `AIMA_PORT_NATIVE_ATTENTION_PREFILL=1` for the
 already resident embedded `kernel_unified_attention_2d` plan on ordinary
 cold q8192 text. It uses the same contiguous normalized Q and resident K/V,
 existing metadata and dead FP32 scratch as its BF16 destination, then the
@@ -84,6 +84,15 @@ Each actual invocation reports its layer, query/KV geometry and embedded
 kernel identity. No artifact or allocation is added. Prepared-source checks
 preserve327 imports,60 units and72 images. This arithmetic replacement needs
 its own complete GB10 continuation result before any runtime gain is retained.
+The native build passes and all10 actual activations are verified, but395 of512
+outputs differ from GB10, first at index115 (196 versus271). First144/logit10.375
+is exact. Loading27428.1791ms, diagnostic TTFT19712.6649ms and TPOT226.616026ms
+do not qualify this route. Source `cbe133b` remains the correct experimental
+baseline. The next run disables native-text attention and enables the existing
+CK completed-stage observer to separate QK, probability and PV work under the
+same complete continuation gate. Its steady host clock avoids invalid short
+GPU-event intervals; extra synchronizations make its wall diagnostic.
+[Native attention rejection and CK profiling](../benchmarks/correctness/linux-core-native-attention-negative-and-ck-profile-20260922.json).
 [Coarse native result and embedded-attention preparation](../benchmarks/correctness/linux-core-prefill-coarse-native-and-attention-preparation-20260922.json).
 
 The preceding complete decode-MoE repair (`5585977`) runs the real model on
