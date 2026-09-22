@@ -185,6 +185,23 @@ contract again. That failed build exits1 in117053.528ms with clean host checks;
 no product invocation or output is recorded. A fresh native build is required.
 [Preserved build failure](../benchmarks/correctness/linux-core-gb10-moe-build-failure-20260922.json).
 
+Sourceafa0671 subsequently passes all58 native units and runs the original
+q8192/out512 case. At all8 selected prefill positions, layer-zero MoE output
+now matches the rounded GB10 carrier and the following input norm matches
+exactly. The full layer-zero recurrent state and its first-decode next norm
+also match. However, the continuation fails at output1:248 instead of255,
+with470 total mismatches. The layer-one first-decode carrier has663 BF16
+differences; their cause is not established by the layer-zero samples.
+First144/logit10.375 passes. Diagnostic load/TTFT/TPOT are
+27318.1778/31214.4606/67.2300900ms. Exit0, all host checks and cleanup pass;
+85 verified files total17264322bytes. No retained performance is claimed.
+[Native complete-MoE result](../benchmarks/correctness/linux-core-gb10-moe-native-20260922.json).
+
+The upstream release refresh at09:56UTC finds the same five releases and
+unchanged bodies; latest remains v1.5.1-native-vl.10/tag0522a57, declaring
+native sourceec993444. This does not change the Windows acceptance boundary.
+[Release identity refresh](../benchmarks/correctness/linux-windows-release-review-refresh-20260922-r2.json).
+
 Diagnostic load/TTFT/TPOT are25810.6137/28908.8576/67.1387918ms. All host checks
 and cleanup pass, with93 verified observations totaling19296194bytes. No
 performance or release qualification is claimed.
