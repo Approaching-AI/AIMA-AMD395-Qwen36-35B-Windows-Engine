@@ -1,0 +1,17 @@
+{
+  "name": "qrt-gb10-explicit-q8192-layers-20260923-r1",
+  "archive": "qrt-gb10-explicit-q8192-layers-20260923-r1.tar",
+  "archive_sha256": "060d163615d99e818d208e105194fd610c1602f2234a5223418549ab7fb35f0e",
+  "archive_bytes": 4587520,
+  "script": "run-qrt-gb10-explicit-q8192-layers-20260923-r1.py",
+  "script_sha256": "f59c13c091bbd7b54d6073788e87cb3dd23c1a3495d091ca395be780a34ec244",
+  "dispatcher": "dispatch_gb10_explicit_q8192_layers_r1.py",
+  "dispatcher_sha256": "7038f947fea0398462cf9cac0df8ad65649ef7f280e28a7e7c4e3942a48597d3",
+  "source_inputs_sha256": "5581b560034c5b5110c5ab2f00667a609caa4d96038465c635d7e4e225e0b163",
+  "ssh_timeout_seconds": 1950,
+  "candidate_base_commit": "c85259254b805788dc80680caad37685708c98a8",
+  "original_model_sources_unchanged": true,
+  "original_576_outputs_required": true,
+  "observer_source_base_commit": "3fcbdafb10a14e94c15bd94a1f821f180bc95373",
+  "generator_sha256": "9a788ba0cb814034724deabddf03ea58e22afa972cfecf4d48de10aa5b6cf1df"
+}

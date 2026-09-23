@@ -71,3 +71,17 @@ running that isolated candidate. Neither product manifest has been created.
 The AMD GDN, dense, attention and routed measurements wait for the current full256k
 owner to complete cleanly. Windows model tokens, logits, callbacks, load time
 and q8192 TTFT remain required. These experiments do not change release gates.
+
+The [combined all-layer comparison](../benchmarks/correctness/explicit-q8192-all-layers-20260923.json)
+now passes all160 dense projections,80 routed projections and ten attention
+layers on the original GB10 model. It compares5452595200 dense BF16,8053063680
+routed BF16,10737418240 QK FP32 and335544320 attention-context BF16 values,
+plus24558 sparse values and15 malformed queue controls. All comparisons are
+exact; all576 original token IDs and first logits remain unchanged. Original
+operands and outputs also match the prior per-family captures. Six arithmetic
+sources are byte-identical to commit `c85259254b805788dc80680caad37685708c98a8`.
+The observer leaves model arithmetic unchanged and returns no candidate output
+to the model. Frozen compiler caches, host reserve and process cleanup pass.
+Native gfx1151 correctness and whole-model performance remain untested for
+these selected images. Report SHA256
+`a0466be9a3825d6178d0a8e870984aa0e5e7c00a08a354ba11d325dc8f4fb085`.

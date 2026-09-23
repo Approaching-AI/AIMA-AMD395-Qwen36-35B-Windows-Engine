@@ -1,0 +1,15 @@
+{
+  "mro": [
+    "ExplicitQ8192Capture",
+    "OrderedDenseCapture",
+    "OrderedRoutedCapture",
+    "OrderedAttentionCapture",
+    "TokenMatrixCapture",
+    "object"
+  ],
+  "control_case_arms_and_finishes_original_base_exactly_once": true,
+  "all_three_observers_disabled_on_control": true,
+  "all_runtime_arithmetic_sources_match": true,
+  "gpu_executed": false,
+  "inference_acceptance": false
+}

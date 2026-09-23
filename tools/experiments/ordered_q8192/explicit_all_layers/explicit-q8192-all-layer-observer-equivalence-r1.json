@@ -1,0 +1,23 @@
+[
+  {
+    "family": "dense",
+    "original_sha256": "a86e262acd2460e1b7735cbcb1caee6901495889e6e470bb13ac8a6edaf4bed9",
+    "candidate_sha256": "4ad107801cdfdbe3faa39bc2bbfe2c199e6a18a84deaef278847245259e34ce0",
+    "only_pipeline_initialization_changed": true,
+    "comparison_and_observer_method_ast_unchanged": true
+  },
+  {
+    "family": "routed",
+    "original_sha256": "15ef0d096a6ca961a1fa523ec7b1d4cb1a04c452465ab02c8de8b3e1cfd0dea9",
+    "candidate_sha256": "7e01e09851509e690427f48cf37718faf8398291ad363ac04d23da3b2640d760",
+    "only_pipeline_initialization_changed": true,
+    "comparison_and_observer_method_ast_unchanged": true
+  },
+  {
+    "family": "attention",
+    "original_sha256": "79dd6aeff3de3484d76d1ef5cffe1859b4958f188a531ece125e70e64c5c39ea",
+    "candidate_sha256": "b5caff5e4cf6ad1dc1d9290cd6e21ffe80db2f961caecbebad9e94aa976b0016",
+    "only_pipeline_initialization_changed": true,
+    "comparison_and_observer_method_ast_unchanged": true
+  }
+]

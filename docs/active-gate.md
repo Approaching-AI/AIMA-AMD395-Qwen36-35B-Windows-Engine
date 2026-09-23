@@ -239,6 +239,21 @@ No Windows build, AMD execution or real-model result is claimed for this
 combination. [Composition evidence](../benchmarks/correctness/explicit-q8192-runtime-preparation-20260923.json)
 SHA256 `172919606811daf0ca50f0539d9311dc8f63b5865adf28f894d449f7356a9791`.
 
+The combined candidate now also passes the complete original-model CUDA
+comparison: 160 dense projections (5452595200 BF16 values), 80 routed
+projections (8053063680 BF16 values), and all ten attention layers
+(10737418240 stored QK FP32 and335544320 context BF16 values). All250
+comparisons are bit exact, as are24558 sparse routed values;15 malformed
+queue controls pass. Original operands, weights and outputs match the previous
+qualified per-family captures. The original576 output IDs, first-token logits
+and complete first-logit buffers are preserved. Candidate outputs never enter
+the model. The1128.294-second observation exits0, preserves frozen compiler
+caches, stays above the8GiB host reserve and leaves no GPU process. Its six
+arithmetic source files match the committed optional runtime. These CUDA
+results do not establish native gfx1151 correctness or performance.
+[Completed all-layer evidence](../benchmarks/correctness/explicit-q8192-all-layers-20260923.json)
+SHA256 `a0466be9a3825d6178d0a8e870984aa0e5e7c00a08a354ba11d325dc8f4fb085`.
+
 The [conditional product entry](../benchmarks/correctness/explicit-q8192-product-entry-20260923.json)
 requires selected actual native results and clean completion before staging.
 Eleven host controls exercise original-output binding and rejection behavior
