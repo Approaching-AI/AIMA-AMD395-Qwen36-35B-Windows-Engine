@@ -1,0 +1,3001 @@
+{
+  "schema": 1,
+  "classification": "optional_persistent_gdn_runtime_and_conditional_product_entry_prepared",
+  "controller_host": "JiaweiMnideMini.lan",
+  "candidate_commit": "01d1418b28f55339f28c29b6b47821c29626c984",
+  "candidate_branch": "codex/persistent-gdn-prefill",
+  "candidate_checkout": "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-candidate",
+  "preparation_sha256": "7370346505453fe40fc5f4c0eca984e7114bfdf99b81d2d6f26fb6d43f5e946a",
+  "preparation": {
+    "schema": 1,
+    "classification": "optional_persistent_gdn_runtime_prepared_native_pending",
+    "controller_host": "JiaweiMnideMini.lan",
+    "source_base_commit": "c85259254b805788dc80680caad37685708c98a8",
+    "default_enabled": false,
+    "option": "AIMA_PORT_NATIVE_GDN_PERSISTENT=1",
+    "requires": "AIMA_PORT_NATIVE_GDN_PREFILL=1",
+    "scope": "cold q8192",
+    "compiled_manifest_sha256": "01c9f8e5e6e8ad331143a6724b7d59719cbc5032c5e08b5b68264309f5e09cc8",
+    "native_trial_plan_sha256": "11db30bb44542a931e243b5aa1eaa7b7100861bce943cd0745ad3ae248c2cc3b",
+    "native_trial_cases": 15,
+    "selected_images": {
+      "kkt": {
+        "bytes": 115464,
+        "sha256": "6409875bf9e0c3294e99ec9d65b3d075b88950c97613e7dd6aa235d72e587cbf",
+        "symbol": "gram_kernel",
+        "warps": 4,
+        "shared": 512,
+        "resources": {
+          ".vgpr_count": [
+            "91"
+          ],
+          ".vgpr_spill_count": [
+            "0"
+          ],
+          ".private_segment_fixed_size": [
+            "0"
+          ]
+        }
+      },
+      "inverse": {
+        "bytes": 40952,
+        "sha256": "a83e69a3b15cb4578ceb4e5b88c042cf70617ad983d145ec080877336843579c",
+        "symbol": "native_ordered_64_inverse_kernel",
+        "warps": 4,
+        "shared": 1024,
+        "resources": {
+          ".vgpr_count": [
+            "256"
+          ],
+          ".vgpr_spill_count": [
+            "12"
+          ],
+          ".private_segment_fixed_size": [
+            "52"
+          ]
+        }
+      },
+      "w": {
+        "bytes": 63640,
+        "sha256": "57c7c83315d9f34cf912cdd3c039c0af722ac1e286181675f0b315b180211fc2",
+        "symbol": "w_kernel",
+        "warps": 4,
+        "shared": 512,
+        "resources": {
+          ".vgpr_count": [
+            "98"
+          ],
+          ".vgpr_spill_count": [
+            "0"
+          ],
+          ".private_segment_fixed_size": [
+            "0"
+          ]
+        }
+      },
+      "u": {
+        "bytes": 59128,
+        "sha256": "ec2d0c00aac169ab57427c25d6d53c2c725ba587ded9a6f75e25f60e5c3b21d7",
+        "symbol": "integer_u_kernel",
+        "warps": 4,
+        "shared": 512,
+        "resources": {
+          ".vgpr_count": [
+            "95"
+          ],
+          ".vgpr_spill_count": [
+            "0"
+          ],
+          ".private_segment_fixed_size": [
+            "0"
+          ]
+        }
+      },
+      "scores": {
+        "bytes": 115008,
+        "sha256": "be933e27c1c36297d8e68ea2c3b46ac9898b8fcbf467068a14cf9f295279402e",
+        "symbol": "gram_kernel",
+        "warps": 4,
+        "shared": 512,
+        "resources": {
+          ".vgpr_count": [
+            "92"
+          ],
+          ".vgpr_spill_count": [
+            "0"
+          ],
+          ".private_segment_fixed_size": [
+            "0"
+          ]
+        }
+      },
+      "recurrence": {
+        "bytes": 1151552,
+        "sha256": "55d80ebea65b2924f96ac96c5befb966704e6b5e9e59565caa7eb1e294dd6e58",
+        "symbol": "persistent_kernel",
+        "warps": 4,
+        "shared": 6144,
+        "resources": {
+          ".vgpr_count": [
+            "225"
+          ],
+          ".vgpr_spill_count": [
+            "0"
+          ],
+          ".private_segment_fixed_size": [
+            "0"
+          ]
+        }
+      }
+    },
+    "image_bytes": 1545744,
+    "new_device_allocation_bytes": 0,
+    "launches_including_original_cumsum": 7,
+    "previous_launches": 390,
+    "extra_runtime_dependencies": 0,
+    "host_checks": {
+      "gdn": {
+        "result": {
+          "persistent_pipeline_rejections": 116,
+          "persistent_pipeline_launches": 6,
+          "persistent_upstream_u64_images": 5,
+          "persistent_images_and_abi_pass": true,
+          "persistent_failure_stops_checked": 6,
+          "persistent_setting_rejections": 11,
+          "ordered_pipeline_rejections": 118,
+          "ordered_pipeline_abi_and_images_pass": true,
+          "ordered_pipeline_launches": 389,
+          "recurrent_chunks_checked": 128,
+          "native_conversion_values_checked": 12480,
+          "native_preparation_rejections": 65,
+          "gpu_qk_norm_tested": false,
+          "conversion_values_checked": 33027,
+          "sampled_values_checked": 2199680,
+          "sampling_input_unchanged": true,
+          "first64_original_pointer_and_extent": true,
+          "sampling_guards_pass": true,
+          "observer_faults_rejected": 5,
+          "guards_pass": true,
+          "provider_order_pass": true,
+          "seeded_state_forwarded": true,
+          "decode_q2_flags": true,
+          "injected_provider_failure_rejected": true,
+          "invalid_bindings_rejected": 6,
+          "artifact_faults_rejected": 2,
+          "native_prefill_rejections": 11,
+          "native_prefill_cold_scope_pass": true
+        },
+        "build_command": [
+          "clang++",
+          "-std=c++17",
+          "-O1",
+          "-ffp-contract=off",
+          "-fsanitize=address,undefined",
+          "-I",
+          "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-candidate/build/persistent-gdn-host-r1/stub",
+          "-I",
+          "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-candidate/third_party/aima_linux/native/include",
+          "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-candidate/native/linux_core_port/gb10_gdn_host_contract_test.cpp",
+          "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-candidate/third_party/aima_linux/native/src/sha256.cpp",
+          "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-candidate/third_party/aima_linux/native/src/aot_kernel.hip.cpp",
+          "-o",
+          "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-candidate/build/persistent-gdn-host-r1/host-contract"
+        ],
+        "inputs": [
+          {
+            "path": "native/linux_core_port/gb10_gdn_host_contract_test.cpp",
+            "sha256": "9af8759bd41b0122c4699f3ecb9599bbab3c85cec966fe3b3537848acdbe4196"
+          },
+          {
+            "path": "native/linux_core_port/gb10_gdn.hip.cpp",
+            "sha256": "ec6b69220183ae955949943d640750132043c56244d903c7d5cc85e4118e3227"
+          },
+          {
+            "path": "native/linux_core_port/gb10_gdn.h",
+            "sha256": "29c58701f15c6b1d46263ea169b0cdea3769121139cd1fb91e7fa88f1e6c342c"
+          },
+          {
+            "path": "native/linux_core_port/gb10_gdn_assets.inc",
+            "sha256": "bc89be98894cac0bf5e9c6ae7eea11a42a934303fd62b99800b59a6c306ec125"
+          },
+          {
+            "path": "native/linux_core_port/gb10_gdn_ordered_images.inc",
+            "sha256": "d9542180bdc7db0adbd3f9ca165c73107b377c27ebb6a16979e4382cdd479eb7"
+          },
+          {
+            "path": "native/linux_core_port/gb10_gdn_persistent_images.inc",
+            "sha256": "76b163a8774c2dc2b86c7756ba04c5509dceb64e9ff622cd916afda1ea1e4eff"
+          },
+          {
+            "path": "third_party/aima_linux/native/src/aot_kernel.hip.cpp",
+            "sha256": "9ff9cdfa424205de96489458295fa380b60c8083462313f61c280312cd2f44c2"
+          }
+        ],
+        "test_source_sha256": "bcf1d8e504fe23f0934b079e8896ac472c708e15ffd76a776e8853119b0c9350",
+        "stub_sha256": "8db20f2a06cb53de05e35f0e264fd254df97b5dacaf40476cebe4176cb4340e3",
+        "host_only": true,
+        "model_inference_acceptance": false
+      },
+      "prefill": {
+        "result": {
+          "lossless_operand_values": 2048,
+          "both_weight_layouts_match": true,
+          "full_window_candidates": 1048576,
+          "window_guards_pass": true,
+          "batch_selector_empty_full_partial_guards_pass": true,
+          "batch_queue_address_routing_pass": true,
+          "batch_profile_max_windows": 97,
+          "batch_profile_events_per_projection": 7,
+          "batch_profile_counter_copies": 1,
+          "batch_unprofiled_dispatch_pass": true,
+          "group_major_layout_values": 4096,
+          "group_major_guards_and_operand_lanes_pass": true,
+          "group_major_replay_addressing_pass": true,
+          "group_major_both_submission_modes_pass": true,
+          "input_immutable": true,
+          "selector_edges_pass": true,
+          "queued_kernel_order_pass": true,
+          "invalid_bindings_rejected": 335,
+          "profile_max_windows": 97,
+          "profile_lifetime_pass": true,
+          "profile_warmup_excluded": true,
+          "profile_completed_events_only": true,
+          "linear_output_scoped_layers": 30,
+          "linear_output_scope_unwind_pass": true,
+          "full_output_scoped_layers": 10,
+          "full_output_scope_unwind_pass": true,
+          "coarse_interval_exceptional_edges_pass": true,
+          "invalid_event_time_reported": true,
+          "producer_configuration_controls": 16,
+          "tuned_input_output_scopes_disjoint": true,
+          "routed_full_window_candidates": 4194304,
+          "routed_sorted_scatter_guards_pass": true,
+          "routed_weighted_endpoint_edges_pass": true,
+          "routed_invalid_dispatch_rejected": true,
+          "routed_profile_windows": 54,
+          "routed_ordered_cases": 12,
+          "routed_ordered_aot_launches": 324,
+          "routed_ordered_invalid_bindings": 43,
+          "routed_ordered_raw_bf16_abi_and_no_preparation_pass": true,
+          "routed_ordered_scratch_and_image_ownership_pass": true,
+          "ordered_projection_cases": 144,
+          "ordered_module_launches": 2142,
+          "ordered_invalid_bindings_rejected": 63,
+          "ordered_raw_bf16_abi_and_no_preparation_pass": true,
+          "ordered_completed_profile_max_window_pass": true,
+          "ordered_owner_images_and_scratch_lifetime_pass": true,
+          "gpu_replay_executed": false
+        },
+        "build_command": [
+          "clang++",
+          "-std=c++17",
+          "-O1",
+          "-ffp-contract=off",
+          "-fsanitize=address,undefined",
+          "-I",
+          "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-candidate/build/persistent-prefill-host-r1/stub",
+          "-I",
+          "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-candidate/third_party/aima_linux/native/include",
+          "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-candidate/native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
+          "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-candidate/third_party/aima_linux/native/src/sha256.cpp",
+          "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-candidate/third_party/aima_linux/native/src/aot_kernel.hip.cpp",
+          "-o",
+          "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-candidate/build/persistent-prefill-host-r1/host-contract"
+        ],
+        "inputs": [
+          {
+            "path": "native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
+            "sha256": "9bb14b06bdacd0931562cc3d722105c32bf49d5f157c46d11141f9915bc69065"
+          },
+          {
+            "path": "native/linux_core_port/gb10_prefill_projection.hip.cpp",
+            "sha256": "c2bc834a1022e710012d2c0eebb4bf7fe47c5f65d7ceaafcd676601fcf716408"
+          },
+          {
+            "path": "native/linux_core_port/gb10_prefill_projection.h",
+            "sha256": "5c0c8f9ec5fdfc6e3a8c7c11891ce662f40011d2827d44f290f3cdab3830a765"
+          },
+          {
+            "path": "tools/test_linux_core_prefill_projection.py",
+            "sha256": "129cf9ab8a1cdbf64435a54f3e755af165d79e6d4c2b3969eca3348a897f19d9"
+          },
+          {
+            "path": "native/providers/moe_accumulator/sm121_staged_half_projection.h",
+            "sha256": "951654c2221729fb665c5577ff6463be00a93c63ea9fdc52001b361e707de721"
+          },
+          {
+            "path": "tools/test_linux_core_gdn.py",
+            "sha256": "bcf1d8e504fe23f0934b079e8896ac472c708e15ffd76a776e8853119b0c9350"
+          },
+          {
+            "path": "native/linux_core_port/gb10_prefill_ordered_images.inc",
+            "sha256": "c64dc2c4e116041c373329d4276294d4a89c524a548fc36e2ad68e8002dcb08c"
+          },
+          {
+            "path": "native/linux_core_port/gb10_routed_ordered_images.inc",
+            "sha256": "8a7015353fe78d77443a41912d88fa0eff40cd07e9d560c915757670de8451d7"
+          },
+          {
+            "path": "third_party/aima_linux/native/src/aot_kernel.hip.cpp",
+            "sha256": "9ff9cdfa424205de96489458295fa380b60c8083462313f61c280312cd2f44c2"
+          },
+          {
+            "path": "third_party/aima_linux/native/src/sha256.cpp",
+            "sha256": "c8e63320696fe579b0cb14880d8f981dd45637324c14b5d00f387ece0d73059e"
+          }
+        ],
+        "stub_sha256": "5e7be6b232cac1f3a6b79161c78b2da9254ff09c797ea04b71ddad849cee2866",
+        "host_only": true,
+        "model_inference_acceptance": false
+      },
+      "attention_prior_report_sha256": "24cc8e655b47f5dee2948f016b357e1a8f8cc7e8fb6328738743cc39f49989a8",
+      "attention_inputs_unchanged": true,
+      "marker_command": [
+        "clang++",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror=format",
+        "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-candidate/build/persistent-gdn-preparation-controls-r3/marker.cpp",
+        "-o",
+        "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-candidate/build/persistent-gdn-preparation-controls-r3/marker"
+      ],
+      "marker_source_sha256": "84ae0e1c01d47a009360a9ea66e33301db8af581b9028f8c467b544567d06764",
+      "markers": [
+        {
+          "event": "native_gdn_prefill",
+          "layer": 2,
+          "tokens": 8192,
+          "stages": 8,
+          "aot_launches": 390,
+          "chunk_tokens": 64,
+          "original_preparation": true,
+          "ordered_integer_accumulator": true,
+          "cold": true,
+          "persistent_recurrence": false
+        },
+        {
+          "event": "native_gdn_prefill",
+          "layer": 2,
+          "tokens": 8192,
+          "stages": 6,
+          "aot_launches": 7,
+          "chunk_tokens": 64,
+          "original_preparation": true,
+          "ordered_integer_accumulator": true,
+          "cold": true,
+          "persistent_recurrence": true
+        }
+      ]
+    },
+    "build_preparation": {
+      "command": [
+        "python3.12",
+        "tools/prepare_linux_core_windows.py",
+        "--out",
+        "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-candidate/build/persistent-gdn-prepare-r2",
+        "--current-text-decode",
+        "--gb10-convolution",
+        "--gb10-gdn",
+        "--gb10-projections",
+        "--gb10-prefill-projections",
+        "--gb10-normalization",
+        "--gb10-moe"
+      ],
+      "report_sha256": "c6d6b35541295658336285eddfcdff81ad79399c92e8dc2c19357589ab7bf5a1",
+      "control_report_sha256": "b83063c039c8e79a11f00384aa233c26c1603d51d00168d255dcbf1aa21d463d",
+      "imported_files": 327,
+      "base_images": 72,
+      "compilation_units": 61,
+      "overlays": 17,
+      "unchanged_overlays": 16,
+      "changed_overlay": "native/src/native_linear_prefill.hip.cpp",
+      "only_overlay_change": "query selected owner and report exact stages, launch count and persistent_recurrence",
+      "identical_fields": [
+        "upstream_revision",
+        "upstream_inventory_sha256",
+        "imported_files",
+        "imported_bytes",
+        "images",
+        "image_bytes"
+      ],
+      "generated": {
+        "aot_registry.cpp": {
+          "candidate_sha256": "673ab78f613405b637fe5fc8ee19180f5c53dbfcaa799dfc58fb937cd749715a",
+          "control_sha256": "673ab78f613405b637fe5fc8ee19180f5c53dbfcaa799dfc58fb937cd749715a",
+          "only_checkout_paths_differ": true
+        },
+        "decode_registry.cpp": {
+          "candidate_sha256": "8c344ba039700e1466819232479a91b8fc73b5e86042c96ffa830240948b22cc",
+          "control_sha256": "8c344ba039700e1466819232479a91b8fc73b5e86042c96ffa830240948b22cc",
+          "only_checkout_paths_differ": true
+        },
+        "prefill_registry.cpp": {
+          "candidate_sha256": "30f5252d4d47da00a3d46936fbfa7274f8a697703b90ecdaf22e419dd5e9ad80",
+          "control_sha256": "30f5252d4d47da00a3d46936fbfa7274f8a697703b90ecdaf22e419dd5e9ad80",
+          "only_checkout_paths_differ": true
+        },
+        "frozen_text_registry.cpp": {
+          "candidate_sha256": "0a3632751ff6c374e5d07cf970998be3528ec1fa9cde135d80723be38d595d43",
+          "control_sha256": "0a3632751ff6c374e5d07cf970998be3528ec1fa9cde135d80723be38d595d43",
+          "only_checkout_paths_differ": true
+        },
+        "aot_images.S": {
+          "candidate_sha256": "ff79c3537064b6b2c7f963971f8716f0c1901820bda4ca73a28d245c9bee3b97",
+          "control_sha256": "20d12a59e5b540a057d565f8060eae5b9b35e9f8a0d0fd5aab5f3068d351e26d",
+          "only_checkout_paths_differ": true
+        }
+      }
+    },
+    "reembedding": {
+      "images": 6,
+      "image_bytes": 1545744,
+      "plan_sha256": "11db30bb44542a931e243b5aa1eaa7b7100861bce943cd0745ad3ae248c2cc3b",
+      "compiler_sha256": "1d70207bbf43cd9e5055c830902fa09df86212afd2b890bcc46ca522a07b862a",
+      "include_sha256": "76b163a8774c2dc2b86c7756ba04c5509dceb64e9ff622cd916afda1ea1e4eff",
+      "exact_trial_image_bytes_preserved": true,
+      "native_execution": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false
+    },
+    "cpu_rebuild": {
+      "dispatch": {
+        "host": "aitopatom-66c4",
+        "command": [
+          "docker",
+          "run",
+          "--name",
+          "qrt-persistent-gdn-runtime-rebuild-20260923-r1",
+          "--hostname",
+          "aitopatom-66c4",
+          "--network",
+          "none",
+          "--memory",
+          "3g",
+          "--cpus",
+          "2",
+          "--pids-limit",
+          "256",
+          "-v",
+          "/home/qujing/qrt-persistent-gdn-runtime-rebuild-20260923-r1:/work",
+          "-w",
+          "/work",
+          "-e",
+          "CUDA_VISIBLE_DEVICES=-1",
+          "-e",
+          "HIP_VISIBLE_DEVICES=-1",
+          "-e",
+          "ROCR_VISIBLE_DEVICES=-1",
+          "--entrypoint",
+          "timeout",
+          "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+          "--signal=TERM",
+          "--kill-after=5",
+          "300",
+          "python3",
+          "/work/project/tools/compile_linux_core_gdn_persistent.py",
+          "--out",
+          "/work/aot"
+        ],
+        "returncode": 0,
+        "reason": "completed",
+        "seconds": 20.227063281927258,
+        "container_state": {
+          "Status": "exited",
+          "Running": false,
+          "Paused": false,
+          "Restarting": false,
+          "OOMKilled": false,
+          "Dead": false,
+          "Pid": 0,
+          "ExitCode": 0,
+          "Error": "",
+          "StartedAt": "2026-09-23T10:48:06.098719637Z",
+          "FinishedAt": "2026-09-23T10:48:26.104855426Z"
+        },
+        "cleanup_pass": true,
+        "gpu_used": false,
+        "manifest_sha256": "dd0820a4a11bb870eecc9d49f03650bb52fceb1bac4a6f795ee3724d9821e718"
+      },
+      "download_manifest_sha256": "e496d45404a08bc36ccda613bbf9b9a87cbd224abab42cb9cf1ee4f532c26624",
+      "comparison_report_sha256": "eecaeff1289d0eb751eff4e6dbe8f45ab702e367317bf0fddd99f97897268298",
+      "executable_content_and_layout_match": true,
+      "signatures_constants_launches_match": true,
+      "code_mutation_detected": true,
+      "exact_native_trial_images_preserved": true
+    },
+    "reproduction_sources": {
+      "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/prepare_persistent_gdn_runtime_assets_r1.py": {
+        "bytes": 2281,
+        "sha256": "084d71219fde64fd1d38fad110d5a4fded02117e7dbe24d86bca99d603cb74b7"
+      },
+      "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/rebuild_persistent_gdn_runtime_r1.py": {
+        "bytes": 5093,
+        "sha256": "41f4b1eeb931c693206f28569f4073939f539ed1d7b5ea87c864742322a92345"
+      },
+      "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/compare_persistent_gdn_rebuild_r1.py": {
+        "bytes": 3103,
+        "sha256": "ea66a48a2a9b9372f2401cdfd92cf6e0f03d88689fb765026bcc8173cae3644a"
+      },
+      "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/compare_gdn_explicit_rebuild_r2.py": {
+        "bytes": 6551,
+        "sha256": "165b43b2f2682bbadb3a9213b5fd2496950012baf4fa0432c01c5e67742f7d6b"
+      },
+      "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/record_persistent_gdn_runtime_preparation_r1.py": {
+        "bytes": 7365,
+        "sha256": "e4bcc8d9f565f70aa0f9682f1ebab0956361102aef04c08586d370d45f6a9893"
+      },
+      "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/record_persistent_gdn_runtime_preparation_r2.py": {
+        "bytes": 7415,
+        "sha256": "c5a1ed94aaff16e5b9b49ab220ea0f0af4cb9c4e7c62a16350d622f2cc1c21b4"
+      },
+      "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/record_persistent_gdn_runtime_preparation_r3.py": {
+        "bytes": 7727,
+        "sha256": "5274ab5765ce1ec64582b16ed117a50d41b6dc1edb8bc19596cc2d03f8106057"
+      }
+    },
+    "earlier_local_preparation": {
+      "preserved": true,
+      "report_sha256": "d67cb0263717e75f16b7605681e4f77023961467886b93d0b2ea55e4dbdc9211",
+      "difference": "Extra --windows-rectangular-ck was absent from the actual product builder; regenerated with its exact flags",
+      "runtime_sources_changed": false
+    },
+    "native_gpu_execution": false,
+    "native_windows_build": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false
+  },
+  "actual_build_source_inputs": [
+    {
+      "path": "native/linux_core_port/ORDERED_Q8192.md",
+      "bytes": 3452,
+      "sha256": "d5b1c9327612f182804e77b7cb81764dcc058a7e53438e028909e915f0ac0680"
+    },
+    {
+      "path": "native/linux_core_port/ck_suffix_adapter.h",
+      "bytes": 3167,
+      "sha256": "2008de279727d45bda3c6208686fcda8d51d7bb39db5e8a3a4a14ad682857626"
+    },
+    {
+      "path": "native/linux_core_port/dlfcn.h",
+      "bytes": 1619,
+      "sha256": "56ce6451ae3141d30834d98ba5fbe079dda648c70b32bb10d07eeb26f502ff31"
+    },
+    {
+      "path": "native/linux_core_port/explicit_q8192_compile.json",
+      "bytes": 41295,
+      "sha256": "d40602ae64d2458225671a1857909e485b96b6ebdda2e1d55ecfd96979a18da8"
+    },
+    {
+      "path": "native/linux_core_port/explicit_q8192_preparation.json",
+      "bytes": 31818,
+      "sha256": "4937baaad4bf9a262a57bfbeda0d2c4d1e59718e47b72d2881d5ef41c793474d"
+    },
+    {
+      "path": "native/linux_core_port/file_io.h",
+      "bytes": 4596,
+      "sha256": "2af502ce0708706225603578d645d0f9670ed68f8491f245d0c39e227d4b36b6"
+    },
+    {
+      "path": "native/linux_core_port/gb10_convolution.h",
+      "bytes": 6023,
+      "sha256": "6819e1b1774879e872e61d549982216948137d9133e776845707deecf7a41277"
+    },
+    {
+      "path": "native/linux_core_port/gb10_convolution_math.h",
+      "bytes": 1684,
+      "sha256": "713b83720ba8458ba72e7b685b681ab3bbc51e4cc80dc04fcff645b5b55c47ff"
+    },
+    {
+      "path": "native/linux_core_port/gb10_decode_attention.h",
+      "bytes": 1455,
+      "sha256": "81bff4f3caefd3d20cf219edd1245f64f9944debbed1ab7b21349362b63758e4"
+    },
+    {
+      "path": "native/linux_core_port/gb10_decode_attention.hip.cpp",
+      "bytes": 9296,
+      "sha256": "174858ad53f4aca3f0ad352de1ce3c85a0f4d28fdb3fed30c6ea76e91926aa66"
+    },
+    {
+      "path": "native/linux_core_port/gb10_decode_attention_host_contract_test.cpp",
+      "bytes": 10080,
+      "sha256": "e6b2e9c13d5921913d8452ed8f28519bb2eca593fba4879ca4b3787ae289f774"
+    },
+    {
+      "path": "native/linux_core_port/gb10_decode_moe.h",
+      "bytes": 2156,
+      "sha256": "d49855c8af63dd2b82ed3e3471d21bfbb9807e2129fe145639977c380927361b"
+    },
+    {
+      "path": "native/linux_core_port/gb10_decode_moe.hip.cpp",
+      "bytes": 10558,
+      "sha256": "dd138cf327d7a2ea513f9e0f91acb43b4d199e67907cf18d81861ddd77a7a96e"
+    },
+    {
+      "path": "native/linux_core_port/gb10_decode_moe_host_contract_test.cpp",
+      "bytes": 8305,
+      "sha256": "0c2b02a07fb20a6cf11109f2e7f8391e8a1d7b9a039b9f61b25a6a704fdf6bfe"
+    },
+    {
+      "path": "native/linux_core_port/gb10_gdn.h",
+      "bytes": 2813,
+      "sha256": "29c58701f15c6b1d46263ea169b0cdea3769121139cd1fb91e7fa88f1e6c342c"
+    },
+    {
+      "path": "native/linux_core_port/gb10_gdn.hip.cpp",
+      "bytes": 25840,
+      "sha256": "ec6b69220183ae955949943d640750132043c56244d903c7d5cc85e4118e3227"
+    },
+    {
+      "path": "native/linux_core_port/gb10_gdn_assets.inc",
+      "bytes": 6056,
+      "sha256": "bc89be98894cac0bf5e9c6ae7eea11a42a934303fd62b99800b59a6c306ec125"
+    },
+    {
+      "path": "native/linux_core_port/gb10_gdn_host_contract_test.cpp",
+      "bytes": 22990,
+      "sha256": "9af8759bd41b0122c4699f3ecb9599bbab3c85cec966fe3b3537848acdbe4196"
+    },
+    {
+      "path": "native/linux_core_port/gb10_gdn_ordered_compile.json",
+      "bytes": 21227,
+      "sha256": "b365d0825a386616971c6cd78f91e12d804ba6e43d51e33d8378d0902a19292e"
+    },
+    {
+      "path": "native/linux_core_port/gb10_gdn_ordered_images.inc",
+      "bytes": 4555326,
+      "sha256": "d9542180bdc7db0adbd3f9ca165c73107b377c27ebb6a16979e4382cdd479eb7"
+    },
+    {
+      "path": "native/linux_core_port/gb10_gdn_persistent_compile.json",
+      "bytes": 16207,
+      "sha256": "01c9f8e5e6e8ad331143a6724b7d59719cbc5032c5e08b5b68264309f5e09cc8"
+    },
+    {
+      "path": "native/linux_core_port/gb10_gdn_persistent_images.inc",
+      "bytes": 9469657,
+      "sha256": "76b163a8774c2dc2b86c7756ba04c5509dceb64e9ff622cd916afda1ea1e4eff"
+    },
+    {
+      "path": "native/linux_core_port/gb10_gdn_wu.py",
+      "bytes": 3333,
+      "sha256": "4c74551737debbca8d4fa6e7293ae3a89dd23bf2fc7867ba8536d2da16ec35d2"
+    },
+    {
+      "path": "native/linux_core_port/gb10_gdn_wu_compile.json",
+      "bytes": 3272,
+      "sha256": "f91ce5009efddad7561302279bdaf6e68a55d1b9cf4ddd27d46234d5ac17d9b1"
+    },
+    {
+      "path": "native/linux_core_port/gb10_gdn_wu_image.inc",
+      "bytes": 733918,
+      "sha256": "c38f8d6e101495dd9e06546e92c0384737f3eee9581e52bc75e597442902128a"
+    },
+    {
+      "path": "native/linux_core_port/gb10_moe.h",
+      "bytes": 2956,
+      "sha256": "64d70f06a8bed423a4ade13b5297c1a1ce23f44b444ff4d9d03157e61cc642fd"
+    },
+    {
+      "path": "native/linux_core_port/gb10_moe.hip.cpp",
+      "bytes": 24818,
+      "sha256": "769018f2a619dd461202a0ea8087fd6d9cc7eb5d1ff3ad4c650b74cdc4d28213"
+    },
+    {
+      "path": "native/linux_core_port/gb10_moe_assets.inc",
+      "bytes": 4102,
+      "sha256": "5943d3e4960407fe3f173c69e61221627aa083aeceed998b214912a84d96d7fb"
+    },
+    {
+      "path": "native/linux_core_port/gb10_moe_host_contract_test.cpp",
+      "bytes": 15430,
+      "sha256": "57adf82163fec2c2d922b694631c16a1563a5fbb3e959dbc58100b9843a3609e"
+    },
+    {
+      "path": "native/linux_core_port/gb10_moe_math.h",
+      "bytes": 824,
+      "sha256": "159f0626f1474d0ec1a6423b1630a4918069a25e03fbb7b54596eb83732649d9"
+    },
+    {
+      "path": "native/linux_core_port/gb10_normalization.h",
+      "bytes": 1514,
+      "sha256": "f0fb3fa63f774fa84d8e370071d122bffecdca91e2187088ae0ae713b6a3a1a7"
+    },
+    {
+      "path": "native/linux_core_port/gb10_normalization.hip.cpp",
+      "bytes": 11511,
+      "sha256": "1ee1c07fe0e7f430193909c02d00e2e3e0766b3292ff8f20a4644a8126b7c456"
+    },
+    {
+      "path": "native/linux_core_port/gb10_normalization_host_contract_test.cpp",
+      "bytes": 11946,
+      "sha256": "ed69a0d98d177a43534c8c50a8bb522bc7eafc82b1882d918ccb07a92ab5e6a5"
+    },
+    {
+      "path": "native/linux_core_port/gb10_normalization_math.h",
+      "bytes": 946,
+      "sha256": "25f22563b9cd84f340495ad8808e8a4087c11a99c641f107581b2308cf6c5f51"
+    },
+    {
+      "path": "native/linux_core_port/gb10_ordered_attention.cpp",
+      "bytes": 7118,
+      "sha256": "f4e93d596134466863ce2938ba4a4d416bdd63cddbed31f01428668948618f96"
+    },
+    {
+      "path": "native/linux_core_port/gb10_ordered_attention.h",
+      "bytes": 1563,
+      "sha256": "108ec083dcb96912296b35cc4b43943fbc66d26de864d114d397d117ba6418d6"
+    },
+    {
+      "path": "native/linux_core_port/gb10_ordered_attention_host_test.cpp",
+      "bytes": 7705,
+      "sha256": "009155bbd240edb9a3411aed42072fa928ec73090ea9aa8f112fc03f297b938b"
+    },
+    {
+      "path": "native/linux_core_port/gb10_ordered_attention_images.inc",
+      "bytes": 733029,
+      "sha256": "3ad738047169b7cb802d488b169f5201ac7ddc3d25ef2eb5faede3aef434b335"
+    },
+    {
+      "path": "native/linux_core_port/gb10_prefill_ordered_images.inc",
+      "bytes": 238219,
+      "sha256": "c64dc2c4e116041c373329d4276294d4a89c524a548fc36e2ad68e8002dcb08c"
+    },
+    {
+      "path": "native/linux_core_port/gb10_prefill_projection.h",
+      "bytes": 3181,
+      "sha256": "5c0c8f9ec5fdfc6e3a8c7c11891ce662f40011d2827d44f290f3cdab3830a765"
+    },
+    {
+      "path": "native/linux_core_port/gb10_prefill_projection.hip.cpp",
+      "bytes": 48049,
+      "sha256": "c2bc834a1022e710012d2c0eebb4bf7fe47c5f65d7ceaafcd676601fcf716408"
+    },
+    {
+      "path": "native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
+      "bytes": 38819,
+      "sha256": "9bb14b06bdacd0931562cc3d722105c32bf49d5f157c46d11141f9915bc69065"
+    },
+    {
+      "path": "native/linux_core_port/gb10_projection.h",
+      "bytes": 1177,
+      "sha256": "0dea0d3948511c964a15d0b56b9a5ee3ddf5e0a379428721996a253f65d0bada"
+    },
+    {
+      "path": "native/linux_core_port/gb10_projection.hip.cpp",
+      "bytes": 7546,
+      "sha256": "531a177dadd9fd90bb355607341d4a542d6d63c412d5fc8a5975a8b1825c5098"
+    },
+    {
+      "path": "native/linux_core_port/gb10_projection_host_contract_test.cpp",
+      "bytes": 5044,
+      "sha256": "5e9e78f1b65d65b2cee4203550009640506c9d9982219f161830482d8b34f320"
+    },
+    {
+      "path": "native/linux_core_port/gb10_routed_ordered_images.inc",
+      "bytes": 605255,
+      "sha256": "8a7015353fe78d77443a41912d88fa0eff40cd07e9d560c915757670de8451d7"
+    },
+    {
+      "path": "native/linux_core_port/host_contract_test.cpp",
+      "bytes": 7311,
+      "sha256": "d039c982662e648d9d1c71505eef87d16da922fb3145f2ed002e4eb38ef5736c"
+    },
+    {
+      "path": "native/linux_core_port/ordered_q8192_preparation.json",
+      "bytes": 13936,
+      "sha256": "3e73d6adf3e36be0652d7908a41cd0149313f27c8ebe752dd7911c7419470b51"
+    },
+    {
+      "path": "native/linux_core_port/persistent_gdn_preparation.json",
+      "bytes": 20435,
+      "sha256": "7370346505453fe40fc5f4c0eca984e7114bfdf99b81d2d6f26fb6d43f5e946a"
+    },
+    {
+      "path": "native/linux_core_port/probe.cpp",
+      "bytes": 18420,
+      "sha256": "0ccff4c55cd324c66740fe3d77a4f3f5a9f8bfbea4168dc10df7d93d6ed97793"
+    },
+    {
+      "path": "native/linux_core_port/probe_input.h",
+      "bytes": 4485,
+      "sha256": "388f409b78b6f2981cc666877788ef9346d2a8221ff86a9a282f93d38e8764a1"
+    },
+    {
+      "path": "native/providers/ck_fmha/blackwell_attention.h",
+      "bytes": 157747,
+      "sha256": "b8cefe638bfcc5c41ff73349624f65741395a383e4e6f72059882a7ae39a82ed"
+    },
+    {
+      "path": "native/providers/ck_fmha/float_pv_replay.h",
+      "bytes": 9384,
+      "sha256": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02"
+    },
+    {
+      "path": "native/providers/ck_fmha/inplace_probability_storage.h",
+      "bytes": 1916,
+      "sha256": "71d5c98c594c813b590aa6c5b8ae96cadaf4d0edfd08d9c7894feee7fc8ad64c"
+    },
+    {
+      "path": "native/providers/ck_fmha/long_attention_layout.h",
+      "bytes": 1902,
+      "sha256": "b94f16310020a757076e6f9bd7d97bea81f91d90567e006a419d5de4acfd1f19"
+    },
+    {
+      "path": "native/providers/ck_fmha/packed_probability_storage.h",
+      "bytes": 1225,
+      "sha256": "5bb63c12db0afdf2e7aa86e47f50fb90b827f1936321e352afeac6577330999e"
+    },
+    {
+      "path": "native/providers/gdn/fla_checkpoint.h",
+      "bytes": 4696,
+      "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307"
+    },
+    {
+      "path": "native/providers/gdn/integer_u.py",
+      "bytes": 4656,
+      "sha256": "885db1273c2063882cb789ac159206eb018624a6812477fcd245f12038177e60"
+    },
+    {
+      "path": "native/providers/gdn/ordered_inverse.py",
+      "bytes": 10434,
+      "sha256": "1f8c9e211ad9522a6b7d0d5f7f1bb5eb12bb788bb050e231f7d3adb8005f1921"
+    },
+    {
+      "path": "native/providers/gdn/ordered_pipeline.py",
+      "bytes": 7627,
+      "sha256": "a671feaeadb84219d6498a82a78c49d765f4ba627ae55fd14b9c7c53e86edfc3"
+    },
+    {
+      "path": "native/providers/gdn/sm121_attention_rcp.h",
+      "bytes": 3034,
+      "sha256": "2f962144f1665a13d152e2faabe6a5fd5dc9fd29cec90b6f144beeba4a794fa6"
+    },
+    {
+      "path": "native/providers/gdn/sm121_bf16_fma.h",
+      "bytes": 5013,
+      "sha256": "2c1e66061c5a36f231c4e35eadc23ca86b0e647b57ab70c5e9adc51048dbd1ad"
+    },
+    {
+      "path": "native/providers/gdn/sm121_exp2_interpolated.h",
+      "bytes": 4691,
+      "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8"
+    },
+    {
+      "path": "native/providers/gdn/sm121_exp2_table.h",
+      "bytes": 3753,
+      "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142"
+    },
+    {
+      "path": "native/providers/gdn/sm121_mtp_kv_math.h",
+      "bytes": 1317,
+      "sha256": "b4cd662fe69172accc1b24c0e724462f822704835ac1d6d4cfa10c55f0caca72"
+    },
+    {
+      "path": "native/providers/gdn/sm121_mtp_math.h",
+      "bytes": 2181,
+      "sha256": "0e58296175341d4ded1b69c5318808246721623b25b15404d00b6074d74ebddf"
+    },
+    {
+      "path": "native/providers/gdn/sm121_mtp_moe.h",
+      "bytes": 9708,
+      "sha256": "df38e91dae5bc127961813be746da1d5bd8ce8dc0e2fb01782f3aeac896cb52d"
+    },
+    {
+      "path": "native/providers/gdn/sm121_mtp_moe_layout.h",
+      "bytes": 3003,
+      "sha256": "aa25ff78b71bd698db2745b2e7a84cfebd565b9d143a81bc4f7e7a302617ff1f"
+    },
+    {
+      "path": "native/providers/gdn/sm121_mtp_moe_math.h",
+      "bytes": 4319,
+      "sha256": "1bca67f5dd6a672d0f0d79f90bf0d3a992c6908dea235b3b028efa29900fb349"
+    },
+    {
+      "path": "native/providers/gdn/sm121_mtp_projection.h",
+      "bytes": 2585,
+      "sha256": "ffae24eed114ae3c4e53b6d59087fc54570bea49a9de9ffc0f997be71ef8bcf0"
+    },
+    {
+      "path": "native/providers/gdn/sm121_mtp_residual.h",
+      "bytes": 2055,
+      "sha256": "135dadcfe48e69232e2254380f55a0891cbd0ce72e3c4ea296167ec6af51273f"
+    },
+    {
+      "path": "native/providers/gdn/sm121_mtp_residual_math.h",
+      "bytes": 1786,
+      "sha256": "778b44d6f983e682409dc64aa50d1548d9dffc047d50012204c2ab135b69ac48"
+    },
+    {
+      "path": "native/providers/gdn/sm121_q1_gdn.h",
+      "bytes": 4698,
+      "sha256": "a85bcd2eae346a31ccb4075e4bb5897d0d238513344322bb4d12059d9734287e"
+    },
+    {
+      "path": "native/providers/gdn/sm121_q1_math.h",
+      "bytes": 6456,
+      "sha256": "75ced8a80df1d741179afdcba2895fd9236e057d68fa16b5544bf3f5b87175eb"
+    },
+    {
+      "path": "native/providers/gdn/sm121_q2_gated_math.h",
+      "bytes": 1246,
+      "sha256": "6e99b4da7db63da3c5a155c955efd4458a6919659ce4c36a37e9e582ca08a68c"
+    },
+    {
+      "path": "native/providers/gdn/sm121_rsqrt_table.h",
+      "bytes": 3034,
+      "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f"
+    },
+    {
+      "path": "native/providers/gdn/sm121_silu_table.h",
+      "bytes": 3132,
+      "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547"
+    },
+    {
+      "path": "native/providers/gdn/sm121_sqrt_table.h",
+      "bytes": 2377,
+      "sha256": "d8e80e781b54be4df78bbf487febcf7545225f7f12cd327814c78084ed3ab4c1"
+    },
+    {
+      "path": "native/providers/moe_accumulator/bf16_midpoint_selector.h",
+      "bytes": 1722,
+      "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304"
+    },
+    {
+      "path": "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h",
+      "bytes": 12459,
+      "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_canonical_normalize.h",
+      "bytes": 1536,
+      "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_coarse_projection_bound.h",
+      "bytes": 3819,
+      "sha256": "4dddf8106a4ab91ba4beaca6a2e3ce9046902b2c646f8b8bb4201efedc7001d8"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_coarse_projection_matrix.h",
+      "bytes": 6976,
+      "sha256": "314582249a1b628d894308872db7dfafb2dd1607dfaefdf816187eff73d179da"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_domain_coarse_bound.h",
+      "bytes": 2885,
+      "sha256": "dc608a780d0d201f2ecc7a56a5aff1e7710e41bb575ca4384c07f2f7694b59ab"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_dot_certificate.h",
+      "bytes": 1474,
+      "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_float_alignment.h",
+      "bytes": 3071,
+      "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_float_subgroup.h",
+      "bytes": 5607,
+      "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_group16_modulo.h",
+      "bytes": 4771,
+      "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_integer_core.h",
+      "bytes": 9171,
+      "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_integer_parts.h",
+      "bytes": 9628,
+      "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_lane_reduce.h",
+      "bytes": 2510,
+      "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_mantissa_parts.h",
+      "bytes": 5535,
+      "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_native_product.h",
+      "bytes": 5468,
+      "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_paired_products.h",
+      "bytes": 2173,
+      "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_prepared_bf16.h",
+      "bytes": 2242,
+      "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_prepared_integer_pairs.h",
+      "bytes": 4131,
+      "sha256": "fc611756401aee8f4fcef546747a7510c1b60fa6a930b6aced3d3c1e02effe6c"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_pv_error_bound.h",
+      "bytes": 3977,
+      "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_pv_final_bound.h",
+      "bytes": 3715,
+      "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_router_exp.h",
+      "bytes": 2069,
+      "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_scalar_projection.h",
+      "bytes": 4762,
+      "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_scaled_half_products.h",
+      "bytes": 6687,
+      "sha256": "5433e85786b3a9b17fb1e55376a9c05b32725c34c8e8016c32204178b1566202"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_scaled_half_projection.h",
+      "bytes": 5541,
+      "sha256": "6d0b6f1a250b79acd364bf5c490abd04d1686e1ff684ed2d26b7bb451ae6df12"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_shared_gate.h",
+      "bytes": 1311,
+      "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_staged_half_projection.h",
+      "bytes": 6165,
+      "sha256": "951654c2221729fb665c5577ff6463be00a93c63ea9fdc52001b361e707de721"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_strided_pair.h",
+      "bytes": 3158,
+      "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_subgroup.h",
+      "bytes": 7812,
+      "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_wave16.h",
+      "bytes": 5204,
+      "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_wmma_operand_load.h",
+      "bytes": 968,
+      "sha256": "acfb766ac78697c80546290e42737372fd48241c24114f98418250794e1404e9"
+    },
+    {
+      "path": "native/providers/sm121_attention_capacity.h",
+      "bytes": 837,
+      "sha256": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833"
+    },
+    {
+      "path": "native/src/qrt_context_limits.h",
+      "bytes": 565,
+      "sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00"
+    },
+    {
+      "path": "third_party/aima_linux/LICENSE",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "third_party/aima_linux/NOTICE",
+      "bytes": 708,
+      "sha256": "178010a407ac275f76a2a21e29d68b899c7b09051c07e527445f8f6dbd21f1f3"
+    },
+    {
+      "path": "third_party/aima_linux/THIRD_PARTY_NOTICES.md",
+      "bytes": 5167,
+      "sha256": "d464ff0f7ddea186749e1ff4fab12b74304b337b303c090d931af5c6922b571a"
+    },
+    {
+      "path": "third_party/aima_linux/benchmarks/shape-lab/native/src/torch_owned_safetensors_loader.hip.cpp",
+      "bytes": 25549,
+      "sha256": "013b8e148251194580f15fec6867d1925284d83c8b2e532bb7a44ed2f3a492ab"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/causal-conv-decode-v0.1.0/kernels/ab71972380fed224-_causal_conv1d_update_kernel.hsaco",
+      "bytes": 7096,
+      "sha256": "43d3884497c28a8e4cad340bc622d31fb9b067290a33d4232fa5d4bb20d1f6dc"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/causal-conv-decode-v0.1.0/manifest.json",
+      "bytes": 9130,
+      "sha256": "6710a6e3c5e31d85f1d9f96a6f72f82fe66c44695075c9b2a720827da5e958de"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/linear-gated-norm-decode-v0.1.0/kernels/2c40422c77622591-layer_norm_fwd_kernel.hsaco",
+      "bytes": 6248,
+      "sha256": "2dabdbcdda886fbe028d53f2f99d0e22af0168893a942a0014a0953a0c9a0c45"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/linear-gated-norm-decode-v0.1.0/manifest.json",
+      "bytes": 8236,
+      "sha256": "f65c08666300f6c74edacca2c811fe74f77e8b33f7bc4b06923beacd82c6b6c1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/packed-linear-decode-v0.1.0/kernels/361b24af7b3fc502-fused_recurrent_gated_delta_rule_packed_decode_kernel.hsaco",
+      "bytes": 17128,
+      "sha256": "cbd56ae7aef6ff24d548d5b60973981ccdcf8f764b97a88f931b568ee20a2fb5"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/packed-linear-decode-v0.1.0/manifest.json",
+      "bytes": 9975,
+      "sha256": "0e73a549856130d7300e13e19a7bdb4e250aafd4a04f61367222ebd8c8a26a54"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-output1/kernels/20744d9740db2d85-chunk_local_cumsum_scalar_kernel.hsaco",
+      "bytes": 5096,
+      "sha256": "cbf0ee8dbd6641f0ea3283c68efd5565502f83409fd195c62bd2427409fe0c29"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-output1/kernels/2532756e6bc2bbbf-_fused_post_conv_kernel.hsaco",
+      "bytes": 72704,
+      "sha256": "b31b0ef0a56301fc8cef5f0a84f2a8d8ba59926a682fe98a6c5e037abb420a64"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-output1/kernels/38339233ebddf192-recompute_w_u_fwd_kernel.hsaco",
+      "bytes": 81672,
+      "sha256": "a8befbef1a4748d97063c0611a9dd38f50b8cc4141df290ebc4e40bbc665e567"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-output1/kernels/6dba01a52b03a2bd-triton_prefill_fused_add_rmsnorm_kernel.hsaco",
+      "bytes": 6336,
+      "sha256": "456db404b5f34419d21127db9c2ddfd404010f38e15fc4a178f2a9f8d548d452"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-output1/kernels/74400a9e30aef4eb-fused_moe_kernel.hsaco",
+      "bytes": 15912,
+      "sha256": "79b16c0d02afe9d7639e61acbfa9e9cfcdae76e876aca0f4e109a826a25a0284"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-output1/kernels/85404663e61bb9d4-chunk_gated_delta_rule_fwd_kernel_h_blockdim64.hsaco",
+      "bytes": 34448,
+      "sha256": "02b4e3b50f462e812c0c2d7f11dcbc90728ff57a0dd091387d00612b4e1f7b62"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-output1/kernels/87ec10c226e362fb-triton_prefill_direct_conv_kernel.hsaco",
+      "bytes": 7160,
+      "sha256": "6a85788294b4fbb073e80ef01627b2f7d0c4cb7c0463463a6f06d313fa6d6d4e"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-output1/kernels/8fb5f6d9f8bc4f73-triton_lm_head_rowwise_int8_gemv_kernel.hsaco",
+      "bytes": 7872,
+      "sha256": "85cc216a1c322da5baaa2f6585c458b49c784cc30674d10bfc66005703e1b8eb"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-output1/kernels/8fd70bed3d93b319-merge_16x16_to_64x64_inverse_kernel.hsaco",
+      "bytes": 12048,
+      "sha256": "287333978b741aa7b8efa1f23be06c0746c8338ffd3b39845281b5e7f9945cd4"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-output1/kernels/964c405da3065aa4-chunk_fwd_kernel_o.hsaco",
+      "bytes": 26304,
+      "sha256": "041df43c3624691c43d8dc37ebb97c94bb7cd9ab421c2ebebfeee6a96798cc34"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-output1/kernels/a3679374b4686a97-triton_rmsnorm_kernel.hsaco",
+      "bytes": 5608,
+      "sha256": "cc1737adb8b739b14bb087df211388ff96987d4ee8d939c3989581ef875e77e1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-output1/kernels/c254dda5c1ad82ae-fused_moe_kernel.hsaco",
+      "bytes": 15784,
+      "sha256": "119020d9c0d309ed12073ad87d9afdffdfbae44a0a2846f0322d2cb555a11610"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-output1/kernels/d984430d62f687fb-chunk_scaled_dot_kkt_fwd_kernel.hsaco",
+      "bytes": 29024,
+      "sha256": "9718fc402cde274d93ba7d3f7d79f591f434e67d10004a16b3750566a379f82f"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-output1/manifest.json",
+      "bytes": 91880,
+      "sha256": "61fc1fc76e851774fc1b270fec00e1abcd621c214096755710c6e387f516ee40"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-output1/prefill-schedule.json",
+      "bytes": 2209351,
+      "sha256": "1945779eda1e0cc86fd7f18350aea6076389a99b6bf5d0bd751cff4db475a5ae"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-text-v151/README.md",
+      "bytes": 1189,
+      "sha256": "5c7e0118d8b92cc5efa431019162e14d79f2c9421b65873c149b5e8b211a1ebc"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-text-v151/kernels/012d4fb61cdafc47-chunk_fwd_kernel_o.hsaco",
+      "bytes": 10432,
+      "sha256": "6d6e5b00a40688c1f7803258afca859c020d55e620c7ebde18bc44a3973cf7d5"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-text-v151/kernels/0bc046ae13be6d0d-merge_16x16_to_32x32_inverse_kernel.hsaco",
+      "bytes": 11664,
+      "sha256": "35db4afdddfa2084332988a3c653e1d1099c0d21840e26ac4dd5237c37544f8b"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-text-v151/kernels/15d1f114cab21479-chunk_local_cumsum_scalar_kernel.hsaco",
+      "bytes": 5096,
+      "sha256": "e073ff430da0720d0455fef2d291c94f3f72861a1fb80719b4306ce8cf6578d0"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-text-v151/kernels/2532756e6bc2bbbf-_fused_post_conv_kernel.hsaco",
+      "bytes": 72704,
+      "sha256": "b31b0ef0a56301fc8cef5f0a84f2a8d8ba59926a682fe98a6c5e037abb420a64"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-text-v151/kernels/30348a71be482206-fused_moe_kernel.hsaco",
+      "bytes": 15912,
+      "sha256": "79b16c0d02afe9d7639e61acbfa9e9cfcdae76e876aca0f4e109a826a25a0284"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-text-v151/kernels/4609c777187886d9-chunk_gated_delta_rule_fwd_kernel_h_blockdim64.hsaco",
+      "bytes": 26512,
+      "sha256": "b097a655b37b6a4b4b2ceb84b2326059898f838d696bc526c0f5ccb868bfe443"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-text-v151/kernels/641a243b44bf921d-chunk_scaled_dot_kkt_fwd_kernel.hsaco",
+      "bytes": 31072,
+      "sha256": "b22f2853a7ef1dbfd542ee837dd776738aab6357a99654244404e245f64a5a60"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-text-v151/kernels/6dba01a52b03a2bd-triton_prefill_fused_add_rmsnorm_kernel.hsaco",
+      "bytes": 6336,
+      "sha256": "456db404b5f34419d21127db9c2ddfd404010f38e15fc4a178f2a9f8d548d452"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-text-v151/kernels/8fb5f6d9f8bc4f73-triton_lm_head_rowwise_int8_gemv_kernel.hsaco",
+      "bytes": 7872,
+      "sha256": "85cc216a1c322da5baaa2f6585c458b49c784cc30674d10bfc66005703e1b8eb"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-text-v151/kernels/a3679374b4686a97-triton_rmsnorm_kernel.hsaco",
+      "bytes": 5608,
+      "sha256": "cc1737adb8b739b14bb087df211388ff96987d4ee8d939c3989581ef875e77e1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-text-v151/kernels/bac31d75e972b351-fused_moe_kernel.hsaco",
+      "bytes": 15784,
+      "sha256": "15ec8a18a86526b99610cad9e9acc43022279c4520ac3cd30cd11344a805b1a1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-text-v151/kernels/daf1e48bec3666fd-triton_prefill_direct_conv_kernel.hsaco",
+      "bytes": 6776,
+      "sha256": "162402ff3f3afd0c9ab7856b478c92cd1da5dcd179259e879fa2eb2d1acaf15d"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-text-v151/kernels/f35f3830a3f3cd8d-recompute_w_u_fwd_kernel.hsaco",
+      "bytes": 42632,
+      "sha256": "480f2876cfd9e37d70b33884192a815042743a0348fb1dd7161d5749a1f76906"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-text-v151/manifest.json",
+      "bytes": 91884,
+      "sha256": "93853b9f9837deba0a9e051bf5be4c516d74d1c5ea1a33e8e7e47ee81e914125"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q1024-text-v151/prefill-schedule.json",
+      "bytes": 2209520,
+      "sha256": "10565e59b0805ca407ef453caf72f3dfd254752d150903131e188527b910fb97"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-first-window-packed-gqa/kernels/4c6b00554f1a7b65-_packed_gqa_mha_fwd.hsaco",
+      "bytes": 33104,
+      "sha256": "d1540f853da3b399a9ee2ecbec41dfcb45f0aebc1794d06544ed5dab19db2c4b"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-first-window-packed-gqa/manifest.json",
+      "bytes": 9298,
+      "sha256": "eb3750af7a5e7304cf66c6e5557e4586ab3a4f81cd57521393328a131b5be69b"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-hybrid-packed-gqa/kernels/215d96facb2fc98b-_packed_gqa_mha_fwd.hsaco",
+      "bytes": 33104,
+      "sha256": "77a57e5d077433d66ec0fa10dc716be147a77425278a56db3b7860eefead2df7"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-hybrid-packed-gqa/manifest.json",
+      "bytes": 9136,
+      "sha256": "a68aff0be088b8f5d185c23500b62097422671d672dcdee43e455ea126b2366f"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-output1/kernels/012d4fb61cdafc47-chunk_fwd_kernel_o.hsaco",
+      "bytes": 10432,
+      "sha256": "6d6e5b00a40688c1f7803258afca859c020d55e620c7ebde18bc44a3973cf7d5"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-output1/kernels/0bc046ae13be6d0d-merge_16x16_to_32x32_inverse_kernel.hsaco",
+      "bytes": 11664,
+      "sha256": "35db4afdddfa2084332988a3c653e1d1099c0d21840e26ac4dd5237c37544f8b"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-output1/kernels/1266842df757aedd-triton_prefill_direct_conv_kernel.hsaco",
+      "bytes": 6776,
+      "sha256": "07b43c1f10e62bed3d33ba831516fecdd69bba5e0333c83b671492eeee0d3423"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-output1/kernels/15d1f114cab21479-chunk_local_cumsum_scalar_kernel.hsaco",
+      "bytes": 5096,
+      "sha256": "e073ff430da0720d0455fef2d291c94f3f72861a1fb80719b4306ce8cf6578d0"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-output1/kernels/30348a71be482206-fused_moe_kernel.hsaco",
+      "bytes": 15912,
+      "sha256": "79b16c0d02afe9d7639e61acbfa9e9cfcdae76e876aca0f4e109a826a25a0284"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-output1/kernels/4609c777187886d9-chunk_gated_delta_rule_fwd_kernel_h_blockdim64.hsaco",
+      "bytes": 26512,
+      "sha256": "b097a655b37b6a4b4b2ceb84b2326059898f838d696bc526c0f5ccb868bfe443"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-output1/kernels/641a243b44bf921d-chunk_scaled_dot_kkt_fwd_kernel.hsaco",
+      "bytes": 31072,
+      "sha256": "b22f2853a7ef1dbfd542ee837dd776738aab6357a99654244404e245f64a5a60"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-output1/kernels/6dba01a52b03a2bd-triton_prefill_fused_add_rmsnorm_kernel.hsaco",
+      "bytes": 6336,
+      "sha256": "456db404b5f34419d21127db9c2ddfd404010f38e15fc4a178f2a9f8d548d452"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-output1/kernels/758ac257aae43bd7-_fused_post_conv_kernel.hsaco",
+      "bytes": 9472,
+      "sha256": "22ed69198663a34996e50231179126bbe82540127d9dd5d633d734c2cbc71d35"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-output1/kernels/8fb5f6d9f8bc4f73-triton_lm_head_rowwise_int8_gemv_kernel.hsaco",
+      "bytes": 7872,
+      "sha256": "85cc216a1c322da5baaa2f6585c458b49c784cc30674d10bfc66005703e1b8eb"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-output1/kernels/a3679374b4686a97-triton_rmsnorm_kernel.hsaco",
+      "bytes": 5608,
+      "sha256": "cc1737adb8b739b14bb087df211388ff96987d4ee8d939c3989581ef875e77e1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-output1/kernels/bac31d75e972b351-fused_moe_kernel.hsaco",
+      "bytes": 15784,
+      "sha256": "15ec8a18a86526b99610cad9e9acc43022279c4520ac3cd30cd11344a805b1a1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-output1/kernels/f35f3830a3f3cd8d-recompute_w_u_fwd_kernel.hsaco",
+      "bytes": 42632,
+      "sha256": "480f2876cfd9e37d70b33884192a815042743a0348fb1dd7161d5749a1f76906"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-output1/manifest.json",
+      "bytes": 91991,
+      "sha256": "f83baa1f0fffdb3fac4d8547f6f16a526dc0955dbfde3e9710a3246bf8ac2777"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q16384-output1/prefill-schedule.json",
+      "bytes": 2214861,
+      "sha256": "a31854b4ae2936f487e5965caa444f66b3ab5ceb0efab3e39b8be427ed6e33f5"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q2048-output1/kernels/012d4fb61cdafc47-chunk_fwd_kernel_o.hsaco",
+      "bytes": 10432,
+      "sha256": "6d6e5b00a40688c1f7803258afca859c020d55e620c7ebde18bc44a3973cf7d5"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q2048-output1/kernels/0bc046ae13be6d0d-merge_16x16_to_32x32_inverse_kernel.hsaco",
+      "bytes": 11664,
+      "sha256": "35db4afdddfa2084332988a3c653e1d1099c0d21840e26ac4dd5237c37544f8b"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q2048-output1/kernels/15d1f114cab21479-chunk_local_cumsum_scalar_kernel.hsaco",
+      "bytes": 5096,
+      "sha256": "e073ff430da0720d0455fef2d291c94f3f72861a1fb80719b4306ce8cf6578d0"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q2048-output1/kernels/30348a71be482206-fused_moe_kernel.hsaco",
+      "bytes": 15912,
+      "sha256": "79b16c0d02afe9d7639e61acbfa9e9cfcdae76e876aca0f4e109a826a25a0284"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q2048-output1/kernels/4609c777187886d9-chunk_gated_delta_rule_fwd_kernel_h_blockdim64.hsaco",
+      "bytes": 26512,
+      "sha256": "b097a655b37b6a4b4b2ceb84b2326059898f838d696bc526c0f5ccb868bfe443"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q2048-output1/kernels/641a243b44bf921d-chunk_scaled_dot_kkt_fwd_kernel.hsaco",
+      "bytes": 31072,
+      "sha256": "b22f2853a7ef1dbfd542ee837dd776738aab6357a99654244404e245f64a5a60"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q2048-output1/kernels/6dba01a52b03a2bd-triton_prefill_fused_add_rmsnorm_kernel.hsaco",
+      "bytes": 6336,
+      "sha256": "456db404b5f34419d21127db9c2ddfd404010f38e15fc4a178f2a9f8d548d452"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q2048-output1/kernels/758ac257aae43bd7-_fused_post_conv_kernel.hsaco",
+      "bytes": 9472,
+      "sha256": "22ed69198663a34996e50231179126bbe82540127d9dd5d633d734c2cbc71d35"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q2048-output1/kernels/8fb5f6d9f8bc4f73-triton_lm_head_rowwise_int8_gemv_kernel.hsaco",
+      "bytes": 7872,
+      "sha256": "85cc216a1c322da5baaa2f6585c458b49c784cc30674d10bfc66005703e1b8eb"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q2048-output1/kernels/a3679374b4686a97-triton_rmsnorm_kernel.hsaco",
+      "bytes": 5608,
+      "sha256": "cc1737adb8b739b14bb087df211388ff96987d4ee8d939c3989581ef875e77e1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q2048-output1/kernels/bac31d75e972b351-fused_moe_kernel.hsaco",
+      "bytes": 15784,
+      "sha256": "15ec8a18a86526b99610cad9e9acc43022279c4520ac3cd30cd11344a805b1a1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q2048-output1/kernels/e57068ad1a473d87-triton_prefill_direct_conv_kernel.hsaco",
+      "bytes": 6776,
+      "sha256": "91abfff96c31ff16a7a7e5ac0d2b1224fbaed3ff10a1f06e27ccd2b0bd41821c"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q2048-output1/kernels/f35f3830a3f3cd8d-recompute_w_u_fwd_kernel.hsaco",
+      "bytes": 42632,
+      "sha256": "480f2876cfd9e37d70b33884192a815042743a0348fb1dd7161d5749a1f76906"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q2048-output1/manifest.json",
+      "bytes": 91885,
+      "sha256": "a85b1bdfa6d77fdf6be85acc430c914ab3b61dbdee7b4ff7528488088332675a"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q2048-output1/prefill-schedule.json",
+      "bytes": 2210138,
+      "sha256": "41e690adcf5fc19c19680ae09fd2d99046e0486b9bcd0c11f2ff086abda8062a"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q32768-output1/kernels/012d4fb61cdafc47-chunk_fwd_kernel_o.hsaco",
+      "bytes": 10432,
+      "sha256": "6d6e5b00a40688c1f7803258afca859c020d55e620c7ebde18bc44a3973cf7d5"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q32768-output1/kernels/0bc046ae13be6d0d-merge_16x16_to_32x32_inverse_kernel.hsaco",
+      "bytes": 11664,
+      "sha256": "35db4afdddfa2084332988a3c653e1d1099c0d21840e26ac4dd5237c37544f8b"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q32768-output1/kernels/15d1f114cab21479-chunk_local_cumsum_scalar_kernel.hsaco",
+      "bytes": 5096,
+      "sha256": "e073ff430da0720d0455fef2d291c94f3f72861a1fb80719b4306ce8cf6578d0"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q32768-output1/kernels/2532756e6bc2bbbf-_fused_post_conv_kernel.hsaco",
+      "bytes": 72704,
+      "sha256": "b31b0ef0a56301fc8cef5f0a84f2a8d8ba59926a682fe98a6c5e037abb420a64"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q32768-output1/kernels/30348a71be482206-fused_moe_kernel.hsaco",
+      "bytes": 15912,
+      "sha256": "79b16c0d02afe9d7639e61acbfa9e9cfcdae76e876aca0f4e109a826a25a0284"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q32768-output1/kernels/4609c777187886d9-chunk_gated_delta_rule_fwd_kernel_h_blockdim64.hsaco",
+      "bytes": 26512,
+      "sha256": "b097a655b37b6a4b4b2ceb84b2326059898f838d696bc526c0f5ccb868bfe443"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q32768-output1/kernels/641a243b44bf921d-chunk_scaled_dot_kkt_fwd_kernel.hsaco",
+      "bytes": 31072,
+      "sha256": "b22f2853a7ef1dbfd542ee837dd776738aab6357a99654244404e245f64a5a60"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q32768-output1/kernels/6d25e80b1a614a0a-triton_prefill_direct_conv_kernel.hsaco",
+      "bytes": 6776,
+      "sha256": "f00f4382e6751e498cd41916618634ffcad0b52be415c8c1ca09fd7845ebd6e9"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q32768-output1/kernels/6dba01a52b03a2bd-triton_prefill_fused_add_rmsnorm_kernel.hsaco",
+      "bytes": 6336,
+      "sha256": "456db404b5f34419d21127db9c2ddfd404010f38e15fc4a178f2a9f8d548d452"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q32768-output1/kernels/8fb5f6d9f8bc4f73-triton_lm_head_rowwise_int8_gemv_kernel.hsaco",
+      "bytes": 7872,
+      "sha256": "85cc216a1c322da5baaa2f6585c458b49c784cc30674d10bfc66005703e1b8eb"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q32768-output1/kernels/a3679374b4686a97-triton_rmsnorm_kernel.hsaco",
+      "bytes": 5608,
+      "sha256": "cc1737adb8b739b14bb087df211388ff96987d4ee8d939c3989581ef875e77e1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q32768-output1/kernels/bac31d75e972b351-fused_moe_kernel.hsaco",
+      "bytes": 15784,
+      "sha256": "15ec8a18a86526b99610cad9e9acc43022279c4520ac3cd30cd11344a805b1a1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q32768-output1/kernels/f35f3830a3f3cd8d-recompute_w_u_fwd_kernel.hsaco",
+      "bytes": 42632,
+      "sha256": "480f2876cfd9e37d70b33884192a815042743a0348fb1dd7161d5749a1f76906"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q32768-output1/manifest.json",
+      "bytes": 92017,
+      "sha256": "b53cec62eb5b928c69f24c5e22d3b313f60660c0cc7289e000cd984cb409bf87"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q32768-output1/prefill-schedule.json",
+      "bytes": 2216231,
+      "sha256": "3f1a15139b6ce41e7604fee0e1dd9380958d5cb30c602e0033f32ead4260c960"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q4096-output1/kernels/012d4fb61cdafc47-chunk_fwd_kernel_o.hsaco",
+      "bytes": 10432,
+      "sha256": "6d6e5b00a40688c1f7803258afca859c020d55e620c7ebde18bc44a3973cf7d5"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q4096-output1/kernels/0bc046ae13be6d0d-merge_16x16_to_32x32_inverse_kernel.hsaco",
+      "bytes": 11664,
+      "sha256": "35db4afdddfa2084332988a3c653e1d1099c0d21840e26ac4dd5237c37544f8b"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q4096-output1/kernels/15d1f114cab21479-chunk_local_cumsum_scalar_kernel.hsaco",
+      "bytes": 5096,
+      "sha256": "e073ff430da0720d0455fef2d291c94f3f72861a1fb80719b4306ce8cf6578d0"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q4096-output1/kernels/30348a71be482206-fused_moe_kernel.hsaco",
+      "bytes": 15912,
+      "sha256": "79b16c0d02afe9d7639e61acbfa9e9cfcdae76e876aca0f4e109a826a25a0284"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q4096-output1/kernels/4609c777187886d9-chunk_gated_delta_rule_fwd_kernel_h_blockdim64.hsaco",
+      "bytes": 26512,
+      "sha256": "b097a655b37b6a4b4b2ceb84b2326059898f838d696bc526c0f5ccb868bfe443"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q4096-output1/kernels/641a243b44bf921d-chunk_scaled_dot_kkt_fwd_kernel.hsaco",
+      "bytes": 31072,
+      "sha256": "b22f2853a7ef1dbfd542ee837dd776738aab6357a99654244404e245f64a5a60"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q4096-output1/kernels/6dba01a52b03a2bd-triton_prefill_fused_add_rmsnorm_kernel.hsaco",
+      "bytes": 6336,
+      "sha256": "456db404b5f34419d21127db9c2ddfd404010f38e15fc4a178f2a9f8d548d452"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q4096-output1/kernels/758ac257aae43bd7-_fused_post_conv_kernel.hsaco",
+      "bytes": 9472,
+      "sha256": "22ed69198663a34996e50231179126bbe82540127d9dd5d633d734c2cbc71d35"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q4096-output1/kernels/8fb5f6d9f8bc4f73-triton_lm_head_rowwise_int8_gemv_kernel.hsaco",
+      "bytes": 7872,
+      "sha256": "85cc216a1c322da5baaa2f6585c458b49c784cc30674d10bfc66005703e1b8eb"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q4096-output1/kernels/a3679374b4686a97-triton_rmsnorm_kernel.hsaco",
+      "bytes": 5608,
+      "sha256": "cc1737adb8b739b14bb087df211388ff96987d4ee8d939c3989581ef875e77e1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q4096-output1/kernels/bac31d75e972b351-fused_moe_kernel.hsaco",
+      "bytes": 15784,
+      "sha256": "15ec8a18a86526b99610cad9e9acc43022279c4520ac3cd30cd11344a805b1a1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q4096-output1/kernels/cf188363c6d8b9a0-triton_prefill_direct_conv_kernel.hsaco",
+      "bytes": 6776,
+      "sha256": "403fad6acd9d0e3b15c44783026b39a9cb1dd29b2c96822c3a5149e6f5d6bb4b"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q4096-output1/kernels/f35f3830a3f3cd8d-recompute_w_u_fwd_kernel.hsaco",
+      "bytes": 42632,
+      "sha256": "480f2876cfd9e37d70b33884192a815042743a0348fb1dd7161d5749a1f76906"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q4096-output1/manifest.json",
+      "bytes": 91910,
+      "sha256": "226a95321bd72fd56eb40191ef638e72436f98bdb9cc6e43b8cb79b53e24912e"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q4096-output1/prefill-schedule.json",
+      "bytes": 2211697,
+      "sha256": "b29519ce1eb1a9415fee1c804b2b76369178789dc5dae213ae504358a3d155f3"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7168-output1/kernels/09fa4fc20464d6d4-fused_moe_kernel.hsaco",
+      "bytes": 15784,
+      "sha256": "15ec8a18a86526b99610cad9e9acc43022279c4520ac3cd30cd11344a805b1a1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7168-output1/kernels/137bfc3872e1b5ad-chunk_scaled_dot_kkt_fwd_kernel.hsaco",
+      "bytes": 31072,
+      "sha256": "b22f2853a7ef1dbfd542ee837dd776738aab6357a99654244404e245f64a5a60"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7168-output1/kernels/1c0d4f6f0aeb9a95-chunk_local_cumsum_scalar_kernel.hsaco",
+      "bytes": 5096,
+      "sha256": "e073ff430da0720d0455fef2d291c94f3f72861a1fb80719b4306ce8cf6578d0"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7168-output1/kernels/25d8abd3f1818951-_fused_post_conv_kernel.hsaco",
+      "bytes": 72704,
+      "sha256": "b31b0ef0a56301fc8cef5f0a84f2a8d8ba59926a682fe98a6c5e037abb420a64"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7168-output1/kernels/2ac4c6764fdd89d8-triton_rmsnorm_kernel.hsaco",
+      "bytes": 5608,
+      "sha256": "cc1737adb8b739b14bb087df211388ff96987d4ee8d939c3989581ef875e77e1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7168-output1/kernels/2b4d4dc7a1434da2-triton_prefill_fused_add_rmsnorm_kernel.hsaco",
+      "bytes": 6336,
+      "sha256": "456db404b5f34419d21127db9c2ddfd404010f38e15fc4a178f2a9f8d548d452"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7168-output1/kernels/5cadfdc821bd8500-recompute_w_u_fwd_kernel.hsaco",
+      "bytes": 23688,
+      "sha256": "dd0a33122ff9aa691877b277a3f8101bd0decfd0ac1ab4c1903ca74b1ebac7dc"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7168-output1/kernels/7f59e68c9d2b9554-chunk_fwd_kernel_o.hsaco",
+      "bytes": 10432,
+      "sha256": "6d6e5b00a40688c1f7803258afca859c020d55e620c7ebde18bc44a3973cf7d5"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7168-output1/kernels/86c39d107071a7c4-fused_moe_kernel.hsaco",
+      "bytes": 15912,
+      "sha256": "79b16c0d02afe9d7639e61acbfa9e9cfcdae76e876aca0f4e109a826a25a0284"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7168-output1/kernels/905fedfee52531ee-merge_16x16_to_32x32_inverse_kernel.hsaco",
+      "bytes": 11664,
+      "sha256": "35db4afdddfa2084332988a3c653e1d1099c0d21840e26ac4dd5237c37544f8b"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7168-output1/kernels/c3287ba079af4cc2-_causal_conv1d_fwd_kernel.hsaco",
+      "bytes": 10776,
+      "sha256": "e4b4a1d805ddeb28a2c95678250b0a83dfcbfce9656431967cce757f72a1a577"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7168-output1/kernels/f6666cbb2f2ddfd3-triton_lm_head_rowwise_int8_gemv_kernel.hsaco",
+      "bytes": 7872,
+      "sha256": "85cc216a1c322da5baaa2f6585c458b49c784cc30674d10bfc66005703e1b8eb"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7168-output1/kernels/f8e20224e486e5c1-chunk_gated_delta_rule_fwd_kernel_h_blockdim64.hsaco",
+      "bytes": 26512,
+      "sha256": "b097a655b37b6a4b4b2ceb84b2326059898f838d696bc526c0f5ccb868bfe443"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7168-output1/manifest.json",
+      "bytes": 95461,
+      "sha256": "4030b5e80477e30dab71b99b8b91e8fcb771ab4d4ff756e20296282f15b9efb3"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7168-output1/prefill-schedule.json",
+      "bytes": 2148273,
+      "sha256": "850815dc8856494e9cb4721d27d435601efab464412d9f7a2eae9fe7aa9e9ee6"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7680-output1/kernels/09fa4fc20464d6d4-fused_moe_kernel.hsaco",
+      "bytes": 15784,
+      "sha256": "15ec8a18a86526b99610cad9e9acc43022279c4520ac3cd30cd11344a805b1a1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7680-output1/kernels/137bfc3872e1b5ad-chunk_scaled_dot_kkt_fwd_kernel.hsaco",
+      "bytes": 31072,
+      "sha256": "b22f2853a7ef1dbfd542ee837dd776738aab6357a99654244404e245f64a5a60"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7680-output1/kernels/1c0d4f6f0aeb9a95-chunk_local_cumsum_scalar_kernel.hsaco",
+      "bytes": 5096,
+      "sha256": "e073ff430da0720d0455fef2d291c94f3f72861a1fb80719b4306ce8cf6578d0"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7680-output1/kernels/25d8abd3f1818951-_fused_post_conv_kernel.hsaco",
+      "bytes": 72704,
+      "sha256": "b31b0ef0a56301fc8cef5f0a84f2a8d8ba59926a682fe98a6c5e037abb420a64"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7680-output1/kernels/2ac4c6764fdd89d8-triton_rmsnorm_kernel.hsaco",
+      "bytes": 5608,
+      "sha256": "cc1737adb8b739b14bb087df211388ff96987d4ee8d939c3989581ef875e77e1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7680-output1/kernels/2b4d4dc7a1434da2-triton_prefill_fused_add_rmsnorm_kernel.hsaco",
+      "bytes": 6336,
+      "sha256": "456db404b5f34419d21127db9c2ddfd404010f38e15fc4a178f2a9f8d548d452"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7680-output1/kernels/5cadfdc821bd8500-recompute_w_u_fwd_kernel.hsaco",
+      "bytes": 23688,
+      "sha256": "dd0a33122ff9aa691877b277a3f8101bd0decfd0ac1ab4c1903ca74b1ebac7dc"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7680-output1/kernels/7f59e68c9d2b9554-chunk_fwd_kernel_o.hsaco",
+      "bytes": 10432,
+      "sha256": "6d6e5b00a40688c1f7803258afca859c020d55e620c7ebde18bc44a3973cf7d5"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7680-output1/kernels/86c39d107071a7c4-fused_moe_kernel.hsaco",
+      "bytes": 15912,
+      "sha256": "79b16c0d02afe9d7639e61acbfa9e9cfcdae76e876aca0f4e109a826a25a0284"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7680-output1/kernels/905fedfee52531ee-merge_16x16_to_32x32_inverse_kernel.hsaco",
+      "bytes": 11664,
+      "sha256": "35db4afdddfa2084332988a3c653e1d1099c0d21840e26ac4dd5237c37544f8b"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7680-output1/kernels/c3287ba079af4cc2-_causal_conv1d_fwd_kernel.hsaco",
+      "bytes": 10776,
+      "sha256": "e4b4a1d805ddeb28a2c95678250b0a83dfcbfce9656431967cce757f72a1a577"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7680-output1/kernels/f6666cbb2f2ddfd3-triton_lm_head_rowwise_int8_gemv_kernel.hsaco",
+      "bytes": 7872,
+      "sha256": "85cc216a1c322da5baaa2f6585c458b49c784cc30674d10bfc66005703e1b8eb"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7680-output1/kernels/f8e20224e486e5c1-chunk_gated_delta_rule_fwd_kernel_h_blockdim64.hsaco",
+      "bytes": 26512,
+      "sha256": "b097a655b37b6a4b4b2ceb84b2326059898f838d696bc526c0f5ccb868bfe443"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7680-output1/manifest.json",
+      "bytes": 95461,
+      "sha256": "b14c805e1695e1f92f1c84d18dbfc4e1ea087c82bcfe0fb31a3c9a98f24edeb9"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q7680-output1/prefill-schedule.json",
+      "bytes": 2148302,
+      "sha256": "bf1be2a7747a7f58b330a5596e260f7df1d9b28c4c3d4a69dd53115b9283f51c"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8191-output1/kernels/053cead422f325a6-fused_moe_kernel.hsaco",
+      "bytes": 15912,
+      "sha256": "79b16c0d02afe9d7639e61acbfa9e9cfcdae76e876aca0f4e109a826a25a0284"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8191-output1/kernels/137bfc3872e1b5ad-chunk_scaled_dot_kkt_fwd_kernel.hsaco",
+      "bytes": 31072,
+      "sha256": "b22f2853a7ef1dbfd542ee837dd776738aab6357a99654244404e245f64a5a60"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8191-output1/kernels/1c0d4f6f0aeb9a95-chunk_local_cumsum_scalar_kernel.hsaco",
+      "bytes": 5096,
+      "sha256": "e073ff430da0720d0455fef2d291c94f3f72861a1fb80719b4306ce8cf6578d0"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8191-output1/kernels/2ac4c6764fdd89d8-triton_rmsnorm_kernel.hsaco",
+      "bytes": 5608,
+      "sha256": "cc1737adb8b739b14bb087df211388ff96987d4ee8d939c3989581ef875e77e1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8191-output1/kernels/2b4d4dc7a1434da2-triton_prefill_fused_add_rmsnorm_kernel.hsaco",
+      "bytes": 6336,
+      "sha256": "456db404b5f34419d21127db9c2ddfd404010f38e15fc4a178f2a9f8d548d452"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8191-output1/kernels/42659a8536bb410c-_causal_conv1d_fwd_kernel.hsaco",
+      "bytes": 10776,
+      "sha256": "e4b4a1d805ddeb28a2c95678250b0a83dfcbfce9656431967cce757f72a1a577"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8191-output1/kernels/5cadfdc821bd8500-recompute_w_u_fwd_kernel.hsaco",
+      "bytes": 23688,
+      "sha256": "dd0a33122ff9aa691877b277a3f8101bd0decfd0ac1ab4c1903ca74b1ebac7dc"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8191-output1/kernels/7f59e68c9d2b9554-chunk_fwd_kernel_o.hsaco",
+      "bytes": 10432,
+      "sha256": "6d6e5b00a40688c1f7803258afca859c020d55e620c7ebde18bc44a3973cf7d5"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8191-output1/kernels/8f47f93cfdcaae13-fused_moe_kernel.hsaco",
+      "bytes": 15784,
+      "sha256": "15ec8a18a86526b99610cad9e9acc43022279c4520ac3cd30cd11344a805b1a1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8191-output1/kernels/905fedfee52531ee-merge_16x16_to_32x32_inverse_kernel.hsaco",
+      "bytes": 11664,
+      "sha256": "35db4afdddfa2084332988a3c653e1d1099c0d21840e26ac4dd5237c37544f8b"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8191-output1/kernels/943af6f131804be5-_fused_post_conv_kernel.hsaco",
+      "bytes": 73088,
+      "sha256": "af75810b1cb4745e58e865081b340b6e00de24b74d29af26121054ba13e3a7f2"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8191-output1/kernels/f6666cbb2f2ddfd3-triton_lm_head_rowwise_int8_gemv_kernel.hsaco",
+      "bytes": 7872,
+      "sha256": "85cc216a1c322da5baaa2f6585c458b49c784cc30674d10bfc66005703e1b8eb"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8191-output1/kernels/f8e20224e486e5c1-chunk_gated_delta_rule_fwd_kernel_h_blockdim64.hsaco",
+      "bytes": 26512,
+      "sha256": "b097a655b37b6a4b4b2ceb84b2326059898f838d696bc526c0f5ccb868bfe443"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8191-output1/manifest.json",
+      "bytes": 95462,
+      "sha256": "5d834853be2ee1f18ab97a9727a49cfb9558e78898d486d279208f923bb64f71"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8191-output1/prefill-schedule.json",
+      "bytes": 2148661,
+      "sha256": "9359c251b3f4d7b184d306c94142bde23f8437e397b654ce5de97fae0c1b4dc8"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/decode-schedule.json",
+      "bytes": 1372162,
+      "sha256": "9026fdce0dfd69896f4f0ee27a1b574438523e3ea99180f7d42f0691ee8603e8"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/012d4fb61cdafc47-chunk_fwd_kernel_o.hsaco",
+      "bytes": 10432,
+      "sha256": "6d6e5b00a40688c1f7803258afca859c020d55e620c7ebde18bc44a3973cf7d5"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/019846b73528152d-triton_matvec_kernel.hsaco",
+      "bytes": 7128,
+      "sha256": "eae828a066cc383d299dfcb8fe902ec3dd5d3d2cb826c50a2cd086e49cf29f91"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/0947067ce9b389ca-triton_linear_gated_norm_kernel.hsaco",
+      "bytes": 5344,
+      "sha256": "2f5d10a7cd5269c971f834c36fd0fbd3a6015e652fa4465578b58a7cfb443a8d"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/15d1f114cab21479-chunk_local_cumsum_scalar_kernel.hsaco",
+      "bytes": 5096,
+      "sha256": "e073ff430da0720d0455fef2d291c94f3f72861a1fb80719b4306ce8cf6578d0"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/2532756e6bc2bbbf-_fused_post_conv_kernel.hsaco",
+      "bytes": 72704,
+      "sha256": "b31b0ef0a56301fc8cef5f0a84f2a8d8ba59926a682fe98a6c5e037abb420a64"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/2b8dbe13b452a56a-triton_router_topk_stage2_softmax_kernel.hsaco",
+      "bytes": 7240,
+      "sha256": "67fc77ad538c07e210c2ded929366b9a13d469a89f9a5735acdb809dcc894f09"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/30348a71be482206-fused_moe_kernel.hsaco",
+      "bytes": 15912,
+      "sha256": "79b16c0d02afe9d7639e61acbfa9e9cfcdae76e876aca0f4e109a826a25a0284"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/38f469c007dda394-_causal_conv1d_fwd_kernel.hsaco",
+      "bytes": 10776,
+      "sha256": "e4b4a1d805ddeb28a2c95678250b0a83dfcbfce9656431967cce757f72a1a577"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/4609c777187886d9-chunk_gated_delta_rule_fwd_kernel_h_blockdim64.hsaco",
+      "bytes": 26512,
+      "sha256": "b097a655b37b6a4b4b2ceb84b2326059898f838d696bc526c0f5ccb868bfe443"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/4e552c43d1c47eea-recompute_w_u_fwd_kernel.hsaco",
+      "bytes": 43016,
+      "sha256": "c75fade6f4256638b9be63f154f73f059b2a650124bd1d27cd773efdcc9e9e60"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/5805b033ed12e51f-raw_row_down_sum_kernel.hsaco",
+      "bytes": 5248,
+      "sha256": "48c82e0c4073889de8b5bd988bad9743e36b473cd9db1ec25efb677a7f88b992"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/6dba01a52b03a2bd-triton_prefill_fused_add_rmsnorm_kernel.hsaco",
+      "bytes": 6336,
+      "sha256": "456db404b5f34419d21127db9c2ddfd404010f38e15fc4a178f2a9f8d548d452"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/6f535daa92ead7e1-triton_matvec_kernel.hsaco",
+      "bytes": 8408,
+      "sha256": "9b5a87c78ca4582102d8d01ca84dc2a12c89ee49e18211cad0468edf9addff59"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/8fb5f6d9f8bc4f73-triton_lm_head_rowwise_int8_gemv_kernel.hsaco",
+      "bytes": 7872,
+      "sha256": "85cc216a1c322da5baaa2f6585c458b49c784cc30674d10bfc66005703e1b8eb"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/913ac4c77fb39918-triton_router_topk_stage1_kernel.hsaco",
+      "bytes": 7528,
+      "sha256": "1226ee3b96d55bca50cd5fea4bc88925a1017751d7fa818e4cc35576de01bad1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/a3679374b4686a97-triton_rmsnorm_kernel.hsaco",
+      "bytes": 5608,
+      "sha256": "cc1737adb8b739b14bb087df211388ff96987d4ee8d939c3989581ef875e77e1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/a9739ac370e62efb-triton_head_norm_rope_kernel.hsaco",
+      "bytes": 5816,
+      "sha256": "aab99304c0102ef249a14fbd0987453d9a461cb2912544f2cb904b8f05a310a4"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/af7b828c6930097d-fused_sigmoid_gating_delta_rule_update_kernel.hsaco",
+      "bytes": 10632,
+      "sha256": "a3004e6a72a6fdee377d20110fa112c903d66e2a53e60085ff6ba97ff0d1e578"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/ba55e4df2c9496b5-triton_linear_gated_norm_from_invstd_kernel.hsaco",
+      "bytes": 5232,
+      "sha256": "f68282a68bf84709098e9d9c588ff13c0aa587fa4b18be572651d5cd74e9e1df"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/bac31d75e972b351-fused_moe_kernel.hsaco",
+      "bytes": 15784,
+      "sha256": "15ec8a18a86526b99610cad9e9acc43022279c4520ac3cd30cd11344a805b1a1"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/dfedab1755315b34-merge_16x16_to_32x32_inverse_kernel.hsaco",
+      "bytes": 11664,
+      "sha256": "35db4afdddfa2084332988a3c653e1d1099c0d21840e26ac4dd5237c37544f8b"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/ed09ccb8fa88c6e1-raw_row_gate_up_activation_kernel.hsaco",
+      "bytes": 6264,
+      "sha256": "b87f832900632d7b21110bf9e982c9cf6fbb774a38c087abd60b7aca6b137e73"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/f0c43b4a8a844059-triton_fused_input_proj_conv_kernel.hsaco",
+      "bytes": 7952,
+      "sha256": "a988aa5951c4d71883785fb7663d06764212cab8d4c63d32d47ca4e639230b46"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/f228d2ae7f5aebb0-triton_head_norm_rope_kernel.hsaco",
+      "bytes": 5816,
+      "sha256": "2c75338f3f07c7aac486706fd90e8d09fa5fd9183eea9379e02bdbd85b260944"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/kernels/f2f42dea08a1c899-chunk_scaled_dot_kkt_fwd_kernel.hsaco",
+      "bytes": 31072,
+      "sha256": "b22f2853a7ef1dbfd542ee837dd776738aab6357a99654244404e245f64a5a60"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/manifest.json",
+      "bytes": 162971,
+      "sha256": "8ea05788685ccfacddb28409ded478f1adaec2b52908ebdea138c089dce49d91"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/q8192-output2/prefill-schedule.json",
+      "bytes": 2269737,
+      "sha256": "a4b8eaf4d7905f2530d78b0366503d9e1e1ca26377974c7a1c130c03230ddfbb"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/routed-moe-decode-v0.1.0/kernels/3ef02098201cfc66-fused_moe_kernel.hsaco",
+      "bytes": 10536,
+      "sha256": "86cc097b8f6ca7dd4f239d91b3a8368ec7db6e4a9c85bc5f748848797540750b"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/routed-moe-decode-v0.1.0/kernels/775c54180f936819-fused_moe_kernel.hsaco",
+      "bytes": 10664,
+      "sha256": "780ad77c75c0b7db065603bae69718050051f879ec5ee9f9be89aadd0355c358"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/routed-moe-decode-v0.1.0/manifest.json",
+      "bytes": 23380,
+      "sha256": "77b01e981800e00d07a41d542cc50af89e1635f96021c9967241022731f12fa3"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/routed-moe-exact-hybrid-v0.1.0/kernels/b7457a70c1c87f2e-hybrid_scalar_block_flag_kernel.hsaco",
+      "bytes": 7904,
+      "sha256": "cc56ebf9369afcf7dfce270cb9c9d0b31d0fe9f68b72f5af85aa5c9474b09732"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/routed-moe-exact-hybrid-v0.1.0/kernels/cfe9a4fd5c5b2198-sparse_wmma_correction_kernel.hsaco",
+      "bytes": 11208,
+      "sha256": "a37ccb3948e08d318bca748144282ba52f28739a4f95ff649c0309ab868d0d72"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/routed-moe-exact-hybrid-v0.1.0/manifest.json",
+      "bytes": 1643,
+      "sha256": "310d74ed5b7b3a6af3bd84868775cfd2acc43cc64d232a89a1e3e4a1e43f8836"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/unified-attention-decode-v0.1.0/kernels/57514aea3981e5fb-kernel_unified_attention_3d.hsaco",
+      "bytes": 18736,
+      "sha256": "39e2b17f68f8c23ae6ed757a7878277ea53bc10caf62328bd3da470c4e9a119f"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/unified-attention-decode-v0.1.0/kernels/6ecf435e2f5f8cfa-reduce_segments.hsaco",
+      "bytes": 7968,
+      "sha256": "a5339fd0563297b377dba12b2493e35622660843febfe41556b6bdafb2e9d184"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/unified-attention-decode-v0.1.0/manifest.json",
+      "bytes": 24346,
+      "sha256": "b21986abe0dd42b1987ae546715ff85410b1088fc3f6f37316edb974ce87d4ac"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/vision-attention-v0.1.0/kernels/e45a4026e641c9f8-_fwd_kernel.hsaco",
+      "bytes": 51568,
+      "sha256": "b709a058a77d61e14db73c1ff7d7f4c20859d997bec811cad7339d3e59223d00"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/vision-attention-v0.1.0/manifest.json",
+      "bytes": 13593,
+      "sha256": "f1d9dc6820ec5a58df8c44cea71b0264e216b4b4971f3abbdfce9985682ecb8e"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/vision-attention-v0.2.0/kernels/2bb5125141eea1b8-_fwd_kernel.hsaco",
+      "bytes": 51696,
+      "sha256": "e8757f4464fdb39f5505241a1ffd0f40b74f18704318280e070015bd4302d71c"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/vision-attention-v0.2.0/manifest.json",
+      "bytes": 13808,
+      "sha256": "6bf5b43e18f8daad069f10edd90ef8956d34bc33d083fb1d0373f586bfe0a3b2"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/vision-attention-v0.3.0/kernels/d09fefdcb1ddb6cb-_fwd_kernel.hsaco",
+      "bytes": 51056,
+      "sha256": "8327e42d99f5d34667b59d481dabc8e1d7cf9675361df974d85f5d6005109a9e"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/vision-attention-v0.3.0/manifest.json",
+      "bytes": 13839,
+      "sha256": "3433dd00bb9037b478e0d5516d7909facdaef563d3a484e531889cbca25b2789"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/vl-recompute-w-u-q131-v0.1.0/kernels/37364a45c33cbce0-recompute_w_u_fwd_kernel.hsaco",
+      "bytes": 75144,
+      "sha256": "80ea78d01d2abcf20626b8ddfbcb58b350ab6769c20f7396df4eba5626dfec77"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/vl-recompute-w-u-q131-v0.1.0/manifest.json",
+      "bytes": 11965,
+      "sha256": "fe7a926d27ff434c909f32316b9bd1daad7b3cd292d65f944915fc228ff8d921"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/vl-unified-attention-v0.1.0/kernels/85618d461d690f5f-kernel_unified_attention_2d.hsaco",
+      "bytes": 34608,
+      "sha256": "faac2cf293089a4a2aa0a777fc838e9d6cad4b2ae90428a89cd6fe6953c22df4"
+    },
+    {
+      "path": "third_party/aima_linux/native/aot/gfx1151/vl-unified-attention-v0.1.0/manifest.json",
+      "bytes": 8287,
+      "sha256": "adaa60abb9f8980b83b7e4cad8ee25a2d4366314b4ebb3ff89d56154121f49ee"
+    },
+    {
+      "path": "third_party/aima_linux/native/generated/model_layout.h",
+      "bytes": 87831,
+      "sha256": "b9009ba9b1febd084a2d892bb78ef8565a425993fa068f070af437c2698147df"
+    },
+    {
+      "path": "third_party/aima_linux/native/generated/visual_model_layout.h",
+      "bytes": 37699,
+      "sha256": "dff7b92abe9c9483d19c2ac9fc7e3dbc2adedda828c0dbffe5cb206c13191f4a"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/aot_kernel.h",
+      "bytes": 1239,
+      "sha256": "17aa61358b6fc74b61fcfd83e3a48eeb498b8085b8dd887604749d88efbcfbe2"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/aot_registry.h",
+      "bytes": 883,
+      "sha256": "d9797cd206b1461e85a6ae6412beda58dfd53de64612566094e550d991067ff7"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/bf16_gemm.h",
+      "bytes": 2300,
+      "sha256": "0c91757b4b523dd6c1eb811685532e56815aec8e1970099bca00de3c07315398"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/bf16_wvsplitk.h",
+      "bytes": 2016,
+      "sha256": "7ba3f365fb0253f7a9517d42ce75a6b25a63da7eafb8a2e512e808dcee9232ef"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/decode_schedule.h",
+      "bytes": 1960,
+      "sha256": "55dc40214ce553e5f1fe900531787d2ce0b07980c3c331823ca757d135a6363d"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_chat_protocol.h",
+      "bytes": 9249,
+      "sha256": "78b5f2d4cb190edda89067862a158c1dc15b7e66633c9b42f691dc352eacb8de"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_decode_bindings.h",
+      "bytes": 1389,
+      "sha256": "4eb04d15fefa58ef9f04f184f160223901449ecd729fbb176ca6de723ae68cf7"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_decode_executor.h",
+      "bytes": 1785,
+      "sha256": "edfdaa148ace0e1dffd47cacd0b9a38899b7d2951acb47c903ca7d5c901aac36"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_decode_invocation.h",
+      "bytes": 2183,
+      "sha256": "247f00b7ac2813c61bd49c3855c8ddd5f4e5932a34245d8acc50aa51fba44fe8"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_decode_runner.h",
+      "bytes": 5287,
+      "sha256": "29382c604b1c4347e2bcab9c44406742918a10c6089549cae4e2b3dd7686a389"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_decode_workspace.h",
+      "bytes": 2088,
+      "sha256": "8baf5fb42807002f78e3fa8cab90c36062fae2c355d38d1663f882c1e2f8ae92"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_derived_weights.h",
+      "bytes": 2328,
+      "sha256": "bfca96c4e226a81a4f57dfe933f0810c597a704b43badfb11a4be85ece7642fc"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_doctor.h",
+      "bytes": 406,
+      "sha256": "28c43148e67c7dd3cdef9fca328e98e3f4a6e39e352bf24d28c0b2bce5704a51"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_full_attention.h",
+      "bytes": 4208,
+      "sha256": "41324ce53cfba6af057380e6c61d2f93c5a7e07bb71f34f00ca88c251ac5c83f"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_full_layer.h",
+      "bytes": 2965,
+      "sha256": "02a718a7e5a8b1d2dc580995ad86f01dabe74ca4f1484a039cdfa3af31a4b734"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_full_prefill.h",
+      "bytes": 6789,
+      "sha256": "0545d625885f97b35b907898d74a5339e19c9ad66e1254416ba00581c71c48bb"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_http_server.h",
+      "bytes": 666,
+      "sha256": "e5f7a447d6f4d07b73bc76e551a0825c347ce09b1f4f9cff4c88191a4c937331"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_http_support.h",
+      "bytes": 4627,
+      "sha256": "ec1687f822180a2cddd0c36e45372037fca7c4d92b016d674e7bc049f15fbef5"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_image_decoder.h",
+      "bytes": 450,
+      "sha256": "b4ea21b49e8d8fe44e7523947758c7b72e288766b33089030aa8b046fb236a42"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_layer_oracle.h",
+      "bytes": 7002,
+      "sha256": "5539c89d281b09a9877487052014bda01808e9962e6012c4915f9b9928bd7a9c"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_linear_layer.h",
+      "bytes": 1988,
+      "sha256": "ef35520f7ecc22479b14991d2ff74839f203b42d8e75931549876943667c08cb"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_linear_prefill.h",
+      "bytes": 7248,
+      "sha256": "81860eefd708882e398cf6a200800e6abb45302c437e5bc87fd63d1f67a76718"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_lm_head.h",
+      "bytes": 1717,
+      "sha256": "102cdd620335d9ecebfef7191fcee3bb15012604fa43f394d953c53264aff427"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_lm_head_certificate.h",
+      "bytes": 1967,
+      "sha256": "30c6b917b6f702346672ae406ad16dfbee4fff79eb4f1d4147d41c94390537d2"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_media.h",
+      "bytes": 4288,
+      "sha256": "5ae48e7f4e1df77af9dd646db34798df1a341cc6c32625c434de19baf45fc0e2"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_moe_prefill.h",
+      "bytes": 6095,
+      "sha256": "3b61ec70b51675dd505974ccb8579c86d519b9efb3869483886c4e6101703569"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_mrope.h",
+      "bytes": 1923,
+      "sha256": "3faeb7817ec3289a28f20fe10051297773015792a8a07c0482efb79912354d52"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_multimodal_cache.h",
+      "bytes": 3409,
+      "sha256": "d65bac9d4d371568f5f8fe61d7b6586d4cc405af70d3b61539a804b67a5def34"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_pointwise.h",
+      "bytes": 9589,
+      "sha256": "5694a49f6fdd58805b088c4fd8d40aa487d033586887cadabac3638098c01f23"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_prefill_gemm_plans.h",
+      "bytes": 2060,
+      "sha256": "5940640b93f612117b1d2aa6764abc69594b7f015fb2e6487da28d75cbcbafe6"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_prefill_invocation.h",
+      "bytes": 1635,
+      "sha256": "9e0fa06d63909574c8914f5745610abebde018ca0bf8dafde454f6f2b1e82bd8"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_prefill_workspace.h",
+      "bytes": 3721,
+      "sha256": "99bc2e81770a385fa5bd3467b3dda2faeca694907b7ecc2576d55cb0827fd05c"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_prompt_plan.h",
+      "bytes": 7257,
+      "sha256": "4f831a9c40704b89295c64509bae40408dfa029f593f99cc2cc3c85030989674"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_remote_media.h",
+      "bytes": 551,
+      "sha256": "fc0cef1a27630bceca0279a43a09357bfd7cb0b31c033d3b20a9b9f9e1790cc2"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_resident_engine.h",
+      "bytes": 16787,
+      "sha256": "83a40906d4d5ebb6971dcd0c73bb3f4fbdbb26e80524d88fcace50a38c6000ed"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_routed_moe.h",
+      "bytes": 4106,
+      "sha256": "6890e117aa97cb4caed63dd21adfa0ac4fc44d371eed4a38afcf15b518577b86"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_sampling.h",
+      "bytes": 1418,
+      "sha256": "8772187f627ccd8366f57ca0db16e24467e9e20e16e4dbb755fa90896c708609"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_tokenizer.h",
+      "bytes": 2635,
+      "sha256": "4b74d875e485daeac8263b107a116ebd5a8441edf26190dc432d28eb532fd215"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_video_decoder.h",
+      "bytes": 847,
+      "sha256": "8b75ccb7b67e09a046a90fb0b9a44ed35bda7d34f7434e29df3b40e27a95e72d"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_vision_aot_attention.h",
+      "bytes": 2400,
+      "sha256": "794a482ba8d79eb5aae7a95d69d335fa6b58bd2bba4de7d51b1a2326758cde7a"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_vision_aot_block.h",
+      "bytes": 2799,
+      "sha256": "aae97b5fe31aedf18a6a739ea4c87a4e726c55aa1e4febb27733b9b4a7e42c3c"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_vision_aot_block_stack.h",
+      "bytes": 2389,
+      "sha256": "dfd46c228e8d4bdad9286a98a2c57bfc966b9ce9b37001fdf9348ec2102af81e"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_vision_block.h",
+      "bytes": 1679,
+      "sha256": "8d06c895f3f70b62f6e1160652d3adc73a20e095a28b308a4475269385bd9159"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_vision_block_stack.h",
+      "bytes": 2110,
+      "sha256": "543cee15b37bcc857944164561cc936a52497188d8492da42417561b3612e5dc"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_vision_block_suffix.h",
+      "bytes": 2834,
+      "sha256": "5bfac1fffb38f3a9a488c49ad19b55621173ca846f0e11df2f4e8a40bed4694a"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_vision_encoder.h",
+      "bytes": 3710,
+      "sha256": "b7d93a05c9bdd35f36a899c2397dce0f2160287c46e41b75cbb6572b68d9fed3"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_vision_exact_layer_norm.h",
+      "bytes": 1332,
+      "sha256": "656ee0a1d612b424e139a73e60491467d22e0118be75e279aacd1a51572e9b22"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_vision_merger.h",
+      "bytes": 1987,
+      "sha256": "bc5dba1f20dab02714c2aab7e2d416a8404046a11dab3802a4a723c99e846c5f"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_vision_pipeline.h",
+      "bytes": 4171,
+      "sha256": "278466640032deebdead0be7763369e9c98abc70ea65f7a6ee7803de61f0b5eb"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_vision_rotary.h",
+      "bytes": 872,
+      "sha256": "4c47e2ce8d4483b78aef97fbcf80e9dbe4213ad58eff2a3fa10971019307bf86"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_vision_segmented_attention.h",
+      "bytes": 1509,
+      "sha256": "e9fc1e21a2526aba158f70916266a579cc09294cd8eb401af6ddba80d4edc75f"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_vl_embedding.h",
+      "bytes": 2627,
+      "sha256": "5a7535b9dd6146bca2570682f3732be4e3cb18f1a6e9b3ed7ca1806365be88f1"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_vl_logical_projections.h",
+      "bytes": 2251,
+      "sha256": "e227053c5a22f3f7e8e4fa442a394800be1158ae82da08f7ac90f412315ada96"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_vl_processor.h",
+      "bytes": 5048,
+      "sha256": "57cb36a45f3687d3737237192a0a99d17c9e20581fddb017fa90b05ee1e1cd74"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_vl_request.h",
+      "bytes": 3226,
+      "sha256": "c543f116bb39dad0b9b072b7115c3c7555bc9061bd502299134bb0090900b8f7"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_vl_unified_attention.h",
+      "bytes": 2608,
+      "sha256": "319c2dcdcb54dba8904e2f37145b5096e2d86956783aa5caa17d67553ca15e78"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/native_weight_store.h",
+      "bytes": 3085,
+      "sha256": "c814c7633b6f891f346b234cdcfae279436f42324c48b77d7fd67dd5407159b0"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/prefill_schedule.h",
+      "bytes": 1508,
+      "sha256": "4ae5b57501de98cdf98746813c482f562859f7150bcb37ad98d8366aefe59743"
+    },
+    {
+      "path": "third_party/aima_linux/native/include/aima/sha256.h",
+      "bytes": 275,
+      "sha256": "772491a5a19e1b28eaac7cb37d5cc41a4fafceb79520beda69be663642a72497"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/aot_kernel.hip.cpp",
+      "bytes": 3879,
+      "sha256": "9ff9cdfa424205de96489458295fa380b60c8083462313f61c280312cd2f44c2"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/aot_kernel_probe.hip.cpp",
+      "bytes": 4464,
+      "sha256": "087d751e8018b7508423508206ad30058ecd632437593f6a39e55c047ca0219d"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/aot_registry_probe.hip.cpp",
+      "bytes": 4588,
+      "sha256": "a6fbf1f31b0718a9e4e409f3a64b316a7f4c2227edfd6fd80b24edc6a5005035"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/bf16_gemm.hip.cpp",
+      "bytes": 16325,
+      "sha256": "214d8ea080abdef0cce97718389c4a78f0acd3cd6d3880396816c60fe4cd61f4"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/bf16_wvsplitk.hip.cpp",
+      "bytes": 22892,
+      "sha256": "83a0f3f182ea38912570304d516bc1ba7d2ff163fb776c129c65b792fb565ee3"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/decode_schedule_probe.cpp",
+      "bytes": 4790,
+      "sha256": "e57b58626e5fff8b15db9ed1c56ca8b9a22f4cc3deaf75d532471d42f04bd75a"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/main.cpp",
+      "bytes": 245799,
+      "sha256": "20d4f403737c66d9a8e58bc845b7bd0f4bcdcf284a01248eaca9a897af23279a"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_aotriton_fmha_provider.hip.cpp",
+      "bytes": 8080,
+      "sha256": "425759540b43415204a3b57ecb6e43f86083e4c2dbc3878093afd53ff182ab83"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_chat_protocol.cpp",
+      "bytes": 68438,
+      "sha256": "3564d2bbb26b021b3d5bf07cc28a19171fad3731529946d6ada301e8ea59083b"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_decode_bindings.hip.cpp",
+      "bytes": 8106,
+      "sha256": "f0525841abc2f2f78b4834d6526704e47540f90b1fb3c2b543b8b7d7e671afbc"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_decode_executor.hip.cpp",
+      "bytes": 3306,
+      "sha256": "aeb90f5ea049c9f4e3aa4fe7ea14259495756344626f7af62f029139027e7cab"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_decode_invocation.cpp",
+      "bytes": 8991,
+      "sha256": "d0b057dee07f7e5be3c38943f5632a0fb1ebb30bf164b8dc749574da4f57d9f1"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_decode_runner.hip.cpp",
+      "bytes": 18226,
+      "sha256": "e3e5a2d004365219f72054e493c808df20fa1e77354e7beea6f4e10182906a02"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_decode_workspace.hip.cpp",
+      "bytes": 13703,
+      "sha256": "51ef15e0cd89fb1d95be696c545d675948baf84bfa4950ddd8aae074dc874524"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_derived_weights.hip.cpp",
+      "bytes": 23544,
+      "sha256": "ac76220d54b15441f08a5490febf046f198502dda685016adb2941887e6db938"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_doctor.cpp",
+      "bytes": 12290,
+      "sha256": "8e0b85740bdbed4b593b30955334751fe6526daa959e491bf91eecfa444bd3e3"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_full_attention.hip.cpp",
+      "bytes": 34665,
+      "sha256": "973003d694f176873ee4783d04385e2257bce4609ea8ecc41e6bccf1fb131f69"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_full_layer.hip.cpp",
+      "bytes": 21645,
+      "sha256": "5c6f620304afd0401896419f64c6ff572ec88da611bd27c9ee7a8d8f2197dc0c"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_full_prefill.hip.cpp",
+      "bytes": 40642,
+      "sha256": "01a52e76fd88a315c86d08788c87470d9e47ae1a03f306bec949126f836c60db"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_http_server.cpp",
+      "bytes": 131589,
+      "sha256": "d4426fb4cba3aac0a78bd9f6c3ce40828adf4d11a2a0952f2592a736b9f719e1"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_http_support.cpp",
+      "bytes": 3805,
+      "sha256": "74be565908f71f06744dcc36319e01b7cba595cbc8f6b474f6f1001fa8630e5f"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_image_decoder.cpp",
+      "bytes": 8281,
+      "sha256": "8312fcca933108621135b9907a148236127a1570191bf1dd842a4368135b2fe3"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_layer_oracle.hip.cpp",
+      "bytes": 44688,
+      "sha256": "7fa48d4c6153121f60dad2976805fde3d0f92cd80539d5803d8be99ca504fdde"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_linear_layer.hip.cpp",
+      "bytes": 32958,
+      "sha256": "42ddf602c7ac8e96d20a4751fc7591038868015bae7b8ef86d06fdc84b233350"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_linear_prefill.hip.cpp",
+      "bytes": 65917,
+      "sha256": "d1de0d08524290cc3a431d09ea71c1aa221175262593aabbc4cd75be8fa70106"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_lm_head.hip.cpp",
+      "bytes": 10801,
+      "sha256": "89c29355e812046eca859578863509a4612f7bf2cafaf4b421981463909d51fb"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_lm_head_certificate.hip.cpp",
+      "bytes": 11649,
+      "sha256": "d1d75d9b6787b42ab54b81d94d8f66cc49bd9c605669829ba79c03b7b38efdb1"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_media.cpp",
+      "bytes": 17041,
+      "sha256": "6438374a5e65fd24db79cd3814836c11adc08ec84762b2ed334edcfc996a770c"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_moe_prefill.hip.cpp",
+      "bytes": 62964,
+      "sha256": "f75668bd1cb87aecf33e29dbdabf1c6efa17d77d43dbdb6e97590d34bfba40a8"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_mrope.cpp",
+      "bytes": 11162,
+      "sha256": "b5b42effdda38a2cfe3405ced1d663cb263ac66bcd51b558eec14fc9ac4bb414"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_multimodal_cache.cpp",
+      "bytes": 7185,
+      "sha256": "311510c28521db5a9c2bb92bc545427ccb025da742007a631969e7dfdd072fcd"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_pointwise.hip.cpp",
+      "bytes": 71004,
+      "sha256": "07ecadc1b95543b209c92675c2cf3b75af40f6682c60185cef70cf6042368a38"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_prefill_gemm_plans.hip.cpp",
+      "bytes": 10732,
+      "sha256": "3ce4a51f873b50506d9e5024525258a0f19fc2938474adb8261582591d6e2d6b"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_prefill_invocation.cpp",
+      "bytes": 9752,
+      "sha256": "532be2424acf1db104698d968e3c5eb0d470452b72c675a2bb983c5f7a5041e7"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_prefill_workspace.hip.cpp",
+      "bytes": 15577,
+      "sha256": "42cc0c924f21c67fda88a715a5efe9fc642b52cbb4f7a5a91ce5db009cd0608d"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_q16384_hybrid_fmha_provider.hip.cpp",
+      "bytes": 11912,
+      "sha256": "db40471d7d758c5e03aea761c9a31fdbaf293e4ea57acc85679ad3f8c828636a"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_q16384_packed_gqa_image.S",
+      "bytes": 1241,
+      "sha256": "dc6df36ea483bf6d8893320d2ada2f65434392cd573173291682919082809f28"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_remote_media.cpp",
+      "bytes": 20522,
+      "sha256": "ec994fa572a1869dc26ecd4c0ed05f47dc970cccd35e956df53622598910552b"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_resident_engine.hip.cpp",
+      "bytes": 147413,
+      "sha256": "dc456410aad6d1e663f5266e062db97564bf82702ce684b1171f0d9098833339"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_routed_moe.hip.cpp",
+      "bytes": 27617,
+      "sha256": "dafa14609934a71b61cdd9b39367f92ccf8b084a8afc4416c82e1fc50ec30132"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_sampling.cpp",
+      "bytes": 6724,
+      "sha256": "96fbae9418ddf7966f3a7f88f535d5a52cb182bbc94b209013dec93cf252cf74"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_tokenizer.cpp",
+      "bytes": 24725,
+      "sha256": "8b73d3e3d8f5b005be56cf6917a62f167f432e0deb0ca0ee58790ead55b276b1"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_video_decoder.cpp",
+      "bytes": 18882,
+      "sha256": "582b1d12a37bb325261e0e11f1c57a792f07dafe71e4d7a04565b24e0dd0d70c"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vision_aot_attention.hip.cpp",
+      "bytes": 10533,
+      "sha256": "c276715dc99fbc1b9e0e91a5223d542de2c3c3bcd5d78548a2c8809569a26a01"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vision_aot_block.hip.cpp",
+      "bytes": 11604,
+      "sha256": "ad82183d95fefca45f1e4eef97a60c8cd3233f8b02fac66e43e7e82682efba16"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vision_aot_block_stack.hip.cpp",
+      "bytes": 7480,
+      "sha256": "96e930c020e4e44a94242ef0f04c950f71c682556451bd77a8baead4198704f5"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vision_block.hip.cpp",
+      "bytes": 5549,
+      "sha256": "5ea9839555495035bbcd1ffc32f6185a6f3b659916378fdd8cec881bbec25af1"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vision_block_prefix.hip.cpp",
+      "bytes": 9320,
+      "sha256": "c0f320cb87430d8ca729f1f0159f5709462e5662cc305245aa58ce06ee0e0c8a"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vision_block_stack.hip.cpp",
+      "bytes": 4993,
+      "sha256": "5d70462da4e0510bc1082db2a6366fec72ead13f5d1187ea6cd5addd582f4b46"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vision_block_suffix.hip.cpp",
+      "bytes": 19052,
+      "sha256": "82d4668d69f6aee57b083d1b6ad485292d39302ba3f2f3df0b65c62013bbe4ca"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vision_encoder.hip.cpp",
+      "bytes": 13275,
+      "sha256": "f1ae0b4e47be5f17d6d31bfe069d5339b205cfca646b41a4fe3693c27d318ee7"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vision_exact_layer_norm.hip.cpp",
+      "bytes": 9471,
+      "sha256": "32d1b37828ae71168418fd3578df7c67adae8964abc2effc2369c6bc4fd27b29"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vision_merger.hip.cpp",
+      "bytes": 8886,
+      "sha256": "fb64fe5186147389e1cf751ad287379238433706da279f3e0fc2b1e8f00cbb71"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vision_pipeline.hip.cpp",
+      "bytes": 19612,
+      "sha256": "fc4d6d36b6f9978ec276cd4c7172d4de1a6379e07a7867373d1d7ae7a5e0b377"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vision_rotary.hip.cpp",
+      "bytes": 4801,
+      "sha256": "b800df0e16e86600ab34e4e735941ac04b46b21fcf3388bc5ba8179a3f796c0a"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vision_segmented_attention.hip.cpp",
+      "bytes": 10685,
+      "sha256": "68a7f969fe78d2fbc25471271f587c3c4b401b5cddca4c82bb268d8fa3c168ea"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vl_embedding.cpp",
+      "bytes": 5456,
+      "sha256": "739e5fd64ff76e01dd49e9171386294a2f762c4b152e5019087a9ec6f9057c60"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vl_embedding.hip.cpp",
+      "bytes": 3820,
+      "sha256": "5b77fdb0e622d5ae44c754ec567548306e4ba82dc26070ad7d55d87da39f5ba4"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vl_logical_projections.hip.cpp",
+      "bytes": 10281,
+      "sha256": "21961dd4be770c019522e62651705464457fe07303edda56992d0009c34cbe66"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vl_processor.cpp",
+      "bytes": 33893,
+      "sha256": "58d050fba0831c55743f1085bad57a6e47274cc6144ab3fe538dca22c130ba39"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vl_request.cpp",
+      "bytes": 17590,
+      "sha256": "1dcfe93e74ae3a70fef937e079e2c98cc3942236060a66398bb56bfd98690f68"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_vl_unified_attention.hip.cpp",
+      "bytes": 16837,
+      "sha256": "3ed40a5d14329cb6d81bdce0f0ede9a0761466b1d6c7f9c3ab254961868ebefc"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/native_weight_store.hip.cpp",
+      "bytes": 13597,
+      "sha256": "4be034f46581215ff93a97a2add54e02953b95321682eabf063f422311d4ec0d"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/portable_launcher.c",
+      "bytes": 4133,
+      "sha256": "daab52580de88351ec3891631efbff3d66edfaeb6e46fce2a197388016a6c680"
+    },
+    {
+      "path": "third_party/aima_linux/native/src/sha256.cpp",
+      "bytes": 6315,
+      "sha256": "c8e63320696fe579b0cb14880d8f981dd45637324c14b5d00f387ece0d73059e"
+    },
+    {
+      "path": "third_party/aima_linux/scripts/generate-native-aot-registry.py",
+      "bytes": 4935,
+      "sha256": "59e2c21b392f88d2812619ce0d03159d77086b3b6f269dbbf5ef8fd97505edd8"
+    },
+    {
+      "path": "third_party/aima_linux/scripts/generate-native-decode-registry.py",
+      "bytes": 20708,
+      "sha256": "abe2c3a8092b75f262182615a1f882d4bb34d85e17a2eb3340c13a7bc74005e3"
+    },
+    {
+      "path": "third_party/aima_linux/third_party/licenses/AMD_COMPOSABLE_KERNEL_MIT.txt",
+      "bytes": 1112,
+      "sha256": "fc99b3d31143cde08759fec69698bb53248258dfb409f0c78cfb42b56de0b5ef"
+    },
+    {
+      "path": "third_party/aima_linux/third_party/licenses/PYTORCH_BSD.txt",
+      "bytes": 3464,
+      "sha256": "bd018feef8825e88181c84eb7e3aa4eafb8f08a20d9fd6ef948569610c4a3e43"
+    },
+    {
+      "path": "tools/build_linux_core_windows.py",
+      "bytes": 15428,
+      "sha256": "f587f819ec9947622be239ef6d9c3d3b5aa4bcb0b8e16e829272426bf2b1ff00"
+    },
+    {
+      "path": "tools/compile_linux_core_gdn_ordered.py",
+      "bytes": 6481,
+      "sha256": "81abf38a3370de5f20e8e309fcb8a56657c0571961a90bc11875f6e5069f7a31"
+    },
+    {
+      "path": "tools/linux_core_coff.py",
+      "bytes": 3969,
+      "sha256": "53a3f3e686aadc1b248b4953f2f2d5708e9b1328211d14294f9c5dbd3a82a021"
+    },
+    {
+      "path": "tools/prepare_linux_core_windows.py",
+      "bytes": 92602,
+      "sha256": "79e1c8c90fae5e89a6a4774e3df0c89801541b0f50da257b09a0f159c63352b2"
+    }
+  ],
+  "actual_build_source_input_count": 441,
+  "immutable_original_reference_reports": {
+    "persistent-gdn-explicit-controls-20260923.json": "f0570c48dbc5cdbe43f985a656e7f76e69ffca23df2ca8be20d2d27fb15a2e23",
+    "persistent-gdn-explicit-all-layers-20260923.json": "819265da302b6f403395d99ff80553269e8add819818bf73083d46b1952de906"
+  },
+  "exact_reproduction_sources": {
+    "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/record_persistent_gdn_runtime_preparation_r2.py": {
+      "bytes": 7415,
+      "sha256": "c5a1ed94aaff16e5b9b49ab220ea0f0af4cb9c4e7c62a16350d622f2cc1c21b4"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/prepare_persistent_gdn_runtime_assets_r1.py": {
+      "bytes": 2281,
+      "sha256": "084d71219fde64fd1d38fad110d5a4fded02117e7dbe24d86bca99d603cb74b7"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/record_persistent_gdn_runtime_preparation_r3.py": {
+      "bytes": 7727,
+      "sha256": "5274ab5765ce1ec64582b16ed117a50d41b6dc1edb8bc19596cc2d03f8106057"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/rebuild_persistent_gdn_runtime_r1.py": {
+      "bytes": 5093,
+      "sha256": "41f4b1eeb931c693206f28569f4073939f539ed1d7b5ea87c864742322a92345"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/record_persistent_gdn_runtime_preparation_r1.py": {
+      "bytes": 7365,
+      "sha256": "e4bcc8d9f565f70aa0f9682f1ebab0956361102aef04c08586d370d45f6a9893"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/compare_gdn_explicit_rebuild_r2.py": {
+      "bytes": 6551,
+      "sha256": "165b43b2f2682bbadb3a9213b5fd2496950012baf4fa0432c01c5e67742f7d6b"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/compare_persistent_gdn_rebuild_r1.py": {
+      "bytes": 3103,
+      "sha256": "ea66a48a2a9b9372f2401cdfd92cf6e0f03d88689fb765026bcc8173cae3644a"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/qualify_persistent_gdn_components_r1.py": {
+      "bytes": 8301,
+      "sha256": "2ce5a297607d127f1238d39a30a9ca21a48265237f52ddb93e12b35cfe13853a"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/stage_persistent_gdn_product_r1.py": {
+      "bytes": 5616,
+      "sha256": "776be5c8f03c88678c4f0aa4a8f8f35d12ab51d8d2d829ba7d4530c36986fd26"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/dispatch_persistent_gdn_product_r1.py": {
+      "bytes": 13341,
+      "sha256": "7f9b3a3aa1fba92fa951393afe807dab9b121290dfffa510fc85ca03bcf2cb5c"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/qualify_explicit_q8192_components_r1.py": {
+      "bytes": 10930,
+      "sha256": "a654cbe6ad8eaa4dbd7f54290c7fe928158c733546ad4caa5b3e642c77611098"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/linux_core_build_inventory_r1.py": {
+      "bytes": 2060,
+      "sha256": "853f8bce833605cf22aaaf13f166615a2a75c919ea5446e78468c6e94562de3c"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/runtime_preparation/record_persistent_gdn_product_entry_r1.py": {
+      "bytes": 5016,
+      "sha256": "aa9eba1bde90075a1aac8352d952b6f9a57e943618e66591200897b1ad924523"
+    }
+  },
+  "local_entry_controls": [
+    {
+      "command": [
+        "python3.12",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/stage_persistent_gdn_product_r1.py",
+        "--check"
+      ],
+      "returncode": 0,
+      "result": {
+        "selection": {
+          "ready": false,
+          "candidate_commit": "01d1418b28f55339f28c29b6b47821c29626c984",
+          "selections": {
+            "dense": {
+              "ready": false,
+              "reason": "Actual native result and clean completion are pending",
+              "family": "dense",
+              "manifest_sha256": "eb016da03377684388e3a1f79a71bf6500a550ec630d9059f8857e43680aca17"
+            },
+            "routed": {
+              "ready": false,
+              "reason": "Actual native result and clean completion are pending",
+              "family": "routed",
+              "manifest_sha256": "82d3aaa6e4667f28b7a7b78968353fe9988835a15abc3bf5acfd674f7e15564b"
+            },
+            "attention": {
+              "ready": false,
+              "reason": "Actual native result and clean completion are pending",
+              "family": "attention",
+              "manifest_sha256": "c9c6166d37626ff9dada5da4d3bea09dba8da8ebe5a6a348de885084c8175a00"
+            },
+            "persistent_gdn": {
+              "ready": false,
+              "reason": "Actual 15-case native trial and clean completion are pending",
+              "manifest_sha256": "11db30bb44542a931e243b5aa1eaa7b7100861bce943cd0745ad3ae248c2cc3b",
+              "prepared_images_verified": true,
+              "remote_calls": 0
+            }
+          },
+          "environment": {
+            "AIMA_PORT_PREFILL_ORDERED_REPLAY": "64",
+            "AIMA_PORT_ROUTED_ORDERED_REPLAY": "64",
+            "AIMA_PORT_ORDERED_ATTENTION_PREFILL": "1",
+            "AIMA_PORT_NATIVE_GDN_PREFILL": "1",
+            "AIMA_PORT_NATIVE_MOE_PREFILL": "1",
+            "AIMA_PORT_NATIVE_GDN_PERSISTENT": "1"
+          },
+          "unchanged_other_runtime_inputs": true,
+          "full_product_correctness_still_required": true,
+          "remote_calls": 0,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        "remote_calls": 0,
+        "staged": false
+      }
+    },
+    {
+      "command": [
+        "python3.12",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/stage_persistent_gdn_product_r1.py",
+        "--check",
+        "--dense-tile",
+        "0",
+        "--routed-tile",
+        "0",
+        "--without-attention"
+      ],
+      "returncode": 0,
+      "result": {
+        "selection": {
+          "ready": false,
+          "candidate_commit": "01d1418b28f55339f28c29b6b47821c29626c984",
+          "selections": {
+            "persistent_gdn": {
+              "ready": false,
+              "reason": "Actual 15-case native trial and clean completion are pending",
+              "manifest_sha256": "11db30bb44542a931e243b5aa1eaa7b7100861bce943cd0745ad3ae248c2cc3b",
+              "prepared_images_verified": true,
+              "remote_calls": 0
+            }
+          },
+          "environment": {
+            "AIMA_PORT_PREFILL_ORDERED_REPLAY": "0",
+            "AIMA_PORT_ROUTED_ORDERED_REPLAY": "0",
+            "AIMA_PORT_ORDERED_ATTENTION_PREFILL": "0",
+            "AIMA_PORT_NATIVE_MOE_PREFILL": "0",
+            "AIMA_PORT_NATIVE_GDN_PREFILL": "1",
+            "AIMA_PORT_NATIVE_GDN_PERSISTENT": "1"
+          },
+          "unchanged_other_runtime_inputs": true,
+          "full_product_correctness_still_required": true,
+          "remote_calls": 0,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        "remote_calls": 0,
+        "staged": false
+      }
+    },
+    {
+      "command": [
+        "python3.12",
+        "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/stage_persistent_gdn_product_r1.py",
+        "--check",
+        "--dense-tile",
+        "32",
+        "--routed-tile",
+        "128",
+        "--without-attention"
+      ],
+      "returncode": 0,
+      "result": {
+        "selection": {
+          "ready": false,
+          "candidate_commit": "01d1418b28f55339f28c29b6b47821c29626c984",
+          "selections": {
+            "dense": {
+              "ready": false,
+              "reason": "Actual native result and clean completion are pending",
+              "family": "dense",
+              "manifest_sha256": "eb016da03377684388e3a1f79a71bf6500a550ec630d9059f8857e43680aca17"
+            },
+            "routed": {
+              "ready": false,
+              "reason": "Actual native result and clean completion are pending",
+              "family": "routed",
+              "manifest_sha256": "82d3aaa6e4667f28b7a7b78968353fe9988835a15abc3bf5acfd674f7e15564b"
+            },
+            "persistent_gdn": {
+              "ready": false,
+              "reason": "Actual 15-case native trial and clean completion are pending",
+              "manifest_sha256": "11db30bb44542a931e243b5aa1eaa7b7100861bce943cd0745ad3ae248c2cc3b",
+              "prepared_images_verified": true,
+              "remote_calls": 0
+            }
+          },
+          "environment": {
+            "AIMA_PORT_PREFILL_ORDERED_REPLAY": "32",
+            "AIMA_PORT_ROUTED_ORDERED_REPLAY": "128",
+            "AIMA_PORT_ORDERED_ATTENTION_PREFILL": "0",
+            "AIMA_PORT_NATIVE_GDN_PREFILL": "1",
+            "AIMA_PORT_NATIVE_MOE_PREFILL": "1",
+            "AIMA_PORT_NATIVE_GDN_PERSISTENT": "1"
+          },
+          "unchanged_other_runtime_inputs": true,
+          "full_product_correctness_still_required": true,
+          "remote_calls": 0,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        "remote_calls": 0,
+        "staged": false
+      }
+    }
+  ],
+  "native_trial": {
+    "manifest_sha256": "11db30bb44542a931e243b5aa1eaa7b7100861bce943cd0745ad3ae248c2cc3b",
+    "cases": 15,
+    "staged": false,
+    "executed": false,
+    "prerequisite": "Current full256k owner completes cleanly, then preceding native component owners complete"
+  },
+  "product_entry": {
+    "remote_checkout": "P:/projects/AIMA-public-persistent-gdn-20260923-r1",
+    "candidate_source_commit": "01d1418b28f55339f28c29b6b47821c29626c984",
+    "stage_files_created": false,
+    "remote_calls": 0,
+    "requires_original_native_outputs": true,
+    "requires_15_native_control_runtime_capture_cases": true,
+    "requires_original_q8192_out512_tokens_and_first_logit": true,
+    "requires_same_run_30_layer_activation_markers": true,
+    "build_process_timeout_seconds": 1740,
+    "build_transport_timeout_seconds": 1860,
+    "product_process_timeout_seconds": 600,
+    "product_transport_timeout_seconds": 720,
+    "dependent_component_settings": "Choose 0/32/64/128 dense/routed and optional attention only after their actual native results"
+  },
+  "imported_source_whitespace_preserved": [
+    "native/providers/gdn_persistent/exp2.py",
+    "native/providers/gdn_persistent/group16.py"
+  ],
+  "native_windows_build": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

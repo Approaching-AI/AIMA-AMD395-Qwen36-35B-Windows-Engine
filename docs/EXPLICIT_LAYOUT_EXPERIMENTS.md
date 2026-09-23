@@ -93,7 +93,7 @@ a nonzero-seeded65-token tail. Each block owns one head and eight value rows
 across all chunks, with6144 explicit shared bytes and barriers between phases.
 The proposed q8192 recurrence needs one launch instead of384 per layer. Both
 gfx1151 images compile without spills; native speed and correctness remain
-unmeasured. There is no runtime binding. The original K16 arithmetic and state
+unmeasured. An optional runtime binding is now prepared below. The original K16 arithmetic and state
 fma are unchanged; two preceding CPU compiler failures remain recorded.
 
 The [persistent all-layer comparison](../benchmarks/correctness/persistent-gdn-explicit-all-layers-20260923.json)
@@ -104,3 +104,14 @@ qualified all-layer capture. The actual worker passes six ABI controls for
 both compiled images. A15-case native comparison interleaves unfused control,
 fused runtime and fused capture across first64 and complete q7169, reversing
 order on the second pass. No native execution or runtime selection is claimed.
+
+The [optional persistent runtime and product entry](../benchmarks/correctness/persistent-gdn-runtime-preparation-20260923.json)
+are prepared at `01d1418b28f55339f28c29b6b47821c29626c984`, on
+`codex/persistent-gdn-prefill`. Five original64 upstream images feed the fused
+recurrence; six selected images add no device allocation or runtime dependency.
+The cold-q8192 AOT count is7 per layer including cumsum, previously390.
+Actual host ABI/failure checks and offline executable-content reproduction pass.
+The entry requires all15 native controls, exact selected images, clean owner
+completion, same-run activation markers and the original512-token product gate.
+Optional dense/routed tiles and attention still require their own native results.
+Nothing has been staged on AMD for this candidate, and no speedup is accepted.

@@ -200,7 +200,7 @@ and all V-new values. First64 and a nonzero-seeded65-token continuation pass.
 Both gfx1151 images compile with225/226 VGPRs and no spills or private memory.
 Two earlier CPU compile failures are preserved. This reduces the proposed
 q8192 recurrence from384 launches per layer to one; no speedup is established.
-The variant has no runtime binding. [Persistent recurrence controls](../benchmarks/correctness/persistent-gdn-explicit-controls-20260923.json)
+The optional runtime binding is described below. [Persistent recurrence controls](../benchmarks/correctness/persistent-gdn-explicit-controls-20260923.json)
 SHA256 `f0570c48dbc5cdbe43f985a656e7f76e69ffca23df2ca8be20d2d27fb15a2e23`.
 
 The persistent recurrence now also passes all30 original q8192 GDN layers:
@@ -215,6 +215,28 @@ first64 and full q7169 chains, including113 checkpoints for capture variants.
 Six host checks match the actual worker launch to both compiled120-byte ABIs.
 No native execution is claimed. [All-layer result and native plan](../benchmarks/correctness/persistent-gdn-explicit-all-layers-20260923.json)
 SHA256 `819265da302b6f403395d99ff80553269e8add819818bf73083d46b1952de906`.
+
+The optional persistent runtime is now committed at
+`01d1418b28f55339f28c29b6b47821c29626c984`, branch
+`codex/persistent-gdn-prefill`. Its default-off setting requires native GDN
+prefill and accepts cold q8192 only. Five exact original64 upstream images
+feed the fused recurrence; the six images total1545744 bytes. The original
+cumsum plus this pipeline uses7 AOT launches per layer, compared with390.
+It reuses existing scratch and adds no device allocation or runtime dependency.
+ASan/UBSan checks pass116 rejected bindings, six dispatch failures and the
+legacy389-launch pipeline. Dense/routed host checks also pass with the shared
+HIP stub. Offline rebuilding reproduces all six images' executable content;
+the exact native-trial bytes remain embedded. Actual builder preparation has
+327 imports,72 base images,61 compilation units and441 hashed source inputs.
+Sixteen overlays remain identical; the sole changed overlay reports actual
+persistent activation and launch count. An initial extra rectangular-attention
+preparation flag was removed to match the product builder, without runtime
+source changes. The conditional product entry binds the full15-case native
+trial and independently selected dense/routed/attention results. Three local
+selection checks report pending evidence and make zero remote calls. No source
+manifest or bundle has been staged, and no new Windows/model result is claimed.
+[Runtime and entry evidence](../benchmarks/correctness/persistent-gdn-runtime-preparation-20260923.json)
+SHA256 `5d2a76699a0a3e18f29af916eeafcbcbc9e07a46d66b9a430b98bc2f40dd8af2`.
 
 An explicit-layout dense replay also preserves the existing selected-pair
 addressing and ascending K16 arithmetic. Its three gfx1151 tiles have zero
