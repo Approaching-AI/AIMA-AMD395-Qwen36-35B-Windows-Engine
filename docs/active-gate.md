@@ -239,6 +239,19 @@ No Windows build, AMD execution or real-model result is claimed for this
 combination. [Composition evidence](../benchmarks/correctness/explicit-q8192-runtime-preparation-20260923.json)
 SHA256 `172919606811daf0ca50f0539d9311dc8f63b5865adf28f894d449f7356a9791`.
 
+The [conditional product entry](../benchmarks/correctness/explicit-q8192-product-entry-20260923.json)
+requires selected actual native results and clean completion before staging.
+Eleven host controls exercise original-output binding and rejection behavior
+using the previous real dense report. The pending GDN stage also had an input
+inventory mismatch: generator Python files were included in the C++ build
+list despite not being read by that builder. The corrected `stage_linux_core_explicit_gdn_r2.py`
+and combined stage evaluate the builder's actual inventory, with generation
+inputs bound separately. They reproduce all428 previously executed u64 source
+entries and select438 for the combined candidate. GDN and combined source
+commits remain unchanged. Both product manifests remain absent, with zero new
+remote calls from this preparation. Record SHA256
+`ce06d2a8c1c32a44a165e74020f7469cb7e0bfef401c13025760e36fed7bf6f5`.
+
 A bounded output-only observer is committed at
 `b2b7c0bea3f3fe41ada0fc2d99abb48079e64478`. It saves one layer/position's logical
 prefix and tail KV, original query, padded scores, segment output/max/sum and

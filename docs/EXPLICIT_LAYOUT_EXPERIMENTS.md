@@ -59,6 +59,15 @@ diagnostic images. The two tiled PV images remain diagnostic only. All four
 runtime settings stay disabled by default; no native build or execution has
 occurred for the combined candidate.
 
+The [conditional product entry](../benchmarks/correctness/explicit-q8192-product-entry-20260923.json)
+binds selected tile results, native cleanup and image identities before creating
+a source manifest. Its 11 host controls reuse a previous actual dense result
+and reject changed outputs, duplicate/missing rows, weight/queue changes and
+guard failures. Independent unused-tile numerical failures remain recorded.
+The actual C++ build inventory now comes directly from the builder; standalone
+generator source is bound separately. Use the corrected GDN stage `r2` if
+running that isolated candidate. Neither product manifest has been created.
+
 The AMD GDN, dense, attention and routed measurements wait for the current full256k
 owner to complete cleanly. Windows model tokens, logits, callbacks, load time
 and q8192 TTFT remain required. These experiments do not change release gates.

@@ -1,0 +1,176 @@
+{
+  "schema": 1,
+  "classification": "conditional_explicit_q8192_product_entry_prepared",
+  "candidate_commit": "c85259254b805788dc80680caad37685708c98a8",
+  "generator_inventory_correction": {
+    "problem": "A pending stage included standalone generator sources in the C++ build list although the actual builder does not read them.",
+    "correction": "Evaluate the actual builder source-inventory block; preserve standalone generation inputs separately.",
+    "helper_sha256": "853f8bce833605cf22aaaf13f166615a2a75c919ea5446e78468c6e94562de3c",
+    "host_control": {
+      "previous_actual_windows_source_commit": "e15c6cd1a0e91243ebd330fa55ac24348603e151",
+      "previous_source_plan_sha256": "e97905250c8172371a65370a77abdba53a34eed16c8a78c10d73ff8618f54bc2",
+      "input_count": 428,
+      "exact_previous_executed_input_list_reproduced": true,
+      "helper_sha256": "853f8bce833605cf22aaaf13f166615a2a75c919ea5446e78468c6e94562de3c",
+      "native_execution": false
+    },
+    "corrected_gdn_stage": "stage_linux_core_explicit_gdn_r2.py",
+    "gdn_actual_build_inputs": 428,
+    "composed_actual_build_inputs": 438,
+    "original_gdn_candidate_unchanged": true,
+    "combined_candidate_unchanged": true,
+    "previous_stage_manifest_never_created": true
+  },
+  "selection_controls": {
+    "qualifier_sha256": "a654cbe6ad8eaa4dbd7f54290c7fe928158c733546ad4caa5b3e642c77611098",
+    "previous_actual_report_sha256": "db55fc7c45a9a3557c4e3cdae09e213d95207c48216c42ff953c4bd6391e8a4a",
+    "controls": [
+      {
+        "case": "previous_actual_dense_tile_32",
+        "passed": true
+      },
+      {
+        "case": "previous_actual_dense_tile_64",
+        "passed": true
+      },
+      {
+        "case": "previous_actual_dense_tile_128",
+        "passed": true
+      },
+      {
+        "case": "actual_and_self_reported_expected_changed",
+        "rejected": true
+      },
+      {
+        "case": "lost_selected_result",
+        "rejected": true
+      },
+      {
+        "case": "duplicated_selected_result",
+        "rejected": true
+      },
+      {
+        "case": "guard_failure",
+        "rejected": true
+      },
+      {
+        "case": "changed_model_weight",
+        "rejected": true
+      },
+      {
+        "case": "changed_queue",
+        "rejected": true
+      },
+      {
+        "case": "changed_shape",
+        "rejected": true
+      },
+      {
+        "case": "numerical_failure_of_unselected_tile_does_not_relabel_or_block_selected_tile",
+        "passed": true
+      }
+    ],
+    "host_only": true,
+    "new_native_execution": false,
+    "inference_acceptance": false
+  },
+  "current_local_check": {
+    "selection": {
+      "ready": false,
+      "candidate_commit": "c85259254b805788dc80680caad37685708c98a8",
+      "selections": {
+        "dense": {
+          "ready": false,
+          "reason": "Actual native result and clean completion are pending",
+          "family": "dense",
+          "manifest_sha256": "eb016da03377684388e3a1f79a71bf6500a550ec630d9059f8857e43680aca17"
+        },
+        "routed": {
+          "ready": false,
+          "reason": "Actual native result and clean completion are pending",
+          "family": "routed",
+          "manifest_sha256": "82d3aaa6e4667f28b7a7b78968353fe9988835a15abc3bf5acfd674f7e15564b"
+        },
+        "attention": {
+          "ready": false,
+          "reason": "Actual native result and clean completion are pending",
+          "family": "attention",
+          "manifest_sha256": "c9c6166d37626ff9dada5da4d3bea09dba8da8ebe5a6a348de885084c8175a00"
+        },
+        "gdn": {
+          "ready": false,
+          "reason": "Actual native trial and clean completion record are not yet present",
+          "source_commit": "b07bf58e5140ea6e256c477f4aacfd39fc89695d",
+          "prepared_images_verified": true,
+          "remote_calls": 0
+        }
+      },
+      "environment": {
+        "AIMA_PORT_PREFILL_ORDERED_REPLAY": "64",
+        "AIMA_PORT_ROUTED_ORDERED_REPLAY": "64",
+        "AIMA_PORT_ORDERED_ATTENTION_PREFILL": "1",
+        "AIMA_PORT_NATIVE_GDN_PREFILL": "1",
+        "AIMA_PORT_NATIVE_MOE_PREFILL": "1"
+      },
+      "full_product_correctness_still_required": true,
+      "remote_calls": 0,
+      "inference_acceptance": false,
+      "performance_acceptance": false
+    },
+    "remote_calls": 0,
+    "staged": false
+  },
+  "prepared_dispatch": {
+    "build_timeout_seconds": 1740,
+    "product_timeout_seconds": 600,
+    "original_q8192_out512_token_callback_and_logit_checker": true,
+    "artifact_source_manifest_and_native_host_bound": true,
+    "stage_markers_recorded_separately_from_original_token_correctness": true,
+    "component_timing_not_product_acceptance": true,
+    "selectable_dense_tiles": [
+      0,
+      32,
+      64,
+      128
+    ],
+    "selectable_routed_tiles": [
+      0,
+      32,
+      64,
+      128
+    ],
+    "optional_gdn_and_attention": true
+  },
+  "exact_reproduction_sources": {
+    "tools/experiments/ordered_q8192/explicit_product/linux_core_build_inventory_r1.py": {
+      "bytes": 2060,
+      "sha256": "853f8bce833605cf22aaaf13f166615a2a75c919ea5446e78468c6e94562de3c"
+    },
+    "tools/experiments/ordered_q8192/explicit_product/qualify_explicit_q8192_components_r1.py": {
+      "bytes": 10930,
+      "sha256": "a654cbe6ad8eaa4dbd7f54290c7fe928158c733546ad4caa5b3e642c77611098"
+    },
+    "tools/experiments/ordered_q8192/explicit_product/qualify_native_gdn_explicit_r1.py": {
+      "bytes": 6090,
+      "sha256": "9b0f91d1b8bcab8cd8ef69fe76c5dc632d0d1fafe4895da7078773e1a643632f"
+    },
+    "tools/experiments/ordered_q8192/explicit_product/stage_linux_core_explicit_gdn_r2.py": {
+      "bytes": 3763,
+      "sha256": "43296ab760ed0529b93b18c4d02afc3d25a52ec818bf0bf862611d0e6c5c204c"
+    },
+    "tools/experiments/ordered_q8192/explicit_product/stage_explicit_q8192_product_r1.py": {
+      "bytes": 5750,
+      "sha256": "6fa59b0f903255839ae1511b70b89c29593de6cc8b84dd11ee9ca46ff528f6a2"
+    },
+    "tools/experiments/ordered_q8192/explicit_product/dispatch_explicit_q8192_product_r1.py": {
+      "bytes": 12692,
+      "sha256": "96f2f0cbd33b1af649c7ed38e821355545ccff9984f90688756fb4c624de63b8"
+    }
+  },
+  "remote_calls": 0,
+  "staged": false,
+  "native_execution": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}
