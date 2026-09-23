@@ -1,0 +1,22 @@
+{
+  "kind": "gb10_full_attention_single_row_key_norm",
+  "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+  "reference_host": "aitopatom-66c4",
+  "prompt_position": 263282,
+  "layer": 19,
+  "key_head": 1,
+  "input_bf16_file": "q1_full_key_norm_row263282_head1_bf16.bin",
+  "input_sha256": "bc5bb9e8886783e5b2edbda067a83c4c31bc38daede5d486a1d89a8215485401",
+  "full_projection_sha256": "f450bab098e73584dfb1c5038359230b7605137f603d0729f15daf35c8c6d857",
+  "full_k_norm_sha256": "bedac7819f2f46ab3be5867fe971a856827aa0a8e2996692311510e1b9bdfe36",
+  "single_row_sum_bits": 1123783405,
+  "single_row_argument_bits": 1056674575,
+  "single_row_inverse_bits": 1068931782,
+  "old_strided_argument_bits": 1056674574,
+  "old_strided_inverse_bits": 1068931783,
+  "channel": 255,
+  "channel_weight_bf16": 16134,
+  "reference_channel_bf16": 49012,
+  "old_strided_channel_bf16": 49013,
+  "reference_source": "original 608-output-qualified GB10 model capture; independent selected-source XBLOCK=1 debug replay matches all 512 K-norm values"
+}

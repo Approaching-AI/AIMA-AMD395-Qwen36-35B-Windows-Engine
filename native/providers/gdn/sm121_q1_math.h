@@ -71,6 +71,15 @@ QRT_Q1_INLINE float head_norm_lane_sumsq(const float *values,
     }
     return sum;
 }
+// Single-row full-attention K normalization assigns adjacent BF16 channels
+// to each lane. Its reduction differs by one FP32 ULP from the two-row
+// strided layout on the captured long-context K head.
+QRT_Q1_INLINE float head_norm_single_row_key_lane_sumsq(const float *values,
+                                                         unsigned int lane) {
+    const float first = values[lane * 2u];
+    const float second = values[lane * 2u + 1u];
+    return add(fmaf(first, first, 0.0f), fmaf(second, second, 0.0f));
+}
 QRT_Q1_INLINE float head_norm_warp_sum(const float *warp, bool is_key) {
     return is_key ? add(add(warp[0], warp[2]), add(warp[1], warp[3]))
                   : add(warp[0], warp[1]);
