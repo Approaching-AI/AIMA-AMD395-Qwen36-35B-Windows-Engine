@@ -1,0 +1,17 @@
+{
+  "name": "qrt-gb10-persistent-gdn-layers-20260923-r1",
+  "archive": "qrt-gb10-persistent-gdn-layers-20260923-r1.tar",
+  "archive_sha256": "030f2027ff92092ae82ffc59d8b309d455b4dd21465a909ac6ef2188234fed4e",
+  "archive_bytes": 4556800,
+  "script": "run-qrt-gb10-persistent-gdn-layers-20260923-r1.py",
+  "script_sha256": "d0c0cf25830d1c224dac62ef2541ed91b2f7db654247361a854a8de6d63e5459",
+  "dispatcher": "dispatch_gb10_persistent_gdn_layers_r1.py",
+  "dispatcher_sha256": "817ef6a09d6d5e6c248f515eac4b040a350881349d90079ff15282db690b9aad",
+  "source_inputs_sha256": "1716a64ceb825edd1feee843058b23bceda3f5e1f76bd2002032eb33120e5a60",
+  "ssh_timeout_seconds": 1950,
+  "candidate_base_commit": "a44d8468ea59f7185987b0b8878ab5aa16863e52",
+  "original_model_sources_unchanged": true,
+  "original_576_outputs_required": true,
+  "observer_source_base_commit": "3fcbdafb10a14e94c15bd94a1f821f180bc95373",
+  "generator_sha256": "51c732a6c4380e4a6b7b96773972df5af7ce15b9311d5794745e33661d299934"
+}

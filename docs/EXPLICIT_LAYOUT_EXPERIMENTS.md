@@ -95,3 +95,12 @@ The proposed q8192 recurrence needs one launch instead of384 per layer. Both
 gfx1151 images compile without spills; native speed and correctness remain
 unmeasured. There is no runtime binding. The original K16 arithmetic and state
 fma are unchanged; two preceding CPU compiler failures remain recorded.
+
+The [persistent all-layer comparison](../benchmarks/correctness/persistent-gdn-explicit-all-layers-20260923.json)
+also passes all30 original q8192 GDN layers:1006632960 BF16 core values and
+15728640 FP32 final-state values. All576 original output IDs and full first
+logits are preserved, and the operands/output hashes match the earlier
+qualified all-layer capture. The actual worker passes six ABI controls for
+both compiled images. A15-case native comparison interleaves unfused control,
+fused runtime and fused capture across first64 and complete q7169, reversing
+order on the second pass. No native execution or runtime selection is claimed.

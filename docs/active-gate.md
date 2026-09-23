@@ -200,9 +200,21 @@ and all V-new values. First64 and a nonzero-seeded65-token continuation pass.
 Both gfx1151 images compile with225/226 VGPRs and no spills or private memory.
 Two earlier CPU compile failures are preserved. This reduces the proposed
 q8192 recurrence from384 launches per layer to one; no speedup is established.
-The variant has no runtime binding, and native and q8192 all-layer comparisons
-remain pending. [Persistent recurrence controls](../benchmarks/correctness/persistent-gdn-explicit-controls-20260923.json)
+The variant has no runtime binding. [Persistent recurrence controls](../benchmarks/correctness/persistent-gdn-explicit-controls-20260923.json)
 SHA256 `f0570c48dbc5cdbe43f985a656e7f76e69ffca23df2ca8be20d2d27fb15a2e23`.
+
+The persistent recurrence now also passes all30 original q8192 GDN layers:
+1006632960 BF16 core values and15728640 FP32 final-state values are bit exact.
+Original layer inputs, outputs and preparation match the previous qualified
+capture; all576 model output IDs and complete first-logit buffers are preserved.
+The459.763-second bounded observation preserves original compiler caches and
+leaves no GPU process, with minimum host reserve16159875072 bytes. A15-case
+native trial is prepared using the actual original64 upstream images and
+interleaved, reversed unfused/runtime/capture recurrences. It compares repeated
+first64 and full q7169 chains, including113 checkpoints for capture variants.
+Six host checks match the actual worker launch to both compiled120-byte ABIs.
+No native execution is claimed. [All-layer result and native plan](../benchmarks/correctness/persistent-gdn-explicit-all-layers-20260923.json)
+SHA256 `819265da302b6f403395d99ff80553269e8add819818bf73083d46b1952de906`.
 
 An explicit-layout dense replay also preserves the existing selected-pair
 addressing and ascending K16 arithmetic. Its three gfx1151 tiles have zero
