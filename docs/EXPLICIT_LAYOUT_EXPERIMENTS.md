@@ -48,6 +48,17 @@ original model's complete output hash. The six gfx1151 images have no layout
 conversions or spills, with 16 shared bytes for invalid-queue flag reduction.
 The prepared native trial pairs 24 full comparisons with 17 queue controls.
 
+A [combined optional runtime](../benchmarks/correctness/explicit-q8192-runtime-preparation-20260923.json)
+is now committed at `c85259254b805788dc80680caad37685708c98a8`, on
+`codex/explicit-q8192-operators`. It embeds the exact 13 dense/routed/attention
+images and eight GDN images selected for the pending native trials. C++ launch
+and ownership implementations are unchanged. Three ASan/UBSan host checks
+pass, build preparation retains all 327 imports and 72 existing AOT objects,
+and an offline rebuild reproduces the executable content of all 15 q8192
+diagnostic images. The two tiled PV images remain diagnostic only. All four
+runtime settings stay disabled by default; no native build or execution has
+occurred for the combined candidate.
+
 The AMD GDN, dense, attention and routed measurements wait for the current full256k
 owner to complete cleanly. Windows model tokens, logits, callbacks, load time
 and q8192 TTFT remain required. These experiments do not change release gates.

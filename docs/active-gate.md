@@ -1,6 +1,6 @@
 # Execution state
 
-Updated 2026-09-23 17:08 Asia/Shanghai. The mission remains open; no new release
+Updated 2026-09-23 Asia/Shanghai. The mission remains open; no new release
 or tag is qualified. Immutable requirements remain in [AGENTS.md](../AGENTS.md),
 [project goals](project-goals.md) and [target contract](../contracts/target-contract.json).
 Earlier experiments remain evidence, not route restrictions. The previous
@@ -225,6 +225,19 @@ for 24 full comparisons, plus 15 invalid and two partial shuffled queue cases.
 It has not been staged or executed while the full256k owner is active.
 [Routed layout evidence](../benchmarks/correctness/ordered-routed-explicit-layout-controls-20260923.json)
 SHA256 `9c1f831bd0780c2423da25425dd4b857e730204a244d16f26548f242727de3f8`.
+
+A combined candidate at `c85259254b805788dc80680caad37685708c98a8`, branch
+`codex/explicit-q8192-operators`, embeds these exact pending images: 13
+dense/routed/attention images (521376 bytes) and eight GDN images (743344 bytes).
+All four runtime options remain disabled by default. Existing C++ launch and
+ownership source is unchanged; three ASan/UBSan host checks pass. Build
+preparation preserves 327 imports, 72 existing images and all generated
+overlays. Offline recompilation reproduces executable content and launch
+metadata for all 15 q8192 diagnostic images; selected runtime bytes remain
+unchanged. Two tiled PV variants are outside the current runtime binding.
+No Windows build, AMD execution or real-model result is claimed for this
+combination. [Composition evidence](../benchmarks/correctness/explicit-q8192-runtime-preparation-20260923.json)
+SHA256 `172919606811daf0ca50f0539d9311dc8f63b5865adf28f894d449f7356a9791`.
 
 A bounded output-only observer is committed at
 `b2b7c0bea3f3fe41ada0fc2d99abb48079e64478`. It saves one layer/position's logical
