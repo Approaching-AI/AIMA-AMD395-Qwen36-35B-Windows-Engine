@@ -1,0 +1,17 @@
+{
+  "name": "qrt-gb10-compact-gdn-layers-20260923-r1",
+  "archive": "qrt-gb10-compact-gdn-layers-20260923-r1.tar",
+  "archive_sha256": "cc1f0b3c7a2a21aa7dff9b6210f4ad7b11764d51dd6b94409495e916ee7ea7dd",
+  "archive_bytes": 4556800,
+  "script": "run-qrt-gb10-compact-gdn-layers-20260923-r1.py",
+  "script_sha256": "a7aa9fd393aaa8493625d3912409a8df3561c83e51d274f64f5b25a94b0f9fcb",
+  "dispatcher": "dispatch_gb10_compact_gdn_layers_r1.py",
+  "dispatcher_sha256": "ba189f8ad142f3bdebebcdb33669d3e383d497f456291694ed23bda53c44a95e",
+  "source_inputs_sha256": "c0e7c8fe2ba578ade206be19dd51a29a8edfcfb9a23cbedd3bc3d1f445b91eea",
+  "ssh_timeout_seconds": 1950,
+  "candidate_base_commit": "d9958548527efeae90bc893c4ed3c0ce56c9cd71",
+  "original_model_sources_unchanged": true,
+  "original_576_outputs_required": true,
+  "observer_source_base_commit": "3fcbdafb10a14e94c15bd94a1f821f180bc95373",
+  "generator_sha256": "548fa842e471dfa68dc57a5af2463a697410a08bc27e53725477a3b77903cef4"
+}

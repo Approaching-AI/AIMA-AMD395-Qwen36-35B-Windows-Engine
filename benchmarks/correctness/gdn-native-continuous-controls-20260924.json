@@ -1,0 +1,755 @@
+{
+  "schema": 1,
+  "classification": "actual_amd_gdn_continuous_component_controls",
+  "controller_host": "JiaweiMnideMini.lan",
+  "runtime_host": "baiying",
+  "model_reference": "D:/models/Qwen3.6-35B-A3B; original gb10 first64 and q7169 operands",
+  "layout_cases": {
+    "manifest_sha256": "1ff1ce5417880a0f3a1c64f08d0adfe63ef2febfa9596167afe414b92e326dce",
+    "result_sha256": "9c2d18ee25026503f758b7c71b89f059bb42cbbcd2ec9fe23d75e758e4627890",
+    "run_sha256": "fb568cf94f30f122f8529efd006a5a844fbf049909859c980516f368354198ee",
+    "source_commit": "e15c6cd1a0e91243ebd330fa55ac24348603e151",
+    "execution_checkout_commit": "867d528a890cef2172e49b6fe4ebeb9cfcb052db",
+    "command": [
+      "C:\\Program Files\\Python313\\python.exe",
+      "P:/projects/native-gdn-layout-controls-20260923-r2/worker.py",
+      "P:/projects/native-gdn-layout-controls-20260923-r2"
+    ],
+    "model_reference": {
+      "model": "D:/models/Qwen3.6-35B-A3B",
+      "authority": "gb10-4t",
+      "case": "original q8192 first64 and complete q7169 layer0 operator chains"
+    },
+    "actual_model_loaded": false,
+    "cases": [
+      {
+        "name": "first64-u64-repeat0",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-u32-repeat0",
+        "tokens": 64,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "w",
+          "core"
+        ],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-signed-repeat0",
+        "tokens": 64,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "u",
+          "v-new",
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-internal_barriers-repeat0",
+        "tokens": 64,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "kkt",
+          "inverse",
+          "w",
+          "u",
+          "v-new",
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-explicit_layout-repeat0",
+        "tokens": 64,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-u64-repeat1",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-u32-repeat1",
+        "tokens": 64,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "w",
+          "core"
+        ],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-signed-repeat1",
+        "tokens": 64,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "u",
+          "v-new",
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-internal_barriers-repeat1",
+        "tokens": 64,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "kkt",
+          "inverse",
+          "w",
+          "u",
+          "v-new",
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-explicit_layout-repeat1",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-u64-repeat2",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-u32-repeat2",
+        "tokens": 64,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "kkt",
+          "inverse",
+          "w",
+          "u",
+          "v-new",
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-signed-repeat2",
+        "tokens": 64,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "u",
+          "v-new",
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-internal_barriers-repeat2",
+        "tokens": 64,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "kkt",
+          "inverse",
+          "w",
+          "u",
+          "v-new",
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-explicit_layout-repeat2",
+        "tokens": 64,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "final-state"
+        ],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-u64-repeat3",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-u32-repeat3",
+        "tokens": 64,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "w"
+        ],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-signed-repeat3",
+        "tokens": 64,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "u",
+          "v-new",
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-internal_barriers-repeat3",
+        "tokens": 64,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "kkt",
+          "inverse",
+          "w",
+          "u",
+          "v-new",
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-explicit_layout-repeat3",
+        "tokens": 64,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "core"
+        ],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "continuous7169-u64",
+        "tokens": 7169,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 113,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "continuous7169-signed",
+        "tokens": 7169,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "u",
+          "v-new",
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 113,
+        "first_wrong_checkpoint": 1,
+        "first_wrong_checkpoint_actual_sha256": "b64103ee23aaec0efb6a99643802190af8040225227a6a14745a78e68449145d",
+        "first_wrong_checkpoint_expected_sha256": "0a85da30f8c57f4dbec9515d411e38fac75b32a4c5663a7bb7027f6bbcb1d3a3"
+      },
+      {
+        "name": "continuous7169-internal_barriers",
+        "tokens": 7169,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "kkt",
+          "inverse",
+          "w",
+          "u",
+          "v-new",
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 113,
+        "first_wrong_checkpoint": 1,
+        "first_wrong_checkpoint_actual_sha256": "5f5364cd69270bbeb7263f712085bc4a29311e1a2499f22f489f3ee9ee990b28",
+        "first_wrong_checkpoint_expected_sha256": "0a85da30f8c57f4dbec9515d411e38fac75b32a4c5663a7bb7027f6bbcb1d3a3"
+      },
+      {
+        "name": "continuous7169-explicit_layout",
+        "tokens": 7169,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "v-new",
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 113,
+        "first_wrong_checkpoint": 2,
+        "first_wrong_checkpoint_actual_sha256": "a0bdf7de5c10dd798a2528cd97f19f2cd375ac6f7dfdaa7c50db74ec058350d5",
+        "first_wrong_checkpoint_expected_sha256": "9199842c6186b09e05cac9ffab045cecf65d2fc8145d1c92b1ceebd214f03ff2"
+      }
+    ]
+  },
+  "compact_persistent_cases": {
+    "manifest_sha256": "2e6372a88c0cc39b36b403747752042b896223f370c477c30904505a6551f9d2",
+    "result_sha256": "cc2da4c370aaf33645ae7fa1b00b53d1afd5b2f0f6d1bec99b0520db34cfd523",
+    "run_sha256": "255bc0b2651ff5e9e48b26537e4a331edf8454373d0285a9307a9b35ad43970b",
+    "source_commit": "75a212ea75c221b37fa04ff4a77a6529f35c7210",
+    "execution_checkout_commit": "867d528a890cef2172e49b6fe4ebeb9cfcb052db",
+    "command": [
+      "C:\\Program Files\\Python313\\python.exe",
+      "P:/projects/native-gdn-compact-20260924-r2/worker.py",
+      "P:/projects/native-gdn-compact-20260924-r2"
+    ],
+    "model_reference": {
+      "model": "D:/models/Qwen3.6-35B-A3B",
+      "authority": "gb10-4t",
+      "case": "original q8192 first64 and complete q7169 layer0 operator chains"
+    },
+    "actual_model_loaded": false,
+    "cases": [
+      {
+        "name": "first64-unfused_u64-repeat0",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-persistent-runtime-repeat0",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-persistent-capture-repeat0",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-persistent-capture-repeat1",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-persistent-runtime-repeat1",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-unfused_u64-repeat1",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-unfused_u64-repeat2",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-persistent-runtime-repeat2",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-persistent-capture-repeat2",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "continuous7169-unfused_u64-repeat0",
+        "tokens": 7169,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "continuous7169-persistent-runtime-repeat0",
+        "tokens": 7169,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "continuous7169-persistent-capture-repeat0",
+        "tokens": 7169,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "v-new",
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 113,
+        "first_wrong_checkpoint": 1,
+        "first_wrong_checkpoint_actual_sha256": "9d7a5a5f08b0e33b5f850455af2cc5e57354772a4a23674fedad8228b1a0c100",
+        "first_wrong_checkpoint_expected_sha256": "0a85da30f8c57f4dbec9515d411e38fac75b32a4c5663a7bb7027f6bbcb1d3a3"
+      },
+      {
+        "name": "continuous7169-persistent-capture-repeat1",
+        "tokens": 7169,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "v-new",
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 113,
+        "first_wrong_checkpoint": 1,
+        "first_wrong_checkpoint_actual_sha256": "9d7a5a5f08b0e33b5f850455af2cc5e57354772a4a23674fedad8228b1a0c100",
+        "first_wrong_checkpoint_expected_sha256": "0a85da30f8c57f4dbec9515d411e38fac75b32a4c5663a7bb7027f6bbcb1d3a3"
+      },
+      {
+        "name": "continuous7169-persistent-runtime-repeat1",
+        "tokens": 7169,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "continuous7169-unfused_u64-repeat1",
+        "tokens": 7169,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      }
+    ]
+  },
+  "unrolled_persistent_cases": {
+    "manifest_sha256": "422fc00353ae28b9e5a099bd36e323a4d8208d7fd96253f33cf07d98b7828954",
+    "result_sha256": "99043efdbd269ebc490f211626eb6cab18495dafed8101d4ffab88494c568ed9",
+    "run_sha256": "e51af2891b180324a9720228d12677d84c2c4c0837a2489cdda2185ee95f195c",
+    "source_commit": "01d1418b28f55339f28c29b6b47821c29626c984",
+    "execution_checkout_commit": "867d528a890cef2172e49b6fe4ebeb9cfcb052db",
+    "command": [
+      "C:\\Program Files\\Python313\\python.exe",
+      "P:/projects/native-gdn-persistent-20260924-r2/worker.py",
+      "P:/projects/native-gdn-persistent-20260924-r2"
+    ],
+    "model_reference": {
+      "model": "D:/models/Qwen3.6-35B-A3B",
+      "authority": "gb10-4t",
+      "case": "original q8192 first64 and complete q7169 layer0 operator chains"
+    },
+    "actual_model_loaded": false,
+    "cases": [
+      {
+        "name": "first64-unfused_u64-repeat0",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-persistent-runtime-repeat0",
+        "tokens": 64,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "final-state"
+        ],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-persistent-capture-repeat0",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-persistent-capture-repeat1",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-persistent-runtime-repeat1",
+        "tokens": 64,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "final-state"
+        ],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-unfused_u64-repeat1",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-unfused_u64-repeat2",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-persistent-runtime-repeat2",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "first64-persistent-capture-repeat2",
+        "tokens": 64,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 1,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "continuous7169-unfused_u64-repeat0",
+        "tokens": 7169,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "continuous7169-persistent-runtime-repeat0",
+        "tokens": 7169,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "continuous7169-persistent-capture-repeat0",
+        "tokens": 7169,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "v-new",
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 113,
+        "first_wrong_checkpoint": 1,
+        "first_wrong_checkpoint_actual_sha256": "9d7a5a5f08b0e33b5f850455af2cc5e57354772a4a23674fedad8228b1a0c100",
+        "first_wrong_checkpoint_expected_sha256": "0a85da30f8c57f4dbec9515d411e38fac75b32a4c5663a7bb7027f6bbcb1d3a3"
+      },
+      {
+        "name": "continuous7169-persistent-capture-repeat1",
+        "tokens": 7169,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "v-new",
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 113,
+        "first_wrong_checkpoint": 1,
+        "first_wrong_checkpoint_actual_sha256": "5bec33f21126cabab7656797f24c6c6035795f4a96835e91e10db82129236b7e",
+        "first_wrong_checkpoint_expected_sha256": "0a85da30f8c57f4dbec9515d411e38fac75b32a4c5663a7bb7027f6bbcb1d3a3"
+      },
+      {
+        "name": "continuous7169-persistent-runtime-repeat1",
+        "tokens": 7169,
+        "all_values_match": false,
+        "failed_surfaces": [
+          "core",
+          "final-state"
+        ],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      },
+      {
+        "name": "continuous7169-unfused_u64-repeat1",
+        "tokens": 7169,
+        "all_values_match": true,
+        "failed_surfaces": [],
+        "checkpoint_count": 0,
+        "first_wrong_checkpoint": null,
+        "first_wrong_checkpoint_actual_sha256": null,
+        "first_wrong_checkpoint_expected_sha256": null
+      }
+    ]
+  },
+  "summary": {
+    "layout_control_pass_counts": {
+      "u64": 5,
+      "explicit_layout": 1
+    },
+    "compact_first64_passed": 9,
+    "compact_first64_total": 9,
+    "unrolled_first64_passed": 7,
+    "unrolled_first64_total": 9,
+    "both_persistent_capture_first_wrong_checkpoint": 1,
+    "both_persistent_capture_checkpoint1_actual_sha256": "9d7a5a5f08b0e33b5f850455af2cc5e57354772a4a23674fedad8228b1a0c100",
+    "checkpoint1_expected_sha256": "0a85da30f8c57f4dbec9515d411e38fac75b32a4c5663a7bb7027f6bbcb1d3a3",
+    "original_u64_continuous_controls_pass": true,
+    "persistent_continuous_pass": false,
+    "selection": "Keep persistent options disabled; investigate the first carried-state boundary."
+  },
+  "upstream_original_all_layer_control": {
+    "path": "benchmarks/correctness/persistent-gdn-compact-all-layers-20260923.json",
+    "sha256": "2ce6f74a225a018eb5b22c82abebcacdf615514752099a34b6ff0f2e8198bbbb"
+  },
+  "component_only": true,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

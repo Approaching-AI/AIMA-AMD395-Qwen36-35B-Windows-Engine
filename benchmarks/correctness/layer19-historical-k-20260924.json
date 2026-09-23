@@ -1,0 +1,135 @@
+{
+  "schema": 1,
+  "classification": "full256k_historical_key_single_bit_and_exact_runtime_attention_replay",
+  "controller_host": "JiaweiMnideMini.lan",
+  "runtime_host": "baiying",
+  "reference_host": "aitopatom-66c4",
+  "source_commit": "b2b7c0bea3f3fe41ada0fc2d99abb48079e64478",
+  "model": "D:\\models\\Qwen3.6-35B-A3B",
+  "native_command_file": "D:\\projects\\run-rope-single-round-prefix256k-guard-r1.ps1",
+  "native_output": {
+    "first_wrong_output_index": 157,
+    "native_token": 5486,
+    "gb10_token": 2233,
+    "wrong_tokens": 322,
+    "native_exit_code": 6,
+    "host_checks_pass": true
+  },
+  "compared_position": 263291,
+  "logical_history": {
+    "all_inputs_unchanged": true,
+    "compared_bytes": 556373760,
+    "cache_k_elements": 134805504,
+    "cache_k_bit_mismatches": 1,
+    "first_cache_k_difference": {
+      "index": 134800895,
+      "coordinates": [
+        263282,
+        1,
+        255
+      ],
+      "actual_bits": 49013,
+      "reference_bits": 49012
+    },
+    "cache_v_elements": 134805504,
+    "cache_v_bit_mismatches": 0,
+    "query_current_k_current_v_bit_mismatches": {
+      "query": 0,
+      "current-k": 0,
+      "current-v": 0
+    },
+    "score_bit_mismatches": 8,
+    "segment_output_bit_mismatches": 256,
+    "segment_max_bit_mismatches": 0,
+    "segment_sum_bit_mismatches": 8,
+    "context_bit_mismatches": 2044
+  },
+  "actual_windows_attention_replay": {
+    "host": "baiying",
+    "command": [
+      "C:\\Program Files\\Python313\\python.exe",
+      "P:/projects/runtime-attention-images-20260924-r2/worker.py",
+      "P:/projects/runtime-attention-images-20260924-r2"
+    ],
+    "model_reference": "D:/models/Qwen3.6-35B-A3B",
+    "original_model_loaded": false,
+    "qk_cases": 16,
+    "qk_cases_per_image": {
+      "qualified_probe": 8,
+      "observed": 8
+    },
+    "pv_cases": 48,
+    "pv_cases_per_image_and_score_source": [
+      {
+        "image": "observed",
+        "score_source": "gb10_captured_scores",
+        "cases": 8
+      },
+      {
+        "image": "observed",
+        "score_source": "observed",
+        "cases": 8
+      },
+      {
+        "image": "observed",
+        "score_source": "qualified_probe",
+        "cases": 8
+      },
+      {
+        "image": "qualified_probe",
+        "score_source": "gb10_captured_scores",
+        "cases": 8
+      },
+      {
+        "image": "qualified_probe",
+        "score_source": "observed",
+        "cases": 8
+      },
+      {
+        "image": "qualified_probe",
+        "score_source": "qualified_probe",
+        "cases": 8
+      }
+    ],
+    "all_qk_scores_bit_exact": true,
+    "all_pv_context_and_segment_values_bit_exact": true,
+    "all_components_match": true,
+    "guards_pass": true,
+    "cleanup_pass": true,
+    "hip_dll": {
+      "path": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\amdhip64_7.dll",
+      "bytes": 18176408,
+      "sha256": "bd0c80111b3d339f926a58777df43290c4602493731aa24006f56c8e609e98e2"
+    }
+  },
+  "interpretation": "For the captured original-model position, one historical K BF16 word is the first identified divergent attention operand. The unrotated channel 255 is upstream of QK. The actual DLL attention images reproduce gb10 QK and segmented PV bit-for-bit on gb10 operands, so those images do not explain this captured operand difference. The stage that produced the historical K word remains unresolved.",
+  "sources": {
+    "native_run": {
+      "path": "build/recovery-20260910/q1-cache-capture-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1/run-record.json",
+      "sha256": "38e4087f1ff95eaeae66d91fe27ae3ac0e73817f761b747f5453605e0aee834a"
+    },
+    "logical_comparison": {
+      "path": "build/recovery-20260910/q1-layer19-logical-comparison-20260923-r1/collected/result/comparison.json",
+      "sha256": "c0dde003e1e904d9638ad52b440c5587c46984919a96646daacbe538878ccaf7"
+    },
+    "replay_manifest": {
+      "path": "build/recovery-20260910/runtime-attention-images-windows-r2/manifest.json",
+      "sha256": "ac6cc583d65713abdbf775546b71787d682bb695978315e77cd2e535fc1bb253"
+    },
+    "replay_result": {
+      "path": "build/recovery-20260910/runtime-attention-images-windows-r2/outputs/result.json",
+      "sha256": "069077d96138d2c1331b8f48eafd743a89f5377ee1f160c91670a4d0d8801bde"
+    },
+    "replay_run": {
+      "path": "build/recovery-20260910/runtime-attention-images-windows-r2/run/run-record.json",
+      "sha256": "f2a64346ec955c53471b90dbecf47e01922f003fa19db434fc447b187018bb13"
+    },
+    "prior_binary_inspection": {
+      "path": "benchmarks/correctness/layer19-runtime-attention-images-20260923.json",
+      "sha256": "8e7ca376b36f0d5887919d6c6f578c7f653793c86ad6fa21f3c829005636be40"
+    }
+  },
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

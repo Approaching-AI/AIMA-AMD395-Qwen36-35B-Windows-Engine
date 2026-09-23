@@ -1,6 +1,6 @@
 # Execution state
 
-Updated 2026-09-23 Asia/Shanghai. The mission remains open; no new release
+Updated 2026-09-24 Asia/Shanghai. The mission remains open; no new release
 or tag is qualified. Immutable requirements remain in [AGENTS.md](../AGENTS.md),
 [project goals](project-goals.md) and [target contract](../contracts/target-contract.json).
 Earlier experiments remain evidence, not route restrictions. The previous
@@ -32,50 +32,33 @@ Command `D:/projects/run-packed-gate32-prefix256k-r1.ps1 -LongFinalBound 1 -Revi
 [Complete failure evidence](../benchmarks/correctness/packed-gate32-prefix256k-failure-20260923.json)
 SHA256 `0a414a708f810beba3e5418c1e620b8a4b01a3c60416d82e0fe3e8f63db168c2`.
 
-At comparable position263291,628 captured surfaces are compared against the
-qualified original GB10 run. All observed layers0–18 are bit exact, including
-the earlier layer8 recurrent state error. The first observed arithmetic
-difference is layer19 ungated attention context: four BF16 values in head8.
-The current query, key, normalization and RoPE agree. Historical KV is absent
-from this native capture, so the attention-versus-history cause is unresolved.
-Position263356 is excluded because its generated history already diverged at157.
-The original-model capture `qrt-gb10-prefix256-layer19-cache-20260923-r1`
-now preserves all608 original outputs and full first logits and supplies both
-269611008-byte logical K/V tensors at263291 plus rows263291/263324. An unchanged
-original 3D attention replay reproduces all4096 BF16 context values; the 2D
-route differs at463 values. The standalone native operator passes all280576
-FP32 comparisons on those original KV tensors across four prefix/tail splits.
-All251 shared surfaces in the new and previous original captures also match.
-[Original KV and native operator evidence](../benchmarks/correctness/layer19-original-kv-native-attention-20260923.json)
-SHA256 `d5d1427362054e52f6a3238f162debbd691d0ef1fc00c3398cf5ba9643d2e98f`.
-The actual full-runtime cache and invocation context remain to be checked.
+At position263291,628 captured surfaces first localize the difference to
+layer19 attention context; layers0–18 and the current Q/K/V agree. The completed
+logical-KV transfer now compares all556373760 bytes against the original gb10
+run. Of134805504 historical K BF16 values, exactly **one** differs:
+position263282, KV head1, channel255 is native `0xbf75` and gb10 `0xbf74`.
+All134805504 historical V values, current Q/K/V, and the remaining K values
+are bit exact. That unrotated K channel changes eight QK scores (query heads8–15),
+256 segment-output values and2044 merged-context FP32 values. The separate
+real-model run first disagrees at output index157 (`5486` versus `2233`) and
+remains failed; this operand diagnosis does not itself prove which upstream
+stage produced the one-bit K difference.
 
-The original 3D operator now also supplies all 4212672 FP32 QK scores at this
-position. Two repeats have the same score hash and preserve all 140288 original
-FP32 context/segment values and the original BF16 context. Removing only the
-output observer recovers the original source exactly. The CPU logical-span
-comparator checks prefix/tail histories without capacity padding and handles
-padded score rows without loading the full cache. Its five host tests cover
-coordinates, chunk boundaries, signed-zero bits, hashes, mutation and deadlines.
-[QK reference and comparator evidence](../benchmarks/correctness/layer19-original-qk-and-logical-comparator-20260923.json)
-SHA256 `5dc5da340d384ee8be31925a91619f64843e7aaab6958b91d7af997f919a3254`.
-Native history comparison still awaits the active observation. Bit differences
-from this diagnostic do not replace the original-token acceptance boundary.
-
-Extraction of the actual binaries narrows the standalone result's scope.
-The observed and failed-prior DLLs have identical append, QK, segment and merge
-instruction bytes and matching kernel descriptor resources. The qualified
-standalone probe has different QK and segment instructions, despite matching
-source headers. Its compiler arguments include three additional floating-point
-flags; the translation units also differ. Disassembly shows equal floating-point
-opcode counts, which does not establish numerical equivalence or a root cause.
-A 300-second native replay is prepared using the exact extracted images and
-qualified original operands: 16 QK checks and 48 PV checks across two actual
-prefix splits, two strides, repeated/reversed image order, and independently
-labelled original-score inputs. ABI offsets and comparison mutation controls
-pass locally. No extracted-image execution or runtime change is claimed.
-[Binary comparability and pending replay](../benchmarks/correctness/layer19-runtime-attention-images-20260923.json)
-SHA256 `8e7ca376b36f0d5887919d6c6f578c7f653793c86ad6fa21f3c829005636be40`.
+The **actual observed Windows DLL** QK and segmented-PV images have now been
+replayed on the original gb10 KV and query. All16 QK cases and48 PV cases are
+bit exact across two prefix splits, two padded strides, reordered repeats and
+three independently labelled score sources. The host guards and cleanup pass.
+The first attempt stopped before GPU execution because its D: output drive was
+below the 10 GiB reserve; the identical-image replay completed on P:. Thus
+compiler/disassembly differences found earlier are not the cause on these
+captured operands. This narrows the investigation to generation or publication
+of the historical K word, including projection input and K normalization.
+[Historical-K comparison and actual-image replay](../benchmarks/correctness/layer19-historical-k-20260924.json)
+SHA256 `ea4ae4244203a5ee8e2527a1fba265134a512693450371f54faa39a51004d96d`.
+The original KV capture and standalone checks remain in
+[layer19 original-operand evidence](../benchmarks/correctness/layer19-original-kv-native-attention-20260923.json).
+Neither a diagnostic replay nor a one-bit explanation grants real-model
+continuation, performance or release acceptance.
 
 ## Actual AMD operator evidence
 
@@ -137,33 +120,19 @@ chain. The interleaved64-bit controls still pass. This does not establish the
 precise synchronization defect. Existing unsigned32 product selection remains
 blocked by its numerical failure.
 
-Two further controls target layout conversion inside the group16 reduction:
-one signed product sum followed by a separate unsigned carry merge, and
-barriers after the maximum and each magnitude sum. Each passes 2097152 FP32
-arithmetic comparisons on GB10 against the qualified64-bit implementation.
-All fourteen gfx1151 images compile without spills. These are CUDA arithmetic
-and offline compilation results, not AMD correctness. The nineteen-case AMD
-plan includes repeated first64 inputs, interleaved controls and continuous
-q7169. It remains unexecuted and is now included in the24-case plan below.
-[Source and control evidence](../benchmarks/correctness/ordered-gdn-internal-reduction-controls-20260923.json)
-SHA256 `0e2846b86fe107338fcda07c3eff41121cceaca1aea4d9c2827ece77510ad9fd`.
-The suspected compiler/shared-layout cause remains unproven.
-
-An explicit-layout variant removes every shared-memory layout conversion from
-all seven gfx1151 group16 kernels. It keeps the unsigned32 arithmetic and exp2
-function bodies unchanged. Compilation reports zero shared bytes, layout
-conversions, shared load/stores and spills; register usage is higher. On GB10,
-2097152 FP32 group16 values match the64-bit control, and the complete q7169
-chain matches147345408 original surface values plus59244544 incoming-state
-BF16 values over113 chunks. The first compile failed only while serializing
-metadata; the corrected report preserves identical image bytes and both runs.
-[Explicit-layout source and controls](../benchmarks/correctness/ordered-gdn-explicit-layout-controls-20260923.json)
-SHA256 `08cb4d0b22a4272fb362a96a5b43b4f22701b2a73a7af659d9f55e0247aa9370`.
-The combined24-case AMD plan has manifest SHA256
-`1ff1ce5417880a0f3a1c64f08d0adfe63ef2febfa9596167afe414b92e326dce`.
-Its600-second process deadline remains; checking the plan made zero remote
-calls because the current256k owner has no completed cleanup record. CUDA
-success and shared-memory removal do not establish actual AMD correctness.
+Two further controls tested signed product reduction, internal barriers,
+and an explicit layout with no shared-memory conversion. Their original-input
+CUDA arithmetic and gfx1151 compilation checks pass; the source and compiler
+artifacts remain in [internal-reduction controls](../benchmarks/correctness/ordered-gdn-internal-reduction-controls-20260923.json)
+and [explicit-layout controls](../benchmarks/correctness/ordered-gdn-explicit-layout-controls-20260923.json).
+The completed **24-case Windows GPU trial rejects all three routes**. The
+interleaved64-bit implementation passes four first64 repeats and continuous
+q7169. Unsigned32, signed and internal-barrier cases fail every first64 repeat;
+explicit layout passes one of four but fails the others and continuous q7169.
+Removing layout conversions does not establish the suspected compiler defect.
+All trial inputs, guards and cleanup pass; component failure is numerical.
+[Actual AMD continuous controls](../benchmarks/correctness/gdn-native-continuous-controls-20260924.json)
+SHA256 `f779a45c53a70a0fa7808549bebd99ee58579fe823b5d16c2e5058a91ebf3ceb`.
 
 The same eight images are now embedded in the opt-in prototype at
 `b07bf58e5140ea6e256c477f4aacfd39fc89695d`, branch `codex/explicit-gdn-layout`.
@@ -208,12 +177,13 @@ The persistent recurrence now also passes all30 original q8192 GDN layers:
 Original layer inputs, outputs and preparation match the previous qualified
 capture; all576 model output IDs and complete first-logit buffers are preserved.
 The459.763-second bounded observation preserves original compiler caches and
-leaves no GPU process, with minimum host reserve16159875072 bytes. A15-case
-native trial is prepared using the actual original64 upstream images and
-interleaved, reversed unfused/runtime/capture recurrences. It compares repeated
-first64 and full q7169 chains, including113 checkpoints for capture variants.
-Six host checks match the actual worker launch to both compiled120-byte ABIs.
-No native execution is claimed. [All-layer result and native plan](../benchmarks/correctness/persistent-gdn-explicit-all-layers-20260923.json)
+leaves no GPU process, with minimum host reserve16159875072 bytes. Its
+prepared15-case Windows trial has now executed with the actual original64
+upstream images. The unfused continuous q7169 controls pass. The persistent
+capture variant passes all first64 repeats but diverges at the second 64-token
+chunk's incoming state on continuous q7169; the runtime variant is also not
+stable on first64. The option stays disabled.
+[All-layer original result and native preparation](../benchmarks/correctness/persistent-gdn-explicit-all-layers-20260923.json)
 SHA256 `819265da302b6f403395d99ff80553269e8add819818bf73083d46b1952de906`.
 
 The optional persistent runtime is now committed at
@@ -246,9 +216,18 @@ uses159 VGPRs and67328 instruction bytes. Both variants match every previous
 q7169 core/final-state comparison; capture also preserves113 incoming BF16
 states and complete V-new values. First64 and nonzero-seeded65 controls pass.
 The source, compiler and numerical worker are separately frozen. CUDA timing
-includes compilation and is diagnostic only. Full30-layer and native checks
-remain pending; this source has not replaced the committed runtime images.
-[Compact recurrence controls](../benchmarks/correctness/persistent-gdn-compact-controls-20260923.json)
+includes compilation and is diagnostic only. A fresh original-model q8192 run
+now confirms all30 GDN layers:1006632960 BF16 core,15728640 FP32 final state
+and7864320 FP32 cumsum values are exact; all576 original model outputs agree.
+[Compact all-layer result](../benchmarks/correctness/persistent-gdn-compact-all-layers-20260923.json)
+SHA256 `2ce6f74a225a018eb5b22c82abebcacdf615514752099a34b6ff0f2e8198bbbb`.
+The subsequent Windows15-case trial passes all nine first64 cases, but both
+compact continuous q7169 capture repeats first diverge at checkpoint1, and
+runtime/capture final states fail. The unfused64-bit controls remain exact.
+The compact runtime is committed separately at `75a212ea75c221b37fa04ff4a77a6529f35c7210`
+with the option off. No product build or inference credit follows from the
+failed native component.
+[Compact recurrence source controls](../benchmarks/correctness/persistent-gdn-compact-controls-20260923.json)
 SHA256 `97f0dac618a0d6db91a89852e45c27a0e4b3d5d46dd9f7c1dd55449d67c819ee`.
 
 An explicit-layout dense replay also preserves the existing selected-pair
