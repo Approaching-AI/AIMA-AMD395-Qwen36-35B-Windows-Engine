@@ -2,12 +2,12 @@
   "schema": 1,
   "source_base_commit": "c85259254b805788dc80680caad37685708c98a8",
   "upstream_source_commit": "e15c6cd1a0e91243ebd330fa55ac24348603e151",
-  "recurrence_source_commit": "a44d8468ea59f7185987b0b8878ab5aa16863e52",
+  "recurrence_source_commit": "84a0109e993d08d38c860a2bcab3de5e53c7307b",
   "source_files": {
     "native/providers/gdn_persistent/exp2.py": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf",
     "native/providers/gdn_persistent/group16.py": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef",
     "native/providers/gdn_persistent/ordered_pipeline.py": "1e1fe71515f51552160c4e02e3aa03cc27af68dd390c241218381e227c913fae",
-    "native/providers/gdn_persistent/persistent.py": "20a71409f601924dd9137cddb6196dfdb438452be8d881385922049f1cfa61e5",
+    "native/providers/gdn_persistent/persistent.py": "4d528fd62858e4ec23af97bdc712cec0bfb97487fb17dbf05f3b86b27fbddb25",
     "native/providers/gdn_persistent/upstream/integer_u.py": "77260da2314ffbc12b154b66fd341495edc49439610bcf5246ac1e8372638df1",
     "native/providers/gdn_persistent/upstream/ordered_inverse.py": "1f8c9e211ad9522a6b7d0d5f7f1bb5eb12bb788bb050e231f7d3adb8005f1921",
     "native/providers/gdn_persistent/upstream/ordered_pipeline.py": "a671feaeadb84219d6498a82a78c49d765f4ba627ae55fd14b9c7c53e86edfc3"
@@ -15,9 +15,8 @@
   "compiled": {
     "kkt": {
       "file": "kkt.hsaco",
-      "bytes": 115464,
-      "sha256": "6409875bf9e0c3294e99ec9d65b3d075b88950c97613e7dd6aa235d72e587cbf",
-      "kernel_hash": "3700fbdbafee02d38e67604cda3d8f086ae8649b1f14e1e5f857f47a17af09b9",
+      "bytes": 115488,
+      "sha256": "2a97adc0a2b27f9073103833ee7ed39f6b5973b602d2856d43541faef437efea",
       "metadata": {
         "allow_flush_denorm": false,
         "allowed_dot_input_precisions": [
@@ -97,14 +96,12 @@
         ".private_segment_fixed_size": [
           "0"
         ]
-      },
-      "compile_seconds": 2.265410679159686
+      }
     },
     "inverse": {
       "file": "inverse.hsaco",
-      "bytes": 40952,
-      "sha256": "a83e69a3b15cb4578ceb4e5b88c042cf70617ad983d145ec080877336843579c",
-      "kernel_hash": "a6489e58047093e16e5287884696429e6c48bf81e3fcb0ce0b25b00d23fbe42a",
+      "bytes": 40976,
+      "sha256": "d3aa696ef24f0b0b43dbd804787cf4d6c35321fcd2cc36adaa24ca4602be8da0",
       "metadata": {
         "allow_flush_denorm": false,
         "allowed_dot_input_precisions": [
@@ -184,14 +181,12 @@
         ".private_segment_fixed_size": [
           "52"
         ]
-      },
-      "compile_seconds": 1.3965601529926062
+      }
     },
     "w": {
       "file": "w.hsaco",
-      "bytes": 63640,
-      "sha256": "57c7c83315d9f34cf912cdd3c039c0af722ac1e286181675f0b315b180211fc2",
-      "kernel_hash": "e634875ad8d056dcf4810840f09ebfd9ede6e3e68a72e22fc947c0e6d4731a9f",
+      "bytes": 63664,
+      "sha256": "e875427ad5895c2f9d3593bec5d181cc5c3f50456530b9e5e6727d31c5f72a52",
       "metadata": {
         "allow_flush_denorm": false,
         "allowed_dot_input_precisions": [
@@ -270,14 +265,12 @@
         ".private_segment_fixed_size": [
           "0"
         ]
-      },
-      "compile_seconds": 1.2083921439480036
+      }
     },
     "u": {
       "file": "u.hsaco",
-      "bytes": 59128,
-      "sha256": "ec2d0c00aac169ab57427c25d6d53c2c725ba587ded9a6f75e25f60e5c3b21d7",
-      "kernel_hash": "aa0577298eb229725ed3886fa43aa1df32767a07b51ab7d71117996464d1e05b",
+      "bytes": 59152,
+      "sha256": "9c812aa15207e10e5cc3eda48cb079be9b0981e31f2d6a4512a30c8e8df38ce2",
       "metadata": {
         "allow_flush_denorm": false,
         "allowed_dot_input_precisions": [
@@ -358,14 +351,12 @@
         ".private_segment_fixed_size": [
           "0"
         ]
-      },
-      "compile_seconds": 0.6337636089883745
+      }
     },
     "scores": {
       "file": "scores.hsaco",
-      "bytes": 115008,
-      "sha256": "be933e27c1c36297d8e68ea2c3b46ac9898b8fcbf467068a14cf9f295279402e",
-      "kernel_hash": "4e4f944b96d584936a0fbbae0b50e31cace7b5c3628b47c915dcbdbc360bb122",
+      "bytes": 115032,
+      "sha256": "ea9d4313b915011e99c4f0e06485c2db6abf50c0c028942288c9500ccf90484d",
       "metadata": {
         "allow_flush_denorm": false,
         "allowed_dot_input_precisions": [
@@ -445,38 +436,12 @@
         ".private_segment_fixed_size": [
           "0"
         ]
-      },
-      "compile_seconds": 1.7861190210096538
+      }
     },
     "recurrence": {
-      "name": "persistent-runtime",
-      "capture": false,
       "file": "recurrence.hsaco",
-      "bytes": 1151552,
-      "sha256": "55d80ebea65b2924f96ac96c5befb966704e6b5e9e59565caa7eb1e294dd6e58",
-      "signature": {
-        "Q": "*bf16",
-        "K": "*bf16",
-        "W": "*bf16",
-        "U": "*bf16",
-        "G": "*fp32",
-        "Scores": "*bf16",
-        "Table": "*i8",
-        "Initial": "*fp32",
-        "Final": "*fp32",
-        "Out": "*bf16",
-        "VNew": "*bf16",
-        "Checkpoints": "*bf16",
-        "T": "i32"
-      },
-      "constants": {
-        "CAPTURE": false
-      },
-      "options": {
-        "num_warps": 4,
-        "num_stages": 2,
-        "enable_fp_fusion": false
-      },
+      "bytes": 1150696,
+      "sha256": "a12060934c8aee3ffb4b63f2be7ea167ca4e26d561d515a7d4a5d65f3cc867b2",
       "metadata": {
         "allow_flush_denorm": false,
         "allowed_dot_input_precisions": [
@@ -500,7 +465,7 @@
             "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
           ]
         ],
-        "hash": "8b6e982e83dffbf9030bc5c1a4477b47c12a92ab81a765fa2ecebc154c09b6b3",
+        "hash": "36f3e79a8f4a936c320b2e2d0f5e95476481e852a15eaa19ece6fa1c984b3a82",
         "instrumentation_mode": "",
         "kpack": 1,
         "launch_cooperative_grid": false,
@@ -527,6 +492,29 @@
         "warp_size": 32,
         "waves_per_eu": 0
       },
+      "signature": {
+        "Q": "*bf16",
+        "K": "*bf16",
+        "W": "*bf16",
+        "U": "*bf16",
+        "G": "*fp32",
+        "Scores": "*bf16",
+        "Table": "*i8",
+        "Initial": "*fp32",
+        "Final": "*fp32",
+        "Out": "*bf16",
+        "VNew": "*bf16",
+        "Checkpoints": "*bf16",
+        "T": "i32"
+      },
+      "constants": {
+        "CAPTURE": false
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
       "resources": {
         ".vgpr_count": [
           "225"
@@ -537,16 +525,16 @@
         ".private_segment_fixed_size": [
           "0"
         ]
-      },
-      "layout_conversion_count": 0,
-      "shared_memory_bytes": 6144
+      }
     }
   },
-  "embedded_include_sha256": "76b163a8774c2dc2b86c7756ba04c5509dceb64e9ff622cd916afda1ea1e4eff",
-  "embedded_include_bytes": 9469657,
+  "embedded_include_sha256": "6e22abfb9feffe1d4631d023ab0e45e9d570bf1632192c8cc9ff4519dc6d9fb3",
+  "embedded_include_bytes": 9465147,
   "compiler_sha256": "1d70207bbf43cd9e5055c830902fa09df86212afd2b890bcc46ca522a07b862a",
-  "native_plan_sha256": "11db30bb44542a931e243b5aa1eaa7b7100861bce943cd0745ad3ae248c2cc3b",
+  "native_plan_sha256": "8ae251dbfc08c47cb60c61ad9841b11e0018b86abffa8b787f95cc801afa4c8b",
   "native_execution": false,
   "inference_acceptance": false,
-  "performance_acceptance": false
+  "performance_acceptance": false,
+  "native_validation_stage": "paired original/RNE gfx1151 continuous-state probe pending; no product acceptance",
+  "native_amd_validation_pending": true
 }
