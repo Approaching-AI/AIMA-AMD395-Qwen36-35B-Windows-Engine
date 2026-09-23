@@ -1,5 +1,18 @@
 # Experimental Linux compute core
 
+The optional `AIMA_PORT_NATIVE_GDN_PERSISTENT=1` cold-q8192 route embeds six
+gfx1151 images totalling 1,545,744 bytes. It requires native GDN prefill and
+defaults off. Five original unsigned64 preparation images feed one fused
+recurrence, reducing the per-layer AOT submissions including cumsum from 390
+to 7. The recurrence reuses 2 MiB of existing conversion scratch for its cold
+state and writes the final FP32 state directly to the engine. It adds no
+device allocation, runtime file or dependency. Its 6 KiB of shared memory per
+block is part of kernel occupancy. The existing 8-image route remains embedded
+for independent comparison; only the selected family is loaded. Offline builds
+use the existing pinned Triton 3.6.0 container with all GPUs hidden. Windows
+numerical, q8192/out512, load and TTFT measurements remain required before use
+in the retained product.
+
 The optional `AIMA_PORT_PREFILL_GROUP_MAJOR_WEIGHTS=1` layout reorders existing
 prepared dense replay weights by K16 group before output row. It adds no device
 or host allocation, dependency, runtime artifact or transfer. Its intended

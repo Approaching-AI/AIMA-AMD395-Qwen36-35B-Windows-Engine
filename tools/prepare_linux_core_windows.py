@@ -182,74 +182,39 @@ def current_text_decode_overlay(text):
 
 
 def native_gdn_chunk64_launches():
-    """Reuse the pinned dynamic-T chunk64 images with the live q8192 bindings.
-
-    A/Ai need twice the chunk32 storage. They are owner allocations; all other
-    tensors keep their original semantic bindings. Local parameter copies avoid
-    changing the persistent invocation table or its pointer ownership.
-    """
+    """Keep the original chunk64 cumsum and bind the complete ordered core."""
     directory = UPSTREAM / "native/aot/gfx1151"
-    small = json.loads((directory / "q1024-output1/prefill-schedule.json").read_text())["schedule"]
-    large = json.loads((directory / "q8192-output2/prefill-schedule.json").read_text())["schedule"]
-    pointer_overrides = {4: {"A": "matrix_f32"},
-                         5: {"A": "matrix_f32", "Ai": "inverse_bf16"},
-                         6: {"A": "inverse_bf16"}}
-    code = []
-    for offset in range(3, 9):
-        old, new = large[offset], small[offset]
-        signature = lambda item: [(a["name"], a["abi_type"]) for a in item["arguments"]]
-        if signature(old) != signature(new) or old["layer_index"] != 0 or new["layer_index"] != 0:
-            raise ValueError("Native chunk64 GDN ABI changed")
-        if old["arguments"][-1] != {**new["arguments"][-1], "value": 8192}:
-            raise ValueError("Native chunk64 GDN token argument changed")
-        args = old["arguments"]
-        for a, b in zip(args[:-1], new["arguments"][:-1]):
-            if a["kind"] != b["kind"] or (a["kind"] != "tensor" and a != b):
-                raise ValueError("Native chunk64 GDN scalar contract changed")
-        grid = [128, 32, 1] if offset < 7 else [4, 32, 1] if offset == 7 else [2, 128, 32]
-        config = grid + [new["num_warps"], new["warp_size"], new["shared_memory_bytes"]]
-        code += [
-            "    {",
-            f"      const auto& invocation = launches[base + {offset}];",
-            "      if (!invocation.launch ||",
-            f'          std::string(invocation.launch->kernel_hash) != "{old["kernel_hash"]}" ||',
-            f"          invocation.launch->argument_count != {len(args)} ||",
-            f"          invocation.kernel_params.size() != {len(args)})",
-            '        throw std::runtime_error("Native chunk64 GDN source invocation changed");',
-            "      auto parameters = invocation.kernel_params;",
-            f"      parameters[{len(args) - 1}] = &native_tokens;",
-        ]
-        for name, member in pointer_overrides.get(offset, {}).items():
-            index = next(i for i, a in enumerate(args) if a["name"] == name)
-            code.append(f"      parameters[{index}] = &matrices.{member};")
-        if offset == 5:
-            code += [
-                "      constexpr std::size_t bytes = 8192ull * 32 * 64 * sizeof(std::uint16_t);",
-                "      check_hip(hipMemset(matrices.inverse_bf16, 0, bytes),",
-                '                "hipMemset native chunk64 inverse scratch");',
-                "      result.layer.state_scratch_zero_operations = 1;",
-                "      result.layer.state_scratch_zero_bytes = bytes;",
-            ]
-        if offset == 7:
-            code += [
-                '      check_hip(hipMemset(invocations.tensor_pointer(base + 7, "h0"), 0,',
-                "                          kStateElements * sizeof(float)),",
-                '                "hipMemset native chunk64 cold initial state");',
-            ]
-        if offset == 6:
-            code += [
-                "      aima_port::gb10_native_gdn_wu(",
-                '          invocations.tensor_pointer(base + 6, "k"),',
-                '          invocations.tensor_pointer(base + 6, "v"),',
-                '          invocations.tensor_pointer(base + 6, "beta"),',
-                '          invocations.tensor_pointer(base + 6, "w"),',
-                '          invocations.tensor_pointer(base + 6, "u"), matrices.inverse_bf16,',
-                '          invocations.tensor_pointer(base + 6, "g"), tokens);',
-                "    }",
-            ]
-        else:
-            code += [f'      executor.launch_embedded("{new["kernel_hash"]}",',
-                     f'          AotLaunchConfig{{{", ".join(map(str, config))}}}, parameters);', "    }"]
+    small = json.loads((directory / "q1024-output1/prefill-schedule.json").read_text())["schedule"][3]
+    large = json.loads((directory / "q8192-output2/prefill-schedule.json").read_text())["schedule"][3]
+    signature = lambda item: [(a["name"], a["abi_type"]) for a in item["arguments"]]
+    if (signature(large) != [("s", "*fp32"), ("o", "*fp32"), ("T", "i32")] or
+            signature(large) != signature(small) or large["layer_index"] != 0 or small["layer_index"] != 0 or
+            large["arguments"][-1] != {**small["arguments"][-1], "value": 8192}):
+        raise ValueError("Native chunk64 GDN cumsum ABI changed")
+    config = [128, 32, 1, small["num_warps"], small["warp_size"], small["shared_memory_bytes"]]
+    code = [
+        "    {",
+        "      const auto& invocation = launches[base + 3];",
+        "      if (!invocation.launch ||",
+        f'          std::string(invocation.launch->kernel_hash) != "{large["kernel_hash"]}" ||',
+        "          invocation.launch->argument_count != 3 || invocation.kernel_params.size() != 3)",
+        '        throw std::runtime_error("Native chunk64 GDN cumsum invocation changed");',
+        "      auto parameters = invocation.kernel_params;",
+        "      parameters[2] = &native_tokens;",
+        f'      executor.launch_embedded("{small["kernel_hash"]}",',
+        f'          AotLaunchConfig{{{", ".join(map(str, config))}}}, parameters);',
+        "    }",
+        "    native_gdn_launches = 1 + aima_port::gb10_native_gdn_pipeline(",
+        '        invocations.tensor_pointer(base + 2, "q_ptr"),',
+        '        invocations.tensor_pointer(base + 2, "k_ptr"),',
+        '        invocations.tensor_pointer(base + 2, "v_ptr"),',
+        '        invocations.tensor_pointer(base + 3, "o"),',
+        '        invocations.tensor_pointer(base + 2, "beta_ptr"),',
+        '        invocations.tensor_pointer(base + 6, "w"),',
+        '        invocations.tensor_pointer(base + 6, "u"), core, final_state, tokens);',
+        "    result.layer.state_scratch_zero_operations = 2;",
+        "    result.layer.state_scratch_zero_bytes = 8192ull * 32 * 64 * 2 + kStateElements * sizeof(float);",
+    ]
     return "\n".join(code) + "\n"
 
 
@@ -281,10 +246,12 @@ def gb10_gdn_overlays(linear, prefill):
     prefill = replace(prefill, prefill[begin:end],
         "  const bool native_gdn_prefill = aima_port::gb10_native_gdn_prefill_enabled(\n"
         "      tokens, options.has_initial_state);\n"
+        "  std::size_t native_gdn_launches = 0;\n"
+        "  const bool persistent_gdn_prefill = aima_port::gb10_persistent_gdn_prefill_enabled();\n"
         "  if (native_gdn_prefill) {\n"
         "    aima_port::observe_gdn_prefill(options.layer_index, \"prefill-conv-sampled\",\n"
         "        invocations.tensor_pointer(base + 1, \"o_ptr\"), 8192, tokens);\n"
-        "    auto matrices = aima_port::gb10_prepare_native_gdn(options.layer_index,\n"
+        "    aima_port::gb10_prepare_native_gdn(options.layer_index,\n"
         "        invocations.tensor_pointer(base + 1, \"o_ptr\"), a, b,\n"
         "        invocations.tensor_pointer(base + 2, \"q_ptr\"),\n"
         "        invocations.tensor_pointer(base + 2, \"k_ptr\"),\n"
@@ -302,8 +269,8 @@ def gb10_gdn_overlays(linear, prefill):
         + native_gdn_chunk64_launches() +
         "    aima_port::observe_gdn_prefill(options.layer_index, \"prefill-core-sampled\", core, 4096, tokens);\n"
         '    std::fprintf(stderr, "{\\\"event\\\":\\\"native_gdn_prefill\\\",\\\"layer\\\":%zu,'
-        '\\\"tokens\\\":%zu,\\\"stages\\\":6,\\\"chunk_tokens\\\":64,'
-        '\\\"original_preparation\\\":true,\\\"wu_bf16_product\\\":true,\\\"cold\\\":true}\\n", options.layer_index, tokens);\n'
+        '\\\"tokens\\\":%zu,\\\"stages\\\":%u,\\\"aot_launches\\\":%zu,\\\"chunk_tokens\\\":64,'
+        '\\\"original_preparation\\\":true,\\\"ordered_integer_accumulator\\\":true,\\\"cold\\\":true,\\\"persistent_recurrence\\\":%s}\\n", options.layer_index, tokens, persistent_gdn_prefill ? 6u : 8u, native_gdn_launches, persistent_gdn_prefill ? "true" : "false");\n'
         "  } else {\n"
         "  aima_port::gb10_prefill_gdn(options.layer_index,\n"
         "      invocations.tensor_pointer(base + 1, \"o_ptr\"),\n"
@@ -328,7 +295,7 @@ def gb10_gdn_overlays(linear, prefill):
                       "      (q8192_schedule ? 8 : 0);")
     prefill = replace(prefill,
         "  result.layer.aot_launches =\n      attention_launches -",
-        "  result.layer.aot_launches = (native_gdn_prefill ? 6 : 0) +\n      attention_launches -")
+        "  result.layer.aot_launches = (native_gdn_launches) +\n      attention_launches -")
     return linear, prefill
 
 
@@ -891,6 +858,40 @@ def terminal_prefill_overlays(sources):
         "      aima_port::gb10_prefill_terminal_only_enabled());\n  // The two conversions")
 
 
+
+def ordered_attention_overlays(sources):
+    """Bind the independently qualified cold-q8192 original-order provider."""
+    path = "native/src/native_full_prefill.hip.cpp"
+    text = replace(sources[path], '#include "gb10_decode_attention.h"',
+        '#include "gb10_decode_attention.h"\n#include "gb10_ordered_attention.h"')
+    text = replace(text, '  const std::size_t terminal_row = tokens - 1;',
+        """  const bool use_ordered_attention = aima_port::gb10_ordered_attention_enabled() && !terminal_only;
+  if (use_ordered_attention && (tokens != 8192 || active_tokens != tokens ||
+      execution_tokens != tokens || options.cache_position_start != 0 ||
+      use_mrope || use_vl_unified_attention || terminal_only || !options.decode_attention_state))
+    throw std::invalid_argument("Ordered attention requires cold q8192 text and its resident K/V cache");
+  const std::size_t terminal_row = tokens - 1;""")
+    text = replace(text, '  void* attention_bf16 = nullptr;\n  if (terminal_only) {',
+        """  void* attention_bf16 = nullptr;
+  if (use_ordered_attention) {
+    attention_bf16 = attention_f32;
+    const auto ordered_launches = aima_port::gb10_ordered_attention_prefill(
+        q, attention_k, attention_v, attention_bf16, active_tokens,
+        options.cache_position_start + active_tokens, options.cache_position_start);
+    result.layer.aot_launches += ordered_launches;
+    std::fprintf(stderr, "{\\\"event\\\":\\\"ordered_attention_prefill\\\","
+        "\\\"layer\\\":%zu,\\\"queries\\\":%zu,\\\"kv_tokens\\\":%zu,\\\"aot_launches\\\":%zu}\\n",
+        options.layer_index, active_tokens, options.cache_position_start + active_tokens, ordered_launches);
+  } else if (terminal_only) {""")
+    text = replace(text, '      !use_vl_unified_attention) {',
+        '      !use_vl_unified_attention && !use_ordered_attention) {')
+    text = replace(text, '  } else if (use_vl_unified_attention) {\n    launch_full_attention_sigmoid_gate_bf16_prefill(',
+        '  } else if (use_vl_unified_attention || use_ordered_attention) {\n    launch_full_attention_sigmoid_gate_bf16_prefill(')
+    text = replace(text, '        use_vl_unified_attention\n            ? attention_bf16',
+        '        (use_vl_unified_attention || use_ordered_attention)\n            ? attention_bf16', 2)
+    sources[path] = text
+
+
 def make_overlays(*, rectangular_ck=False, current_text_decode=False,
                   gb10_convolution=False, gb10_gdn=False, gb10_projections=False,
                   gb10_prefill_projections=False, gb10_normalization=False, gb10_moe=False):
@@ -1036,6 +1037,7 @@ def make_overlays(*, rectangular_ck=False, current_text_decode=False,
         gb10_decode_moe_overlays(sources)
     if gb10_moe and gb10_normalization and gb10_prefill_projections and gb10_projections:
         terminal_prefill_overlays(sources)
+        ordered_attention_overlays(sources)
     # These two upstream enum-to-string functions have no media I/O dependency.
     media = read("native/src/native_media.cpp")
     names = media[media.index("std::string_view native_media_kind_name("):]
@@ -1159,6 +1161,7 @@ def main():
     if args.gb10_normalization:
         sources.append(str(ROOT / "native/linux_core_port/gb10_normalization.hip.cpp"))
         sources.append(str(ROOT / "native/linux_core_port/gb10_decode_attention.hip.cpp"))
+        sources.append(str(ROOT / "native/linux_core_port/gb10_ordered_attention.cpp"))
     if args.gb10_moe:
         sources.append(str(ROOT / "native/linux_core_port/gb10_moe.hip.cpp"))
         sources.append(str(ROOT / "native/linux_core_port/gb10_decode_moe.hip.cpp"))
@@ -1180,6 +1183,20 @@ def main():
         positional_transform="unchanged GB10 head norm and ordinary RoPE when enabled",
         gate="existing BF16-input sigmoid gate", decode_changed=False,
         additional_device_bytes=0, additional_artifact_bytes=0, model_qualified=False)
+    report["optional_ordered_attention_prefill"] = dict(
+        environment="AIMA_PORT_ORDERED_ATTENTION_PREFILL", enabled_value="1", disabled_value="0", default="0",
+        scope="cold q8192 ordinary text with resident K/V and default stream",
+        query_output_layout="BF16 [8192,16,256]", kv_layout="BF16 [8192,2,256]",
+        images=["pack_value_kernel", "ordered_qk_kernel", "probability_kernel", "selected_pv_kernel"],
+        arithmetic="unsigned32 K16 order, original 32-key online probability, denominator FMA and SM121 reciprocal",
+        slabs=64, queries_per_slab=128, aot_launches_per_layer=193,
+        additional_device_bytes=113254404, embedded_image_bytes=237336,
+        borrowed_tables="existing SHA-verified GDN exp2 and decode-attention reciprocal owners",
+        per_call_device_allocations=0, per_call_host_copies=0,
+        terminal_only_compatibility="retains existing layer39 final-row provider; ordered attention covers the other nine full layers",
+        terminal_only_off_scope="all ten full-attention layers",
+        embedded_include_sha256=digest((ROOT / "native/linux_core_port/gb10_ordered_attention_images.inc").read_bytes()),
+        default_paths_unchanged=True, model_qualified=False, performance_qualified=False)
     if args.windows_rectangular_ck:
         adapter = ROOT / "native/linux_core_port/ck_suffix_adapter.h"
         report["optional_adaptations"] = dict(windows_rectangular_ck=True,
@@ -1210,10 +1227,27 @@ def main():
         report["optional_adaptations"]["gb10_gdn"]["native_prefill_opt_in"] = dict(
             setting="AIMA_PORT_NATIVE_GDN_PREFILL=1", scope="cold q8192 only",
             preparation="original XOR16 Q/K normalization, BF16 beta, FP32 decay table",
-            core="five existing dynamic-T q1024 chunk64 images and embedded W/U with original BF16 K*beta",
-            additional_scratch_bytes=100663296, corrected_wu_image_bytes=119768,
-            corrected_wu_image_sha256="eaa96fb413d1501666a1949b4bdf8171ed22b2a5b9208290379430ed10f6b667",
+            core="original chunk64 cumsum and inverse; seven explicit-layout original-order unsigned32 GDN images",
+            additional_scratch_bytes=100663296, reused_conversion_scratch_bytes=5242880,
+            embedded_image_bytes=sum(item["bytes"] for item in json.loads(
+                (ROOT / "native/linux_core_port/gb10_gdn_ordered_compile.json").read_text())["compiled"].values()),
+            aot_launches_per_linear_layer=390,
+            embedded_include_sha256=digest((ROOT / "native/linux_core_port/gb10_gdn_ordered_images.inc").read_bytes()),
+            state_update="independent carried K64 dot then explicit FP32 decay FMA",
+            state_commit="last chunk writes the engine's resident FP32 state directly",
             model_qualified=False)
+        report["optional_adaptations"]["gb10_gdn"]["native_prefill_opt_in"]["persistent"] = dict(
+            setting="AIMA_PORT_NATIVE_GDN_PERSISTENT=1", default="0",
+            requires="AIMA_PORT_NATIVE_GDN_PREFILL=1", scope="cold q8192 only",
+            upstream="five original unsigned64 images: KKT, inverse, W, U, scores",
+            recurrence="one explicit-layout kernel carries each head/value tile across all 128 chunks",
+            aot_launches_per_linear_layer=7, images=6,
+            embedded_image_bytes=sum(item["bytes"] for item in json.loads(
+                (ROOT / "native/linux_core_port/gb10_gdn_persistent_compile.json").read_text())["compiled"].values()),
+            embedded_include_sha256=digest((ROOT / "native/linux_core_port/gb10_gdn_persistent_images.inc").read_bytes()),
+            additional_scratch_bytes_over_native_prefill=0, reused_conversion_scratch_bytes=2097152,
+            block_shared_bytes=6144, state_commit="final FP32 state writes to the resident engine destination",
+            model_qualified=False, performance_qualified=False)
     if args.gb10_projections:
         report["optional_adaptations"]["gb10_projections"] = dict(
             decode="existing Windows K16 width-26 SM121 projection arithmetic",
@@ -1239,6 +1273,27 @@ def main():
                 additional_device_bytes=400556416,
                 arithmetic="same admission predicate, ascending K16 carry order and BF16 endpoint",
                 additional_runtime_artifacts=0, model_qualified=False),
+            optional_ordered_replay=dict(environment="AIMA_PORT_PREFILL_ORDERED_REPLAY",
+                enabled_values=["32", "64", "128"], disabled_value="0", default="0",
+                scope="same dense queues and original producer/selector; original BF16 operands",
+                arithmetic="unsigned32 positive/negative K16 sums and ascending FP32 carry",
+                weight_layouts=["row-contiguous", "transposed"], reductions=[512, 2048, 4096],
+                prepared_operand_launches=0, additional_device_bytes=0,
+                removed_prepared_dense_bytes=189333504,
+                scratch_saving_scope="dense-only owner; native routed MoE retains prepared buffers unless its raw BF16 replay is enabled",
+                embedded_image_bytes=76144, loaded_images=1, additional_runtime_artifacts=0,
+                embedded_include_sha256=digest((ROOT / "native/linux_core_port/gb10_prefill_ordered_images.inc").read_bytes()),
+                group_major_preparation_combination_rejected=True, model_qualified=False),
+            optional_routed_ordered_replay=dict(environment="AIMA_PORT_ROUTED_ORDERED_REPLAY",
+                enabled_values=["32", "64", "128"], disabled_value="0", default="0",
+                requires_native_moe=True, scope="same routed producer, original router IDs/FP32 weights and bounded selector queues",
+                gate_up_shape=[65536,1024,2048], weighted_down_shape=[65536,2048,512],
+                queue_capacity=4194304, prepared_operand_launches=0,
+                removed_prepared_bytes_with_dense_ordered=1283457024,
+                removed_prepared_bytes_without_dense_ordered=1094123520,
+                embedded_image_bytes=178560, loaded_images=2, additional_device_bytes=0,
+                embedded_include_sha256=digest((ROOT / "native/linux_core_port/gb10_routed_ordered_images.inc").read_bytes()),
+                model_qualified=False, performance_qualified=False),
             optional_group_major_weights=dict(environment="AIMA_PORT_PREFILL_GROUP_MAJOR_WEIGHTS", enabled_value="1",
                 scope="prepared dense replay weights only; both source weight views",
                 layout="K16 group, output row, existing lossless scaled-half Row",

@@ -1,0 +1,276 @@
+{
+  "kind": "original_reference_inductor_qk_norm_cache_repair",
+  "utc": "2026-09-22T22:56:36.968197+00:00",
+  "rejections": [
+    {
+      "name": "qrt-gb10-prefix256-step189-20260923-r1",
+      "host": "aitopatom-66c4",
+      "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+      "command_file": "<evidence-home-1>/run-qrt-gb10-prefix256-step189-20260923-r1.py",
+      "command_file_sha256": "b97a9749cbd49897543159048227adff9209292dd97070a814366b2f447632a8",
+      "source_commit": "3fcbdafb10a14e94c15bd94a1f821f180bc95373",
+      "dispatch_sha256": "c3043825cceeb9c9365c332b56b32020d2d0a28f60bd67f8e239ca514b9cb3c2",
+      "failed_case_sha256": "6abeb5a2ffd76683fb3301ac3f85dcbb1ec0fbd0c277b75ad64b9f5b53c832bb",
+      "output_ids": [
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220
+      ],
+      "first_logit": 9.375,
+      "full_first_logits_sha256": "b8f367965eb21a47549f65087a840a9392854e5194f1d5749c77a91369af1a97",
+      "original_expected_first_token": 82,
+      "original_expected_first_logit": 9.25,
+      "same_500_failure_surfaces": true,
+      "host_guard_pass": true,
+      "minimum_host_available_bytes": 14766039040,
+      "wall_seconds": 307.45874959998764,
+      "frozen_fla_autotune_no_misses": true,
+      "reference_qualified": false
+    },
+    {
+      "name": "qrt-gb10-prefix256-step189-20260923-r2",
+      "host": "aitopatom-66c4",
+      "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+      "command_file": "<evidence-home-1>/run-qrt-gb10-prefix256-step189-20260923-r2.py",
+      "command_file_sha256": "eac31face866bf02c16b7d15d9e712594f7ea625f0e64f79e7f46ef45a5165af",
+      "source_commit": "3fcbdafb10a14e94c15bd94a1f821f180bc95373",
+      "dispatch_sha256": "c296f3e41a5630b02f1adba0555bb4f4effd4ee89ba2de239c1501b7ebb20cac",
+      "failed_case_sha256": "552f31f134941a70ae5eb8f6f7564ce64604e1d1cb1f2845ad2efa32a5c26f1a",
+      "output_ids": [
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220
+      ],
+      "first_logit": 9.375,
+      "full_first_logits_sha256": "b8f367965eb21a47549f65087a840a9392854e5194f1d5749c77a91369af1a97",
+      "original_expected_first_token": 82,
+      "original_expected_first_logit": 9.25,
+      "same_500_failure_surfaces": true,
+      "host_guard_pass": true,
+      "minimum_host_available_bytes": 17865461760,
+      "wall_seconds": 299.2423565769568,
+      "frozen_fla_autotune_no_misses": true,
+      "reference_qualified": false
+    }
+  ],
+  "historical_identical_failure": {
+    "name": "qrt-gb10-prefix256-step124-20260921-r1",
+    "case_sha256": "c70332e390a24e19bae45d31781052a8f6591e231681dd1d1b946f8836203d09"
+  },
+  "inspection": {
+    "command_file": "inspect_gb10_step189_controls_r1.py",
+    "command_file_sha256": "3d759f34d26a17d5c56aad6bb8b0db28728f4ce1222e816467e4f611df744950",
+    "record_sha256": "eec45cbc5b72eeaf5d04bc6906f785595cc69a925186468c61dfa8dc8f9b6672",
+    "common_compiler_files": 26,
+    "changed_common_compiler_files": [
+      {
+        "path": "/tmp/torchinductor_root/6d/193163c3593ce105d150614c04cf633c380ad33243d68253a5c88646814c063c.best_config",
+        "rejected_sha256": "1e4b58c33673bc5be8dcddfa10f811cb280dc88e2bbca00387382e21f82948a6",
+        "qualified_sha256": "7a54b48d70fc582a6a839aa4dc0a3ace0c810944c7886081b97ef31b8ebeee2a",
+        "rejected_text": "{\"XBLOCK\": 8, \"R0_BLOCK\": 256, \"num_warps\": 16, \"num_stages\": 1, \"configs_hash\": \"fb5fc2d7f8690dd8f9e7d4c3d2c31c045e5712e2f46e9e637c85d7c16e8f4596\", \"found_by_coordesc\": false, \"time_taken_ms\": 224, \"triton_cache_hash\": \"L4VJKQ3PB3YG473DSNL5K2RLX4TITBHI23JZ4TDSWIAYIQOORVYA\"}",
+        "qualified_text": "{\"XBLOCK\": 2, \"R0_BLOCK\": 256, \"num_warps\": 4, \"num_stages\": 1, \"configs_hash\": \"fb5fc2d7f8690dd8f9e7d4c3d2c31c045e5712e2f46e9e637c85d7c16e8f4596\", \"found_by_coordesc\": false, \"time_taken_ms\": 222, \"triton_cache_hash\": \"7FTBYXBRLHORWPXHZFGMI2WYAFVP2ZX5PFTF4G7MXKU2GWS4X6EQ\"}"
+      }
+    ]
+  },
+  "original_qualified_configuration": {
+    "kind": "original_qualified_inductor_qk_norm_autotune_selection",
+    "original_container": "qrt-gb10-layer8-history-20260923-r1",
+    "original_reference_analysis_sha256": "6bfdde4e41096e437c1de9692aa7ac57f497405508467ff40a5240ceef9ce567",
+    "original_reference_dispatch_sha256": "a20790e1b10cc1f69719db76fd1a085e89e8b38d31aa28b374b32f6e3620c330",
+    "inspection_sha256": "eec45cbc5b72eeaf5d04bc6906f785595cc69a925186468c61dfa8dc8f9b6672",
+    "cache_path": "/tmp/torchinductor_root/6d/193163c3593ce105d150614c04cf633c380ad33243d68253a5c88646814c063c.best_config",
+    "stage_path": "frozen-inductor/193163c3593ce105d150614c04cf633c380ad33243d68253a5c88646814c063c.best_config",
+    "sha256": "7a54b48d70fc582a6a839aa4dc0a3ace0c810944c7886081b97ef31b8ebeee2a",
+    "original_winner": {
+      "XBLOCK": 2,
+      "R0_BLOCK": 256,
+      "num_warps": 4,
+      "num_stages": 1,
+      "configs_hash": "fb5fc2d7f8690dd8f9e7d4c3d2c31c045e5712e2f46e9e637c85d7c16e8f4596",
+      "found_by_coordesc": false,
+      "time_taken_ms": 222,
+      "triton_cache_hash": "7FTBYXBRLHORWPXHZFGMI2WYAFVP2ZX5PFTF4G7MXKU2GWS4X6EQ"
+    },
+    "failed_container": "qrt-gb10-prefix256-step189-20260923-r2",
+    "failed_cache_sha256": "1e4b58c33673bc5be8dcddfa10f811cb280dc88e2bbca00387382e21f82948a6",
+    "failed_winner": {
+      "XBLOCK": 8,
+      "R0_BLOCK": 256,
+      "num_warps": 16,
+      "num_stages": 1,
+      "configs_hash": "fb5fc2d7f8690dd8f9e7d4c3d2c31c045e5712e2f46e9e637c85d7c16e8f4596",
+      "found_by_coordesc": false,
+      "time_taken_ms": 224,
+      "triton_cache_hash": "L4VJKQ3PB3YG473DSNL5K2RLX4TITBHI23JZ4TDSWIAYIQOORVYA"
+    },
+    "kernel_path": "/tmp/torchinductor_root/6d/c6do6el3ac6sixc6f7xvlbmsm4z6ysg7ieais4pbegpyoquazaub.py",
+    "kernel_sha256": "8c290356d47dbe39f6cefda007d0e9061d2abdd31c94996eee9f46ed765270fe",
+    "cache_selection_changed": true,
+    "model_math_sources_changed": false,
+    "model_inputs_changed": false,
+    "original_oracles_changed": false,
+    "cause_confirmed": false,
+    "scope": "Freeze the exact cache bytes from an original 608-output-qualified run; confirmation requires unchanged token/logit controls."
+  },
+  "compiler_artifacts": {
+    "host": "aitopatom-66c4",
+    "source_container": "qrt-gb10-layer8-history-20260923-r1",
+    "files": {
+      "qualified.json": {
+        "path": "/tmp/torchinductor_root/triton/0/7FTBYXBRLHORWPXHZFGMI2WYAFVP2ZX5PFTF4G7MXKU2GWS4X6EQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.json",
+        "bytes": 1137,
+        "sha256": "684e969678d489b61799d465c0017d07db8a779cba6a508f638861514a0879ee"
+      },
+      "qualified.ptx": {
+        "path": "/tmp/torchinductor_root/triton/0/7FTBYXBRLHORWPXHZFGMI2WYAFVP2ZX5PFTF4G7MXKU2GWS4X6EQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+        "bytes": 29338,
+        "sha256": "75c503719c0d35900381534ddd8d57600012c52542d9fb09b6e951bd674474f1"
+      },
+      "qualified.ttgir": {
+        "path": "/tmp/torchinductor_root/triton/0/7FTBYXBRLHORWPXHZFGMI2WYAFVP2ZX5PFTF4G7MXKU2GWS4X6EQ/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ttgir",
+        "bytes": 17312,
+        "sha256": "d7c7773bfbf99d149c003a13d4db35ac9cba600f8e3fbc9527158526484d6dff"
+      },
+      "rejected.json": {
+        "path": "/tmp/torchinductor_root/triton/0/L4VJKQ3PB3YG473DSNL5K2RLX4TITBHI23JZ4TDSWIAYIQOORVYA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.json",
+        "bytes": 1137,
+        "sha256": "4e33355c6eb13d3fcc0b3b418e9a80b3be1134dfb812c24a02765c5fe19f643b"
+      },
+      "rejected.ptx": {
+        "path": "/tmp/torchinductor_root/triton/0/L4VJKQ3PB3YG473DSNL5K2RLX4TITBHI23JZ4TDSWIAYIQOORVYA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ptx",
+        "bytes": 34486,
+        "sha256": "241fd458c02028bbc5c5352f46101e8bf9d5749ffe0830ef57c1d07bffc5e300"
+      },
+      "rejected.ttgir": {
+        "path": "/tmp/torchinductor_root/triton/0/L4VJKQ3PB3YG473DSNL5K2RLX4TITBHI23JZ4TDSWIAYIQOORVYA/triton_red_fused__to_copy_add_mean_mul_pow_rsqrt_0.ttgir",
+        "bytes": 16311,
+        "sha256": "d170fb97c873e5a5a47c0fca397bed18ff9abaa09c1655bb26b8a06eef0a4d84"
+      }
+    },
+    "gpu_compute_executed": false,
+    "command_file": "read_gb10_qk_norm_ir_r1.py",
+    "command_file_sha256": "8a671e7ec6ed531fbe21663cb3c7ba198977c16a0eb8c8ad8aa78f38454671b4"
+  },
+  "observed_reduction_layouts": {
+    "qualified": {
+      "XBLOCK": 2,
+      "R0_BLOCK": 256,
+      "num_warps": 4,
+      "warps_per_cta": [
+        1,
+        4
+      ],
+      "component_order": "First combine square[i] and square[i+128], then warp butterfly16/8/4/2/1 and cross-warp2/1."
+    },
+    "rejected": {
+      "XBLOCK": 8,
+      "R0_BLOCK": 256,
+      "num_warps": 16,
+      "warps_per_cta": [
+        2,
+        8
+      ],
+      "component_order": "Each of256 square components enters warp butterfly16/8/4/2/1, then cross-warp4/2/1."
+    }
+  },
+  "repair": "Mount the exact Inductor best_config bytes from the original608-output-qualified layer8 reference read-only, alongside the eight unchanged frozen FLA caches. Preserve model computation source, request geometry, prompts, original token/logit anchors and container image.",
+  "actual_repaired_run": {
+    "name": "qrt-gb10-prefix256-step189-20260923-r3",
+    "analysis_sha256": "7f5e2430b16967bee3f2c7777b980cb51732176a5aa4f9bcac8c82fbce2f3492",
+    "dispatch_sha256": "42b253c2190352548de44b30c44ffe0194025ebb24f43120d79219bac0455334",
+    "source_commit": "3fcbdafb10a14e94c15bd94a1f821f180bc95373",
+    "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "command_file": "<evidence-home-1>/run-qrt-gb10-prefix256-step189-20260923-r3.py",
+    "command_file_sha256": "ef4bcc9e693bc72b099bc4f1cb772a1c089cfd28af82d43bf74ee8bcf71603c6",
+    "all608_original_outputs_and_full_first_logits_match": true,
+    "frozen_inductor_cache_preserved": true,
+    "original_inductor_kernel_source_preserved": true,
+    "selected_positions": [
+      263291,
+      263356
+    ]
+  },
+  "first_previously_observed_difference": "Layer3 post-attention norm; earlier observations did not select prefill attention internals.",
+  "causal_scope": "Changed launch selection and reduction order are established from original caches/IR. Pinning the original selection restores the complete token/logit reference in the new run. A forced alternate-kernel single-op counterfactual is not included.",
+  "original_oracles_changed": false,
+  "windows_arithmetic_changed": false,
+  "windows_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "qualified_reference": {
+    "file": "benchmarks/correctness/gb10-prefix256-step189-reference-20260923.json",
+    "sha256": "45e3cfd22d31b13cbff5fc89b0898e467c14436fcdabbf0621f51e69ea4bf18c",
+    "bytes": 44374
+  },
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "036af02f8924d87674d88ab1c66d3112bbaf3b943dee7cc92b9cc57346bac9ab",
+    "original_json_bytes": 11397,
+    "source_revision": "3fcbdafb10a14e94c15bd94a1f821f180bc95373",
+    "source_path": "benchmarks/correctness/gb10-step189-control-cache-repair-20260923.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 3
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
+}

@@ -75,11 +75,14 @@ template<class K,class... A> void projection_launch(const char* name,dim3 grid,
 #undef hipLaunchKernelGGL
 #define hipLaunchKernelGGL(k,g,b,z,s,...) projection_launch(#k,g,b,s,k,__VA_ARGS__)
 ''', encoding="utf-8")
+    (stub.parent / "hip_runtime_api.h").write_text('#include "hip_runtime.h"\n')
     source = ROOT / "native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp"
     executable = out / "host-contract"
     command = ["clang++", "-std=c++17", "-O1", "-ffp-contract=off",
-        "-fsanitize=address,undefined", "-I", str(out / "stub"), str(source),
-        "-o", str(executable)]
+        "-fsanitize=address,undefined", "-I", str(out / "stub"),
+        "-I", str(ROOT / "third_party/aima_linux/native/include"), str(source),
+        str(ROOT / "third_party/aima_linux/native/src/sha256.cpp"),
+        str(ROOT / "third_party/aima_linux/native/src/aot_kernel.hip.cpp"), "-o", str(executable)]
     build = subprocess.run(command, capture_output=True, text=True, timeout=90)
     (out / "build.stderr").write_text(build.stderr)
     build.check_returncode()
@@ -89,7 +92,11 @@ template<class K,class... A> void projection_launch(const char* name,dim3 grid,
     inputs = [source, ROOT / "native/linux_core_port/gb10_prefill_projection.hip.cpp",
               ROOT / "native/linux_core_port/gb10_prefill_projection.h", Path(__file__),
               ROOT / "native/providers/moe_accumulator/sm121_staged_half_projection.h",
-              ROOT / "tools/test_linux_core_gdn.py"]
+              ROOT / "tools/test_linux_core_gdn.py",
+              ROOT / "native/linux_core_port/gb10_prefill_ordered_images.inc",
+              ROOT / "native/linux_core_port/gb10_routed_ordered_images.inc",
+              ROOT / "third_party/aima_linux/native/src/aot_kernel.hip.cpp",
+              ROOT / "third_party/aima_linux/native/src/sha256.cpp"]
     report = dict(result=json.loads(run.stdout), build_command=command,
         inputs=[dict(path=p.relative_to(ROOT).as_posix(), sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in inputs],
         stub_sha256=hashlib.sha256(stub.read_bytes()).hexdigest(),

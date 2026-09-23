@@ -446,8 +446,151 @@ int main() {
   }
   assert(state.profile->route_ordinal == 2 && fake_count_copies == previous_copies + 54);
   state.profile.reset(); assert(fake_live_profile_events == 0);
+
+
+  unsigned routed_ordered_cases=0,routed_ordered_launches=0,routed_ordered_rejections=0;
+  const auto before_routed_ordered=rejected_bindings;
+  for(unsigned tile:{32u,64u,128u}){
+    state.routed_ordered_batch=tile;load_routed_ordered(state);
+    reject([&]{load_routed_ordered(state);});
+    for(bool profiled:{false,true})for(bool down:{false,true}){
+      if(profiled)state.profile=std::make_unique<Profile>();
+      gb10_prefill_projection_profile_begin();
+      fake_events.clear();fake_module_launches.clear();
+      const auto windows=down?36u:18u;const auto& image=routed_ordered_image(tile,down);
+      routed_call(down);
+      assert(fake_module_launches.size()==windows);
+      assert(std::count(fake_events.begin(),fake_events.end(),"prepare_operands")==0);
+      assert(std::count(fake_events.begin(),fake_events.end(),"row_l2")==2);
+      assert(std::count(fake_events.begin(),fake_events.end(),"(select_routed<Down>)")==windows);
+      assert(std::count(fake_events.begin(),fake_events.end(),"(replay_routed<Down>)")==0);
+      for(const auto& launch:fake_module_launches){
+        auto address=[](const void* q){return reinterpret_cast<std::uintptr_t>(q);};
+        assert(launch.name=="routed_replay_kernel"&&launch.shared==image.shared);
+        assert(launch.pointers==std::vector<std::uintptr_t>({address(operands[0]),address(operands[1]),
+          address(operands[2]),address(operands[3]),address(state.count.data),address(state.indices.data),
+          address(operands[7]),0,address(operands[8])}));
+        assert(launch.scalars==std::vector<std::int32_t>({65536}));
+      }
+      assert(state.routed_ordered_projections==1&&state.routed_ordered_launches==windows);
+      if(profiled){assert(!state.profile->inflight&&state.profile->route_ordinal==1);state.profile.reset();}
+      assert(fake_live_profile_events==0);++routed_ordered_cases;routed_ordered_launches+=windows;
+    }
+    auto direct=[&]{launch_routed_ordered(state,static_cast<const uint16_t*>(operands[0]),
+      static_cast<const uint16_t*>(operands[1]),static_cast<const int32_t*>(operands[2]),
+      static_cast<const float*>(operands[3]),static_cast<uint16_t*>(operands[7]),
+      static_cast<uint32_t*>(operands[8]),false);};
+    for(unsigned i:{0u,1u,2u,3u,7u,8u}){auto saved=operands[i];operands[i]=nullptr;reject(direct);operands[i]=saved;}
+    for(Device* device:{&state.count,&state.indices}){auto saved=device->data;device->data=nullptr;reject(direct);device->data=saved;}
+    fake_ordered_launch_error=1;reject(direct);fake_ordered_launch_error=0;
+    state.routed=false;reject(direct);reject([&]{validate_producers(state);});state.routed=true;
+    for(unsigned down:{0u,1u}){
+      state.routed_ordered[down].reset();fake_events.clear();reject([&]{routed_call(false);});assert(fake_events.empty());
+    }
+  }
+  state.routed_ordered_batch=0;reject([&]{load_routed_ordered(state);});
+  routed_ordered_rejections=rejected_bindings-before_routed_ordered;
+  assert(routed_ordered_cases==12&&routed_ordered_launches==324&&routed_ordered_rejections==43);
   state.routed = false;
-  active = nullptr;
+  // The actual AOT loader and kernel ABI execute against recording HIP calls.
+  // Every accepted shape is checked in both queue modes and weight layouts;
+  // this establishes argument/ownership behavior, not GPU dot arithmetic.
+  unsigned ordered_cases=0,ordered_launches=0,ordered_rejections=0;
+  const unsigned before_ordered_rejections=rejected_bindings;
+  assert(ordered_replay_batch_setting(nullptr)==0&&ordered_replay_batch_setting("0")==0);
+  for(const char* v:{"","1","16","33","064","256","-1","true"})
+    reject([&]{ordered_replay_batch_setting(v);});
+  for(unsigned tile:{32u,64u,128u}){
+    assert(ordered_replay_batch_setting(std::to_string(tile).c_str())==tile);
+    state.ordered_batch=tile;load_ordered_replay(state);
+    reject([&]{load_ordered_replay(state);});
+    const auto& image=ordered_replay_image(tile);
+    for(bool batched:{false,true})for(bool packed:{false,true})
+      for(unsigned reduction:{512u,2048u,4096u})for(unsigned n:{1u,32u,2048u,12352u}){
+        state.batch_replay=batched;gb10_prefill_projection_profile_begin();
+        fake_events.clear();fake_module_launches.clear();fake_projection_launches.clear();
+        gb10_prefill_projection_finish(original.data(),transposed.data(),output.data(),8192,n,reduction,packed,nullptr);
+        const unsigned windows=(8192u*n+window_capacity-1u)/window_capacity;
+        const unsigned launches=batched?1u:windows;
+        assert(fake_module_launches.size()==launches);
+        assert(std::count(fake_events.begin(),fake_events.end(),"prepare_operands")==0);
+        assert(std::count(fake_events.begin(),fake_events.end(),"row_l2")==2);
+        assert(std::count(fake_events.begin(),fake_events.end(),"select_and_round")==launches);
+        assert(std::count(fake_events.begin(),fake_events.end(),"replay_selected")==0);
+        for(const auto& launch:fake_module_launches){
+          auto address=[](const void* q){return reinterpret_cast<std::uintptr_t>(q);};
+          assert(launch.pointers==std::vector<std::uintptr_t>({address(original.data()),address(transposed.data()),
+            address(state.count.data),address(state.indices.data),address(output.data()),0}));
+          assert(launch.scalars==std::vector<std::int32_t>({int(n),int(reduction),packed?int(reduction):1,packed?1:int(n)}));
+          assert(launch.y==(batched?windows:1u)&&launch.shared==image.shared);
+        }
+        assert(state.ordered_projections==1&&state.ordered_launches==launches);
+        ++ordered_cases;ordered_launches+=launches;
+      }
+
+    state.batch_replay=true;
+    state.profile=std::make_unique<Profile>();gb10_prefill_projection_profile_begin();
+    const auto serial_before=fake_profile_serial,copies_before=fake_count_copies;
+    fake_events.clear();fake_module_launches.clear();
+    gb10_prefill_projection_buffer(8192,12352,4096,nullptr);
+    gb10_prefill_projection_finish(original.data(),transposed.data(),output.data(),8192,12352,4096,true,nullptr);
+    assert(fake_profile_serial==serial_before+7&&fake_count_copies==copies_before+1);
+    assert(fake_count_host_bytes==97*sizeof(unsigned)&&!state.profile->inflight);
+    assert(fake_module_launches.size()==1&&fake_module_launches[0].y==97);
+    assert(std::count(fake_events.begin(),fake_events.end(),"prepare_operands")==0);
+    state.profile.reset();assert(fake_live_profile_events==0);
+    auto call=[&](unsigned n=32,unsigned k=2048,unsigned windows=1){
+      launch_dense_replay(state,original.data(),transposed.data(),output.data(),n,k,windows,false);
+    };
+    for(unsigned n:{0u,12353u})reject([&]{call(n);});
+    for(unsigned k:{0u,16u,1024u,4097u})reject([&]{call(32,k);});
+    for(unsigned windows:{0u,2u,98u})reject([&]{call(32,2048,windows);});
+    state.batch_replay=false;reject([&]{call(2048,2048,2);});state.batch_replay=true;
+    for(Device* d:{&state.count,&state.indices}){
+      auto saved=d->data;d->data=nullptr;reject([&]{call();});d->data=saved;
+    }
+    state.group_major_weights=true;reject([&]{call();});reject([&]{validate_producers(state);});state.group_major_weights=false;
+    fake_ordered_launch_error=1;reject([&]{call();});fake_ordered_launch_error=0;
+    state.ordered.reset();reject([&]{call();});
+    fake_events.clear();reject([&]{gb10_prefill_projection_finish(original.data(),transposed.data(),output.data(),8192,32,2048,true,nullptr);});
+    assert(fake_events.empty());
+  }
+  state.ordered_batch=0;reject([&]{load_ordered_replay(state);});
+  ordered_rejections=rejected_bindings-before_ordered_rejections;
+  assert(ordered_cases==144&&ordered_rejections==63);
+  active=nullptr;
+  // Constructors select one verified image and avoid both prepared dense
+  // allocations. The RAII owner remains unique and unloads after GPU sync.
+  for(const char* tile:{"32","64","128"}){
+    setenv("AIMA_PORT_PREFILL_ORDERED_REPLAY",tile,1);
+    {Gb10PrefillProjectionOwner owner;
+      assert(active&&active->ordered&&!active->inputs.data&&!active->weights.data);
+      reject([&]{Gb10PrefillProjectionOwner duplicate;});}
+    assert(!active);
+  }
+  setenv("AIMA_PORT_PREFILL_GROUP_MAJOR_WEIGHTS","1",1);
+  reject([&]{Gb10PrefillProjectionOwner conflicting;});assert(!active);
+  unsetenv("AIMA_PORT_PREFILL_GROUP_MAJOR_WEIGHTS");unsetenv("AIMA_PORT_PREFILL_ORDERED_REPLAY");
+
+
+  setenv("AIMA_PORT_ROUTED_ORDERED_REPLAY","64",1);
+  reject([&]{Gb10PrefillProjectionOwner no_native_moe;});assert(!active);
+  setenv("AIMA_PORT_NATIVE_MOE_PREFILL","1",1);
+  for(const char* tile:{"32","64","128"}){
+    setenv("AIMA_PORT_ROUTED_ORDERED_REPLAY",tile,1);
+    setenv("AIMA_PORT_PREFILL_ORDERED_REPLAY","64",1);
+    {Gb10PrefillProjectionOwner owner;
+      assert(active&&active->ordered&&active->routed_ordered[0]&&active->routed_ordered[1]);
+      assert(!active->inputs.data&&!active->weights.data);
+      reject([&]{Gb10PrefillProjectionOwner duplicate;});}
+    assert(!active);
+  }
+  unsetenv("AIMA_PORT_PREFILL_ORDERED_REPLAY");
+  {Gb10PrefillProjectionOwner owner;
+    assert(active&&active->inputs.data&&active->weights.data&&!active->ordered);
+    assert(active->routed_ordered[0]&&active->routed_ordered[1]);}
+  unsetenv("AIMA_PORT_NATIVE_MOE_PREFILL");unsetenv("AIMA_PORT_ROUTED_ORDERED_REPLAY");
+  assert(!active);
   reject([&]{gb10_prefill_projection_profile_begin();});
   reject([&]{Gb10PrefillLinearOutputScope missing_owner(8192, 0);});
   reject([&]{Gb10PrefillFullOutputScope missing_owner(8192, 3);});
@@ -470,5 +613,16 @@ int main() {
                "\"routed_full_window_candidates\":" << routed_candidates << ","
                "\"routed_sorted_scatter_guards_pass\":true,\"routed_weighted_endpoint_edges_pass\":true,"
                "\"routed_invalid_dispatch_rejected\":true,\"routed_profile_windows\":54,"
+               "\"routed_ordered_cases\":" << routed_ordered_cases << ","
+               "\"routed_ordered_aot_launches\":" << routed_ordered_launches << ","
+               "\"routed_ordered_invalid_bindings\":" << routed_ordered_rejections << ","
+               "\"routed_ordered_raw_bf16_abi_and_no_preparation_pass\":true,"
+               "\"routed_ordered_scratch_and_image_ownership_pass\":true,"
+               "\"ordered_projection_cases\":" << ordered_cases << ","
+               "\"ordered_module_launches\":" << ordered_launches << ","
+               "\"ordered_invalid_bindings_rejected\":" << ordered_rejections << ","
+               "\"ordered_raw_bf16_abi_and_no_preparation_pass\":true,"
+               "\"ordered_completed_profile_max_window_pass\":true,"
+               "\"ordered_owner_images_and_scratch_lifetime_pass\":true,"
                "\"gpu_replay_executed\":false}\n";
 }

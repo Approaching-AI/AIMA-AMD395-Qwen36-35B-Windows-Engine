@@ -28,6 +28,7 @@
 #ifdef AIMA_PORT_GB10_NORMALIZATION
 #include "gb10_normalization.h"
 #include "gb10_decode_attention.h"
+#include "gb10_ordered_attention.h"
 #endif
 #ifdef AIMA_PORT_GB10_MOE
 #include "gb10_moe.h"
@@ -265,6 +266,11 @@ int run(const std::vector<std::string>& argv) {
 #ifdef AIMA_PORT_GB10_NORMALIZATION
   aima_port::Gb10NormalizationOwner normalization;
   aima_port::Gb10DecodeAttentionOwner decode_attention(9216);
+  std::unique_ptr<aima_port::Gb10OrderedAttentionOwner> ordered_attention;
+  if (aima_port::gb10_ordered_attention_setting(std::getenv("AIMA_PORT_ORDERED_ATTENTION_PREFILL"))) {
+    ordered_attention = std::make_unique<aima_port::Gb10OrderedAttentionOwner>(
+        aima_port::gb10_exp2_table(), aima_port::gb10_attention_reciprocal_table());
+  }
   if (aima_port::gb10_prefill_terminal_only_enabled() && observation)
     throw std::invalid_argument("Terminal prefill trial requires observers to be disabled");
 #endif

@@ -1,0 +1,133 @@
+{
+  "schema": 2,
+  "classification": "optional_rne_persistent_gdn_runtime_prepared_native_pending",
+  "source_revision": "84a0109e993d08d38c860a2bcab3de5e53c7307b",
+  "default_enabled": false,
+  "option": "AIMA_PORT_NATIVE_GDN_PERSISTENT=1",
+  "requires": "AIMA_PORT_NATIVE_GDN_PREFILL=1",
+  "scope": "cold q8192",
+  "compiled_manifest_sha256": "93d0bc200b6a4dbba73fe6fd1be24ab2ac499b10a2274cce4c04ffc78139de68",
+  "embedded_include_sha256": "6e22abfb9feffe1d4631d023ab0e45e9d570bf1632192c8cc9ff4519dc6d9fb3",
+  "native_round_probe_plan_sha256": "8ae251dbfc08c47cb60c61ad9841b11e0018b86abffa8b787f95cc801afa4c8b",
+  "offline_runtime_report_sha256": "7a3422c8c887a9a9612e3af153f189df10c8956e7eef23c550cb3fa5ba8338a8",
+  "image_bytes": 1545008,
+  "images": [
+    "kkt",
+    "inverse",
+    "w",
+    "u",
+    "scores",
+    "recurrence"
+  ],
+  "launches_including_original_cumsum": 7,
+  "previous_launches": 390,
+  "host_checks": {
+    "gdn": {
+      "result": {
+        "persistent_pipeline_rejections": 116,
+        "persistent_pipeline_launches": 6,
+        "persistent_upstream_u64_images": 5,
+        "persistent_images_and_abi_pass": true,
+        "persistent_failure_stops_checked": 6,
+        "persistent_setting_rejections": 11,
+        "ordered_pipeline_rejections": 118,
+        "ordered_pipeline_abi_and_images_pass": true,
+        "ordered_pipeline_launches": 389,
+        "recurrent_chunks_checked": 128,
+        "native_conversion_values_checked": 12480,
+        "native_preparation_rejections": 65,
+        "gpu_qk_norm_tested": false,
+        "conversion_values_checked": 33027,
+        "sampled_values_checked": 2199680,
+        "sampling_input_unchanged": true,
+        "first64_original_pointer_and_extent": true,
+        "sampling_guards_pass": true,
+        "observer_faults_rejected": 5,
+        "guards_pass": true,
+        "provider_order_pass": true,
+        "seeded_state_forwarded": true,
+        "decode_q2_flags": true,
+        "injected_provider_failure_rejected": true,
+        "invalid_bindings_rejected": 6,
+        "artifact_faults_rejected": 2,
+        "native_prefill_rejections": 11,
+        "native_prefill_cold_scope_pass": true
+      },
+      "build_command": [
+        "clang++",
+        "-std=c++17",
+        "-O1",
+        "-ffp-contract=off",
+        "-fsanitize=address,undefined",
+        "-I",
+        "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-rne-candidate/build/gdn-rne-host-r1/stub",
+        "-I",
+        "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-rne-candidate/third_party/aima_linux/native/include",
+        "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-rne-candidate/native/linux_core_port/gb10_gdn_host_contract_test.cpp",
+        "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-rne-candidate/third_party/aima_linux/native/src/sha256.cpp",
+        "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-rne-candidate/third_party/aima_linux/native/src/aot_kernel.hip.cpp",
+        "-o",
+        "/Users/jiawei-macmini/projects/AIMA-persistent-gdn-rne-candidate/build/gdn-rne-host-r1/host-contract"
+      ],
+      "inputs": [
+        {
+          "path": "native/linux_core_port/gb10_gdn_host_contract_test.cpp",
+          "sha256": "9af8759bd41b0122c4699f3ecb9599bbab3c85cec966fe3b3537848acdbe4196"
+        },
+        {
+          "path": "native/linux_core_port/gb10_gdn.hip.cpp",
+          "sha256": "ec6b69220183ae955949943d640750132043c56244d903c7d5cc85e4118e3227"
+        },
+        {
+          "path": "native/linux_core_port/gb10_gdn.h",
+          "sha256": "29c58701f15c6b1d46263ea169b0cdea3769121139cd1fb91e7fa88f1e6c342c"
+        },
+        {
+          "path": "native/linux_core_port/gb10_gdn_assets.inc",
+          "sha256": "bc89be98894cac0bf5e9c6ae7eea11a42a934303fd62b99800b59a6c306ec125"
+        },
+        {
+          "path": "native/linux_core_port/gb10_gdn_ordered_images.inc",
+          "sha256": "d9542180bdc7db0adbd3f9ca165c73107b377c27ebb6a16979e4382cdd479eb7"
+        },
+        {
+          "path": "native/linux_core_port/gb10_gdn_persistent_images.inc",
+          "sha256": "6e22abfb9feffe1d4631d023ab0e45e9d570bf1632192c8cc9ff4519dc6d9fb3"
+        },
+        {
+          "path": "third_party/aima_linux/native/src/aot_kernel.hip.cpp",
+          "sha256": "9ff9cdfa424205de96489458295fa380b60c8083462313f61c280312cd2f44c2"
+        }
+      ],
+      "test_source_sha256": "bcf1d8e504fe23f0934b079e8896ac472c708e15ffd76a776e8853119b0c9350",
+      "stub_sha256": "8db20f2a06cb53de05e35f0e264fd254df97b5dacaf40476cebe4176cb4340e3",
+      "host_only": true,
+      "model_inference_acceptance": false
+    },
+    "gdn_result_sha256": "f274e55117b0da2547aa03f29aeb1e0494a6695a3a8a0a6fd32106de04fd41ff"
+  },
+  "changed_executable": "recurrence only; five upstream allocated executable sections unchanged",
+  "native_amd_validation_pending": true,
+  "native_gpu_execution": false,
+  "native_windows_build": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "build_preparation": {
+    "command": [
+      "python3.12",
+      "tools/prepare_linux_core_windows.py",
+      "--out",
+      "build/persistent-gdn-rne-prepare-r1",
+      "--current-text-decode",
+      "--gb10-convolution",
+      "--gb10-gdn",
+      "--gb10-projections",
+      "--gb10-prefill-projections",
+      "--gb10-normalization",
+      "--gb10-moe"
+    ],
+    "report_sha256": "00b50a46f8a32e36c356da6ce07854e7138c630320a0ac9382d1c5143cb517f0",
+    "windows_runtime_execution": false
+  }
+}

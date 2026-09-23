@@ -88,11 +88,19 @@ int main(int argc,char**argv) {
   State s;for(Device* d:{&s.raw,&s.gates,&s.output,&s.decode_ab,&s.gate[0],&s.beta,&s.prefill_beta,&s.exp2,&s.rsqrt,&s.native_matrix,&s.native_inverse})d->allocate(64);
   reject([&]{gb10_rsqrt_table();});
   reject([&]{gb10_native_gdn_prefill_enabled(8192,false);});
+  reject([&]{gb10_persistent_gdn_prefill_enabled();});
   assert(!native_prefill_setting(nullptr) && !native_prefill_setting("0") && native_prefill_setting("1"));
   for (const char* value : {"", "true", "01", "2", "-1"}) reject([&]{native_prefill_setting(value);});
+  for(bool enabled:{false,true}){
+    assert(!persistent_prefill_setting(nullptr,enabled)&&!persistent_prefill_setting("0",enabled));
+    for(const char* value:{"","true","01","2","-1"})reject([&]{persistent_prefill_setting(value,enabled);});
+  }
+  reject([&]{persistent_prefill_setting("1",false);});
+  assert(persistent_prefill_setting("1",true));
   s.cold=cold;s.seeded=seed;s.error=failure;active=&s;float state=17;expected_state=&state;
   assert(gb10_rsqrt_table() == s.rsqrt.as<unsigned char>());
   assert(!gb10_native_gdn_prefill_enabled(8192,false));
+  assert(!gb10_persistent_gdn_prefill_enabled());
   s.native_prefill=true;
   assert(gb10_native_gdn_prefill_enabled(8192,false));
   for (std::size_t tokens : {0u,8191u,8193u}) reject([&]{gb10_native_gdn_prefill_enabled(tokens,false);});
@@ -128,30 +136,150 @@ int main(int argc,char**argv) {
   assert(matrices.matrix_f32==s.native_matrix.data&&matrices.inverse_bf16==s.native_inverse.data);
   assert(fake_events==std::vector<std::string>({"prepare_native_qk","prepare_native_v_gate"}));
   fake_events.clear();assert(preparation_rejections==65);
-  assert(aima::sha256_bytes(gdn_wu_image,sizeof(gdn_wu_image))==gdn_wu_image_sha256);
-  std::array<void*,7> wu_pointers{pointers[0],pointers[1],pointers[2],pointers[3],pointers[4],s.native_inverse.data,pointers[6]};
-  auto wu=[&](const std::array<void*,7>& p,unsigned tokens=8192){
-    gb10_native_gdn_wu(p[0],p[1],p[2],p[3],p[4],p[5],p[6],tokens);
-  };
-  unsigned wu_rejections=0;
-  auto bad_wu=[&](auto fn){reject(fn);++wu_rejections;assert(fake_events.empty());};
-  bad_wu([&]{wu(wu_pointers);}); // Module is not loaded yet.
-  s.native_wu=std::make_unique<aima::AotKernel>(
-      std::vector<unsigned char>(gdn_wu_image,gdn_wu_image+sizeof(gdn_wu_image)),"recompute_w_u_fwd_kernel");
-  for(unsigned i=0;i<7;++i){
-    auto p=wu_pointers;p[i]=nullptr;bad_wu([&]{wu(p);});
-    p=wu_pointers;p[i]=reinterpret_cast<void*>(reinterpret_cast<std::uintptr_t>(p[i])+1);bad_wu([&]{wu(p);});
-    p=wu_pointers;p[i]=reinterpret_cast<void*>(UINTPTR_MAX-3);bad_wu([&]{wu(p);});
-    for(unsigned j=0;j<i;++j){p=wu_pointers;p[i]=p[j];bad_wu([&]{wu(p);});}
+  // Check production AOT argument widths, chunk strides, scratch lifetimes,
+  // and the final resident-state destination without executing GPU arithmetic.
+  std::array<void*,9> pipeline_pointers{};
+  for(unsigned i=0;i<pipeline_pointers.size();++i)
+    pipeline_pointers[i]=reinterpret_cast<void*>(0x400000000ull+i*0x20000000ull);
+  std::array<Device*,4> owned{&s.raw,&s.native_matrix,&s.native_inverse,&s.exp2};
+  std::array<void*,4> saved{};
+  for(unsigned i=0;i<owned.size();++i){
+    saved[i]=owned[i]->data;owned[i]->data=reinterpret_cast<void*>(0x800000000ull+i*0x20000000ull);
   }
-  auto wu_overlap=wu_pointers;wu_overlap[3]=reinterpret_cast<void*>(0x100000000ull+8192ull*2048*2-2);
-  bad_wu([&]{wu(wu_overlap);});
-  for(unsigned tokens:{0u,8191u,8193u})bad_wu([&]{wu(wu_pointers,tokens);});
-  active=nullptr;bad_wu([&]{wu(wu_pointers);});active=&s;
-  s.native_prefill=false;bad_wu([&]{wu(wu_pointers);});s.native_prefill=true;
-  wu(wu_pointers);assert(fake_events==std::vector<std::string>({"native_wu_module"}));
-  for(unsigned i=0;i<7;++i)assert(fake_module_pointers[i]==reinterpret_cast<std::uintptr_t>(wu_pointers[i]));
-  assert(wu_rejections==49);fake_events.clear();
+  auto pipeline=[&](const std::array<void*,9>& p,unsigned tokens=8192){
+    return gb10_native_gdn_pipeline(p[0],p[1],p[2],p[3],p[4],p[5],p[6],p[7],p[8],tokens);
+  };
+  unsigned pipeline_rejections=0;
+  auto bad_pipeline=[&](auto fn){
+    reject(fn);++pipeline_rejections;
+    assert(fake_events.empty()&&fake_module_launches.empty()&&fake_zeroes.empty());
+  };
+  bad_pipeline([&]{pipeline(pipeline_pointers);});
+  for(unsigned i=0;i<s.ordered.size();++i){
+    const auto& image=ordered_images[i];
+    assert(aima::sha256_bytes(image.data,image.bytes)==image.sha256);
+    s.ordered[i]=std::make_unique<aima::AotKernel>(
+        std::vector<unsigned char>(image.data,image.data+image.bytes),image.name);
+  }
+  for(unsigned i=0;i<9;++i){
+    auto p=pipeline_pointers;p[i]=nullptr;bad_pipeline([&]{pipeline(p);});
+    p=pipeline_pointers;p[i]=reinterpret_cast<void*>(reinterpret_cast<std::uintptr_t>(p[i])+1);bad_pipeline([&]{pipeline(p);});
+    p=pipeline_pointers;p[i]=reinterpret_cast<void*>(UINTPTR_MAX-3);bad_pipeline([&]{pipeline(p);});
+    for(unsigned j=0;j<i;++j){p=pipeline_pointers;p[i]=p[j];bad_pipeline([&]{pipeline(p);});}
+    for(auto owner:owned){p=pipeline_pointers;p[i]=owner->data;bad_pipeline([&]{pipeline(p);});}
+  }
+  auto pipeline_overlap=pipeline_pointers;
+  pipeline_overlap[7]=reinterpret_cast<void*>(reinterpret_cast<std::uintptr_t>(pipeline_pointers[0])+8192ull*2048*2-2);
+  bad_pipeline([&]{pipeline(pipeline_overlap);});
+  for(auto owner:owned){
+    auto value=owner->data;owner->data=nullptr;bad_pipeline([&]{pipeline(pipeline_pointers);});owner->data=value;
+  }
+  for(auto& kernel:s.ordered){
+    auto value=std::move(kernel);bad_pipeline([&]{pipeline(pipeline_pointers);});kernel=std::move(value);
+  }
+  for(unsigned tokens:{0u,8191u,8193u})bad_pipeline([&]{pipeline(pipeline_pointers,tokens);});
+  active=nullptr;bad_pipeline([&]{pipeline(pipeline_pointers);});active=&s;
+  s.native_prefill=false;bad_pipeline([&]{pipeline(pipeline_pointers);});s.native_prefill=true;
+  assert(pipeline(pipeline_pointers)==389&&fake_module_launches.size()==389);
+  auto ptr=[](const void* p){return reinterpret_cast<std::uintptr_t>(p);};
+  const auto matrix=ptr(s.native_matrix.data),inverse=ptr(s.native_inverse.data),scratch=ptr(s.raw.data),table=ptr(s.exp2.data);
+  const auto q=ptr(pipeline_pointers[0]),k=ptr(pipeline_pointers[1]),v=ptr(pipeline_pointers[2]);
+  const auto g=ptr(pipeline_pointers[3]),beta_pointer=ptr(pipeline_pointers[4]);
+  const auto w=ptr(pipeline_pointers[5]),u=ptr(pipeline_pointers[6]),core=ptr(pipeline_pointers[7]),final=ptr(pipeline_pointers[8]);
+  const std::vector<std::vector<std::uintptr_t>> first={
+    {k,k,beta_pointer,g,table,matrix},{matrix,inverse},{inverse,k,beta_pointer,g,table,w},
+    {inverse,v,beta_pointer,u,0},{q,k,beta_pointer,g,table,matrix}};
+  for(unsigned i=0;i<5;++i){
+    const auto& launch=fake_module_launches[i];assert(launch.index==i&&launch.tokens==8192&&launch.pointers==first[i]);
+    assert(launch.x==(i==1?128u:1024u)&&launch.y==(i==1?32u:(i==0||i==4)?8u:16u)&&launch.z==(i==1?1u:32u));
+  }
+  constexpr std::size_t state_extent=32ull*128*128*4,chunk_extent=64ull*32*128*2;
+  const auto residual=scratch+2*state_extent,v_new=residual+chunk_extent;
+  std::uintptr_t incoming=scratch;
+  for(unsigned chunk=0;chunk<128;++chunk){
+    const auto& r=fake_module_launches[5+chunk*3];
+    const auto& h=fake_module_launches[6+chunk*3];
+    const auto& o=fake_module_launches[7+chunk*3];
+    const auto first_row=chunk*64ull;
+    const auto next=chunk==127?final:scratch+((chunk+1)%2)*state_extent;
+    assert(r.index==5&&h.index==6&&o.index==7);
+    assert(r.tokens==64&&h.tokens==64&&o.tokens==64);
+    assert(r.x==8&&h.x==16&&o.x==8&&r.y==16&&h.y==16&&o.y==16&&r.z==32&&h.z==32&&o.z==32);
+    assert(r.pointers==std::vector<std::uintptr_t>({w+first_row*4096*2,u+first_row*4096*2,incoming,g+first_row*32*4,table,v_new,residual}));
+    assert(h.pointers==std::vector<std::uintptr_t>({k+first_row*2048*2,residual,incoming,g+first_row*32*4,table,next}));
+    assert(o.pointers==std::vector<std::uintptr_t>({q+first_row*2048*2,v_new,incoming,g+first_row*32*4,matrix+first_row*32*64*2,table,core+first_row*4096*2}));
+    assert(incoming!=next);incoming=next;
+  }
+  assert(incoming==final);
+  assert((fake_zeroes==std::vector<std::pair<std::uintptr_t,std::size_t>>({{inverse,8192ull*32*64*2},{scratch,state_extent}})));
+  assert(fake_events.size()==391&&fake_events[1]=="memset"&&fake_events[6]=="memset");
+  assert(pipeline_rejections==118);
+  fake_events.clear();fake_module_launches.clear();fake_zeroes.clear();
+  // The fused route loads only its own six images. Check the actual AOT
+  // wrapper, complete live spans, original upstream bindings and resident state.
+  s.persistent_prefill=true;assert(gb10_persistent_gdn_prefill_enabled());
+  unsigned persistent_rejections=0;
+  auto bad_persistent=[&](auto fn){
+    reject(fn);++persistent_rejections;
+    assert(fake_events.empty()&&fake_module_launches.empty()&&fake_zeroes.empty());
+  };
+  bad_persistent([&]{pipeline(pipeline_pointers);});
+  fake_persistent_module_first=static_cast<unsigned>(fake_module_names.size());
+  for(unsigned i=0;i<s.persistent.size();++i){
+    const auto& image=persistent_images[i];
+    assert(aima::sha256_bytes(image.data,image.bytes)==image.sha256);
+    s.persistent[i]=std::make_unique<aima::AotKernel>(
+        std::vector<unsigned char>(image.data,image.data+image.bytes),image.name);
+  }
+  for(unsigned i=0;i<9;++i){
+    auto p=pipeline_pointers;p[i]=nullptr;bad_persistent([&]{pipeline(p);});
+    p=pipeline_pointers;p[i]=reinterpret_cast<void*>(ptr(p[i])+1);bad_persistent([&]{pipeline(p);});
+    p=pipeline_pointers;p[i]=reinterpret_cast<void*>(UINTPTR_MAX-3);bad_persistent([&]{pipeline(p);});
+    for(unsigned j=0;j<i;++j){p=pipeline_pointers;p[i]=p[j];bad_persistent([&]{pipeline(p);});}
+    for(auto owner:owned){p=pipeline_pointers;p[i]=owner->data;bad_persistent([&]{pipeline(p);});}
+  }
+  bad_persistent([&]{pipeline(pipeline_overlap);});
+  for(auto owner:owned){
+    auto value=owner->data;owner->data=nullptr;bad_persistent([&]{pipeline(pipeline_pointers);});owner->data=value;
+  }
+  for(auto& kernel:s.persistent){
+    auto value=std::move(kernel);bad_persistent([&]{pipeline(pipeline_pointers);});kernel=std::move(value);
+  }
+  for(unsigned tokens:{0u,8191u,8193u})bad_persistent([&]{pipeline(pipeline_pointers,tokens);});
+  active=nullptr;bad_persistent([&]{pipeline(pipeline_pointers);});active=&s;
+  s.native_prefill=false;assert(!gb10_persistent_gdn_prefill_enabled());
+  bad_persistent([&]{pipeline(pipeline_pointers);});s.native_prefill=true;
+  // Legacy modules are not loaded by a production persistent owner.
+  auto saved_ordered=std::move(s.ordered);
+  assert(pipeline(pipeline_pointers)==6&&fake_module_launches.size()==6);
+  for(unsigned i=0;i<5;++i){
+    const auto& launch=fake_module_launches[i];
+    assert(launch.index==fake_persistent_module_first+i&&launch.tokens==8192&&launch.pointers==first[i]);
+    assert(launch.x==(i==1?128u:1024u)&&launch.y==(i==1?32u:(i==0||i==4)?8u:16u)&&launch.z==(i==1?1u:32u));
+  }
+  const auto& fused=fake_module_launches[5];
+  assert(fused.index==fake_persistent_module_first+5&&fused.tokens==8192&&fused.x==32&&fused.y==16&&fused.z==1);
+  assert(fused.block==128&&fused.shared==6144);
+  assert(fused.pointers==std::vector<std::uintptr_t>({q,k,w,u,g,matrix,table,scratch,final,core,0,0}));
+  assert((fake_zeroes==std::vector<std::pair<std::uintptr_t,std::size_t>>({{inverse,8192ull*32*64*2},{scratch,state_extent}})));
+  assert(fake_events.size()==8&&fake_events[1]=="memset"&&fake_events[6]=="memset");
+  assert(persistent_rejections==116);
+  fake_events.clear();fake_module_launches.clear();fake_zeroes.clear();
+  // Each failed dispatch propagates and stops before any later stage.
+  for(unsigned failed=0;failed<6;++failed){
+    fake_ordered_launch_error=1;
+    fake_ordered_launch_error_index=static_cast<int>(fake_persistent_module_first+failed);
+    reject([&]{pipeline(pipeline_pointers);});
+    assert(fake_module_launches.size()==failed);
+    assert(fake_zeroes.size()==(failed==0?0u:failed==5?2u:1u));
+    assert(fake_events.size()==failed+fake_zeroes.size());
+    fake_events.clear();fake_module_launches.clear();fake_zeroes.clear();
+  }
+  fake_ordered_launch_error=0;fake_ordered_launch_error_index=-1;
+  s.ordered=std::move(saved_ordered);s.persistent_prefill=false;
+  assert(!gb10_persistent_gdn_prefill_enabled());
+  for(unsigned i=0;i<owned.size();++i)owned[i]->data=saved[i];
+  fake_events.clear();fake_module_launches.clear();fake_zeroes.clear();
   s.native_prefill=false;
   gb10_prefill_gdn(0,conv.data(),a.data(),b.data(),out,&state,8192,false);
   assert(calls==1&&state==17&&fake_events==std::vector<std::string>({"prepare_prefill","cold","copy_core"}));
@@ -199,5 +327,5 @@ int main(int argc,char**argv) {
   assert(read(file,asset)==std::vector<unsigned char>({'a','b','c'}));
   {std::ofstream f(file,std::ios::binary);f<<"abd";}reject([&]{read(file,asset);});
   {std::ofstream f(file,std::ios::binary);f<<"ab";}reject([&]{read(file,asset);});
-  std::cout<<"{\"native_wu_rejections\":49,\"native_wu_abi_and_image_pass\":true,\"native_conversion_values_checked\":12480,\"native_preparation_rejections\":65,\"gpu_qk_norm_tested\":false,\"conversion_values_checked\":33027,\"sampled_values_checked\":2199680,\"sampling_input_unchanged\":true,\"first64_original_pointer_and_extent\":true,\"sampling_guards_pass\":true,\"observer_faults_rejected\":5,\"guards_pass\":true,\"provider_order_pass\":true,\"seeded_state_forwarded\":true,\"decode_q2_flags\":true,\"injected_provider_failure_rejected\":true,\"invalid_bindings_rejected\":6,\"artifact_faults_rejected\":2,\"native_prefill_rejections\":11,\"native_prefill_cold_scope_pass\":true}\n";
+  std::cout<<"{\"persistent_pipeline_rejections\":"<<persistent_rejections<<",\"persistent_pipeline_launches\":6,\"persistent_upstream_u64_images\":5,\"persistent_images_and_abi_pass\":true,\"persistent_failure_stops_checked\":6,\"persistent_setting_rejections\":11,\"ordered_pipeline_rejections\":"<<pipeline_rejections<<",\"ordered_pipeline_abi_and_images_pass\":true,\"ordered_pipeline_launches\":389,\"recurrent_chunks_checked\":128,\"native_conversion_values_checked\":12480,\"native_preparation_rejections\":65,\"gpu_qk_norm_tested\":false,\"conversion_values_checked\":33027,\"sampled_values_checked\":2199680,\"sampling_input_unchanged\":true,\"first64_original_pointer_and_extent\":true,\"sampling_guards_pass\":true,\"observer_faults_rejected\":5,\"guards_pass\":true,\"provider_order_pass\":true,\"seeded_state_forwarded\":true,\"decode_q2_flags\":true,\"injected_provider_failure_rejected\":true,\"invalid_bindings_rejected\":6,\"artifact_faults_rejected\":2,\"native_prefill_rejections\":11,\"native_prefill_cold_scope_pass\":true}\n";
 }
