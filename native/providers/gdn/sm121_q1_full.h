@@ -5,14 +5,15 @@
 #include "sm121_bf16_fma.h"
 
 namespace qrt_sm121_q1_full {
-// One CTA owns a Q or K head. The one-row K reduction pairs adjacent
-// channels before the warp reduction, matching the original compiled
-// single-row path. Preserve the original BF16 MRoPE instructions.
+// One CTA owns a Q or K head. The target-only one-row K reduction pairs
+// adjacent channels; the ordinary route retains the two-row layout.
+// Preserve the original BF16 MRoPE instructions.
 // Cache coefficients cover all positions and are independent of prompt IDs.
 __global__ void prepare_qkv(
     const uint16_t *qkv, const uint16_t *q_weight, const uint16_t *k_weight,
     const uint16_t *rope_cache, const unsigned char *rsqrt_table,
-    unsigned int position, float *rope, float *norm_observation) {
+    unsigned int position, bool single_row_reference,
+    float *rope, float *norm_observation) {
     using namespace qrt_sm121_q1;
     __shared__ float normalized[256];
     __shared__ float warp_sum[4];
@@ -26,7 +27,9 @@ __global__ void prepare_qkv(
     __syncthreads();
     if (dim < head_norm_warps(is_key) * 32u) {
         float sum = is_key
-            ? head_norm_single_row_key_lane_sumsq(normalized, dim)
+            ? (single_row_reference
+                ? head_norm_single_row_key_lane_sumsq(normalized, dim)
+                : head_norm_lane_sumsq(normalized, dim, true))
             : head_norm_lane_sumsq(normalized, dim, false);
         for (unsigned int offset = 16u; offset; offset >>= 1u)
             sum = add(sum, __shfl_xor(sum, offset, 32));

@@ -185845,7 +185845,8 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
             dim3(18u), dim3(256u), 0, q1_decode_layer_stack_stream,
             reinterpret_cast<const uint16_t *>(device_qk_norm), q_norm_weights, k_norm_weights,
             q1_full_tables.rope, q1_full_tables.core.rsqrt,
-            static_cast<unsigned int>(absolute_position), device_attention_rope,
+            static_cast<unsigned int>(absolute_position), q1_sm121_packed_dense,
+            device_attention_rope,
             norm_observation);
         ++kernel_launches;
         if (!check_launch("qwen36_q1_sm121_full_norm_rope")) return false;
