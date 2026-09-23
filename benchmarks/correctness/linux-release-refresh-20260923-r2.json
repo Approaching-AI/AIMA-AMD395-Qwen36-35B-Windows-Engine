@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "kind": "linux_upstream_release_and_windows_protocol_refresh",
+  "checked_at": "2026-09-23T08:52:06.870095+00:00",
+  "command": [
+    "gh",
+    "api",
+    "repos/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases?per_page=8"
+  ],
+  "returncode": 0,
+  "source_record": {
+    "file": "linux-release-refresh-20260923-r2.json",
+    "sha256": "d5ac53c7a8164f7ae6664472ebe478f3c9792f95cb82e7d07178f47b9aedd4c9"
+  },
+  "release_identities": [
+    {
+      "tag_name": "v1.5.1-native-vl.10",
+      "published_at": "2026-09-16T20:58:30Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.10",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "d69fbbcb839434ff9900ada60a733237b17717276a71a1557a1bcbdfcf6a77f5"
+    },
+    {
+      "tag_name": "v1.5.1-native-vl.9",
+      "published_at": "2026-09-14T09:54:52Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.9",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "add3c8dea37f57170da14b669d9815a1b5c943f12348e76c22f7f30f22ebd503"
+    },
+    {
+      "tag_name": "v1.5.1-native-vl.7",
+      "published_at": "2026-09-09T13:36:02Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.7",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "4e1d1ac062a9002d760ac7c6a3a740b4d7a52ff11071f6a04263e26ae0e9d9f9"
+    },
+    {
+      "tag_name": "v1.5.1-native-vl.6",
+      "published_at": "2026-09-08T04:54:46Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.6",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "5095ce0b6b3c0876cc752636806b66dc5b0f269cf88346b53591730108f56605"
+    },
+    {
+      "tag_name": "v1.5.1-native-vl.5",
+      "published_at": "2026-09-01T06:34:45Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.5",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "133f1c75088a23b53ba22446ca2b1537f826840b73b853a616d92d8e2eac4d05"
+    },
+    {
+      "tag_name": "v1.5.1-native-vl.4",
+      "published_at": "2026-08-28T10:36:38Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.4",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "690e4a0e9d7dfa5483e674bb99d366b7deefec64f60bb7b50e3285c892d8fa70"
+    },
+    {
+      "tag_name": "v1.5.1",
+      "published_at": "2026-08-11T03:19:44Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "3126180836d094bc9e3a00a13b7abb37cd2996c19bcb115de8cb56a3a5b24a06"
+    },
+    {
+      "tag_name": "v1.5.0",
+      "published_at": "2026-08-05T07:52:06Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.0",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "755a5b2d85f4de324ab81843a0fec5327949e17595e8bdfeb5df365758dafee5"
+    }
+  ],
+  "latest_five_unchanged": true,
+  "previous_review": {
+    "file": "linux-latest-release-review-20260923-r1.json",
+    "sha256": "8c98f5e01eb7370da324453cfbaf8f654ac97c1ade6b21905ee40f5678b008b3"
+  },
+  "latest_linux": {
+    "tag_sha": "0522a57caf24bf21e0e6fcc5b234a7fc361fbc94",
+    "native_source_commit": "ec9934446911fdf376da8eebcd83e7b137efbb7c",
+    "previous_native_source_commit": "29f67beda7199575c62020d2b95e24c0a754c9a9",
+    "native_source_changes": [
+      "native/src/native_chat_protocol.cpp"
+    ],
+    "gpu_source_changed": false
+  },
+  "windows_protocol": {
+    "current_source_commit": "d2ac20bb186a2fd79cfd6a0049273ee8d988b72a",
+    "native_http_source_commit": "b3d75e910350c2b7dd3911fa5370a39a89dbe5cc",
+    "unchanged_files": {
+      "engine/qrt-server/src/chat.rs": {
+        "sha256": "7f4384c169057bf3a6436c47b33c64a9bc84d606f8605474399021b758ef379b",
+        "bytes": 61117,
+        "unchanged_since_native_http_source": true
+      },
+      "engine/qrt-server/src/api.rs": {
+        "sha256": "abbd19bf8d3e1eba47a9aa72cf6877b452374724eb700c708d1eff6537a23bd5",
+        "bytes": 117757,
+        "unchanged_since_native_http_source": true
+      }
+    },
+    "applicable_change": "Text content parts share template concatenation and retry classification; nested result wrappers are peeled iteratively.",
+    "text_only": true,
+    "visual_media_explicitly_rejected": true,
+    "historical_native_http_record": {
+      "file": "benchmarks/correctness/tool-text-parts-bounded-native-http-20260918.json",
+      "sha256": "98cc086cf2a14473c673bbbdd86734139c1bba634139b98b84eb416a4b8dd0f5"
+    },
+    "current_native_execution": false,
+    "final_package_requires_revalidation": true
+  },
+  "scope": "Read-only release refresh and byte comparison of previously qualified server sources. Existing HTTP results retain their original server/provider/package identities.",
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "published": false
+}

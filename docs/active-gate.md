@@ -269,6 +269,9 @@ performance is claimed.
 Release work still requires correct complete256k continuation/prefix protocol,
 context-retirement boundaries, package/runtime inventories, relocation and
 protocol controls, cold and streaming matrices, and the3600second soak bound
-to the final native artifacts. Linux release parity work remains tracked in
-the preceding history. Windows VL support is not claimed. Continue autonomously
+to the final native artifacts. The [September23 Linux release refresh](../benchmarks/correctness/linux-release-refresh-20260923-r2.json)
+still identifies `.10`; the latest five bodies and publication times are
+unchanged. Current Windows chat/API source is byte-identical to the prior
+b3d75e9 HTTP-qualified protocol, whose evidence retains its original provider
+and package identities. Windows VL support is not claimed. Continue autonomously
 with measured structural changes while the mission remains open.

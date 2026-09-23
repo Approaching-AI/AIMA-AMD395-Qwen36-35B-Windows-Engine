@@ -2,12 +2,15 @@
 
 ## September 23 status
 
-The [latest review](../benchmarks/correctness/linux-latest-release-review-20260923.json)
-at2026-09-22T17:47:04Z still identifies the same five Linux
+The [latest refresh](../benchmarks/correctness/linux-release-refresh-20260923-r2.json)
+at 2026-09-23T08:52:06Z still identifies the same five Linux
 releases: `.10`, `.9`, `.7`, `.6` and `.5`. The `.10` tag is
 `0522a57caf24bf21e0e6fcc5b234a7fc361fbc94`, with declared native source
 `ec9934446911fdf376da8eebcd83e7b137efbb7c`. The protocol source comparison
-and original Windows HTTP checks below remain applicable.
+and original Windows HTTP checks below remain applicable. The two current Rust
+protocol files are byte-identical to the b3d75e9 native HTTP source. Those
+checks remain bound to the original server and R4 provider; the final package
+requires revalidation.
 
 The Windows whole provider and C CLI at `c90fecc` pass
 [ordinary and native controls](../benchmarks/correctness/packed-gate32-products-20260923.json):
@@ -19,13 +22,15 @@ previous layer8 state error; the repaired GPU matches all865 component cases.
 Ordinary q8192 loads in21386.521ms and has TTFT23392.4967ms. The below10000ms
 requirement and retained target remain open.
 
-The previous356 full256k run completed its original owner and suffix prefill
-but first emitted a different token at suffix output189. Its later owner32,
-timed suffix and negative branches were not reached. A fresh complete256k
-run now uses the repaired artifacts and unchanged original oracle. It observes
-the diagnosed state at263291 and the old first output failure at263356;
-independent GB10 capture supplies the latter's original tensors. Reference
-operands never enter native inference. Full256k qualification remains open.
+The subsequent c90 full256k run completed its original owner and suffix
+prefill but first emitted a different token at suffix output157. The first
+observed layer19 attention-context difference is at263291. Its later owner32,
+timed suffix and negative branches were not reached. The b2b7c0b observation
+now repeats the complete run with the unchanged oracle and an output-only
+logical-KV capture. Its q8192/out512 control preserves every original output
+and callback. Full256k qualification remains open; reference operands never
+enter native inference. See the [active evidence](active-gate.md) for the
+current run and the pending actual-image attention replay.
 
 The static-C-core server's native build and54 Rust tests remain attached to
 c268. The current whole/CLI changes do not change its25 build inputs.
