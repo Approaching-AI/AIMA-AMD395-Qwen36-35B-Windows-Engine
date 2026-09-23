@@ -37,6 +37,7 @@ inline std::vector<std::string> fake_events;
 struct FakeModuleLaunch {
  std::string name;unsigned index,x,y,z,block,shared;std::int32_t tokens;
  std::vector<std::uintptr_t> pointers;
+ std::vector<std::int32_t> scalars;
 };
 inline std::vector<std::string> fake_module_names;
 inline std::vector<FakeModuleLaunch> fake_module_launches;
@@ -56,10 +57,34 @@ inline int hipModuleGetFunction(void** function,void* module,const char* name){
 inline int hipModuleUnload(void* module){
  const auto i=reinterpret_cast<std::uintptr_t>(module);assert(i>0&&i<=fake_module_names.size());return 0;
 }
+inline int fake_ordered_launch_error=0;
 inline int hipModuleLaunchKernel(void* function,unsigned x,unsigned y,unsigned z,
  unsigned bx,unsigned by,unsigned bz,unsigned shared,void* stream,void** args,void* extra){
  const auto i=reinterpret_cast<std::uintptr_t>(function);assert(i>0&&i<=fake_module_names.size());
  const auto& name=fake_module_names[i-1];
+ if(name=="selected_replay_kernel"){
+ assert(bx==128&&by==1&&bz==1&&stream==nullptr&&extra==nullptr);
+ assert(x==256&&y>0&&y<=97&&z==1&&(shared==64||shared==128||shared==512));
+ FakeModuleLaunch item{name,static_cast<unsigned>(i-1),x,y,z,bx,shared,0,{},{}};
+ for(unsigned j=0;j<6;++j){std::uintptr_t q;std::memcpy(&q,args[j],sizeof(q));item.pointers.push_back(q);}
+ for(unsigned j=6;j<10;++j)item.scalars.push_back(*static_cast<std::int32_t*>(args[j]));
+ assert(item.pointers.back()==0);
+ assert(*static_cast<hipDeviceptr_t*>(args[10])==0&&*static_cast<hipDeviceptr_t*>(args[11])==0);
+ if(fake_ordered_launch_error)return fake_ordered_launch_error;
+ fake_module_launches.push_back(item);fake_events.push_back(name);return 0;
+ }
+
+ if(name=="routed_replay_kernel"){
+ assert(bx==128&&by==1&&bz==1&&stream==nullptr&&extra==nullptr);
+ assert(x==256&&y==1&&z==1&&(shared==64||shared==128||shared==1024));
+ FakeModuleLaunch item{name,static_cast<unsigned>(i-1),x,y,z,bx,shared,0,{},{}};
+ for(unsigned j=0;j<9;++j){std::uintptr_t q;std::memcpy(&q,args[j],sizeof(q));item.pointers.push_back(q);}
+ item.scalars.push_back(*static_cast<std::int32_t*>(args[9]));
+ assert(item.pointers[7]==0&&item.scalars[0]==65536);
+ assert(*static_cast<hipDeviceptr_t*>(args[10])==0&&*static_cast<hipDeviceptr_t*>(args[11])==0);
+ if(fake_ordered_launch_error)return fake_ordered_launch_error;
+ fake_module_launches.push_back(item);fake_events.push_back(name);return 0;
+ }
  unsigned count=0;
  if(name=="native_ordered_64_inverse_kernel")count=2;
  else if(name=="integer_u_kernel")count=5;

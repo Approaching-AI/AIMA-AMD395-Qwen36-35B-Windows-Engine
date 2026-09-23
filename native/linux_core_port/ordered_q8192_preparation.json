@@ -1,0 +1,358 @@
+{
+  "schema": 1,
+  "kind": "Optional ordered q8192 operators in one Windows source candidate",
+  "preparation": {
+    "base_commit": "e03dbb52d68662a45a94c7fefe93839fc6501b33",
+    "branch": "codex/ordered-q8192-operators",
+    "controller_commit": "3a01dc45e3fb8b76403c2249c676d25c7d3cccd7",
+    "worktree": "<controller-home>/projects/AIMA-ordered-q8192-candidate",
+    "patch_order": [
+      {
+        "file": "runtime-overlay.patch",
+        "sha256": "edcd69b6ae7b25811bff2170a04fe95ab64c2a774d9a2ba305dd55438b6d0838"
+      },
+      {
+        "file": "attention-runtime-overlay.patch",
+        "sha256": "ae5047a78437c1abc472d5382f6acdf6248c8541db18a1dfc5da38aa33961bba"
+      },
+      {
+        "file": "routed-runtime-overlay.patch",
+        "sha256": "112da3dfba765f26b0dfe4a547f3c2b9e17ddba5e04f4abff58707af6e0fa121"
+      }
+    ],
+    "composed_files": [
+      {
+        "file": "native/linux_core_port/gb10_decode_attention.h",
+        "bytes": 1455,
+        "sha256": "81bff4f3caefd3d20cf219edd1245f64f9944debbed1ab7b21349362b63758e4"
+      },
+      {
+        "file": "native/linux_core_port/gb10_decode_attention.hip.cpp",
+        "bytes": 9296,
+        "sha256": "174858ad53f4aca3f0ad352de1ce3c85a0f4d28fdb3fed30c6ea76e91926aa66"
+      },
+      {
+        "file": "native/linux_core_port/gb10_decode_attention_host_contract_test.cpp",
+        "bytes": 10080,
+        "sha256": "e6b2e9c13d5921913d8452ed8f28519bb2eca593fba4879ca4b3787ae289f774"
+      },
+      {
+        "file": "native/linux_core_port/gb10_ordered_attention.cpp",
+        "bytes": 7118,
+        "sha256": "f4e93d596134466863ce2938ba4a4d416bdd63cddbed31f01428668948618f96"
+      },
+      {
+        "file": "native/linux_core_port/gb10_ordered_attention.h",
+        "bytes": 1563,
+        "sha256": "108ec083dcb96912296b35cc4b43943fbc66d26de864d114d397d117ba6418d6"
+      },
+      {
+        "file": "native/linux_core_port/gb10_ordered_attention_host_test.cpp",
+        "bytes": 7708,
+        "sha256": "511dd6b65b81381a313fb2ef87b9f6d368fed10edf6fc72fc574de933526397d"
+      },
+      {
+        "file": "native/linux_core_port/gb10_ordered_attention_images.inc",
+        "bytes": 696782,
+        "sha256": "29aec261e6ef60dfac90aeb8b3a9bbfc280b1c879f24bcd62bdcd75183a9085f"
+      },
+      {
+        "file": "native/linux_core_port/gb10_prefill_ordered_images.inc",
+        "bytes": 229780,
+        "sha256": "acfd6ba811243a95c32a720833a2135246549ca20339831d80397d754570a1c7"
+      },
+      {
+        "file": "native/linux_core_port/gb10_prefill_projection.hip.cpp",
+        "bytes": 48049,
+        "sha256": "c2bc834a1022e710012d2c0eebb4bf7fe47c5f65d7ceaafcd676601fcf716408"
+      },
+      {
+        "file": "native/linux_core_port/gb10_prefill_projection_host_contract_test.cpp",
+        "bytes": 38819,
+        "sha256": "9bb14b06bdacd0931562cc3d722105c32bf49d5f157c46d11141f9915bc69065"
+      },
+      {
+        "file": "native/linux_core_port/gb10_routed_ordered_images.inc",
+        "bytes": 535320,
+        "sha256": "1d3937197224400d0432c12dedbfd88b831319c164e7bc7edb850b393846781e"
+      },
+      {
+        "file": "native/linux_core_port/probe.cpp",
+        "bytes": 18420,
+        "sha256": "0ccff4c55cd324c66740fe3d77a4f3f5a9f8bfbea4168dc10df7d93d6ed97793"
+      },
+      {
+        "file": "tests/native/ordered_attention_fake_hip/hip/hip_runtime_api.h",
+        "bytes": 3922,
+        "sha256": "c8c63d9166fd687b33fb9f652c795e2d53aa85ce7b237e75b3c765af46a36889"
+      },
+      {
+        "file": "tools/prepare_linux_core_windows.py",
+        "bytes": 91137,
+        "sha256": "b52f161b9aaec95e87a4e900d46a0e57cbb62fee699436cfa5d343f07dab1839"
+      },
+      {
+        "file": "tools/test_linux_core_gdn.py",
+        "bytes": 7916,
+        "sha256": "448e9c15473382bbb58eb6b4136d1616a37e7415f57c386c7259e9be3f433220"
+      },
+      {
+        "file": "tools/test_linux_core_ordered_attention.py",
+        "bytes": 2352,
+        "sha256": "b687ee506d3be991e96a411b8721f3e35762089748d52f2fc19445d53f13810b"
+      },
+      {
+        "file": "tools/test_linux_core_prefill_projection.py",
+        "bytes": 5520,
+        "sha256": "129cf9ab8a1cdbf64435a54f3e755af165d79e6d4c2b3969eca3348a897f19d9"
+      }
+    ],
+    "prepared_build": {
+      "file": "<controller-home>/projects/AIMA-ordered-q8192-candidate/build/ordered-q8192-preparation-20260923-r1/prepare.json",
+      "sha256": "af72aabc317c78493186160be66e660e85753ca7df836b25f241f84d174d398c",
+      "command": [
+        "python3.12",
+        "<controller-home>/projects/AIMA-ordered-q8192-candidate/tools/prepare_linux_core_windows.py",
+        "--out",
+        "<controller-home>/projects/AIMA-ordered-q8192-candidate/build/ordered-q8192-preparation-20260923-r1",
+        "--current-text-decode",
+        "--gb10-convolution",
+        "--gb10-gdn",
+        "--gb10-projections",
+        "--gb10-prefill-projections",
+        "--gb10-normalization",
+        "--gb10-moe"
+      ],
+      "imported_files": 327,
+      "existing_images": 72,
+      "compilation_units": 61,
+      "exact_generated_overlays_match_previous_composition": true
+    },
+    "reused_host_results": [
+      {
+        "file": "ordered-routed-runtime-host-r1/result.json",
+        "sha256": "c1bacb7d9ff38eb42a2e378c744fde73bbc19edf361763acdcdcf986f8468e71",
+        "result": {
+          "lossless_operand_values": 2048,
+          "both_weight_layouts_match": true,
+          "full_window_candidates": 1048576,
+          "window_guards_pass": true,
+          "batch_selector_empty_full_partial_guards_pass": true,
+          "batch_queue_address_routing_pass": true,
+          "batch_profile_max_windows": 97,
+          "batch_profile_events_per_projection": 7,
+          "batch_profile_counter_copies": 1,
+          "batch_unprofiled_dispatch_pass": true,
+          "group_major_layout_values": 4096,
+          "group_major_guards_and_operand_lanes_pass": true,
+          "group_major_replay_addressing_pass": true,
+          "group_major_both_submission_modes_pass": true,
+          "input_immutable": true,
+          "selector_edges_pass": true,
+          "queued_kernel_order_pass": true,
+          "invalid_bindings_rejected": 335,
+          "profile_max_windows": 97,
+          "profile_lifetime_pass": true,
+          "profile_warmup_excluded": true,
+          "profile_completed_events_only": true,
+          "linear_output_scoped_layers": 30,
+          "linear_output_scope_unwind_pass": true,
+          "full_output_scoped_layers": 10,
+          "full_output_scope_unwind_pass": true,
+          "coarse_interval_exceptional_edges_pass": true,
+          "invalid_event_time_reported": true,
+          "producer_configuration_controls": 16,
+          "tuned_input_output_scopes_disjoint": true,
+          "routed_full_window_candidates": 4194304,
+          "routed_sorted_scatter_guards_pass": true,
+          "routed_weighted_endpoint_edges_pass": true,
+          "routed_invalid_dispatch_rejected": true,
+          "routed_profile_windows": 54,
+          "routed_ordered_cases": 12,
+          "routed_ordered_aot_launches": 324,
+          "routed_ordered_invalid_bindings": 43,
+          "routed_ordered_raw_bf16_abi_and_no_preparation_pass": true,
+          "routed_ordered_scratch_and_image_ownership_pass": true,
+          "ordered_projection_cases": 144,
+          "ordered_module_launches": 2142,
+          "ordered_invalid_bindings_rejected": 63,
+          "ordered_raw_bf16_abi_and_no_preparation_pass": true,
+          "ordered_completed_profile_max_window_pass": true,
+          "ordered_owner_images_and_scratch_lifetime_pass": true,
+          "gpu_replay_executed": false
+        },
+        "source_hashes_match_composed_candidate": true
+      },
+      {
+        "file": "ordered-routed-shared-gdn-host-r1/result.json",
+        "sha256": "b226ed9431d2c651f46bed5cedb198e9d36a0b7acc2371ea9c8ecf07939e0910",
+        "result": {
+          "ordered_pipeline_rejections": 118,
+          "ordered_pipeline_abi_and_images_pass": true,
+          "ordered_pipeline_launches": 389,
+          "recurrent_chunks_checked": 128,
+          "native_conversion_values_checked": 12480,
+          "native_preparation_rejections": 65,
+          "gpu_qk_norm_tested": false,
+          "conversion_values_checked": 33027,
+          "sampled_values_checked": 2199680,
+          "sampling_input_unchanged": true,
+          "first64_original_pointer_and_extent": true,
+          "sampling_guards_pass": true,
+          "observer_faults_rejected": 5,
+          "guards_pass": true,
+          "provider_order_pass": true,
+          "seeded_state_forwarded": true,
+          "decode_q2_flags": true,
+          "injected_provider_failure_rejected": true,
+          "invalid_bindings_rejected": 6,
+          "artifact_faults_rejected": 2,
+          "native_prefill_rejections": 11,
+          "native_prefill_cold_scope_pass": true
+        },
+        "source_hashes_match_composed_candidate": true
+      },
+      {
+        "file": "ordered-attention-runtime-host-r3/result.json",
+        "sha256": "c1d83ae008c9ed1e51c424e99df3d2e6a99b78c9e5ec9405d0613c7daa97a1ca",
+        "result": {
+          "complete_q8192_calls": 2,
+          "aot_launches_per_call": 193,
+          "query_slabs": 64,
+          "scratch_bytes": 113254404,
+          "per_call_allocations": 0,
+          "per_call_host_copies": 0,
+          "all_image_and_argument_bindings_pass": true,
+          "all_window_output_offsets_pass": true,
+          "input_scratch_table_aliases_rejected": true,
+          "binding_rejections": 65,
+          "construction_faults_rejected": 25,
+          "launch_failures_propagated": 5,
+          "configuration_and_owner_rejections": 7,
+          "single_owner_published_after_initialization": true,
+          "queue_contents_unchanged": true,
+          "all_resources_released": true,
+          "allocation_guards_pass": true,
+          "gpu_arithmetic_executed": false
+        },
+        "source_hashes_match_composed_candidate": true
+      },
+      {
+        "file": "ordered-attention-decode-host-r2/result.json",
+        "sha256": "57ceda0c4dcb941a4c08ac090623b052fdadee52b229a6c4caa278ca735cf23f",
+        "result": {
+          "complete_bindings": 5,
+          "rejected_controls": 70,
+          "terminal_prefill_binding": true,
+          "buffers_unchanged": true,
+          "all_allocations_released": true,
+          "kernel_arithmetic_executed": false
+        },
+        "source_hashes_match_composed_candidate": true
+      }
+    ],
+    "pending_gdn_candidate_clean_and_unchanged": true,
+    "settings_default_disabled": true,
+    "native_compile_or_execution": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false
+  },
+  "preparation_raw_sha256": "9e6e59cf8f75858c6b8f4355923ee01a6a62f6aeb19fe95178740d6ca11631e8",
+  "archived_arithmetic": [
+    {
+      "file": "native/providers/ordered_q8192/dense_selected.py",
+      "bytes": 4495,
+      "sha256": "6cf211bcb63ab2a470085bc3117b4e7438d7f89db94c68a724446be7b8792c84"
+    },
+    {
+      "file": "native/providers/ordered_q8192/attention.py",
+      "bytes": 6937,
+      "sha256": "edfee01f03047e6f83852026a1fa90137f9b14e07bfdce62e987c2892c34b413"
+    },
+    {
+      "file": "native/providers/ordered_q8192/routed_selected.py",
+      "bytes": 2885,
+      "sha256": "c9209ef6de877221aeaabda5cca8f04702cb74e92d7a3df85b69974aa90769ec"
+    },
+    {
+      "file": "native/providers/ordered_q8192/pack_value.py",
+      "bytes": 492,
+      "sha256": "209ee80593bf624d1601b15eb776d7f0a5bb4d97691b693b5cab76feeffb903a"
+    },
+    {
+      "file": "native/providers/ordered_q8192/integer_u.py",
+      "bytes": 4656,
+      "sha256": "885db1273c2063882cb789ac159206eb018624a6812477fcd245f12038177e60"
+    },
+    {
+      "file": "native/providers/ordered_q8192/ordered_pipeline.py",
+      "bytes": 7627,
+      "sha256": "a671feaeadb84219d6498a82a78c49d765f4ba627ae55fd14b9c7c53e86edfc3"
+    }
+  ],
+  "all_layer_reference_reports": [
+    {
+      "family": "dense",
+      "controller_repository": "skyguan92/amd395-windows-qwen",
+      "controller_commit": "3a01dc45e3fb8b76403c2249c676d25c7d3cccd7",
+      "file": "benchmarks/correctness/ordered-q8192-dense-all-layers-20260923.json",
+      "sha256": "1f2ac9beb056b3c2264eea7dc487519c18707e5b91c7b95afdc971a5d0a58ffd"
+    },
+    {
+      "family": "attention",
+      "controller_repository": "skyguan92/amd395-windows-qwen",
+      "controller_commit": "3a01dc45e3fb8b76403c2249c676d25c7d3cccd7",
+      "file": "benchmarks/correctness/ordered-q8192-attention-all-layers-20260923.json",
+      "sha256": "ca0a2ea30a313a076da09145f113e96a20abd7c7b357d096ad5b6bda5cdea319"
+    },
+    {
+      "family": "routed",
+      "controller_repository": "skyguan92/amd395-windows-qwen",
+      "controller_commit": "3a01dc45e3fb8b76403c2249c676d25c7d3cccd7",
+      "file": "benchmarks/correctness/ordered-q8192-routed-all-layers-20260923.json",
+      "sha256": "447d7e9b8300d349c0aa141c146bb27c74ff267627857be65171807b1046b0f7"
+    }
+  ],
+  "runtime_settings": {
+    "AIMA_PORT_PREFILL_ORDERED_REPLAY": {
+      "default": "0",
+      "values": [
+        "0",
+        "32",
+        "64",
+        "128"
+      ]
+    },
+    "AIMA_PORT_ORDERED_ATTENTION_PREFILL": {
+      "default": "0",
+      "values": [
+        "0",
+        "1"
+      ]
+    },
+    "AIMA_PORT_ROUTED_ORDERED_REPLAY": {
+      "default": "0",
+      "values": [
+        "0",
+        "32",
+        "64",
+        "128"
+      ],
+      "requires": "AIMA_PORT_NATIVE_MOE_PREFILL=1"
+    }
+  },
+  "final_layer_terminal_route_preserved": true,
+  "original_windows_gdn_candidate_unchanged": true,
+  "native_compilation_or_execution": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "publication": {
+    "home_prefix_replacements": {
+      "/Users/jiawei-macmini/": "<controller-home>/"
+    },
+    "exact_reversal_verified": true,
+    "all_numeric_and_artifact_values_preserved": true
+  }
+}

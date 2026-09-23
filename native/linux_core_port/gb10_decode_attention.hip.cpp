@@ -104,6 +104,11 @@ Gb10DecodeAttentionOwner::~Gb10DecodeAttentionOwner() {
   if (active == &impl_->state) { hipDeviceSynchronize(); active = nullptr; }
 }
 bool gb10_decode_attention_enabled() { return active != nullptr; }
+const unsigned char* gb10_attention_reciprocal_table() {
+  if (!active || !active->reciprocal.data)
+    throw std::logic_error("Attention reciprocal owner is absent");
+  return active->reciprocal.as<unsigned char>();
+}
 bool gb10_prefill_terminal_only_enabled() { return active && active->terminal_only; }
 void gb10_prefill_terminal_attention(const void* query, const void* key,
     const void* value, void* output, std::size_t cache_end) {

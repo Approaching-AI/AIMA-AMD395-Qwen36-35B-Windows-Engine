@@ -17,6 +17,8 @@ class Gb10DecodeAttentionOwner {
   std::unique_ptr<Impl> impl_;
 };
 bool gb10_decode_attention_enabled();
+// Borrowed from the live SHA-verified decode-attention owner.
+const unsigned char* gb10_attention_reciprocal_table();
 bool gb10_prefill_terminal_only_enabled();
 // Cold q8192 terminal query, with the original prefill denominator arithmetic.
 // Q is one BF16 row; output is one F32 row. All 8192 K/V rows remain resident.

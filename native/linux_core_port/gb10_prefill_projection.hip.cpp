@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "gb10_prefill_projection.h"
+#include "aima/aot_kernel.h"
+#include "aima/sha256.h"
 #include "../providers/moe_accumulator/sm121_staged_half_projection.h"
 #include "../providers/moe_accumulator/bf16_midpoint_selector.h"
 #include "../providers/moe_accumulator/sm121_coarse_projection_matrix.h"
@@ -17,6 +19,8 @@ namespace {
 namespace staged = qrt_sm121_staged_half_projection;
 namespace half = qrt_sm121_scaled_half_products;
 namespace coarse = qrt_sm121_coarse_projection_matrix;
+#include "gb10_prefill_ordered_images.inc"
+#include "gb10_routed_ordered_images.inc"
 constexpr unsigned max_tokens = 8192, max_rows = 12352, max_k = 4096;
 constexpr unsigned routed_rows = 8192 * 8, routed_experts = 256, sorted_capacity = 73472;
 constexpr unsigned window_capacity = 1u << 20;
@@ -119,6 +123,10 @@ struct State {
   bool tuned_gemm = false, tuned_gemm_input_only = false;
   bool routed = false, batch_replay = false, batch_armed = false;
   bool group_major_weights = false;
+  unsigned ordered_batch = 0, ordered_projections = 0, ordered_launches = 0;
+  std::unique_ptr<aima::AotKernel> ordered;
+  unsigned routed_ordered_batch = 0, routed_ordered_projections = 0, routed_ordered_launches = 0;
+  std::array<std::unique_ptr<aima::AotKernel>, 2> routed_ordered;
   unsigned batched_projections = 0, batched_windows = 0;
 };
 State* active = nullptr;
@@ -126,7 +134,49 @@ bool enabled(const char* name) {
   const char* value = std::getenv(name);
   return value && std::strcmp(value, "1") == 0;
 }
+unsigned ordered_replay_batch_setting(const char* value) {
+  if (!value || std::strcmp(value, "0") == 0) return 0;
+  for (const auto& image : ordered_replay_images)
+    if (std::to_string(image.batch) == value) return image.batch;
+  throw std::invalid_argument("Ordered replay tile must be 0, 32, 64 or 128");
+}
+const OrderedReplayImage& ordered_replay_image(unsigned batch) {
+  for (const auto& image : ordered_replay_images) if (image.batch == batch) return image;
+  throw std::invalid_argument("Unsupported ordered replay image");
+}
+void load_ordered_replay(State& s) {
+  if (!s.ordered_batch || s.ordered || s.group_major_weights)
+    throw std::invalid_argument("Ordered replay requires one raw-BF16 image owner");
+  const auto& image = ordered_replay_image(s.ordered_batch);
+  if (aima::sha256_bytes(image.data, image.bytes) != image.sha256)
+    throw std::runtime_error("Ordered replay embedded image identity differs");
+  s.ordered = std::make_unique<aima::AotKernel>(
+      std::vector<unsigned char>(image.data, image.data + image.bytes), "selected_replay_kernel");
+}
+
+const RoutedOrderedImage& routed_ordered_image(unsigned batch, bool down) {
+  for (const auto& image : routed_ordered_images)
+    if (image.batch == batch && image.down == down) return image;
+  throw std::invalid_argument("Unsupported routed ordered image");
+}
+void load_routed_ordered(State& s) {
+  if (!s.routed || !s.routed_ordered_batch || s.routed_ordered[0] || s.routed_ordered[1])
+    throw std::invalid_argument("Routed ordered replay requires one native-MoE owner");
+  std::array<std::unique_ptr<aima::AotKernel>, 2> loaded;
+  for (unsigned down = 0; down < 2; ++down) {
+    const auto& image = routed_ordered_image(s.routed_ordered_batch, down != 0);
+    if (aima::sha256_bytes(image.data, image.bytes) != image.sha256)
+      throw std::runtime_error("Routed ordered embedded image identity differs");
+    loaded[down] = std::make_unique<aima::AotKernel>(
+        std::vector<unsigned char>(image.data, image.data + image.bytes), "routed_replay_kernel");
+  }
+  s.routed_ordered = std::move(loaded);
+}
 void validate_producers(const State& s) {
+  if (s.routed_ordered_batch && !s.routed)
+    throw std::invalid_argument("Routed ordered replay requires native MoE");
+  if (s.ordered_batch && s.group_major_weights)
+    throw std::invalid_argument("Ordered raw-BF16 replay cannot use prepared group-major weights");
   if (s.tuned_gemm_input_only && !s.tuned_gemm)
     throw std::invalid_argument("Input-only tuned GEMM requires tuned GEMM selection");
   if (s.tuned_gemm && (s.wmma || s.wmma_output_only) &&
@@ -293,7 +343,26 @@ static __global__ void replay_selected_group_major(const half::Row* inputs, cons
     uint16_t* output, unsigned rows, unsigned width, const unsigned* count, const unsigned* indices) {
   replay_window<true>(inputs, weights, output, rows, width, count, indices);
 }
-void launch_dense_replay(State& s, uint16_t* output, unsigned rows, unsigned width, unsigned windows) {
+void launch_dense_replay(State& s, const uint16_t* input, const uint16_t* weights,
+    uint16_t* output, unsigned rows, unsigned width, unsigned windows, bool contiguous) {
+  if (s.ordered_batch) {
+    if (!s.ordered || s.group_major_weights || !input || !weights || !output ||
+        !s.count.data || !s.indices.data || !rows || rows > max_rows || !windows ||
+        windows > (max_tokens * rows + window_capacity - 1u) / window_capacity ||
+        (!s.batch_replay && windows != 1u) ||
+        (width != 512u && width != 2048u && width != 4096u))
+      throw std::invalid_argument("Invalid ordered replay owner, shape or queue");
+    const auto& image = ordered_replay_image(s.ordered_batch);
+    const void* counts = s.count.data;
+    const void* indices = s.indices.data;
+    void* unused_debug = nullptr;
+    std::int32_t n = rows, k = width;
+    std::int32_t weight_row = contiguous ? k : 1, weight_k = contiguous ? 1 : n;
+    s.ordered->launch(aima::AotLaunchConfig{256, windows, 1, image.warps, 32, image.shared},
+        {&input, &weights, &counts, &indices, &output, &unused_debug, &n, &k, &weight_row, &weight_k});
+    if (s.batch_armed) ++s.ordered_launches;
+    return;
+  }
   if (s.group_major_weights) {
     hipLaunchKernelGGL(replay_selected_group_major, dim3(256, windows), dim3(256), 0,
         nullptr, s.inputs.as<half::Row>(), s.weights.as<half::Row>(), output, rows, width,
@@ -431,6 +500,26 @@ static __global__ void replay_routed(const half::Row* inputs, const half::Row* w
   }
 }
 
+
+void launch_routed_ordered(State& s, const uint16_t* input, const uint16_t* weights,
+    const int32_t* ids, const float* route_weights, uint16_t* output,
+    uint32_t* invalid, bool down) {
+  if (!s.routed || !s.routed_ordered_batch || !s.routed_ordered[0] || !s.routed_ordered[1] ||
+      !input || !weights || !ids || !route_weights || !output || !invalid ||
+      !s.count.data || !s.indices.data)
+    throw std::invalid_argument("Invalid routed ordered operands or queue owner");
+  const auto& image = routed_ordered_image(s.routed_ordered_batch, down);
+  const void* counts = s.count.data;
+  const void* indices = s.indices.data;
+  void* unused_debug = nullptr;
+  std::int32_t routes = routed_rows;
+  s.routed_ordered[down ? 1 : 0]->launch(
+      aima::AotLaunchConfig{256, 1, 1, image.warps, 32, image.shared},
+      {&input, &weights, &ids, &route_weights, &counts, &indices, &output,
+       &unused_debug, &invalid, &routes});
+  if (s.batch_armed) ++s.routed_ordered_launches;
+}
+
 template<bool Down>
 void launch_routed(State& s, const uint16_t* input, const uint16_t* weights,
     const int32_t* ids, const float* route_weights, const int32_t* sorted,
@@ -439,16 +528,19 @@ void launch_routed(State& s, const uint16_t* input, const uint16_t* weights,
   constexpr unsigned input_rows = Down ? routed_rows : max_tokens, weight_rows = routed_experts * n;
   Profile* profile = s.profile && s.profile->armed ? s.profile.get() : nullptr;
   if (profile) profile->begin(n, k, true, Down);
+  if (s.routed_ordered_batch && s.batch_armed) ++s.routed_ordered_projections;
   hipLaunchKernelGGL((routed_matmul<Down>), dim3(n / 128u, sorted_capacity / 32u), dim3(256), 0,
       nullptr, input, weights, sorted, experts, padded, s.raw.as<float>(), invalid);
   check(hipGetLastError());
   if (profile) profile->mark(1);
+  if (!s.routed_ordered_batch) {
   hipLaunchKernelGGL(prepare_operands, dim3((input_rows * (k / 16u) + 255u) / 256u), dim3(256), 0,
       nullptr, input, s.inputs.as<half::Row>(), input_rows, k, true, false);
   check(hipGetLastError());
   hipLaunchKernelGGL(prepare_operands, dim3((weight_rows * (k / 16u) + 255u) / 256u), dim3(256), 0,
       nullptr, weights, s.weights.as<half::Row>(), weight_rows, k, true, false);
   check(hipGetLastError());
+  }
   if (profile) profile->mark(2);
   hipLaunchKernelGGL(row_l2, dim3(input_rows), dim3(256), 0, nullptr,
       input, s.input_l2.as<float>(), input_rows, k, true);
@@ -468,10 +560,14 @@ void launch_routed(State& s, const uint16_t* input, const uint16_t* weights,
         s.indices.as<unsigned>(), invalid);
     check(hipGetLastError());
     if (profile) profile->mark(5 + 3 * window);
+    if (s.routed_ordered_batch) {
+      launch_routed_ordered(s, input, weights, ids, route_weights, output, invalid, Down);
+    } else {
     hipLaunchKernelGGL((replay_routed<Down>), dim3(256), dim3(256), 0,
         nullptr, s.inputs.as<half::Row>(), s.weights.as<half::Row>(), ids, route_weights,
         output, s.count.as<unsigned>(), s.indices.as<unsigned>(), invalid);
     check(hipGetLastError());
+    }
     if (profile) {
       profile->mark(6 + 3 * window);
       check(hipMemcpyAsync(profile->counts.as<unsigned>() + window, s.count.data,
@@ -498,10 +594,20 @@ Gb10PrefillProjectionOwner::Gb10PrefillProjectionOwner() : impl_(std::make_uniqu
   s.routed = enabled("AIMA_PORT_NATIVE_MOE_PREFILL");
   s.batch_replay = enabled("AIMA_PORT_PREFILL_BATCH_REPLAY");
   s.group_major_weights = enabled("AIMA_PORT_PREFILL_GROUP_MAJOR_WEIGHTS");
+  s.ordered_batch = ordered_replay_batch_setting(std::getenv("AIMA_PORT_PREFILL_ORDERED_REPLAY"));
+  s.routed_ordered_batch = ordered_replay_batch_setting(std::getenv("AIMA_PORT_ROUTED_ORDERED_REPLAY"));
+  if (s.routed_ordered_batch && !s.routed)
+    throw std::invalid_argument("Routed ordered replay requires native MoE");
+  if (s.ordered_batch && s.group_major_weights)
+    throw std::invalid_argument("Ordered replay requires raw BF16 weight layout");
   s.raw.allocate((s.routed ? std::size_t(routed_rows) * 2048u : std::size_t(max_tokens) * max_rows) * sizeof(float));
-  s.inputs.allocate(std::size_t(max_tokens) * (max_k / 16u) * sizeof(half::Row));
-  s.weights.allocate((s.routed ? std::size_t(routed_experts) * 1024u * (2048u / 16u) :
-      std::size_t(max_rows) * (max_k / 16u)) * sizeof(half::Row));
+  // Allocate prepared operands only for the paths which still consume them.
+  // When both raw-BF16 bindings are enabled no prepared scratch is required.
+  if (!s.ordered_batch || (s.routed && !s.routed_ordered_batch)) {
+    s.inputs.allocate(std::size_t(max_tokens) * (max_k / 16u) * sizeof(half::Row));
+    s.weights.allocate(((s.routed && !s.routed_ordered_batch) ? std::size_t(routed_experts) * 1024u * (2048u / 16u) :
+        std::size_t(max_rows) * (max_k / 16u)) * sizeof(half::Row));
+  }
   s.input_l2.allocate((s.routed ? routed_rows : max_tokens) * sizeof(float));
   s.weight_l2.allocate((s.routed ? routed_experts * 2048u : max_rows) * sizeof(float));
   const std::size_t queue_cells = s.batch_replay ? std::size_t(max_tokens) * max_rows :
@@ -516,6 +622,8 @@ Gb10PrefillProjectionOwner::Gb10PrefillProjectionOwner() : impl_(std::make_uniqu
   s.tuned_gemm = enabled("AIMA_PORT_PREFILL_GEMM_TUNED");
   s.tuned_gemm_input_only = enabled("AIMA_PORT_PREFILL_GEMM_TUNED_INPUT_ONLY");
   validate_producers(s);
+  if (s.ordered_batch) load_ordered_replay(s);
+  if (s.routed_ordered_batch) load_routed_ordered(s);
   if (s.coarse_full) s.coarse_errors.allocate(std::size_t(max_tokens) * 2048u * sizeof(float));
   active = &s;
 }
@@ -523,6 +631,20 @@ Gb10PrefillProjectionOwner::~Gb10PrefillProjectionOwner() {
   if (active == &impl_->state) {
     const auto status = hipDeviceSynchronize();
     const auto& s = impl_->state;
+    if (s.ordered_batch)
+      std::fprintf(stderr, "{\"event\":\"prefill_ordered_replay_summary\","
+          "\"batch\":%u,\"projections\":%u,\"launches\":%u,"
+          "\"raw_bf16_operands\":true,\"device_synchronized\":%s,"
+          "\"warmup_excluded\":%s,\"diagnostic_only\":true}\n",
+          s.ordered_batch, s.ordered_projections, s.ordered_launches,
+          status == hipSuccess ? "true" : "false", s.batch_armed ? "true" : "false");
+    if (s.routed_ordered_batch)
+      std::fprintf(stderr, "{\"event\":\"routed_ordered_replay_summary\","
+          "\"batch\":%u,\"projections\":%u,\"launches\":%u,"
+          "\"raw_bf16_operands\":true,\"device_synchronized\":%s,"
+          "\"warmup_excluded\":%s,\"diagnostic_only\":true}\n",
+          s.routed_ordered_batch, s.routed_ordered_projections, s.routed_ordered_launches,
+          status == hipSuccess ? "true" : "false", s.batch_armed ? "true" : "false");
     if (s.batch_replay)
       std::fprintf(stderr, "{\"event\":\"prefill_batch_replay_summary\","
           "\"submitted_projections\":%u,\"windows\":%u,\"selector_grids\":%u,\"replay_grids\":%u,"
@@ -551,6 +673,8 @@ void gb10_prefill_projection_profile_begin() {
   }
   active->batch_armed = true;
   active->batched_projections = active->batched_windows = 0;
+  active->ordered_projections = active->ordered_launches = 0;
+  active->routed_ordered_projections = active->routed_ordered_launches = 0;
 }
 bool gb10_prefill_projection_wmma_enabled(std::size_t reduction) {
   return active && active->wmma && (!active->wmma_output_only || reduction == 4096);
@@ -656,15 +780,20 @@ void gb10_prefill_projection_finish(const void* input, const void* weights,
       throw std::logic_error("Prefill projection profile producer/finish geometry differs");
     profile->mark(1);
   }
+  if (s.ordered_batch && (!s.ordered || s.group_major_weights))
+    throw std::logic_error("Ordered replay image is absent or its operand layout conflicts");
+  if (s.ordered_batch && s.batch_armed) ++s.ordered_projections;
   const auto* x = static_cast<const uint16_t*>(input);
   const auto* w = static_cast<const uint16_t*>(weights);
   auto* y = static_cast<uint16_t*>(output);
-  hipLaunchKernelGGL(prepare_operands, dim3((t * (k / 16u) + 255u) / 256u), dim3(256), 0,
-      nullptr, x, s.inputs.as<half::Row>(), t, k, true, false);
-  check(hipGetLastError());
-  hipLaunchKernelGGL(prepare_operands, dim3((n * (k / 16u) + 255u) / 256u), dim3(256), 0,
-      nullptr, w, s.weights.as<half::Row>(), n, k, contiguous, s.group_major_weights);
-  check(hipGetLastError());
+  if (!s.ordered_batch) {
+    hipLaunchKernelGGL(prepare_operands, dim3((t * (k / 16u) + 255u) / 256u), dim3(256), 0,
+        nullptr, x, s.inputs.as<half::Row>(), t, k, true, false);
+    check(hipGetLastError());
+    hipLaunchKernelGGL(prepare_operands, dim3((n * (k / 16u) + 255u) / 256u), dim3(256), 0,
+        nullptr, w, s.weights.as<half::Row>(), n, k, contiguous, s.group_major_weights);
+    check(hipGetLastError());
+  }
   if (profile) profile->mark(2);
   if (!coarse_output) {
     hipLaunchKernelGGL(row_l2, dim3(t), dim3(256), 0, nullptr, x, s.input_l2.as<float>(), t, k, true);
@@ -692,7 +821,7 @@ void gb10_prefill_projection_finish(const void* input, const void* weights,
         coarse_output ? s.coarse_errors.as<float>() : nullptr);
     check(hipGetLastError());
     if (profile) profile->mark(5);
-    launch_dense_replay(s, y, n, k, windows);
+    launch_dense_replay(s, x, w, y, n, k, windows, contiguous);
     if (profile) {
       profile->mark(6);
       check(hipMemcpyAsync(profile->counts.data, s.count.data,
@@ -717,7 +846,7 @@ void gb10_prefill_projection_finish(const void* input, const void* weights,
         coarse_output ? s.coarse_errors.as<float>() : nullptr);
     check(hipGetLastError());
     if (profile) profile->mark(5 + 3 * window);
-    launch_dense_replay(s, y, n, k, 1u);
+    launch_dense_replay(s, x, w, y, n, k, 1u, contiguous);
     if (profile) {
       profile->mark(6 + 3 * window);
       check(hipMemcpyAsync(profile->counts.as<unsigned>() + window, s.count.data,
@@ -747,6 +876,8 @@ void gb10_prefill_routed_projection(const void* input, const void* weights,
                      &active->input_l2, &active->weight_l2, &active->indices, &active->count})
       if (pointers[i] == d->data) throw std::invalid_argument("Routed projection operand aliases scratch");
   }
+  if (active->routed_ordered_batch && (!active->routed_ordered[0] || !active->routed_ordered[1]))
+    throw std::invalid_argument("Routed ordered image owner is absent");
   const auto call = down ? launch_routed<true> : launch_routed<false>;
   call(*active, static_cast<const uint16_t*>(input), static_cast<const uint16_t*>(weights),
        static_cast<const int32_t*>(ids), static_cast<const float*>(route_weights),

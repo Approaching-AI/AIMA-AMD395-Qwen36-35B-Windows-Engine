@@ -857,6 +857,40 @@ def terminal_prefill_overlays(sources):
         "      aima_port::gb10_prefill_terminal_only_enabled());\n  // The two conversions")
 
 
+
+def ordered_attention_overlays(sources):
+    """Bind the independently qualified cold-q8192 original-order provider."""
+    path = "native/src/native_full_prefill.hip.cpp"
+    text = replace(sources[path], '#include "gb10_decode_attention.h"',
+        '#include "gb10_decode_attention.h"\n#include "gb10_ordered_attention.h"')
+    text = replace(text, '  const std::size_t terminal_row = tokens - 1;',
+        """  const bool use_ordered_attention = aima_port::gb10_ordered_attention_enabled() && !terminal_only;
+  if (use_ordered_attention && (tokens != 8192 || active_tokens != tokens ||
+      execution_tokens != tokens || options.cache_position_start != 0 ||
+      use_mrope || use_vl_unified_attention || terminal_only || !options.decode_attention_state))
+    throw std::invalid_argument("Ordered attention requires cold q8192 text and its resident K/V cache");
+  const std::size_t terminal_row = tokens - 1;""")
+    text = replace(text, '  void* attention_bf16 = nullptr;\n  if (terminal_only) {',
+        """  void* attention_bf16 = nullptr;
+  if (use_ordered_attention) {
+    attention_bf16 = attention_f32;
+    const auto ordered_launches = aima_port::gb10_ordered_attention_prefill(
+        q, attention_k, attention_v, attention_bf16, active_tokens,
+        options.cache_position_start + active_tokens, options.cache_position_start);
+    result.layer.aot_launches += ordered_launches;
+    std::fprintf(stderr, "{\\\"event\\\":\\\"ordered_attention_prefill\\\","
+        "\\\"layer\\\":%zu,\\\"queries\\\":%zu,\\\"kv_tokens\\\":%zu,\\\"aot_launches\\\":%zu}\\n",
+        options.layer_index, active_tokens, options.cache_position_start + active_tokens, ordered_launches);
+  } else if (terminal_only) {""")
+    text = replace(text, '      !use_vl_unified_attention) {',
+        '      !use_vl_unified_attention && !use_ordered_attention) {')
+    text = replace(text, '  } else if (use_vl_unified_attention) {\n    launch_full_attention_sigmoid_gate_bf16_prefill(',
+        '  } else if (use_vl_unified_attention || use_ordered_attention) {\n    launch_full_attention_sigmoid_gate_bf16_prefill(')
+    text = replace(text, '        use_vl_unified_attention\n            ? attention_bf16',
+        '        (use_vl_unified_attention || use_ordered_attention)\n            ? attention_bf16', 2)
+    sources[path] = text
+
+
 def make_overlays(*, rectangular_ck=False, current_text_decode=False,
                   gb10_convolution=False, gb10_gdn=False, gb10_projections=False,
                   gb10_prefill_projections=False, gb10_normalization=False, gb10_moe=False):
@@ -1002,6 +1036,7 @@ def make_overlays(*, rectangular_ck=False, current_text_decode=False,
         gb10_decode_moe_overlays(sources)
     if gb10_moe and gb10_normalization and gb10_prefill_projections and gb10_projections:
         terminal_prefill_overlays(sources)
+        ordered_attention_overlays(sources)
     # These two upstream enum-to-string functions have no media I/O dependency.
     media = read("native/src/native_media.cpp")
     names = media[media.index("std::string_view native_media_kind_name("):]
@@ -1125,6 +1160,7 @@ def main():
     if args.gb10_normalization:
         sources.append(str(ROOT / "native/linux_core_port/gb10_normalization.hip.cpp"))
         sources.append(str(ROOT / "native/linux_core_port/gb10_decode_attention.hip.cpp"))
+        sources.append(str(ROOT / "native/linux_core_port/gb10_ordered_attention.cpp"))
     if args.gb10_moe:
         sources.append(str(ROOT / "native/linux_core_port/gb10_moe.hip.cpp"))
         sources.append(str(ROOT / "native/linux_core_port/gb10_decode_moe.hip.cpp"))
@@ -1146,6 +1182,20 @@ def main():
         positional_transform="unchanged GB10 head norm and ordinary RoPE when enabled",
         gate="existing BF16-input sigmoid gate", decode_changed=False,
         additional_device_bytes=0, additional_artifact_bytes=0, model_qualified=False)
+    report["optional_ordered_attention_prefill"] = dict(
+        environment="AIMA_PORT_ORDERED_ATTENTION_PREFILL", enabled_value="1", disabled_value="0", default="0",
+        scope="cold q8192 ordinary text with resident K/V and default stream",
+        query_output_layout="BF16 [8192,16,256]", kv_layout="BF16 [8192,2,256]",
+        images=["pack_value_kernel", "ordered_qk_kernel", "probability_kernel", "selected_pv_kernel"],
+        arithmetic="unsigned32 K16 order, original 32-key online probability, denominator FMA and SM121 reciprocal",
+        slabs=64, queries_per_slab=128, aot_launches_per_layer=193,
+        additional_device_bytes=113254404, embedded_image_bytes=237336,
+        borrowed_tables="existing SHA-verified GDN exp2 and decode-attention reciprocal owners",
+        per_call_device_allocations=0, per_call_host_copies=0,
+        terminal_only_compatibility="retains existing layer39 final-row provider; ordered attention covers the other nine full layers",
+        terminal_only_off_scope="all ten full-attention layers",
+        embedded_include_sha256=digest((ROOT / "native/linux_core_port/gb10_ordered_attention_images.inc").read_bytes()),
+        default_paths_unchanged=True, model_qualified=False, performance_qualified=False)
     if args.windows_rectangular_ck:
         adapter = ROOT / "native/linux_core_port/ck_suffix_adapter.h"
         report["optional_adaptations"] = dict(windows_rectangular_ck=True,
@@ -1208,6 +1258,27 @@ def main():
                 additional_device_bytes=400556416,
                 arithmetic="same admission predicate, ascending K16 carry order and BF16 endpoint",
                 additional_runtime_artifacts=0, model_qualified=False),
+            optional_ordered_replay=dict(environment="AIMA_PORT_PREFILL_ORDERED_REPLAY",
+                enabled_values=["32", "64", "128"], disabled_value="0", default="0",
+                scope="same dense queues and original producer/selector; original BF16 operands",
+                arithmetic="unsigned32 positive/negative K16 sums and ascending FP32 carry",
+                weight_layouts=["row-contiguous", "transposed"], reductions=[512, 2048, 4096],
+                prepared_operand_launches=0, additional_device_bytes=0,
+                removed_prepared_dense_bytes=189333504,
+                scratch_saving_scope="dense-only owner; native routed MoE retains prepared buffers unless its raw BF16 replay is enabled",
+                embedded_image_bytes=76144, loaded_images=1, additional_runtime_artifacts=0,
+                embedded_include_sha256=digest((ROOT / "native/linux_core_port/gb10_prefill_ordered_images.inc").read_bytes()),
+                group_major_preparation_combination_rejected=True, model_qualified=False),
+            optional_routed_ordered_replay=dict(environment="AIMA_PORT_ROUTED_ORDERED_REPLAY",
+                enabled_values=["32", "64", "128"], disabled_value="0", default="0",
+                requires_native_moe=True, scope="same routed producer, original router IDs/FP32 weights and bounded selector queues",
+                gate_up_shape=[65536,1024,2048], weighted_down_shape=[65536,2048,512],
+                queue_capacity=4194304, prepared_operand_launches=0,
+                removed_prepared_bytes_with_dense_ordered=1283457024,
+                removed_prepared_bytes_without_dense_ordered=1094123520,
+                embedded_image_bytes=178560, loaded_images=2, additional_device_bytes=0,
+                embedded_include_sha256=digest((ROOT / "native/linux_core_port/gb10_routed_ordered_images.inc").read_bytes()),
+                model_qualified=False, performance_qualified=False),
             optional_group_major_weights=dict(environment="AIMA_PORT_PREFILL_GROUP_MAJOR_WEIGHTS", enabled_value="1",
                 scope="prepared dense replay weights only; both source weight views",
                 layout="K16 group, output row, existing lossless scaled-half Row",
