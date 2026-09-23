@@ -59,8 +59,14 @@ def persistent_kernel(Q, K, W, U, G, Scores, Table, Initial, Final, Out,
             scaled = r * _exp(Table, last - gate)[:, None]
             r = gl.where(row_o[:, None] < T, r, 0)
             scaled = gl.where(row_o[:, None] < T, scaled, 0)
+            # Keep the CUDA BF16 residual boundary explicit.  The gfx1151
+            # conversion path is under native continuous-state comparison;
+            # the FP32 product and all later K16 operations are unchanged.
+            bits = scaled.to(gl.uint32, bitcast=True)
+            rounded = bits + 0x7fff + ((bits >> 16) & 1)
+            scaled_bf16 = (rounded >> 16).to(gl.uint16).to(gl.bfloat16, bitcast=True)
             v_new.slice(row_group * 8, 8, 0).store(r.to(gl.bfloat16))
-            residual.slice(row_group * 8, 8, 0).store(scaled.to(gl.bfloat16))
+            residual.slice(row_group * 8, 8, 0).store(scaled_bf16)
             if CAPTURE:
                 gl.store(VNew + offsets, r.to(gl.bfloat16), row_o[:, None] < T)
         gl.thread_barrier()
