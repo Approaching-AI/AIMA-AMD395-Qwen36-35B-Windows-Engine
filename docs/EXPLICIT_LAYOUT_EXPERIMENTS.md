@@ -40,6 +40,14 @@ conversion or spills; selected PV retains 16 shared bytes for its queue-range
 reduction, while the other four have no shared-memory instructions. The native
 plan compares eight full passes of old and explicit images with reversed order.
 
-The AMD GDN, dense and attention measurements wait for the current full256k
+The [routed-expert layout experiment](../benchmarks/correctness/ordered-routed-explicit-layout-controls-20260923.json)
+preserves the gate-up/down addressing and arithmetic. Three tile sizes match
+603979776 full-output BF16 values and 24558 sparse-output values; all 15 invalid
+queue controls pass. Each expected full tensor is first qualified against the
+original model's complete output hash. The six gfx1151 images have no layout
+conversions or spills, with 16 shared bytes for invalid-queue flag reduction.
+The prepared native trial pairs 24 full comparisons with 17 queue controls.
+
+The AMD GDN, dense, attention and routed measurements wait for the current full256k
 owner to complete cleanly. Windows model tokens, logits, callbacks, load time
 and q8192 TTFT remain required. These experiments do not change release gates.

@@ -1,0 +1,8 @@
+{
+  "original_file": "/Users/jiawei-macmini/projects/AIMA-ordered-q8192-candidate/native/providers/ordered_q8192/routed_selected.py",
+  "original_sha256": "c9209ef6de877221aeaabda5cca8f04702cb74e92d7a3df85b69974aa90769ec",
+  "candidate_file": "build/recovery-20260910/routed_selected_explicit_r1.py",
+  "candidate_sha256": "078ac63490c18ac632afd9692401529397c11a19d535663e1d817a92f3fc07e5",
+  "kernel_arithmetic_and_addressing_ast_unchanged_after_removing_only_explicit_layouts": true,
+  "native_execution": false
+}

@@ -1,0 +1,1376 @@
+{
+  "schema": 1,
+  "classification": "explicit_layout_full_q8192_routed_cuda_controls_amd_trial_pending",
+  "candidate_base_commit": "2e7cf269b6885055c60c2b5c13c195744644bf3e",
+  "candidate_changes_relative_to_base_commit": true,
+  "candidate_source_sha256": "078ac63490c18ac632afd9692401529397c11a19d535663e1d817a92f3fc07e5",
+  "source_hashes": {
+    "routed_explicit.py": "078ac63490c18ac632afd9692401529397c11a19d535663e1d817a92f3fc07e5",
+    "worker.py": "667c2ae861767d0da558385ff060c5c684daa18197be264622fb8a940e801204",
+    "explicit_dense.py": "438739fb9e3fa9c49f5b4765401d7d4e346d4ca42033f2c6113ba8f2a3601673",
+    "routed_selected.py": "c9209ef6de877221aeaabda5cca8f04702cb74e92d7a3df85b69974aa90769ec",
+    "dense_selected.py": "6cf211bcb63ab2a470085bc3117b4e7438d7f89db94c68a724446be7b8792c84",
+    "reference-analysis.json": "392c0313d3374f5eb344c96ffc48e73486106304268ca42732bb709116347938",
+    "routed-explicit-source-equivalence-r1.json": "b8fb75de1efa6b13249359c635d10d8fbf6b535357a0dbf48fd3d4c133f37b43"
+  },
+  "arithmetic_ast_controls": {
+    "original_file": "/Users/jiawei-macmini/projects/AIMA-ordered-q8192-candidate/native/providers/ordered_q8192/routed_selected.py",
+    "original_sha256": "c9209ef6de877221aeaabda5cca8f04702cb74e92d7a3df85b69974aa90769ec",
+    "candidate_file": "build/recovery-20260910/routed_selected_explicit_r1.py",
+    "candidate_sha256": "078ac63490c18ac632afd9692401529397c11a19d535663e1d817a92f3fc07e5",
+    "kernel_arithmetic_and_addressing_ast_unchanged_after_removing_only_explicit_layouts": true,
+    "native_execution": false
+  },
+  "original_reference": {
+    "file": "qrt-gb10-routed-full-q8192-20260923-r1/reference-analysis.json",
+    "sha256": "392c0313d3374f5eb344c96ffc48e73486106304268ca42732bb709116347938",
+    "all_layer_analysis_sha256": "de08ff5d08575f9566253d7e9b68db33a808c3cde377e5fc7e93e9b58a566191",
+    "original_576_tokens_and_full_first_logits_match": true
+  },
+  "original_source_commit": "3fcbdafb10a14e94c15bd94a1f821f180bc95373",
+  "reference_execution": {
+    "host": "aitopatom-66c4",
+    "container_host": "cb6a5c89bca5",
+    "device": "NVIDIA GB10",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--name",
+      "qrt-routed-selected-explicit-20260923-r1",
+      "--gpus",
+      "all",
+      "--network",
+      "none",
+      "--memory",
+      "10g",
+      "--shm-size",
+      "1g",
+      "--cpus",
+      "4",
+      "-v",
+      "/home/qujing/qrt-routed-selected-explicit-20260923-r1:/work",
+      "-v",
+      "/home/qujing/qrt-gb10-routed-full-q8192-20260923-r1:/reference:ro",
+      "-v",
+      "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+      "--entrypoint",
+      "timeout",
+      "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+      "--signal=TERM",
+      "--kill-after=5",
+      "600",
+      "python3",
+      "/work/worker.py"
+    ],
+    "command_file": "/home/qujing/qrt-routed-selected-explicit-20260923-r1/worker.py",
+    "model_reference": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+    "actual_weight_tensors_loaded": true,
+    "original_model_engine_loaded": false,
+    "original_model_inputs_and_output_hashes": true,
+    "candidate_outputs_fed_to_original_model": false,
+    "dispatch_sha256": "b49bf4bec516882fc84fa9882f25b2091eb7613043365aafe8f6af40af352b7e",
+    "result_sha256": "c0985474f34e6b1eb610cb0a3cecac97485fe63fed37cce012ca22f7ece29779",
+    "manifest_sha256": "70a2a15f94937d2cb874adf2f3cd38fc1836b318bf854ba27e7df497c7c2d5a0",
+    "wall_seconds": 61.7691758221481,
+    "process_timeout_seconds": 600,
+    "returncode": 0,
+    "gpu_processes_after": ""
+  },
+  "comparison_scope": "Original full q8192 first-layer gate-up and down projections, three tile sizes each, plus sparse queues and invalid-input controls.",
+  "baseline_qualification": "For each projection the unchanged baseline first reproduces the complete original-model output SHA256; that full baseline tensor then supplies candidate per-element comparisons.",
+  "comparisons": {
+    "full_bf16_values": 603979776,
+    "sparse_bf16_values": 24558,
+    "all_components_match": true,
+    "source_files_unchanged": true,
+    "records": [
+      {
+        "down": false,
+        "batch": 32,
+        "sparse": false,
+        "logical_routes": 65536,
+        "n": 1024,
+        "k": 2048,
+        "windows": 16,
+        "compared_values": 67108864,
+        "bf16_mismatches": 0,
+        "invalid_flags": 0,
+        "actual": {
+          "shape": [
+            8192,
+            8,
+            1024
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 134217728,
+          "sha256": "d1d37438b4cc2b45220c9e3ef5b5e796a178dcdac1d90c23d4e3f8344b2fcc3a"
+        },
+        "original": {
+          "shape": [
+            8192,
+            8,
+            1024
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 134217728,
+          "sha256": "d1d37438b4cc2b45220c9e3ef5b5e796a178dcdac1d90c23d4e3f8344b2fcc3a"
+        },
+        "queues_unchanged": true,
+        "debug_unchanged": true,
+        "diagnostic_kernel_seconds": 2.4139313821215183,
+        "performance_acceptance": false,
+        "guards_pass": true
+      },
+      {
+        "down": false,
+        "batch": 32,
+        "sparse": true,
+        "logical_routes": 65536,
+        "n": 1024,
+        "k": 2048,
+        "windows": 5,
+        "compared_values": 4093,
+        "bf16_mismatches": 0,
+        "invalid_flags": 0,
+        "actual": {
+          "shape": [
+            4093
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 8186,
+          "sha256": "303334e81717747421cf6eb2aca76cebc5ece90e130ff5a06f2dc1df2b3dd672"
+        },
+        "original": {
+          "shape": [
+            4093
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 8186,
+          "sha256": "303334e81717747421cf6eb2aca76cebc5ece90e130ff5a06f2dc1df2b3dd672"
+        },
+        "queues_unchanged": true,
+        "debug_unchanged": true,
+        "diagnostic_kernel_seconds": 0.0005515599623322487,
+        "performance_acceptance": false,
+        "unselected_outputs_unchanged": true,
+        "guards_pass": true
+      },
+      {
+        "down": false,
+        "batch": 64,
+        "sparse": false,
+        "logical_routes": 65536,
+        "n": 1024,
+        "k": 2048,
+        "windows": 16,
+        "compared_values": 67108864,
+        "bf16_mismatches": 0,
+        "invalid_flags": 0,
+        "actual": {
+          "shape": [
+            8192,
+            8,
+            1024
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 134217728,
+          "sha256": "d1d37438b4cc2b45220c9e3ef5b5e796a178dcdac1d90c23d4e3f8344b2fcc3a"
+        },
+        "original": {
+          "shape": [
+            8192,
+            8,
+            1024
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 134217728,
+          "sha256": "d1d37438b4cc2b45220c9e3ef5b5e796a178dcdac1d90c23d4e3f8344b2fcc3a"
+        },
+        "queues_unchanged": true,
+        "debug_unchanged": true,
+        "diagnostic_kernel_seconds": 3.030200745910406,
+        "performance_acceptance": false,
+        "guards_pass": true
+      },
+      {
+        "down": false,
+        "batch": 64,
+        "sparse": true,
+        "logical_routes": 65536,
+        "n": 1024,
+        "k": 2048,
+        "windows": 5,
+        "compared_values": 4093,
+        "bf16_mismatches": 0,
+        "invalid_flags": 0,
+        "actual": {
+          "shape": [
+            4093
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 8186,
+          "sha256": "303334e81717747421cf6eb2aca76cebc5ece90e130ff5a06f2dc1df2b3dd672"
+        },
+        "original": {
+          "shape": [
+            4093
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 8186,
+          "sha256": "303334e81717747421cf6eb2aca76cebc5ece90e130ff5a06f2dc1df2b3dd672"
+        },
+        "queues_unchanged": true,
+        "debug_unchanged": true,
+        "diagnostic_kernel_seconds": 0.0006942669861018658,
+        "performance_acceptance": false,
+        "unselected_outputs_unchanged": true,
+        "guards_pass": true
+      },
+      {
+        "down": false,
+        "batch": 128,
+        "sparse": false,
+        "logical_routes": 65536,
+        "n": 1024,
+        "k": 2048,
+        "windows": 16,
+        "compared_values": 67108864,
+        "bf16_mismatches": 0,
+        "invalid_flags": 0,
+        "actual": {
+          "shape": [
+            8192,
+            8,
+            1024
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 134217728,
+          "sha256": "d1d37438b4cc2b45220c9e3ef5b5e796a178dcdac1d90c23d4e3f8344b2fcc3a"
+        },
+        "original": {
+          "shape": [
+            8192,
+            8,
+            1024
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 134217728,
+          "sha256": "d1d37438b4cc2b45220c9e3ef5b5e796a178dcdac1d90c23d4e3f8344b2fcc3a"
+        },
+        "queues_unchanged": true,
+        "debug_unchanged": true,
+        "diagnostic_kernel_seconds": 6.994100185111165,
+        "performance_acceptance": false,
+        "guards_pass": true
+      },
+      {
+        "down": false,
+        "batch": 128,
+        "sparse": true,
+        "logical_routes": 65536,
+        "n": 1024,
+        "k": 2048,
+        "windows": 5,
+        "compared_values": 4093,
+        "bf16_mismatches": 0,
+        "invalid_flags": 0,
+        "actual": {
+          "shape": [
+            4093
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 8186,
+          "sha256": "303334e81717747421cf6eb2aca76cebc5ece90e130ff5a06f2dc1df2b3dd672"
+        },
+        "original": {
+          "shape": [
+            4093
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 8186,
+          "sha256": "303334e81717747421cf6eb2aca76cebc5ece90e130ff5a06f2dc1df2b3dd672"
+        },
+        "queues_unchanged": true,
+        "debug_unchanged": true,
+        "diagnostic_kernel_seconds": 0.0014372190926223993,
+        "performance_acceptance": false,
+        "unselected_outputs_unchanged": true,
+        "guards_pass": true
+      },
+      {
+        "down": true,
+        "batch": 32,
+        "sparse": false,
+        "logical_routes": 65536,
+        "n": 2048,
+        "k": 512,
+        "windows": 32,
+        "compared_values": 134217728,
+        "bf16_mismatches": 0,
+        "invalid_flags": 0,
+        "actual": {
+          "shape": [
+            8192,
+            8,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 268435456,
+          "sha256": "5206653a741fd2fc71b605e6cc36cd8c2628dcdef50e6c895e1b7f88f3979569"
+        },
+        "original": {
+          "shape": [
+            8192,
+            8,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 268435456,
+          "sha256": "5206653a741fd2fc71b605e6cc36cd8c2628dcdef50e6c895e1b7f88f3979569"
+        },
+        "queues_unchanged": true,
+        "debug_unchanged": true,
+        "diagnostic_kernel_seconds": 1.3168228648137301,
+        "performance_acceptance": false,
+        "guards_pass": true
+      },
+      {
+        "down": true,
+        "batch": 32,
+        "sparse": true,
+        "logical_routes": 65536,
+        "n": 2048,
+        "k": 512,
+        "windows": 5,
+        "compared_values": 4093,
+        "bf16_mismatches": 0,
+        "invalid_flags": 0,
+        "actual": {
+          "shape": [
+            4093
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 8186,
+          "sha256": "7be3a0d734410e1687e4f807e0dd28fec1bdc694f29982aea7555e6c597e9ae9"
+        },
+        "original": {
+          "shape": [
+            4093
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 8186,
+          "sha256": "7be3a0d734410e1687e4f807e0dd28fec1bdc694f29982aea7555e6c597e9ae9"
+        },
+        "queues_unchanged": true,
+        "debug_unchanged": true,
+        "diagnostic_kernel_seconds": 0.00032108905725181103,
+        "performance_acceptance": false,
+        "unselected_outputs_unchanged": true,
+        "guards_pass": true
+      },
+      {
+        "down": true,
+        "batch": 64,
+        "sparse": false,
+        "logical_routes": 65536,
+        "n": 2048,
+        "k": 512,
+        "windows": 32,
+        "compared_values": 134217728,
+        "bf16_mismatches": 0,
+        "invalid_flags": 0,
+        "actual": {
+          "shape": [
+            8192,
+            8,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 268435456,
+          "sha256": "5206653a741fd2fc71b605e6cc36cd8c2628dcdef50e6c895e1b7f88f3979569"
+        },
+        "original": {
+          "shape": [
+            8192,
+            8,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 268435456,
+          "sha256": "5206653a741fd2fc71b605e6cc36cd8c2628dcdef50e6c895e1b7f88f3979569"
+        },
+        "queues_unchanged": true,
+        "debug_unchanged": true,
+        "diagnostic_kernel_seconds": 2.1903033549897373,
+        "performance_acceptance": false,
+        "guards_pass": true
+      },
+      {
+        "down": true,
+        "batch": 64,
+        "sparse": true,
+        "logical_routes": 65536,
+        "n": 2048,
+        "k": 512,
+        "windows": 5,
+        "compared_values": 4093,
+        "bf16_mismatches": 0,
+        "invalid_flags": 0,
+        "actual": {
+          "shape": [
+            4093
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 8186,
+          "sha256": "7be3a0d734410e1687e4f807e0dd28fec1bdc694f29982aea7555e6c597e9ae9"
+        },
+        "original": {
+          "shape": [
+            4093
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 8186,
+          "sha256": "7be3a0d734410e1687e4f807e0dd28fec1bdc694f29982aea7555e6c597e9ae9"
+        },
+        "queues_unchanged": true,
+        "debug_unchanged": true,
+        "diagnostic_kernel_seconds": 0.0003935140557587147,
+        "performance_acceptance": false,
+        "unselected_outputs_unchanged": true,
+        "guards_pass": true
+      },
+      {
+        "down": true,
+        "batch": 128,
+        "sparse": false,
+        "logical_routes": 65536,
+        "n": 2048,
+        "k": 512,
+        "windows": 32,
+        "compared_values": 134217728,
+        "bf16_mismatches": 0,
+        "invalid_flags": 0,
+        "actual": {
+          "shape": [
+            8192,
+            8,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 268435456,
+          "sha256": "5206653a741fd2fc71b605e6cc36cd8c2628dcdef50e6c895e1b7f88f3979569"
+        },
+        "original": {
+          "shape": [
+            8192,
+            8,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 268435456,
+          "sha256": "5206653a741fd2fc71b605e6cc36cd8c2628dcdef50e6c895e1b7f88f3979569"
+        },
+        "queues_unchanged": true,
+        "debug_unchanged": true,
+        "diagnostic_kernel_seconds": 3.4549583091866225,
+        "performance_acceptance": false,
+        "guards_pass": true
+      },
+      {
+        "down": true,
+        "batch": 128,
+        "sparse": true,
+        "logical_routes": 65536,
+        "n": 2048,
+        "k": 512,
+        "windows": 5,
+        "compared_values": 4093,
+        "bf16_mismatches": 0,
+        "invalid_flags": 0,
+        "actual": {
+          "shape": [
+            4093
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 8186,
+          "sha256": "7be3a0d734410e1687e4f807e0dd28fec1bdc694f29982aea7555e6c597e9ae9"
+        },
+        "original": {
+          "shape": [
+            4093
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 8186,
+          "sha256": "7be3a0d734410e1687e4f807e0dd28fec1bdc694f29982aea7555e6c597e9ae9"
+        },
+        "queues_unchanged": true,
+        "debug_unchanged": true,
+        "diagnostic_kernel_seconds": 0.0005359810311347246,
+        "performance_acceptance": false,
+        "unselected_outputs_unchanged": true,
+        "guards_pass": true
+      }
+    ],
+    "malformed_controls": [
+      {
+        "case": "negative_count",
+        "expected_flags": 64,
+        "actual_flags": 64,
+        "only_declared_output_touched": true,
+        "inputs_unchanged": true,
+        "guards_pass": true,
+        "pass": true
+      },
+      {
+        "case": "oversize_count",
+        "expected_flags": 64,
+        "actual_flags": 64,
+        "only_declared_output_touched": true,
+        "inputs_unchanged": true,
+        "guards_pass": true,
+        "pass": true
+      },
+      {
+        "case": "negative_index",
+        "expected_flags": 64,
+        "actual_flags": 64,
+        "only_declared_output_touched": true,
+        "inputs_unchanged": true,
+        "guards_pass": true,
+        "pass": true
+      },
+      {
+        "case": "oversize_index",
+        "expected_flags": 64,
+        "actual_flags": 64,
+        "only_declared_output_touched": true,
+        "inputs_unchanged": true,
+        "guards_pass": true,
+        "pass": true
+      },
+      {
+        "case": "negative_expert",
+        "expected_flags": 8,
+        "actual_flags": 8,
+        "only_declared_output_touched": true,
+        "inputs_unchanged": true,
+        "guards_pass": true,
+        "pass": true
+      },
+      {
+        "case": "oversize_expert",
+        "expected_flags": 8,
+        "actual_flags": 8,
+        "only_declared_output_touched": true,
+        "inputs_unchanged": true,
+        "guards_pass": true,
+        "pass": true
+      },
+      {
+        "case": "negative_count",
+        "expected_flags": 64,
+        "actual_flags": 64,
+        "only_declared_output_touched": true,
+        "inputs_unchanged": true,
+        "guards_pass": true,
+        "pass": true
+      },
+      {
+        "case": "oversize_count",
+        "expected_flags": 64,
+        "actual_flags": 64,
+        "only_declared_output_touched": true,
+        "inputs_unchanged": true,
+        "guards_pass": true,
+        "pass": true
+      },
+      {
+        "case": "negative_index",
+        "expected_flags": 64,
+        "actual_flags": 64,
+        "only_declared_output_touched": true,
+        "inputs_unchanged": true,
+        "guards_pass": true,
+        "pass": true
+      },
+      {
+        "case": "oversize_index",
+        "expected_flags": 64,
+        "actual_flags": 64,
+        "only_declared_output_touched": true,
+        "inputs_unchanged": true,
+        "guards_pass": true,
+        "pass": true
+      },
+      {
+        "case": "negative_expert",
+        "expected_flags": 8,
+        "actual_flags": 8,
+        "only_declared_output_touched": true,
+        "inputs_unchanged": true,
+        "guards_pass": true,
+        "pass": true
+      },
+      {
+        "case": "oversize_expert",
+        "expected_flags": 8,
+        "actual_flags": 8,
+        "only_declared_output_touched": true,
+        "inputs_unchanged": true,
+        "guards_pass": true,
+        "pass": true
+      },
+      {
+        "case": "nonfinite_scale",
+        "expected_flags": 32,
+        "actual_flags": 32,
+        "only_declared_output_touched": true,
+        "inputs_unchanged": true,
+        "guards_pass": true,
+        "pass": true
+      },
+      {
+        "case": "negative_scale",
+        "expected_flags": 32,
+        "actual_flags": 32,
+        "only_declared_output_touched": true,
+        "inputs_unchanged": true,
+        "guards_pass": true,
+        "pass": true
+      },
+      {
+        "case": "oversize_scale",
+        "expected_flags": 32,
+        "actual_flags": 32,
+        "only_declared_output_touched": true,
+        "inputs_unchanged": true,
+        "guards_pass": true,
+        "pass": true
+      }
+    ],
+    "sources": [
+      {
+        "name": "gate-up",
+        "input": {
+          "file": "routed-gate-up-input.bin",
+          "shape": [
+            8192,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 33554432,
+          "sha256": "9982ad6d3605f0f7fa15b7939a3f12e7936159e7dbfc8b044d64b88790196d5c"
+        },
+        "weight": {
+          "shape": [
+            256,
+            1024,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 1073741824,
+          "sha256": "7ebaa2e2927f3a1aaf6965ce737170eb7cc4cf0ca3c2f00635347832dc5b201e"
+        },
+        "weight_key": "model.language_model.layers.0.mlp.experts.gate_up_proj",
+        "original_output": {
+          "shape": [
+            8192,
+            8,
+            1024
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 134217728,
+          "sha256": "d1d37438b4cc2b45220c9e3ef5b5e796a178dcdac1d90c23d4e3f8344b2fcc3a"
+        },
+        "baseline_sha256": "d1d37438b4cc2b45220c9e3ef5b5e796a178dcdac1d90c23d4e3f8344b2fcc3a",
+        "baseline_matches_original": true,
+        "expected_output_unchanged": true,
+        "inputs_unchanged": true,
+        "guards_pass": true
+      },
+      {
+        "name": "down",
+        "input": {
+          "file": "routed-down-input.bin",
+          "shape": [
+            65536,
+            512
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 67108864,
+          "sha256": "2c599e496a42e7017cadc633740b8a1ec7d252bff751dd025dad8cccee19a433"
+        },
+        "weight": {
+          "shape": [
+            256,
+            2048,
+            512
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 536870912,
+          "sha256": "bedfbba11fb8f16aef994c14a86bf8f3675b6e24f127e5bd2d188b26d01f9380"
+        },
+        "weight_key": "model.language_model.layers.0.mlp.experts.down_proj",
+        "original_output": {
+          "shape": [
+            8192,
+            8,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 268435456,
+          "sha256": "5206653a741fd2fc71b605e6cc36cd8c2628dcdef50e6c895e1b7f88f3979569"
+        },
+        "baseline_sha256": "5206653a741fd2fc71b605e6cc36cd8c2628dcdef50e6c895e1b7f88f3979569",
+        "baseline_matches_original": true,
+        "expected_output_unchanged": true,
+        "inputs_unchanged": true,
+        "guards_pass": true
+      }
+    ]
+  },
+  "compiled_images": {
+    "gate-up-bm32": {
+      "file": "gate-up-bm32.hsaco",
+      "bytes": 19088,
+      "sha256": "81555dd334bf2ff6a3ad0ab29a440f745e7bd2ec86698a9e98f1ba046411aa3f",
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "f22f67a89934a5b58b1e1a0f54897658b82af499d31c9b2cbe3ddec9307d4148",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "routed_replay_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 16,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "amdgcn_sha256": "825be96fd7ebe92f8a0e306ab2540515f81a838ad3c6bac2e5d15da37894a033",
+      "ttgir_sha256": "d2b41284095ec880129ede9524f08f8991d03087da3980aaf667479e8a78426c",
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 12,
+      "resources": {
+        ".vgpr_count": [
+          "66"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      }
+    },
+    "gate-up-bm64": {
+      "file": "gate-up-bm64.hsaco",
+      "bytes": 29192,
+      "sha256": "aa0aa11e7e44457c73940e47fedc9a6b22a248f97a4079abeb409bde691bbef5",
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "41fe5f24fd3be993540f0e784fdb6b2e50d98004a8eb802de7dc2d3203b73f6e",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "routed_replay_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 16,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "amdgcn_sha256": "fe9e66365a6a83e7921e73b7a87201cf3819902fc21e9f6cab6d1fe8a2c41a8a",
+      "ttgir_sha256": "ca7805abe25c6e86000b1009611de420e3f3ed811ec0fa8f14c2b16fff7687b6",
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 12,
+      "resources": {
+        ".vgpr_count": [
+          "116"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      }
+    },
+    "gate-up-bm128": {
+      "file": "gate-up-bm128.hsaco",
+      "bytes": 47704,
+      "sha256": "73d0ddd493a933c82015c16ba52e633ce03a545ad276000fdefb5b426a73bace",
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "7cf41486b05eab18ec700d597b30744e2e6f577eae0cfc580e369234ebb0ef16",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "routed_replay_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 16,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "amdgcn_sha256": "f2fefb4c7a5878226714bf87d987a6281643beafc7f4159b622f54df4e3131df",
+      "ttgir_sha256": "014fb4414b19a7fe6b06cd878c6525e87de467ac2df5bb6a2828c36ecf1e7b9c",
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 12,
+      "resources": {
+        ".vgpr_count": [
+          "219"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      }
+    },
+    "down-bm32": {
+      "file": "down-bm32.hsaco",
+      "bytes": 19968,
+      "sha256": "5a3a3abff200a422c567c2c299bea0601f2badcd5d06776f455fe1602b969299",
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "7219c3ae1bb24315c14fe365a7d36f70ac1b74b0b67ad7c400fe829051366408",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "routed_replay_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 16,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "amdgcn_sha256": "48e0524e9cf198dc9f6fa4d85051037f0e5375c3ca2715e0e8dacb6fc3131b06",
+      "ttgir_sha256": "52962fac7aae8c971cd6601a9c059df1b7dfa4059f01bfa2dc8cbec518bf157a",
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 16,
+      "resources": {
+        ".vgpr_count": [
+          "73"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      }
+    },
+    "down-bm64": {
+      "file": "down-bm64.hsaco",
+      "bytes": 31328,
+      "sha256": "f62e6732c65c4b4919e574508a2fbf088b9811982500ffbb3939962fa66f7962",
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "d7f9040c89c16fffde0452547eeac2366edace9570b8cdf33cbf3872c7979f58",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "routed_replay_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 16,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "amdgcn_sha256": "ff00ee515dbd433a34c6d3ab99b99c8c68d80cf7351624a85c83308fc63d836c",
+      "ttgir_sha256": "449a8e831b61005cd8db513fc94db16863168f1c370974ecfcc11b1b614bfd9e",
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 16,
+      "resources": {
+        ".vgpr_count": [
+          "132"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      }
+    },
+    "down-bm128": {
+      "file": "down-bm128.hsaco",
+      "bytes": 53064,
+      "sha256": "1323d35908157980e7985ddd10fb85ba81b8a8ebe3a6be94e3fb2a6d9aa17372",
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "c250552c5721d219a78cec4a5bae5280a2fc005a162697597d28a96137456dd4",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "routed_replay_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 16,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "amdgcn_sha256": "c966c90a525ee304a501b67eff44f265bc8bb0aa89b20b38ff600fc99a63d2af",
+      "ttgir_sha256": "b082be8e2bcfb0f69facc2c05593ec8425ceac248570d37ae9c65e408d259a52",
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 16,
+      "resources": {
+        ".vgpr_count": [
+          "205"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      }
+    }
+  },
+  "previous_actual_amd_control": {
+    "result_sha256": "0b30272e18b9bf4015faf1c7c70ab53bb4134a0ec9fedce6ec5364b0f2fec8ef",
+    "run_record_sha256": "f7a5dc6a79321c471c7e7bf1cdde42d5cf25cf342e01d41a97df1ff47f5a0077",
+    "source_commit": "2e7cf269b6885055c60c2b5c13c195744644bf3e",
+    "all_components_match": true,
+    "cleanup_pass": true,
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "pending_native_trial": {
+    "manifest_sha256": "82d3aaa6e4667f28b7a7b78968353fe9988835a15abc3bf5acfd674f7e15564b",
+    "worker_sha256": "c5098383d015a03e9280acc3f6d1fb2523d39c0dbd8445e3cb667683eab3d687",
+    "model_reference": "D:/models/Qwen3.6-35B-A3B",
+    "source_files": [
+      {
+        "file": "source/dense_selected.py",
+        "bytes": 4495,
+        "sha256": "6cf211bcb63ab2a470085bc3117b4e7438d7f89db94c68a724446be7b8792c84"
+      },
+      {
+        "file": "source/explicit_dense.py",
+        "bytes": 4781,
+        "sha256": "438739fb9e3fa9c49f5b4765401d7d4e346d4ca42033f2c6113ba8f2a3601673"
+      },
+      {
+        "file": "source/routed_explicit.py",
+        "bytes": 3117,
+        "sha256": "078ac63490c18ac632afd9692401529397c11a19d535663e1d817a92f3fc07e5"
+      },
+      {
+        "file": "source/routed_selected.py",
+        "bytes": 2885,
+        "sha256": "c9209ef6de877221aeaabda5cca8f04702cb74e92d7a3df85b69974aa90769ec"
+      }
+    ],
+    "images": {
+      "baseline.gate-up-bm32": {
+        "file": "baseline-gate-up-bm32.hsaco",
+        "bytes": 18520,
+        "sha256": "f9694afe68751e02ca31a2ef3b0b38203a2e43f9c8b61ccf502ccb25893e9182",
+        "symbol": "routed_replay_kernel",
+        "shared_bytes": 64
+      },
+      "baseline.gate-up-bm64": {
+        "file": "baseline-gate-up-bm64.hsaco",
+        "bytes": 28152,
+        "sha256": "92dd4b3863e575a36568373b5c003b75cd386edc4fe01e0ecc54963f9e5ad15f",
+        "symbol": "routed_replay_kernel",
+        "shared_bytes": 128
+      },
+      "baseline.gate-up-bm128": {
+        "file": "baseline-gate-up-bm128.hsaco",
+        "bytes": 42752,
+        "sha256": "559a6f5b551de0efa9bdf1c197276414149058119d30148bbe1befbfdcf91b96",
+        "symbol": "routed_replay_kernel",
+        "shared_bytes": 1024
+      },
+      "baseline.down-bm32": {
+        "file": "baseline-down-bm32.hsaco",
+        "bytes": 19256,
+        "sha256": "ac5fe0890b2661ac8e144b7e0ada53e5c68526751c6ca969bc731db41c361312",
+        "symbol": "routed_replay_kernel",
+        "shared_bytes": 64
+      },
+      "baseline.down-bm64": {
+        "file": "baseline-down-bm64.hsaco",
+        "bytes": 29896,
+        "sha256": "92c314578106d7a8682d3d9aa7e9bfd431324fe82b6859555a51a9ffc31e2b80",
+        "symbol": "routed_replay_kernel",
+        "shared_bytes": 128
+      },
+      "baseline.down-bm128": {
+        "file": "baseline-down-bm128.hsaco",
+        "bytes": 39984,
+        "sha256": "10f1c050282126dc44c84a456d7b42839eb4774380355c01c43cda99ff83e700",
+        "symbol": "routed_replay_kernel",
+        "shared_bytes": 1024
+      },
+      "explicit.gate-up-bm32": {
+        "file": "explicit-gate-up-bm32.hsaco",
+        "bytes": 19088,
+        "sha256": "81555dd334bf2ff6a3ad0ab29a440f745e7bd2ec86698a9e98f1ba046411aa3f",
+        "symbol": "routed_replay_kernel",
+        "shared_bytes": 16
+      },
+      "explicit.gate-up-bm64": {
+        "file": "explicit-gate-up-bm64.hsaco",
+        "bytes": 29192,
+        "sha256": "aa0aa11e7e44457c73940e47fedc9a6b22a248f97a4079abeb409bde691bbef5",
+        "symbol": "routed_replay_kernel",
+        "shared_bytes": 16
+      },
+      "explicit.gate-up-bm128": {
+        "file": "explicit-gate-up-bm128.hsaco",
+        "bytes": 47704,
+        "sha256": "73d0ddd493a933c82015c16ba52e633ce03a545ad276000fdefb5b426a73bace",
+        "symbol": "routed_replay_kernel",
+        "shared_bytes": 16
+      },
+      "explicit.down-bm32": {
+        "file": "explicit-down-bm32.hsaco",
+        "bytes": 19968,
+        "sha256": "5a3a3abff200a422c567c2c299bea0601f2badcd5d06776f455fe1602b969299",
+        "symbol": "routed_replay_kernel",
+        "shared_bytes": 16
+      },
+      "explicit.down-bm64": {
+        "file": "explicit-down-bm64.hsaco",
+        "bytes": 31328,
+        "sha256": "f62e6732c65c4b4919e574508a2fbf088b9811982500ffbb3939962fa66f7962",
+        "symbol": "routed_replay_kernel",
+        "shared_bytes": 16
+      },
+      "explicit.down-bm128": {
+        "file": "explicit-down-bm128.hsaco",
+        "bytes": 53064,
+        "sha256": "1323d35908157980e7985ddd10fb85ba81b8a8ebe3a6be94e3fb2a6d9aa17372",
+        "symbol": "routed_replay_kernel",
+        "shared_bytes": 16
+      }
+    },
+    "full_q8192_comparisons": 24,
+    "malformed_queue_controls": 15,
+    "partial_shuffled_queue_controls": 2,
+    "partial_expected_values_from_same_run_hash_qualified_baseline": true,
+    "original_baseline_images_unchanged": true,
+    "baseline_and_candidate_interleaved": true,
+    "reverse_order_passes": true,
+    "process_timeout_seconds": 900,
+    "staged_on_baiying": false,
+    "executed": false
+  },
+  "exact_reproduction_sources": {
+    "tools/experiments/ordered_q8192/routed_explicit_layout/routed_selected_explicit_r1.py": {
+      "bytes": 3117,
+      "sha256": "078ac63490c18ac632afd9692401529397c11a19d535663e1d817a92f3fc07e5"
+    },
+    "tools/experiments/ordered_q8192/routed_explicit_layout/routed_selected_explicit_worker_r1.py": {
+      "bytes": 13921,
+      "sha256": "667c2ae861767d0da558385ff060c5c684daa18197be264622fb8a940e801204"
+    },
+    "tools/experiments/ordered_q8192/routed_explicit_layout/validate_routed_selected_explicit_r1.py": {
+      "bytes": 7989,
+      "sha256": "bb9eef0f4a68bfa5bab24d06c2db6f00ddfc4b27329bd0d3626092b4a798074a"
+    },
+    "tools/experiments/ordered_q8192/routed_explicit_layout/routed_selected_explicit_windows_worker_r1.py": {
+      "bytes": 13350,
+      "sha256": "c5098383d015a03e9280acc3f6d1fb2523d39c0dbd8445e3cb667683eab3d687"
+    },
+    "tools/experiments/ordered_q8192/routed_explicit_layout/prepare_routed_selected_explicit_windows_r1.py": {
+      "bytes": 5328,
+      "sha256": "1c05e9b9f7fbb26a8cd2451c4580fb8e1f1cae4a379bab407418107ab24bd880"
+    },
+    "tools/experiments/ordered_q8192/routed_explicit_layout/dispatch_routed_selected_explicit_windows_r1.py": {
+      "bytes": 7314,
+      "sha256": "9df752b5b679b3ba02868272c70eb1cc7561b6f106308269df4c205698c2bc84"
+    },
+    "tools/experiments/ordered_q8192/routed_explicit_layout/routed-explicit-source-equivalence-r1.json": {
+      "bytes": 516,
+      "sha256": "b8fb75de1efa6b13249359c635d10d8fbf6b535357a0dbf48fd3d4c133f37b43"
+    },
+    "tools/experiments/ordered_q8192/routed_explicit_layout/record_routed_selected_explicit_r1.py": {
+      "bytes": 8166,
+      "sha256": "0f1f07dad16cd3723de413cb1a7dd57af0509904b4da02c37d9ddd59e05bb197"
+    },
+    "tools/experiments/ordered_q8192/routed_explicit_layout/explicit_dense.py": {
+      "bytes": 4781,
+      "sha256": "438739fb9e3fa9c49f5b4765401d7d4e346d4ca42033f2c6113ba8f2a3601673"
+    },
+    "tools/experiments/ordered_q8192/routed_explicit_layout/dense_selected.py": {
+      "bytes": 4495,
+      "sha256": "6cf211bcb63ab2a470085bc3117b4e7438d7f89db94c68a724446be7b8792c84"
+    },
+    "tools/experiments/ordered_q8192/routed_explicit_layout/routed_selected.py": {
+      "bytes": 2885,
+      "sha256": "c9209ef6de877221aeaabda5cca8f04702cb74e92d7a3df85b69974aa90769ec"
+    }
+  },
+  "decision": "Run paired native controls after the active full256k capture completes cleanly; retain the current runtime until correctness and product timing qualify a replacement.",
+  "limitations": [
+    "CUDA numerical checks and gfx1151 compilation do not establish AMD correctness or performance.",
+    "These are original full-shape operands for one routed layer, not a new real-model candidate token loop.",
+    "All six images retain 16 shared bytes for invalid-queue flag reduction; explicit arithmetic layouts alone do not establish a speedup.",
+    "Register allocation and paired native full-shape timing remain to be measured.",
+    "Original oracle tokens, logit tolerance and mission thresholds remain unchanged."
+  ],
+  "native_execution": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}
