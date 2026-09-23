@@ -1,0 +1,1391 @@
+{
+  "schema": 1,
+  "classification": "actual_binary_attention_comparability_and_pending_replay",
+  "controller_host": "JiaweiMnideMini.lan",
+  "target_host": "baiying",
+  "model_reference": "D:/models/Qwen3.6-35B-A3B",
+  "comparison": {
+    "comparison_script_sha256": "d479caff251f47150712e10ac543fd6fdaf16d01850e3325943596ab18599c9a",
+    "sources": {
+      "observed": {
+        "source_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/q1-cache-capture-whole-build-r1/qrt_qwen36_whole_provider.dll",
+        "source_sha256": "066299c0f40d81601d84e623cd3328f6faaf26a638212e0dbfdac1cd18f226ba",
+        "source_commit": "b2b7c0bea3f3fe41ada0fc2d99abb48079e64478",
+        "bundle": {
+          "bundle_offset": 9758720,
+          "image_offset": 9762816,
+          "target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+          "image_bytes": 4312416,
+          "image_sha256": "12ff2d2ea922a61b161116a9063f4f050f2258857b56872ecc1404a3f10fac7d"
+        },
+        "functions": {
+          "_ZN22qrt_sm121_q1_attention6appendEPKfPtS2_j": {
+            "symbol": "_ZN22qrt_sm121_q1_attention6appendEPKfPtS2_j",
+            "bytes": 448,
+            "type": 2,
+            "sha256": "c23dafd9c1e34a00a5c604a7fa1ec76ca6b3e111b4cc18cb494c9307f2b81559"
+          },
+          "_ZN22qrt_sm121_q1_attention6appendEPKfPtS2_j.kd": {
+            "symbol": "_ZN22qrt_sm121_q1_attention6appendEPKfPtS2_j.kd",
+            "bytes": 64,
+            "type": 1,
+            "sha256": "6ed8dd734c2990bd633603c47ee2149dbe2cddb1cab2dae2b7674115183d73ec",
+            "descriptor_sha256_excluding_relative_entry_offset": "902e851732c2ae2621bbbe206e81a0e30b44148d756a5f7845f95717dde67b62",
+            "group_segment_fixed_bytes": 0,
+            "private_segment_fixed_bytes": 0,
+            "kernarg_segment_bytes": 288
+          },
+          "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj": {
+            "symbol": "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj",
+            "bytes": 1340,
+            "type": 2,
+            "sha256": "7bebfff54f4503701397927a00b45962fb5edcd3b58cef15ab2c777ee5ddcf6d"
+          },
+          "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj.kd": {
+            "symbol": "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj.kd",
+            "bytes": 64,
+            "type": 1,
+            "sha256": "56f2bacd27fe0a601ca49a85c4e96ceffc3d12f46f7041037b36c33289b20497",
+            "descriptor_sha256_excluding_relative_entry_offset": "3102c5220c0f88a588f357541806cef9a6ed08b028c163e35a3777148b425c65",
+            "group_segment_fixed_bytes": 0,
+            "private_segment_fixed_bytes": 0,
+            "kernarg_segment_bytes": 44
+          },
+          "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh": {
+            "symbol": "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh",
+            "bytes": 7052,
+            "type": 2,
+            "sha256": "e410920e1b26e8d016cd109ccb86c0f485014664e9ed001ca76f4472c633a623"
+          },
+          "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh.kd": {
+            "symbol": "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh.kd",
+            "bytes": 64,
+            "type": 1,
+            "sha256": "80d9844f590567a567d3adc5fc060ef4651cc327d673332484c3a78a9da97ef0",
+            "descriptor_sha256_excluding_relative_entry_offset": "1c57b6401d736cfd91a6f2216b1bda6be08150564a779ac8cbbd4c9ed0fe444f",
+            "group_segment_fixed_bytes": 176,
+            "private_segment_fixed_bytes": 0,
+            "kernarg_segment_bytes": 72
+          },
+          "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_": {
+            "symbol": "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_",
+            "bytes": 1736,
+            "type": 2,
+            "sha256": "a34fe1fbf965afccf6a8dd743edc7964c78136418d4ddc93951f8eff36b9958f"
+          },
+          "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_.kd": {
+            "symbol": "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_.kd",
+            "bytes": 64,
+            "type": 1,
+            "sha256": "8572e721856d35fa48799097f9fd8d5097d708ddf9eb2f71299ce7e1365a6a6a",
+            "descriptor_sha256_excluding_relative_entry_offset": "0d873220ae00c6e05bb7c5c223b8d4e664f8c1f0a896c06b3335b8ac8e61d7b0",
+            "group_segment_fixed_bytes": 68,
+            "private_segment_fixed_bytes": 8,
+            "kernarg_segment_bytes": 48
+          }
+        },
+        "image_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/runtime-attention-codeobjects-r1/observed-verified.hsaco"
+      },
+      "prior": {
+        "source_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/packed-gate32-whole-build-r1/qrt_qwen36_whole_provider.dll",
+        "source_sha256": "983868b6413fdbe2fd7b0b0cf4cb8ea8d8620542b11995c0a441ba09b07d06de",
+        "source_commit": "c90feccdfc01661b582c5a1db101f2660dc8642c",
+        "bundle": {
+          "bundle_offset": 9742336,
+          "image_offset": 9746432,
+          "target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+          "image_bytes": 4312416,
+          "image_sha256": "0afbdf77cb40a5c375d0e57aa62addc017c14145aada3d3f8cd977f7460c22ca"
+        },
+        "functions": {
+          "_ZN22qrt_sm121_q1_attention6appendEPKfPtS2_j": {
+            "symbol": "_ZN22qrt_sm121_q1_attention6appendEPKfPtS2_j",
+            "bytes": 448,
+            "type": 2,
+            "sha256": "c23dafd9c1e34a00a5c604a7fa1ec76ca6b3e111b4cc18cb494c9307f2b81559"
+          },
+          "_ZN22qrt_sm121_q1_attention6appendEPKfPtS2_j.kd": {
+            "symbol": "_ZN22qrt_sm121_q1_attention6appendEPKfPtS2_j.kd",
+            "bytes": 64,
+            "type": 1,
+            "sha256": "6ed8dd734c2990bd633603c47ee2149dbe2cddb1cab2dae2b7674115183d73ec",
+            "descriptor_sha256_excluding_relative_entry_offset": "902e851732c2ae2621bbbe206e81a0e30b44148d756a5f7845f95717dde67b62",
+            "group_segment_fixed_bytes": 0,
+            "private_segment_fixed_bytes": 0,
+            "kernarg_segment_bytes": 288
+          },
+          "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj": {
+            "symbol": "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj",
+            "bytes": 1340,
+            "type": 2,
+            "sha256": "7bebfff54f4503701397927a00b45962fb5edcd3b58cef15ab2c777ee5ddcf6d"
+          },
+          "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj.kd": {
+            "symbol": "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj.kd",
+            "bytes": 64,
+            "type": 1,
+            "sha256": "56f2bacd27fe0a601ca49a85c4e96ceffc3d12f46f7041037b36c33289b20497",
+            "descriptor_sha256_excluding_relative_entry_offset": "3102c5220c0f88a588f357541806cef9a6ed08b028c163e35a3777148b425c65",
+            "group_segment_fixed_bytes": 0,
+            "private_segment_fixed_bytes": 0,
+            "kernarg_segment_bytes": 44
+          },
+          "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh": {
+            "symbol": "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh",
+            "bytes": 7052,
+            "type": 2,
+            "sha256": "e410920e1b26e8d016cd109ccb86c0f485014664e9ed001ca76f4472c633a623"
+          },
+          "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh.kd": {
+            "symbol": "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh.kd",
+            "bytes": 64,
+            "type": 1,
+            "sha256": "80d9844f590567a567d3adc5fc060ef4651cc327d673332484c3a78a9da97ef0",
+            "descriptor_sha256_excluding_relative_entry_offset": "1c57b6401d736cfd91a6f2216b1bda6be08150564a779ac8cbbd4c9ed0fe444f",
+            "group_segment_fixed_bytes": 176,
+            "private_segment_fixed_bytes": 0,
+            "kernarg_segment_bytes": 72
+          },
+          "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_": {
+            "symbol": "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_",
+            "bytes": 1736,
+            "type": 2,
+            "sha256": "a34fe1fbf965afccf6a8dd743edc7964c78136418d4ddc93951f8eff36b9958f"
+          },
+          "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_.kd": {
+            "symbol": "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_.kd",
+            "bytes": 64,
+            "type": 1,
+            "sha256": "8572e721856d35fa48799097f9fd8d5097d708ddf9eb2f71299ce7e1365a6a6a",
+            "descriptor_sha256_excluding_relative_entry_offset": "0d873220ae00c6e05bb7c5c223b8d4e664f8c1f0a896c06b3335b8ac8e61d7b0",
+            "group_segment_fixed_bytes": 68,
+            "private_segment_fixed_bytes": 8,
+            "kernarg_segment_bytes": 48
+          }
+        },
+        "image_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/runtime-attention-codeobjects-r1/prior-verified.hsaco"
+      },
+      "qualified_probe": {
+        "source_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/runtime-attention-codeobjects-r1/qualified-segmented-attention.exe",
+        "source_sha256": "d7758f48f263e9a909b11eff4cbb4e7c69ec353b134b1713654aadf4f177ea20",
+        "source_commit": "9428e9eed89f0e38851e226a0f3220fb43acfffc",
+        "bundle": {
+          "bundle_offset": 357376,
+          "image_offset": 361472,
+          "target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+          "image_bytes": 1193296,
+          "image_sha256": "73255249f3493170c834cb327fc117e27479f0a89650726b59d459651614fdb3"
+        },
+        "functions": {
+          "_ZN22qrt_sm121_q1_attention6appendEPKfPtS2_j": {
+            "symbol": "_ZN22qrt_sm121_q1_attention6appendEPKfPtS2_j",
+            "bytes": 448,
+            "type": 2,
+            "sha256": "c23dafd9c1e34a00a5c604a7fa1ec76ca6b3e111b4cc18cb494c9307f2b81559"
+          },
+          "_ZN22qrt_sm121_q1_attention6appendEPKfPtS2_j.kd": {
+            "symbol": "_ZN22qrt_sm121_q1_attention6appendEPKfPtS2_j.kd",
+            "bytes": 64,
+            "type": 1,
+            "sha256": "7fd4384833f7b9979d09cf12a4cca8bf31ccaa161e15ea68ae74dc129c19e51a",
+            "descriptor_sha256_excluding_relative_entry_offset": "902e851732c2ae2621bbbe206e81a0e30b44148d756a5f7845f95717dde67b62",
+            "group_segment_fixed_bytes": 0,
+            "private_segment_fixed_bytes": 0,
+            "kernarg_segment_bytes": 288
+          },
+          "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj": {
+            "symbol": "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj",
+            "bytes": 1336,
+            "type": 2,
+            "sha256": "67f5cb9b5cde8e148d316e2e07261e0c410ab18b168f45f9b69bd7d020441979"
+          },
+          "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj.kd": {
+            "symbol": "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj.kd",
+            "bytes": 64,
+            "type": 1,
+            "sha256": "2d45904823ec7b649be056e33d41b55c6472fd8893e33ed9cc5b8fce822af44c",
+            "descriptor_sha256_excluding_relative_entry_offset": "3102c5220c0f88a588f357541806cef9a6ed08b028c163e35a3777148b425c65",
+            "group_segment_fixed_bytes": 0,
+            "private_segment_fixed_bytes": 0,
+            "kernarg_segment_bytes": 44
+          },
+          "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh": {
+            "symbol": "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh",
+            "bytes": 7244,
+            "type": 2,
+            "sha256": "e27d0bca337875eae7bcd3d981af320def78cc792a86424f094f4d50d4545e56"
+          },
+          "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh.kd": {
+            "symbol": "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh.kd",
+            "bytes": 64,
+            "type": 1,
+            "sha256": "718c24b97d737db9c456ded204cf4d4f2733ab34b8cbece810bfc9945c4fc0ff",
+            "descriptor_sha256_excluding_relative_entry_offset": "ec334a0339ea45d7b40323db83f0f298564baf70cebb6e5249aab80ddf68e410",
+            "group_segment_fixed_bytes": 176,
+            "private_segment_fixed_bytes": 0,
+            "kernarg_segment_bytes": 72
+          },
+          "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_": {
+            "symbol": "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_",
+            "bytes": 1736,
+            "type": 2,
+            "sha256": "a34fe1fbf965afccf6a8dd743edc7964c78136418d4ddc93951f8eff36b9958f"
+          },
+          "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_.kd": {
+            "symbol": "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_.kd",
+            "bytes": 64,
+            "type": 1,
+            "sha256": "a80beb213059ec4e1f514c01a07097c42d6a60b22ede0d79fa7ef3c81e7fe49a",
+            "descriptor_sha256_excluding_relative_entry_offset": "0d873220ae00c6e05bb7c5c223b8d4e664f8c1f0a896c06b3335b8ac8e61d7b0",
+            "group_segment_fixed_bytes": 68,
+            "private_segment_fixed_bytes": 8,
+            "kernarg_segment_bytes": 48
+          }
+        },
+        "image_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/runtime-attention-codeobjects-r1/qualified_probe-verified.hsaco"
+      }
+    },
+    "comparisons": [
+      {
+        "symbol": "_ZN22qrt_sm121_q1_attention6appendEPKfPtS2_j",
+        "bytes": 448,
+        "observed_matches_prior": true,
+        "observed_matches_qualified_probe": true,
+        "comparison": "sha256"
+      },
+      {
+        "symbol": "_ZN22qrt_sm121_q1_attention6appendEPKfPtS2_j.kd",
+        "bytes": 64,
+        "observed_matches_prior": true,
+        "observed_matches_qualified_probe": true,
+        "comparison": "descriptor_sha256_excluding_relative_entry_offset"
+      },
+      {
+        "symbol": "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj",
+        "bytes": 1340,
+        "observed_matches_prior": true,
+        "observed_matches_qualified_probe": false,
+        "comparison": "sha256"
+      },
+      {
+        "symbol": "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj.kd",
+        "bytes": 64,
+        "observed_matches_prior": true,
+        "observed_matches_qualified_probe": true,
+        "comparison": "descriptor_sha256_excluding_relative_entry_offset"
+      },
+      {
+        "symbol": "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh",
+        "bytes": 7052,
+        "observed_matches_prior": true,
+        "observed_matches_qualified_probe": false,
+        "comparison": "sha256"
+      },
+      {
+        "symbol": "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh.kd",
+        "bytes": 64,
+        "observed_matches_prior": true,
+        "observed_matches_qualified_probe": false,
+        "comparison": "descriptor_sha256_excluding_relative_entry_offset"
+      },
+      {
+        "symbol": "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_",
+        "bytes": 1736,
+        "observed_matches_prior": true,
+        "observed_matches_qualified_probe": true,
+        "comparison": "sha256"
+      },
+      {
+        "symbol": "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_.kd",
+        "bytes": 64,
+        "observed_matches_prior": true,
+        "observed_matches_qualified_probe": true,
+        "comparison": "descriptor_sha256_excluding_relative_entry_offset"
+      }
+    ],
+    "all_attention_instructions_and_descriptor_resources_match_prior": true,
+    "all_attention_instructions_and_descriptor_resources_match_probe": false,
+    "native_execution": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "comparison_sha256": "5b16362ac532ce9bd24b0a733e268bb96c9989796ebed2d5dfed9456abcfc876",
+  "disassembly": {
+    "host": "BAIYING",
+    "utc": "2026-09-23T08:03:56.8699008Z",
+    "command_file": "D:\\projects\\runtime-attention-codeobjects-20260923-r1\\disassemble.ps1",
+    "command_file_sha256": "8c43c7099e84154884a179c64e189bcfb4a49f0fb89bbbfe45de57dcc8e446d0",
+    "results": [
+      {
+        "tool": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\llvm-objdump.exe",
+        "tool_sha256": "e1cdd124f7b4f26c95a68e9ce84a64a9c5531885f8926128f00a5adb4ecd1549",
+        "arguments": "\"-d\" \"--mcpu=gfx1151\" \"--disassemble-symbols=_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj\" \"D:\\projects\\runtime-attention-codeobjects-20260923-r1\\observed-verified.hsaco\"",
+        "input_sha256": "12ff2d2ea922a61b161116a9063f4f050f2258857b56872ecc1404a3f10fac7d",
+        "exit_code": 0,
+        "stderr": "",
+        "output": "observed-scores.isa",
+        "output_bytes": 27625,
+        "output_sha256": "8191314bf66d5506546e222b6fc08ea212fb6b13a50b65f60a62561a6008e8ad"
+      },
+      {
+        "tool": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\llvm-objdump.exe",
+        "tool_sha256": "e1cdd124f7b4f26c95a68e9ce84a64a9c5531885f8926128f00a5adb4ecd1549",
+        "arguments": "\"-d\" \"--mcpu=gfx1151\" \"--disassemble-symbols=_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh\" \"D:\\projects\\runtime-attention-codeobjects-20260923-r1\\observed-verified.hsaco\"",
+        "input_sha256": "12ff2d2ea922a61b161116a9063f4f050f2258857b56872ecc1404a3f10fac7d",
+        "exit_code": 0,
+        "stderr": "",
+        "output": "observed-segment.isa",
+        "output_bytes": 120620,
+        "output_sha256": "729a98715f437e10061f54b4b4167ddce619e9c332b813e7031ee7a521be3746"
+      },
+      {
+        "tool": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\llvm-readobj.exe",
+        "tool_sha256": "5747510f83cca014c9f39e7b4759050435a5eaf2e597128c89f3bedf4f616a5f",
+        "arguments": "\"--notes\" \"D:\\projects\\runtime-attention-codeobjects-20260923-r1\\observed-verified.hsaco\"",
+        "input_sha256": "12ff2d2ea922a61b161116a9063f4f050f2258857b56872ecc1404a3f10fac7d",
+        "exit_code": 0,
+        "stderr": "",
+        "output": "observed-notes.txt",
+        "output_bytes": 1118566,
+        "output_sha256": "fd31abc4394256aee879d926478bb7298b8c211085270bcbb7026b51b46f2666"
+      },
+      {
+        "tool": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\llvm-objdump.exe",
+        "tool_sha256": "e1cdd124f7b4f26c95a68e9ce84a64a9c5531885f8926128f00a5adb4ecd1549",
+        "arguments": "\"-d\" \"--mcpu=gfx1151\" \"--disassemble-symbols=_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj\" \"D:\\projects\\runtime-attention-codeobjects-20260923-r1\\qualified_probe-verified.hsaco\"",
+        "input_sha256": "73255249f3493170c834cb327fc117e27479f0a89650726b59d459651614fdb3",
+        "exit_code": 0,
+        "stderr": "",
+        "output": "qualified_probe-scores.isa",
+        "output_bytes": 27484,
+        "output_sha256": "599c0e078afbb9cfbd2bfd023a17ceb2b2b9aed6fd87d0a1aae133948aa1dacb"
+      },
+      {
+        "tool": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\llvm-objdump.exe",
+        "tool_sha256": "e1cdd124f7b4f26c95a68e9ce84a64a9c5531885f8926128f00a5adb4ecd1549",
+        "arguments": "\"-d\" \"--mcpu=gfx1151\" \"--disassemble-symbols=_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh\" \"D:\\projects\\runtime-attention-codeobjects-20260923-r1\\qualified_probe-verified.hsaco\"",
+        "input_sha256": "73255249f3493170c834cb327fc117e27479f0a89650726b59d459651614fdb3",
+        "exit_code": 0,
+        "stderr": "",
+        "output": "qualified_probe-segment.isa",
+        "output_bytes": 124719,
+        "output_sha256": "2fa17b559774a86c5488e1332d82f27b954175d5261036b1f61e9bfea58b4505"
+      },
+      {
+        "tool": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\llvm-readobj.exe",
+        "tool_sha256": "5747510f83cca014c9f39e7b4759050435a5eaf2e597128c89f3bedf4f616a5f",
+        "arguments": "\"--notes\" \"D:\\projects\\runtime-attention-codeobjects-20260923-r1\\qualified_probe-verified.hsaco\"",
+        "input_sha256": "73255249f3493170c834cb327fc117e27479f0a89650726b59d459651614fdb3",
+        "exit_code": 0,
+        "stderr": "",
+        "output": "qualified_probe-notes.txt",
+        "output_bytes": 131523,
+        "output_sha256": "be77481387312771f56d9b86c2317eb0d7090086e3490a58b7c9807390466463"
+      }
+    ],
+    "gpu_api_called": false,
+    "model_loaded": false,
+    "native_inference_executed": false
+  },
+  "disassembly_sha256": "b65024c93f22f216a87398f2659025545030594d67c38dd7ed1cfa7d5ff1e0b0",
+  "instruction_inspection": {
+    "scores": {
+      "images": {
+        "observed": {
+          "instructions": 295,
+          "opcodes": {
+            "global_load_b32": 1,
+            "global_load_u16": 1,
+            "global_store_b32": 1,
+            "s_add_i32": 2,
+            "s_and_b32": 4,
+            "s_and_not1_b32": 1,
+            "s_and_not1_saveexec_b32": 1,
+            "s_and_saveexec_b32": 3,
+            "s_branch": 2,
+            "s_cbranch_execz": 6,
+            "s_cbranch_scc1": 1,
+            "s_cmpk_gt_u32": 1,
+            "s_cvt_f32_u32": 1,
+            "s_cvt_u32_f32": 1,
+            "s_delay_alu": 51,
+            "s_endpgm": 1,
+            "s_load_b128": 1,
+            "s_load_b256": 1,
+            "s_lshl_b32": 1,
+            "s_mov_b32": 5,
+            "s_mul_f32": 1,
+            "s_mul_hi_u32": 1,
+            "s_mul_i32": 1,
+            "s_nop": 49,
+            "s_or_b32": 7,
+            "s_or_saveexec_b32": 1,
+            "s_sub_i32": 1,
+            "s_waitcnt": 5,
+            "s_xor_b32": 3,
+            "v_add3_u32": 2,
+            "v_add3_u32_e64_dpp": 1,
+            "v_add_co_ci_u32_e64": 6,
+            "v_add_co_u32": 6,
+            "v_add_lshl_u32": 1,
+            "v_add_nc_u32_dpp": 3,
+            "v_add_nc_u32_e32": 3,
+            "v_and_b32_e32": 10,
+            "v_ashrrev_i32_e32": 1,
+            "v_bfe_i32": 1,
+            "v_bfe_u32": 3,
+            "v_clz_i32_u32_e32": 1,
+            "v_cmp_eq_u32_e32": 5,
+            "v_cmp_eq_u32_e64": 1,
+            "v_cmp_gt_i32_e32": 1,
+            "v_cmp_gt_i32_e64": 2,
+            "v_cmp_gt_u32_e32": 2,
+            "v_cmp_gt_u32_e64": 1,
+            "v_cmp_le_u32_e32": 2,
+            "v_cmp_lt_u32_e32": 1,
+            "v_cmp_lt_u32_e64": 2,
+            "v_cmp_ne_u32_e32": 3,
+            "v_cmpx_eq_u32_e32": 1,
+            "v_cmpx_le_u32_e64": 1,
+            "v_cndmask_b32_e32": 12,
+            "v_cndmask_b32_e64": 5,
+            "v_dual_cndmask_b32": 2,
+            "v_dual_mov_b32": 2,
+            "v_lshl_add_u32": 2,
+            "v_lshl_or_b32": 1,
+            "v_lshlrev_b32_e32": 5,
+            "v_lshlrev_b64": 4,
+            "v_lshrrev_b32_e32": 8,
+            "v_max_i32_dpp": 4,
+            "v_max_i32_e32": 2,
+            "v_max_u32_e32": 2,
+            "v_min_u32_e32": 1,
+            "v_mov_b32_e32": 5,
+            "v_mul_f32_e32": 1,
+            "v_mul_hi_u32": 1,
+            "v_mul_lo_u32": 2,
+            "v_mul_u32_u24_e32": 1,
+            "v_or3_b32": 1,
+            "v_or_b32_e32": 5,
+            "v_rcp_iflag_f32_e32": 1,
+            "v_readfirstlane_b32": 1,
+            "v_sub_nc_u32_e32": 9,
+            "v_subrev_nc_u32_e32": 2,
+            "v_xor_b32_e32": 1
+          },
+          "fp_opcode_counts": {
+            "s_cvt_f32_u32": 1,
+            "s_cvt_u32_f32": 1,
+            "s_mul_f32": 1,
+            "v_mul_f32_e32": 1,
+            "v_rcp_iflag_f32_e32": 1
+          },
+          "pc_relative_or_indirect_call_instructions": []
+        },
+        "qualified_probe": {
+          "instructions": 293,
+          "opcodes": {
+            "global_load_b32": 1,
+            "global_load_u16": 1,
+            "global_store_b32": 1,
+            "s_add_i32": 2,
+            "s_and_b32": 4,
+            "s_and_not1_b32": 1,
+            "s_and_not1_saveexec_b32": 1,
+            "s_and_saveexec_b32": 3,
+            "s_branch": 2,
+            "s_cbranch_execz": 6,
+            "s_cbranch_scc1": 1,
+            "s_cmpk_gt_u32": 1,
+            "s_cvt_f32_u32": 1,
+            "s_cvt_u32_f32": 1,
+            "s_delay_alu": 50,
+            "s_endpgm": 1,
+            "s_load_b128": 1,
+            "s_load_b256": 1,
+            "s_lshl_b32": 1,
+            "s_mov_b32": 5,
+            "s_mul_f32": 1,
+            "s_mul_hi_u32": 1,
+            "s_mul_i32": 1,
+            "s_nop": 50,
+            "s_or_b32": 7,
+            "s_or_saveexec_b32": 1,
+            "s_sub_i32": 1,
+            "s_waitcnt": 5,
+            "s_xor_b32": 3,
+            "v_add3_u32": 3,
+            "v_add3_u32_e64_dpp": 1,
+            "v_add_co_ci_u32_e64": 6,
+            "v_add_co_u32": 6,
+            "v_add_lshl_u32": 1,
+            "v_add_nc_u32_dpp": 3,
+            "v_add_nc_u32_e32": 2,
+            "v_and_b32_e32": 10,
+            "v_bfe_i32": 2,
+            "v_bfe_u32": 3,
+            "v_clz_i32_u32_e32": 1,
+            "v_cmp_eq_u32_e32": 5,
+            "v_cmp_eq_u32_e64": 1,
+            "v_cmp_gt_i32_e32": 1,
+            "v_cmp_gt_i32_e64": 2,
+            "v_cmp_gt_u32_e32": 2,
+            "v_cmp_gt_u32_e64": 1,
+            "v_cmp_le_u32_e32": 2,
+            "v_cmp_lt_u32_e32": 1,
+            "v_cmp_lt_u32_e64": 2,
+            "v_cmp_ne_u32_e32": 3,
+            "v_cmpx_eq_u32_e32": 1,
+            "v_cmpx_le_u32_e64": 1,
+            "v_cndmask_b32_e32": 11,
+            "v_cndmask_b32_e64": 5,
+            "v_dual_cndmask_b32": 3,
+            "v_dual_mov_b32": 2,
+            "v_lshl_add_u32": 1,
+            "v_lshl_or_b32": 1,
+            "v_lshlrev_b32_e32": 4,
+            "v_lshlrev_b64": 4,
+            "v_lshrrev_b32_e32": 8,
+            "v_max_i32_dpp": 4,
+            "v_max_i32_e32": 2,
+            "v_max_u32_e32": 2,
+            "v_min_u32_e32": 1,
+            "v_mov_b32_e32": 5,
+            "v_mul_f32_e32": 1,
+            "v_mul_hi_u32": 1,
+            "v_mul_lo_u32": 2,
+            "v_mul_u32_u24_e32": 1,
+            "v_or3_b32": 1,
+            "v_or_b32_e32": 5,
+            "v_rcp_iflag_f32_e32": 1,
+            "v_readfirstlane_b32": 1,
+            "v_sub_nc_u32_e32": 9,
+            "v_subrev_nc_u32_e32": 2,
+            "v_xor_b32_e32": 1
+          },
+          "fp_opcode_counts": {
+            "s_cvt_f32_u32": 1,
+            "s_cvt_u32_f32": 1,
+            "s_mul_f32": 1,
+            "v_mul_f32_e32": 1,
+            "v_rcp_iflag_f32_e32": 1
+          },
+          "pc_relative_or_indirect_call_instructions": []
+        }
+      },
+      "fp_opcode_counts_equal": true,
+      "numerical_equivalence_established": false
+    },
+    "segment": {
+      "images": {
+        "observed": {
+          "instructions": 1289,
+          "opcodes": {
+            "buffer_gl0_inv": 5,
+            "ds_load_2addr_b32": 2,
+            "ds_load_2addr_b64": 4,
+            "ds_load_b128": 4,
+            "ds_load_b32": 4,
+            "ds_load_u16": 16,
+            "ds_store_2addr_b32": 6,
+            "ds_store_b16_d16_hi": 1,
+            "ds_store_b32": 4,
+            "global_load_b32": 3,
+            "global_load_b64": 2,
+            "global_load_u16": 18,
+            "global_load_u8": 2,
+            "global_store_b32": 6,
+            "s_add_i32": 35,
+            "s_add_u32": 42,
+            "s_addc_u32": 42,
+            "s_and_b32": 35,
+            "s_and_not1_b32": 1,
+            "s_and_not1_saveexec_b32": 4,
+            "s_and_saveexec_b32": 13,
+            "s_barrier": 5,
+            "s_bfe_u32": 15,
+            "s_branch": 2,
+            "s_cbranch_execz": 27,
+            "s_cbranch_scc0": 1,
+            "s_cbranch_scc1": 17,
+            "s_cbranch_vccnz": 1,
+            "s_clause": 3,
+            "s_cmp_eq_u32": 15,
+            "s_cmp_ge_u32": 16,
+            "s_cmp_lt_u32": 18,
+            "s_cselect_b32": 62,
+            "s_delay_alu": 119,
+            "s_endpgm": 1,
+            "s_load_b256": 2,
+            "s_load_b64": 1,
+            "s_lshl_b32": 2,
+            "s_lshl_b64": 23,
+            "s_lshr_b32": 2,
+            "s_max_u32": 15,
+            "s_min_u32": 2,
+            "s_mov_b32": 16,
+            "s_mul_hi_u32": 1,
+            "s_mul_i32": 2,
+            "s_nop": 29,
+            "s_not_b32": 1,
+            "s_or_b32": 42,
+            "s_sub_i32": 15,
+            "s_waitcnt": 42,
+            "s_waitcnt_vscnt": 1,
+            "s_xor_b32": 7,
+            "v_add3_u32": 10,
+            "v_add_co_ci_u32_e64": 9,
+            "v_add_co_u32": 9,
+            "v_add_f32_e32": 15,
+            "v_add_lshl_u32": 1,
+            "v_add_nc_u32_e32": 38,
+            "v_and_b32_e32": 28,
+            "v_ashrrev_i32_e32": 1,
+            "v_bfe_u32": 19,
+            "v_clz_i32_u32_e32": 1,
+            "v_cmp_eq_u32_e32": 2,
+            "v_cmp_eq_u32_e64": 19,
+            "v_cmp_gt_i32_e64": 4,
+            "v_cmp_gt_u32_e64": 37,
+            "v_cmp_lt_i32_e64": 2,
+            "v_cmp_lt_u32_e64": 5,
+            "v_cmp_ne_u32_e64": 18,
+            "v_cmpx_gt_u32_e32": 2,
+            "v_cmpx_gt_u32_e64": 1,
+            "v_cmpx_lt_i32_e32": 2,
+            "v_cmpx_lt_u32_e32": 4,
+            "v_cmpx_ne_u32_e32": 2,
+            "v_cndmask_b32_e64": 74,
+            "v_dual_mov_b32": 5,
+            "v_fmac_f32_e32": 1,
+            "v_lshl_add_u32": 2,
+            "v_lshlrev_b32_e32": 24,
+            "v_lshlrev_b64": 1,
+            "v_lshrrev_b32_e32": 23,
+            "v_max3_f32": 8,
+            "v_max3_i32": 8,
+            "v_max_i32_e32": 1,
+            "v_max_u32_e32": 17,
+            "v_mov_b32_e32": 32,
+            "v_mul_f32_e32": 3,
+            "v_mul_u32_u24_e32": 16,
+            "v_or3_b32": 1,
+            "v_or_b32_e32": 20,
+            "v_readfirstlane_b32": 15,
+            "v_sub_f32_e32": 2,
+            "v_sub_nc_u32_e32": 37,
+            "v_xor_b32_e32": 16
+          },
+          "fp_opcode_counts": {
+            "v_add_f32_e32": 15,
+            "v_fmac_f32_e32": 1,
+            "v_max3_f32": 8,
+            "v_mul_f32_e32": 3,
+            "v_sub_f32_e32": 2
+          },
+          "pc_relative_or_indirect_call_instructions": []
+        },
+        "qualified_probe": {
+          "instructions": 1335,
+          "opcodes": {
+            "buffer_gl0_inv": 5,
+            "ds_load_2addr_b32": 2,
+            "ds_load_2addr_b64": 4,
+            "ds_load_b128": 4,
+            "ds_load_b32": 4,
+            "ds_load_u16": 16,
+            "ds_store_2addr_b32": 6,
+            "ds_store_b16_d16_hi": 1,
+            "ds_store_b32": 4,
+            "global_load_b32": 3,
+            "global_load_b64": 2,
+            "global_load_u16": 18,
+            "global_load_u8": 2,
+            "global_store_b32": 6,
+            "s_add_i32": 35,
+            "s_add_u32": 42,
+            "s_addc_u32": 42,
+            "s_and_b32": 35,
+            "s_and_not1_b32": 1,
+            "s_and_not1_saveexec_b32": 4,
+            "s_and_saveexec_b32": 13,
+            "s_barrier": 5,
+            "s_bfe_u32": 15,
+            "s_branch": 2,
+            "s_cbranch_execz": 27,
+            "s_cbranch_scc0": 1,
+            "s_cbranch_scc1": 17,
+            "s_cbranch_vccnz": 1,
+            "s_clause": 3,
+            "s_cmp_eq_u32": 15,
+            "s_cmp_ge_u32": 16,
+            "s_cmp_lt_u32": 18,
+            "s_cselect_b32": 62,
+            "s_delay_alu": 119,
+            "s_endpgm": 1,
+            "s_load_b256": 2,
+            "s_load_b64": 1,
+            "s_lshl_b32": 2,
+            "s_lshl_b64": 23,
+            "s_lshr_b32": 2,
+            "s_max_u32": 15,
+            "s_min_u32": 2,
+            "s_mov_b32": 16,
+            "s_mul_hi_u32": 1,
+            "s_mul_i32": 2,
+            "s_nop": 45,
+            "s_not_b32": 1,
+            "s_or_b32": 42,
+            "s_sub_i32": 15,
+            "s_waitcnt": 42,
+            "s_waitcnt_vscnt": 1,
+            "s_xor_b32": 7,
+            "v_add3_u32": 10,
+            "v_add_co_ci_u32_e64": 9,
+            "v_add_co_u32": 9,
+            "v_add_f32_e32": 15,
+            "v_add_lshl_u32": 17,
+            "v_add_nc_u32_e32": 22,
+            "v_and_b32_e32": 28,
+            "v_ashrrev_i32_e32": 1,
+            "v_bfe_u32": 19,
+            "v_clz_i32_u32_e32": 1,
+            "v_cmp_eq_u32_e32": 2,
+            "v_cmp_eq_u32_e64": 19,
+            "v_cmp_gt_i32_e64": 20,
+            "v_cmp_gt_u32_e64": 22,
+            "v_cmp_lt_i32_e64": 2,
+            "v_cmp_lt_u32_e64": 4,
+            "v_cmp_ne_u32_e64": 18,
+            "v_cmpx_gt_u32_e32": 2,
+            "v_cmpx_gt_u32_e64": 1,
+            "v_cmpx_lt_i32_e32": 2,
+            "v_cmpx_lt_u32_e32": 4,
+            "v_cmpx_ne_u32_e32": 2,
+            "v_cndmask_b32_e64": 74,
+            "v_dual_mov_b32": 7,
+            "v_fmac_f32_e32": 1,
+            "v_lshl_add_u32": 2,
+            "v_lshl_or_b32": 16,
+            "v_lshlrev_b32_e32": 25,
+            "v_lshlrev_b64": 1,
+            "v_lshrrev_b32_e32": 39,
+            "v_max3_f32": 8,
+            "v_max3_i32": 8,
+            "v_max_i32_e32": 1,
+            "v_max_u32_e32": 17,
+            "v_mov_b32_e32": 27,
+            "v_mul_f32_e32": 3,
+            "v_mul_u32_u24_e32": 16,
+            "v_or3_b32": 1,
+            "v_or_b32_e32": 20,
+            "v_readfirstlane_b32": 15,
+            "v_sub_f32_e32": 2,
+            "v_sub_nc_u32_e32": 37,
+            "v_xor_b32_e32": 16
+          },
+          "fp_opcode_counts": {
+            "v_add_f32_e32": 15,
+            "v_fmac_f32_e32": 1,
+            "v_max3_f32": 8,
+            "v_mul_f32_e32": 3,
+            "v_sub_f32_e32": 2
+          },
+          "pc_relative_or_indirect_call_instructions": []
+        }
+      },
+      "fp_opcode_counts_equal": true,
+      "numerical_equivalence_established": false
+    }
+  },
+  "compiler_evidence": {
+    "whole_build_provenance_sha256": "1264d444e9a2d8714444f16b3e607f2296083714cb99fe0fac1d87b6a6c4a241",
+    "whole_provider_arguments": [
+      "-DQRT_PREFILL_HAWKEYE_REPLAY_LANES=4",
+      "-DQRT_SM121_DPP_REDUCTION=1",
+      "-DQRT_SM121_COMPACT_NORMALIZE=1",
+      "-DQRT_QWEN36_W8A8_GROUP_SIZE=128",
+      "-DQRT_QWEN36_Q8192_WEIGHT_INT8_FP16_SCALES=0",
+      "-DQRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER=1",
+      "-DQRT_ENABLE_HIPBLASLT_RESIDENT_MATRIX_PROVIDER=1",
+      "-DQRT_ENABLE_ROCBLAS_FULL_ATTENTION_BMM=1",
+      "-DQRT_ENABLE_ROCBLAS_Q1_MOE_BATCHED=1",
+      "-DQRT_ENABLE_ROCBLAS_Q1_MOE_ROUTER=1",
+      "-DQRT_ENABLE_ROCBLAS_Q1_LINEAR_QKVZ=1",
+      "-DQRT_ENABLE_ROCBLAS_Q1_LINEAR_OUT=1",
+      "-DQRT_ENABLE_ROCBLAS_Q1_FULL_Q=1",
+      "-DQRT_ENABLE_ROCBLAS_Q1_LM_HEAD=1",
+      "-I",
+      "C:\\Program Files\\AMD\\ROCm\\7.1\\include",
+      "-L",
+      "P:\\projects\\AIMA-public-q1-cache-capture-20260923-r1\\build\\q1-cache-capture-whole-provider",
+      "-I",
+      "C:\\Program Files\\AMD\\ROCm\\7.1\\include",
+      "-L",
+      "C:\\Program Files\\AMD\\ROCm\\7.1\\lib",
+      "-std=c++17",
+      "-O2",
+      "--offload-arch=gfx1151",
+      "-DQRT_STATIC=1",
+      "-I",
+      "P:\\projects\\AIMA-public-q1-cache-capture-20260923-r1\\native\\src",
+      "-I",
+      "P:\\projects\\AIMA-public-q1-cache-capture-20260923-r1\\native\\providers",
+      "P:\\projects\\AIMA-public-q1-cache-capture-20260923-r1\\native\\providers\\whole_provider.cpp",
+      "-o",
+      "P:\\projects\\AIMA-public-q1-cache-capture-20260923-r1\\build\\q1-cache-capture-whole-provider\\qrt_qwen36_whole_provider.dll",
+      "-lrocblas",
+      "-lhipblaslt",
+      "-Xlinker",
+      "P:\\projects\\AIMA-public-q1-cache-capture-20260923-r1\\build\\q1-cache-capture-whole-provider\\q1_moe_avx512bf16_host_provider.obj",
+      "-shared"
+    ],
+    "standalone_build_spec_sha256": "9c5cb4a24a708042bbf2d34c373b581a6acc0b9a7d2b3514ad35690a0d07abac",
+    "standalone_arguments": [
+      "-std=c++17",
+      "-O2",
+      "-fno-fast-math",
+      "-fno-reciprocal-math",
+      "-ffp-contract=off",
+      "--offload-arch=gfx1151",
+      "-DQRT_SM121_DPP_REDUCTION=1",
+      "-DQRT_SM121_COMPACT_NORMALIZE=1",
+      "-I",
+      "D:\\projects\\AIMA-public-segmented-attention-20260921-r2",
+      "D:\\projects\\AIMA-public-segmented-attention-20260921-r2\\tools\\q1_segmented_attention_hip_probe.cpp",
+      "-o",
+      "D:\\projects\\AIMA-public-segmented-attention-20260921-r2\\build\\segmented-attention-native-r2\\qrt-segmented-attention.exe",
+      "-lbcrypt"
+    ],
+    "additional_standalone_math_flags": [
+      "-fno-fast-math",
+      "-fno-reciprocal-math",
+      "-ffp-contract=off"
+    ],
+    "translation_unit_and_other_arguments_also_differ": true,
+    "root_cause_established": false
+  },
+  "pending_native_replay": {
+    "manifest_sha256": "8c0376259fb928822f0bd39a5ff74fc0186441bbac70c074f21e76145007ddbc",
+    "worker_sha256": "930ca494164bf33e4a404366c3f7e88b78b420ec59911b381c2ad6d1d4754ec9",
+    "images": {
+      "observed": {
+        "file": "observed-verified.hsaco",
+        "bytes": 4312416,
+        "sha256": "12ff2d2ea922a61b161116a9063f4f050f2258857b56872ecc1404a3f10fac7d",
+        "binary_source_commit": "b2b7c0bea3f3fe41ada0fc2d99abb48079e64478",
+        "binary_source_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/q1-cache-capture-whole-build-r1/qrt_qwen36_whole_provider.dll",
+        "binary_source_sha256": "066299c0f40d81601d84e623cd3328f6faaf26a638212e0dbfdac1cd18f226ba",
+        "extraction": {
+          "bundle_offset": 9758720,
+          "image_offset": 9762816,
+          "target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+          "image_bytes": 4312416,
+          "image_sha256": "12ff2d2ea922a61b161116a9063f4f050f2258857b56872ecc1404a3f10fac7d"
+        },
+        "functions": {
+          "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj": {
+            "symbol": "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj",
+            "bytes": 1340,
+            "type": 2,
+            "sha256": "7bebfff54f4503701397927a00b45962fb5edcd3b58cef15ab2c777ee5ddcf6d"
+          },
+          "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh": {
+            "symbol": "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh",
+            "bytes": 7052,
+            "type": 2,
+            "sha256": "e410920e1b26e8d016cd109ccb86c0f485014664e9ed001ca76f4472c633a623"
+          },
+          "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_": {
+            "symbol": "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_",
+            "bytes": 1736,
+            "type": 2,
+            "sha256": "a34fe1fbf965afccf6a8dd743edc7964c78136418d4ddc93951f8eff36b9958f"
+          }
+        }
+      },
+      "qualified_probe": {
+        "file": "qualified_probe-verified.hsaco",
+        "bytes": 1193296,
+        "sha256": "73255249f3493170c834cb327fc117e27479f0a89650726b59d459651614fdb3",
+        "binary_source_commit": "9428e9eed89f0e38851e226a0f3220fb43acfffc",
+        "binary_source_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/runtime-attention-codeobjects-r1/qualified-segmented-attention.exe",
+        "binary_source_sha256": "d7758f48f263e9a909b11eff4cbb4e7c69ec353b134b1713654aadf4f177ea20",
+        "extraction": {
+          "bundle_offset": 357376,
+          "image_offset": 361472,
+          "target": "hipv4-amdgcn-amd-amdhsa--gfx1151",
+          "image_bytes": 1193296,
+          "image_sha256": "73255249f3493170c834cb327fc117e27479f0a89650726b59d459651614fdb3"
+        },
+        "functions": {
+          "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj": {
+            "symbol": "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj",
+            "bytes": 1336,
+            "type": 2,
+            "sha256": "67f5cb9b5cde8e148d316e2e07261e0c410ab18b168f45f9b69bd7d020441979"
+          },
+          "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh": {
+            "symbol": "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh",
+            "bytes": 7244,
+            "type": 2,
+            "sha256": "e27d0bca337875eae7bcd3d981af320def78cc792a86424f094f4d50d4545e56"
+          },
+          "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_": {
+            "symbol": "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_",
+            "bytes": 1736,
+            "type": 2,
+            "sha256": "a34fe1fbf965afccf6a8dd743edc7964c78136418d4ddc93951f8eff36b9958f"
+          }
+        }
+      }
+    },
+    "kernels": {
+      "scores": {
+        "symbol": "_ZN22qrt_sm121_q1_attention6scoresEPKfPKtS3_Pfjjj",
+        "argument_types": [
+          "pointer",
+          "pointer",
+          "pointer",
+          "pointer",
+          "u32",
+          "u32",
+          "u32"
+        ],
+        "offsets": [
+          0,
+          8,
+          16,
+          24,
+          32,
+          36,
+          40
+        ],
+        "sizes": [
+          8,
+          8,
+          8,
+          8,
+          4,
+          4,
+          4
+        ],
+        "kernarg_bytes": 44,
+        "static_shared_bytes": 0,
+        "metadata": {
+          "observed": {
+            "offsets": [
+              0,
+              8,
+              16,
+              24,
+              32,
+              36,
+              40
+            ],
+            "sizes": [
+              8,
+              8,
+              8,
+              8,
+              4,
+              4,
+              4
+            ],
+            "value_kinds": [
+              "global_buffer",
+              "global_buffer",
+              "global_buffer",
+              "global_buffer",
+              "by_value",
+              "by_value",
+              "by_value"
+            ],
+            "kernarg_segment_size": 44,
+            "group_segment_fixed_size": 0,
+            "private_segment_fixed_size": 0,
+            "wavefront_size": 32,
+            "vgpr_count": 18,
+            "sgpr_count": 18,
+            "vgpr_spill_count": 0,
+            "sgpr_spill_count": 0
+          },
+          "qualified_probe": {
+            "offsets": [
+              0,
+              8,
+              16,
+              24,
+              32,
+              36,
+              40
+            ],
+            "sizes": [
+              8,
+              8,
+              8,
+              8,
+              4,
+              4,
+              4
+            ],
+            "value_kinds": [
+              "global_buffer",
+              "global_buffer",
+              "global_buffer",
+              "global_buffer",
+              "by_value",
+              "by_value",
+              "by_value"
+            ],
+            "kernarg_segment_size": 44,
+            "group_segment_fixed_size": 0,
+            "private_segment_fixed_size": 0,
+            "wavefront_size": 32,
+            "vgpr_count": 18,
+            "sgpr_count": 18,
+            "vgpr_spill_count": 0,
+            "sgpr_spill_count": 0
+          }
+        },
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_bytes": 0,
+        "launch_argument_offsets_host_verified": true
+      },
+      "segment": {
+        "symbol": "_ZN32qrt_sm121_q1_segmented_attention14segment_kernelEPKfPKtS3_PfS4_S4_jjjPKh",
+        "argument_types": [
+          "pointer",
+          "pointer",
+          "pointer",
+          "pointer",
+          "pointer",
+          "pointer",
+          "u32",
+          "u32",
+          "u32",
+          "pointer"
+        ],
+        "offsets": [
+          0,
+          8,
+          16,
+          24,
+          32,
+          40,
+          48,
+          52,
+          56,
+          64
+        ],
+        "sizes": [
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          4,
+          4,
+          4,
+          8
+        ],
+        "kernarg_bytes": 72,
+        "static_shared_bytes": 176,
+        "metadata": {
+          "observed": {
+            "offsets": [
+              0,
+              8,
+              16,
+              24,
+              32,
+              40,
+              48,
+              52,
+              56,
+              64
+            ],
+            "sizes": [
+              8,
+              8,
+              8,
+              8,
+              8,
+              8,
+              4,
+              4,
+              4,
+              8
+            ],
+            "value_kinds": [
+              "global_buffer",
+              "global_buffer",
+              "global_buffer",
+              "global_buffer",
+              "global_buffer",
+              "global_buffer",
+              "by_value",
+              "by_value",
+              "by_value",
+              "global_buffer"
+            ],
+            "kernarg_segment_size": 72,
+            "group_segment_fixed_size": 176,
+            "private_segment_fixed_size": 0,
+            "wavefront_size": 32,
+            "vgpr_count": 65,
+            "sgpr_count": 52,
+            "vgpr_spill_count": 0,
+            "sgpr_spill_count": 0
+          },
+          "qualified_probe": {
+            "offsets": [
+              0,
+              8,
+              16,
+              24,
+              32,
+              40,
+              48,
+              52,
+              56,
+              64
+            ],
+            "sizes": [
+              8,
+              8,
+              8,
+              8,
+              8,
+              8,
+              4,
+              4,
+              4,
+              8
+            ],
+            "value_kinds": [
+              "global_buffer",
+              "global_buffer",
+              "global_buffer",
+              "global_buffer",
+              "global_buffer",
+              "global_buffer",
+              "by_value",
+              "by_value",
+              "by_value",
+              "global_buffer"
+            ],
+            "kernarg_segment_size": 72,
+            "group_segment_fixed_size": 176,
+            "private_segment_fixed_size": 0,
+            "wavefront_size": 32,
+            "vgpr_count": 76,
+            "sgpr_count": 50,
+            "vgpr_spill_count": 0,
+            "sgpr_spill_count": 0
+          }
+        },
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_bytes": 0,
+        "launch_argument_offsets_host_verified": true
+      },
+      "merge": {
+        "symbol": "_ZN32qrt_sm121_q1_segmented_attention12merge_kernelEPKfS1_S1_PfPKhS4_",
+        "argument_types": [
+          "pointer",
+          "pointer",
+          "pointer",
+          "pointer",
+          "pointer",
+          "pointer"
+        ],
+        "offsets": [
+          0,
+          8,
+          16,
+          24,
+          32,
+          40
+        ],
+        "sizes": [
+          8,
+          8,
+          8,
+          8,
+          8,
+          8
+        ],
+        "kernarg_bytes": 48,
+        "static_shared_bytes": 68,
+        "metadata": {
+          "observed": {
+            "offsets": [
+              0,
+              8,
+              16,
+              24,
+              32,
+              40
+            ],
+            "sizes": [
+              8,
+              8,
+              8,
+              8,
+              8,
+              8
+            ],
+            "value_kinds": [
+              "global_buffer",
+              "global_buffer",
+              "global_buffer",
+              "global_buffer",
+              "global_buffer",
+              "global_buffer"
+            ],
+            "kernarg_segment_size": 48,
+            "group_segment_fixed_size": 68,
+            "private_segment_fixed_size": 8,
+            "wavefront_size": 32,
+            "vgpr_count": 29,
+            "sgpr_count": 40,
+            "vgpr_spill_count": 0,
+            "sgpr_spill_count": 0
+          },
+          "qualified_probe": {
+            "offsets": [
+              0,
+              8,
+              16,
+              24,
+              32,
+              40
+            ],
+            "sizes": [
+              8,
+              8,
+              8,
+              8,
+              8,
+              8
+            ],
+            "value_kinds": [
+              "global_buffer",
+              "global_buffer",
+              "global_buffer",
+              "global_buffer",
+              "global_buffer",
+              "global_buffer"
+            ],
+            "kernarg_segment_size": 48,
+            "group_segment_fixed_size": 68,
+            "private_segment_fixed_size": 8,
+            "wavefront_size": 32,
+            "vgpr_count": 29,
+            "sgpr_count": 40,
+            "vgpr_spill_count": 0,
+            "sgpr_spill_count": 0
+          }
+        },
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_bytes": 0,
+        "launch_argument_offsets_host_verified": true
+      }
+    },
+    "tokens": 263292,
+    "prefixes": [
+      263168,
+      263291
+    ],
+    "strides": [
+      263309,
+      263681
+    ],
+    "repeats": 2,
+    "original_reference": {
+      "host": "gb10-4t",
+      "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+      "source_commit": "3fcbdafb10a14e94c15bd94a1f821f180bc95373",
+      "input_manifest_sha256": "b090e097a734692c4322d6d83fe54c18c25ef392e28dbc8188683079317d3552",
+      "capture_sha256": "bedc0e370d59fab6f7c2ce8e7a95e8765472ec2f19a05250616dc12fb3f918c7",
+      "original_608_outputs_qualified": true,
+      "original_qualified_dispatch_sha256": "ec671779ad1135c337cb810aa02ab27a16991ce63dde52eeecdde768d9f7cba9",
+      "original_replay_sha256": "0c882e5deb96d5a988598da8d32861aa76921122bedc658d8dc5d378d91a8ece",
+      "original_qk_observer_sha256": "18470c048a4c6c280552fbcd1417c7e394bbe7780a2c1fa57032e779a5147cbf"
+    },
+    "expected_cases": {
+      "qk_cases": 16,
+      "pv_cases": 48,
+      "full_scores_fp32_values_per_qk_case": 4212672,
+      "independent_original_scores_replay_cases": 16,
+      "other_pv_cases_use_actual_qk_image_output": true,
+      "expected_context_and_segments_host_only": true
+    },
+    "host_controls": {
+      "argument_offsets_match_both_actual_images": true,
+      "exact_comparison_positive_pass": true,
+      "changed_first_last_words_detected": true
+    },
+    "process_timeout_seconds": 300,
+    "exact_runtime_attention_code_and_descriptors_match_failed_prior_build": true,
+    "expected_context_and_segments_are_never_device_inputs": true,
+    "independent_gb10_score_input_is_labelled": true,
+    "dispatched": false
+  },
+  "exact_reproduction_sources": {
+    "tools/experiments/attention_cache/exact_runtime_images/compare_runtime_attention_code_r1.py": {
+      "bytes": 5783,
+      "sha256": "d479caff251f47150712e10ac543fd6fdaf16d01850e3325943596ab18599c9a"
+    },
+    "tools/experiments/attention_cache/exact_runtime_images/disassemble_runtime_attention_r1.py": {
+      "bytes": 5309,
+      "sha256": "b0022a5565909c5aba2c88dfc53540b2fe8376a763b61735375d04919f641f54"
+    },
+    "tools/experiments/attention_cache/exact_runtime_images/runtime_attention_image_worker_r1.py": {
+      "bytes": 16383,
+      "sha256": "930ca494164bf33e4a404366c3f7e88b78b420ec59911b381c2ad6d1d4754ec9"
+    },
+    "tools/experiments/attention_cache/exact_runtime_images/prepare_runtime_attention_images_r1.py": {
+      "bytes": 9715,
+      "sha256": "f8ffe49218d08b7f82811860c7d4da973ded85c41ece7d53415bd41925096859"
+    },
+    "tools/experiments/attention_cache/exact_runtime_images/dispatch_runtime_attention_images_r1.py": {
+      "bytes": 6898,
+      "sha256": "28abe38dfb095b31375415ab369bed1f3f8324953c9ea66578c616d459a522aa"
+    },
+    "tools/experiments/attention_cache/exact_runtime_images/record_runtime_attention_images_r1.py": {
+      "bytes": 6554,
+      "sha256": "0f4e310994a8b7ba26edfa9c4ec427c7fb82a26982bdbb9a444b329ff9713bdd"
+    }
+  },
+  "findings": [
+    "Observed and prior failed DLLs have identical selected attention instruction bytes and descriptor resources.",
+    "Standalone QK scores and segmented PV instruction bytes differ from the actual runtime images despite matching source headers.",
+    "Append and merge instruction bytes match all three artifacts.",
+    "Floating-point opcode counts match in the disassembled QK and segment functions; counts alone do not establish numerical equivalence or a cause.",
+    "The prepared module replay compares actual images on qualified original operands after the full256k owner completes cleanly."
+  ],
+  "limitations": [
+    "No extracted image has executed in this pending trial.",
+    "Original current-token operands cannot establish equality of the native historical KV; that independent comparison awaits the active capture.",
+    "Standalone success does not by itself qualify the actual runtime image or real-model continuation.",
+    "No compiler flag, image replacement, runtime arithmetic, token oracle, numerical tolerance or release threshold changed."
+  ],
+  "native_execution": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}
