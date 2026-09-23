@@ -64,7 +64,7 @@ inline int hipModuleLaunchKernel(void* function,unsigned x,unsigned y,unsigned z
  const auto& name=fake_module_names[i-1];
  if(name=="selected_replay_kernel"){
  assert(bx==128&&by==1&&bz==1&&stream==nullptr&&extra==nullptr);
- assert(x==256&&y>0&&y<=97&&z==1&&(shared==64||shared==128||shared==512));
+ assert(x==256&&y>0&&y<=97&&z==1&&shared==0);
  FakeModuleLaunch item{name,static_cast<unsigned>(i-1),x,y,z,bx,shared,0,{},{}};
  for(unsigned j=0;j<6;++j){std::uintptr_t q;std::memcpy(&q,args[j],sizeof(q));item.pointers.push_back(q);}
  for(unsigned j=6;j<10;++j)item.scalars.push_back(*static_cast<std::int32_t*>(args[j]));
@@ -76,7 +76,7 @@ inline int hipModuleLaunchKernel(void* function,unsigned x,unsigned y,unsigned z
 
  if(name=="routed_replay_kernel"){
  assert(bx==128&&by==1&&bz==1&&stream==nullptr&&extra==nullptr);
- assert(x==256&&y==1&&z==1&&(shared==64||shared==128||shared==1024));
+ assert(x==256&&y==1&&z==1&&shared==16);
  FakeModuleLaunch item{name,static_cast<unsigned>(i-1),x,y,z,bx,shared,0,{},{}};
  for(unsigned j=0;j<9;++j){std::uintptr_t q;std::memcpy(&q,args[j],sizeof(q));item.pointers.push_back(q);}
  item.scalars.push_back(*static_cast<std::int32_t*>(args[9]));
@@ -92,7 +92,7 @@ inline int hipModuleLaunchKernel(void* function,unsigned x,unsigned y,unsigned z
  else if(name=="residual_kernel"||name=="output_kernel")count=7;
  else assert(false);
  assert(bx==128&&by==1&&bz==1&&stream==nullptr&&extra==nullptr);
- assert(shared==(name=="native_ordered_64_inverse_kernel"?1024u:256u));
+ assert(shared==(name=="native_ordered_64_inverse_kernel"?1024u:0u));
  FakeModuleLaunch item{name,static_cast<unsigned>(i-1),x,y,z,bx,shared,*static_cast<std::int32_t*>(args[count]),{}};
  for(unsigned j=0;j<count;++j){std::uintptr_t p;std::memcpy(&p,args[j],sizeof(p));item.pointers.push_back(p);}
  assert(*static_cast<hipDeviceptr_t*>(args[count+1])==0&&*static_cast<hipDeviceptr_t*>(args[count+2])==0);

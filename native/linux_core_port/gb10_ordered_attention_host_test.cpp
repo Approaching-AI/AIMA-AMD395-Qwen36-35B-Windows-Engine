@@ -62,9 +62,9 @@ int main(){
       for(unsigned step=0;step<64;++step){
         const int first=step*128;const std::vector<std::int32_t> scalars={8192,first,128};
         const auto& qk=launches[1+step*3];const auto& prob=launches[2+step*3];const auto& pv=launches[3+step*3];
-        assert(qk.symbol=="ordered_qk_kernel"&&qk.x==16&&qk.y==1024&&qk.z==16&&qk.shared==256&&qk.scalars==scalars);
-        assert(prob.symbol=="probability_kernel"&&prob.x==32&&prob.y==16&&prob.z==1&&prob.shared==16&&prob.scalars==scalars);
-        assert(pv.symbol=="selected_pv_kernel"&&pv.x==1024&&pv.y==1&&pv.z==1&&pv.shared==64&&pv.scalars==scalars);
+        assert(qk.symbol=="ordered_qk_kernel"&&qk.x==16&&qk.y==1024&&qk.z==16&&qk.shared==0&&qk.scalars==scalars);
+        assert(prob.symbol=="probability_kernel"&&prob.x==32&&prob.y==16&&prob.z==1&&prob.shared==0&&prob.scalars==scalars);
+        assert(pv.symbol=="selected_pv_kernel"&&pv.x==1024&&pv.y==1&&pv.z==1&&pv.shared==16&&pv.scalars==scalars);
         assert(qk.pointers==std::vector<std::uintptr_t>({address(operands[0]),address(operands[1]),address(owned[0].pointer)}));
         assert(prob.pointers==std::vector<std::uintptr_t>({address(owned[0].pointer),address(owned[1].pointer),address(owned[2].pointer),address(exp)}));
         assert(pv.pointers==std::vector<std::uintptr_t>({address(owned[1].pointer),address(owned[3].pointer),address(owned[2].pointer),address(reciprocal),

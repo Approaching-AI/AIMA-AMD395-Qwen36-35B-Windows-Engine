@@ -1,0 +1,1387 @@
+{
+  "schema": 1,
+  "source_base_commit": "2e7cf269b6885055c60c2b5c13c195744644bf3e",
+  "source_files": {
+    "native/providers/explicit_q8192/attention_explicit.py": "7f6b6958b7225b3185cb9fbbbe173743357ee9ef820304e9269fd52a9c55c93d",
+    "native/providers/explicit_q8192/explicit_dense.py": "438739fb9e3fa9c49f5b4765401d7d4e346d4ca42033f2c6113ba8f2a3601673",
+    "native/providers/explicit_q8192/routed_explicit.py": "078ac63490c18ac632afd9692401529397c11a19d535663e1d817a92f3fc07e5",
+    "native/providers/explicit_q8192/explicit_group16.py": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef",
+    "native/providers/explicit_q8192/explicit_exp2.py": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf",
+    "native/providers/explicit_q8192/pack_value.py": "209ee80593bf624d1601b15eb776d7f0a5bb4d97691b693b5cab76feeffb903a"
+  },
+  "selected_images": {
+    "dense32": {
+      "file": "dense32.hsaco",
+      "bytes": 15560,
+      "sha256": "803c07439c2a388d2b298944efffe308273638c533e56e6a2fe9b8662f6092ec",
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "74bf030dad23c14a082ed70758f78518f87622537847737cd8d7e316de0f6628",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "selected_replay_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 0,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "kernel_hash": "74bf030dad23c14a082ed70758f78518f87622537847737cd8d7e316de0f6628",
+      "signature": {
+        "X": "*bf16",
+        "W": "*bf16",
+        "Counts": "*i32",
+        "Indices": "*i32",
+        "Output": "*bf16",
+        "Debug": "*fp32",
+        "N": "i32",
+        "K": "i32",
+        "W_ROW": "i32",
+        "W_K": "i32"
+      },
+      "constants": {
+        "BM": 32,
+        "WINDOW": 1048576,
+        "CAPTURE_F32": false
+      },
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 0,
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "resources": {
+        ".vgpr_count": [
+          "64"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      }
+    },
+    "dense64": {
+      "file": "dense64.hsaco",
+      "bytes": 24792,
+      "sha256": "b890a930694539016bac48c45bcccae377f413450d07f204c0b1f43866888d16",
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "c847d4dd013535bc8dc84cf20fc7c3f1060696e85b05f37e2dae778e04c5ba60",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "selected_replay_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 0,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "kernel_hash": "c847d4dd013535bc8dc84cf20fc7c3f1060696e85b05f37e2dae778e04c5ba60",
+      "signature": {
+        "X": "*bf16",
+        "W": "*bf16",
+        "Counts": "*i32",
+        "Indices": "*i32",
+        "Output": "*bf16",
+        "Debug": "*fp32",
+        "N": "i32",
+        "K": "i32",
+        "W_ROW": "i32",
+        "W_K": "i32"
+      },
+      "constants": {
+        "BM": 64,
+        "WINDOW": 1048576,
+        "CAPTURE_F32": false
+      },
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 0,
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "resources": {
+        ".vgpr_count": [
+          "117"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      }
+    },
+    "dense128": {
+      "file": "dense128.hsaco",
+      "bytes": 37456,
+      "sha256": "b189b2327fd0c179a96c37c4b08766b4b3da05b6361fd5ed1522c20dbeddea65",
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "9f316950dd798fd074f0a068dc57edc59ca19872af1a2b2d2a4686d0549d6d45",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "selected_replay_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 0,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "kernel_hash": "9f316950dd798fd074f0a068dc57edc59ca19872af1a2b2d2a4686d0549d6d45",
+      "signature": {
+        "X": "*bf16",
+        "W": "*bf16",
+        "Counts": "*i32",
+        "Indices": "*i32",
+        "Output": "*bf16",
+        "Debug": "*fp32",
+        "N": "i32",
+        "K": "i32",
+        "W_ROW": "i32",
+        "W_K": "i32"
+      },
+      "constants": {
+        "BM": 128,
+        "WINDOW": 1048576,
+        "CAPTURE_F32": false
+      },
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 0,
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "resources": {
+        ".vgpr_count": [
+          "229"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      }
+    },
+    "gate-up-bm32": {
+      "file": "gate-up-bm32.hsaco",
+      "bytes": 19088,
+      "sha256": "81555dd334bf2ff6a3ad0ab29a440f745e7bd2ec86698a9e98f1ba046411aa3f",
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "f22f67a89934a5b58b1e1a0f54897658b82af499d31c9b2cbe3ddec9307d4148",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "routed_replay_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 16,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "amdgcn_sha256": "825be96fd7ebe92f8a0e306ab2540515f81a838ad3c6bac2e5d15da37894a033",
+      "ttgir_sha256": "d2b41284095ec880129ede9524f08f8991d03087da3980aaf667479e8a78426c",
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 12,
+      "resources": {
+        ".vgpr_count": [
+          "66"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      },
+      "signature": {
+        "X": "*bf16",
+        "W": "*bf16",
+        "RouteIds": "*i32",
+        "RouteWeights": "*fp32",
+        "Counts": "*i32",
+        "Indices": "*i32",
+        "Output": "*bf16",
+        "Debug": "*fp32",
+        "Invalid": "*i32",
+        "Routes": "i32"
+      },
+      "constants": {
+        "DOWN": false,
+        "BM": 32,
+        "WINDOW": 4194304,
+        "CAPTURE_F32": false
+      }
+    },
+    "gate-up-bm64": {
+      "file": "gate-up-bm64.hsaco",
+      "bytes": 29192,
+      "sha256": "aa0aa11e7e44457c73940e47fedc9a6b22a248f97a4079abeb409bde691bbef5",
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "41fe5f24fd3be993540f0e784fdb6b2e50d98004a8eb802de7dc2d3203b73f6e",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "routed_replay_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 16,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "amdgcn_sha256": "fe9e66365a6a83e7921e73b7a87201cf3819902fc21e9f6cab6d1fe8a2c41a8a",
+      "ttgir_sha256": "ca7805abe25c6e86000b1009611de420e3f3ed811ec0fa8f14c2b16fff7687b6",
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 12,
+      "resources": {
+        ".vgpr_count": [
+          "116"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      },
+      "signature": {
+        "X": "*bf16",
+        "W": "*bf16",
+        "RouteIds": "*i32",
+        "RouteWeights": "*fp32",
+        "Counts": "*i32",
+        "Indices": "*i32",
+        "Output": "*bf16",
+        "Debug": "*fp32",
+        "Invalid": "*i32",
+        "Routes": "i32"
+      },
+      "constants": {
+        "DOWN": false,
+        "BM": 64,
+        "WINDOW": 4194304,
+        "CAPTURE_F32": false
+      }
+    },
+    "gate-up-bm128": {
+      "file": "gate-up-bm128.hsaco",
+      "bytes": 47704,
+      "sha256": "73d0ddd493a933c82015c16ba52e633ce03a545ad276000fdefb5b426a73bace",
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "7cf41486b05eab18ec700d597b30744e2e6f577eae0cfc580e369234ebb0ef16",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "routed_replay_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 16,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "amdgcn_sha256": "f2fefb4c7a5878226714bf87d987a6281643beafc7f4159b622f54df4e3131df",
+      "ttgir_sha256": "014fb4414b19a7fe6b06cd878c6525e87de467ac2df5bb6a2828c36ecf1e7b9c",
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 12,
+      "resources": {
+        ".vgpr_count": [
+          "219"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      },
+      "signature": {
+        "X": "*bf16",
+        "W": "*bf16",
+        "RouteIds": "*i32",
+        "RouteWeights": "*fp32",
+        "Counts": "*i32",
+        "Indices": "*i32",
+        "Output": "*bf16",
+        "Debug": "*fp32",
+        "Invalid": "*i32",
+        "Routes": "i32"
+      },
+      "constants": {
+        "DOWN": false,
+        "BM": 128,
+        "WINDOW": 4194304,
+        "CAPTURE_F32": false
+      }
+    },
+    "down-bm32": {
+      "file": "down-bm32.hsaco",
+      "bytes": 19968,
+      "sha256": "5a3a3abff200a422c567c2c299bea0601f2badcd5d06776f455fe1602b969299",
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "7219c3ae1bb24315c14fe365a7d36f70ac1b74b0b67ad7c400fe829051366408",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "routed_replay_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 16,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "amdgcn_sha256": "48e0524e9cf198dc9f6fa4d85051037f0e5375c3ca2715e0e8dacb6fc3131b06",
+      "ttgir_sha256": "52962fac7aae8c971cd6601a9c059df1b7dfa4059f01bfa2dc8cbec518bf157a",
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 16,
+      "resources": {
+        ".vgpr_count": [
+          "73"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      },
+      "signature": {
+        "X": "*bf16",
+        "W": "*bf16",
+        "RouteIds": "*i32",
+        "RouteWeights": "*fp32",
+        "Counts": "*i32",
+        "Indices": "*i32",
+        "Output": "*bf16",
+        "Debug": "*fp32",
+        "Invalid": "*i32",
+        "Routes": "i32"
+      },
+      "constants": {
+        "DOWN": true,
+        "BM": 32,
+        "WINDOW": 4194304,
+        "CAPTURE_F32": false
+      }
+    },
+    "down-bm64": {
+      "file": "down-bm64.hsaco",
+      "bytes": 31328,
+      "sha256": "f62e6732c65c4b4919e574508a2fbf088b9811982500ffbb3939962fa66f7962",
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "d7f9040c89c16fffde0452547eeac2366edace9570b8cdf33cbf3872c7979f58",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "routed_replay_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 16,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "amdgcn_sha256": "ff00ee515dbd433a34c6d3ab99b99c8c68d80cf7351624a85c83308fc63d836c",
+      "ttgir_sha256": "449a8e831b61005cd8db513fc94db16863168f1c370974ecfcc11b1b614bfd9e",
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 16,
+      "resources": {
+        ".vgpr_count": [
+          "132"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      },
+      "signature": {
+        "X": "*bf16",
+        "W": "*bf16",
+        "RouteIds": "*i32",
+        "RouteWeights": "*fp32",
+        "Counts": "*i32",
+        "Indices": "*i32",
+        "Output": "*bf16",
+        "Debug": "*fp32",
+        "Invalid": "*i32",
+        "Routes": "i32"
+      },
+      "constants": {
+        "DOWN": true,
+        "BM": 64,
+        "WINDOW": 4194304,
+        "CAPTURE_F32": false
+      }
+    },
+    "down-bm128": {
+      "file": "down-bm128.hsaco",
+      "bytes": 53064,
+      "sha256": "1323d35908157980e7985ddd10fb85ba81b8a8ebe3a6be94e3fb2a6d9aa17372",
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "c250552c5721d219a78cec4a5bae5280a2fc005a162697597d28a96137456dd4",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "routed_replay_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 16,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "amdgcn_sha256": "c966c90a525ee304a501b67eff44f265bc8bb0aa89b20b38ff600fc99a63d2af",
+      "ttgir_sha256": "b082be8e2bcfb0f69facc2c05593ec8425ceac248570d37ae9c65e408d259a52",
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 16,
+      "resources": {
+        ".vgpr_count": [
+          "205"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      },
+      "signature": {
+        "X": "*bf16",
+        "W": "*bf16",
+        "RouteIds": "*i32",
+        "RouteWeights": "*fp32",
+        "Counts": "*i32",
+        "Indices": "*i32",
+        "Output": "*bf16",
+        "Debug": "*fp32",
+        "Invalid": "*i32",
+        "Routes": "i32"
+      },
+      "constants": {
+        "DOWN": true,
+        "BM": 128,
+        "WINDOW": 4194304,
+        "CAPTURE_F32": false
+      }
+    },
+    "qk": {
+      "file": "qk.hsaco",
+      "bytes": 200464,
+      "sha256": "9f9dd936bf1c223f5991a7ccf42dd32658ed8a47afdedaecaafc2f5d8293f610",
+      "signature": {
+        "Q": "*bf16",
+        "K": "*bf16",
+        "Scores": "*fp32",
+        "T": "i32",
+        "QS": "i32",
+        "QT": "i32"
+      },
+      "constants": {
+        "BM": 8,
+        "BN": 8
+      },
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "7d9ffc1eab194dd74f338c91359ee42228f94b7dbd0f8de8d776eafd1dc38f1b",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "ordered_qk_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 0,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 0,
+      "resources": {
+        ".vgpr_count": [
+          "109"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      },
+      "amdgcn_sha256": "dc820ab88058c21177d98fde3ce8ecd186e5b6c89cd3e9824a61f5e0cb789fa0",
+      "ttgir_sha256": "f24520b47c6f6f7b4f776b6859b34de9d2f74962b04d927bdf5ed212c14a18b7"
+    },
+    "probability": {
+      "file": "probability.hsaco",
+      "bytes": 8640,
+      "sha256": "d02b470efb9f9f49d5c44c99d236fcd548dbf44974dffc6753f0771447b3615b",
+      "signature": {
+        "Scores": "*fp32",
+        "Probability": "*bf16",
+        "Scales": "*fp32",
+        "Table": "*u8",
+        "T": "i32",
+        "QS": "i32",
+        "QT": "i32"
+      },
+      "constants": {
+        "BM": 4,
+        "FUSED_L": true
+      },
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "f385f77765e8631335aeb765a5ac6d03f979d26d1efe072bf82d3dd766d8d892",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "probability_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 0,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 0,
+      "resources": {
+        ".vgpr_count": [
+          "29"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      },
+      "amdgcn_sha256": "ed387bf5019d8a1c3266182d8c6740a74c94ed576aba94b58495343a8756308c",
+      "ttgir_sha256": "2a3a54db9875a955750b8853fc71c8707418fa939009e1f7b3fef7f8bc76a177"
+    },
+    "pv": {
+      "file": "pv.hsaco",
+      "bytes": 27040,
+      "sha256": "3deefafae6e8d0b950f63743e7fc8abe9555a14a509357eb101027766e9b2a2f",
+      "signature": {
+        "Probability": "*bf16",
+        "Value": "*bf16",
+        "Scales": "*fp32",
+        "RcpTable": "*u8",
+        "Counts": "*i32",
+        "Indices": "*i32",
+        "Output": "*bf16",
+        "RawAccumulator": "*fp32",
+        "T": "i32",
+        "QS": "i32",
+        "QT": "i32"
+      },
+      "constants": {
+        "BM": 32,
+        "CAPTURE_F32": false
+      },
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "d91b3df970eb6e63225427288c61f1713d33eb81d70397b5f7c07ae4cba88aef",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "selected_pv_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 16,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 4,
+      "resources": {
+        ".vgpr_count": [
+          "100"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      },
+      "amdgcn_sha256": "5c5ea9432f2ef86ad578c1d7cd94d873d57e71508b8cb8225f54172e27b4fba1",
+      "ttgir_sha256": "6b70620b46684ba772a81169afb23a40cf5697c595c7372875ce6c9b83a399fe"
+    },
+    "tiled8x8": {
+      "file": "tiled8x8.hsaco",
+      "bytes": 40056,
+      "sha256": "2996c8d6e8beaf95da053b63acc97eb195ad63dfc0092980b37d63cfa1470f08",
+      "signature": {
+        "Probability": "*bf16",
+        "Value": "*bf16",
+        "Scales": "*fp32",
+        "RcpTable": "*u8",
+        "Output": "*bf16",
+        "T": "i32",
+        "QS": "i32",
+        "QT": "i32"
+      },
+      "constants": {
+        "BM": 8,
+        "BN": 8
+      },
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "11db443700c1d1dcae9608f1d119c697adfda23b5a1e106db7c7c5c6a61a50d4",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "tiled_pv_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 0,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 0,
+      "resources": {
+        ".vgpr_count": [
+          "90"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      },
+      "amdgcn_sha256": "322b31337d556e00015035d3e95a1367f25aaf0de81919e581e33c86ab1ad780",
+      "ttgir_sha256": "326975690ec81f0146193c232f4df6d62a0e726a6e32f9966a4d208ed74cb149"
+    },
+    "tiled8x16": {
+      "file": "tiled8x16.hsaco",
+      "bytes": 66616,
+      "sha256": "0e42aaa95abf10141349859402fe773601cf9fa852a985c286f4ca8148c7b35e",
+      "signature": {
+        "Probability": "*bf16",
+        "Value": "*bf16",
+        "Scales": "*fp32",
+        "RcpTable": "*u8",
+        "Output": "*bf16",
+        "T": "i32",
+        "QS": "i32",
+        "QT": "i32"
+      },
+      "constants": {
+        "BM": 8,
+        "BN": 16
+      },
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "af45f5a6d51a136fe4099bf3afbde8667e93ce422f19cbf65702345cbfe92483",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "tiled_pv_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 0,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 0,
+      "resources": {
+        ".vgpr_count": [
+          "162"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      },
+      "amdgcn_sha256": "bdaedc8b205a95587ee54e5ea3eac85e9f2b214f6865e196968fd45d7d22221f",
+      "ttgir_sha256": "f1eb82a01e54aeb01cb44adb3309af0c8f73ff2257fb676f0dbb294c3549abee"
+    },
+    "pack": {
+      "file": "pack.hsaco",
+      "bytes": 7080,
+      "sha256": "466ff2963f48eaa6164b17f4d3e4087adfb1e85a987ad12acaab905e76aefc29",
+      "metadata": {
+        "name": "pack_value_kernel",
+        "shared": 2048,
+        "num_warps": 4
+      },
+      "signature": {
+        "Source": "*bf16",
+        "Packed": "*bf16",
+        "T": "i32"
+      },
+      "constants": {},
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      }
+    }
+  },
+  "embedded_includes": {
+    "prefill": {
+      "file": "gb10_prefill_ordered_images.inc",
+      "bytes": 238219,
+      "sha256": "c64dc2c4e116041c373329d4276294d4a89c524a548fc36e2ad68e8002dcb08c"
+    },
+    "routed": {
+      "file": "gb10_routed_ordered_images.inc",
+      "bytes": 605255,
+      "sha256": "8a7015353fe78d77443a41912d88fa0eff40cd07e9d560c915757670de8451d7"
+    },
+    "attention": {
+      "file": "gb10_ordered_attention_images.inc",
+      "bytes": 733029,
+      "sha256": "3ad738047169b7cb802d488b169f5201ac7ddc3d25ef2eb5faede3aef434b335"
+    }
+  },
+  "exact_pending_native_plan_hashes": {
+    "dense": "eb016da03377684388e3a1f79a71bf6500a550ec630d9059f8857e43680aca17",
+    "routed": "82d3aaa6e4667f28b7a7b78968353fe9988835a15abc3bf5acfd674f7e15564b",
+    "attention": "c9c6166d37626ff9dada5da4d3bea09dba8da8ebe5a6a348de885084c8175a00"
+  },
+  "gdn_source_commit": "b07bf58e5140ea6e256c477f4aacfd39fc89695d",
+  "gdn_files": {
+    "native/linux_core_port/gb10_gdn_ordered_images.inc": "d9542180bdc7db0adbd3f9ca165c73107b377c27ebb6a16979e4382cdd479eb7",
+    "native/linux_core_port/gb10_gdn_ordered_compile.json": "b365d0825a386616971c6cd78f91e12d804ba6e43d51e33d8378d0902a19292e",
+    "tools/compile_linux_core_gdn_explicit.py": "a4adf35adb51c7fdda1e47037050a2aa15aa4dd8780aed7bde9488e0af8ca883",
+    "native/providers/gdn_explicit_layout/ordered_pipeline.py": "1e1fe71515f51552160c4e02e3aa03cc27af68dd390c241218381e227c913fae",
+    "native/providers/gdn_explicit_layout/group16.py": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef",
+    "native/providers/gdn_explicit_layout/exp2.py": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf"
+  },
+  "gdn_images": {
+    "kkt": {
+      "bytes": 123992,
+      "sha256": "25ad60758dfe68debb2a648fadf0456fc9cc11f40c3a298d9a9433521d6c1adb"
+    },
+    "w": {
+      "bytes": 62152,
+      "sha256": "e02084ce1d0a9faaf7917fdc360fdb8595308ee52ff3510d79ed01109d27d08c"
+    },
+    "u": {
+      "bytes": 58192,
+      "sha256": "05fc06e02690a6735f525097ab9fde4fdba8c396f44734ae60c41bb99f4685da"
+    },
+    "scores": {
+      "bytes": 114368,
+      "sha256": "c765ab27eb335f1bca37bf6a3ea156111fe4b8175e3459a9866c0007751784a4"
+    },
+    "residual": {
+      "bytes": 114376,
+      "sha256": "b8e7f2c5fdfa2a0135e37925b23bb44c45d29953073e67a82f7dedc0cf58af32"
+    },
+    "state": {
+      "bytes": 56768,
+      "sha256": "6354c9bcd4f0a6ebdd90d93a87d195058f25a33f16e8335b7a49e55bb379ce6b"
+    },
+    "output": {
+      "bytes": 172544,
+      "sha256": "3598c7582d75d7c1b78e160345bc9e40880bc7f53bdd8dea336e4d64f4b4b306"
+    },
+    "inverse": {
+      "bytes": 40952,
+      "sha256": "a83e69a3b15cb4578ceb4e5b88c042cf70617ad983d145ec080877336843579c"
+    }
+  },
+  "runtime_launch_bindings_unchanged": true,
+  "scalar_arithmetic_sources_unchanged": true,
+  "all_images_identical_to_pending_component_trials": true,
+  "settings_default_disabled": true,
+  "diagnostic_tiled_pv_embedded": false,
+  "compiler_script_sha256": "638cbfb63d49c1b8c45dc015f9f35b8248a48e6b077c59b0af17ba08712e74b4",
+  "importer_sha256": "9e34bb33cd2fca47bc5ffb35ef488fd324d0acc4302f0f3512b76eb95a62a162",
+  "native_execution": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

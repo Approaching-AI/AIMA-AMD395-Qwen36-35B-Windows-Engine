@@ -1,49 +1,57 @@
-# Optional original-order q8192 operators
+# Optional explicit-layout q8192 operators
 
-This candidate replaces the arithmetic used by selected dense and routed
-projection replay and adds an optional cold-q8192 attention provider. All
-three settings default to disabled. The ordinary product route is unchanged.
+This isolated candidate combines the GDN, dense replay, routed replay and
+cold-q8192 attention images being compared on original GB10 model operands.
+Every runtime option remains disabled by default. Native component, complete
+model and product performance qualification are pending.
 
-The reference comparisons observe the original GB10 BF16 model and run the
-candidate operators on copied actual inputs. The model receives its original
-outputs throughout. Across the independent captures, all 576 original control
-and continuation tokens remain unchanged. The complete comparisons cover:
+The arithmetic source and every selected image are bound in
+`explicit_q8192_compile.json`. Its 13 dense/routed/attention images total
+521376 bytes; eight GDN images total 743344 bytes. They are exactly the files
+in the prepared native comparison plans, including the unchanged inverse and
+value-transpose images. The two additional tiled PV images are diagnostic
+candidates and are not embedded in the runtime.
 
-| Operator | Original calls | Complete values matched bitwise |
-| --- | ---: | ---: |
-| Dense projections | 160 | 5,452,595,200 BF16 |
-| Full attention | 10 | 10,737,418,240 QK FP32 and 335,544,320 context BF16 |
-| Routed expert projections | 80 | 8,053,063,680 BF16 |
+The source comparison preserves original addressing and ascending K16
+arithmetic. CUDA controls cover all 30 q8192 GDN layers, complete q8192
+QKV/Z/OUT projections, all 64 attention query slabs and complete routed
+first-layer gate-up/down projections. Original reference model tokens and
+first logits remain attached to those operand captures. Candidate outputs
+were never substituted into the original model. These controls do not by
+themselves qualify gfx1151 arithmetic or complete candidate inference.
 
-`ordered_q8192_preparation.json` identifies the exact source files, original
-model reports, composition, build preparation and reused host results. Each
-host result is reused only after every recorded source hash matches this
-candidate. No AMD arithmetic, native Windows compilation, product performance
-or release acceptance is established by these checks.
+| Setting | Values | Scope |
+| --- | --- | --- |
+| `AIMA_PORT_NATIVE_GDN_PREFILL` | `0`, `1` | GDN, cold q8192 |
+| `AIMA_PORT_PREFILL_ORDERED_REPLAY` | `0`, `32`, `64`, `128` | Selected dense replay tile |
+| `AIMA_PORT_ROUTED_ORDERED_REPLAY` | `0`, `32`, `64`, `128` | Selected expert replay tile; requires `AIMA_PORT_NATIVE_MOE_PREFILL=1` |
+| `AIMA_PORT_ORDERED_ATTENTION_PREFILL` | `0`, `1` | Full cold-q8192 attention |
 
-`AIMA_PORT_PREFILL_ORDERED_REPLAY=32|64|128` selects the dense tile size and
-`AIMA_PORT_ROUTED_ORDERED_REPLAY=32|64|128` selects the routed tile size. The
-routed setting requires `AIMA_PORT_NATIVE_MOE_PREFILL=1`. Both projection
-bindings preserve the existing producer, selector and queues, and read raw
-BF16 operands without preparing the previous half representation. Enabling
-both removes 1,283,457,024 bytes of preparation storage from the native-MoE
-route. The existing batch-replay setting remains independent; group-major
-weights are incompatible with the dense ordered binding.
+Dense/routed bindings retain existing producers, selectors and queues, and
+consume original BF16 operands. Enabling both removes 1283457024 bytes of
+operand-preparation storage from the native-MoE route. Dense group-major
+weights remain incompatible. Attention retains 113254404 scratch bytes and
+193 launches per full layer; terminal prefill keeps the last layer's existing
+one-query route. Prefix/history and arbitrary-length attention are outside
+this optional provider's scope.
 
-`AIMA_PORT_ORDERED_ATTENTION_PREFILL=1` enables cold-q8192 attention. It owns
-113,254,404 scratch bytes, borrows the existing verified exp2 and reciprocal
-tables, and submits 193 AOT launches per full layer. It preserves the original
-32-key softmax recurrence. With terminal prefill enabled, the final layer
-retains its existing one-query route and the other nine full-attention layers
-use this provider. Prefix/history and arbitrary-length attention are outside
-this provider's supported scope.
+The existing C++ ownership and launch implementations are unchanged. Host
+ASan/UBSan checks cover GDN carried-state pointers, 144 dense and 12 routed
+binding cases, full attention slabs, invalid spans, allocation failures and
+cleanup. Expected dynamic shared-memory sizes now match the actual explicit
+images. No numerical GPU execution occurs in these tests.
 
-Runtime images are embedded and hash checked before use. Triton and PyTorch
-are used by the separate reference and compilation tooling; they are not
-runtime dependencies. Exact arithmetic sources are preserved under
-`native/providers/ordered_q8192`.
+`tools/compile_linux_core_q8192_explicit.py` rebuilds all 15 q8192 diagnostic
+images; `tools/compile_linux_core_gdn_explicit.py` rebuilds GDN. Both require
+Triton 3.6.0 and all three device-visibility variables set to `-1`. Offline
+rebuilds reproduce executable ELF content and launch metadata; differing
+nonloaded debug paths are recorded separately. Runtime image hashes still
+refer to the exact files selected for the pending native trials. Runtime
+Python, PyTorch or Triton dependencies are not introduced.
 
-The next required evidence is bounded gfx1151 execution of the prepared
-original-input components, followed by a Windows product run with the original
-q8192/out512 GB10 token and first-logit gate. Product performance and release
-selection require their own complete acceptance evidence.
+Build preparation preserves 327 imported files and 72 existing AOT objects,
+with 61 compilation units and 17 generated overlays. Detailed source,
+compiler, host-check and preparation identities are recorded in
+`explicit_q8192_preparation.json`. Product selection requires actual baiying
+q8192/out512 tokens, first logit, callbacks, load time and TTFT; no acceptance
+threshold or retained target changes with this candidate.
