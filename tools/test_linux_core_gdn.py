@@ -67,7 +67,7 @@ inline int hipModuleLaunchKernel(void* function,unsigned x,unsigned y,unsigned z
  else if(name=="residual_kernel"||name=="output_kernel")count=7;
  else assert(false);
  assert(bx==128&&by==1&&bz==1&&stream==nullptr&&extra==nullptr);
- assert(shared==(name=="native_ordered_64_inverse_kernel"?1024u:512u));
+ assert(shared==(name=="native_ordered_64_inverse_kernel"?1024u:256u));
  FakeModuleLaunch item{name,static_cast<unsigned>(i-1),x,y,z,bx,shared,*static_cast<std::int32_t*>(args[count]),{}};
  for(unsigned j=0;j<count;++j){std::uintptr_t p;std::memcpy(&p,args[j],sizeof(p));item.pointers.push_back(p);}
  assert(*static_cast<hipDeviceptr_t*>(args[count+1])==0&&*static_cast<hipDeviceptr_t*>(args[count+2])==0);

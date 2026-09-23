@@ -1,10 +1,13 @@
 # Linux native core Windows experiment
 
-The optional native GDN path now contains the complete original-order integer
-pipeline. Its full q7169 operator chain matches all 113 original chunks and the
-final FP32 state; host checks verify the Windows launch and state bindings.
-It stays off by default while native image execution and full-model acceptance
-are pending. [Pipeline scope and evidence](NATIVE_GDN_ORDERED_COMPONENTS.md).
+The optional native GDN path now uses unsigned 32-bit accumulation throughout
+the complete original-order integer pipeline. Both this version and its 64-bit
+control match every core output and final FP32 state across all30 GDN layers of
+the original q8192 model request. The comparison returns original outputs to
+the model and preserves all576 control/continuation tokens. The complete q7169
+chain and host launch/state checks also pass. It stays off by default while
+native image execution and Windows full-model acceptance are pending.
+[Pipeline scope and evidence](NATIVE_GDN_ORDERED_COMPONENTS.md).
 
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
@@ -17,12 +20,12 @@ The earlier `9447947` run also has all72 second-decode
 comparisons matching in BF16 and a bitwise-exact final normalization.
 Performance, other product shapes, prefix continuation and release remain open.
 
-The next [ordered GDN components](NATIVE_GDN_ORDERED_COMPONENTS.md) explicitly
-preserve the original inverse reduction and BF16 U accumulator. CUDA checks
+The preceding [ordered GDN components](NATIVE_GDN_ORDERED_COMPONENTS.md) explicitly
+preserve the original inverse reduction and BF16 U accumulator. Their CUDA checks
 match47,425,536 original BF16 values across the current first chunk, historical
 complete q7169 and tail boundaries, plus262,144 characterized FP32 U values.
-Both compile for gfx1151. AMD execution and full pipeline integration remain
-pending; the current product and qualified prototype are unchanged.
+Both compile for gfx1151 and now form part of the complete optional pipeline.
+AMD execution is pending; the qualified prototype configuration remains unchanged.
 
 The profile-off control preserves the qualified compute settings and the
 original full GB10 checker. Its single TTFT observation is368.2925ms below the

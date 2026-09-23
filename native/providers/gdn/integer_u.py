@@ -27,33 +27,39 @@ def _group16(left, right, accumulator):
     cexp = tl.where(cm == 0, -133, tl.where(ce == 0, -126, ce.to(tl.int32) - 127))
     maximum = tl.maximum(tl.max(exponent, axis=2), cexp)
     shift = maximum[:, :, None] - exponent
-    aligned = (product.to(tl.uint64) << 2) >> tl.minimum(shift, 63)
-    aligned = tl.where(shift < 32, aligned, 0).to(tl.int64)
-    signed = tl.where(negative, 0 - aligned, aligned)
+    # Each product magnitude is at most 255^2 * 2^11. All 16
+    # products and the FP32 carry total at most 2,197,848,060 < 2^32.
+    # Separate positive/negative sums therefore need no 64-bit arithmetic.
+    aligned = (product << 2) >> tl.minimum(shift, 31)
+    aligned = tl.where(shift < 32, aligned, 0).to(tl.uint32)
     cshift = maximum - cexp
-    carry = (cm.to(tl.uint64) << 2) >> tl.minimum(cshift, 63)
-    carry = tl.where(cshift < 32, carry, 0).to(tl.int64)
-    carry = tl.where((cb & 0x80000000) != 0, 0 - carry, carry)
-    total = tl.sum(signed, axis=2) + carry
-    magnitude = tl.where(total < 0, 0 - total, total).to(tl.uint64)
+    carry = (cm << 2) >> tl.minimum(cshift, 31)
+    carry = tl.where(cshift < 32, carry, 0).to(tl.uint32)
+    positive = tl.sum(tl.where(negative, 0, aligned), axis=2)
+    negative_sum = tl.sum(tl.where(negative, aligned, 0), axis=2)
+    carry_negative = (cb & 0x80000000) != 0
+    positive += tl.where(carry_negative, 0, carry)
+    negative_sum += tl.where(carry_negative, carry, 0)
+    result_negative = positive < negative_sum
+    magnitude = tl.where(result_negative, negative_sum - positive, positive - negative_sum).to(tl.uint32)
 
     # Conversion can round just below a power of two upward. The integer
     # comparison corrects that case, yielding exact integer bit width.
     fb = magnitude.to(tl.float32).to(tl.uint32, bitcast=True)
     width = tl.where(magnitude == 0, 0, ((fb >> 23) & 255).to(tl.int32) - 126)
-    threshold = 1 << tl.maximum(width - 1, 0).to(tl.uint64)
+    threshold = 1 << tl.maximum(width - 1, 0).to(tl.uint32)
     width -= tl.where((magnitude != 0) & (magnitude < threshold), 1, 0)
     normalized = tl.where(width > 26,
         magnitude >> tl.maximum(width - 26, 0),
         magnitude << tl.maximum(26 - width, 0))
     output_exp = maximum + width - 26
     underflow_shift = tl.maximum(-126 - output_exp, 0)
-    normalized = tl.where(underflow_shift < 64,
-        normalized >> tl.minimum(underflow_shift, 63), 0)
+    normalized = tl.where(underflow_shift < 32,
+        normalized >> tl.minimum(underflow_shift, 31), 0)
     output_exp = tl.maximum(output_exp, -126)
     significand = (normalized >> 2).to(tl.uint32)
     encoded_exp = output_exp + 127 - tl.where((significand & 0x800000) == 0, 1, 0)
-    encoded = tl.where(total < 0, 0x80000000, 0).to(tl.uint32)
+    encoded = tl.where(result_negative, 0x80000000, 0).to(tl.uint32)
     encoded |= (encoded_exp.to(tl.uint32) & 255) << 23
     encoded |= significand & 0x7fffff
     return tl.where(significand == 0, 0, encoded).to(tl.uint32).to(tl.float32, bitcast=True)

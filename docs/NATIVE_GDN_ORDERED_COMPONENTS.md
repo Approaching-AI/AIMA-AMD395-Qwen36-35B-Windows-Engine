@@ -6,6 +6,10 @@ prototype can select it with `AIMA_PORT_NATIVE_GDN_PREFILL=1`; it remains off
 by default. Actual candidate AMD execution and product qualification are
 pending. No new Windows execution or TTFT result is claimed.
 
+Both arithmetic variants now also match every GDN layer of the original real
+q8192 model request. The current candidate uses unsigned 32-bit accumulation;
+the preceding 64-bit implementation remains an independently compared control.
+
 [Complete component evidence](../benchmarks/correctness/native-gdn-ordered-inverse-integer-u-20260923.json)
 binds the actual source bytes, original inputs, commands, compilation outputs,
 CUDA results, memory guards and process cleanup. The source files are new
@@ -85,6 +89,41 @@ observations, not an AMD speedup measurement.
 binds both configurations, the cold test and counterfactual, original records,
 source bytes, commands, eight embedded images and all cleanup checks.
 
+## Unsigned 32-bit accumulation and all-layer comparison
+
+The integer accumulator separates positive and negative magnitudes. A single
+aligned BF16 product is at most `255 * 255 * 2^11 = 133171200`; the FP32 carry
+is at most `(2^24 - 1) * 4 = 67108860`. Each sum is therefore bounded by
+`16 * 133171200 + 67108860 = 2197848060`, below `2^32`. Subtracting the smaller
+unsigned sum from the larger preserves the sign and magnitude without 64-bit
+arithmetic. Shifts beyond the 26-bit normalized magnitude produce zero.
+
+The replacement matches 2,097,152 FP32 results from the preceding accumulator,
+including signed zero, subnormals, cancellation, exponent boundaries and
+maximum mantissas exceeding the signed 32-bit range. It also passes the entire
+q7169 continuous-state comparison described above.
+
+A separate GB10 real-model run observes all 30 original GDN calls at q8192.
+It copies each call's actual inputs, compares both candidate implementations,
+and returns the original output unchanged. Each candidate carries its own
+FP32 state through all 128 chunks. Across both variants, 2,013,265,920 BF16
+core values and 31,457,280 final FP32 state values match the original bitwise.
+The two-warp G cumsum also matches all 7,864,320 original FP32 values. Original
+inputs and outputs, candidate guards and the exp2 table remain unchanged.
+
+The same loaded engine preserves all 576 original tokens from the q7169 and
+q8192 short controls and the q8192 512-token continuation. First tokens/logits
+remain 82/9.25 and 144/10.375. Frozen compiler selections and process cleanup
+verify. This qualifies the CUDA operator comparisons; the candidate outputs
+were not used by the model and do not establish native Windows inference.
+
+[Unsigned accumulator and all-layer evidence](../benchmarks/correctness/native-gdn-unsigned32-all-layers-20260923.json)
+binds those runs to the exact candidate sources and emitted gfx1151 images.
+The seven integer-accumulator kernels use 8–13 fewer vector registers and
+256 rather than 512 shared bytes each. They have no spills; the unchanged
+inverse retains its 12 spill slots. These are compiler observations, with
+native execution and performance still pending.
+
 ## Windows integration and remaining acceptance
 
 The optional prototype path keeps original Q/K preparation and chunk64 cumsum,
@@ -93,7 +132,7 @@ It reuses 5 MiB of idle conversion scratch for two FP32 states and two BF16
 chunk buffers. Scores reuse the retired KKT allocation; no additional device
 allocation is introduced over the preceding optional route. The last chunk
 writes the engine's resident FP32 state directly. The eight embedded images
-total 738,352 bytes; Python and Triton remain build dependencies only.
+total 651,736 bytes; Python and Triton remain build dependencies only.
 
 ASan/UBSan host execution checks all 128 chunk bindings and state lifetimes,
 eight image hashes, mandatory scratch ABI arguments, two clearing boundaries,

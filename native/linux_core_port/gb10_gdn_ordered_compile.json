@@ -2,16 +2,16 @@
   "source_files": {
     "native/providers/gdn/ordered_pipeline.py": "a671feaeadb84219d6498a82a78c49d765f4ba627ae55fd14b9c7c53e86edfc3",
     "native/providers/gdn/ordered_inverse.py": "1f8c9e211ad9522a6b7d0d5f7f1bb5eb12bb788bb050e231f7d3adb8005f1921",
-    "native/providers/gdn/integer_u.py": "77260da2314ffbc12b154b66fd341495edc49439610bcf5246ac1e8372638df1"
+    "native/providers/gdn/integer_u.py": "885db1273c2063882cb789ac159206eb018624a6812477fcd245f12038177e60"
   },
   "compiler_script_sha256": "81abf38a3370de5f20e8e309fcb8a56657c0571961a90bc11875f6e5069f7a31",
   "triton_version": "3.6.0",
   "compiled": {
     "kkt": {
       "file": "kkt.hsaco",
-      "bytes": 115464,
-      "sha256": "6409875bf9e0c3294e99ec9d65b3d075b88950c97613e7dd6aa235d72e587cbf",
-      "kernel_hash": "3700fbdbafee02d38e67604cda3d8f086ae8649b1f14e1e5f857f47a17af09b9",
+      "bytes": 100632,
+      "sha256": "ceebf1586e2f9348e4903aea33699e808c7fa3a723f345e6d87b802751c40149",
+      "kernel_hash": "49768545baa66201af7bc716aaa747b9d1424373a9022b9f456ed4942b9da3ac",
       "metadata": {
         "allow_flush_denorm": false,
         "allowed_dot_input_precisions": [
@@ -35,7 +35,7 @@
             "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
           ]
         ],
-        "hash": "3700fbdbafee02d38e67604cda3d8f086ae8649b1f14e1e5f857f47a17af09b9",
+        "hash": "49768545baa66201af7bc716aaa747b9d1424373a9022b9f456ed4942b9da3ac",
         "instrumentation_mode": "",
         "kpack": 1,
         "launch_cooperative_grid": false,
@@ -49,7 +49,7 @@
         "profile_scratch_size": 0,
         "sanitize_overflow": true,
         "schedule_hint": "none",
-        "shared": 512,
+        "shared": 256,
         "supported_fp8_dtypes": [
           "fp8e4b8",
           "fp8e4nv",
@@ -83,7 +83,7 @@
       },
       "resources": {
         ".vgpr_count": [
-          "91"
+          "82"
         ],
         ".vgpr_spill_count": [
           "0"
@@ -92,7 +92,7 @@
           "0"
         ]
       },
-      "compile_seconds": 2.265410679159686
+      "compile_seconds": 2.1599620778579265
     },
     "inverse": {
       "file": "inverse.hsaco",
@@ -179,13 +179,13 @@
           "52"
         ]
       },
-      "compile_seconds": 1.3965601529926062
+      "compile_seconds": 1.3942264101933688
     },
     "w": {
       "file": "w.hsaco",
-      "bytes": 63640,
-      "sha256": "57c7c83315d9f34cf912cdd3c039c0af722ac1e286181675f0b315b180211fc2",
-      "kernel_hash": "e634875ad8d056dcf4810840f09ebfd9ede6e3e68a72e22fc947c0e6d4731a9f",
+      "bytes": 56568,
+      "sha256": "bd6ef36c1053e8628a4373574a7d57314a85cd030344b774ee9eec8a19a4f4b4",
+      "kernel_hash": "cc73c74b7385bec315d4f7826db6ccfde2e6647189894399d7a3d08e9728772e",
       "metadata": {
         "allow_flush_denorm": false,
         "allowed_dot_input_precisions": [
@@ -209,7 +209,7 @@
             "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
           ]
         ],
-        "hash": "e634875ad8d056dcf4810840f09ebfd9ede6e3e68a72e22fc947c0e6d4731a9f",
+        "hash": "cc73c74b7385bec315d4f7826db6ccfde2e6647189894399d7a3d08e9728772e",
         "instrumentation_mode": "",
         "kpack": 1,
         "launch_cooperative_grid": false,
@@ -223,7 +223,7 @@
         "profile_scratch_size": 0,
         "sanitize_overflow": true,
         "schedule_hint": "none",
-        "shared": 512,
+        "shared": 256,
         "supported_fp8_dtypes": [
           "fp8e4b8",
           "fp8e4nv",
@@ -256,7 +256,7 @@
       },
       "resources": {
         ".vgpr_count": [
-          "98"
+          "90"
         ],
         ".vgpr_spill_count": [
           "0"
@@ -265,13 +265,13 @@
           "0"
         ]
       },
-      "compile_seconds": 1.2083921439480036
+      "compile_seconds": 1.1262697458732873
     },
     "u": {
       "file": "u.hsaco",
-      "bytes": 59128,
-      "sha256": "ec2d0c00aac169ab57427c25d6d53c2c725ba587ded9a6f75e25f60e5c3b21d7",
-      "kernel_hash": "aa0577298eb229725ed3886fa43aa1df32767a07b51ab7d71117996464d1e05b",
+      "bytes": 52968,
+      "sha256": "b563e78fd56458b4d213ccbb019f59b3b70f9152311b8692ce1329ca8319f2ce",
+      "kernel_hash": "e61915dfc32e6a6c8c9478d3cc721239719aaa37626286d31af467aba553743f",
       "metadata": {
         "allow_flush_denorm": false,
         "allowed_dot_input_precisions": [
@@ -295,7 +295,7 @@
             "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
           ]
         ],
-        "hash": "aa0577298eb229725ed3886fa43aa1df32767a07b51ab7d71117996464d1e05b",
+        "hash": "e61915dfc32e6a6c8c9478d3cc721239719aaa37626286d31af467aba553743f",
         "instrumentation_mode": "",
         "kpack": 1,
         "launch_cooperative_grid": false,
@@ -309,7 +309,7 @@
         "profile_scratch_size": 0,
         "sanitize_overflow": true,
         "schedule_hint": "none",
-        "shared": 512,
+        "shared": 256,
         "supported_fp8_dtypes": [
           "fp8e4b8",
           "fp8e4nv",
@@ -344,7 +344,7 @@
       },
       "resources": {
         ".vgpr_count": [
-          "95"
+          "82"
         ],
         ".vgpr_spill_count": [
           "0"
@@ -353,13 +353,13 @@
           "0"
         ]
       },
-      "compile_seconds": 0.6337636089883745
+      "compile_seconds": 0.5883034660946578
     },
     "scores": {
       "file": "scores.hsaco",
-      "bytes": 115008,
-      "sha256": "be933e27c1c36297d8e68ea2c3b46ac9898b8fcbf467068a14cf9f295279402e",
-      "kernel_hash": "4e4f944b96d584936a0fbbae0b50e31cace7b5c3628b47c915dcbdbc360bb122",
+      "bytes": 99672,
+      "sha256": "8ee432fbbbc2dd3847429fe1e3e4c7ab87126bfd3fb09b4a5dfe189720205901",
+      "kernel_hash": "ae1b0053e1225a7519bbea2b057613c143bc205e4e6e70fe9ccc590490fd5d86",
       "metadata": {
         "allow_flush_denorm": false,
         "allowed_dot_input_precisions": [
@@ -383,7 +383,7 @@
             "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
           ]
         ],
-        "hash": "4e4f944b96d584936a0fbbae0b50e31cace7b5c3628b47c915dcbdbc360bb122",
+        "hash": "ae1b0053e1225a7519bbea2b057613c143bc205e4e6e70fe9ccc590490fd5d86",
         "instrumentation_mode": "",
         "kpack": 1,
         "launch_cooperative_grid": false,
@@ -397,7 +397,7 @@
         "profile_scratch_size": 0,
         "sanitize_overflow": true,
         "schedule_hint": "none",
-        "shared": 512,
+        "shared": 256,
         "supported_fp8_dtypes": [
           "fp8e4b8",
           "fp8e4nv",
@@ -431,7 +431,7 @@
       },
       "resources": {
         ".vgpr_count": [
-          "92"
+          "80"
         ],
         ".vgpr_spill_count": [
           "0"
@@ -440,13 +440,13 @@
           "0"
         ]
       },
-      "compile_seconds": 1.7861190210096538
+      "compile_seconds": 1.688759139040485
     },
     "residual": {
       "file": "residual.hsaco",
-      "bytes": 117680,
-      "sha256": "b1c61315cc45fd83c1e763f4ddc249f5f7c5e49f2713b3fbda772e8b2dfc5e7e",
-      "kernel_hash": "0c0729217e5b387f99eb9c13936bec4396e0c02e39b69b092e0b5d65f1194432",
+      "bytes": 102432,
+      "sha256": "130948cd35506a6d3075f806b7dd3076d803a7e2967b2c298574913109cc2194",
+      "kernel_hash": "eff045c43c19a92ca9a8edf42149c0372ace644b612199c08a72d8ed9bdbd2de",
       "metadata": {
         "allow_flush_denorm": false,
         "allowed_dot_input_precisions": [
@@ -470,7 +470,7 @@
             "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
           ]
         ],
-        "hash": "0c0729217e5b387f99eb9c13936bec4396e0c02e39b69b092e0b5d65f1194432",
+        "hash": "eff045c43c19a92ca9a8edf42149c0372ace644b612199c08a72d8ed9bdbd2de",
         "instrumentation_mode": "",
         "kpack": 1,
         "launch_cooperative_grid": false,
@@ -484,7 +484,7 @@
         "profile_scratch_size": 0,
         "sanitize_overflow": true,
         "schedule_hint": "none",
-        "shared": 512,
+        "shared": 256,
         "supported_fp8_dtypes": [
           "fp8e4b8",
           "fp8e4nv",
@@ -518,7 +518,7 @@
       },
       "resources": {
         ".vgpr_count": [
-          "90"
+          "81"
         ],
         ".vgpr_spill_count": [
           "0"
@@ -527,13 +527,13 @@
           "0"
         ]
       },
-      "compile_seconds": 1.8202997841872275
+      "compile_seconds": 1.7004790811333805
     },
     "state": {
       "file": "state.hsaco",
-      "bytes": 57392,
-      "sha256": "263914357efcde2ef40b613358f751df9fbb27af294fcc3e491988c9ab62e187",
-      "kernel_hash": "a6ae9cb61ccc6bf74dcef1a2993dce948fc44a800062c16a351d09b8370e24c2",
+      "bytes": 52872,
+      "sha256": "6a297016b9c71c9a320cc70f70eb59f7248db1405c7279b7d434c2dc037aac22",
+      "kernel_hash": "4a371cb43faa609bc7350f1ef2accb45627fc24a419631693d247073793f63e1",
       "metadata": {
         "allow_flush_denorm": false,
         "allowed_dot_input_precisions": [
@@ -557,7 +557,7 @@
             "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
           ]
         ],
-        "hash": "a6ae9cb61ccc6bf74dcef1a2993dce948fc44a800062c16a351d09b8370e24c2",
+        "hash": "4a371cb43faa609bc7350f1ef2accb45627fc24a419631693d247073793f63e1",
         "instrumentation_mode": "",
         "kpack": 1,
         "launch_cooperative_grid": false,
@@ -571,7 +571,7 @@
         "profile_scratch_size": 0,
         "sanitize_overflow": true,
         "schedule_hint": "none",
-        "shared": 512,
+        "shared": 256,
         "supported_fp8_dtypes": [
           "fp8e4b8",
           "fp8e4nv",
@@ -604,7 +604,7 @@
       },
       "resources": {
         ".vgpr_count": [
-          "96"
+          "88"
         ],
         ".vgpr_spill_count": [
           "0"
@@ -613,13 +613,13 @@
           "0"
         ]
       },
-      "compile_seconds": 0.5872405718546361
+      "compile_seconds": 0.5307231661863625
     },
     "output": {
       "file": "output.hsaco",
-      "bytes": 169088,
-      "sha256": "8d05161e1d6ca2e58ac1df6f239c61ea6cbf5e0142e409e76e4d3e00db89c103",
-      "kernel_hash": "18f6a7c8c27afe37c1de3c8ff239c7f292457097896de824438d4b87a0cd8ade",
+      "bytes": 145640,
+      "sha256": "d2a65b2d8164e5ac40186d5dc240bf036af4245def62d7ac790f914f5470800a",
+      "kernel_hash": "38af3cea7b54472d137f2ca8a37cf6603c277d13daaa3bcc27182fa5da65eec5",
       "metadata": {
         "allow_flush_denorm": false,
         "allowed_dot_input_precisions": [
@@ -643,7 +643,7 @@
             "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
           ]
         ],
-        "hash": "18f6a7c8c27afe37c1de3c8ff239c7f292457097896de824438d4b87a0cd8ade",
+        "hash": "38af3cea7b54472d137f2ca8a37cf6603c277d13daaa3bcc27182fa5da65eec5",
         "instrumentation_mode": "",
         "kpack": 1,
         "launch_cooperative_grid": false,
@@ -657,7 +657,7 @@
         "profile_scratch_size": 0,
         "sanitize_overflow": true,
         "schedule_hint": "none",
-        "shared": 512,
+        "shared": 256,
         "supported_fp8_dtypes": [
           "fp8e4b8",
           "fp8e4nv",
@@ -691,7 +691,7 @@
       },
       "resources": {
         ".vgpr_count": [
-          "97"
+          "88"
         ],
         ".vgpr_spill_count": [
           "0"
@@ -700,12 +700,12 @@
           "0"
         ]
       },
-      "compile_seconds": 2.8182979410048574
+      "compile_seconds": 2.6809210560750216
     }
   },
-  "embedded_image_sha256": "8a47982b721a3c0a52d6c75d01f4e03a7f6a7c2f4c5b90a8f31779570e84b18b",
-  "embedded_image_bytes": 4524763,
-  "wall_seconds": 12.603233553934842,
+  "embedded_image_sha256": "005585c5846fd9d5ca4a82ee6bba5064efbbdc962d1c5c46e3d6de28a064ab03",
+  "embedded_image_bytes": 3994243,
+  "wall_seconds": 11.945318999001756,
   "cpu_only": true,
   "gpu_executed": false,
   "inference_acceptance": false,
