@@ -5,8 +5,12 @@ the complete original-order integer pipeline. Both this version and its 64-bit
 control match every core output and final FP32 state across all30 GDN layers of
 the original q8192 model request. The comparison returns original outputs to
 the model and preserves all576 control/continuation tokens. The complete q7169
-chain and host launch/state checks also pass. It stays off by default while
-native image execution and Windows full-model acceptance are pending.
+chain and host launch/state checks also pass on CUDA. Actual AMD execution
+now rejects the unsigned candidate: repeated identical inputs give different
+incorrect W results, and both barrier/two-warp controls fail. The 64-bit control
+passes the native complete-state comparison and real q8192/out512 model gate,
+but TTFT regresses to 40680.6294 ms. The option remains off, with no retained
+performance improvement. CUDA equality did not establish AMD correctness.
 [Pipeline scope and evidence](NATIVE_GDN_ORDERED_COMPONENTS.md).
 
 This standalone experiment ports the compute core declared by Linux release
@@ -25,7 +29,7 @@ preserve the original inverse reduction and BF16 U accumulator. Their CUDA check
 match47,425,536 original BF16 values across the current first chunk, historical
 complete q7169 and tail boundaries, plus262,144 characterized FP32 U values.
 Both compile for gfx1151 and now form part of the complete optional pipeline.
-AMD execution is pending; the qualified prototype configuration remains unchanged.
+The complete 64-bit AMD path passes numerically; the current unsigned replacement fails. The qualified prototype configuration remains unchanged.
 
 The profile-off control preserves the qualified compute settings and the
 original full GB10 checker. Its single TTFT observation is368.2925ms below the

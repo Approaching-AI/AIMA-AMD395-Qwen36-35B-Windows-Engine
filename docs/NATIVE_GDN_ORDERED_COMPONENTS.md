@@ -3,8 +3,21 @@
 An experimental complete Triton GDN pipeline preserves the original GB10
 arithmetic while compiling directly for gfx1151. The Linux-core Windows
 prototype can select it with `AIMA_PORT_NATIVE_GDN_PREFILL=1`; it remains off
-by default. Actual candidate AMD execution and product qualification are
-pending. No new Windows execution or TTFT result is claimed.
+by default. The unsigned 32-bit candidate fails actual gfx1151 execution:
+eight repetitions of identical first-chunk inputs produce eight different
+incorrect W hashes. Interleaved 64-bit controls all pass. Group-entry/exit
+barriers and two-warps variants also fail; a precise synchronization or compiler
+cause is not established. The current unsigned candidate is not qualified for
+Windows model use.
+
+The preceding 64-bit source `e15c6cd` passes complete original q7169 state
+continuation on AMD and the real Windows q8192/out512 model gate: all 512 tokens
+and callbacks match, first 144/logit 10.375. Load is 27595.8828 ms, but TTFT is
+40680.6294 ms versus the qualified 20086.8502 ms baseline. It is retained as
+numerical evidence; its slower product result is not a performance improvement.
+[Actual AMD components](../benchmarks/correctness/ordered-q8192-native-components-20260923.json),
+[failed unsigned controls](../benchmarks/correctness/ordered-gdn-u32-race-controls-20260923.json),
+and [64-bit model control](../benchmarks/correctness/ordered-gdn-u64-native-product-20260923.json).
 
 Both arithmetic variants now also match every GDN layer of the original real
 q8192 model request. The current candidate uses unsigned 32-bit accumulation;
@@ -122,7 +135,7 @@ binds those runs to the exact candidate sources and emitted gfx1151 images.
 The seven integer-accumulator kernels use 8–13 fewer vector registers and
 256 rather than 512 shared bytes each. They have no spills; the unchanged
 inverse retains its 12 spill slots. These are compiler observations, with
-native execution and performance still pending.
+the native unsigned failures above overriding any inference from CUDA success.
 
 ## Windows integration and remaining acceptance
 
@@ -140,6 +153,8 @@ the final resident destination and 118 invalid pipeline bindings. All 327
 imported files verify; preparation emits 60 compilation units, 17 overlays
 and the same 72 imported images. These checks do not execute GPU arithmetic.
 
-Actual gfx1151 execution remains queued behind the active full256k run.
-Windows compilation, original q8192/out512 tokens, logits and callbacks, and
-the unchanged product performance/load thresholds remain required.
+The actual gfx1151 component and 64-bit product results are recorded above.
+The unsigned implementation remains numerically rejected; the correct 64-bit
+implementation regresses TTFT. Neither is selected for retained performance.
+The unchanged product performance/load thresholds and broader correctness
+shapes remain required.
