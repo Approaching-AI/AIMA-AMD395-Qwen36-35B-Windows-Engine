@@ -58,6 +58,8 @@ inline int hipModuleUnload(void* module){
  const auto i=reinterpret_cast<std::uintptr_t>(module);assert(i>0&&i<=fake_module_names.size());return 0;
 }
 inline int fake_ordered_launch_error=0;
+inline int fake_ordered_launch_error_index=-1;
+inline unsigned fake_persistent_module_first=~0u;
 inline int hipModuleLaunchKernel(void* function,unsigned x,unsigned y,unsigned z,
  unsigned bx,unsigned by,unsigned bz,unsigned shared,void* stream,void** args,void* extra){
  const auto i=reinterpret_cast<std::uintptr_t>(function);assert(i>0&&i<=fake_module_names.size());
@@ -90,12 +92,17 @@ inline int hipModuleLaunchKernel(void* function,unsigned x,unsigned y,unsigned z
  else if(name=="integer_u_kernel")count=5;
  else if(name=="gram_kernel"||name=="w_kernel"||name=="state_kernel")count=6;
  else if(name=="residual_kernel"||name=="output_kernel")count=7;
+ else if(name=="persistent_kernel")count=12;
  else assert(false);
  assert(bx==128&&by==1&&bz==1&&stream==nullptr&&extra==nullptr);
- assert(shared==(name=="native_ordered_64_inverse_kernel"?1024u:0u));
+ const bool persistent=i-1>=fake_persistent_module_first;
+ assert(shared==(name=="persistent_kernel"?6144u:name=="native_ordered_64_inverse_kernel"?1024u:persistent?512u:0u));
+ if(name=="persistent_kernel")assert(persistent&&x==32&&y==16&&z==1);
  FakeModuleLaunch item{name,static_cast<unsigned>(i-1),x,y,z,bx,shared,*static_cast<std::int32_t*>(args[count]),{}};
  for(unsigned j=0;j<count;++j){std::uintptr_t p;std::memcpy(&p,args[j],sizeof(p));item.pointers.push_back(p);}
  assert(*static_cast<hipDeviceptr_t*>(args[count+1])==0&&*static_cast<hipDeviceptr_t*>(args[count+2])==0);
+ if(fake_ordered_launch_error&&(fake_ordered_launch_error_index<0||i-1==static_cast<unsigned>(fake_ordered_launch_error_index)))
+   return fake_ordered_launch_error;
  fake_module_launches.push_back(item);fake_events.push_back(name);return 0;
 }
 inline void* fake_stream=nullptr;
@@ -139,6 +146,7 @@ def main():
     inputs = [source, ROOT / "native/linux_core_port/gb10_gdn.hip.cpp",
               ROOT / "native/linux_core_port/gb10_gdn.h", ROOT / "native/linux_core_port/gb10_gdn_assets.inc",
               ROOT / "native/linux_core_port/gb10_gdn_ordered_images.inc",
+              ROOT / "native/linux_core_port/gb10_gdn_persistent_images.inc",
               ROOT / "third_party/aima_linux/native/src/aot_kernel.hip.cpp"]
     report = dict(result=json.loads(run.stdout), build_command=command,
         inputs=[dict(path=p.relative_to(ROOT).as_posix(), sha256=sha(p)) for p in inputs],

@@ -88,11 +88,19 @@ int main(int argc,char**argv) {
   State s;for(Device* d:{&s.raw,&s.gates,&s.output,&s.decode_ab,&s.gate[0],&s.beta,&s.prefill_beta,&s.exp2,&s.rsqrt,&s.native_matrix,&s.native_inverse})d->allocate(64);
   reject([&]{gb10_rsqrt_table();});
   reject([&]{gb10_native_gdn_prefill_enabled(8192,false);});
+  reject([&]{gb10_persistent_gdn_prefill_enabled();});
   assert(!native_prefill_setting(nullptr) && !native_prefill_setting("0") && native_prefill_setting("1"));
   for (const char* value : {"", "true", "01", "2", "-1"}) reject([&]{native_prefill_setting(value);});
+  for(bool enabled:{false,true}){
+    assert(!persistent_prefill_setting(nullptr,enabled)&&!persistent_prefill_setting("0",enabled));
+    for(const char* value:{"","true","01","2","-1"})reject([&]{persistent_prefill_setting(value,enabled);});
+  }
+  reject([&]{persistent_prefill_setting("1",false);});
+  assert(persistent_prefill_setting("1",true));
   s.cold=cold;s.seeded=seed;s.error=failure;active=&s;float state=17;expected_state=&state;
   assert(gb10_rsqrt_table() == s.rsqrt.as<unsigned char>());
   assert(!gb10_native_gdn_prefill_enabled(8192,false));
+  assert(!gb10_persistent_gdn_prefill_enabled());
   s.native_prefill=true;
   assert(gb10_native_gdn_prefill_enabled(8192,false));
   for (std::size_t tokens : {0u,8191u,8193u}) reject([&]{gb10_native_gdn_prefill_enabled(tokens,false);});
@@ -205,6 +213,71 @@ int main(int argc,char**argv) {
   assert(incoming==final);
   assert((fake_zeroes==std::vector<std::pair<std::uintptr_t,std::size_t>>({{inverse,8192ull*32*64*2},{scratch,state_extent}})));
   assert(fake_events.size()==391&&fake_events[1]=="memset"&&fake_events[6]=="memset");
+  assert(pipeline_rejections==118);
+  fake_events.clear();fake_module_launches.clear();fake_zeroes.clear();
+  // The fused route loads only its own six images. Check the actual AOT
+  // wrapper, complete live spans, original upstream bindings and resident state.
+  s.persistent_prefill=true;assert(gb10_persistent_gdn_prefill_enabled());
+  unsigned persistent_rejections=0;
+  auto bad_persistent=[&](auto fn){
+    reject(fn);++persistent_rejections;
+    assert(fake_events.empty()&&fake_module_launches.empty()&&fake_zeroes.empty());
+  };
+  bad_persistent([&]{pipeline(pipeline_pointers);});
+  fake_persistent_module_first=static_cast<unsigned>(fake_module_names.size());
+  for(unsigned i=0;i<s.persistent.size();++i){
+    const auto& image=persistent_images[i];
+    assert(aima::sha256_bytes(image.data,image.bytes)==image.sha256);
+    s.persistent[i]=std::make_unique<aima::AotKernel>(
+        std::vector<unsigned char>(image.data,image.data+image.bytes),image.name);
+  }
+  for(unsigned i=0;i<9;++i){
+    auto p=pipeline_pointers;p[i]=nullptr;bad_persistent([&]{pipeline(p);});
+    p=pipeline_pointers;p[i]=reinterpret_cast<void*>(ptr(p[i])+1);bad_persistent([&]{pipeline(p);});
+    p=pipeline_pointers;p[i]=reinterpret_cast<void*>(UINTPTR_MAX-3);bad_persistent([&]{pipeline(p);});
+    for(unsigned j=0;j<i;++j){p=pipeline_pointers;p[i]=p[j];bad_persistent([&]{pipeline(p);});}
+    for(auto owner:owned){p=pipeline_pointers;p[i]=owner->data;bad_persistent([&]{pipeline(p);});}
+  }
+  bad_persistent([&]{pipeline(pipeline_overlap);});
+  for(auto owner:owned){
+    auto value=owner->data;owner->data=nullptr;bad_persistent([&]{pipeline(pipeline_pointers);});owner->data=value;
+  }
+  for(auto& kernel:s.persistent){
+    auto value=std::move(kernel);bad_persistent([&]{pipeline(pipeline_pointers);});kernel=std::move(value);
+  }
+  for(unsigned tokens:{0u,8191u,8193u})bad_persistent([&]{pipeline(pipeline_pointers,tokens);});
+  active=nullptr;bad_persistent([&]{pipeline(pipeline_pointers);});active=&s;
+  s.native_prefill=false;assert(!gb10_persistent_gdn_prefill_enabled());
+  bad_persistent([&]{pipeline(pipeline_pointers);});s.native_prefill=true;
+  // Legacy modules are not loaded by a production persistent owner.
+  auto saved_ordered=std::move(s.ordered);
+  assert(pipeline(pipeline_pointers)==6&&fake_module_launches.size()==6);
+  for(unsigned i=0;i<5;++i){
+    const auto& launch=fake_module_launches[i];
+    assert(launch.index==fake_persistent_module_first+i&&launch.tokens==8192&&launch.pointers==first[i]);
+    assert(launch.x==(i==1?128u:1024u)&&launch.y==(i==1?32u:(i==0||i==4)?8u:16u)&&launch.z==(i==1?1u:32u));
+  }
+  const auto& fused=fake_module_launches[5];
+  assert(fused.index==fake_persistent_module_first+5&&fused.tokens==8192&&fused.x==32&&fused.y==16&&fused.z==1);
+  assert(fused.block==128&&fused.shared==6144);
+  assert(fused.pointers==std::vector<std::uintptr_t>({q,k,w,u,g,matrix,table,scratch,final,core,0,0}));
+  assert((fake_zeroes==std::vector<std::pair<std::uintptr_t,std::size_t>>({{inverse,8192ull*32*64*2},{scratch,state_extent}})));
+  assert(fake_events.size()==8&&fake_events[1]=="memset"&&fake_events[6]=="memset");
+  assert(persistent_rejections==116);
+  fake_events.clear();fake_module_launches.clear();fake_zeroes.clear();
+  // Each failed dispatch propagates and stops before any later stage.
+  for(unsigned failed=0;failed<6;++failed){
+    fake_ordered_launch_error=1;
+    fake_ordered_launch_error_index=static_cast<int>(fake_persistent_module_first+failed);
+    reject([&]{pipeline(pipeline_pointers);});
+    assert(fake_module_launches.size()==failed);
+    assert(fake_zeroes.size()==(failed==0?0u:failed==5?2u:1u));
+    assert(fake_events.size()==failed+fake_zeroes.size());
+    fake_events.clear();fake_module_launches.clear();fake_zeroes.clear();
+  }
+  fake_ordered_launch_error=0;fake_ordered_launch_error_index=-1;
+  s.ordered=std::move(saved_ordered);s.persistent_prefill=false;
+  assert(!gb10_persistent_gdn_prefill_enabled());
   for(unsigned i=0;i<owned.size();++i)owned[i]->data=saved[i];
   fake_events.clear();fake_module_launches.clear();fake_zeroes.clear();
   s.native_prefill=false;
@@ -254,5 +327,5 @@ int main(int argc,char**argv) {
   assert(read(file,asset)==std::vector<unsigned char>({'a','b','c'}));
   {std::ofstream f(file,std::ios::binary);f<<"abd";}reject([&]{read(file,asset);});
   {std::ofstream f(file,std::ios::binary);f<<"ab";}reject([&]{read(file,asset);});
-  std::cout<<"{\"ordered_pipeline_rejections\":"<<pipeline_rejections<<",\"ordered_pipeline_abi_and_images_pass\":true,\"ordered_pipeline_launches\":389,\"recurrent_chunks_checked\":128,\"native_conversion_values_checked\":12480,\"native_preparation_rejections\":65,\"gpu_qk_norm_tested\":false,\"conversion_values_checked\":33027,\"sampled_values_checked\":2199680,\"sampling_input_unchanged\":true,\"first64_original_pointer_and_extent\":true,\"sampling_guards_pass\":true,\"observer_faults_rejected\":5,\"guards_pass\":true,\"provider_order_pass\":true,\"seeded_state_forwarded\":true,\"decode_q2_flags\":true,\"injected_provider_failure_rejected\":true,\"invalid_bindings_rejected\":6,\"artifact_faults_rejected\":2,\"native_prefill_rejections\":11,\"native_prefill_cold_scope_pass\":true}\n";
+  std::cout<<"{\"persistent_pipeline_rejections\":"<<persistent_rejections<<",\"persistent_pipeline_launches\":6,\"persistent_upstream_u64_images\":5,\"persistent_images_and_abi_pass\":true,\"persistent_failure_stops_checked\":6,\"persistent_setting_rejections\":11,\"ordered_pipeline_rejections\":"<<pipeline_rejections<<",\"ordered_pipeline_abi_and_images_pass\":true,\"ordered_pipeline_launches\":389,\"recurrent_chunks_checked\":128,\"native_conversion_values_checked\":12480,\"native_preparation_rejections\":65,\"gpu_qk_norm_tested\":false,\"conversion_values_checked\":33027,\"sampled_values_checked\":2199680,\"sampling_input_unchanged\":true,\"first64_original_pointer_and_extent\":true,\"sampling_guards_pass\":true,\"observer_faults_rejected\":5,\"guards_pass\":true,\"provider_order_pass\":true,\"seeded_state_forwarded\":true,\"decode_q2_flags\":true,\"injected_provider_failure_rejected\":true,\"invalid_bindings_rejected\":6,\"artifact_faults_rejected\":2,\"native_prefill_rejections\":11,\"native_prefill_cold_scope_pass\":true}\n";
 }

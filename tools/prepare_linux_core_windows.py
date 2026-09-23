@@ -247,6 +247,7 @@ def gb10_gdn_overlays(linear, prefill):
         "  const bool native_gdn_prefill = aima_port::gb10_native_gdn_prefill_enabled(\n"
         "      tokens, options.has_initial_state);\n"
         "  std::size_t native_gdn_launches = 0;\n"
+        "  const bool persistent_gdn_prefill = aima_port::gb10_persistent_gdn_prefill_enabled();\n"
         "  if (native_gdn_prefill) {\n"
         "    aima_port::observe_gdn_prefill(options.layer_index, \"prefill-conv-sampled\",\n"
         "        invocations.tensor_pointer(base + 1, \"o_ptr\"), 8192, tokens);\n"
@@ -268,8 +269,8 @@ def gb10_gdn_overlays(linear, prefill):
         + native_gdn_chunk64_launches() +
         "    aima_port::observe_gdn_prefill(options.layer_index, \"prefill-core-sampled\", core, 4096, tokens);\n"
         '    std::fprintf(stderr, "{\\\"event\\\":\\\"native_gdn_prefill\\\",\\\"layer\\\":%zu,'
-        '\\\"tokens\\\":%zu,\\\"stages\\\":8,\\\"aot_launches\\\":%zu,\\\"chunk_tokens\\\":64,'
-        '\\\"original_preparation\\\":true,\\\"ordered_integer_accumulator\\\":true,\\\"cold\\\":true}\\n", options.layer_index, tokens, native_gdn_launches);\n'
+        '\\\"tokens\\\":%zu,\\\"stages\\\":%u,\\\"aot_launches\\\":%zu,\\\"chunk_tokens\\\":64,'
+        '\\\"original_preparation\\\":true,\\\"ordered_integer_accumulator\\\":true,\\\"cold\\\":true,\\\"persistent_recurrence\\\":%s}\\n", options.layer_index, tokens, persistent_gdn_prefill ? 6u : 8u, native_gdn_launches, persistent_gdn_prefill ? "true" : "false");\n'
         "  } else {\n"
         "  aima_port::gb10_prefill_gdn(options.layer_index,\n"
         "      invocations.tensor_pointer(base + 1, \"o_ptr\"),\n"
@@ -1235,6 +1236,18 @@ def main():
             state_update="independent carried K64 dot then explicit FP32 decay FMA",
             state_commit="last chunk writes the engine's resident FP32 state directly",
             model_qualified=False)
+        report["optional_adaptations"]["gb10_gdn"]["native_prefill_opt_in"]["persistent"] = dict(
+            setting="AIMA_PORT_NATIVE_GDN_PERSISTENT=1", default="0",
+            requires="AIMA_PORT_NATIVE_GDN_PREFILL=1", scope="cold q8192 only",
+            upstream="five original unsigned64 images: KKT, inverse, W, U, scores",
+            recurrence="one explicit-layout kernel carries each head/value tile across all 128 chunks",
+            aot_launches_per_linear_layer=7, images=6,
+            embedded_image_bytes=sum(item["bytes"] for item in json.loads(
+                (ROOT / "native/linux_core_port/gb10_gdn_persistent_compile.json").read_text())["compiled"].values()),
+            embedded_include_sha256=digest((ROOT / "native/linux_core_port/gb10_gdn_persistent_images.inc").read_bytes()),
+            additional_scratch_bytes_over_native_prefill=0, reused_conversion_scratch_bytes=2097152,
+            block_shared_bytes=6144, state_commit="final FP32 state writes to the resident engine destination",
+            model_qualified=False, performance_qualified=False)
     if args.gb10_projections:
         report["optional_adaptations"]["gb10_projections"] = dict(
             decode="existing Windows K16 width-26 SM121 projection arithmetic",
