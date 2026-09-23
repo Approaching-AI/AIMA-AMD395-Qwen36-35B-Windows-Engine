@@ -1,0 +1,2809 @@
+{
+  "schema": 1,
+  "kind": "Explicit single-layout GDN: gfx1151 AOT images and original q7169 CUDA chain",
+  "controller_host": "JiaweiMnideMini.lan",
+  "reference_host": "aitopatom-66c4",
+  "source_base_commit": "e03dbb52d68662a45a94c7fefe93839fc6501b33",
+  "model_reference": "Qwen3.6-35B-A3B; original q7169 layer0 operator capture",
+  "model_loaded": false,
+  "manifest": {
+    "file": "qrt-gdn-explicit-layout-20260923-r2/collected/manifest.json",
+    "bytes": 8539,
+    "sha256": "476f517ff30cc5c2d345fae90932f6bc7a7b82d146273e5f3fe2cc948952c2ab",
+    "record": {
+      "source_hashes": {
+        "ordered_inverse.py": "1f8c9e211ad9522a6b7d0d5f7f1bb5eb12bb788bb050e231f7d3adb8005f1921",
+        "compile_worker.py": "d2c0e1c8a27d8defc6e60090108ad2192e9471277eb209749cb9786ab147e7b8",
+        "check_equivalence.py": "832b3184dad4438b5b0b784e1bd3e076a956d4b70fb4047067dcc1cf5b6a985a",
+        "jobs.py": "bcc62ef32aaa6c4043affa2263addc11888fb7d4f2c1e9df8a30957a979b165e",
+        "pipeline_worker.py": "7418f35b1ac639f58063b8df7dfca4abd839562d11dfa4b9c25beea1ace0815b",
+        "exp2.py": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf",
+        "ordered_pipeline.py": "1e1fe71515f51552160c4e02e3aa03cc27af68dd390c241218381e227c913fae",
+        "group16.py": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef",
+        "old_integer_u.py": "77260da2314ffbc12b154b66fd341495edc49439610bcf5246ac1e8372638df1"
+      },
+      "inputs": {
+        "a": {
+          "dtype": "float32",
+          "shape": [
+            1,
+            7169,
+            32,
+            64
+          ],
+          "bytes": 58728448,
+          "sha256": "17356d59cfffa1db8cb7529f0a3b259033a35eb8efd05007d88b5e905b45dc18",
+          "file": "full-a-f32.bin",
+          "mount": "/inverse",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-a-f32.bin",
+          "metadata_sha256": "de054bbdf2c1cf1770b7ded15c6fdef7225dc591d418eccfeaadcf105be1437d"
+        },
+        "a-inverse": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            7169,
+            32,
+            64
+          ],
+          "bytes": 29364224,
+          "sha256": "7c6a9c8445ab3496c7468282aa7cd2d6cc47ed6849aa57762b84d56e57cecc62",
+          "file": "full-a-inverse-bf16.bin",
+          "mount": "/inverse",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-a-inverse-bf16.bin",
+          "metadata_sha256": "ff1e27a22b4855fd9171fa82464d8d00fa229e8aeec555ea678f7384b7f268b3"
+        },
+        "v": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            7169,
+            32,
+            128
+          ],
+          "bytes": 58728448,
+          "sha256": "cc324c828ffa9f2e950235a14669a66d74fc9efd3babc148d0c0659b2ad19dd9",
+          "file": "full-v-bf16.bin",
+          "mount": "/baseu",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-v-bf16.bin",
+          "metadata_sha256": "62161b892292780c64dcca337c2ad149a0e3c913fcfe27b9d4a1a37927a2e2bd"
+        },
+        "beta": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            7169,
+            32
+          ],
+          "bytes": 458816,
+          "sha256": "0cdbca3923d699b6c9db3a4b9aac166a851f322f409b365fc5264b7726cf642b",
+          "file": "full-beta-bf16.bin",
+          "mount": "/baseu",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-beta-bf16.bin",
+          "metadata_sha256": "f84b00d7d8bbf5191ad661a168ad28e31a7d3a84038642c62e8fd178ed1772ad"
+        },
+        "u": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            7169,
+            32,
+            128
+          ],
+          "bytes": 58728448,
+          "sha256": "1b4d91596e6554314647111d1dfa156517be6afae313cd69cf51234dfd955cfb",
+          "file": "full-u-bf16.bin",
+          "mount": "/baseu",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-u-bf16.bin",
+          "metadata_sha256": "47f7b0efb67db3e0c51eced6322f67b7bc6a73af4fb45100bc1d0af05757358f"
+        },
+        "q-normalized": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            7169,
+            16,
+            128
+          ],
+          "bytes": 29364224,
+          "sha256": "a6c81d03c850de6745ecc0e6810474689f8202cbd4c6cb616d6368b1f051c573",
+          "file": "full-q-normalized-bf16.bin",
+          "mount": "/work/inputs",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-q-normalized-bf16.bin",
+          "metadata_sha256": "f2a8a3a522b02bfbf68e41116cf96886cc0b9c6c4615c3f66bb1854f2e4ea690"
+        },
+        "k-normalized": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            7169,
+            16,
+            128
+          ],
+          "bytes": 29364224,
+          "sha256": "7778fce8bbd9ce6d046eec1e2639a0d89e53bb9e3b443b9ab1fe7e8d5656ea24",
+          "file": "full-k-normalized-bf16.bin",
+          "mount": "/work/inputs",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-k-normalized-bf16.bin",
+          "metadata_sha256": "dcf82be0ea6222e6690f87560fce0edc025671d5df20f9d7406d559185273f27"
+        },
+        "g-cumsum": {
+          "dtype": "float32",
+          "shape": [
+            1,
+            7169,
+            32
+          ],
+          "bytes": 917632,
+          "sha256": "b618db8ede809426f3c95741cce49b03d8c4cbec7888f4af0a397d959dc557b0",
+          "file": "full-g-cumsum-f32.bin",
+          "mount": "/work/inputs",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-g-cumsum-f32.bin",
+          "metadata_sha256": "4bd5de3f39799ac27d4cae67508b5cd05718a0cb67ebb714c6217702c40de6a6"
+        },
+        "w": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            7169,
+            32,
+            128
+          ],
+          "bytes": 58728448,
+          "sha256": "5cc5baa0e2f85758c28c06f03d8b87d5cff82b361b3382d7b531e2927e545545",
+          "file": "full-w-bf16.bin",
+          "mount": "/work/inputs",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-w-bf16.bin",
+          "metadata_sha256": "f677dff1dda3b88f3727969d84ca9f526b45dc86d8902b03adb12dce93414498"
+        },
+        "v-new": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            7169,
+            32,
+            128
+          ],
+          "bytes": 58728448,
+          "sha256": "b6fd8d6801622a4b7dc00490a6abee2e584df5e21b907f66eb6fa986a3d2229f",
+          "file": "full-v-new-bf16.bin",
+          "mount": "/work/inputs",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-v-new-bf16.bin",
+          "metadata_sha256": "409ce7f5ca9b8993c35cde69402c8376d05591c18aa79fe550d292d2b94bf775"
+        },
+        "chunk-state": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            113,
+            32,
+            128,
+            128
+          ],
+          "bytes": 118489088,
+          "sha256": "140741e123824032adb256af41c542fe74f8782ca1980b2b8eaba61ca61f6735",
+          "file": "full-chunk-state-bf16.bin",
+          "mount": "/work/inputs",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-chunk-state-bf16.bin",
+          "metadata_sha256": "b194d3b1ecfe378f2d955d6009aaafe5c7c768a22a3053a75fbcae45517ab0df"
+        },
+        "initial_state": {
+          "dtype": "float32",
+          "shape": [
+            1,
+            32,
+            128,
+            128
+          ],
+          "bytes": 2097152,
+          "sha256": "5647f05ec18958947d32874eeb788fa396a05d0bab7c1b71f112ceb7e9b31eee",
+          "file": "full-initial_state-f32.bin",
+          "mount": "/work/inputs",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-initial_state-f32.bin",
+          "metadata_sha256": "a69666b9dfad9a1c965c391d305505cda6384edd6360d8d77c06c71568e2b447"
+        },
+        "state": {
+          "dtype": "float32",
+          "shape": [
+            1,
+            32,
+            128,
+            128
+          ],
+          "bytes": 2097152,
+          "sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2",
+          "file": "full-state-f32.bin",
+          "mount": "/work/inputs",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-state-f32.bin",
+          "metadata_sha256": "3e979f6f86504b4bf6b00c2c6b62740f94a2c45f10345c7f3f59520694d2bdc9"
+        },
+        "output": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            7169,
+            32,
+            128
+          ],
+          "bytes": 58728448,
+          "sha256": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde",
+          "file": "full-output-bf16.bin",
+          "mount": "/work/inputs",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-output-bf16.bin",
+          "metadata_sha256": "98f47fffc574b0b004a248957971cc9a08dd70c517947c94056a8dd146e56932"
+        }
+      },
+      "reference_model": "Qwen3.6-35B-A3B; original q7169 layer0 operator capture",
+      "original_matrix_manifest_sha256": "961c23fcef8ea4b307d5f0a4157808a2447deda825a74c12e50e797ab25d32f4",
+      "original_matrix_result_sha256": "ba900cdb901be101c3bc449f5c76481a08a08e04bf9a91557250491c64f57bed",
+      "source_base_commit": "e03dbb52d68662a45a94c7fefe93839fc6501b33",
+      "arithmetic_base_sha256": "885db1273c2063882cb789ac159206eb018624a6812477fcd245f12038177e60",
+      "group16_arithmetic_body_unchanged": true,
+      "exp2_arithmetic_body_unchanged": true,
+      "layout": {
+        "size_per_thread": [
+          1,
+          1,
+          1
+        ],
+        "threads_per_warp": [
+          1,
+          2,
+          16
+        ],
+        "warps_per_cta": [
+          1,
+          4,
+          1
+        ],
+        "order": [
+          2,
+          1,
+          0
+        ],
+        "accumulator_slice_dimension": 2
+      },
+      "native_execution_required": true,
+      "model_loaded": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false
+    }
+  },
+  "dispatch": {
+    "file": "qrt-gdn-explicit-layout-20260923-r2/collected/dispatch.json",
+    "bytes": 4691,
+    "sha256": "d0f4d778d55a2855005d999d7a6c4e0d9c5d0a07b6d809b8295cc14b12fcebcb",
+    "record": {
+      "host": "aitopatom-66c4",
+      "source_archive_sha256": "1f1b942accb789a520b0c56df7319ab959fd5d011fd20a3dc1610d4c0c07c72b",
+      "actions": [
+        {
+          "action": "compile",
+          "host": "aitopatom-66c4",
+          "command": [
+            "docker",
+            "run",
+            "--name",
+            "qrt-gdn-explicit-layout-20260923-r2-compile",
+            "--hostname",
+            "aitopatom-66c4",
+            "--network",
+            "none",
+            "--memory",
+            "3g",
+            "--cpus",
+            "2",
+            "--pids-limit",
+            "256",
+            "--shm-size",
+            "1g",
+            "-v",
+            "<reference-home>/qrt-gdn-explicit-layout-20260923-r2:/work",
+            "-w",
+            "/work",
+            "--entrypoint",
+            "timeout",
+            "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+            "--signal=TERM",
+            "--kill-after=5",
+            "240",
+            "python3",
+            "compile_worker.py"
+          ],
+          "returncode": 0,
+          "reason": "completed",
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-09-23T06:47:40.682492371Z",
+            "FinishedAt": "2026-09-23T06:47:45.94623187Z"
+          },
+          "seconds": 5.469329151092097,
+          "gpu_used": false,
+          "gpu_processes_after": null,
+          "cleanup_pass": true
+        },
+        {
+          "action": "equivalence",
+          "host": "aitopatom-66c4",
+          "command": [
+            "docker",
+            "run",
+            "--name",
+            "qrt-gdn-explicit-layout-20260923-r2-equivalence",
+            "--hostname",
+            "aitopatom-66c4",
+            "--network",
+            "none",
+            "--memory",
+            "8g",
+            "--cpus",
+            "4",
+            "--pids-limit",
+            "256",
+            "--shm-size",
+            "1g",
+            "-v",
+            "<reference-home>/qrt-gdn-explicit-layout-20260923-r2:/work",
+            "-w",
+            "/work",
+            "--gpus",
+            "all",
+            "--entrypoint",
+            "timeout",
+            "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+            "--signal=TERM",
+            "--kill-after=5",
+            "120",
+            "python3",
+            "check_equivalence.py"
+          ],
+          "returncode": 0,
+          "reason": "completed",
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-09-23T06:47:46.141309867Z",
+            "FinishedAt": "2026-09-23T06:47:49.201241736Z"
+          },
+          "seconds": 3.2651104140095413,
+          "gpu_used": true,
+          "gpu_processes_after": "",
+          "cleanup_pass": true
+        },
+        {
+          "action": "pipeline",
+          "host": "aitopatom-66c4",
+          "command": [
+            "docker",
+            "run",
+            "--name",
+            "qrt-gdn-explicit-layout-20260923-r2-pipeline",
+            "--hostname",
+            "aitopatom-66c4",
+            "--network",
+            "none",
+            "--memory",
+            "8g",
+            "--cpus",
+            "4",
+            "--pids-limit",
+            "256",
+            "--shm-size",
+            "1g",
+            "-v",
+            "<reference-home>/qrt-gdn-explicit-layout-20260923-r2:/work",
+            "-w",
+            "/work",
+            "--gpus",
+            "all",
+            "-v",
+            "<reference-home>/qrt-native-gdn-ordered-pipeline-matrix-20260923-r1/inputs:/work/inputs:ro",
+            "-v",
+            "<reference-home>/qrt-native-gdn-ordered-pipeline-20260923-r1:/table:ro",
+            "-v",
+            "<reference-home>/qrt-native-gdn-ordered-inverse-matrix-20260923-r1/inputs:/inverse:ro",
+            "-v",
+            "<reference-home>/qrt-native-gdn-integer-u-matrix-20260923-r1/inputs:/baseu:ro",
+            "--entrypoint",
+            "timeout",
+            "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+            "--signal=TERM",
+            "--kill-after=5",
+            "300",
+            "python3",
+            "pipeline_worker.py"
+          ],
+          "returncode": 0,
+          "reason": "completed",
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-09-23T06:47:49.427580999Z",
+            "FinishedAt": "2026-09-23T06:48:01.40423301Z"
+          },
+          "seconds": 12.173506004968658,
+          "gpu_used": true,
+          "gpu_processes_after": "",
+          "cleanup_pass": true
+        }
+      ],
+      "model_loaded": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false
+    }
+  },
+  "compilation": {
+    "file": "qrt-gdn-explicit-layout-20260923-r2/collected/aot/result.json",
+    "bytes": 17666,
+    "sha256": "c156f841e28b85cf29d6512a984d35f2b5a72cf8c67a507ffd8c365a051b0768",
+    "record": {
+      "manifest_sha256": "476f517ff30cc5c2d345fae90932f6bc7a7b82d146273e5f3fe2cc948952c2ab",
+      "source_hashes": {
+        "ordered_inverse.py": "1f8c9e211ad9522a6b7d0d5f7f1bb5eb12bb788bb050e231f7d3adb8005f1921",
+        "compile_worker.py": "d2c0e1c8a27d8defc6e60090108ad2192e9471277eb209749cb9786ab147e7b8",
+        "check_equivalence.py": "832b3184dad4438b5b0b784e1bd3e076a956d4b70fb4047067dcc1cf5b6a985a",
+        "jobs.py": "bcc62ef32aaa6c4043affa2263addc11888fb7d4f2c1e9df8a30957a979b165e",
+        "pipeline_worker.py": "7418f35b1ac639f58063b8df7dfca4abd839562d11dfa4b9c25beea1ace0815b",
+        "exp2.py": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf",
+        "ordered_pipeline.py": "1e1fe71515f51552160c4e02e3aa03cc27af68dd390c241218381e227c913fae",
+        "group16.py": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef",
+        "old_integer_u.py": "77260da2314ffbc12b154b66fd341495edc49439610bcf5246ac1e8372638df1"
+      },
+      "images": [
+        {
+          "name": "kkt",
+          "file": "kkt.hsaco",
+          "bytes": 123992,
+          "sha256": "25ad60758dfe68debb2a648fadf0456fc9cc11f40c3a298d9a9433521d6c1adb",
+          "signature": {
+            "Q": "*bf16",
+            "K": "*bf16",
+            "Beta": "*fp32",
+            "G": "*fp32",
+            "Table": "*u8",
+            "Out": "*fp32",
+            "T": "i32"
+          },
+          "constants": {
+            "BM": 8,
+            "BN": 8,
+            "SCORE": false
+          },
+          "options": {
+            "num_warps": 4,
+            "num_stages": 2,
+            "enable_fp_fusion": false
+          },
+          "metadata": {
+            "allow_flush_denorm": false,
+            "allowed_dot_input_precisions": [
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "gfx1151",
+            "backend_name": "hip",
+            "debug": false,
+            "default_dot_input_precision": "ieee",
+            "deprecated_fp8_dot_operand_dtypes": [],
+            "enable_fp_fusion": false,
+            "extern_libs": [
+              [
+                "ocml",
+                "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+              ],
+              [
+                "ockl",
+                "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+              ]
+            ],
+            "hash": "c1102ee167fa00ec7e24cd207e8d1f25bbab1a40d10554c3e23eb9e3d9641753",
+            "instrumentation_mode": "",
+            "kpack": 1,
+            "launch_cooperative_grid": false,
+            "matrix_instr_nonkdim": 0,
+            "max_num_imprecise_acc_default": 0,
+            "name": "gram_kernel",
+            "num_ctas": 1,
+            "num_stages": 2,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "sanitize_overflow": true,
+            "schedule_hint": "none",
+            "shared": 0,
+            "supported_fp8_dtypes": [
+              "fp8e4b8",
+              "fp8e4nv",
+              "fp8e5",
+              "fp8e5b16"
+            ],
+            "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+            "tensordesc_meta": [],
+            "triton_version": "3.6.0",
+            "warp_size": 32,
+            "waves_per_eu": 0
+          },
+          "resources": {
+            ".vgpr_count": [
+              "133"
+            ],
+            ".vgpr_spill_count": [
+              "0"
+            ],
+            ".private_segment_fixed_size": [
+              "0"
+            ]
+          },
+          "layout_conversion_count": 0,
+          "shared_memory_instructions": 0
+        },
+        {
+          "name": "w",
+          "file": "w.hsaco",
+          "bytes": 62152,
+          "sha256": "e02084ce1d0a9faaf7917fdc360fdb8595308ee52ff3510d79ed01109d27d08c",
+          "signature": {
+            "A": "*bf16",
+            "K": "*bf16",
+            "Beta": "*fp32",
+            "G": "*fp32",
+            "Table": "*u8",
+            "W": "*bf16",
+            "T": "i32"
+          },
+          "constants": {
+            "BM": 8,
+            "BN": 8
+          },
+          "options": {
+            "num_warps": 4,
+            "num_stages": 2,
+            "enable_fp_fusion": false
+          },
+          "metadata": {
+            "allow_flush_denorm": false,
+            "allowed_dot_input_precisions": [
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "gfx1151",
+            "backend_name": "hip",
+            "debug": false,
+            "default_dot_input_precision": "ieee",
+            "deprecated_fp8_dot_operand_dtypes": [],
+            "enable_fp_fusion": false,
+            "extern_libs": [
+              [
+                "ocml",
+                "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+              ],
+              [
+                "ockl",
+                "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+              ]
+            ],
+            "hash": "1b704fed029a78587088ce49a739e7ce1277718a03187c7890d16bdb902cd2d3",
+            "instrumentation_mode": "",
+            "kpack": 1,
+            "launch_cooperative_grid": false,
+            "matrix_instr_nonkdim": 0,
+            "max_num_imprecise_acc_default": 0,
+            "name": "w_kernel",
+            "num_ctas": 1,
+            "num_stages": 2,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "sanitize_overflow": true,
+            "schedule_hint": "none",
+            "shared": 0,
+            "supported_fp8_dtypes": [
+              "fp8e4b8",
+              "fp8e4nv",
+              "fp8e5",
+              "fp8e5b16"
+            ],
+            "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+            "tensordesc_meta": [],
+            "triton_version": "3.6.0",
+            "warp_size": 32,
+            "waves_per_eu": 0
+          },
+          "resources": {
+            ".vgpr_count": [
+              "105"
+            ],
+            ".vgpr_spill_count": [
+              "0"
+            ],
+            ".private_segment_fixed_size": [
+              "0"
+            ]
+          },
+          "layout_conversion_count": 0,
+          "shared_memory_instructions": 0
+        },
+        {
+          "name": "u",
+          "file": "u.hsaco",
+          "bytes": 58192,
+          "sha256": "05fc06e02690a6735f525097ab9fde4fdba8c396f44734ae60c41bb99f4685da",
+          "signature": {
+            "A": "*bf16",
+            "V": "*bf16",
+            "Beta": "*fp32",
+            "U": "*bf16",
+            "Debug": "*fp32",
+            "T": "i32"
+          },
+          "constants": {
+            "H": 32,
+            "NV": 128,
+            "BM": 8,
+            "BN": 8,
+            "CAPTURE_F32": false
+          },
+          "options": {
+            "num_warps": 4,
+            "num_stages": 2,
+            "enable_fp_fusion": false
+          },
+          "metadata": {
+            "allow_flush_denorm": false,
+            "allowed_dot_input_precisions": [
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "gfx1151",
+            "backend_name": "hip",
+            "debug": false,
+            "default_dot_input_precision": "ieee",
+            "deprecated_fp8_dot_operand_dtypes": [],
+            "enable_fp_fusion": false,
+            "extern_libs": [
+              [
+                "ocml",
+                "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+              ],
+              [
+                "ockl",
+                "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+              ]
+            ],
+            "hash": "79b0934d29f06b3a8e9c810eefb7dc7798ff9aa3b3675d883662abbb0933a5fc",
+            "instrumentation_mode": "",
+            "kpack": 1,
+            "launch_cooperative_grid": false,
+            "matrix_instr_nonkdim": 0,
+            "max_num_imprecise_acc_default": 0,
+            "name": "integer_u_kernel",
+            "num_ctas": 1,
+            "num_stages": 2,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "sanitize_overflow": true,
+            "schedule_hint": "none",
+            "shared": 0,
+            "supported_fp8_dtypes": [
+              "fp8e4b8",
+              "fp8e4nv",
+              "fp8e5",
+              "fp8e5b16"
+            ],
+            "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+            "tensordesc_meta": [],
+            "triton_version": "3.6.0",
+            "warp_size": 32,
+            "waves_per_eu": 0
+          },
+          "resources": {
+            ".vgpr_count": [
+              "101"
+            ],
+            ".vgpr_spill_count": [
+              "0"
+            ],
+            ".private_segment_fixed_size": [
+              "0"
+            ]
+          },
+          "layout_conversion_count": 0,
+          "shared_memory_instructions": 0
+        },
+        {
+          "name": "scores",
+          "file": "scores.hsaco",
+          "bytes": 114368,
+          "sha256": "c765ab27eb335f1bca37bf6a3ea156111fe4b8175e3459a9866c0007751784a4",
+          "signature": {
+            "Q": "*bf16",
+            "K": "*bf16",
+            "Beta": "*fp32",
+            "G": "*fp32",
+            "Table": "*u8",
+            "Out": "*bf16",
+            "T": "i32"
+          },
+          "constants": {
+            "BM": 8,
+            "BN": 8,
+            "SCORE": true
+          },
+          "options": {
+            "num_warps": 4,
+            "num_stages": 2,
+            "enable_fp_fusion": false
+          },
+          "metadata": {
+            "allow_flush_denorm": false,
+            "allowed_dot_input_precisions": [
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "gfx1151",
+            "backend_name": "hip",
+            "debug": false,
+            "default_dot_input_precision": "ieee",
+            "deprecated_fp8_dot_operand_dtypes": [],
+            "enable_fp_fusion": false,
+            "extern_libs": [
+              [
+                "ocml",
+                "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+              ],
+              [
+                "ockl",
+                "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+              ]
+            ],
+            "hash": "e26a72609146fc7f95bf6c0fbe7848f6ebd04b08f52a7d23c68a7dc5e7e067c5",
+            "instrumentation_mode": "",
+            "kpack": 1,
+            "launch_cooperative_grid": false,
+            "matrix_instr_nonkdim": 0,
+            "max_num_imprecise_acc_default": 0,
+            "name": "gram_kernel",
+            "num_ctas": 1,
+            "num_stages": 2,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "sanitize_overflow": true,
+            "schedule_hint": "none",
+            "shared": 0,
+            "supported_fp8_dtypes": [
+              "fp8e4b8",
+              "fp8e4nv",
+              "fp8e5",
+              "fp8e5b16"
+            ],
+            "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+            "tensordesc_meta": [],
+            "triton_version": "3.6.0",
+            "warp_size": 32,
+            "waves_per_eu": 0
+          },
+          "resources": {
+            ".vgpr_count": [
+              "133"
+            ],
+            ".vgpr_spill_count": [
+              "0"
+            ],
+            ".private_segment_fixed_size": [
+              "0"
+            ]
+          },
+          "layout_conversion_count": 0,
+          "shared_memory_instructions": 0
+        },
+        {
+          "name": "residual",
+          "file": "residual.hsaco",
+          "bytes": 114376,
+          "sha256": "b8e7f2c5fdfa2a0135e37925b23bb44c45d29953073e67a82f7dedc0cf58af32",
+          "signature": {
+            "W": "*bf16",
+            "U": "*bf16",
+            "H0": "*fp32",
+            "G": "*fp32",
+            "Table": "*u8",
+            "VNew": "*bf16",
+            "Residual": "*bf16",
+            "T": "i32"
+          },
+          "constants": {
+            "BM": 8,
+            "BN": 8
+          },
+          "options": {
+            "num_warps": 4,
+            "num_stages": 2,
+            "enable_fp_fusion": false
+          },
+          "metadata": {
+            "allow_flush_denorm": false,
+            "allowed_dot_input_precisions": [
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "gfx1151",
+            "backend_name": "hip",
+            "debug": false,
+            "default_dot_input_precision": "ieee",
+            "deprecated_fp8_dot_operand_dtypes": [],
+            "enable_fp_fusion": false,
+            "extern_libs": [
+              [
+                "ocml",
+                "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+              ],
+              [
+                "ockl",
+                "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+              ]
+            ],
+            "hash": "0b23b208c9228607cb0acd48f73164ecdd21fe15fb06c290e0bf973055a05857",
+            "instrumentation_mode": "",
+            "kpack": 1,
+            "launch_cooperative_grid": false,
+            "matrix_instr_nonkdim": 0,
+            "max_num_imprecise_acc_default": 0,
+            "name": "residual_kernel",
+            "num_ctas": 1,
+            "num_stages": 2,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "sanitize_overflow": true,
+            "schedule_hint": "none",
+            "shared": 0,
+            "supported_fp8_dtypes": [
+              "fp8e4b8",
+              "fp8e4nv",
+              "fp8e5",
+              "fp8e5b16"
+            ],
+            "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+            "tensordesc_meta": [],
+            "triton_version": "3.6.0",
+            "warp_size": 32,
+            "waves_per_eu": 0
+          },
+          "resources": {
+            ".vgpr_count": [
+              "106"
+            ],
+            ".vgpr_spill_count": [
+              "0"
+            ],
+            ".private_segment_fixed_size": [
+              "0"
+            ]
+          },
+          "layout_conversion_count": 0,
+          "shared_memory_instructions": 0
+        },
+        {
+          "name": "state",
+          "file": "state.hsaco",
+          "bytes": 56768,
+          "sha256": "6354c9bcd4f0a6ebdd90d93a87d195058f25a33f16e8335b7a49e55bb379ce6b",
+          "signature": {
+            "K": "*bf16",
+            "Residual": "*bf16",
+            "H0": "*fp32",
+            "G": "*fp32",
+            "Table": "*u8",
+            "Final": "*fp32",
+            "T": "i32"
+          },
+          "constants": {
+            "BM": 8,
+            "BN": 8
+          },
+          "options": {
+            "num_warps": 4,
+            "num_stages": 2,
+            "enable_fp_fusion": false
+          },
+          "metadata": {
+            "allow_flush_denorm": false,
+            "allowed_dot_input_precisions": [
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "gfx1151",
+            "backend_name": "hip",
+            "debug": false,
+            "default_dot_input_precision": "ieee",
+            "deprecated_fp8_dot_operand_dtypes": [],
+            "enable_fp_fusion": false,
+            "extern_libs": [
+              [
+                "ocml",
+                "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+              ],
+              [
+                "ockl",
+                "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+              ]
+            ],
+            "hash": "9c339ef8ca080ee2c58a28a2a4e053e3ec82d34d574b91a5cea21167c67478cb",
+            "instrumentation_mode": "",
+            "kpack": 1,
+            "launch_cooperative_grid": false,
+            "matrix_instr_nonkdim": 0,
+            "max_num_imprecise_acc_default": 0,
+            "name": "state_kernel",
+            "num_ctas": 1,
+            "num_stages": 2,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "sanitize_overflow": true,
+            "schedule_hint": "none",
+            "shared": 0,
+            "supported_fp8_dtypes": [
+              "fp8e4b8",
+              "fp8e4nv",
+              "fp8e5",
+              "fp8e5b16"
+            ],
+            "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+            "tensordesc_meta": [],
+            "triton_version": "3.6.0",
+            "warp_size": 32,
+            "waves_per_eu": 0
+          },
+          "resources": {
+            ".vgpr_count": [
+              "111"
+            ],
+            ".vgpr_spill_count": [
+              "0"
+            ],
+            ".private_segment_fixed_size": [
+              "0"
+            ]
+          },
+          "layout_conversion_count": 0,
+          "shared_memory_instructions": 0
+        },
+        {
+          "name": "output",
+          "file": "output.hsaco",
+          "bytes": 172544,
+          "sha256": "3598c7582d75d7c1b78e160345bc9e40880bc7f53bdd8dea336e4d64f4b4b306",
+          "signature": {
+            "Q": "*bf16",
+            "VNew": "*bf16",
+            "H0": "*fp32",
+            "G": "*fp32",
+            "Scores": "*bf16",
+            "Table": "*u8",
+            "Out": "*bf16",
+            "T": "i32"
+          },
+          "constants": {
+            "BM": 8,
+            "BN": 8
+          },
+          "options": {
+            "num_warps": 4,
+            "num_stages": 2,
+            "enable_fp_fusion": false
+          },
+          "metadata": {
+            "allow_flush_denorm": false,
+            "allowed_dot_input_precisions": [
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "gfx1151",
+            "backend_name": "hip",
+            "debug": false,
+            "default_dot_input_precision": "ieee",
+            "deprecated_fp8_dot_operand_dtypes": [],
+            "enable_fp_fusion": false,
+            "extern_libs": [
+              [
+                "ocml",
+                "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+              ],
+              [
+                "ockl",
+                "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+              ]
+            ],
+            "hash": "23e697b4205da9930180a523017fdc83ee8f084780199b2d7e4c9a3c8c912756",
+            "instrumentation_mode": "",
+            "kpack": 1,
+            "launch_cooperative_grid": false,
+            "matrix_instr_nonkdim": 0,
+            "max_num_imprecise_acc_default": 0,
+            "name": "output_kernel",
+            "num_ctas": 1,
+            "num_stages": 2,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "sanitize_overflow": true,
+            "schedule_hint": "none",
+            "shared": 0,
+            "supported_fp8_dtypes": [
+              "fp8e4b8",
+              "fp8e4nv",
+              "fp8e5",
+              "fp8e5b16"
+            ],
+            "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+            "tensordesc_meta": [],
+            "triton_version": "3.6.0",
+            "warp_size": 32,
+            "waves_per_eu": 0
+          },
+          "resources": {
+            ".vgpr_count": [
+              "164"
+            ],
+            ".vgpr_spill_count": [
+              "0"
+            ],
+            ".private_segment_fixed_size": [
+              "0"
+            ]
+          },
+          "layout_conversion_count": 0,
+          "shared_memory_instructions": 0
+        }
+      ],
+      "wall_seconds": 5.057537331013009,
+      "gpu_used": false,
+      "amd_gpu_executed": false,
+      "model_loaded": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false
+    }
+  },
+  "equivalence": {
+    "file": "qrt-gdn-explicit-layout-20260923-r2/collected/equivalence-result.json",
+    "bytes": 1764,
+    "sha256": "8dc8bf94442a6bc1f507ff38edd93f4ccc1d23b23d4cc88cef0acddb0b902124",
+    "record": {
+      "host": "aitopatom-66c4",
+      "device": "NVIDIA GB10",
+      "manifest_sha256": "83e3dcbdca30328f5b6267e73d903cfc584515686bcb06473e179babec72aa6e",
+      "source_hashes": {
+        "check_equivalence.py": "832b3184dad4438b5b0b784e1bd3e076a956d4b70fb4047067dcc1cf5b6a985a",
+        "exp2.py": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf",
+        "ordered_pipeline.py": "1e1fe71515f51552160c4e02e3aa03cc27af68dd390c241218381e227c913fae",
+        "group16.py": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef",
+        "old_integer_u.py": "77260da2314ffbc12b154b66fd341495edc49439610bcf5246ac1e8372638df1"
+      },
+      "inputs": {
+        "left": {
+          "shape": [
+            32768,
+            8,
+            16
+          ],
+          "dtype": "torch.bfloat16",
+          "sha256": "b358d6434411f409e395e88ae7c57d467530060d73f0369bc8b5f51d26419519"
+        },
+        "right": {
+          "shape": [
+            32768,
+            8,
+            16
+          ],
+          "dtype": "torch.bfloat16",
+          "sha256": "21c0cbeece1d68a5a10429ea0d69e11cdeddd2b3dbe86083f1dc6b9a2b8de90f"
+        },
+        "carry": {
+          "shape": [
+            32768,
+            8,
+            8
+          ],
+          "dtype": "torch.float32",
+          "sha256": "debcf43b6c501ac808f0a1359bcfa253c6ae1ea504eb1b036aafaf93e60e4f63"
+        }
+      },
+      "seed": 20260923,
+      "batches": 32768,
+      "fp32_cells": 2097152,
+      "bit_mismatches": 0,
+      "guards_pass": true,
+      "inputs_unchanged": true,
+      "unsigned_magnitude_bound": 2197848060,
+      "bound_below_2_to_32": true,
+      "first_extreme_words": [
+        1115881599,
+        3263365247
+      ],
+      "output_sha256": "d5df49b12ee745236a910f835ddeb1e4a5b4c108dad8e5011b38da87d4182071",
+      "wall_seconds": 1.3791516271885484,
+      "amd_gpu_executed": false,
+      "model_loaded": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false
+    }
+  },
+  "continuous_original_chain": {
+    "file": "qrt-gdn-explicit-layout-20260923-r2/collected/pipeline-output/result.json",
+    "bytes": 32984,
+    "sha256": "42750459c7c7bdcefdc0a39ae2d5b065bf56856366103eb5b08f50742397f033",
+    "record": {
+      "host": "aitopatom-66c4",
+      "device": "NVIDIA GB10",
+      "manifest_sha256": "476f517ff30cc5c2d345fae90932f6bc7a7b82d146273e5f3fe2cc948952c2ab",
+      "source_hashes": {
+        "ordered_inverse.py": "1f8c9e211ad9522a6b7d0d5f7f1bb5eb12bb788bb050e231f7d3adb8005f1921",
+        "compile_worker.py": "d2c0e1c8a27d8defc6e60090108ad2192e9471277eb209749cb9786ab147e7b8",
+        "check_equivalence.py": "832b3184dad4438b5b0b784e1bd3e076a956d4b70fb4047067dcc1cf5b6a985a",
+        "jobs.py": "bcc62ef32aaa6c4043affa2263addc11888fb7d4f2c1e9df8a30957a979b165e",
+        "pipeline_worker.py": "7418f35b1ac639f58063b8df7dfca4abd839562d11dfa4b9c25beea1ace0815b",
+        "exp2.py": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf",
+        "ordered_pipeline.py": "1e1fe71515f51552160c4e02e3aa03cc27af68dd390c241218381e227c913fae",
+        "group16.py": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef",
+        "old_integer_u.py": "77260da2314ffbc12b154b66fd341495edc49439610bcf5246ac1e8372638df1"
+      },
+      "inputs": {
+        "a": {
+          "dtype": "float32",
+          "shape": [
+            1,
+            7169,
+            32,
+            64
+          ],
+          "bytes": 58728448,
+          "sha256": "17356d59cfffa1db8cb7529f0a3b259033a35eb8efd05007d88b5e905b45dc18",
+          "file": "full-a-f32.bin",
+          "mount": "/inverse",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-a-f32.bin",
+          "metadata_sha256": "de054bbdf2c1cf1770b7ded15c6fdef7225dc591d418eccfeaadcf105be1437d"
+        },
+        "a-inverse": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            7169,
+            32,
+            64
+          ],
+          "bytes": 29364224,
+          "sha256": "7c6a9c8445ab3496c7468282aa7cd2d6cc47ed6849aa57762b84d56e57cecc62",
+          "file": "full-a-inverse-bf16.bin",
+          "mount": "/inverse",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-a-inverse-bf16.bin",
+          "metadata_sha256": "ff1e27a22b4855fd9171fa82464d8d00fa229e8aeec555ea678f7384b7f268b3"
+        },
+        "v": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            7169,
+            32,
+            128
+          ],
+          "bytes": 58728448,
+          "sha256": "cc324c828ffa9f2e950235a14669a66d74fc9efd3babc148d0c0659b2ad19dd9",
+          "file": "full-v-bf16.bin",
+          "mount": "/baseu",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-v-bf16.bin",
+          "metadata_sha256": "62161b892292780c64dcca337c2ad149a0e3c913fcfe27b9d4a1a37927a2e2bd"
+        },
+        "beta": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            7169,
+            32
+          ],
+          "bytes": 458816,
+          "sha256": "0cdbca3923d699b6c9db3a4b9aac166a851f322f409b365fc5264b7726cf642b",
+          "file": "full-beta-bf16.bin",
+          "mount": "/baseu",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-beta-bf16.bin",
+          "metadata_sha256": "f84b00d7d8bbf5191ad661a168ad28e31a7d3a84038642c62e8fd178ed1772ad"
+        },
+        "u": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            7169,
+            32,
+            128
+          ],
+          "bytes": 58728448,
+          "sha256": "1b4d91596e6554314647111d1dfa156517be6afae313cd69cf51234dfd955cfb",
+          "file": "full-u-bf16.bin",
+          "mount": "/baseu",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-u-bf16.bin",
+          "metadata_sha256": "47f7b0efb67db3e0c51eced6322f67b7bc6a73af4fb45100bc1d0af05757358f"
+        },
+        "q-normalized": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            7169,
+            16,
+            128
+          ],
+          "bytes": 29364224,
+          "sha256": "a6c81d03c850de6745ecc0e6810474689f8202cbd4c6cb616d6368b1f051c573",
+          "file": "full-q-normalized-bf16.bin",
+          "mount": "/work/inputs",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-q-normalized-bf16.bin",
+          "metadata_sha256": "f2a8a3a522b02bfbf68e41116cf96886cc0b9c6c4615c3f66bb1854f2e4ea690"
+        },
+        "k-normalized": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            7169,
+            16,
+            128
+          ],
+          "bytes": 29364224,
+          "sha256": "7778fce8bbd9ce6d046eec1e2639a0d89e53bb9e3b443b9ab1fe7e8d5656ea24",
+          "file": "full-k-normalized-bf16.bin",
+          "mount": "/work/inputs",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-k-normalized-bf16.bin",
+          "metadata_sha256": "dcf82be0ea6222e6690f87560fce0edc025671d5df20f9d7406d559185273f27"
+        },
+        "g-cumsum": {
+          "dtype": "float32",
+          "shape": [
+            1,
+            7169,
+            32
+          ],
+          "bytes": 917632,
+          "sha256": "b618db8ede809426f3c95741cce49b03d8c4cbec7888f4af0a397d959dc557b0",
+          "file": "full-g-cumsum-f32.bin",
+          "mount": "/work/inputs",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-g-cumsum-f32.bin",
+          "metadata_sha256": "4bd5de3f39799ac27d4cae67508b5cd05718a0cb67ebb714c6217702c40de6a6"
+        },
+        "w": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            7169,
+            32,
+            128
+          ],
+          "bytes": 58728448,
+          "sha256": "5cc5baa0e2f85758c28c06f03d8b87d5cff82b361b3382d7b531e2927e545545",
+          "file": "full-w-bf16.bin",
+          "mount": "/work/inputs",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-w-bf16.bin",
+          "metadata_sha256": "f677dff1dda3b88f3727969d84ca9f526b45dc86d8902b03adb12dce93414498"
+        },
+        "v-new": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            7169,
+            32,
+            128
+          ],
+          "bytes": 58728448,
+          "sha256": "b6fd8d6801622a4b7dc00490a6abee2e584df5e21b907f66eb6fa986a3d2229f",
+          "file": "full-v-new-bf16.bin",
+          "mount": "/work/inputs",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-v-new-bf16.bin",
+          "metadata_sha256": "409ce7f5ca9b8993c35cde69402c8376d05591c18aa79fe550d292d2b94bf775"
+        },
+        "chunk-state": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            113,
+            32,
+            128,
+            128
+          ],
+          "bytes": 118489088,
+          "sha256": "140741e123824032adb256af41c542fe74f8782ca1980b2b8eaba61ca61f6735",
+          "file": "full-chunk-state-bf16.bin",
+          "mount": "/work/inputs",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-chunk-state-bf16.bin",
+          "metadata_sha256": "b194d3b1ecfe378f2d955d6009aaafe5c7c768a22a3053a75fbcae45517ab0df"
+        },
+        "initial_state": {
+          "dtype": "float32",
+          "shape": [
+            1,
+            32,
+            128,
+            128
+          ],
+          "bytes": 2097152,
+          "sha256": "5647f05ec18958947d32874eeb788fa396a05d0bab7c1b71f112ceb7e9b31eee",
+          "file": "full-initial_state-f32.bin",
+          "mount": "/work/inputs",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-initial_state-f32.bin",
+          "metadata_sha256": "a69666b9dfad9a1c965c391d305505cda6384edd6360d8d77c06c71568e2b447"
+        },
+        "state": {
+          "dtype": "float32",
+          "shape": [
+            1,
+            32,
+            128,
+            128
+          ],
+          "bytes": 2097152,
+          "sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2",
+          "file": "full-state-f32.bin",
+          "mount": "/work/inputs",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-state-f32.bin",
+          "metadata_sha256": "3e979f6f86504b4bf6b00c2c6b62740f94a2c45f10345c7f3f59520694d2bdc9"
+        },
+        "output": {
+          "dtype": "bfloat16",
+          "shape": [
+            1,
+            7169,
+            32,
+            128
+          ],
+          "bytes": 58728448,
+          "sha256": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde",
+          "file": "full-output-bf16.bin",
+          "mount": "/work/inputs",
+          "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-output-bf16.bin",
+          "metadata_sha256": "98f47fffc574b0b004a248957971cc9a08dd70c517947c94056a8dd146e56932"
+        }
+      },
+      "records": [
+        {
+          "surface": "kkt",
+          "file": "kkt.bin",
+          "artifact_saved": false,
+          "bytes": 58728448,
+          "shape": [
+            1,
+            7169,
+            32,
+            64
+          ],
+          "dtype": "torch.float32",
+          "sha256": "17356d59cfffa1db8cb7529f0a3b259033a35eb8efd05007d88b5e905b45dc18",
+          "reference": "a",
+          "reference_sha256": "17356d59cfffa1db8cb7529f0a3b259033a35eb8efd05007d88b5e905b45dc18",
+          "bit_mismatches": 0,
+          "guards_pass": true
+        },
+        {
+          "surface": "inverse",
+          "file": "inverse.bin",
+          "artifact_saved": false,
+          "bytes": 29364224,
+          "shape": [
+            1,
+            7169,
+            32,
+            64
+          ],
+          "dtype": "torch.bfloat16",
+          "sha256": "7c6a9c8445ab3496c7468282aa7cd2d6cc47ed6849aa57762b84d56e57cecc62",
+          "reference": "a-inverse",
+          "reference_sha256": "7c6a9c8445ab3496c7468282aa7cd2d6cc47ed6849aa57762b84d56e57cecc62",
+          "bit_mismatches": 0,
+          "guards_pass": true
+        },
+        {
+          "surface": "w",
+          "file": "w.bin",
+          "artifact_saved": false,
+          "bytes": 58728448,
+          "shape": [
+            1,
+            7169,
+            32,
+            128
+          ],
+          "dtype": "torch.bfloat16",
+          "sha256": "5cc5baa0e2f85758c28c06f03d8b87d5cff82b361b3382d7b531e2927e545545",
+          "reference": "w",
+          "reference_sha256": "5cc5baa0e2f85758c28c06f03d8b87d5cff82b361b3382d7b531e2927e545545",
+          "bit_mismatches": 0,
+          "guards_pass": true
+        },
+        {
+          "surface": "u",
+          "file": "u.bin",
+          "artifact_saved": false,
+          "bytes": 58728448,
+          "shape": [
+            1,
+            7169,
+            32,
+            128
+          ],
+          "dtype": "torch.bfloat16",
+          "sha256": "1b4d91596e6554314647111d1dfa156517be6afae313cd69cf51234dfd955cfb",
+          "reference": "u",
+          "reference_sha256": "1b4d91596e6554314647111d1dfa156517be6afae313cd69cf51234dfd955cfb",
+          "bit_mismatches": 0,
+          "guards_pass": true
+        },
+        {
+          "surface": "v-new",
+          "file": "v-new.bin",
+          "artifact_saved": false,
+          "bytes": 58728448,
+          "shape": [
+            1,
+            7169,
+            32,
+            128
+          ],
+          "dtype": "torch.bfloat16",
+          "sha256": "b6fd8d6801622a4b7dc00490a6abee2e584df5e21b907f66eb6fa986a3d2229f",
+          "reference": "v-new",
+          "reference_sha256": "b6fd8d6801622a4b7dc00490a6abee2e584df5e21b907f66eb6fa986a3d2229f",
+          "bit_mismatches": 0,
+          "guards_pass": true
+        },
+        {
+          "surface": "core",
+          "file": "core.bin",
+          "artifact_saved": false,
+          "bytes": 58728448,
+          "shape": [
+            1,
+            7169,
+            32,
+            128
+          ],
+          "dtype": "torch.bfloat16",
+          "sha256": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde",
+          "reference": "output",
+          "reference_sha256": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde",
+          "bit_mismatches": 0,
+          "guards_pass": true
+        },
+        {
+          "surface": "final-state",
+          "file": "final-state.bin",
+          "artifact_saved": false,
+          "bytes": 2097152,
+          "shape": [
+            1,
+            32,
+            128,
+            128
+          ],
+          "dtype": "torch.float32",
+          "sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2",
+          "reference": "state",
+          "reference_sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2",
+          "bit_mismatches": 0,
+          "guards_pass": true
+        }
+      ],
+      "checkpoints": [
+        {
+          "chunk": 0,
+          "first_position": 0,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 1,
+          "first_position": 64,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 2,
+          "first_position": 128,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 3,
+          "first_position": 192,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 4,
+          "first_position": 256,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 5,
+          "first_position": 320,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 6,
+          "first_position": 384,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 7,
+          "first_position": 448,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 8,
+          "first_position": 512,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 9,
+          "first_position": 576,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 10,
+          "first_position": 640,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 11,
+          "first_position": 704,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 12,
+          "first_position": 768,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 13,
+          "first_position": 832,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 14,
+          "first_position": 896,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 15,
+          "first_position": 960,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 16,
+          "first_position": 1024,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 17,
+          "first_position": 1088,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 18,
+          "first_position": 1152,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 19,
+          "first_position": 1216,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 20,
+          "first_position": 1280,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 21,
+          "first_position": 1344,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 22,
+          "first_position": 1408,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 23,
+          "first_position": 1472,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 24,
+          "first_position": 1536,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 25,
+          "first_position": 1600,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 26,
+          "first_position": 1664,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 27,
+          "first_position": 1728,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 28,
+          "first_position": 1792,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 29,
+          "first_position": 1856,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 30,
+          "first_position": 1920,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 31,
+          "first_position": 1984,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 32,
+          "first_position": 2048,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 33,
+          "first_position": 2112,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 34,
+          "first_position": 2176,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 35,
+          "first_position": 2240,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 36,
+          "first_position": 2304,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 37,
+          "first_position": 2368,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 38,
+          "first_position": 2432,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 39,
+          "first_position": 2496,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 40,
+          "first_position": 2560,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 41,
+          "first_position": 2624,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 42,
+          "first_position": 2688,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 43,
+          "first_position": 2752,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 44,
+          "first_position": 2816,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 45,
+          "first_position": 2880,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 46,
+          "first_position": 2944,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 47,
+          "first_position": 3008,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 48,
+          "first_position": 3072,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 49,
+          "first_position": 3136,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 50,
+          "first_position": 3200,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 51,
+          "first_position": 3264,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 52,
+          "first_position": 3328,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 53,
+          "first_position": 3392,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 54,
+          "first_position": 3456,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 55,
+          "first_position": 3520,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 56,
+          "first_position": 3584,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 57,
+          "first_position": 3648,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 58,
+          "first_position": 3712,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 59,
+          "first_position": 3776,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 60,
+          "first_position": 3840,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 61,
+          "first_position": 3904,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 62,
+          "first_position": 3968,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 63,
+          "first_position": 4032,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 64,
+          "first_position": 4096,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 65,
+          "first_position": 4160,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 66,
+          "first_position": 4224,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 67,
+          "first_position": 4288,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 68,
+          "first_position": 4352,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 69,
+          "first_position": 4416,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 70,
+          "first_position": 4480,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 71,
+          "first_position": 4544,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 72,
+          "first_position": 4608,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 73,
+          "first_position": 4672,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 74,
+          "first_position": 4736,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 75,
+          "first_position": 4800,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 76,
+          "first_position": 4864,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 77,
+          "first_position": 4928,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 78,
+          "first_position": 4992,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 79,
+          "first_position": 5056,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 80,
+          "first_position": 5120,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 81,
+          "first_position": 5184,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 82,
+          "first_position": 5248,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 83,
+          "first_position": 5312,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 84,
+          "first_position": 5376,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 85,
+          "first_position": 5440,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 86,
+          "first_position": 5504,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 87,
+          "first_position": 5568,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 88,
+          "first_position": 5632,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 89,
+          "first_position": 5696,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 90,
+          "first_position": 5760,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 91,
+          "first_position": 5824,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 92,
+          "first_position": 5888,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 93,
+          "first_position": 5952,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 94,
+          "first_position": 6016,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 95,
+          "first_position": 6080,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 96,
+          "first_position": 6144,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 97,
+          "first_position": 6208,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 98,
+          "first_position": 6272,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 99,
+          "first_position": 6336,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 100,
+          "first_position": 6400,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 101,
+          "first_position": 6464,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 102,
+          "first_position": 6528,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 103,
+          "first_position": 6592,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 104,
+          "first_position": 6656,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 105,
+          "first_position": 6720,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 106,
+          "first_position": 6784,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 107,
+          "first_position": 6848,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 108,
+          "first_position": 6912,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 109,
+          "first_position": 6976,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 110,
+          "first_position": 7040,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 111,
+          "first_position": 7104,
+          "tokens": 64,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        },
+        {
+          "chunk": 112,
+          "first_position": 7168,
+          "tokens": 1,
+          "incoming_bf16_state_mismatches": 0,
+          "v_new_bf16_mismatches": 0,
+          "core_bf16_mismatches": 0
+        }
+      ],
+      "counterfactual": null,
+      "all_original_stages_match": true,
+      "inputs_unchanged": true,
+      "guards_pass": true,
+      "model_loaded": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "amd_gpu_executed": false
+    }
+  },
+  "command_file": {
+    "file": "qrt-gdn-explicit-layout-20260923-r2/driver.py",
+    "sha256": "e2971f60437565c691c221747d42e94476cf6485dc7e6f53723691a6b96d091f"
+  },
+  "original_matrix_manifest_sha256": "961c23fcef8ea4b307d5f0a4157808a2447deda825a74c12e50e797ab25d32f4",
+  "original_matrix_result_sha256": "ba900cdb901be101c3bc449f5c76481a08a08e04bf9a91557250491c64f57bed",
+  "archived_sources": {
+    "tools/experiments/ordered_q8192/explicit_gdn_layout/ordered_inverse.py": "1f8c9e211ad9522a6b7d0d5f7f1bb5eb12bb788bb050e231f7d3adb8005f1921",
+    "tools/experiments/ordered_q8192/explicit_gdn_layout/compile_worker.py": "d2c0e1c8a27d8defc6e60090108ad2192e9471277eb209749cb9786ab147e7b8",
+    "tools/experiments/ordered_q8192/explicit_gdn_layout/check_equivalence.py": "832b3184dad4438b5b0b784e1bd3e076a956d4b70fb4047067dcc1cf5b6a985a",
+    "tools/experiments/ordered_q8192/explicit_gdn_layout/jobs.py": "bcc62ef32aaa6c4043affa2263addc11888fb7d4f2c1e9df8a30957a979b165e",
+    "tools/experiments/ordered_q8192/explicit_gdn_layout/pipeline_worker.py": "7418f35b1ac639f58063b8df7dfca4abd839562d11dfa4b9c25beea1ace0815b",
+    "tools/experiments/ordered_q8192/explicit_gdn_layout/exp2.py": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf",
+    "tools/experiments/ordered_q8192/explicit_gdn_layout/ordered_pipeline.py": "1e1fe71515f51552160c4e02e3aa03cc27af68dd390c241218381e227c913fae",
+    "tools/experiments/ordered_q8192/explicit_gdn_layout/group16.py": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef",
+    "tools/experiments/ordered_q8192/explicit_gdn_layout/old_integer_u.py": "77260da2314ffbc12b154b66fd341495edc49439610bcf5246ac1e8372638df1",
+    "tools/experiments/ordered_q8192/explicit_gdn_layout/manifest.json": "476f517ff30cc5c2d345fae90932f6bc7a7b82d146273e5f3fe2cc948952c2ab",
+    "tools/experiments/ordered_q8192/explicit_gdn_layout/equivalence-manifest.json": "83e3dcbdca30328f5b6267e73d903cfc584515686bcb06473e179babec72aa6e"
+  },
+  "download_manifest": {
+    "file": "qrt-gdn-explicit-layout-20260923-r2/collected/download-manifest.json",
+    "bytes": 6356,
+    "sha256": "93d0eb9378badaaf7e4ec83fcaeb59181bc525858aeeec2ba7f771d2174c1af9",
+    "record": {
+      "compile.stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "compile_worker.py": {
+        "bytes": 2301,
+        "sha256": "d2c0e1c8a27d8defc6e60090108ad2192e9471277eb209749cb9786ab147e7b8"
+      },
+      "equivalence-manifest.json": {
+        "bytes": 480,
+        "sha256": "83e3dcbdca30328f5b6267e73d903cfc584515686bcb06473e179babec72aa6e"
+      },
+      "pipeline_worker.py": {
+        "bytes": 6534,
+        "sha256": "7418f35b1ac639f58063b8df7dfca4abd839562d11dfa4b9c25beea1ace0815b"
+      },
+      "old_integer_u.py": {
+        "bytes": 4268,
+        "sha256": "77260da2314ffbc12b154b66fd341495edc49439610bcf5246ac1e8372638df1"
+      },
+      "check_equivalence.py": {
+        "bytes": 4779,
+        "sha256": "832b3184dad4438b5b0b784e1bd3e076a956d4b70fb4047067dcc1cf5b6a985a"
+      },
+      "dispatch.json": {
+        "bytes": 4691,
+        "sha256": "d0f4d778d55a2855005d999d7a6c4e0d9c5d0a07b6d809b8295cc14b12fcebcb"
+      },
+      "exp2.py": {
+        "bytes": 1318,
+        "sha256": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf"
+      },
+      "equivalence-result.json": {
+        "bytes": 1764,
+        "sha256": "8dc8bf94442a6bc1f507ff38edd93f4ccc1d23b23d4cc88cef0acddb0b902124"
+      },
+      "group16.py": {
+        "bytes": 3120,
+        "sha256": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef"
+      },
+      "ordered_inverse.py": {
+        "bytes": 10434,
+        "sha256": "1f8c9e211ad9522a6b7d0d5f7f1bb5eb12bb788bb050e231f7d3adb8005f1921"
+      },
+      "manifest.json": {
+        "bytes": 8539,
+        "sha256": "476f517ff30cc5c2d345fae90932f6bc7a7b82d146273e5f3fe2cc948952c2ab"
+      },
+      "pipeline.stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "pipeline.stdout.log": {
+        "bytes": 2091,
+        "sha256": "77f7689edd9a7e6b6708baebe4a5d977e9c119f51597541dd26134c84a354d4a"
+      },
+      "compile.stdout.log": {
+        "bytes": 1388,
+        "sha256": "9bf398a5376b7aec512d3846eb682bb401348333156f41de805e77162a71d721"
+      },
+      "jobs.py": {
+        "bytes": 1533,
+        "sha256": "bcc62ef32aaa6c4043affa2263addc11888fb7d4f2c1e9df8a30957a979b165e"
+      },
+      "equivalence.stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordered_pipeline.py": {
+        "bytes": 8851,
+        "sha256": "1e1fe71515f51552160c4e02e3aa03cc27af68dd390c241218381e227c913fae"
+      },
+      "equivalence.stdout.log": {
+        "bytes": 1502,
+        "sha256": "2d7277afae22f9b946f4c943a39b65d938a45f4822849b662696c6035bc24730"
+      },
+      "aot/u.ttgir": {
+        "bytes": 127952,
+        "sha256": "8a75e2f1ef96684b0e7328102d5449b1c1abb478a5cb87aa7dd4c943c7a0c02d"
+      },
+      "aot/result.json": {
+        "bytes": 17666,
+        "sha256": "c156f841e28b85cf29d6512a984d35f2b5a72cf8c67a507ffd8c365a051b0768"
+      },
+      "aot/residual.llir": {
+        "bytes": 580134,
+        "sha256": "00826557d697d0279422e5d2abbfd60bd5717abd023f57b057d950b86c793fd4"
+      },
+      "aot/scores.ttgir": {
+        "bytes": 219447,
+        "sha256": "c26e7d005fff5754e99d16b33978af55273355c55b7f2babea15b83068eb17f8"
+      },
+      "aot/residual.ttgir": {
+        "bytes": 221230,
+        "sha256": "f1076e8d3e292e6ee84ed4eac611a81e244900f4ce9ab349c82a2f87c33bc0ee"
+      },
+      "aot/state.amdgcn": {
+        "bytes": 531196,
+        "sha256": "0153fde04e410bd0edbd3695bd950848502c494511fc38e0b22d246cade493c4"
+      },
+      "aot/state.ttgir": {
+        "bytes": 129902,
+        "sha256": "df716aedd97b21b4cfc84ba1114ec2a6949f638a444e02679683a54b156b4079"
+      },
+      "aot/kkt.llir": {
+        "bytes": 605157,
+        "sha256": "ba6e27a903cd6c27c7c293c1c7b9aff5a425712796b4f5cb53d32f89f0ea0b84"
+      },
+      "aot/output.ttgir": {
+        "bytes": 309907,
+        "sha256": "1345642ecc157158b52e2b80108fd26b56d589a3ec60e1a554dfcfcc7e8aa05d"
+      },
+      "aot/state.llir": {
+        "bytes": 273362,
+        "sha256": "e3d4dd42a8baa2aac62c7595fd2a3b2580f307d7f24c26147bcb37fadbcfeda7"
+      },
+      "aot/scores.hsaco": {
+        "bytes": 114368,
+        "sha256": "c765ab27eb335f1bca37bf6a3ea156111fe4b8175e3459a9866c0007751784a4"
+      },
+      "aot/output.amdgcn": {
+        "bytes": 1668912,
+        "sha256": "cd5c2decb70749dd965946ecf281751de5dde1995ae1e85ec57d9098d8ccc2e1"
+      },
+      "aot/w.llir": {
+        "bytes": 300068,
+        "sha256": "0573f37b2f022ffef1afe858ff921dc77c648d350af15ad3e12f6a453bc2da76"
+      },
+      "aot/scores.llir": {
+        "bytes": 569448,
+        "sha256": "35336b8b70e04dbff4f51b98768b19ef894311ba671182655dee031a4352e211"
+      },
+      "aot/w.hsaco": {
+        "bytes": 62152,
+        "sha256": "e02084ce1d0a9faaf7917fdc360fdb8595308ee52ff3510d79ed01109d27d08c"
+      },
+      "aot/output.llir": {
+        "bytes": 832376,
+        "sha256": "f82d704eff8b517e7d87d4ed91665d2d4667114687935f01d774e5e29c3cfe6b"
+      },
+      "aot/residual.hsaco": {
+        "bytes": 114376,
+        "sha256": "b8e7f2c5fdfa2a0135e37925b23bb44c45d29953073e67a82f7dedc0cf58af32"
+      },
+      "aot/kkt.hsaco": {
+        "bytes": 123992,
+        "sha256": "25ad60758dfe68debb2a648fadf0456fc9cc11f40c3a298d9a9433521d6c1adb"
+      },
+      "aot/kkt.ttgir": {
+        "bytes": 225907,
+        "sha256": "e063884364e780c6dc9dddfbf9d2747b36d364d1bfe6d688768f7408c37e3c05"
+      },
+      "aot/u.hsaco": {
+        "bytes": 58192,
+        "sha256": "05fc06e02690a6735f525097ab9fde4fdba8c396f44734ae60c41bb99f4685da"
+      },
+      "aot/u.llir": {
+        "bytes": 273071,
+        "sha256": "1988763120ecdde68c5a28dc16cb414f32e25531c58566c51f7cfecc26045713"
+      },
+      "aot/state.hsaco": {
+        "bytes": 56768,
+        "sha256": "6354c9bcd4f0a6ebdd90d93a87d195058f25a33f16e8335b7a49e55bb379ce6b"
+      },
+      "aot/w.amdgcn": {
+        "bytes": 564445,
+        "sha256": "94598f494252b7ec804765b4be392e85335dd42aa74ff01a93e9cc62c477ca56"
+      },
+      "aot/output.hsaco": {
+        "bytes": 172544,
+        "sha256": "3598c7582d75d7c1b78e160345bc9e40880bc7f53bdd8dea336e4d64f4b4b306"
+      },
+      "aot/w.ttgir": {
+        "bytes": 183048,
+        "sha256": "fff31c1a7cb1c0d9ecc3f53807b066bbe4335f44fc671f8e5470eff4b9b88a9f"
+      },
+      "aot/u.amdgcn": {
+        "bytes": 551012,
+        "sha256": "4dc77de093b0537eb1e38ff6a2ebb62a05083932428f09bd4471d8572260809e"
+      },
+      "aot/residual.amdgcn": {
+        "bytes": 1127125,
+        "sha256": "98d27a6cc47bb6c8a4bfcab2f801c5313cf1333503c4effd7fcf0b87ac62a1a6"
+      },
+      "aot/kkt.amdgcn": {
+        "bytes": 1200094,
+        "sha256": "21c5ed8fee3e651b8362b2fff84bdca231f67769ae3950e3488c502121668b52"
+      },
+      "aot/scores.amdgcn": {
+        "bytes": 1117261,
+        "sha256": "a30a0c8736a3d1562b1d718af9b21a31d3f632de825cae743f4925371024fd3a"
+      },
+      "pipeline-output/result.json": {
+        "bytes": 32984,
+        "sha256": "42750459c7c7bdcefdc0a39ae2d5b065bf56856366103eb5b08f50742397f033"
+      }
+    }
+  },
+  "download_archive_sha256": "b74989e75a6e4d105af13cbc0eb512c19d192e8c8d4b08fbdbec79152fced005",
+  "prior_failed_report": {
+    "dispatch": {
+      "file": "qrt-gdn-explicit-layout-20260923-r1/collected/dispatch.json",
+      "bytes": 1561,
+      "sha256": "5d7fc4aca47e03f77ef4b087343e585df6f044a67cedb3d372034cb57e17cb93",
+      "record": {
+        "host": "aitopatom-66c4",
+        "source_archive_sha256": "7ad720463b0f7d8584267913fe598848bae6b97d14f1a267a0dc8f30fad88522",
+        "actions": [
+          {
+            "action": "compile",
+            "host": "aitopatom-66c4",
+            "command": [
+              "docker",
+              "run",
+              "--name",
+              "qrt-gdn-explicit-layout-20260923-r1-compile",
+              "--hostname",
+              "aitopatom-66c4",
+              "--network",
+              "none",
+              "--memory",
+              "3g",
+              "--cpus",
+              "2",
+              "--pids-limit",
+              "256",
+              "--shm-size",
+              "1g",
+              "-v",
+              "<reference-home>/qrt-gdn-explicit-layout-20260923-r1:/work",
+              "-w",
+              "/work",
+              "--entrypoint",
+              "timeout",
+              "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+              "--signal=TERM",
+              "--kill-after=5",
+              "240",
+              "python3",
+              "compile_worker.py"
+            ],
+            "returncode": 1,
+            "reason": "completed",
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 1,
+              "Error": "",
+              "StartedAt": "2026-09-23T06:45:55.184542797Z",
+              "FinishedAt": "2026-09-23T06:46:00.485869535Z"
+            },
+            "seconds": 5.513761431910098,
+            "gpu_used": false,
+            "gpu_processes_after": null,
+            "cleanup_pass": true
+          }
+        ],
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false
+      }
+    },
+    "stderr": "Traceback (most recent call last):\n  File \"/work/compile_worker.py\", line 35, in <module>\n    (out/'result.json').write_text(json.dumps(report,indent=2)+'\\n')\n                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/json/__init__.py\", line 238, in dumps\n    **kw).encode(obj)\n          ^^^^^^^^^^^\n  File \"/usr/lib/python3.12/json/encoder.py\", line 202, in encode\n    chunks = list(chunks)\n             ^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/json/encoder.py\", line 432, in _iterencode\n    yield from _iterencode_dict(o, _current_indent_level)\n  File \"/usr/lib/python3.12/json/encoder.py\", line 406, in _iterencode_dict\n    yield from chunks\n  File \"/usr/lib/python3.12/json/encoder.py\", line 326, in _iterencode_list\n    yield from chunks\n  File \"/usr/lib/python3.12/json/encoder.py\", line 406, in _iterencode_dict\n    yield from chunks\n  File \"/usr/lib/python3.12/json/encoder.py\", line 406, in _iterencode_dict\n    yield from chunks\n  File \"/usr/lib/python3.12/json/encoder.py\", line 439, in _iterencode\n    o = _default(o)\n        ^^^^^^^^^^^\n  File \"/usr/lib/python3.12/json/encoder.py\", line 180, in default\n    raise TypeError(f'Object of type {o.__class__.__name__} '\nTypeError: Object of type GPUTarget is not JSON serializable\n",
+    "stderr_sha256": "647a738c81264e34bd43717b5c29a999a2b7e65b24897d1950c4d37cc2e98d66",
+    "cause": "The seven images compiled, but GPUTarget in compiler metadata was not JSON serializable. The subsequent report serializer uses default=str.",
+    "both_runs_image_bytes_identical": [
+      {
+        "file": "kkt.hsaco",
+        "bytes": 123992,
+        "sha256": "25ad60758dfe68debb2a648fadf0456fc9cc11f40c3a298d9a9433521d6c1adb"
+      },
+      {
+        "file": "w.hsaco",
+        "bytes": 62152,
+        "sha256": "e02084ce1d0a9faaf7917fdc360fdb8595308ee52ff3510d79ed01109d27d08c"
+      },
+      {
+        "file": "u.hsaco",
+        "bytes": 58192,
+        "sha256": "05fc06e02690a6735f525097ab9fde4fdba8c396f44734ae60c41bb99f4685da"
+      },
+      {
+        "file": "scores.hsaco",
+        "bytes": 114368,
+        "sha256": "c765ab27eb335f1bca37bf6a3ea156111fe4b8175e3459a9866c0007751784a4"
+      },
+      {
+        "file": "residual.hsaco",
+        "bytes": 114376,
+        "sha256": "b8e7f2c5fdfa2a0135e37925b23bb44c45d29953073e67a82f7dedc0cf58af32"
+      },
+      {
+        "file": "state.hsaco",
+        "bytes": 56768,
+        "sha256": "6354c9bcd4f0a6ebdd90d93a87d195058f25a33f16e8335b7a49e55bb379ce6b"
+      },
+      {
+        "file": "output.hsaco",
+        "bytes": 172544,
+        "sha256": "3598c7582d75d7c1b78e160345bc9e40880bc7f53bdd8dea336e4d64f4b4b306"
+      }
+    ],
+    "gpu_executed": false
+  },
+  "summary": {
+    "gfx1151_images": 7,
+    "layout_conversions": 0,
+    "shared_memory_bytes": 0,
+    "private_bytes": 0,
+    "group16_fp32_comparisons": 2097152,
+    "group16_bit_mismatches": 0,
+    "unique_pipeline_surface_values": 147345408,
+    "pipeline_bit_mismatches": 0,
+    "continuous_chunks": 113,
+    "incoming_bf16_checkpoint_values": 59244544,
+    "checkpoint_mismatches": 0,
+    "group16_arithmetic_body_unchanged": true,
+    "exp2_arithmetic_body_unchanged": true,
+    "higher_register_usage": true,
+    "performance_unknown": true
+  },
+  "pending_native_plan": {
+    "file": "native-gdn-layout-controls-windows-r2/manifest.json",
+    "sha256": "1ff1ce5417880a0f3a1c64f08d0adfe63ef2febfa9596167afe414b92e326dce",
+    "cases": 24,
+    "process_timeout_seconds": 600,
+    "executed": false,
+    "supersedes_prepared_plan_sha256": "4158bc680c5854d4ca5d3572c22652723d0e6c684e721cac7f7744cf1b1b11b6"
+  },
+  "amd_gpu_executed": false,
+  "compiler_defect_established": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "publication": {
+    "raw_report_sha256": "ba078bfcd219d758bf9ad2d0fb1750ab84f58cdca42801231836561561c1f93e",
+    "home_prefix_replacements": {
+      "/Users/jiawei-macmini/": "<controller-home>/",
+      "/home/qujing/": "<reference-home>/"
+    },
+    "exact_reversal_verified": true,
+    "all_numeric_and_artifact_values_preserved": true
+  }
+}

@@ -1,0 +1,1822 @@
+{
+  "schema": 1,
+  "classification": "explicit_layout_dense_cuda_controls_native_pending",
+  "candidate_base_commit": "2e7cf269b6885055c60c2b5c13c195744644bf3e",
+  "candidate_changes_relative_to_base_commit": true,
+  "candidate_sha256": "438739fb9e3fa9c49f5b4765401d7d4e346d4ca42033f2c6113ba8f2a3601673",
+  "arithmetic_source_equivalence": {
+    "original_source": "/Users/jiawei-macmini/projects/AIMA-ordered-q8192-candidate/native/providers/ordered_q8192/dense_selected.py",
+    "original_sha256": "6cf211bcb63ab2a470085bc3117b4e7438d7f89db94c68a724446be7b8792c84",
+    "candidate_source": "build/recovery-20260910/dense_selected_explicit_r1.py",
+    "candidate_sha256": "438739fb9e3fa9c49f5b4765401d7d4e346d4ca42033f2c6113ba8f2a3601673",
+    "functions": [
+      "_pair16",
+      "selected_replay_kernel"
+    ],
+    "arithmetic_and_addressing_ast_unchanged_after_removing_only_explicit_layouts": true,
+    "native_execution": false,
+    "performance_acceptance": false
+  },
+  "algorithm": "Same selected pairs and ascending K16 FP32 carry; explicit pair/K16 lane layout",
+  "lane_layout": {
+    "size_per_thread": [
+      1,
+      1
+    ],
+    "threads_per_warp": [
+      2,
+      16
+    ],
+    "warps_per_block": [
+      4,
+      1
+    ],
+    "order": [
+      1,
+      0
+    ]
+  },
+  "original_reference": {
+    "host": "gb10-4t",
+    "actual_host": "aitopatom-66c4",
+    "source_commit": "3fcbdafb10a14e94c15bd94a1f821f180bc95373",
+    "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "full_reference_analysis_sha256": "0cd317643569da9fd56fbf6b54d114f7ab5397184495b4371597706885ae4f6c",
+    "full_reference_dispatch_sha256": "15f7d72fac3b7030c9f0053d69ddaab5a71c6e471445e074754b98e5c05f3cd9",
+    "q8192_case_sha256": "85d0f2f9a6ac2b44f15e645d79bc9897a99759510c70c7b5dd87d3e0f057be8d",
+    "original_output_tokens": 512,
+    "first_token": 144,
+    "first_logit": 10.375
+  },
+  "small_case": {
+    "manifest": {
+      "source_hashes": {
+        "kernel.py": "438739fb9e3fa9c49f5b4765401d7d4e346d4ca42033f2c6113ba8f2a3601673",
+        "worker.py": "411fc905bf2ae7379a705d83bbe69b38c12fc563169221a0089935f86d1111fe"
+      },
+      "candidate_base_commit": "2e7cf269b6885055c60c2b5c13c195744644bf3e",
+      "reference_case_sha256": "06cd39b0b0a53f3746b84953ccdccce11872225cd0677b93892e60513d6ca7e0",
+      "original_prompt": {
+        "token_count": 8192,
+        "seed": 395518,
+        "first_token_id": 84411,
+        "u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+        "u32le_fnv1a64": "1584e34d56e5d78b"
+      },
+      "projections": [
+        {
+          "name": "qkv-k2048",
+          "input": {
+            "file": "txn0000-layer-00-input-rmsnorm-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              71,
+              2048
+            ],
+            "bytes": 290816,
+            "sha256": "45d880cbfa69477b8b5932f15ef5676d909747ab0f3bcf1f2cfd1df5dc885b16",
+            "transaction": 0,
+            "label": "layer-00-input-rmsnorm"
+          },
+          "output": {
+            "file": "txn0000-linear-00-qkv-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              71,
+              8192
+            ],
+            "bytes": 1163264,
+            "sha256": "ab63d6f3995db8216441bf7b88bc29fa30ca52800d6c8ac4bbfc1978324f71f3",
+            "transaction": 0,
+            "label": "linear-00-qkv"
+          },
+          "weight": "model.language_model.layers.0.linear_attn.in_proj_qkv.weight"
+        },
+        {
+          "name": "linear-out-k4096",
+          "input": {
+            "file": "txn0000-linear-00-gated-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              71,
+              4096
+            ],
+            "bytes": 581632,
+            "sha256": "561e280e08ff6f6ad9b6fcdb6221e90117c32e8a5beb5df9a84ac23bf75c2c54",
+            "transaction": 0,
+            "label": "linear-00-gated"
+          },
+          "output": {
+            "file": "txn0000-linear-00-output-projection-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              71,
+              2048
+            ],
+            "bytes": 290816,
+            "sha256": "8792b585a594aac4b9b1aab0ceb02f6e051ea8fcc5a208f53f47cf39319aed52",
+            "transaction": 0,
+            "label": "linear-00-output-projection"
+          },
+          "weight": "model.language_model.layers.0.linear_attn.out_proj.weight"
+        }
+      ]
+    },
+    "manifest_sha256": "0eaf2eeeef2fb5548bcdb292f7e925095bdd89e502233a27f4bd339066330535",
+    "dispatch": {
+      "host": "aitopatom-66c4",
+      "command_file": "/home/qujing/qrt-dense-selected-explicit-20260923-r1/worker.py",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--name",
+        "qrt-dense-selected-explicit-20260923-r1",
+        "--gpus",
+        "all",
+        "--network",
+        "none",
+        "--memory",
+        "8g",
+        "--shm-size",
+        "1g",
+        "--cpus",
+        "4",
+        "-v",
+        "/home/qujing/qrt-dense-selected-explicit-20260923-r1:/work",
+        "-v",
+        "/home/qujing/qrt-gb10-q8192-first64-20260922-r1:/reference:ro",
+        "-v",
+        "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+        "--entrypoint",
+        "timeout",
+        "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+        "--signal=TERM",
+        "--kill-after=5",
+        "420",
+        "python3",
+        "/work/worker.py"
+      ],
+      "returncode": 0,
+      "stdout": "{\"projection\": \"qkv-k2048\", \"layout\": \"contiguous\", \"batch\": 32, \"values\": 581632, \"bf16_mismatches\": 0, \"guards_pass\": true, \"wall_seconds\": 1.4278872630093247}\n{\"projection\": \"qkv-k2048\", \"layout\": \"contiguous\", \"batch\": 64, \"values\": 581632, \"bf16_mismatches\": 0, \"guards_pass\": true, \"wall_seconds\": 0.2341462450567633}\n{\"projection\": \"qkv-k2048\", \"layout\": \"contiguous\", \"batch\": 128, \"values\": 581632, \"bf16_mismatches\": 0, \"guards_pass\": true, \"wall_seconds\": 0.37439636094495654}\n{\"projection\": \"qkv-k2048\", \"layout\": \"transposed\", \"batch\": 32, \"values\": 581632, \"bf16_mismatches\": 0, \"guards_pass\": true, \"wall_seconds\": 0.09240153594873846}\n{\"projection\": \"qkv-k2048\", \"layout\": \"transposed\", \"batch\": 64, \"values\": 581632, \"bf16_mismatches\": 0, \"guards_pass\": true, \"wall_seconds\": 0.08477828884497285}\n{\"projection\": \"qkv-k2048\", \"layout\": \"transposed\", \"batch\": 128, \"values\": 581632, \"bf16_mismatches\": 0, \"guards_pass\": true, \"wall_seconds\": 0.08592982590198517}\n{\"projection\": \"linear-out-k4096\", \"layout\": \"contiguous\", \"batch\": 32, \"values\": 145408, \"bf16_mismatches\": 0, \"guards_pass\": true, \"wall_seconds\": 0.030390375992283225}\n{\"projection\": \"linear-out-k4096\", \"layout\": \"contiguous\", \"batch\": 64, \"values\": 145408, \"bf16_mismatches\": 0, \"guards_pass\": true, \"wall_seconds\": 0.030765258008614182}\n{\"projection\": \"linear-out-k4096\", \"layout\": \"contiguous\", \"batch\": 128, \"values\": 145408, \"bf16_mismatches\": 0, \"guards_pass\": true, \"wall_seconds\": 0.03818065789528191}\n{\"projection\": \"linear-out-k4096\", \"layout\": \"transposed\", \"batch\": 32, \"values\": 145408, \"bf16_mismatches\": 0, \"guards_pass\": true, \"wall_seconds\": 0.03800064814276993}\n{\"projection\": \"linear-out-k4096\", \"layout\": \"transposed\", \"batch\": 64, \"values\": 145408, \"bf16_mismatches\": 0, \"guards_pass\": true, \"wall_seconds\": 0.0377729011233896}\n{\"projection\": \"linear-out-k4096\", \"layout\": \"transposed\", \"batch\": 128, \"values\": 145408, \"bf16_mismatches\": 0, \"guards_pass\": true, \"wall_seconds\": 0.0396899429615587}\n{\"all_original_bf16_values_match\": true, \"total_bf16_values\": 4362240, \"compiled\": 3, \"resources\": {\"32\": {\".vgpr_count\": [\"64\"], \".vgpr_spill_count\": [\"0\"], \".private_segment_fixed_size\": [\"0\"]}, \"64\": {\".vgpr_count\": [\"117\"], \".vgpr_spill_count\": [\"0\"], \".private_segment_fixed_size\": [\"0\"]}, \"128\": {\".vgpr_count\": [\"229\"], \".vgpr_spill_count\": [\"0\"], \".private_segment_fixed_size\": [\"0\"]}}}\n",
+      "stderr": "",
+      "wall_seconds": 6.516495604068041,
+      "available_before": 122468040704,
+      "gpu_processes_before": "",
+      "gpu_processes_after": "",
+      "inference_acceptance": false,
+      "performance_acceptance": false
+    },
+    "dispatch_sha256": "e65ee4ccfc6bd12a61c2654a18f8444a999bd0c98a8bcbd63fb3e88c47559e1f",
+    "result_sha256": "f1252705c525ab9ee0e0f858afb2cd214f4599f9e61d9ace35f4736a8158e4ed",
+    "compared_bf16_values": 4362240,
+    "records": [
+      {
+        "projection": "qkv-k2048",
+        "layout": "contiguous",
+        "batch": 32,
+        "grid": [
+          256,
+          5
+        ],
+        "counts": [
+          0,
+          17,
+          581595,
+          20,
+          0
+        ],
+        "values": 581632,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0.0,
+        "output": {
+          "shape": [
+            71,
+            8192
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 1163264,
+          "sha256": "ab63d6f3995db8216441bf7b88bc29fa30ca52800d6c8ac4bbfc1978324f71f3"
+        },
+        "original": {
+          "file": "txn0000-linear-00-qkv-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            71,
+            8192
+          ],
+          "bytes": 1163264,
+          "sha256": "ab63d6f3995db8216441bf7b88bc29fa30ca52800d6c8ac4bbfc1978324f71f3",
+          "transaction": 0,
+          "label": "linear-00-qkv"
+        },
+        "fp32": {
+          "shape": [
+            71,
+            8192
+          ],
+          "dtype": "torch.float32",
+          "bytes": 2326528,
+          "sha256": "f7d46bfe4d4eb6ab95bc270ca8194c1d95717546e853091bf546cc31eb22c7ad"
+        },
+        "fp32_matches_other_configurations": true,
+        "guards_pass": true,
+        "input_unchanged": true,
+        "weight_unchanged": true,
+        "counts_unchanged": true,
+        "queue_unchanged": true,
+        "wall_seconds": 1.4278872630093247,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "qkv-k2048",
+        "layout": "contiguous",
+        "batch": 64,
+        "grid": [
+          256,
+          5
+        ],
+        "counts": [
+          0,
+          17,
+          581595,
+          20,
+          0
+        ],
+        "values": 581632,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0.0,
+        "output": {
+          "shape": [
+            71,
+            8192
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 1163264,
+          "sha256": "ab63d6f3995db8216441bf7b88bc29fa30ca52800d6c8ac4bbfc1978324f71f3"
+        },
+        "original": {
+          "file": "txn0000-linear-00-qkv-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            71,
+            8192
+          ],
+          "bytes": 1163264,
+          "sha256": "ab63d6f3995db8216441bf7b88bc29fa30ca52800d6c8ac4bbfc1978324f71f3",
+          "transaction": 0,
+          "label": "linear-00-qkv"
+        },
+        "fp32": {
+          "shape": [
+            71,
+            8192
+          ],
+          "dtype": "torch.float32",
+          "bytes": 2326528,
+          "sha256": "f7d46bfe4d4eb6ab95bc270ca8194c1d95717546e853091bf546cc31eb22c7ad"
+        },
+        "fp32_matches_other_configurations": true,
+        "guards_pass": true,
+        "input_unchanged": true,
+        "weight_unchanged": true,
+        "counts_unchanged": true,
+        "queue_unchanged": true,
+        "wall_seconds": 0.2341462450567633,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "qkv-k2048",
+        "layout": "contiguous",
+        "batch": 128,
+        "grid": [
+          256,
+          5
+        ],
+        "counts": [
+          0,
+          17,
+          581595,
+          20,
+          0
+        ],
+        "values": 581632,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0.0,
+        "output": {
+          "shape": [
+            71,
+            8192
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 1163264,
+          "sha256": "ab63d6f3995db8216441bf7b88bc29fa30ca52800d6c8ac4bbfc1978324f71f3"
+        },
+        "original": {
+          "file": "txn0000-linear-00-qkv-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            71,
+            8192
+          ],
+          "bytes": 1163264,
+          "sha256": "ab63d6f3995db8216441bf7b88bc29fa30ca52800d6c8ac4bbfc1978324f71f3",
+          "transaction": 0,
+          "label": "linear-00-qkv"
+        },
+        "fp32": {
+          "shape": [
+            71,
+            8192
+          ],
+          "dtype": "torch.float32",
+          "bytes": 2326528,
+          "sha256": "f7d46bfe4d4eb6ab95bc270ca8194c1d95717546e853091bf546cc31eb22c7ad"
+        },
+        "fp32_matches_other_configurations": true,
+        "guards_pass": true,
+        "input_unchanged": true,
+        "weight_unchanged": true,
+        "counts_unchanged": true,
+        "queue_unchanged": true,
+        "wall_seconds": 0.37439636094495654,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "qkv-k2048",
+        "layout": "transposed",
+        "batch": 32,
+        "grid": [
+          256,
+          5
+        ],
+        "counts": [
+          0,
+          17,
+          581595,
+          20,
+          0
+        ],
+        "values": 581632,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0.0,
+        "output": {
+          "shape": [
+            71,
+            8192
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 1163264,
+          "sha256": "ab63d6f3995db8216441bf7b88bc29fa30ca52800d6c8ac4bbfc1978324f71f3"
+        },
+        "original": {
+          "file": "txn0000-linear-00-qkv-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            71,
+            8192
+          ],
+          "bytes": 1163264,
+          "sha256": "ab63d6f3995db8216441bf7b88bc29fa30ca52800d6c8ac4bbfc1978324f71f3",
+          "transaction": 0,
+          "label": "linear-00-qkv"
+        },
+        "fp32": {
+          "shape": [
+            71,
+            8192
+          ],
+          "dtype": "torch.float32",
+          "bytes": 2326528,
+          "sha256": "f7d46bfe4d4eb6ab95bc270ca8194c1d95717546e853091bf546cc31eb22c7ad"
+        },
+        "fp32_matches_other_configurations": true,
+        "guards_pass": true,
+        "input_unchanged": true,
+        "weight_unchanged": true,
+        "counts_unchanged": true,
+        "queue_unchanged": true,
+        "wall_seconds": 0.09240153594873846,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "qkv-k2048",
+        "layout": "transposed",
+        "batch": 64,
+        "grid": [
+          256,
+          5
+        ],
+        "counts": [
+          0,
+          17,
+          581595,
+          20,
+          0
+        ],
+        "values": 581632,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0.0,
+        "output": {
+          "shape": [
+            71,
+            8192
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 1163264,
+          "sha256": "ab63d6f3995db8216441bf7b88bc29fa30ca52800d6c8ac4bbfc1978324f71f3"
+        },
+        "original": {
+          "file": "txn0000-linear-00-qkv-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            71,
+            8192
+          ],
+          "bytes": 1163264,
+          "sha256": "ab63d6f3995db8216441bf7b88bc29fa30ca52800d6c8ac4bbfc1978324f71f3",
+          "transaction": 0,
+          "label": "linear-00-qkv"
+        },
+        "fp32": {
+          "shape": [
+            71,
+            8192
+          ],
+          "dtype": "torch.float32",
+          "bytes": 2326528,
+          "sha256": "f7d46bfe4d4eb6ab95bc270ca8194c1d95717546e853091bf546cc31eb22c7ad"
+        },
+        "fp32_matches_other_configurations": true,
+        "guards_pass": true,
+        "input_unchanged": true,
+        "weight_unchanged": true,
+        "counts_unchanged": true,
+        "queue_unchanged": true,
+        "wall_seconds": 0.08477828884497285,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "qkv-k2048",
+        "layout": "transposed",
+        "batch": 128,
+        "grid": [
+          256,
+          5
+        ],
+        "counts": [
+          0,
+          17,
+          581595,
+          20,
+          0
+        ],
+        "values": 581632,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0.0,
+        "output": {
+          "shape": [
+            71,
+            8192
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 1163264,
+          "sha256": "ab63d6f3995db8216441bf7b88bc29fa30ca52800d6c8ac4bbfc1978324f71f3"
+        },
+        "original": {
+          "file": "txn0000-linear-00-qkv-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            71,
+            8192
+          ],
+          "bytes": 1163264,
+          "sha256": "ab63d6f3995db8216441bf7b88bc29fa30ca52800d6c8ac4bbfc1978324f71f3",
+          "transaction": 0,
+          "label": "linear-00-qkv"
+        },
+        "fp32": {
+          "shape": [
+            71,
+            8192
+          ],
+          "dtype": "torch.float32",
+          "bytes": 2326528,
+          "sha256": "f7d46bfe4d4eb6ab95bc270ca8194c1d95717546e853091bf546cc31eb22c7ad"
+        },
+        "fp32_matches_other_configurations": true,
+        "guards_pass": true,
+        "input_unchanged": true,
+        "weight_unchanged": true,
+        "counts_unchanged": true,
+        "queue_unchanged": true,
+        "wall_seconds": 0.08592982590198517,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "linear-out-k4096",
+        "layout": "contiguous",
+        "batch": 32,
+        "grid": [
+          256,
+          5
+        ],
+        "counts": [
+          0,
+          17,
+          145371,
+          20,
+          0
+        ],
+        "values": 145408,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0.0,
+        "output": {
+          "shape": [
+            71,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 290816,
+          "sha256": "8792b585a594aac4b9b1aab0ceb02f6e051ea8fcc5a208f53f47cf39319aed52"
+        },
+        "original": {
+          "file": "txn0000-linear-00-output-projection-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            71,
+            2048
+          ],
+          "bytes": 290816,
+          "sha256": "8792b585a594aac4b9b1aab0ceb02f6e051ea8fcc5a208f53f47cf39319aed52",
+          "transaction": 0,
+          "label": "linear-00-output-projection"
+        },
+        "fp32": {
+          "shape": [
+            71,
+            2048
+          ],
+          "dtype": "torch.float32",
+          "bytes": 581632,
+          "sha256": "d0256a9ce360ab5090cf2c488fb213fd30132df8052a93c5d22045809254157c"
+        },
+        "fp32_matches_other_configurations": true,
+        "guards_pass": true,
+        "input_unchanged": true,
+        "weight_unchanged": true,
+        "counts_unchanged": true,
+        "queue_unchanged": true,
+        "wall_seconds": 0.030390375992283225,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "linear-out-k4096",
+        "layout": "contiguous",
+        "batch": 64,
+        "grid": [
+          256,
+          5
+        ],
+        "counts": [
+          0,
+          17,
+          145371,
+          20,
+          0
+        ],
+        "values": 145408,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0.0,
+        "output": {
+          "shape": [
+            71,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 290816,
+          "sha256": "8792b585a594aac4b9b1aab0ceb02f6e051ea8fcc5a208f53f47cf39319aed52"
+        },
+        "original": {
+          "file": "txn0000-linear-00-output-projection-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            71,
+            2048
+          ],
+          "bytes": 290816,
+          "sha256": "8792b585a594aac4b9b1aab0ceb02f6e051ea8fcc5a208f53f47cf39319aed52",
+          "transaction": 0,
+          "label": "linear-00-output-projection"
+        },
+        "fp32": {
+          "shape": [
+            71,
+            2048
+          ],
+          "dtype": "torch.float32",
+          "bytes": 581632,
+          "sha256": "d0256a9ce360ab5090cf2c488fb213fd30132df8052a93c5d22045809254157c"
+        },
+        "fp32_matches_other_configurations": true,
+        "guards_pass": true,
+        "input_unchanged": true,
+        "weight_unchanged": true,
+        "counts_unchanged": true,
+        "queue_unchanged": true,
+        "wall_seconds": 0.030765258008614182,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "linear-out-k4096",
+        "layout": "contiguous",
+        "batch": 128,
+        "grid": [
+          256,
+          5
+        ],
+        "counts": [
+          0,
+          17,
+          145371,
+          20,
+          0
+        ],
+        "values": 145408,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0.0,
+        "output": {
+          "shape": [
+            71,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 290816,
+          "sha256": "8792b585a594aac4b9b1aab0ceb02f6e051ea8fcc5a208f53f47cf39319aed52"
+        },
+        "original": {
+          "file": "txn0000-linear-00-output-projection-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            71,
+            2048
+          ],
+          "bytes": 290816,
+          "sha256": "8792b585a594aac4b9b1aab0ceb02f6e051ea8fcc5a208f53f47cf39319aed52",
+          "transaction": 0,
+          "label": "linear-00-output-projection"
+        },
+        "fp32": {
+          "shape": [
+            71,
+            2048
+          ],
+          "dtype": "torch.float32",
+          "bytes": 581632,
+          "sha256": "d0256a9ce360ab5090cf2c488fb213fd30132df8052a93c5d22045809254157c"
+        },
+        "fp32_matches_other_configurations": true,
+        "guards_pass": true,
+        "input_unchanged": true,
+        "weight_unchanged": true,
+        "counts_unchanged": true,
+        "queue_unchanged": true,
+        "wall_seconds": 0.03818065789528191,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "linear-out-k4096",
+        "layout": "transposed",
+        "batch": 32,
+        "grid": [
+          256,
+          5
+        ],
+        "counts": [
+          0,
+          17,
+          145371,
+          20,
+          0
+        ],
+        "values": 145408,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0.0,
+        "output": {
+          "shape": [
+            71,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 290816,
+          "sha256": "8792b585a594aac4b9b1aab0ceb02f6e051ea8fcc5a208f53f47cf39319aed52"
+        },
+        "original": {
+          "file": "txn0000-linear-00-output-projection-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            71,
+            2048
+          ],
+          "bytes": 290816,
+          "sha256": "8792b585a594aac4b9b1aab0ceb02f6e051ea8fcc5a208f53f47cf39319aed52",
+          "transaction": 0,
+          "label": "linear-00-output-projection"
+        },
+        "fp32": {
+          "shape": [
+            71,
+            2048
+          ],
+          "dtype": "torch.float32",
+          "bytes": 581632,
+          "sha256": "d0256a9ce360ab5090cf2c488fb213fd30132df8052a93c5d22045809254157c"
+        },
+        "fp32_matches_other_configurations": true,
+        "guards_pass": true,
+        "input_unchanged": true,
+        "weight_unchanged": true,
+        "counts_unchanged": true,
+        "queue_unchanged": true,
+        "wall_seconds": 0.03800064814276993,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "linear-out-k4096",
+        "layout": "transposed",
+        "batch": 64,
+        "grid": [
+          256,
+          5
+        ],
+        "counts": [
+          0,
+          17,
+          145371,
+          20,
+          0
+        ],
+        "values": 145408,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0.0,
+        "output": {
+          "shape": [
+            71,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 290816,
+          "sha256": "8792b585a594aac4b9b1aab0ceb02f6e051ea8fcc5a208f53f47cf39319aed52"
+        },
+        "original": {
+          "file": "txn0000-linear-00-output-projection-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            71,
+            2048
+          ],
+          "bytes": 290816,
+          "sha256": "8792b585a594aac4b9b1aab0ceb02f6e051ea8fcc5a208f53f47cf39319aed52",
+          "transaction": 0,
+          "label": "linear-00-output-projection"
+        },
+        "fp32": {
+          "shape": [
+            71,
+            2048
+          ],
+          "dtype": "torch.float32",
+          "bytes": 581632,
+          "sha256": "d0256a9ce360ab5090cf2c488fb213fd30132df8052a93c5d22045809254157c"
+        },
+        "fp32_matches_other_configurations": true,
+        "guards_pass": true,
+        "input_unchanged": true,
+        "weight_unchanged": true,
+        "counts_unchanged": true,
+        "queue_unchanged": true,
+        "wall_seconds": 0.0377729011233896,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "linear-out-k4096",
+        "layout": "transposed",
+        "batch": 128,
+        "grid": [
+          256,
+          5
+        ],
+        "counts": [
+          0,
+          17,
+          145371,
+          20,
+          0
+        ],
+        "values": 145408,
+        "bf16_mismatches": 0,
+        "maximum_absolute_error": 0.0,
+        "output": {
+          "shape": [
+            71,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 290816,
+          "sha256": "8792b585a594aac4b9b1aab0ceb02f6e051ea8fcc5a208f53f47cf39319aed52"
+        },
+        "original": {
+          "file": "txn0000-linear-00-output-projection-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            71,
+            2048
+          ],
+          "bytes": 290816,
+          "sha256": "8792b585a594aac4b9b1aab0ceb02f6e051ea8fcc5a208f53f47cf39319aed52",
+          "transaction": 0,
+          "label": "linear-00-output-projection"
+        },
+        "fp32": {
+          "shape": [
+            71,
+            2048
+          ],
+          "dtype": "torch.float32",
+          "bytes": 581632,
+          "sha256": "d0256a9ce360ab5090cf2c488fb213fd30132df8052a93c5d22045809254157c"
+        },
+        "fp32_matches_other_configurations": true,
+        "guards_pass": true,
+        "input_unchanged": true,
+        "weight_unchanged": true,
+        "counts_unchanged": true,
+        "queue_unchanged": true,
+        "wall_seconds": 0.0396899429615587,
+        "performance_acceptance": false
+      }
+    ],
+    "scope": "71 real rows, both physical weight layouts, shuffled selected indices, empty/partial/multiple queues"
+  },
+  "full_q8192": {
+    "manifest_sha256": "1dad755c6c25fcc3a7415bc5a8e36e8d9cf8ecde2d0f7d5095beb44d0d87a985",
+    "dispatch": {
+      "host": "aitopatom-66c4",
+      "command_file": "/home/qujing/qrt-dense-selected-explicit-full-20260923-r1/worker.py",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--name",
+        "qrt-dense-selected-explicit-full-20260923-r1",
+        "--gpus",
+        "all",
+        "--network",
+        "none",
+        "--memory",
+        "8g",
+        "--shm-size",
+        "1g",
+        "--cpus",
+        "4",
+        "-v",
+        "/home/qujing/qrt-dense-selected-explicit-full-20260923-r1:/work",
+        "-v",
+        "/home/qujing/qrt-gb10-dense-full-q8192-20260923-r1:/reference:ro",
+        "-v",
+        "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+        "--entrypoint",
+        "timeout",
+        "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+        "--signal=TERM",
+        "--kill-after=5",
+        "420",
+        "python3",
+        "/work/worker.py"
+      ],
+      "returncode": 0,
+      "wall_seconds": 55.0251213919837,
+      "available_before": 122447687680,
+      "gpu_processes_before": "",
+      "gpu_processes_after": "",
+      "inference_acceptance": false,
+      "performance_acceptance": false
+    },
+    "dispatch_sha256": "2503fb086a1a387af7a2f4dd2affad8b0b3d228b1303d24c4a63f1c61eebc9cd",
+    "result_sha256": "22492cc1313c5b587140bfd011ca35a3388946ebc62a8c888c50658d2e4c2a0b",
+    "compared_bf16_values": 352321536,
+    "source_tensors": [
+      {
+        "name": "qkv",
+        "input": {
+          "file": "full-input.bin",
+          "dtype": "bf16",
+          "shape": [
+            8192,
+            2048
+          ],
+          "bytes": 33554432,
+          "sha256": "5c8600a7469ddd8d272592522877e81523df2a9c4028da3d98fab6a9c8bfe295"
+        },
+        "output": {
+          "file": "full-qkv.bin",
+          "dtype": "bf16",
+          "shape": [
+            8192,
+            8192
+          ],
+          "bytes": 134217728,
+          "sha256": "ce1e3b04150516fdd640b062562bbdf506e6bbe7745186bd6c5917a3cd021fda"
+        },
+        "weight_key": "model.language_model.layers.0.linear_attn.in_proj_qkv.weight",
+        "weight_shard": "model-00001-of-00026.safetensors",
+        "weight_tensor": {
+          "shape": [
+            8192,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 33554432,
+          "sha256": "b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f"
+        },
+        "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+        "device_inputs_unchanged": true,
+        "device_inputs": {
+          "x": {
+            "shape": [
+              8192,
+              2048
+            ],
+            "dtype": "torch.bfloat16",
+            "bytes": 33554432,
+            "sha256": "5c8600a7469ddd8d272592522877e81523df2a9c4028da3d98fab6a9c8bfe295"
+          },
+          "w": {
+            "shape": [
+              2048,
+              8192
+            ],
+            "dtype": "torch.bfloat16",
+            "bytes": 33554432,
+            "sha256": "f99a72b96884df2467e08b7554793060da430ffa2f9485c7ab9c7277d8583616"
+          },
+          "counts": {
+            "shape": [
+              66
+            ],
+            "dtype": "torch.int32",
+            "bytes": 264,
+            "sha256": "df41b6d81e9f0b6544643dd35c107590fc69d43306983e02266ea929ac83437e"
+          },
+          "indices": {
+            "shape": [
+              66,
+              1048576
+            ],
+            "dtype": "torch.int32",
+            "bytes": 276824064,
+            "sha256": "17a692588dc60d1b1db8bc28f20c8586231912b7641576368df6e2efdb1f90a6"
+          }
+        }
+      },
+      {
+        "name": "z",
+        "input": {
+          "file": "full-input.bin",
+          "dtype": "bf16",
+          "shape": [
+            8192,
+            2048
+          ],
+          "bytes": 33554432,
+          "sha256": "5c8600a7469ddd8d272592522877e81523df2a9c4028da3d98fab6a9c8bfe295"
+        },
+        "output": {
+          "file": "full-z.bin",
+          "dtype": "bf16",
+          "shape": [
+            8192,
+            4096
+          ],
+          "bytes": 67108864,
+          "sha256": "53d43c109b61ece8be22a00a16e1f29b20a3d2fa2c8a5ca64e5294212bf6de0d"
+        },
+        "weight_key": "model.language_model.layers.0.linear_attn.in_proj_z.weight",
+        "weight_shard": "model-00001-of-00026.safetensors",
+        "weight_tensor": {
+          "shape": [
+            4096,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 16777216,
+          "sha256": "8cc5be8e1a62cc4088f800b3d4cd3ad1892b1ac871b0d5f76aec014b4b14cf16"
+        },
+        "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+        "device_inputs_unchanged": true,
+        "device_inputs": {
+          "x": {
+            "shape": [
+              8192,
+              2048
+            ],
+            "dtype": "torch.bfloat16",
+            "bytes": 33554432,
+            "sha256": "5c8600a7469ddd8d272592522877e81523df2a9c4028da3d98fab6a9c8bfe295"
+          },
+          "w": {
+            "shape": [
+              2048,
+              4096
+            ],
+            "dtype": "torch.bfloat16",
+            "bytes": 16777216,
+            "sha256": "b84da91c6aca55dcdcb42396f5eba5c1ea7bc189aeb81e76ba173f46878cf2d8"
+          },
+          "counts": {
+            "shape": [
+              34
+            ],
+            "dtype": "torch.int32",
+            "bytes": 136,
+            "sha256": "6596e00b60685e4ae501b8669e57c86674b20e688b82cc1aab7da60160a4be44"
+          },
+          "indices": {
+            "shape": [
+              34,
+              1048576
+            ],
+            "dtype": "torch.int32",
+            "bytes": 142606336,
+            "sha256": "45edeec731bda80824fcf17f1760f71b4df8cbf8222cc29c47b7e0260cad5517"
+          }
+        }
+      },
+      {
+        "name": "linear-out",
+        "input": {
+          "file": "full-gated.bin",
+          "dtype": "bf16",
+          "shape": [
+            8192,
+            4096
+          ],
+          "bytes": 67108864,
+          "sha256": "b9378f928a4e293c684ba9055cb6f278fec8206c7695c470324e8c6c2e2666b0"
+        },
+        "output": {
+          "file": "full-out.bin",
+          "dtype": "bf16",
+          "shape": [
+            8192,
+            2048
+          ],
+          "bytes": 33554432,
+          "sha256": "e6313f6c0f5fe5bca5d77c91174cf0f8a865e592ece641da32097362ef9ba92b"
+        },
+        "weight_key": "model.language_model.layers.0.linear_attn.out_proj.weight",
+        "weight_shard": "model-00001-of-00026.safetensors",
+        "weight_tensor": {
+          "shape": [
+            2048,
+            4096
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 16777216,
+          "sha256": "cc08048a238bc33be13fc3cb4b0b3771d34e92793911875ee680e9b4b85e4ca1"
+        },
+        "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+        "device_inputs_unchanged": true,
+        "device_inputs": {
+          "x": {
+            "shape": [
+              8192,
+              4096
+            ],
+            "dtype": "torch.bfloat16",
+            "bytes": 67108864,
+            "sha256": "b9378f928a4e293c684ba9055cb6f278fec8206c7695c470324e8c6c2e2666b0"
+          },
+          "w": {
+            "shape": [
+              2048,
+              4096
+            ],
+            "dtype": "torch.bfloat16",
+            "bytes": 16777216,
+            "sha256": "cc08048a238bc33be13fc3cb4b0b3771d34e92793911875ee680e9b4b85e4ca1"
+          },
+          "counts": {
+            "shape": [
+              18
+            ],
+            "dtype": "torch.int32",
+            "bytes": 72,
+            "sha256": "9a6420d98fa5e1e46f09d34519b0ac464e30d1504a1b29171c5ce0be263af034"
+          },
+          "indices": {
+            "shape": [
+              18,
+              1048576
+            ],
+            "dtype": "torch.int32",
+            "bytes": 75497472,
+            "sha256": "122b5e6f41df93d0a877aa8f7e5187c93f819c22ea5d1c379481c0057d08f437"
+          }
+        }
+      }
+    ],
+    "records": [
+      {
+        "projection": "qkv",
+        "tokens": 8192,
+        "n": 8192,
+        "k": 2048,
+        "layout": "transposed",
+        "batch": 32,
+        "grid": [
+          256,
+          66
+        ],
+        "windows": 66,
+        "queued_cells": 67108864,
+        "bf16_mismatches": 0,
+        "output": {
+          "shape": [
+            8192,
+            8192
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 134217728,
+          "sha256": "ce1e3b04150516fdd640b062562bbdf506e6bbe7745186bd6c5917a3cd021fda"
+        },
+        "original": {
+          "file": "full-qkv.bin",
+          "dtype": "bf16",
+          "shape": [
+            8192,
+            8192
+          ],
+          "bytes": 134217728,
+          "sha256": "ce1e3b04150516fdd640b062562bbdf506e6bbe7745186bd6c5917a3cd021fda"
+        },
+        "guards_pass": true,
+        "unused_debug_unchanged": true,
+        "fp32_capture": false,
+        "diagnostic_execution_seconds": 18.7173280401621,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "qkv",
+        "tokens": 8192,
+        "n": 8192,
+        "k": 2048,
+        "layout": "transposed",
+        "batch": 64,
+        "grid": [
+          256,
+          66
+        ],
+        "windows": 66,
+        "queued_cells": 67108864,
+        "bf16_mismatches": 0,
+        "output": {
+          "shape": [
+            8192,
+            8192
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 134217728,
+          "sha256": "ce1e3b04150516fdd640b062562bbdf506e6bbe7745186bd6c5917a3cd021fda"
+        },
+        "original": {
+          "file": "full-qkv.bin",
+          "dtype": "bf16",
+          "shape": [
+            8192,
+            8192
+          ],
+          "bytes": 134217728,
+          "sha256": "ce1e3b04150516fdd640b062562bbdf506e6bbe7745186bd6c5917a3cd021fda"
+        },
+        "guards_pass": true,
+        "unused_debug_unchanged": true,
+        "fp32_capture": false,
+        "diagnostic_execution_seconds": 4.410358335124329,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "qkv",
+        "tokens": 8192,
+        "n": 8192,
+        "k": 2048,
+        "layout": "transposed",
+        "batch": 128,
+        "grid": [
+          256,
+          66
+        ],
+        "windows": 66,
+        "queued_cells": 67108864,
+        "bf16_mismatches": 0,
+        "output": {
+          "shape": [
+            8192,
+            8192
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 134217728,
+          "sha256": "ce1e3b04150516fdd640b062562bbdf506e6bbe7745186bd6c5917a3cd021fda"
+        },
+        "original": {
+          "file": "full-qkv.bin",
+          "dtype": "bf16",
+          "shape": [
+            8192,
+            8192
+          ],
+          "bytes": 134217728,
+          "sha256": "ce1e3b04150516fdd640b062562bbdf506e6bbe7745186bd6c5917a3cd021fda"
+        },
+        "guards_pass": true,
+        "unused_debug_unchanged": true,
+        "fp32_capture": false,
+        "diagnostic_execution_seconds": 6.690853030886501,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "z",
+        "tokens": 8192,
+        "n": 4096,
+        "k": 2048,
+        "layout": "transposed",
+        "batch": 32,
+        "grid": [
+          256,
+          34
+        ],
+        "windows": 34,
+        "queued_cells": 33554432,
+        "bf16_mismatches": 0,
+        "output": {
+          "shape": [
+            8192,
+            4096
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 67108864,
+          "sha256": "53d43c109b61ece8be22a00a16e1f29b20a3d2fa2c8a5ca64e5294212bf6de0d"
+        },
+        "original": {
+          "file": "full-z.bin",
+          "dtype": "bf16",
+          "shape": [
+            8192,
+            4096
+          ],
+          "bytes": 67108864,
+          "sha256": "53d43c109b61ece8be22a00a16e1f29b20a3d2fa2c8a5ca64e5294212bf6de0d"
+        },
+        "guards_pass": true,
+        "unused_debug_unchanged": true,
+        "fp32_capture": false,
+        "diagnostic_execution_seconds": 2.1435792590491474,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "z",
+        "tokens": 8192,
+        "n": 4096,
+        "k": 2048,
+        "layout": "transposed",
+        "batch": 64,
+        "grid": [
+          256,
+          34
+        ],
+        "windows": 34,
+        "queued_cells": 33554432,
+        "bf16_mismatches": 0,
+        "output": {
+          "shape": [
+            8192,
+            4096
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 67108864,
+          "sha256": "53d43c109b61ece8be22a00a16e1f29b20a3d2fa2c8a5ca64e5294212bf6de0d"
+        },
+        "original": {
+          "file": "full-z.bin",
+          "dtype": "bf16",
+          "shape": [
+            8192,
+            4096
+          ],
+          "bytes": 67108864,
+          "sha256": "53d43c109b61ece8be22a00a16e1f29b20a3d2fa2c8a5ca64e5294212bf6de0d"
+        },
+        "guards_pass": true,
+        "unused_debug_unchanged": true,
+        "fp32_capture": false,
+        "diagnostic_execution_seconds": 2.093208367936313,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "z",
+        "tokens": 8192,
+        "n": 4096,
+        "k": 2048,
+        "layout": "transposed",
+        "batch": 128,
+        "grid": [
+          256,
+          34
+        ],
+        "windows": 34,
+        "queued_cells": 33554432,
+        "bf16_mismatches": 0,
+        "output": {
+          "shape": [
+            8192,
+            4096
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 67108864,
+          "sha256": "53d43c109b61ece8be22a00a16e1f29b20a3d2fa2c8a5ca64e5294212bf6de0d"
+        },
+        "original": {
+          "file": "full-z.bin",
+          "dtype": "bf16",
+          "shape": [
+            8192,
+            4096
+          ],
+          "bytes": 67108864,
+          "sha256": "53d43c109b61ece8be22a00a16e1f29b20a3d2fa2c8a5ca64e5294212bf6de0d"
+        },
+        "guards_pass": true,
+        "unused_debug_unchanged": true,
+        "fp32_capture": false,
+        "diagnostic_execution_seconds": 3.1625586189329624,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "linear-out",
+        "tokens": 8192,
+        "n": 2048,
+        "k": 4096,
+        "layout": "contiguous",
+        "batch": 32,
+        "grid": [
+          256,
+          18
+        ],
+        "windows": 18,
+        "queued_cells": 16777216,
+        "bf16_mismatches": 0,
+        "output": {
+          "shape": [
+            8192,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 33554432,
+          "sha256": "e6313f6c0f5fe5bca5d77c91174cf0f8a865e592ece641da32097362ef9ba92b"
+        },
+        "original": {
+          "file": "full-out.bin",
+          "dtype": "bf16",
+          "shape": [
+            8192,
+            2048
+          ],
+          "bytes": 33554432,
+          "sha256": "e6313f6c0f5fe5bca5d77c91174cf0f8a865e592ece641da32097362ef9ba92b"
+        },
+        "guards_pass": true,
+        "unused_debug_unchanged": true,
+        "fp32_capture": false,
+        "diagnostic_execution_seconds": 0.9069810069631785,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "linear-out",
+        "tokens": 8192,
+        "n": 2048,
+        "k": 4096,
+        "layout": "contiguous",
+        "batch": 64,
+        "grid": [
+          256,
+          18
+        ],
+        "windows": 18,
+        "queued_cells": 16777216,
+        "bf16_mismatches": 0,
+        "output": {
+          "shape": [
+            8192,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 33554432,
+          "sha256": "e6313f6c0f5fe5bca5d77c91174cf0f8a865e592ece641da32097362ef9ba92b"
+        },
+        "original": {
+          "file": "full-out.bin",
+          "dtype": "bf16",
+          "shape": [
+            8192,
+            2048
+          ],
+          "bytes": 33554432,
+          "sha256": "e6313f6c0f5fe5bca5d77c91174cf0f8a865e592ece641da32097362ef9ba92b"
+        },
+        "guards_pass": true,
+        "unused_debug_unchanged": true,
+        "fp32_capture": false,
+        "diagnostic_execution_seconds": 1.4898478139657527,
+        "performance_acceptance": false
+      },
+      {
+        "projection": "linear-out",
+        "tokens": 8192,
+        "n": 2048,
+        "k": 4096,
+        "layout": "contiguous",
+        "batch": 128,
+        "grid": [
+          256,
+          18
+        ],
+        "windows": 18,
+        "queued_cells": 16777216,
+        "bf16_mismatches": 0,
+        "output": {
+          "shape": [
+            8192,
+            2048
+          ],
+          "dtype": "torch.bfloat16",
+          "bytes": 33554432,
+          "sha256": "e6313f6c0f5fe5bca5d77c91174cf0f8a865e592ece641da32097362ef9ba92b"
+        },
+        "original": {
+          "file": "full-out.bin",
+          "dtype": "bf16",
+          "shape": [
+            8192,
+            2048
+          ],
+          "bytes": 33554432,
+          "sha256": "e6313f6c0f5fe5bca5d77c91174cf0f8a865e592ece641da32097362ef9ba92b"
+        },
+        "guards_pass": true,
+        "unused_debug_unchanged": true,
+        "fp32_capture": false,
+        "diagnostic_execution_seconds": 3.0795818108599633,
+        "performance_acceptance": false
+      }
+    ],
+    "all_original_values_match": true
+  },
+  "compiled_images": {
+    "32": {
+      "file": "dense-selected-explicit-bm32.hsaco",
+      "bytes": 15560,
+      "sha256": "803c07439c2a388d2b298944efffe308273638c533e56e6a2fe9b8662f6092ec",
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "74bf030dad23c14a082ed70758f78518f87622537847737cd8d7e316de0f6628",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "selected_replay_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 0,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "kernel_hash": "74bf030dad23c14a082ed70758f78518f87622537847737cd8d7e316de0f6628",
+      "signature": {
+        "X": "*bf16",
+        "W": "*bf16",
+        "Counts": "*i32",
+        "Indices": "*i32",
+        "Output": "*bf16",
+        "Debug": "*fp32",
+        "N": "i32",
+        "K": "i32",
+        "W_ROW": "i32",
+        "W_K": "i32"
+      },
+      "constants": {
+        "BM": 32,
+        "WINDOW": 1048576,
+        "CAPTURE_F32": false
+      },
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 0,
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "resources": {
+        ".vgpr_count": [
+          "64"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      }
+    },
+    "64": {
+      "file": "dense-selected-explicit-bm64.hsaco",
+      "bytes": 24792,
+      "sha256": "b890a930694539016bac48c45bcccae377f413450d07f204c0b1f43866888d16",
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "c847d4dd013535bc8dc84cf20fc7c3f1060696e85b05f37e2dae778e04c5ba60",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "selected_replay_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 0,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "kernel_hash": "c847d4dd013535bc8dc84cf20fc7c3f1060696e85b05f37e2dae778e04c5ba60",
+      "signature": {
+        "X": "*bf16",
+        "W": "*bf16",
+        "Counts": "*i32",
+        "Indices": "*i32",
+        "Output": "*bf16",
+        "Debug": "*fp32",
+        "N": "i32",
+        "K": "i32",
+        "W_ROW": "i32",
+        "W_K": "i32"
+      },
+      "constants": {
+        "BM": 64,
+        "WINDOW": 1048576,
+        "CAPTURE_F32": false
+      },
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 0,
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "resources": {
+        ".vgpr_count": [
+          "117"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      }
+    },
+    "128": {
+      "file": "dense-selected-explicit-bm128.hsaco",
+      "bytes": 37456,
+      "sha256": "b189b2327fd0c179a96c37c4b08766b4b3da05b6361fd5ed1522c20dbeddea65",
+      "metadata": {
+        "allow_flush_denorm": false,
+        "allowed_dot_input_precisions": [
+          "ieee",
+          "bf16x3",
+          "bf16x6"
+        ],
+        "arch": "gfx1151",
+        "backend_name": "hip",
+        "debug": false,
+        "default_dot_input_precision": "ieee",
+        "deprecated_fp8_dot_operand_dtypes": [],
+        "enable_fp_fusion": false,
+        "extern_libs": [
+          [
+            "ocml",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+          ],
+          [
+            "ockl",
+            "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+          ]
+        ],
+        "hash": "9f316950dd798fd074f0a068dc57edc59ca19872af1a2b2d2a4686d0549d6d45",
+        "instrumentation_mode": "",
+        "kpack": 1,
+        "launch_cooperative_grid": false,
+        "matrix_instr_nonkdim": 0,
+        "max_num_imprecise_acc_default": 0,
+        "name": "selected_replay_kernel",
+        "num_ctas": 1,
+        "num_stages": 2,
+        "num_warps": 4,
+        "profile_scratch_align": 1,
+        "profile_scratch_size": 0,
+        "sanitize_overflow": true,
+        "schedule_hint": "none",
+        "shared": 0,
+        "supported_fp8_dtypes": [
+          "fp8e4b8",
+          "fp8e4nv",
+          "fp8e5",
+          "fp8e5b16"
+        ],
+        "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+        "tensordesc_meta": [],
+        "triton_version": "3.6.0",
+        "warp_size": 32,
+        "waves_per_eu": 0
+      },
+      "kernel_hash": "9f316950dd798fd074f0a068dc57edc59ca19872af1a2b2d2a4686d0549d6d45",
+      "signature": {
+        "X": "*bf16",
+        "W": "*bf16",
+        "Counts": "*i32",
+        "Indices": "*i32",
+        "Output": "*bf16",
+        "Debug": "*fp32",
+        "N": "i32",
+        "K": "i32",
+        "W_ROW": "i32",
+        "W_K": "i32"
+      },
+      "constants": {
+        "BM": 128,
+        "WINDOW": 1048576,
+        "CAPTURE_F32": false
+      },
+      "layout_conversion_count": 0,
+      "shared_memory_instructions": 0,
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2,
+        "enable_fp_fusion": false
+      },
+      "resources": {
+        ".vgpr_count": [
+          "229"
+        ],
+        ".vgpr_spill_count": [
+          "0"
+        ],
+        ".private_segment_fixed_size": [
+          "0"
+        ]
+      }
+    }
+  },
+  "pending_native_trial": {
+    "manifest_sha256": "eb016da03377684388e3a1f79a71bf6500a550ec630d9059f8857e43680aca17",
+    "native_timeout_seconds": 900,
+    "cases": 54,
+    "full_q8192_projections": 3,
+    "selected_and_complete_queues": true,
+    "unchanged_baseline_harness": true,
+    "native_worker_sha256": "a2c61719ece1f497c55c5336fcf5c12f8d710ba258a332634286eb3d691386e5",
+    "dispatcher_sha256": "910d74aa354cddc2aec2c0bf8bdcaf7eb2d954287f79f41ddd9e72296ae9efe7",
+    "active_owner": "q1-cache-capture-prefix256k-long-prefix262144-suffix1024-out512-mode1-r1/run-record.json",
+    "remote_directory": "D:/projects/dense-selected-explicit-20260923-r1",
+    "prepared_only": true,
+    "staged_on_baiying": false,
+    "executed": false
+  },
+  "exact_reproduction_sources": {
+    "tools/experiments/ordered_q8192/dense_explicit_layout/dense_selected_explicit_r1.py": {
+      "bytes": 4781,
+      "sha256": "438739fb9e3fa9c49f5b4765401d7d4e346d4ca42033f2c6113ba8f2a3601673"
+    },
+    "tools/experiments/ordered_q8192/dense_explicit_layout/dense_selected_explicit_worker_r1.py": {
+      "bytes": 9329,
+      "sha256": "411fc905bf2ae7379a705d83bbe69b38c12fc563169221a0089935f86d1111fe"
+    },
+    "tools/experiments/ordered_q8192/dense_explicit_layout/validate_dense_selected_explicit_r1.py": {
+      "bytes": 6633,
+      "sha256": "dd8aa374d4df8b2f6006ca73de38a57e33360f2bc0f187d8d236f0f7f9f94273"
+    },
+    "tools/experiments/ordered_q8192/dense_explicit_layout/validate_dense_selected_explicit_full_r1.py": {
+      "bytes": 6135,
+      "sha256": "0527c5362894e539c18685cd17ee7e94ec86ba2e66fbccb92656ede6242df2c6"
+    },
+    "tools/experiments/ordered_q8192/dense_explicit_layout/dense_selected_u32_full_worker_r1.py": {
+      "bytes": 7824,
+      "sha256": "87946e2730399ea70fac8b7bba17171f209c78e743f0b148d1561c34a43957c5"
+    },
+    "tools/experiments/ordered_q8192/dense_explicit_layout/prepare_dense_selected_explicit_windows_r1.py": {
+      "bytes": 4632,
+      "sha256": "bd6ccee698d41cb5c0904ccf3f6e33b8b06af7184326c5892ac033753c8e0920"
+    },
+    "tools/experiments/ordered_q8192/dense_explicit_layout/dispatch_dense_selected_explicit_windows_r1.py": {
+      "bytes": 6543,
+      "sha256": "910d74aa354cddc2aec2c0bf8bdcaf7eb2d954287f79f41ddd9e72296ae9efe7"
+    },
+    "tools/experiments/ordered_q8192/dense_explicit_layout/dense-explicit-source-equivalence-r1.json": {
+      "bytes": 612,
+      "sha256": "78075545f1998d790628b2ad3eaaabc2d6c84ba5de3b0181627ea5b16a8035b1"
+    },
+    "tools/experiments/ordered_q8192/dense_explicit_layout/record_dense_explicit_controls_r1.py": {
+      "bytes": 5760,
+      "sha256": "1767fed78d7759997fedd716f543dcc3f8664b4291558b84391ec252f0bb448c"
+    }
+  },
+  "decision": "Measure on gfx1151 before optional runtime integration; previous implicit-layout u32 was slower than baseline",
+  "limitations": [
+    "CUDA arithmetic agreement does not establish AMD correctness or speed",
+    "Register usage increases with tile size: 64, 117, 229 VGPRs; zero LDS or spills",
+    "No model engine runs the candidate and no Windows product timing is available"
+  ],
+  "native_execution": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

@@ -1,0 +1,13 @@
+{
+  "original_source": "/Users/jiawei-macmini/projects/AIMA-ordered-q8192-candidate/native/providers/ordered_q8192/dense_selected.py",
+  "original_sha256": "6cf211bcb63ab2a470085bc3117b4e7438d7f89db94c68a724446be7b8792c84",
+  "candidate_source": "build/recovery-20260910/dense_selected_explicit_r1.py",
+  "candidate_sha256": "438739fb9e3fa9c49f5b4765401d7d4e346d4ca42033f2c6113ba8f2a3601673",
+  "functions": [
+    "_pair16",
+    "selected_replay_kernel"
+  ],
+  "arithmetic_and_addressing_ast_unchanged_after_removing_only_explicit_layouts": true,
+  "native_execution": false,
+  "performance_acceptance": false
+}
