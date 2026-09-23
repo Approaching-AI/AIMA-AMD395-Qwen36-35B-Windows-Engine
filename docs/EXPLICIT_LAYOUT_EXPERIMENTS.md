@@ -31,6 +31,15 @@ values and 352321536 complete q8192 QKV/Z/OUT values. All three gfx1151 tiles
 compile without LDS or spills. The unchanged native baseline/harness is
 prepared for 54 comparisons; no runtime integration or speedup is accepted.
 
-The AMD GDN matrix and dense measurements wait for the current full256k owner
-to complete cleanly. Windows model tokens, logits, callbacks, load time and
-q8192 TTFT remain required. These experiments do not change the release gates.
+The [attention layout experiment](../benchmarks/correctness/ordered-attention-explicit-layout-controls-20260923.json)
+also passes every query slab of the original q8192 layer. QK checks cover
+1073741824 stored FP32 values. Selected PV and two complete-output PV tiles
+match 100663296 BF16 context values in total. Probability, scale, empty/partial
+queue and input/guard checks pass. All five gfx1151 images have no layout
+conversion or spills; selected PV retains 16 shared bytes for its queue-range
+reduction, while the other four have no shared-memory instructions. The native
+plan compares eight full passes of old and explicit images with reversed order.
+
+The AMD GDN, dense and attention measurements wait for the current full256k
+owner to complete cleanly. Windows model tokens, logits, callbacks, load time
+and q8192 TTFT remain required. These experiments do not change release gates.
