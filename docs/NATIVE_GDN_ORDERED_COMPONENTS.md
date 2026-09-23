@@ -1,10 +1,31 @@
 # Ordered native GDN components
 
-An experimental complete Triton GDN pipeline preserves the original GB10
-arithmetic while compiling directly for gfx1151. The Linux-core Windows
-prototype can select it with `AIMA_PORT_NATIVE_GDN_PREFILL=1`; it remains off
-by default. Actual candidate AMD execution and product qualification are
-pending. No new Windows execution or TTFT result is claimed.
+The optional `AIMA_PORT_NATIVE_GDN_PREFILL=1` pipeline now uses explicit
+Gluon layouts for seven original-order unsigned32 GDN kernels and retains the
+qualified ordered inverse. It remains off by default. CUDA comparisons pass
+the complete original q7169 chain and all 113 incoming state checkpoints;
+gfx1151 numerical execution and real-model performance are pending.
+
+The preceding unsigned32 images produced nondeterministic AMD W errors on
+identical inputs. The unsigned64 control passes the original AMD operator and
+q8192/out512 boundaries, but its 40680.6294 ms TTFT is slower than the qualified
+20086.8502 ms prototype and fails the unchanged performance targets. Neither
+the entry/exit-barrier nor two-warp control repairs the unsigned32 failure.
+[Native controls and product evidence](../benchmarks/correctness/ordered-gdn-u64-native-product-20260923.json).
+
+The new layout keeps the same integer arithmetic while explicitly assigning
+all three axes to lanes and warps. The seven gfx1151 kernels compile without
+layout conversions, LDS loads/stores, shared memory or spills. Higher VGPR
+usage remains a performance risk. These observations motivate the candidate;
+they do not establish the previous failure's cause or an AMD speedup.
+[Exact sources, CUDA comparisons and pending native matrix](../benchmarks/correctness/ordered-gdn-explicit-layout-controls-20260923.json).
+
+The standalone compiler rebuilds all eight images with matching executable
+content, constants, load layouts and launch ABI. Source paths change debug
+records and the ELF section-table offset. The selected runtime images remain
+the exact images in the pending native matrix. ASan/UBSan verifies their host
+bindings; this does not execute GPU arithmetic.
+[Runtime preparation and rebuild evidence](../benchmarks/correctness/ordered-gdn-explicit-runtime-preparation-20260923.json).
 
 [Complete component evidence](../benchmarks/correctness/native-gdn-ordered-inverse-integer-u-20260923.json)
 binds the actual source bytes, original inputs, commands, compilation outputs,
@@ -93,7 +114,8 @@ It reuses 5 MiB of idle conversion scratch for two FP32 states and two BF16
 chunk buffers. Scores reuse the retired KKT allocation; no additional device
 allocation is introduced over the preceding optional route. The last chunk
 writes the engine's resident FP32 state directly. The eight embedded images
-total 738,352 bytes; Python and Triton remain build dependencies only.
+total 743,344 bytes, 4,992 bytes above the unsigned64 control. Python and
+Triton 3.6.0, including its Gluon module, remain build dependencies only.
 
 ASan/UBSan host execution checks all 128 chunk bindings and state lifetimes,
 eight image hashes, mandatory scratch ABI arguments, two clearing boundaries,

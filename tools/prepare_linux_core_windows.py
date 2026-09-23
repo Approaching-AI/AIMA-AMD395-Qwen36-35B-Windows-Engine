@@ -1176,9 +1176,11 @@ def main():
         report["optional_adaptations"]["gb10_gdn"]["native_prefill_opt_in"] = dict(
             setting="AIMA_PORT_NATIVE_GDN_PREFILL=1", scope="cold q8192 only",
             preparation="original XOR16 Q/K normalization, BF16 beta, FP32 decay table",
-            core="original chunk64 cumsum and eight embedded original-order integer-accumulator GDN images",
+            core="original chunk64 cumsum and inverse; seven explicit-layout original-order unsigned32 GDN images",
             additional_scratch_bytes=100663296, reused_conversion_scratch_bytes=5242880,
-            embedded_image_bytes=738352, aot_launches_per_linear_layer=390,
+            embedded_image_bytes=sum(item["bytes"] for item in json.loads(
+                (ROOT / "native/linux_core_port/gb10_gdn_ordered_compile.json").read_text())["compiled"].values()),
+            aot_launches_per_linear_layer=390,
             embedded_include_sha256=digest((ROOT / "native/linux_core_port/gb10_gdn_ordered_images.inc").read_bytes()),
             state_update="independent carried K64 dot then explicit FP32 decay FMA",
             state_commit="last chunk writes the engine's resident FP32 state directly",

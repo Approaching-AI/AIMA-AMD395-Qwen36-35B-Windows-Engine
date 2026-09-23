@@ -1,5 +1,20 @@
 # Experimental Linux compute core
 
+The optional native GDN route now embeds seven explicit-layout unsigned32
+Gluon images and the unchanged ordered inverse. Together they occupy 743344
+binary bytes, 4992 bytes more than the unsigned64 control; the generated C++
+include occupies 4555326 bytes. The intended benefit is removing compiler
+layout conversions and LDS traffic while preserving the exact characterized
+arithmetic. Higher VGPR usage may offset that benefit; AMD numerical and
+q8192 product measurements remain required. CUDA comparisons and host ABI
+checks are recorded in the [runtime preparation evidence](../benchmarks/correctness/ordered-gdn-explicit-runtime-preparation-20260923.json).
+
+This uses Gluon already included in the pinned Triton 3.6.0 build container.
+There is no added package, DLL, runtime interpreter, table or device allocation.
+The existing 100663296-byte A/Ai allocation and 5242880 bytes of reused
+conversion scratch are unchanged. Python and Triton remain build dependencies;
+the option stays disabled by default.
+
 The optional `AIMA_PORT_PREFILL_GROUP_MAJOR_WEIGHTS=1` layout reorders existing
 prepared dense replay weights by K16 group before output row. It adds no device
 or host allocation, dependency, runtime artifact or transfer. Its intended
