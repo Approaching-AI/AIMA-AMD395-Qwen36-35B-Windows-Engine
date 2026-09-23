@@ -190,6 +190,20 @@ input/guard and cleanup checks pass. This expands CUDA coverage only.
 [All-layer evidence](../benchmarks/correctness/ordered-gdn-explicit-all-layers-20260923.json)
 SHA256 `05eaa3a3a6453c13677940df86b4d2c7dc59c2ca10d756e4ff3bfbdeec5035e8`.
 
+A separate persistent recurrence experiment assigns each block one head and
+eight value rows, keeping all128 state channels in6144 shared bytes. Explicit
+phase barriers preserve the incoming state until every output is complete.
+The original K16 order, BF16 boundaries and FP32 update fma remain unchanged.
+The complete q7169 capture and runtime variants both match original core and
+final-state values; the capture also matches all113 incoming BF16 checkpoints
+and all V-new values. First64 and a nonzero-seeded65-token continuation pass.
+Both gfx1151 images compile with225/226 VGPRs and no spills or private memory.
+Two earlier CPU compile failures are preserved. This reduces the proposed
+q8192 recurrence from384 launches per layer to one; no speedup is established.
+The variant has no runtime binding, and native and q8192 all-layer comparisons
+remain pending. [Persistent recurrence controls](../benchmarks/correctness/persistent-gdn-explicit-controls-20260923.json)
+SHA256 `f0570c48dbc5cdbe43f985a656e7f76e69ffca23df2ca8be20d2d27fb15a2e23`.
+
 An explicit-layout dense replay also preserves the existing selected-pair
 addressing and ascending K16 arithmetic. Its three gfx1151 tiles have zero
 layout conversions, LDS operations or spills, with 64/117/229 VGPRs. CUDA checks

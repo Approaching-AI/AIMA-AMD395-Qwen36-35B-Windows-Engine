@@ -1,0 +1,905 @@
+{
+  "schema": 1,
+  "classification": "explicit_shared_memory_persistent_gdn_recurrence_experiment",
+  "candidate_base_commit": "c85259254b805788dc80680caad37685708c98a8",
+  "original_reference": "Qwen3.6-35B-A3B; original q7169 layer0 operator capture",
+  "source_manifest_sha256": "354137bbd2df7d28d8794272c7acb54520afe3758bf0afe7a36e3edcef1fbf71",
+  "source_archive_sha256": "0c83f201f1c8b90b38b0ecdbe169a3054d7cc697e22ee127acad40e1f3def8c8",
+  "numerical": {
+    "host": "aitopatom-66c4",
+    "device": "NVIDIA GB10",
+    "source_hashes": {
+      "persistent.py": "20a71409f601924dd9137cddb6196dfdb438452be8d881385922049f1cfa61e5",
+      "numerical_worker.py": "eb04bcc0e37ac20281039e4c38bff849a3165fa0b868e3749d1258222039ab4b",
+      "compile_worker.py": "40ca447c066c3db8c9629d286d19f852f0c31272910831450a25614dc59eebdb",
+      "ordered_pipeline.py": "1e1fe71515f51552160c4e02e3aa03cc27af68dd390c241218381e227c913fae",
+      "group16.py": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef",
+      "exp2.py": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf"
+    },
+    "source_manifest_sha256": "354137bbd2df7d28d8794272c7acb54520afe3758bf0afe7a36e3edcef1fbf71",
+    "records": [
+      {
+        "name": "original-q7169-capture",
+        "tokens": 7169,
+        "chunks": 113,
+        "capture": true,
+        "comparisons": {
+          "core": {
+            "values": 29364224,
+            "bit_mismatches": 0,
+            "actual_sha256": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde",
+            "original_sha256": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde"
+          },
+          "state": {
+            "values": 524288,
+            "bit_mismatches": 0,
+            "actual_sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2",
+            "original_sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2"
+          },
+          "v_new": {
+            "values": 29364224,
+            "bit_mismatches": 0,
+            "actual_sha256": "b6fd8d6801622a4b7dc00490a6abee2e584df5e21b907f66eb6fa986a3d2229f",
+            "original_sha256": "b6fd8d6801622a4b7dc00490a6abee2e584df5e21b907f66eb6fa986a3d2229f"
+          },
+          "incoming_state_checkpoints": {
+            "values": 59244544,
+            "bit_mismatches": 0,
+            "actual_sha256": "140741e123824032adb256af41c542fe74f8782ca1980b2b8eaba61ca61f6735",
+            "original_sha256": "140741e123824032adb256af41c542fe74f8782ca1980b2b8eaba61ca61f6735"
+          }
+        },
+        "guards_pass": true,
+        "diagnostic_seconds": 12.416962117189541,
+        "kernel_hash": "2b96bb940de66d562ab534b0a2f19bcbbd8b79be1cf7add4a7d462309cd2c294",
+        "kernel_metadata": {
+          "allowed_dot_input_precisions": [
+            "tf32",
+            "tf32x3",
+            "ieee",
+            "bf16x3",
+            "bf16x6"
+          ],
+          "arch": "sm121",
+          "backend_name": "cuda",
+          "debug": false,
+          "default_dot_input_precision": "tf32",
+          "deprecated_fp8_dot_operand_dtypes": [
+            "fp8e4b15"
+          ],
+          "enable_fp_fusion": false,
+          "enable_reflect_ftz": true,
+          "extern_libs": [
+            [
+              "libdevice",
+              "/usr/local/lib/python3.12/dist-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+            ]
+          ],
+          "global_scratch_align": 1,
+          "global_scratch_size": 0,
+          "hash": "2b96bb940de66d562ab534b0a2f19bcbbd8b79be1cf7add4a7d462309cd2c294",
+          "instrumentation_mode": "",
+          "ir_override": null,
+          "launch_cooperative_grid": false,
+          "launch_pdl": false,
+          "max_num_imprecise_acc_default": 0,
+          "maxnreg": null,
+          "name": "persistent_kernel",
+          "num_ctas": 1,
+          "num_stages": 2,
+          "num_warps": 4,
+          "profile_scratch_align": 1,
+          "profile_scratch_size": 0,
+          "ptx_options": null,
+          "ptx_version": null,
+          "sanitize_overflow": true,
+          "shared": 6144,
+          "supported_fp8_dtypes": [
+            "fp8e4b15",
+            "fp8e4nv",
+            "fp8e5"
+          ],
+          "target": "GPUTarget(backend='cuda', arch=121, warp_size=32)",
+          "tensordesc_meta": [],
+          "tmem_size": 0,
+          "triton_version": "3.6.0",
+          "warp_size": 32
+        },
+        "original_values_match": true,
+        "performance_acceptance": false
+      },
+      {
+        "name": "original-q7169-runtime",
+        "tokens": 7169,
+        "chunks": 113,
+        "capture": false,
+        "comparisons": {
+          "core": {
+            "values": 29364224,
+            "bit_mismatches": 0,
+            "actual_sha256": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde",
+            "original_sha256": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde"
+          },
+          "state": {
+            "values": 524288,
+            "bit_mismatches": 0,
+            "actual_sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2",
+            "original_sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2"
+          }
+        },
+        "guards_pass": true,
+        "diagnostic_seconds": 16.642484265146777,
+        "kernel_hash": "4fd10a43e8745611106321104a6c9359176cd88febf78fbc55c7669683c55fbc",
+        "kernel_metadata": {
+          "allowed_dot_input_precisions": [
+            "tf32",
+            "tf32x3",
+            "ieee",
+            "bf16x3",
+            "bf16x6"
+          ],
+          "arch": "sm121",
+          "backend_name": "cuda",
+          "debug": false,
+          "default_dot_input_precision": "tf32",
+          "deprecated_fp8_dot_operand_dtypes": [
+            "fp8e4b15"
+          ],
+          "enable_fp_fusion": false,
+          "enable_reflect_ftz": true,
+          "extern_libs": [
+            [
+              "libdevice",
+              "/usr/local/lib/python3.12/dist-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+            ]
+          ],
+          "global_scratch_align": 1,
+          "global_scratch_size": 0,
+          "hash": "4fd10a43e8745611106321104a6c9359176cd88febf78fbc55c7669683c55fbc",
+          "instrumentation_mode": "",
+          "ir_override": null,
+          "launch_cooperative_grid": false,
+          "launch_pdl": false,
+          "max_num_imprecise_acc_default": 0,
+          "maxnreg": null,
+          "name": "persistent_kernel",
+          "num_ctas": 1,
+          "num_stages": 2,
+          "num_warps": 4,
+          "profile_scratch_align": 1,
+          "profile_scratch_size": 0,
+          "ptx_options": null,
+          "ptx_version": null,
+          "sanitize_overflow": true,
+          "shared": 6144,
+          "supported_fp8_dtypes": [
+            "fp8e4b15",
+            "fp8e4nv",
+            "fp8e5"
+          ],
+          "target": "GPUTarget(backend='cuda', arch=121, warp_size=32)",
+          "tensordesc_meta": [],
+          "tmem_size": 0,
+          "triton_version": "3.6.0",
+          "warp_size": 32
+        },
+        "original_values_match": true,
+        "performance_acceptance": false
+      },
+      {
+        "name": "original-first64-runtime",
+        "tokens": 64,
+        "chunks": 1,
+        "capture": false,
+        "comparisons": {
+          "core": {
+            "values": 262144,
+            "bit_mismatches": 0,
+            "actual_sha256": "6b98a9748c685ca6bf1aea0f80fb7772d1ae444079dc5137339e90f0f7b9150e",
+            "original_sha256": "6b98a9748c685ca6bf1aea0f80fb7772d1ae444079dc5137339e90f0f7b9150e"
+          },
+          "state": {
+            "values": 524288,
+            "bit_mismatches": 0,
+            "actual_sha256": "33e6b09f1f3414fb7596739ed8f57415d14efc9dc59ebd8589cd421acaf61fcb",
+            "original_sha256": "33e6b09f1f3414fb7596739ed8f57415d14efc9dc59ebd8589cd421acaf61fcb"
+          }
+        },
+        "guards_pass": true,
+        "diagnostic_seconds": 0.0023664680775254965,
+        "kernel_hash": "4fd10a43e8745611106321104a6c9359176cd88febf78fbc55c7669683c55fbc",
+        "kernel_metadata": {
+          "allowed_dot_input_precisions": [
+            "tf32",
+            "tf32x3",
+            "ieee",
+            "bf16x3",
+            "bf16x6"
+          ],
+          "arch": "sm121",
+          "backend_name": "cuda",
+          "debug": false,
+          "default_dot_input_precision": "tf32",
+          "deprecated_fp8_dot_operand_dtypes": [
+            "fp8e4b15"
+          ],
+          "enable_fp_fusion": false,
+          "enable_reflect_ftz": true,
+          "extern_libs": [
+            [
+              "libdevice",
+              "/usr/local/lib/python3.12/dist-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+            ]
+          ],
+          "global_scratch_align": 1,
+          "global_scratch_size": 0,
+          "hash": "4fd10a43e8745611106321104a6c9359176cd88febf78fbc55c7669683c55fbc",
+          "instrumentation_mode": "",
+          "ir_override": null,
+          "launch_cooperative_grid": false,
+          "launch_pdl": false,
+          "max_num_imprecise_acc_default": 0,
+          "maxnreg": null,
+          "name": "persistent_kernel",
+          "num_ctas": 1,
+          "num_stages": 2,
+          "num_warps": 4,
+          "profile_scratch_align": 1,
+          "profile_scratch_size": 0,
+          "ptx_options": null,
+          "ptx_version": null,
+          "sanitize_overflow": true,
+          "shared": 6144,
+          "supported_fp8_dtypes": [
+            "fp8e4b15",
+            "fp8e4nv",
+            "fp8e5"
+          ],
+          "target": "GPUTarget(backend='cuda', arch=121, warp_size=32)",
+          "tensordesc_meta": [],
+          "tmem_size": 0,
+          "triton_version": "3.6.0",
+          "warp_size": 32
+        },
+        "original_values_match": true,
+        "performance_acceptance": false
+      },
+      {
+        "name": "nonzero-seeded65-runtime",
+        "tokens": 65,
+        "chunks": 2,
+        "capture": false,
+        "comparisons": {
+          "core": {
+            "values": 266240,
+            "bit_mismatches": 0,
+            "actual_sha256": "fd771890fa9180b963513ae88d00c5ff9f4af0cc1d5ab154a318e88cebda2217",
+            "original_sha256": "fd771890fa9180b963513ae88d00c5ff9f4af0cc1d5ab154a318e88cebda2217"
+          },
+          "state": {
+            "values": 524288,
+            "bit_mismatches": 0,
+            "actual_sha256": "aefda57dd7d0a237e9751dd14f95859cc49ea0547b41dfc854e8d7d3f04b6748",
+            "original_sha256": "aefda57dd7d0a237e9751dd14f95859cc49ea0547b41dfc854e8d7d3f04b6748"
+          }
+        },
+        "guards_pass": true,
+        "diagnostic_seconds": 0.004016665043309331,
+        "kernel_hash": "4fd10a43e8745611106321104a6c9359176cd88febf78fbc55c7669683c55fbc",
+        "kernel_metadata": {
+          "allowed_dot_input_precisions": [
+            "tf32",
+            "tf32x3",
+            "ieee",
+            "bf16x3",
+            "bf16x6"
+          ],
+          "arch": "sm121",
+          "backend_name": "cuda",
+          "debug": false,
+          "default_dot_input_precision": "tf32",
+          "deprecated_fp8_dot_operand_dtypes": [
+            "fp8e4b15"
+          ],
+          "enable_fp_fusion": false,
+          "enable_reflect_ftz": true,
+          "extern_libs": [
+            [
+              "libdevice",
+              "/usr/local/lib/python3.12/dist-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+            ]
+          ],
+          "global_scratch_align": 1,
+          "global_scratch_size": 0,
+          "hash": "4fd10a43e8745611106321104a6c9359176cd88febf78fbc55c7669683c55fbc",
+          "instrumentation_mode": "",
+          "ir_override": null,
+          "launch_cooperative_grid": false,
+          "launch_pdl": false,
+          "max_num_imprecise_acc_default": 0,
+          "maxnreg": null,
+          "name": "persistent_kernel",
+          "num_ctas": 1,
+          "num_stages": 2,
+          "num_warps": 4,
+          "profile_scratch_align": 1,
+          "profile_scratch_size": 0,
+          "ptx_options": null,
+          "ptx_version": null,
+          "sanitize_overflow": true,
+          "shared": 6144,
+          "supported_fp8_dtypes": [
+            "fp8e4b15",
+            "fp8e4nv",
+            "fp8e5"
+          ],
+          "target": "GPUTarget(backend='cuda', arch=121, warp_size=32)",
+          "tensordesc_meta": [],
+          "tmem_size": 0,
+          "triton_version": "3.6.0",
+          "warp_size": 32
+        },
+        "original_values_match": true,
+        "performance_acceptance": false
+      }
+    ],
+    "all_original_values_match": true,
+    "inputs_state_scores_unchanged": true,
+    "guards_pass": true,
+    "original_reference": "Qwen3.6-35B-A3B; original q7169 layer0 operator capture",
+    "original_matrix_result_sha256": "ba900cdb901be101c3bc449f5c76481a08a08e04bf9a91557250491c64f57bed",
+    "seeded_fp32_control_sha256": "33e6b09f1f3414fb7596739ed8f57415d14efc9dc59ebd8589cd421acaf61fcb",
+    "seeded_control_matches_original_bf16_state": true,
+    "launch_geometry": [
+      32,
+      16
+    ],
+    "q8192_recurrence_launches_before": 384,
+    "q8192_recurrence_launches_candidate": 1,
+    "model_loaded": false,
+    "amd_gpu_executed": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "numerical_sha256": "3de301f5e13a0fc590e68cfc0e82024156b97e5520b3b2de5ac1b1a37760321a",
+  "offline_compile": {
+    "source_manifest_sha256": "354137bbd2df7d28d8794272c7acb54520afe3758bf0afe7a36e3edcef1fbf71",
+    "source_hashes": {
+      "persistent.py": "20a71409f601924dd9137cddb6196dfdb438452be8d881385922049f1cfa61e5",
+      "numerical_worker.py": "eb04bcc0e37ac20281039e4c38bff849a3165fa0b868e3749d1258222039ab4b",
+      "compile_worker.py": "40ca447c066c3db8c9629d286d19f852f0c31272910831450a25614dc59eebdb",
+      "ordered_pipeline.py": "1e1fe71515f51552160c4e02e3aa03cc27af68dd390c241218381e227c913fae",
+      "group16.py": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef",
+      "exp2.py": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf"
+    },
+    "images": [
+      {
+        "name": "persistent-runtime",
+        "capture": false,
+        "file": "persistent-runtime.hsaco",
+        "bytes": 1151552,
+        "sha256": "55d80ebea65b2924f96ac96c5befb966704e6b5e9e59565caa7eb1e294dd6e58",
+        "signature": {
+          "Q": "*bf16",
+          "K": "*bf16",
+          "W": "*bf16",
+          "U": "*bf16",
+          "G": "*fp32",
+          "Scores": "*bf16",
+          "Table": "*i8",
+          "Initial": "*fp32",
+          "Final": "*fp32",
+          "Out": "*bf16",
+          "VNew": "*bf16",
+          "Checkpoints": "*bf16",
+          "T": "i32"
+        },
+        "constants": {
+          "CAPTURE": false
+        },
+        "options": {
+          "num_warps": 4,
+          "num_stages": 2,
+          "enable_fp_fusion": false
+        },
+        "metadata": {
+          "allow_flush_denorm": false,
+          "allowed_dot_input_precisions": [
+            "ieee",
+            "bf16x3",
+            "bf16x6"
+          ],
+          "arch": "gfx1151",
+          "backend_name": "hip",
+          "debug": false,
+          "default_dot_input_precision": "ieee",
+          "deprecated_fp8_dot_operand_dtypes": [],
+          "enable_fp_fusion": false,
+          "extern_libs": [
+            [
+              "ocml",
+              "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+            ],
+            [
+              "ockl",
+              "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+            ]
+          ],
+          "hash": "8b6e982e83dffbf9030bc5c1a4477b47c12a92ab81a765fa2ecebc154c09b6b3",
+          "instrumentation_mode": "",
+          "kpack": 1,
+          "launch_cooperative_grid": false,
+          "matrix_instr_nonkdim": 0,
+          "max_num_imprecise_acc_default": 0,
+          "name": "persistent_kernel",
+          "num_ctas": 1,
+          "num_stages": 2,
+          "num_warps": 4,
+          "profile_scratch_align": 1,
+          "profile_scratch_size": 0,
+          "sanitize_overflow": true,
+          "schedule_hint": "none",
+          "shared": 6144,
+          "supported_fp8_dtypes": [
+            "fp8e4b8",
+            "fp8e4nv",
+            "fp8e5",
+            "fp8e5b16"
+          ],
+          "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+          "tensordesc_meta": [],
+          "triton_version": "3.6.0",
+          "warp_size": 32,
+          "waves_per_eu": 0
+        },
+        "resources": {
+          ".vgpr_count": [
+            "225"
+          ],
+          ".vgpr_spill_count": [
+            "0"
+          ],
+          ".private_segment_fixed_size": [
+            "0"
+          ]
+        },
+        "layout_conversion_count": 0,
+        "shared_memory_bytes": 6144
+      },
+      {
+        "name": "persistent-capture",
+        "capture": true,
+        "file": "persistent-capture.hsaco",
+        "bytes": 1146768,
+        "sha256": "4468ffa79ac950a359cd723dd37167788b14a2b4d67da2fe3d2a0d82f0be3f08",
+        "signature": {
+          "Q": "*bf16",
+          "K": "*bf16",
+          "W": "*bf16",
+          "U": "*bf16",
+          "G": "*fp32",
+          "Scores": "*bf16",
+          "Table": "*i8",
+          "Initial": "*fp32",
+          "Final": "*fp32",
+          "Out": "*bf16",
+          "VNew": "*bf16",
+          "Checkpoints": "*bf16",
+          "T": "i32"
+        },
+        "constants": {
+          "CAPTURE": true
+        },
+        "options": {
+          "num_warps": 4,
+          "num_stages": 2,
+          "enable_fp_fusion": false
+        },
+        "metadata": {
+          "allow_flush_denorm": false,
+          "allowed_dot_input_precisions": [
+            "ieee",
+            "bf16x3",
+            "bf16x6"
+          ],
+          "arch": "gfx1151",
+          "backend_name": "hip",
+          "debug": false,
+          "default_dot_input_precision": "ieee",
+          "deprecated_fp8_dot_operand_dtypes": [],
+          "enable_fp_fusion": false,
+          "extern_libs": [
+            [
+              "ocml",
+              "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ocml.bc"
+            ],
+            [
+              "ockl",
+              "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
+            ]
+          ],
+          "hash": "5ef2d9886b252df3632c07bfb3e2b21ac116cceaa807172be74c139244e9d905",
+          "instrumentation_mode": "",
+          "kpack": 1,
+          "launch_cooperative_grid": false,
+          "matrix_instr_nonkdim": 0,
+          "max_num_imprecise_acc_default": 0,
+          "name": "persistent_kernel",
+          "num_ctas": 1,
+          "num_stages": 2,
+          "num_warps": 4,
+          "profile_scratch_align": 1,
+          "profile_scratch_size": 0,
+          "sanitize_overflow": true,
+          "schedule_hint": "none",
+          "shared": 6144,
+          "supported_fp8_dtypes": [
+            "fp8e4b8",
+            "fp8e4nv",
+            "fp8e5",
+            "fp8e5b16"
+          ],
+          "target": "GPUTarget(backend='hip', arch='gfx1151', warp_size=32)",
+          "tensordesc_meta": [],
+          "triton_version": "3.6.0",
+          "warp_size": 32,
+          "waves_per_eu": 0
+        },
+        "resources": {
+          ".vgpr_count": [
+            "226"
+          ],
+          ".vgpr_spill_count": [
+            "0"
+          ],
+          ".private_segment_fixed_size": [
+            "0"
+          ]
+        },
+        "layout_conversion_count": 0,
+        "shared_memory_bytes": 6144
+      }
+    ],
+    "wall_seconds": 25.004488854901865,
+    "gpu_used": false,
+    "amd_gpu_executed": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "offline_compile_sha256": "21b18e8004b5ea6b59e5a61d09a48674847fb558446154e0ac6c8d9c84b2fcdc",
+  "dispatch": {
+    "host": "aitopatom-66c4",
+    "source_archive_sha256": "0c83f201f1c8b90b38b0ecdbe169a3054d7cc697e22ee127acad40e1f3def8c8",
+    "actions": [
+      {
+        "action": "compile",
+        "host": "aitopatom-66c4",
+        "command": [
+          "docker",
+          "run",
+          "--name",
+          "qrt-gdn-persistent-explicit-20260923-r3-compile",
+          "--hostname",
+          "aitopatom-66c4",
+          "--network",
+          "none",
+          "--memory",
+          "3g",
+          "--cpus",
+          "2",
+          "--pids-limit",
+          "256",
+          "--shm-size",
+          "1g",
+          "-v",
+          "/home/qujing/qrt-gdn-persistent-explicit-20260923-r3:/work",
+          "-w",
+          "/work",
+          "--entrypoint",
+          "timeout",
+          "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+          "--signal=TERM",
+          "--kill-after=5",
+          "300",
+          "python3",
+          "compile_worker.py"
+        ],
+        "returncode": 0,
+        "reason": "completed",
+        "container_state": {
+          "Status": "exited",
+          "Running": false,
+          "Paused": false,
+          "Restarting": false,
+          "OOMKilled": false,
+          "Dead": false,
+          "Pid": 0,
+          "ExitCode": 0,
+          "Error": "",
+          "StartedAt": "2026-09-23T10:17:08.888261094Z",
+          "FinishedAt": "2026-09-23T10:17:34.128798219Z"
+        },
+        "seconds": 25.449792330153286,
+        "gpu_used": false,
+        "gpu_processes_after": null,
+        "cleanup_pass": true
+      },
+      {
+        "action": "pipeline",
+        "host": "aitopatom-66c4",
+        "command": [
+          "docker",
+          "run",
+          "--name",
+          "qrt-gdn-persistent-explicit-20260923-r3-pipeline",
+          "--hostname",
+          "aitopatom-66c4",
+          "--network",
+          "none",
+          "--memory",
+          "8g",
+          "--cpus",
+          "4",
+          "--pids-limit",
+          "256",
+          "--shm-size",
+          "1g",
+          "-v",
+          "/home/qujing/qrt-gdn-persistent-explicit-20260923-r3:/work",
+          "-w",
+          "/work",
+          "--gpus",
+          "all",
+          "-v",
+          "/home/qujing/qrt-native-gdn-ordered-pipeline-matrix-20260923-r1/inputs:/work/inputs:ro",
+          "-v",
+          "/home/qujing/qrt-native-gdn-ordered-pipeline-20260923-r1:/table:ro",
+          "-v",
+          "/home/qujing/qrt-native-gdn-ordered-inverse-matrix-20260923-r1/inputs:/inverse:ro",
+          "-v",
+          "/home/qujing/qrt-native-gdn-integer-u-matrix-20260923-r1/inputs:/baseu:ro",
+          "--entrypoint",
+          "timeout",
+          "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+          "--signal=TERM",
+          "--kill-after=5",
+          "600",
+          "python3",
+          "numerical_worker.py"
+        ],
+        "returncode": 0,
+        "reason": "completed",
+        "container_state": {
+          "Status": "exited",
+          "Running": false,
+          "Paused": false,
+          "Restarting": false,
+          "OOMKilled": false,
+          "Dead": false,
+          "Pid": 0,
+          "ExitCode": 0,
+          "Error": "",
+          "StartedAt": "2026-09-23T10:17:34.34694237Z",
+          "FinishedAt": "2026-09-23T10:18:13.064850046Z"
+        },
+        "seconds": 38.917284964816645,
+        "gpu_used": true,
+        "gpu_processes_after": "",
+        "cleanup_pass": true
+      }
+    ],
+    "model_loaded": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "dispatch_sha256": "0e5472c586ba9e4b537e71b8c0485be200c3262bed3638fd483dbd7dce924016",
+  "preserved_compile_failures": [
+    {
+      "revision": 1,
+      "manifest_sha256": "a836d355240d18ee71f564747c4e1970f12647fec0c7092b30986f3ef40474f7",
+      "kernel_sha256": "408f326638fa57d2152f39ebe6b4a2763a0546a7f0f29f134e6d075ae5e4cd47",
+      "dispatch": {
+        "host": "aitopatom-66c4",
+        "source_archive_sha256": "c6b33ee971a254e874d018575ee9477ae8c8eaddc027529c2f617591fc839856",
+        "actions": [
+          {
+            "action": "compile",
+            "host": "aitopatom-66c4",
+            "command": [
+              "docker",
+              "run",
+              "--name",
+              "qrt-gdn-persistent-explicit-20260923-r1-compile",
+              "--hostname",
+              "aitopatom-66c4",
+              "--network",
+              "none",
+              "--memory",
+              "3g",
+              "--cpus",
+              "2",
+              "--pids-limit",
+              "256",
+              "--shm-size",
+              "1g",
+              "-v",
+              "/home/qujing/qrt-gdn-persistent-explicit-20260923-r1:/work",
+              "-w",
+              "/work",
+              "--entrypoint",
+              "timeout",
+              "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+              "--signal=TERM",
+              "--kill-after=5",
+              "300",
+              "python3",
+              "compile_worker.py"
+            ],
+            "returncode": 1,
+            "reason": "completed",
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 1,
+              "Error": "",
+              "StartedAt": "2026-09-23T10:14:40.671321274Z",
+              "FinishedAt": "2026-09-23T10:14:41.492837337Z"
+            },
+            "seconds": 0.9800516860559583,
+            "gpu_used": false,
+            "gpu_processes_after": null,
+            "cleanup_pass": true
+          }
+        ],
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false
+      },
+      "stderr_sha256": "6e40805f42dd62ec699819df82ff0adc5819bed1187c33463c7bd36d16515680",
+      "reason": "Gluon shared reshape/index retained a three-dimensional layout for a two-dimensional view; allocate indexed state planes directly and use static residual slices."
+    },
+    {
+      "revision": 2,
+      "manifest_sha256": "bc916b306dd205e5ade8e5e7b123f4d2cdb074ec22949aee7491b7adc6ade669",
+      "kernel_sha256": "83a4c7e1a64606ee476a9ff2ee92951c14b5228660d7a406d86245b3d0fbd82b",
+      "dispatch": {
+        "host": "aitopatom-66c4",
+        "source_archive_sha256": "f01b6490b402ff186c828be40f7cbf2efc31d64ead1770c0a455222fa192cd09",
+        "actions": [
+          {
+            "action": "compile",
+            "host": "aitopatom-66c4",
+            "command": [
+              "docker",
+              "run",
+              "--name",
+              "qrt-gdn-persistent-explicit-20260923-r2-compile",
+              "--hostname",
+              "aitopatom-66c4",
+              "--network",
+              "none",
+              "--memory",
+              "3g",
+              "--cpus",
+              "2",
+              "--pids-limit",
+              "256",
+              "--shm-size",
+              "1g",
+              "-v",
+              "/home/qujing/qrt-gdn-persistent-explicit-20260923-r2:/work",
+              "-w",
+              "/work",
+              "--entrypoint",
+              "timeout",
+              "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+              "--signal=TERM",
+              "--kill-after=5",
+              "300",
+              "python3",
+              "compile_worker.py"
+            ],
+            "returncode": 1,
+            "reason": "completed",
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 1,
+              "Error": "",
+              "StartedAt": "2026-09-23T10:16:26.193205872Z",
+              "FinishedAt": "2026-09-23T10:16:26.982250964Z"
+            },
+            "seconds": 0.9835452921688557,
+            "gpu_used": false,
+            "gpu_processes_after": null,
+            "cleanup_pass": true
+          }
+        ],
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false
+      },
+      "stderr_sha256": "69605672823d3fb1f4f7a52ad1aaf2e2a7cab3b93d586a20f1571d40a2321247",
+      "reason": "Triton carries reused variable names across loops; state phase now has distinct names for its different tensor shapes."
+    }
+  ],
+  "verified_download_files": 26,
+  "download_manifest_sha256": "69c6f10631edb8c48a2e1223ec0d6d3ad41482bc7741db7bca5c863d0b58e04a",
+  "exact_reproduction_sources": {
+    "tools/experiments/ordered_q8192/persistent_gdn/persistent.py": {
+      "bytes": 6045,
+      "sha256": "20a71409f601924dd9137cddb6196dfdb438452be8d881385922049f1cfa61e5"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/numerical_worker.py": {
+      "bytes": 8167,
+      "sha256": "eb04bcc0e37ac20281039e4c38bff849a3165fa0b868e3749d1258222039ab4b"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/compile_worker.py": {
+      "bytes": 2505,
+      "sha256": "40ca447c066c3db8c9629d286d19f852f0c31272910831450a25614dc59eebdb"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/ordered_pipeline.py": {
+      "bytes": 8851,
+      "sha256": "1e1fe71515f51552160c4e02e3aa03cc27af68dd390c241218381e227c913fae"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/group16.py": {
+      "bytes": 3120,
+      "sha256": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/exp2.py": {
+      "bytes": 1318,
+      "sha256": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/manifest.json": {
+      "bytes": 9277,
+      "sha256": "354137bbd2df7d28d8794272c7acb54520afe3758bf0afe7a36e3edcef1fbf71"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/dispatch_gdn_persistent_explicit_r3.py": {
+      "bytes": 5604,
+      "sha256": "c6c139b5b741530c533545538468f089970dd013c24ecef1048aae909f6827bf"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/record_gdn_persistent_explicit_r3.py": {
+      "bytes": 5235,
+      "sha256": "f92013680e5e6811bb352859dbcb0db88228ef83583c179a8f86384feadd9d74"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/persistent-failed-r1.py": {
+      "bytes": 5796,
+      "sha256": "408f326638fa57d2152f39ebe6b4a2763a0546a7f0f29f134e6d075ae5e4cd47"
+    },
+    "tools/experiments/ordered_q8192/persistent_gdn/persistent-failed-r2.py": {
+      "bytes": 5997,
+      "sha256": "83a4c7e1a64606ee476a9ff2ee92951c14b5228660d7a406d86245b3d0fbd82b"
+    }
+  },
+  "structural_change": {
+    "block_ownership": "one head and eight value rows; all K128 and all chunks",
+    "blocks": 512,
+    "block_threads": 128,
+    "shared_bytes_per_block": 6144,
+    "no_grid_barrier": true,
+    "explicit_barriers_between_semantic_phases": true,
+    "q8192_recurrence_launches_before": 384,
+    "q8192_recurrence_launches_candidate": 1,
+    "prior_fp32_state_preserved_until_all_outputs_complete": true,
+    "k16_order_bf16_rounding_and_fp32_fma_unchanged": true
+  },
+  "limitations": [
+    "No runtime binding or native gfx1151 execution yet.",
+    "Complete q8192 original-model all-layer comparison remains pending.",
+    "CUDA diagnostic times include JIT compilation and are not retained inference performance.",
+    "Fewer launches are a structural fact; native and full-model timing still determine selection."
+  ],
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

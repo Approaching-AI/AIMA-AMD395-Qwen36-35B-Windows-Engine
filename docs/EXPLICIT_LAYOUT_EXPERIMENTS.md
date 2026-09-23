@@ -85,3 +85,13 @@ to the model. Frozen compiler caches, host reserve and process cleanup pass.
 Native gfx1151 correctness and whole-model performance remain untested for
 these selected images. Report SHA256
 `a0466be9a3825d6178d0a8e870984aa0e5e7c00a08a354ba11d325dc8f4fb085`.
+
+A [persistent GDN recurrence](../benchmarks/correctness/persistent-gdn-explicit-controls-20260923.json)
+now passes complete original q7169 outputs, final FP32 state,113 incoming BF16
+state checkpoints and all residual V-new values. It also passes first64 and
+a nonzero-seeded65-token tail. Each block owns one head and eight value rows
+across all chunks, with6144 explicit shared bytes and barriers between phases.
+The proposed q8192 recurrence needs one launch instead of384 per layer. Both
+gfx1151 images compile without spills; native speed and correctness remain
+unmeasured. There is no runtime binding. The original K16 arithmetic and state
+fma are unchanged; two preceding CPU compiler failures remain recorded.

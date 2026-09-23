@@ -1,0 +1,275 @@
+{
+  "source_hashes": {
+    "persistent.py": "20a71409f601924dd9137cddb6196dfdb438452be8d881385922049f1cfa61e5",
+    "numerical_worker.py": "eb04bcc0e37ac20281039e4c38bff849a3165fa0b868e3749d1258222039ab4b",
+    "compile_worker.py": "40ca447c066c3db8c9629d286d19f852f0c31272910831450a25614dc59eebdb",
+    "ordered_pipeline.py": "1e1fe71515f51552160c4e02e3aa03cc27af68dd390c241218381e227c913fae",
+    "group16.py": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef",
+    "exp2.py": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf"
+  },
+  "inputs": {
+    "a": {
+      "dtype": "float32",
+      "shape": [
+        1,
+        7169,
+        32,
+        64
+      ],
+      "bytes": 58728448,
+      "sha256": "17356d59cfffa1db8cb7529f0a3b259033a35eb8efd05007d88b5e905b45dc18",
+      "file": "full-a-f32.bin",
+      "mount": "/inverse",
+      "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-a-f32.bin",
+      "metadata_sha256": "de054bbdf2c1cf1770b7ded15c6fdef7225dc591d418eccfeaadcf105be1437d"
+    },
+    "a-inverse": {
+      "dtype": "bfloat16",
+      "shape": [
+        1,
+        7169,
+        32,
+        64
+      ],
+      "bytes": 29364224,
+      "sha256": "7c6a9c8445ab3496c7468282aa7cd2d6cc47ed6849aa57762b84d56e57cecc62",
+      "file": "full-a-inverse-bf16.bin",
+      "mount": "/inverse",
+      "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-a-inverse-bf16.bin",
+      "metadata_sha256": "ff1e27a22b4855fd9171fa82464d8d00fa229e8aeec555ea678f7384b7f268b3"
+    },
+    "v": {
+      "dtype": "bfloat16",
+      "shape": [
+        1,
+        7169,
+        32,
+        128
+      ],
+      "bytes": 58728448,
+      "sha256": "cc324c828ffa9f2e950235a14669a66d74fc9efd3babc148d0c0659b2ad19dd9",
+      "file": "full-v-bf16.bin",
+      "mount": "/baseu",
+      "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-v-bf16.bin",
+      "metadata_sha256": "62161b892292780c64dcca337c2ad149a0e3c913fcfe27b9d4a1a37927a2e2bd"
+    },
+    "beta": {
+      "dtype": "bfloat16",
+      "shape": [
+        1,
+        7169,
+        32
+      ],
+      "bytes": 458816,
+      "sha256": "0cdbca3923d699b6c9db3a4b9aac166a851f322f409b365fc5264b7726cf642b",
+      "file": "full-beta-bf16.bin",
+      "mount": "/baseu",
+      "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-beta-bf16.bin",
+      "metadata_sha256": "f84b00d7d8bbf5191ad661a168ad28e31a7d3a84038642c62e8fd178ed1772ad"
+    },
+    "u": {
+      "dtype": "bfloat16",
+      "shape": [
+        1,
+        7169,
+        32,
+        128
+      ],
+      "bytes": 58728448,
+      "sha256": "1b4d91596e6554314647111d1dfa156517be6afae313cd69cf51234dfd955cfb",
+      "file": "full-u-bf16.bin",
+      "mount": "/baseu",
+      "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-u-bf16.bin",
+      "metadata_sha256": "47f7b0efb67db3e0c51eced6322f67b7bc6a73af4fb45100bc1d0af05757358f"
+    },
+    "q-normalized": {
+      "dtype": "bfloat16",
+      "shape": [
+        1,
+        7169,
+        16,
+        128
+      ],
+      "bytes": 29364224,
+      "sha256": "a6c81d03c850de6745ecc0e6810474689f8202cbd4c6cb616d6368b1f051c573",
+      "file": "full-q-normalized-bf16.bin",
+      "mount": "/work/inputs",
+      "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-q-normalized-bf16.bin",
+      "metadata_sha256": "f2a8a3a522b02bfbf68e41116cf96886cc0b9c6c4615c3f66bb1854f2e4ea690"
+    },
+    "k-normalized": {
+      "dtype": "bfloat16",
+      "shape": [
+        1,
+        7169,
+        16,
+        128
+      ],
+      "bytes": 29364224,
+      "sha256": "7778fce8bbd9ce6d046eec1e2639a0d89e53bb9e3b443b9ab1fe7e8d5656ea24",
+      "file": "full-k-normalized-bf16.bin",
+      "mount": "/work/inputs",
+      "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-k-normalized-bf16.bin",
+      "metadata_sha256": "dcf82be0ea6222e6690f87560fce0edc025671d5df20f9d7406d559185273f27"
+    },
+    "g-cumsum": {
+      "dtype": "float32",
+      "shape": [
+        1,
+        7169,
+        32
+      ],
+      "bytes": 917632,
+      "sha256": "b618db8ede809426f3c95741cce49b03d8c4cbec7888f4af0a397d959dc557b0",
+      "file": "full-g-cumsum-f32.bin",
+      "mount": "/work/inputs",
+      "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-g-cumsum-f32.bin",
+      "metadata_sha256": "4bd5de3f39799ac27d4cae67508b5cd05718a0cb67ebb714c6217702c40de6a6"
+    },
+    "w": {
+      "dtype": "bfloat16",
+      "shape": [
+        1,
+        7169,
+        32,
+        128
+      ],
+      "bytes": 58728448,
+      "sha256": "5cc5baa0e2f85758c28c06f03d8b87d5cff82b361b3382d7b531e2927e545545",
+      "file": "full-w-bf16.bin",
+      "mount": "/work/inputs",
+      "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-w-bf16.bin",
+      "metadata_sha256": "f677dff1dda3b88f3727969d84ca9f526b45dc86d8902b03adb12dce93414498"
+    },
+    "v-new": {
+      "dtype": "bfloat16",
+      "shape": [
+        1,
+        7169,
+        32,
+        128
+      ],
+      "bytes": 58728448,
+      "sha256": "b6fd8d6801622a4b7dc00490a6abee2e584df5e21b907f66eb6fa986a3d2229f",
+      "file": "full-v-new-bf16.bin",
+      "mount": "/work/inputs",
+      "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-v-new-bf16.bin",
+      "metadata_sha256": "409ce7f5ca9b8993c35cde69402c8376d05591c18aa79fe550d292d2b94bf775"
+    },
+    "chunk-state": {
+      "dtype": "bfloat16",
+      "shape": [
+        1,
+        113,
+        32,
+        128,
+        128
+      ],
+      "bytes": 118489088,
+      "sha256": "140741e123824032adb256af41c542fe74f8782ca1980b2b8eaba61ca61f6735",
+      "file": "full-chunk-state-bf16.bin",
+      "mount": "/work/inputs",
+      "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-chunk-state-bf16.bin",
+      "metadata_sha256": "b194d3b1ecfe378f2d955d6009aaafe5c7c768a22a3053a75fbcae45517ab0df"
+    },
+    "initial_state": {
+      "dtype": "float32",
+      "shape": [
+        1,
+        32,
+        128,
+        128
+      ],
+      "bytes": 2097152,
+      "sha256": "5647f05ec18958947d32874eeb788fa396a05d0bab7c1b71f112ceb7e9b31eee",
+      "file": "full-initial_state-f32.bin",
+      "mount": "/work/inputs",
+      "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-initial_state-f32.bin",
+      "metadata_sha256": "a69666b9dfad9a1c965c391d305505cda6384edd6360d8d77c06c71568e2b447"
+    },
+    "state": {
+      "dtype": "float32",
+      "shape": [
+        1,
+        32,
+        128,
+        128
+      ],
+      "bytes": 2097152,
+      "sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2",
+      "file": "full-state-f32.bin",
+      "mount": "/work/inputs",
+      "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-state-f32.bin",
+      "metadata_sha256": "3e979f6f86504b4bf6b00c2c6b62740f94a2c45f10345c7f3f59520694d2bdc9"
+    },
+    "output": {
+      "dtype": "bfloat16",
+      "shape": [
+        1,
+        7169,
+        32,
+        128
+      ],
+      "bytes": 58728448,
+      "sha256": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde",
+      "file": "full-output-bf16.bin",
+      "mount": "/work/inputs",
+      "original_path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-output-bf16.bin",
+      "metadata_sha256": "98f47fffc574b0b004a248957971cc9a08dd70c517947c94056a8dd146e56932"
+    }
+  },
+  "reference_model": "Qwen3.6-35B-A3B; original q7169 layer0 operator capture",
+  "original_matrix_manifest_sha256": "961c23fcef8ea4b307d5f0a4157808a2447deda825a74c12e50e797ab25d32f4",
+  "original_matrix_result_sha256": "ba900cdb901be101c3bc449f5c76481a08a08e04bf9a91557250491c64f57bed",
+  "source_base_commit": "e03dbb52d68662a45a94c7fefe93839fc6501b33",
+  "arithmetic_base_sha256": "885db1273c2063882cb789ac159206eb018624a6812477fcd245f12038177e60",
+  "group16_arithmetic_body_unchanged": true,
+  "exp2_arithmetic_body_unchanged": true,
+  "layout": {
+    "size_per_thread": [
+      1,
+      1,
+      1
+    ],
+    "threads_per_warp": [
+      1,
+      2,
+      16
+    ],
+    "warps_per_cta": [
+      1,
+      4,
+      1
+    ],
+    "order": [
+      2,
+      1,
+      0
+    ],
+    "accumulator_slice_dimension": 2
+  },
+  "native_execution_required": true,
+  "model_loaded": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "candidate_source_base_commit": "c85259254b805788dc80680caad37685708c98a8",
+  "arithmetic_helpers_unchanged": true,
+  "recurrence_launches_q8192": {
+    "before": 384,
+    "candidate": 1
+  },
+  "explicit_shared_phase_barriers": true,
+  "windows_execution_pending": true,
+  "preceding_compile_failure": {
+    "stage": "qrt-gdn-persistent-explicit-20260923-r1",
+    "manifest_sha256": "a836d355240d18ee71f564747c4e1970f12647fec0c7092b30986f3ef40474f7",
+    "reason": "Gluon shared reshape/index retained a three-dimensional layout for a two-dimensional view; allocate indexed state planes directly and use static residual slices.",
+    "gpu_executed": false
+  },
+  "preceding_compile_failure_r2": {
+    "stage": "qrt-gdn-persistent-explicit-20260923-r2",
+    "manifest_sha256": "bc916b306dd205e5ade8e5e7b123f4d2cdb074ec22949aee7491b7adc6ade669",
+    "reason": "Triton carries reused variable names across loops; state phase now has distinct names for its different tensor shapes.",
+    "gpu_executed": false
+  }
+}
