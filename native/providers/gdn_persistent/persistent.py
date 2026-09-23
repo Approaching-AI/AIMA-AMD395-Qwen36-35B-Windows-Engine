@@ -1,4 +1,4 @@
-"""A block owns eight value rows and carries all chunks without a grid barrier.
+"""Compact looped recurrence with shared carriers split into 16-row tiles.
 
 The ordered K16 arithmetic, BF16 boundaries and FP32 state fma are unchanged.
 Explicit shared-memory carriers separate the three phases. No runtime binds
@@ -27,8 +27,8 @@ def persistent_kernel(Q, K, W, U, G, Scores, Table, Initial, Final, Out,
     state = gl.allocate_shared_memory(gl.float32, [8, 8, 16], shared)
     for column_group in range(0, 8):
         state.index(column_group).store(gl.load(Initial + state_offsets + column_group * 16))
-    v_new = gl.allocate_shared_memory(gl.bfloat16, [64, 8], shared)
-    residual = gl.allocate_shared_memory(gl.bfloat16, [64, 8], shared)
+    v_new = gl.allocate_shared_memory(gl.bfloat16, [4, 16, 8], shared)
+    residual = gl.allocate_shared_memory(gl.bfloat16, [4, 16, 8], shared)
     gl.thread_barrier()
     ml, nr, kl, kr, mo, no = _axes(8, 8)
     nr += value_start
@@ -43,26 +43,27 @@ def persistent_kernel(Q, K, W, U, G, Scores, Table, Initial, Final, Out,
                 gl.store(Checkpoints + checkpoint_offsets + column_group * 16, checkpoint)
 
         # Complete every residual row before any output or state consumes it.
-        for row_group in gl.static_range(0, 8):
-            row_l = first + row_group * 8 + ml
-            row_o = first + row_group * 8 + mo
-            accumulator = _zero(8, 8)
-            for start in gl.static_range(0, 128, 16):
-                left = gl.load(W + (row_l[:, None] * 32 + head) * 128 + start + kl[None, :],
-                               row_l[:, None] < T, other=0)
-                right = state.index(start // 16).load(right_layout).to(gl.bfloat16)
-                accumulator = _group16(left, right, accumulator)
-            offsets = (row_o[:, None] * 32 + head) * 128 + no[None, :]
-            u = gl.load(U + offsets, row_o[:, None] < T, other=0).to(gl.float32)
-            r = u - accumulator
-            gate = gl.load(G + row_o * 32 + head, row_o < T, other=0)
-            scaled = r * _exp(Table, last - gate)[:, None]
-            r = gl.where(row_o[:, None] < T, r, 0)
-            scaled = gl.where(row_o[:, None] < T, scaled, 0)
-            v_new.slice(row_group * 8, 8, 0).store(r.to(gl.bfloat16))
-            residual.slice(row_group * 8, 8, 0).store(scaled.to(gl.bfloat16))
-            if CAPTURE:
-                gl.store(VNew + offsets, r.to(gl.bfloat16), row_o[:, None] < T)
+        for row_group in range(0, 4):
+            for row_half in gl.static_range(0, 2):
+                row_l = first + row_group * 16 + row_half * 8 + ml
+                row_o = first + row_group * 16 + row_half * 8 + mo
+                accumulator = _zero(8, 8)
+                for start in range(0, 128, 16):
+                    left = gl.load(W + (row_l[:, None] * 32 + head) * 128 + start + kl[None, :],
+                                   row_l[:, None] < T, other=0)
+                    right = state.index(start // 16).load(right_layout).to(gl.bfloat16)
+                    accumulator = _group16(left, right, accumulator)
+                offsets = (row_o[:, None] * 32 + head) * 128 + no[None, :]
+                u = gl.load(U + offsets, row_o[:, None] < T, other=0).to(gl.float32)
+                r = u - accumulator
+                gate = gl.load(G + row_o * 32 + head, row_o < T, other=0)
+                scaled = r * _exp(Table, last - gate)[:, None]
+                r = gl.where(row_o[:, None] < T, r, 0)
+                scaled = gl.where(row_o[:, None] < T, scaled, 0)
+                v_new.index(row_group).slice(row_half * 8, 8, 0).store(r.to(gl.bfloat16))
+                residual.index(row_group).slice(row_half * 8, 8, 0).store(scaled.to(gl.bfloat16))
+                if CAPTURE:
+                    gl.store(VNew + offsets, r.to(gl.bfloat16), row_o[:, None] < T)
         gl.thread_barrier()
 
         # Every output sees the incoming state, before the update overwrites it.
@@ -71,15 +72,15 @@ def persistent_kernel(Q, K, W, U, G, Scores, Table, Initial, Final, Out,
             row_o = first + row_group * 8 + mo
             old = _zero(8, 8)
             local = _zero(8, 8)
-            for start in gl.static_range(0, 128, 16):
+            for start in range(0, 128, 16):
                 left = gl.load(Q + (row_l[:, None] * 16 + head // 2) * 128 + start + kl[None, :],
                                row_l[:, None] < T, other=0)
                 right = state.index(start // 16).load(right_layout).to(gl.bfloat16)
                 old = _group16(left, right, old)
-            for start in gl.static_range(0, 64, 16):
+            for start in range(0, 64, 16):
                 left = gl.load(Scores + (row_l[:, None] * 32 + head) * 64 + start + kl[None, :],
                                row_l[:, None] < T, other=0)
-                right = v_new.slice(start, 16, 0).permute([1, 0]).load(right_layout)
+                right = v_new.index(start // 16).permute([1, 0]).load(right_layout)
                 local = _group16(left, right, local)
             gate = gl.load(G + row_o * 32 + head, row_o < T, other=0)
             prior = old * _exp(Table, gate)[:, None]
@@ -98,8 +99,8 @@ def persistent_kernel(Q, K, W, U, G, Scores, Table, Initial, Final, Out,
             view = state.index(column_group)
             old_state = view.load(result_layout)
             state_accumulator = _zero(8, 16)
-            for start in gl.static_range(0, 64, 16):
-                state_left = residual.slice(start, 16, 0).permute([1, 0]).load(left_layout)
+            for start in range(0, 64, 16):
+                state_left = residual.index(start // 16).permute([1, 0]).load(left_layout)
                 source = first + start + str_
                 state_right = gl.load(K + (source[None, :] * 16 + head // 2) * 128 + column_r[:, None],
                                 source[None, :] < T, other=0)

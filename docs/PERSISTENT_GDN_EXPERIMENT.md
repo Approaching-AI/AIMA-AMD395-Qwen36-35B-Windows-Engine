@@ -20,7 +20,13 @@ argument widths, scratch ownership, six failed-dispatch positions and the
 generated activation marker. Offline rebuilding checks executable content and
 launch metadata without replacing the exact pending native images.
 
-Windows component execution and a complete q8192/out512 run are still required.
-No model result, load time or TTFT is qualified by these preparation checks.
+All 30 original q8192 GDN layers now match their complete BF16 core and FP32 final state on the reference host. Windows component execution and a complete q8192/out512 run are still required.
+No Windows model result, load time or TTFT is qualified by these preparation checks.
 The generated marker records `persistent_recurrence: true`, `stages: 6` and
 `aot_launches: 7` when the new route actually executes.
+
+The compact recurrence uses16-row shared tiles and looped K16 reductions.
+Its instruction section is65,408 bytes, compared with615,296 in the parent
+prototype; VGPR use is158 rather than225. The host ABI,6144 shared bytes,
+allocation, dispatch count and numerical boundaries are unchanged. These are
+compiler resource observations; actual Windows model performance is pending.

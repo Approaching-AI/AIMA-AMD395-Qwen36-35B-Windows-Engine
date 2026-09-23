@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "source_base_commit": "c85259254b805788dc80680caad37685708c98a8",
+  "source_base_commit": "01d1418b28f55339f28c29b6b47821c29626c984",
   "upstream_source_commit": "e15c6cd1a0e91243ebd330fa55ac24348603e151",
-  "recurrence_source_commit": "a44d8468ea59f7185987b0b8878ab5aa16863e52",
+  "recurrence_source_commit": "d9958548527efeae90bc893c4ed3c0ce56c9cd71",
   "source_files": {
     "native/providers/gdn_persistent/exp2.py": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf",
     "native/providers/gdn_persistent/group16.py": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef",
     "native/providers/gdn_persistent/ordered_pipeline.py": "1e1fe71515f51552160c4e02e3aa03cc27af68dd390c241218381e227c913fae",
-    "native/providers/gdn_persistent/persistent.py": "20a71409f601924dd9137cddb6196dfdb438452be8d881385922049f1cfa61e5",
+    "native/providers/gdn_persistent/persistent.py": "68a15d8d08542ff95c9be6f7124ec3b0a32a09b70692d9d0f51b2849a8b8ed1b",
     "native/providers/gdn_persistent/upstream/integer_u.py": "77260da2314ffbc12b154b66fd341495edc49439610bcf5246ac1e8372638df1",
     "native/providers/gdn_persistent/upstream/ordered_inverse.py": "1f8c9e211ad9522a6b7d0d5f7f1bb5eb12bb788bb050e231f7d3adb8005f1921",
     "native/providers/gdn_persistent/upstream/ordered_pipeline.py": "a671feaeadb84219d6498a82a78c49d765f4ba627ae55fd14b9c7c53e86edfc3"
@@ -452,8 +452,8 @@
       "name": "persistent-runtime",
       "capture": false,
       "file": "recurrence.hsaco",
-      "bytes": 1151552,
-      "sha256": "55d80ebea65b2924f96ac96c5befb966704e6b5e9e59565caa7eb1e294dd6e58",
+      "bytes": 115752,
+      "sha256": "d74aa694ebc68bb0c48ffeffd7f2c0a65742f3ef1bac28c8ee89931d23ddb820",
       "signature": {
         "Q": "*bf16",
         "K": "*bf16",
@@ -500,7 +500,7 @@
             "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
           ]
         ],
-        "hash": "8b6e982e83dffbf9030bc5c1a4477b47c12a92ab81a765fa2ecebc154c09b6b3",
+        "hash": "009e6c71a3d62a4d78e938a5f7132c99944e7248cc29ac9c4fd70bb5d4163d5d",
         "instrumentation_mode": "",
         "kpack": 1,
         "launch_cooperative_grid": false,
@@ -529,7 +529,7 @@
       },
       "resources": {
         ".vgpr_count": [
-          "225"
+          "158"
         ],
         ".vgpr_spill_count": [
           "0"
@@ -542,11 +542,12 @@
       "shared_memory_bytes": 6144
     }
   },
-  "embedded_include_sha256": "76b163a8774c2dc2b86c7756ba04c5509dceb64e9ff622cd916afda1ea1e4eff",
-  "embedded_include_bytes": 9469657,
+  "embedded_include_sha256": "8a29c8fe83c31b6406c7bd8bb2f616773c3a6f962cf728e4087ac5f98baed6d3",
+  "embedded_include_bytes": 3125383,
   "compiler_sha256": "1d70207bbf43cd9e5055c830902fa09df86212afd2b890bcc46ca522a07b862a",
-  "native_plan_sha256": "11db30bb44542a931e243b5aa1eaa7b7100861bce943cd0745ad3ae248c2cc3b",
+  "native_plan_sha256": "e2a6d2ded1f2a6213944b6912ff326d4cfd4e8dd68e588162cb70bcdcd2cd186",
   "native_execution": false,
   "inference_acceptance": false,
-  "performance_acceptance": false
+  "performance_acceptance": false,
+  "parent_compile_manifest_sha256": "01c9f8e5e6e8ad331143a6724b7d59719cbc5032c5e08b5b68264309f5e09cc8"
 }

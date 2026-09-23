@@ -1,7 +1,7 @@
 # Experimental Linux compute core
 
 The optional `AIMA_PORT_NATIVE_GDN_PERSISTENT=1` cold-q8192 route embeds six
-gfx1151 images totalling 1,545,744 bytes. It requires native GDN prefill and
+gfx1151 images totalling 509,944 bytes. It requires native GDN prefill and
 defaults off. Five original unsigned64 preparation images feed one fused
 recurrence, reducing the per-layer AOT submissions including cumsum from 390
 to 7. The recurrence reuses 2 MiB of existing conversion scratch for its cold
