@@ -238,6 +238,19 @@ manifest or bundle has been staged, and no new Windows/model result is claimed.
 [Runtime and entry evidence](../benchmarks/correctness/persistent-gdn-runtime-preparation-20260923.json)
 SHA256 `5d2a76699a0a3e18f29af916eeafcbcbc9e07a46d66b9a430b98bc2f40dd8af2`.
 
+A compact persistent variant splits residual shared storage into16-row tiles
+and loops over row groups and K16 reductions. Its runtime instruction section
+shrinks from615296 to65408 bytes, with158 VGPRs instead of225; shared memory
+remains6144 bytes and no spills/layout conversions appear. The capture image
+uses159 VGPRs and67328 instruction bytes. Both variants match every previous
+q7169 core/final-state comparison; capture also preserves113 incoming BF16
+states and complete V-new values. First64 and nonzero-seeded65 controls pass.
+The source, compiler and numerical worker are separately frozen. CUDA timing
+includes compilation and is diagnostic only. Full30-layer and native checks
+remain pending; this source has not replaced the committed runtime images.
+[Compact recurrence controls](../benchmarks/correctness/persistent-gdn-compact-controls-20260923.json)
+SHA256 `97f0dac618a0d6db91a89852e45c27a0e4b3d5d46dd9f7c1dd55449d67c819ee`.
+
 An explicit-layout dense replay also preserves the existing selected-pair
 addressing and ascending K16 arithmetic. Its three gfx1151 tiles have zero
 layout conversions, LDS operations or spills, with 64/117/229 VGPRs. CUDA checks

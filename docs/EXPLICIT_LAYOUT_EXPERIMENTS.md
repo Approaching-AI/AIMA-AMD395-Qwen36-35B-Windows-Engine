@@ -115,3 +115,12 @@ The entry requires all15 native controls, exact selected images, clean owner
 completion, same-run activation markers and the original512-token product gate.
 Optional dense/routed tiles and attention still require their own native results.
 Nothing has been staged on AMD for this candidate, and no speedup is accepted.
+
+The [compact persistent variant](../benchmarks/correctness/persistent-gdn-compact-controls-20260923.json)
+reduces static expansion by tiling shared carriers into16-row blocks and
+looping over K16 groups. Its runtime instruction section is65408 bytes,
+previously615296, and register use is158 VGPRs, previously225. All original
+q7169/core/state/checkpoint and seeded65 controls still pass. There are no
+spills or layout conversions;6144 shared bytes are unchanged. The committed
+runtime stays intact while full-layer and actual AMD comparisons qualify this
+separate source. Instruction size and CUDA timing are not product speed claims.
