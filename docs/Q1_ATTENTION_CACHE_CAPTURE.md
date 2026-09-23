@@ -1,0 +1,11 @@
+# Q1 logical attention cache observation
+
+The c90fecc 256k protocol still fails the original 512-token suffix: output 157 is 5486 instead of 2233. At position 263291, layer 19 has four different BF16 ungated-context values although its current Q/K/V preparation matches the original.
+
+A fresh original run reproduces all 608 control outputs and exports the entire 263292-token layer 19 KV history. Replaying the original 16-segment attention on those operands reproduces its context. The unchanged gfx1151 native operator also matches all 280576 FP32 comparisons across four prefix/tail splits. This narrows the unresolved full-runtime difference to the actual historical operands or invocation context; it does not qualify the complete model.
+
+`QRT_QWEN36_Q1_ATTENTION_CACHE_CAPTURE_DIR`, `_LAYER`, and `_POSITION` select one original segmented q1 attention invocation. The capture reads the actual prefix and decoded tail after attention completes, before the gate reuses score scratch. It saves ten binary surfaces: logical BF16 prefix K/V and tail K/V, packed FP32 RoPE operands, padded QK scores, segment output/max/sum, and the ungated context. The completion record declares logical lengths and score stride.
+
+The option is off by default. It requires one full-attention layer, position 1..263679, a new directory, and valid original allocations. No expected value is uploaded or substituted. The first successful observation alone is saved, allowing a later repeated suffix to proceed. Total surfaces are bounded by 576 MiB, host staging by 1 MiB, and copies share a 90-second deadline; the existing outer native process deadline also remains active. A partial capture has no completion record. Retained KV capacity beyond logical history is not copied.
+
+The host probe verifies exact saved bytes, capacity padding exclusion, chunked copies, maximum-length arithmetic, repeated observation, missing surfaces, invalid extents, existing-directory refusal, copy/synchronization failures, and expiry. AddressSanitizer and UndefinedBehaviorSanitizer pass. Windows compilation and native model checks remain pending; this observer does not establish inference or performance acceptance.

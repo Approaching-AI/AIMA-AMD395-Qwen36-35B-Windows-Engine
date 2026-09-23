@@ -56,6 +56,7 @@
 #include "sm121_mtp_request_seed.h"
 #include "sm121_mtp_prefix_seed.h"
 #include "q1_trace_policy.h"
+#include "q1_attention_cache_capture.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "moe_accumulator/sm121_wave16.h"
 #include "moe_accumulator/sm121_subgroup.h"
@@ -70551,6 +70552,43 @@ bool run_qwen36_resident_full_attention_score_value_step(
         }
         if (!checked(record_qwen36_resident_decode_q1_layer_profile_boundary(&workspace, layer_index,
                 Q1LayerProfileBoundary::kSoftmaxEnd, stream), "_sm121_pv_event")) return false;
+        const char *cache_capture_directory = std::getenv("QRT_QWEN36_Q1_ATTENTION_CACHE_CAPTURE_DIR");
+        if (cache_capture_directory && *cache_capture_directory) {
+            qrt_q1_attention_cache_capture::Plan capture;
+            std::string capture_error;
+            if (!qrt_q1_attention_cache_capture::parse(cache_capture_directory,
+                    std::getenv("QRT_QWEN36_Q1_ATTENTION_CACHE_CAPTURE_LAYER"),
+                    std::getenv("QRT_QWEN36_Q1_ATTENTION_CACHE_CAPTURE_POSITION"), capture, capture_error))
+                return qwen36_resident_decode_set_failure(stage + "_cache_capture", capture_error,
+                    failure_stage, failure);
+            static bool cache_captured = false;
+            if (capture.matches(layer_index, absolute_position) && !cache_captured) {
+                qrt_q1_attention_cache_capture::View view;
+                view.prefix_k = layer.device_k; view.prefix_v = layer.device_v;
+                view.tail_k = layer.device_decode_tail_k; view.tail_v = layer.device_decode_tail_v;
+                view.rope = device_rope_values; view.scores = score_scratch; view.context = device_context_output;
+                view.segment_output = workspace.device_full_attention_wave32_full_dimension_partial_acc;
+                view.segment_max = workspace.device_full_attention_wave32_full_dimension_partial_max;
+                view.segment_sum = workspace.device_full_attention_wave32_full_dimension_partial_sum;
+                view.prefix_tokens = layer.history_tokens; view.tail_tokens = layer.decode_tail_token_count + 1u;
+                view.score_stride = workspace_score_scratch_token_capacity;
+                view.prefix_k_capacity_bytes = layer.k_bytes; view.prefix_v_capacity_bytes = layer.v_bytes;
+                view.tail_k_capacity_bytes = layer.decode_tail_k_bytes; view.tail_v_capacity_bytes = layer.decode_tail_v_bytes;
+                view.segmented = use_segmented_attention;
+                if (!qrt_q1_attention_cache_capture::run(capture, layer_index, absolute_position, view, cache_captured,
+                        [&] { return hipStreamSynchronize(stream) == hipSuccess; },
+                        [](void *host, const void *device, size_t bytes) {
+                            return hipMemcpy(host, device, bytes, hipMemcpyDeviceToHost) == hipSuccess;
+                        }, capture_error))
+                    return qwen36_resident_decode_set_failure(stage + "_cache_capture", capture_error,
+                        failure_stage, failure);
+                std::cerr << "BATCH_MARK q1_attention_cache_capture layer=" << layer_index
+                          << " position=" << absolute_position << " prefix_tokens=" << view.prefix_tokens
+                          << " tail_tokens=" << view.tail_tokens << " score_stride=" << view.score_stride
+                          << " surface_bytes=" << qrt_q1_attention_cache_capture::surface_bytes(view)
+                          << " complete=1 diagnostic_only=1 inference_acceptance=0" << std::endl;
+            }
+        }
         hipLaunchKernelGGL(qwen36_resident_full_attention_grouped_bf16_post_kernel,
             dim3(16u), dim3(256u), 0u, stream, device_rope_values,
             device_context_output, device_context_bf16_output,

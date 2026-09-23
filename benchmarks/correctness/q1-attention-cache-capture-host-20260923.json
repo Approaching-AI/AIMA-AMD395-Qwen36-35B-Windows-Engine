@@ -1,0 +1,44 @@
+{
+  "commands": [
+    {
+      "command": [
+        "clang++",
+        "-std=c++17",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I",
+        "$CHECKOUT",
+        "$CHECKOUT/tools/q1_attention_cache_capture_host_probe.cpp",
+        "-o",
+        "$LOCAL_EVIDENCE/q1-attention-cache-capture-host-r1/probe"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "$LOCAL_EVIDENCE/q1-attention-cache-capture-host-r1/probe",
+        "$LOCAL_EVIDENCE/q1-attention-cache-capture-host-r1/temporary"
+      ],
+      "returncode": 0,
+      "stdout": "{\"passed\":true,\"copied_bytes\":3571008,\"chunk_limit\":1048576,\"logical_kv_rows_only\":true,\"single_observation\":true,\"failure_controls\":true,\"native_execution\":false,\"inference_acceptance\":false}\n",
+      "stderr": ""
+    }
+  ],
+  "source_sha256": {
+    "native/providers/q1_attention_cache_capture.h": "38ad47d5c66b52c8f20778c9745443afef11a5f77d97c74a9423705382d18875",
+    "native/providers/prefix_linear_capture.h": "9e010a541163b8eb12a3a321aa820f1e4e4649749fefee7a503d664c48e521f9",
+    "native/providers/whole_provider.cpp": "acd8901b451a68458b204554dced5e604c88334d2e22517051baee14103a0950",
+    "tools/q1_attention_cache_capture_host_probe.cpp": "e54e2b82b8999a07462ac16c5cfb3d9f526615299cdaeacfca895a17f24af53e"
+  },
+  "passed": true,
+  "native_execution": false,
+  "inference_acceptance": false,
+  "original_result_sha256": "4ecdc7e912f2696da832bd249d47c32b41a3401a6bcdbccfff6f76dbd2a1a5e1"
+}
