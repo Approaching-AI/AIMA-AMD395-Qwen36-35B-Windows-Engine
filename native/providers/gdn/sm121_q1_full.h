@@ -5,8 +5,9 @@
 #include "sm121_bf16_fma.h"
 
 namespace qrt_sm121_q1_full {
-// One CTA owns a Q or K head. Preserve each original compiled head-256
-// reduction layout, followed by the original BF16 MRoPE instructions.
+// One CTA owns a Q or K head. The one-row K reduction pairs adjacent
+// channels before the warp reduction, matching the original compiled
+// single-row path. Preserve the original BF16 MRoPE instructions.
 // Cache coefficients cover all positions and are independent of prompt IDs.
 __global__ void prepare_qkv(
     const uint16_t *qkv, const uint16_t *q_weight, const uint16_t *k_weight,
@@ -24,7 +25,9 @@ __global__ void prepare_qkv(
     normalized[dim] = widen(qkv[source + dim]);
     __syncthreads();
     if (dim < head_norm_warps(is_key) * 32u) {
-        float sum = head_norm_lane_sumsq(normalized, dim, is_key);
+        float sum = is_key
+            ? head_norm_single_row_key_lane_sumsq(normalized, dim)
+            : head_norm_lane_sumsq(normalized, dim, false);
         for (unsigned int offset = 16u; offset; offset >>= 1u)
             sum = add(sum, __shfl_xor(sum, offset, 32));
         if ((dim & 31u) == 0u) warp_sum[dim / 32u] = sum;
