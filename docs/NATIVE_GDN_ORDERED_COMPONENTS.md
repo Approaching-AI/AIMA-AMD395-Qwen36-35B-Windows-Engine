@@ -1,9 +1,10 @@
 # Ordered native GDN components
 
-Two experimental Triton kernels preserve the original GB10 arithmetic while
-compiling directly for gfx1151. They are not selected by the product or the
-Linux-core Windows prototype. This is preparation for replacing the GDN
-prefill pipeline; no new Windows execution or TTFT result is claimed.
+An experimental complete Triton GDN pipeline preserves the original GB10
+arithmetic while compiling directly for gfx1151. The Linux-core Windows
+prototype can select it with `AIMA_PORT_NATIVE_GDN_PREFILL=1`; it remains off
+by default. Actual candidate AMD execution and product qualification are
+pending. No new Windows execution or TTFT result is claimed.
 
 [Complete component evidence](../benchmarks/correctness/native-gdn-ordered-inverse-integer-u-20260923.json)
 binds the actual source bytes, original inputs, commands, compilation outputs,
@@ -51,12 +52,55 @@ With FP32 observation disabled, it also matches all 29,364,224 historical
 q7169 outputs and the same 15 prefix boundaries. All input and guard checks
 pass. CUDA comparisons across both components total 47,425,536 BF16 values.
 
-## Remaining integration
+## Complete recurrent pipeline
 
-Both kernels compile with Triton 3.6.0 for gfx1151, including U builds with
-and without FP32 observation. Candidate AMD GPU execution remains pending
-behind the active full256k product run. The initial compiled kernels have
-register spills; resource changes and their actual timing require measurement.
-KKT, W, state, output arithmetic and complete pipeline integration also remain
-open. Original full-model outputs, logits and product performance remain the
-acceptance boundary for retaining any acceleration.
+The [ordered pipeline](../native/providers/gdn/ordered_pipeline.py) adds KKT,
+W, local scores, residuals, state updates and outputs. It reuses the existing
+complete model-independent exp2 table and the characterized integer group16
+accumulator. W preserves both BF16 rounding boundaries. The state residual
+uses the unrounded FP32 difference before applying decay and rounding to BF16.
+
+A cold 64-token test initially passed every observed surface while concealing
+a nonzero-state error. The original state update computes its carried K64
+dot independently, then applies one explicit FP32 FMA for decayed prior state.
+Putting the prior state inside that dot changes 232,042 FP32 cells on the
+second chunk, including 21 BF16 cells at the next original checkpoint. The
+corrected ordering removes all of those differences.
+
+The complete q7169 chain now passes all 113 chunks, including its one-token
+tail. KKT, inverse, W, U, residual output, core and final FP32 state match
+147,345,408 original values bitwise. All 59,244,544 incoming BF16 checkpoint
+values also match. The candidate carries its own FP32 state between chunks;
+reference checkpoints are comparisons only. Guards and input immutability
+pass. This scope starts at original normalized Q/K and chunk-local G cumsum;
+it is not a whole-model test.
+
+The same full chain also passes with the configuration embedded in the
+prototype: four warps and 8-by-8 integer output tiles. U has no register spills;
+the inverse drops from 209 spill slots and 820 private bytes to 12 slots and
+52 bytes. The other six kernels have no spills. These are compiler resource
+observations, not an AMD speedup measurement.
+
+[Complete pipeline evidence](../benchmarks/correctness/native-gdn-ordered-complete-pipeline-20260923.json)
+binds both configurations, the cold test and counterfactual, original records,
+source bytes, commands, eight embedded images and all cleanup checks.
+
+## Windows integration and remaining acceptance
+
+The optional prototype path keeps original Q/K preparation and chunk64 cumsum,
+then launches the complete ordered pipeline. Each layer uses 390 AOT launches.
+It reuses 5 MiB of idle conversion scratch for two FP32 states and two BF16
+chunk buffers. Scores reuse the retired KKT allocation; no additional device
+allocation is introduced over the preceding optional route. The last chunk
+writes the engine's resident FP32 state directly. The eight embedded images
+total 738,352 bytes; Python and Triton remain build dependencies only.
+
+ASan/UBSan host execution checks all 128 chunk bindings and state lifetimes,
+eight image hashes, mandatory scratch ABI arguments, two clearing boundaries,
+the final resident destination and 118 invalid pipeline bindings. All 327
+imported files verify; preparation emits 60 compilation units, 17 overlays
+and the same 72 imported images. These checks do not execute GPU arithmetic.
+
+Actual gfx1151 execution remains queued behind the active full256k run.
+Windows compilation, original q8192/out512 tokens, logits and callbacks, and
+the unchanged product performance/load thresholds remain required.

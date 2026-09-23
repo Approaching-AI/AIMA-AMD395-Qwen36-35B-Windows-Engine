@@ -1,5 +1,11 @@
 # Linux native core Windows experiment
 
+The optional native GDN path now contains the complete original-order integer
+pipeline. Its full q7169 operator chain matches all 113 original chunks and the
+final FP32 state; host checks verify the Windows launch and state bindings.
+It stays off by default while native image execution and full-model acceptance
+are pending. [Pipeline scope and evidence](NATIVE_GDN_ORDERED_COMPONENTS.md).
+
 This standalone experiment ports the compute core declared by Linux release
 `v1.5.1-native-vl.10`, source `ec9934446911fdf376da8eebcd83e7b137efbb7c`.
 It is not enabled in the Windows product. The fastest qualified observation,

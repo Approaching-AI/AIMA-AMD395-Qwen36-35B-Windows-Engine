@@ -22,7 +22,7 @@ class Gb10GdnOwner {
 void gb10_prefill_gdn(std::size_t layer, const void* convolution,
                      const void* a, const void* b, void* output, void* state,
                      std::size_t tokens, bool has_initial_state);
-// Optional isolated comparison with the imported chunk-64 prefill core.
+// Optional ordered integer-accumulator chunk-64 prefill core.
 // Cold q8192 only; the resident state binding and decode arithmetic stay intact.
 bool gb10_native_gdn_prefill_enabled(std::size_t tokens, bool has_initial_state);
 struct NativeGdnMatrices { void* matrix_f32; void* inverse_bf16; };
@@ -31,9 +31,12 @@ struct NativeGdnMatrices { void* matrix_f32; void* inverse_bf16; };
 NativeGdnMatrices gb10_prepare_native_gdn(std::size_t layer, const void* convolution,
     const void* a, const void* b, void* q, void* k, void* v, void* g, void* beta,
     std::size_t tokens);
-// Preserve BF16(K*beta) before the decay product in the original W/U boundary.
-void gb10_native_gdn_wu(const void* k, const void* v, const void* beta,
-    void* w, void* u, const void* inverse, const void* g, std::size_t tokens);
+// G is the original chunk-local FP32 cumsum. All live spans must be distinct.
+// Uses owned scratch for matrix inversion and recurrent state, then commits
+// the last FP32 state directly to the engine. Returns the AOT launch count.
+std::size_t gb10_native_gdn_pipeline(const void* q, const void* k, const void* v,
+    const void* g, const void* beta, void* w, void* u, void* output, void* state,
+    std::size_t tokens);
 void gb10_decode_gdn(std::size_t layer, const void* convolution,
                     const void* a, const void* b, void* output, void* state,
                     hipStream_t stream);

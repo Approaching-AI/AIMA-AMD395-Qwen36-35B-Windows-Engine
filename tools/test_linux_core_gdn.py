@@ -34,24 +34,44 @@ inline int hipDeviceSynchronize(){return 0;}
 inline int hipGetLastError(){return 0;}
 inline const char* hipGetErrorString(int){return "stub";}
 inline std::vector<std::string> fake_events;
-inline std::vector<std::uintptr_t> fake_module_pointers;
+struct FakeModuleLaunch {
+ std::string name;unsigned index,x,y,z,block,shared;std::int32_t tokens;
+ std::vector<std::uintptr_t> pointers;
+};
+inline std::vector<std::string> fake_module_names;
+inline std::vector<FakeModuleLaunch> fake_module_launches;
+inline std::vector<std::pair<std::uintptr_t,size_t>> fake_zeroes;
+inline int hipMemset(void* p,int value,size_t bytes){
+ assert(p&&value==0&&bytes>0);fake_zeroes.emplace_back(reinterpret_cast<std::uintptr_t>(p),bytes);
+ fake_events.push_back("memset");return 0;
+}
 inline int hipModuleLoadData(void** module,const void* bytes){
- assert(std::memcmp(bytes,"\177ELF",4)==0);*module=reinterpret_cast<void*>(0x71);return 0;
+ assert(std::memcmp(bytes,"\177ELF",4)==0);
+ fake_module_names.emplace_back();*module=reinterpret_cast<void*>(fake_module_names.size());return 0;
 }
 inline int hipModuleGetFunction(void** function,void* module,const char* name){
- assert(module==reinterpret_cast<void*>(0x71)&&std::string(name)=="recompute_w_u_fwd_kernel");
- *function=reinterpret_cast<void*>(0x72);return 0;
+ const auto i=reinterpret_cast<std::uintptr_t>(module);assert(i>0&&i<=fake_module_names.size());
+ fake_module_names[i-1]=name;*function=module;return 0;
 }
-inline int hipModuleUnload(void* module){assert(module==reinterpret_cast<void*>(0x71));return 0;}
+inline int hipModuleUnload(void* module){
+ const auto i=reinterpret_cast<std::uintptr_t>(module);assert(i>0&&i<=fake_module_names.size());return 0;
+}
 inline int hipModuleLaunchKernel(void* function,unsigned x,unsigned y,unsigned z,
  unsigned bx,unsigned by,unsigned bz,unsigned shared,void* stream,void** args,void* extra){
- assert(function==reinterpret_cast<void*>(0x72)&&x==128&&y==32&&z==1&&bx==64&&by==1&&bz==1);
- assert(shared==8192&&stream==nullptr&&extra==nullptr);
- fake_module_pointers.clear();
- for(unsigned i=0;i<7;++i){std::uintptr_t p;std::memcpy(&p,args[i],sizeof(p));fake_module_pointers.push_back(p);}
- assert(*static_cast<std::int32_t*>(args[7])==8192);
- assert(*static_cast<hipDeviceptr_t*>(args[8])==0&&*static_cast<hipDeviceptr_t*>(args[9])==0);
- fake_events.push_back("native_wu_module");return 0;
+ const auto i=reinterpret_cast<std::uintptr_t>(function);assert(i>0&&i<=fake_module_names.size());
+ const auto& name=fake_module_names[i-1];
+ unsigned count=0;
+ if(name=="native_ordered_64_inverse_kernel")count=2;
+ else if(name=="integer_u_kernel")count=5;
+ else if(name=="gram_kernel"||name=="w_kernel"||name=="state_kernel")count=6;
+ else if(name=="residual_kernel"||name=="output_kernel")count=7;
+ else assert(false);
+ assert(bx==128&&by==1&&bz==1&&stream==nullptr&&extra==nullptr);
+ assert(shared==(name=="native_ordered_64_inverse_kernel"?1024u:512u));
+ FakeModuleLaunch item{name,static_cast<unsigned>(i-1),x,y,z,bx,shared,*static_cast<std::int32_t*>(args[count]),{}};
+ for(unsigned j=0;j<count;++j){std::uintptr_t p;std::memcpy(&p,args[j],sizeof(p));item.pointers.push_back(p);}
+ assert(*static_cast<hipDeviceptr_t*>(args[count+1])==0&&*static_cast<hipDeviceptr_t*>(args[count+2])==0);
+ fake_module_launches.push_back(item);fake_events.push_back(name);return 0;
 }
 inline void* fake_stream=nullptr;
 inline bool fake_q2_flags_verified=false;
@@ -93,7 +113,7 @@ def main():
     sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
     inputs = [source, ROOT / "native/linux_core_port/gb10_gdn.hip.cpp",
               ROOT / "native/linux_core_port/gb10_gdn.h", ROOT / "native/linux_core_port/gb10_gdn_assets.inc",
-              ROOT / "native/linux_core_port/gb10_gdn_wu_image.inc",
+              ROOT / "native/linux_core_port/gb10_gdn_ordered_images.inc",
               ROOT / "third_party/aima_linux/native/src/aot_kernel.hip.cpp"]
     report = dict(result=json.loads(run.stdout), build_command=command,
         inputs=[dict(path=p.relative_to(ROOT).as_posix(), sha256=sha(p)) for p in inputs],

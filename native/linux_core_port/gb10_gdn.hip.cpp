@@ -17,7 +17,7 @@ namespace aima_port {
 namespace {
 struct Asset { const char* name; std::size_t bytes; const char* sha256; };
 #include "gb10_gdn_assets.inc"
-#include "gb10_gdn_wu_image.inc"
+#include "gb10_gdn_ordered_images.inc"
 using Launch = qrt_fla_checkpoint::SeededLaunch;
 using Prepare = int (*)(const char*);
 using Release = void (*)();
@@ -74,7 +74,7 @@ struct State {
   std::array<Device, 40> gate;
   Device beta, prefill_beta, exp2, rsqrt, raw, gates, output, decode_ab;
   Device native_matrix, native_inverse;
-  std::unique_ptr<aima::AotKernel> native_wu;
+  std::array<std::unique_ptr<aima::AotKernel>, static_cast<unsigned>(OrderedStage::Count)> ordered;
   GdnPrefillObserver observer = nullptr;
   void* observer_context = nullptr;
   std::size_t observer_layer = 0;
@@ -211,11 +211,13 @@ Gb10GdnOwner::Gb10GdnOwner() : impl_(std::make_unique<Impl>()) {
   if (s.native_prefill) {
     s.native_matrix.allocate(8192ull * 32 * 64 * sizeof(float));
     s.native_inverse.allocate(8192ull * 32 * 64 * sizeof(uint16_t));
-    if (aima::sha256_bytes(gdn_wu_image, sizeof(gdn_wu_image)) != gdn_wu_image_sha256)
-      throw std::runtime_error("Native GDN W/U embedded image identity differs");
-    s.native_wu = std::make_unique<aima::AotKernel>(
-        std::vector<unsigned char>(gdn_wu_image, gdn_wu_image + sizeof(gdn_wu_image)),
-        "recompute_w_u_fwd_kernel");
+    for (unsigned i = 0; i < s.ordered.size(); ++i) {
+      const auto& image = ordered_images[i];
+      if (aima::sha256_bytes(image.data, image.bytes) != image.sha256)
+        throw std::runtime_error("Native GDN ordered embedded image identity differs");
+      s.ordered[i] = std::make_unique<aima::AotKernel>(
+          std::vector<unsigned char>(image.data, image.data + image.bytes), image.name);
+    }
   }
   active = &s;
 }
@@ -328,27 +330,84 @@ NativeGdnMatrices gb10_prepare_native_gdn(std::size_t layer, const void* conv,
   check(hipGetLastError(), "Native GDN original V and gate preparation");
   return {s.native_matrix.data, s.native_inverse.data};
 }
-void gb10_native_gdn_wu(const void* k, const void* v, const void* beta,
-    void* w, void* u, const void* inverse, const void* g, std::size_t tokens) {
-  if (!active || !active->native_prefill || !active->native_wu || tokens != 8192 ||
-      inverse != active->native_inverse.data)
-    throw std::invalid_argument("Native GDN W/U owner or geometry is invalid");
-  const void* pointers[] = {k, v, beta, w, u, inverse, g};
-  const std::size_t bytes[] = {tokens * 2048 * 2, tokens * 4096 * 2, tokens * 32 * 4,
-      tokens * 4096 * 2, tokens * 4096 * 2, tokens * 32 * 64 * 2, tokens * 32 * 4};
-  for (unsigned i = 0; i < 7; ++i) {
+std::size_t gb10_native_gdn_pipeline(const void* q, const void* k, const void* v,
+    const void* g, const void* beta, void* w, void* u, void* output, void* state,
+    std::size_t tokens) {
+  if (!active || !active->native_prefill || tokens != 8192)
+    throw std::invalid_argument("Native GDN pipeline owner or geometry is invalid");
+  auto& s = *active;
+  for (const auto& kernel : s.ordered)
+    if (!kernel) throw std::runtime_error("Native GDN ordered module is absent");
+  constexpr std::size_t state_bytes = 32ull * 128 * 128 * sizeof(float);
+  constexpr std::size_t chunk_bytes = 64ull * 32 * 128 * sizeof(uint16_t);
+  const void* pointers[] = {q, k, v, g, beta, w, u, output, state,
+      s.raw.data, s.native_matrix.data, s.native_inverse.data, s.exp2.data};
+  const std::size_t bytes[] = {tokens * 2048 * 2, tokens * 2048 * 2,
+      tokens * 4096 * 2, tokens * 32 * 4, tokens * 32 * 4,
+      tokens * 4096 * 2, tokens * 4096 * 2, tokens * 4096 * 2, state_bytes,
+      8192ull * 8192 * sizeof(float), tokens * 32 * 64 * 4,
+      tokens * 32 * 64 * 2, exp2_asset.bytes};
+  for (unsigned i = 0; i < sizeof(pointers) / sizeof(pointers[0]); ++i) {
     const auto first = reinterpret_cast<std::uintptr_t>(pointers[i]);
-    if (!first || first % ((i == 2 || i == 6) ? 4 : 2) || first > UINTPTR_MAX - bytes[i])
-      throw std::invalid_argument("Native GDN W/U pointer is invalid");
+    const unsigned alignment = (i == 3 || i == 4 || i == 8 || i == 9 || i == 10 || i == 12) ? 4 : 2;
+    if (!first || first % alignment || first > UINTPTR_MAX - bytes[i])
+      throw std::invalid_argument("Native GDN pipeline pointer is invalid");
     for (unsigned j = 0; j < i; ++j) {
       const auto other = reinterpret_cast<std::uintptr_t>(pointers[j]);
       if (first < other + bytes[j] && other < first + bytes[i])
-        throw std::invalid_argument("Native GDN W/U live spans overlap");
+        throw std::invalid_argument("Native GDN pipeline live spans overlap");
     }
   }
+  std::size_t launches = 0;
+  auto launch = [&](OrderedStage stage, unsigned x, unsigned y, unsigned z,
+                    const std::vector<void*>& parameters) {
+    const auto index = static_cast<unsigned>(stage);
+    const auto& image = ordered_images[index];
+    s.ordered[index]->launch(aima::AotLaunchConfig{x, y, z, image.warps, 32, image.shared}, parameters);
+    ++launches;
+  };
+  void* matrix = s.native_matrix.data;
+  void* inverse = s.native_inverse.data;
+  const void* table = s.exp2.data;
+  void* unused_debug = nullptr;
   std::int32_t count = 8192;
-  active->native_wu->launch(aima::AotLaunchConfig{128, 32, 1, 2, 32, 8192},
-      std::vector<void*>{&k, &v, &beta, &w, &u, &inverse, &g, &count});
+  launch(OrderedStage::Kkt, 1024, 8, 32, {&k, &k, &beta, &g, &table, &matrix, &count});
+  // The inverse writes its lower block triangle; upper blocks must be +0.
+  check(hipMemset(inverse, 0, tokens * 32 * 64 * 2), "Native GDN inverse clear");
+  launch(OrderedStage::Inverse, 128, 32, 1, {&matrix, &inverse, &count});
+  launch(OrderedStage::W, 1024, 16, 32, {&inverse, &k, &beta, &g, &table, &w, &count});
+  launch(OrderedStage::U, 1024, 16, 32, {&inverse, &v, &beta, &u, &unused_debug, &count});
+  // KKT is dead after inversion. Its first half now holds BF16 scores.
+  void* scores = matrix;
+  launch(OrderedStage::Scores, 1024, 8, 32, {&q, &k, &beta, &g, &table, &scores, &count});
+  // The FLA conversion carrier is idle throughout native prefill. Its first
+  // 5MiB hold two FP32 states and two single-chunk BF16 residual carriers.
+  auto* scratch = s.raw.as<unsigned char>();
+  void* states[] = {scratch, scratch + state_bytes};
+  void* residual = scratch + 2 * state_bytes;
+  void* v_new = scratch + 2 * state_bytes + chunk_bytes;
+  check(hipMemset(states[0], 0, state_bytes), "Native GDN cold state clear");
+  const void* incoming = states[0];
+  std::int32_t chunk_tokens = 64;
+  for (std::size_t chunk = 0; chunk < tokens / 64; ++chunk) {
+    const auto first = chunk * 64;
+    const void* chunk_q = static_cast<const uint16_t*>(q) + first * 2048;
+    const void* chunk_k = static_cast<const uint16_t*>(k) + first * 2048;
+    const void* chunk_w = static_cast<const uint16_t*>(w) + first * 4096;
+    const void* chunk_u = static_cast<const uint16_t*>(u) + first * 4096;
+    const void* chunk_g = static_cast<const float*>(g) + first * 32;
+    const void* chunk_scores = static_cast<const uint16_t*>(scores) + first * 32 * 64;
+    void* chunk_output = static_cast<uint16_t*>(output) + first * 4096;
+    void* next = chunk + 1 == tokens / 64 ? state : states[(chunk + 1) % 2];
+    launch(OrderedStage::Residual, 8, 16, 32,
+        {&chunk_w, &chunk_u, &incoming, &chunk_g, &table, &v_new, &residual, &chunk_tokens});
+    launch(OrderedStage::State, 16, 16, 32,
+        {&chunk_k, &residual, &incoming, &chunk_g, &table, &next, &chunk_tokens});
+    launch(OrderedStage::Output, 8, 16, 32,
+        {&chunk_q, &v_new, &incoming, &chunk_g, &chunk_scores, &table, &chunk_output, &chunk_tokens});
+    incoming = next;
+  }
+  return launches;
 }
 void gb10_decode_gdn(std::size_t layer, const void* conv, const void* a,
     const void* b, void* output, void* state, hipStream_t stream) {
