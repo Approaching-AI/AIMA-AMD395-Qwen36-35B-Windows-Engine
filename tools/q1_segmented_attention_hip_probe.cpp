@@ -126,6 +126,27 @@ Comparison compare_rounded_context(const std::string& name,const float* device,
     return result;
 }
 
+// Report the arithmetic feeding the first BF16-disagreeing layer-35 channel.
+// This is diagnostic only; it does not write the attention output.
+__global__ void merge_debug_kernel(const float* segment_output,const float* segment_max,
+    const float* segment_sum,float* diagnostic,const unsigned char* exp2_table,
+    const unsigned char* rcp_table){
+    if(blockIdx.x!=7u||threadIdx.x!=0u)return;
+    using namespace qrt_sm121_q1_segmented_attention;
+    constexpr unsigned head=7u,column=103u;
+    float maximum=-INFINITY,scales[segments];
+    for(unsigned i=0;i<segments;++i)maximum=fmaxf(maximum,segment_max[head*segments+i]);
+    for(unsigned i=0;i<segments;++i)
+        scales[i]=exponential(segment_max[head*segments+i]-maximum,exp2_table);
+    const float denominator=merge_denominator(segment_sum+head*segments,scales);
+    const float inverse=denominator==0.0f?0.0f:qrt_sm121_attention_rcp::evaluate(rcp_table,denominator);
+    const float numerator=merge_numerator(segment_output+size_t(head)*segments*dimension+column,scales);
+    diagnostic[0]=maximum;
+    for(unsigned i=0;i<segments;++i)diagnostic[1u+i]=scales[i];
+    diagnostic[17]=denominator;diagnostic[18]=inverse;diagnostic[19]=numerator;
+    diagnostic[20]=qrt_sm121_q1::multiply(numerator,inverse);
+}
+
 int main(int argc,char** argv)try{
     const bool context_only=argc==4&&std::string(argv[3])=="--context-only";
     if(argc!=3&&!context_only)throw std::runtime_error("bound TSV plan history-tokens [--context-only]");
@@ -160,12 +181,13 @@ int main(int argc,char** argv)try{
         expected_sum=read_role<float>("expected_segment_sum",scalar_elements);
     }
     const unsigned stride=tokens+17u;
-    Buffer scores(size_t(16u)*stride*4u),acc(output_elements*4u),maxima(scalar_elements*4u),sums(scalar_elements*4u),output(4096u*4u);
+    Buffer scores(size_t(16u)*stride*4u),acc(output_elements*4u),maxima(scalar_elements*4u),sums(scalar_elements*4u),output(4096u*4u),diagnostic(21u*4u);
     // Guard fills above use the default stream. Complete initialization before
     // the independent nonblocking compute stream can write the same storage.
     check(hipDeviceSynchronize());
     hipStream_t stream=nullptr;check(hipStreamCreateWithFlags(&stream,hipStreamNonBlocking));
     std::vector<Comparison> comparisons;size_t padding_errors=0;
+    std::vector<uint32_t> first_diagnostic;uint32_t first_target_bits=0;
     for(unsigned prefix:{tokens-1u,262144u,tokens/2u,1u}){
         const auto started=std::chrono::steady_clock::now();
         hipLaunchKernelGGL(qrt_sm121_q1_attention::scores,dim3(stride),dim3(256u),0u,stream,
@@ -174,7 +196,20 @@ int main(int argc,char** argv)try{
         check(launch(static_cast<const float*>(scores.data()),values,values+size_t(prefix)*512u,
             static_cast<float*>(acc.data()),static_cast<float*>(maxima.data()),static_cast<float*>(sums.data()),
             static_cast<float*>(output.data()),prefix,tokens,stride,exp2,reciprocal,stream));
+        hipLaunchKernelGGL(merge_debug_kernel,dim3(8u),dim3(1u),0u,stream,
+            static_cast<const float*>(acc.data()),static_cast<const float*>(maxima.data()),
+            static_cast<const float*>(sums.data()),static_cast<float*>(diagnostic.data()),exp2,reciprocal);
+        check(hipGetLastError());
         check(hipStreamSynchronize(stream));
+        float values_debug[21],target;
+        check(hipMemcpy(values_debug,diagnostic.data(),sizeof(values_debug),hipMemcpyDeviceToHost));
+        check(hipMemcpy(&target,static_cast<const float*>(output.data())+1895u,sizeof(target),hipMemcpyDeviceToHost));
+        std::vector<uint32_t> bits(21);
+        for(size_t i=0;i<bits.size();++i)std::memcpy(&bits[i],&values_debug[i],sizeof(uint32_t));
+        uint32_t target_bits;std::memcpy(&target_bits,&target,sizeof(target_bits));
+        if(first_diagnostic.empty()){first_diagnostic=bits;first_target_bits=target_bits;}
+        else if(first_diagnostic!=bits||first_target_bits!=target_bits)
+            throw std::runtime_error("merge diagnostic varies by prefix split");
         const std::string name="prefix-"+std::to_string(prefix)+"/";
         if(!context_only){
             comparisons.push_back(compare(name+"segment_output",static_cast<const float*>(acc.data()),expected_acc));
@@ -192,7 +227,7 @@ int main(int argc,char** argv)try{
     }
     check(hipStreamDestroy(stream));
     auto checks=original.verify();size_t guard_errors=checks.first;
-    for(const auto* buffer:{&scores,&acc,&maxima,&sums,&output})guard_errors+=buffer->verify().first;
+    for(const auto* buffer:{&scores,&acc,&maxima,&sums,&output,&diagnostic})guard_errors+=buffer->verify().first;
     size_t elements=0,mismatches=0;unsigned count=0;
     std::cout<<"{\"kind\":\"original_long_segmented_attention\",\"context_only\":"
         <<(context_only?"true":"false")<<",\"tokens\":"<<tokens
@@ -203,7 +238,10 @@ int main(int argc,char** argv)try{
             <<",\"first_difference\":["<<s.first<<','<<s.actual<<','<<s.expected<<"]}";
     }
     const bool passed=!mismatches&&!guard_errors&&!checks.second&&!padding_errors;
-    std::cout<<"],\"compared_elements\":"<<elements<<",\"bit_mismatches\":"<<mismatches
+    std::cout<<"],\"merge_debug_head\":7,\"merge_debug_channel\":103,\"merge_debug_bits\":[";
+    for(size_t i=0;i<first_diagnostic.size();++i){if(i)std::cout<<',';std::cout<<first_diagnostic[i];}
+    std::cout<<"],\"merge_debug_actual_context_bits\":"<<first_target_bits
+        <<",\"compared_elements\":"<<elements<<",\"bit_mismatches\":"<<mismatches
         <<",\"guard_errors\":"<<guard_errors<<",\"immutable_digest_errors\":"<<checks.second
         <<",\"score_padding_errors\":"<<padding_errors<<",\"passed\":"<<(passed?"true":"false")
         <<",\"native_execution\":true,\"model_loaded\":false,\"inference_acceptance\":false}\n";
