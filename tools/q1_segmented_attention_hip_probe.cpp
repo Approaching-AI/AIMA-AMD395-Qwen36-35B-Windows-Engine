@@ -114,7 +114,8 @@ template<class T>Comparison compare(const std::string& name,const T* device,cons
 }
 
 int main(int argc,char** argv)try{
-    if(argc!=3)throw std::runtime_error("bound TSV plan history-tokens");
+    const bool context_only=argc==4&&std::string(argv[3])=="--context-only";
+    if(argc!=3&&!context_only)throw std::runtime_error("bound TSV plan history-tokens [--context-only]");
     const unsigned tokens=unsigned(number(argv[2],263680u));
     if(tokens<262144u)throw std::runtime_error("requires actual long shape");
     std::ifstream file(argv[1]);if(!file)throw std::runtime_error("plan missing");std::string line;
@@ -139,9 +140,12 @@ int main(int argc,char** argv)try{
     const auto* exp2=original.role<unsigned char>("exp2",qrt_sm121_exp2::table_bytes);
     const auto* reciprocal=original.role<unsigned char>("rcp",qrt_sm121_attention_rcp::table_bytes);
     const auto expected_output=read_role<float>("expected_output",4096u);
-    const auto expected_acc=read_role<float>("expected_segment_output",output_elements);
-    const auto expected_max=read_role<float>("expected_segment_max",scalar_elements);
-    const auto expected_sum=read_role<float>("expected_segment_sum",scalar_elements);
+    std::vector<float> expected_acc,expected_max,expected_sum;
+    if(!context_only){
+        expected_acc=read_role<float>("expected_segment_output",output_elements);
+        expected_max=read_role<float>("expected_segment_max",scalar_elements);
+        expected_sum=read_role<float>("expected_segment_sum",scalar_elements);
+    }
     const unsigned stride=tokens+17u;
     Buffer scores(size_t(16u)*stride*4u),acc(output_elements*4u),maxima(scalar_elements*4u),sums(scalar_elements*4u),output(4096u*4u);
     // Guard fills above use the default stream. Complete initialization before
@@ -159,9 +163,11 @@ int main(int argc,char** argv)try{
             static_cast<float*>(output.data()),prefix,tokens,stride,exp2,reciprocal,stream));
         check(hipStreamSynchronize(stream));
         const std::string name="prefix-"+std::to_string(prefix)+"/";
-        comparisons.push_back(compare(name+"segment_output",static_cast<const float*>(acc.data()),expected_acc));
-        comparisons.push_back(compare(name+"segment_max",static_cast<const float*>(maxima.data()),expected_max));
-        comparisons.push_back(compare(name+"segment_sum",static_cast<const float*>(sums.data()),expected_sum));
+        if(!context_only){
+            comparisons.push_back(compare(name+"segment_output",static_cast<const float*>(acc.data()),expected_acc));
+            comparisons.push_back(compare(name+"segment_max",static_cast<const float*>(maxima.data()),expected_max));
+            comparisons.push_back(compare(name+"segment_sum",static_cast<const float*>(sums.data()),expected_sum));
+        }
         comparisons.push_back(compare(name+"context",static_cast<const float*>(output.data()),expected_output));
         for(unsigned head=0;head<16u;++head){
             float padding[17];check(hipMemcpy(padding,static_cast<const float*>(scores.data())+size_t(head)*stride+tokens,sizeof(padding),hipMemcpyDeviceToHost));
@@ -173,7 +179,9 @@ int main(int argc,char** argv)try{
     auto checks=original.verify();size_t guard_errors=checks.first;
     for(const auto* buffer:{&scores,&acc,&maxima,&sums,&output})guard_errors+=buffer->verify().first;
     size_t elements=0,mismatches=0;unsigned count=0;
-    std::cout<<"{\"kind\":\"original_long_segmented_attention\",\"tokens\":"<<tokens<<",\"segments\":16,\"tile_tokens\":16,\"prefix_layouts\":4,\"comparisons\":[";
+    std::cout<<"{\"kind\":\"original_long_segmented_attention\",\"context_only\":"
+        <<(context_only?"true":"false")<<",\"tokens\":"<<tokens
+        <<",\"segments\":16,\"tile_tokens\":16,\"prefix_layouts\":4,\"comparisons\":[";
     for(const auto& s:comparisons){
         if(count++)std::cout<<',';elements+=s.elements;mismatches+=s.mismatches;
         std::cout<<"{\"stage\":\""<<s.name<<"\",\"elements\":"<<s.elements<<",\"bit_mismatches\":"<<s.mismatches
