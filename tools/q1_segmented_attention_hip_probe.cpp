@@ -112,6 +112,19 @@ template<class T>Comparison compare(const std::string& name,const T* device,cons
     }
     return result;
 }
+Comparison compare_rounded_context(const std::string& name,const float* device,
+                                   const std::vector<float>& expected){
+    std::vector<float> actual(expected.size());
+    check(hipMemcpy(actual.data(),device,actual.size()*sizeof(float),hipMemcpyDeviceToHost));
+    Comparison result;result.name=name;
+    for(size_t i=0;i<expected.size();++i){
+        const uint32_t rounded=uint32_t(qrt_sm121_q1::bf16(actual[i]))<<16u;
+        uint32_t reference=0;std::memcpy(&reference,&expected[i],sizeof(reference));
+        if(reference&0xffffu)throw std::runtime_error("context-only reference is not widened BF16");
+        result.add(rounded,reference,i);
+    }
+    return result;
+}
 
 int main(int argc,char** argv)try{
     const bool context_only=argc==4&&std::string(argv[3])=="--context-only";
@@ -168,7 +181,9 @@ int main(int argc,char** argv)try{
             comparisons.push_back(compare(name+"segment_max",static_cast<const float*>(maxima.data()),expected_max));
             comparisons.push_back(compare(name+"segment_sum",static_cast<const float*>(sums.data()),expected_sum));
         }
-        comparisons.push_back(compare(name+"context",static_cast<const float*>(output.data()),expected_output));
+        comparisons.push_back(context_only
+            ? compare_rounded_context(name+"context",static_cast<const float*>(output.data()),expected_output)
+            : compare(name+"context",static_cast<const float*>(output.data()),expected_output));
         for(unsigned head=0;head<16u;++head){
             float padding[17];check(hipMemcpy(padding,static_cast<const float*>(scores.data())+size_t(head)*stride+tokens,sizeof(padding),hipMemcpyDeviceToHost));
             for(float value:padding)padding_errors+=qrt_sm121_exp2::bits(value)!=0xff800000u;
