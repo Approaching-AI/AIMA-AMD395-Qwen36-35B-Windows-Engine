@@ -138,7 +138,9 @@ __global__ void merge_debug_kernel(const float* segment_output,const float* segm
     for(unsigned i=0;i<segments;++i)maximum=fmaxf(maximum,segment_max[head*segments+i]);
     for(unsigned i=0;i<segments;++i)
         scales[i]=exponential(segment_max[head*segments+i]-maximum,exp2_table);
-    const float denominator=merge_denominator(segment_sum+head*segments,scales);
+    const float denominator=(column&32u)
+        ? merge_denominator_high(segment_sum+head*segments,scales)
+        : merge_denominator(segment_sum+head*segments,scales);
     const float inverse=denominator==0.0f?0.0f:qrt_sm121_attention_rcp::evaluate(rcp_table,denominator);
     const float numerator=merge_numerator(segment_output+size_t(head)*segments*dimension+column,scales);
     diagnostic[0]=maximum;

@@ -37,13 +37,23 @@ QRT_SEGMENT_HD unsigned active_segments(unsigned tokens) {
     return width ? (tokens + width - 1u)/width : 0u;
 }
 
-// The original merge compiler fuses each low-half product with its rounded
-// high-half partner, then follows XOR4/2/1. A separately rounded generic
-// reduction changes the final context at sensitive BF16 boundaries.
+// The original merge compiler uses two FP32 FMA operand orders in alternating
+// 32-column groups. Both follow XOR4/2/1, but they can differ by one FP32 ULP.
+// The high-half-first order belongs to columns 32..63, 96..127, etc.
 QRT_SEGMENT_HD float merge_denominator(const float* sums, const float* scales) {
     float partial[8];
     for (unsigned i = 0u; i < 8u; ++i)
         partial[i] = fmaf(sums[i], scales[i], qrt_sm121_q1::multiply(sums[i+8u], scales[i+8u]));
+    for (unsigned stride = 4u; stride; stride >>= 1u)
+        for (unsigned i = 0u; i < stride; ++i)
+            partial[i] = qrt_sm121_q1::add(partial[i], partial[i+stride]);
+    return partial[0];
+}
+
+QRT_SEGMENT_HD float merge_denominator_high(const float* sums, const float* scales) {
+    float partial[8];
+    for (unsigned i = 0u; i < 8u; ++i)
+        partial[i] = fmaf(sums[i+8u], scales[i+8u], qrt_sm121_q1::multiply(sums[i], scales[i]));
     for (unsigned stride = 4u; stride; stride >>= 1u)
         for (unsigned i = 0u; i < stride; ++i)
             partial[i] = qrt_sm121_q1::add(partial[i], partial[i+stride]);

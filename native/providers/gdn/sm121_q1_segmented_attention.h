@@ -74,18 +74,21 @@ __global__ void merge_kernel(const float* segment_output, const float* segment_m
     const float* segment_sum, float* output, const unsigned char* exp2_table,
     const unsigned char* rcp_table) {
     const unsigned head = blockIdx.x, column = threadIdx.x;
-    __shared__ float scales[segments], inverse;
+    __shared__ float scales[segments], inverse[2];
     if (!column) {
         float maximum = -INFINITY;
         for (unsigned i = 0u; i < segments; ++i) maximum = fmaxf(maximum,segment_max[head*segments+i]);
         for (unsigned i = 0u; i < segments; ++i)
             scales[i] = exponential(segment_max[head*segments+i]-maximum,exp2_table);
-        const float denominator = merge_denominator(segment_sum+head*segments,scales);
-        inverse = denominator == 0.0f ? 0.0f : qrt_sm121_attention_rcp::evaluate(rcp_table,denominator);
+        const float low = merge_denominator(segment_sum+head*segments,scales);
+        const float high = merge_denominator_high(segment_sum+head*segments,scales);
+        inverse[0] = low == 0.0f ? 0.0f : qrt_sm121_attention_rcp::evaluate(rcp_table,low);
+        inverse[1] = high == 0.0f ? 0.0f : qrt_sm121_attention_rcp::evaluate(rcp_table,high);
     }
     __syncthreads();
     output[head*dimension+column] = qrt_sm121_q1::multiply(
-        merge_numerator(segment_output+size_t(head)*segments*dimension+column,scales),inverse);
+        merge_numerator(segment_output+size_t(head)*segments*dimension+column,scales),
+        inverse[(column >> 5u) & 1u]);
 }
 
 inline hipError_t launch(const float* scores, const uint16_t* prefix_value,
