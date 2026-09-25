@@ -188063,7 +188063,9 @@ void emit_q1024_q1_layer_digest(
         static_cast<uint32_t>(expected_position),
         generic_trace ? env_u32_or_default(
             "QRT_QWEN36_Q1_LAYER_TRACE_SECOND_POSITION", UINT_MAX) : UINT_MAX,
-        1u, 0u, false
+        generic_trace ? env_u32_or_default(
+            "QRT_QWEN36_Q1_LAYER_TRACE_COUNT", 1u) : 1u,
+        0u, false
     };
     if ((!legacy_q1024_trace && !generic_trace) || workspace == nullptr ||
         !trace_selection.position(token_position) ||
@@ -188095,11 +188097,35 @@ void emit_q1024_q1_layer_digest(
                   host_hidden.size()
               )
             : UINT64_C(0);
+    std::string sha256;
+#ifdef _WIN32
+    if (status == hipSuccess) {
+        BCRYPT_ALG_HANDLE algorithm = nullptr;
+        if (BCryptOpenAlgorithmProvider(
+                &algorithm, BCRYPT_SHA256_ALGORITHM, nullptr, 0) >= 0) {
+            unsigned char hash[32]{};
+            const NTSTATUS hashed = BCryptHash(
+                algorithm, nullptr, 0,
+                reinterpret_cast<unsigned char *>(host_hidden.data()),
+                static_cast<ULONG>(sizeof(host_hidden)), hash, sizeof(hash));
+            BCryptCloseAlgorithmProvider(algorithm, 0);
+            if (hashed >= 0) {
+                constexpr char hex[] = "0123456789abcdef";
+                for (unsigned char byte : hash) {
+                    sha256 += hex[byte >> 4u];
+                    sha256 += hex[byte & 15u];
+                }
+            }
+        }
+    }
+#endif
     const char *dump_prefix = std::getenv(
         "QRT_QWEN36_Q1_LAYER_TRACE_DUMP_PREFIX"
     );
-    const bool dump_requested =
-        dump_prefix != nullptr && dump_prefix[0] != '\0';
+    // A range hashes each carrier but saves raw tensors only at the first
+    // position and one optional second position, keeping artifacts bounded.
+    const bool dump_requested = dump_prefix != nullptr &&
+        dump_prefix[0] != '\0' && trace_selection.raw_position(token_position);
     const bool keep_trace_transactions = env_flag_enabled(
         "QRT_QWEN36_Q1_LAYER_TRACE_KEEP_TRANSACTIONS"
     );
@@ -188108,7 +188134,7 @@ void emit_q1024_q1_layer_digest(
     if (status == hipSuccess && dump_requested) {
         std::ostringstream path;
         path << dump_prefix;
-        if (trace_selection.second != UINT_MAX) {
+        if (trace_selection.second != UINT_MAX || trace_selection.count > 1u) {
             path << ".pos" << token_position;
         }
         if (keep_trace_transactions) {
@@ -188145,6 +188171,7 @@ void emit_q1024_q1_layer_digest(
         << " token_position=" << token_position
         << " completed_layer=" << completed_layer
         << " digest=" << hex_u64(digest)
+        << " sha256=" << (sha256.empty() ? "unavailable" : sha256)
         << " hip_status=" << static_cast<int>(status)
         << " dump_requested=" << (dump_requested ? 1 : 0)
         << " keep_trace_transactions="
