@@ -1,4 +1,4 @@
-# Packed gate midpoint diagnosis
+# Packed gate reduction diagnosis
 
 The current candidate uses 32 logical FMA chains for K2048/N32 gates. Each
 physical lane accumulates two independent chains, combines logical lanes
@@ -6,8 +6,42 @@ i/i+16, then uses the existing 16-lane shuffle. Launch geometry and carriers
 are preserved. This replaces the earlier double-precision midpoint patch.
 The actual edited helper matches all 31,744 BF16/widened-carrier comparisons
 across the two original 124-step histories. Three captured GB10 regressions
-are retained as hash-bound fixtures and pass ASan/UBSan. Native candidate
-compilation, full operator replay and complete model checks remain pending.
+are retained as hash-bound fixtures and pass ASan/UBSan. Native source
+`c90feccdfc01661b582c5a1db101f2660dc8642c` compiles on baiying and passes all
+865 original component cases, 6,664 configurations and 7,672,332 compared
+elements. This includes both complete gate histories, all three known failed
+cells, QKV controls and the preceding broad projection/shared-activation
+suite. Guards, immutable inputs and host cleanup pass.
+[Native component evidence](../benchmarks/correctness/packed-gate32-native-20260923.json).
+
+The whole runtime, CLI and prefix probe compile on baiying in120665.79ms.
+All173 source inputs and unchanged compiler flags verify. Compared with356,
+the packed gate header changes, together with the existing optional747
+projection-stride header; the whole provider uses its unchanged contiguous
+default. [Full build evidence](../benchmarks/correctness/packed-gate32-build-20260923.json).
+
+The same artifacts pass five original model controls: ordinary q8192/out512,
+native MTP q7169/out32, q8191/out32, q8192/out512 and q8193/out32. All1120
+outputs and callbacks match; every first logit is exact. The actual8192+1
+cold bridge and native commit boundaries pass. Ordinary q8192 loading is
+21386.521ms, TTFT23392.4967ms and TPOT101.240904ms. These functional runs
+do not meet the10000ms TTFT requirement or qualify retained performance.
+[Short model evidence](../benchmarks/correctness/packed-gate32-products-20260923.json).
+
+The complete original256k owner and both512-token suffix requests are now
+running with unchanged GB10 outputs, host guards and28800-second deadline.
+Output observations select263291/input471, where the diagnosed state error
+was observed, and263356/input279, which precedes the old output189 failure.
+All three CLI provenance annotations now match the build verified before
+launch; checks reject each stale annotation. The new original GB10 capture
+now reproduces all 608 outputs and complete first logits, supplying 700 full
+surfaces at each selected position. All 700 shared surfaces at263291 match
+the prior qualified reference bitwise. Input279 at263356 produces8240/22.875.
+The capture freezes the original qualified Inductor reduction configuration
+after two rejected attempts reproduced the earlier reference instability.
+[Reference reproducibility and repair](GB10_REFERENCE_REPRODUCIBILITY.md).
+Full256k, native retirement, final package, protocol matrix, soak and release
+remain unqualified.
 
 The preceding c268 256k run first emits the wrong token at suffix output 124.
 Its earlier numerical cause is a packed B projection at input position263238:

@@ -3254,13 +3254,13 @@
         "-ffp-contract=off",
         "-fsanitize=address,undefined",
         "-I",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-decode-attention-local-r1/stub",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-decode-attention-local-r1/stub",
         "-I",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/include",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_decode_attention_host_contract_test.cpp",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/src/sha256.cpp",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/include",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_decode_attention_host_contract_test.cpp",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/src/sha256.cpp",
         "-o",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-decode-attention-local-r1/host-contract"
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-decode-attention-local-r1/host-contract"
       ],
       "inputs": [
         {
@@ -3307,5 +3307,18 @@
   "timings_diagnostic_only": true,
   "inference_acceptance": false,
   "performance_acceptance": false,
-  "release_qualified": false
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "9a7c4acf65f1aeb855767587b19705e19160039a97785ce199db1fddb50f51e1",
+    "original_json_bytes": 104424,
+    "source_revision": "b192228318683bd98a8a960dc4321d74e54f7086",
+    "source_path": "benchmarks/correctness/linux-core-full-head-native-and-decode-attention-preparation-20260922.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 5
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
 }

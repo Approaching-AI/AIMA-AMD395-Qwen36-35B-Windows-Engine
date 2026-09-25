@@ -550,9 +550,9 @@
     "prefill_samples": [
       {
         "surface": "input-norm",
-        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-input-norm-sampled.bin",
+        "native_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-input-norm-sampled.bin",
         "native_sha256": "09c4ae8312b4d74b810dd682e3d0b05eecf543a3d904518647ed8ac5387df575",
-        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-00-input-rmsnorm-bf16.bin",
+        "reference_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-00-input-rmsnorm-bf16.bin",
         "reference_sha256": "2f2c342b0f74ed1d8847163b904296e3606deb821d5ea3c07f5d80788613c23e",
         "reference_dtype": "bf16",
         "reference_columns": 2048,
@@ -566,9 +566,9 @@
       },
       {
         "surface": "qkv",
-        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-qkv-sampled.bin",
+        "native_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-qkv-sampled.bin",
         "native_sha256": "4972110efbc0c2640ae8085c441f7e55142a381227c35368a3e308eb1dee42ee",
-        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-qkv-bf16.bin",
+        "reference_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-qkv-bf16.bin",
         "reference_sha256": "3aa65f72052ec90b28ad4675ed7ba6ab588da508a01e3ed4a199d41ea11385b7",
         "reference_dtype": "bf16",
         "reference_columns": 8192,
@@ -582,9 +582,9 @@
       },
       {
         "surface": "z",
-        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-z-sampled.bin",
+        "native_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-z-sampled.bin",
         "native_sha256": "c44174ed242202b072807674f78c6820dbd388d0f733efd85051c4a94154055f",
-        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-z-projection-bf16.bin",
+        "reference_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-z-projection-bf16.bin",
         "reference_sha256": "b8221884a710ce3a9dabf59eb233a1905eb2edfcb524a047d9b157b626543ae6",
         "reference_dtype": "bf16",
         "reference_columns": 4096,
@@ -598,9 +598,9 @@
       },
       {
         "surface": "a",
-        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-a-sampled.bin",
+        "native_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-a-sampled.bin",
         "native_sha256": "7ab0dab82ed4ac56c01dabfed312f2d9a32e22fd59c32116bbc69dede1b6f1c2",
-        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-a-projection-bf16.bin",
+        "reference_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-a-projection-bf16.bin",
         "reference_sha256": "f9cba795711a1b03ea2dfc1a7c46fc99010e3d60d6a0185474f8e379ebe8f951",
         "reference_dtype": "bf16",
         "reference_columns": 32,
@@ -614,9 +614,9 @@
       },
       {
         "surface": "b",
-        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-b-sampled.bin",
+        "native_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-b-sampled.bin",
         "native_sha256": "6504d4bccc5b6f9ac96e2232cba2e9691a6461bd41692b67d30fb74be2dff884",
-        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-b-projection-bf16.bin",
+        "reference_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-b-projection-bf16.bin",
         "reference_sha256": "983b36afb8408193ff7d2d0963253c2c495aacfb3d6035c1ee45351b7cafa7b4",
         "reference_dtype": "bf16",
         "reference_columns": 32,
@@ -630,9 +630,9 @@
       },
       {
         "surface": "core",
-        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-core-sampled.bin",
+        "native_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-core-sampled.bin",
         "native_sha256": "9bfe2405201badb6d44ca9532daf78b063b284e9d8afa8e4815ad93576a337fe",
-        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-core-bf16.bin",
+        "reference_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-core-bf16.bin",
         "reference_sha256": "632556844af7a6c5096b4b48fbbdb551cc082af3cd786e5681394d615d7566a4",
         "reference_dtype": "bf16",
         "reference_columns": 4096,
@@ -646,9 +646,9 @@
       },
       {
         "surface": "gated",
-        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-gated-sampled.bin",
+        "native_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-gated-sampled.bin",
         "native_sha256": "f88ae2ce5630798b79af2908ffedbfc5e0c8b5888ba1b82f1c4537059b0ff98a",
-        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-gated-bf16.bin",
+        "reference_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-gated-bf16.bin",
         "reference_sha256": "493ee4f9831e6e828784d9944110be9fbc97fdccd9e9ffedf7ca4f8a0ae00f2f",
         "reference_dtype": "bf16",
         "reference_columns": 4096,
@@ -662,9 +662,9 @@
       },
       {
         "surface": "attention-out",
-        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-attention-out-sampled.bin",
+        "native_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-attention-out-sampled.bin",
         "native_sha256": "dc04c1d47b4501a57b32766b4296ad2b5d0ed2f4f88d8338e57c0cb4ff111051",
-        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-output-projection-bf16.bin",
+        "reference_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-output-projection-bf16.bin",
         "reference_sha256": "26aa082b7a46bf6329d4e1975f77c639b86ec57f0271895dd28b0a56f525519f",
         "reference_dtype": "bf16",
         "reference_columns": 2048,
@@ -678,9 +678,9 @@
       },
       {
         "surface": "post-attention-norm",
-        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-post-attention-norm-sampled.bin",
+        "native_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-post-attention-norm-sampled.bin",
         "native_sha256": "b6809bdc8319ea3b225b60acaf6a1fcdfbdc9ceb93e8234fafe6261fe1e616df",
-        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-input-bf16.bin",
+        "reference_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-moe-00-input-bf16.bin",
         "reference_sha256": "4d4d9754873fe6d212a1c25a59dd7d72479794b58e495b411e530f9cb775d753",
         "reference_dtype": "bf16",
         "reference_columns": 2048,
@@ -694,9 +694,9 @@
       },
       {
         "surface": "post-attention-residual",
-        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-post-attention-residual-sampled.bin",
+        "native_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-post-attention-residual-sampled.bin",
         "native_sha256": "a671ded3bec2374ac24c5f7e466bb476215ec2c0e99e96e29904d526a24e3ecb",
-        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-00-residual-bf16.bin",
+        "reference_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-00-residual-bf16.bin",
         "reference_sha256": "77aa86340fb2634ce46491fe0f19e87da689be595264580e4820b6c39fb0d593",
         "reference_dtype": "bf16",
         "reference_columns": 2048,
@@ -710,9 +710,9 @@
       },
       {
         "surface": "layer-output",
-        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-layer-output-sampled.bin",
+        "native_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-layer-output-sampled.bin",
         "native_sha256": "31966c640824e244039f53214299190a81683b56fbd34b875d6938e42d8c5fc7",
-        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-00-combined-f32.bin",
+        "reference_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-00-combined-f32.bin",
         "reference_sha256": "ddbe42791051874424319d62c07eb9916b0b4358c453f6e74b7d028d36994e9c",
         "reference_dtype": "f32",
         "reference_columns": 2048,
@@ -726,9 +726,9 @@
       },
       {
         "surface": "next-input-norm",
-        "native_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-next-input-norm-sampled.bin",
+        "native_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-windows-native-gdn-observe-r1/observations/prefill-next-input-norm-sampled.bin",
         "native_sha256": "805a2614eb7f111f04b4269ec9368df6d75c149ae5dd2fbfa5531c879a16f4a6",
-        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-01-input-rmsnorm-bf16.bin",
+        "reference_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-01-input-rmsnorm-bf16.bin",
         "reference_sha256": "7863f2807cbc99dc4b61bc435227a73a848af00364c64d0caf445cd4baf0fdeb",
         "reference_dtype": "bf16",
         "reference_columns": 2048,
@@ -2066,7 +2066,7 @@
         "first_indices": [],
         "actual_sha256": "8717d82503893a387c08fc020382a61186a13d9a684d711eb303e35f7598726b",
         "reference_sha256": "8717d82503893a387c08fc020382a61186a13d9a684d711eb303e35f7598726b",
-        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-v-core-input-bf16.bin"
+        "reference_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-v-core-input-bf16.bin"
       },
       {
         "surface": "g",
@@ -2075,7 +2075,7 @@
         "first_indices": [],
         "actual_sha256": "aa1d214e204cb08af849f85845aa6a77e0866cd9e87089f4a3d021293788e889",
         "reference_sha256": "aa1d214e204cb08af849f85845aa6a77e0866cd9e87089f4a3d021293788e889",
-        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-g-core-input-f32.bin"
+        "reference_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-g-core-input-f32.bin"
       },
       {
         "surface": "beta",
@@ -2084,7 +2084,7 @@
         "first_indices": [],
         "actual_sha256": "a600aa6583f3e8c78551e53eb0fec97359f49a39ccd3175832356b437488960a",
         "reference_sha256": "b05808c67811b00f9e8a5aa888aaa199853522abfff43cff64ac4eecd6d1aab3",
-        "reference_file": "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-beta-core-input-bf16.bin"
+        "reference_file": "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-linear-00-beta-core-input-bf16.bin"
       }
     ],
     "raw_qk_capture_is_before_normalization": true,
@@ -2094,5 +2094,18 @@
   },
   "inference_acceptance": false,
   "performance_acceptance": false,
-  "release_qualified": false
+  "release_qualified": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "6c47956607407b0cae50e00a24a542cc377ccd6c8da91d1aab14b42e247506b8",
+    "original_json_bytes": 79293,
+    "source_revision": "b192228318683bd98a8a960dc4321d74e54f7086",
+    "source_path": "benchmarks/correctness/linux-core-native-gdn-boundary-and-chunk64-20260923.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 27
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
 }

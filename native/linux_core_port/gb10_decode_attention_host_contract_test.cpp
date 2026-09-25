@@ -45,6 +45,7 @@ int main(int argc,char** argv) {
   std::vector<uint16_t> q(4096,0x1234), k(8193u*512u,0x2345), v(k.size(),0x3456), out(4096,0x4567);
   auto call=[&](size_t n){gb10_decode_attention(q.data(),k.data(),v.data(),out.data(),n,nullptr);};
   reject([&]{call(1);});
+  reject([&]{gb10_attention_reciprocal_table();});
   fake_gdn_alive=false;
   {Gb10DecodeAttentionOwner disabled(8193);assert(!active && allocations==0);}
   reject([&]{Gb10DecodeAttentionOwner bad(0);});
@@ -72,6 +73,7 @@ int main(int argc,char** argv) {
   {
     Gb10DecodeAttentionOwner owner(8193);
     assert(active && active->capacity==8193 && active->score_capacity==8224 && allocations==2);
+    assert(gb10_attention_reciprocal_table()==active->reciprocal.as<unsigned char>());
     reject([&]{Gb10DecodeAttentionOwner duplicate(8193);});
     for(size_t n:{1u,32u,33u,8192u,8193u}) {
       const size_t before=launches.size();const int copies_before=copies;call(n);++complete_calls;
@@ -166,6 +168,7 @@ int main(int argc,char** argv) {
     assert(std::all_of(pair.first->begin(),pair.first->end(),[&](uint16_t x){return x==pair.second;}));
   {Gb10DecodeAttentionOwner maximum(262144);assert(active->score_capacity==262144);}
   assert(!active && allocations==0 && drains==3);
+  reject([&]{gb10_attention_reciprocal_table();});
   std::cout << "{\"complete_bindings\":" << complete_calls << ",\"rejected_controls\":" << rejected
       << ",\"terminal_prefill_binding\":true,\"buffers_unchanged\":true,\"all_allocations_released\":true,\"kernel_arithmetic_executed\":false}" << std::endl;
 }

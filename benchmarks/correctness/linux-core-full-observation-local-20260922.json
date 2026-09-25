@@ -12,13 +12,13 @@
         "-fsanitize=address,undefined",
         "-fno-omit-frame-pointer",
         "-I",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/linux_core_port",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/native/linux_core_port",
         "-I",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/include",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/collector.cpp",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/src/sha256.cpp",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/include",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/collector.cpp",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/src/sha256.cpp",
         "-o",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/collector"
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/collector"
       ],
       "exit_code": 0,
       "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -27,8 +27,8 @@
     {
       "label": "collector-run",
       "command": [
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/collector",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/fixtures"
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/collector",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/fixtures"
       ],
       "exit_code": 0,
       "stdout_sha256": "6a2977eb9cc38243758d8faf7cad20bd0d4daf44a7a1bc442f0be72961870ca2",
@@ -43,9 +43,9 @@
         "-g",
         "-fsanitize=address,undefined",
         "-fno-omit-frame-pointer",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/linux_core_port/host_contract_test.cpp",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/native/linux_core_port/host_contract_test.cpp",
         "-o",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/host-contract"
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/host-contract"
       ],
       "exit_code": 0,
       "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -54,8 +54,8 @@
     {
       "label": "host-contract-run",
       "command": [
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/host-contract",
-        "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/host-fixtures"
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/host-contract",
+        "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-full-observation-local-r1/host-fixtures"
       ],
       "exit_code": 0,
       "stdout_sha256": "bf3396b77afd361e0b704c178665ad71db420452267b4e765a12d840d852160f",
@@ -81,5 +81,18 @@
   "performance_acceptance": false,
   "schema": 1,
   "date": "2026-09-22",
-  "local_result_sha256": "2a0441b221caa55628663d19eb2244494a0af0cf221cb22aa7097cfefa7b96e1"
+  "local_result_sha256": "2a0441b221caa55628663d19eb2244494a0af0cf221cb22aa7097cfefa7b96e1",
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "32f86feef82306b2751de2582c179dedd68c75eaeabef20c987fa2109a1caf8d",
+    "original_json_bytes": 3542,
+    "source_revision": "b192228318683bd98a8a960dc4321d74e54f7086",
+    "source_path": "benchmarks/correctness/linux-core-full-observation-local-20260922.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 11
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
 }

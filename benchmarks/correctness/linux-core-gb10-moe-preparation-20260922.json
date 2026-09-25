@@ -151,13 +151,13 @@
       "-ffp-contract=off",
       "-fsanitize=address,undefined",
       "-I",
-      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-gb10-moe-local-r1/host-r2/stub",
+      "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-gb10-moe-local-r1/host-r2/stub",
       "-I",
-      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/include",
-      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_moe_host_contract_test.cpp",
-      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/src/sha256.cpp",
+      "<evidence-home-1>/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/include",
+      "<evidence-home-1>/projects/AIMA-public-r1191-candidate/native/linux_core_port/gb10_moe_host_contract_test.cpp",
+      "<evidence-home-1>/projects/AIMA-public-r1191-candidate/third_party/aima_linux/native/src/sha256.cpp",
       "-o",
-      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate/build/linux-core-gb10-moe-local-r1/host-r2/host-contract"
+      "<evidence-home-1>/projects/AIMA-public-r1191-candidate/build/linux-core-gb10-moe-local-r1/host-r2/host-contract"
     ],
     "inputs": [
       {
@@ -218,10 +218,10 @@
       "-ffp-contract=off",
       "-fsanitize=address,undefined",
       "-I",
-      "/Users/jiawei-macmini/projects/AIMA-public-r1191-candidate",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-moe-carrier-replay-r1/replay.cpp",
+      "<evidence-home-1>/projects/AIMA-public-r1191-candidate",
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-moe-carrier-replay-r1/replay.cpp",
       "-o",
-      "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-moe-carrier-replay-r1/replay"
+      "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-moe-carrier-replay-r1/replay"
     ],
     "source_sha256": "2c87ef818d9f4aa02bca82def00031206219db4e5c007e9492d434e09162753a",
     "exe_sha256": "b43790ccb16a643cf64179243409295953b9c9daf4cf476381c54b2b9b231c94",
@@ -232,11 +232,11 @@
       {
         "name": "layer1",
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-moe-carrier-replay-r1/replay",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-00-combined-f32.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-cross-layer-norm-replay-r1/layer1-input-norm-weight.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-01-input-rmsnorm-bf16.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-moe-carrier-replay-r1/replay",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-00-combined-f32.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-cross-layer-norm-replay-r1/layer1-input-norm-weight.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-01-input-rmsnorm-bf16.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
         ],
         "result": {
           "elements": 16384,
@@ -252,11 +252,11 @@
       {
         "name": "terminal",
         "command": [
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-moe-carrier-replay-r1/replay",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-39-combined-f32.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-moe-carrier-replay-r1/final-norm-weight.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-final-norm-bf16.bin",
-          "/Users/jiawei-macmini/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-moe-carrier-replay-r1/replay",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-layer-39-combined-f32.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/linux-core-moe-carrier-replay-r1/final-norm-weight.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-q8192-moe-linear-20260922-r2/capture/q8192-out512/txn0000-final-norm-bf16.bin",
+          "<evidence-home-1>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-rsqrt-table-20260910-r1/table/sm121-rsqrt-positive.bin"
         ],
         "result": {
           "elements": 16384,
@@ -366,5 +366,18 @@
   "reference_capture_sha256": "355329686dd5cdeb0e20e9f25662697cf289cb02f7313d1845097248c260b08a",
   "inference_acceptance": false,
   "performance_acceptance": false,
-  "release_acceptance": false
+  "release_acceptance": false,
+  "public_evidence_view": {
+    "schema": "qrt-public-evidence-path-view-v1",
+    "original_json_sha256": "f6bd242580456d13cbf17d23ee0a3aedb3c9e9169fb1a150ffcea98e0ac4fd48",
+    "original_json_bytes": 17711,
+    "source_revision": "b192228318683bd98a8a960dc4321d74e54f7086",
+    "source_path": "benchmarks/correctness/linux-core-gb10-moe-preparation-20260922.json",
+    "home_path_alias_counts": {
+      "<evidence-home-1>": 18
+    },
+    "embedded_artifact_hashes_changed": false,
+    "numeric_results_changed": false,
+    "scope": "Public view with personal home prefixes replaced in text and object keys. Embedded hashes identify unmodified original artifacts. Commands containing aliases require local path substitution."
+  }
 }
