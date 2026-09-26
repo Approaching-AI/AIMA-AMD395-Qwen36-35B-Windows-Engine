@@ -1235,6 +1235,20 @@ def main():
             state_update="independent carried K64 dot then explicit FP32 decay FMA",
             state_commit="last chunk writes the engine's resident FP32 state directly",
             model_qualified=False)
+        persistent = json.loads((ROOT / "native/linux_core_port/gb10_gdn_persistent_compile.json").read_text())
+        report["optional_adaptations"]["gb10_gdn"]["native_split64_opt_in"] = dict(
+            setting="AIMA_PORT_NATIVE_GDN_PERSISTENT=1",
+            requires="AIMA_PORT_NATIVE_GDN_PREFILL=1",
+            scope="cold q8192 only",
+            upstream_images=5,
+            fused_recurrence_launches=128,
+            total_aot_launches_per_linear_layer=133,
+            state_handoff="FP32 state ping-pongs in the existing conversion scratch after each 64-token fused launch",
+            state_commit="last fused launch writes the engine's resident FP32 state directly",
+            embedded_image_bytes=sum(item["bytes"] for item in persistent["compiled"].values()),
+            embedded_include_sha256=digest((ROOT / "native/linux_core_port/gb10_gdn_persistent_images.inc").read_bytes()),
+            recurrence_image_sha256=persistent["compiled"]["recurrence"]["sha256"],
+            model_qualified=False)
     if args.gb10_projections:
         report["optional_adaptations"]["gb10_projections"] = dict(
             decode="existing Windows K16 width-26 SM121 projection arithmetic",
