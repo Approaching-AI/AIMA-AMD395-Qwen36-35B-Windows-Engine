@@ -168200,6 +168200,9 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
     const bool q1_packed_router_exact_nearmidpoint =
         q1_sm121_packed_dense &&
         env_flag_enabled("QRT_QWEN36_Q1_PACKED_ROUTER_EXACT_NEARMIDPOINT");
+    const bool q1_packed_router_serial_f32 =
+        q1_sm121_packed_dense &&
+        env_flag_enabled("QRT_QWEN36_Q1_PACKED_ROUTER_SERIAL_F32");
     qrt_sm121_q1_moe_runtime::Tables q1_sm121_moe_tables;
     const bool legacy_early_f32 =
         !q1_sm121_moe_requested && q1_decode_early_layer_bf16_moe_layer &&
@@ -169558,7 +169561,11 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
             !record_q1_moe_router_profile_boundary(
                 Q1LayerProfileBoundary::kMoeRouterInputEnd,
                 "qwen36_resident_decode_q1_moe_profile_router_input_end")) return false;
-        if (q1_packed_router_exact_nearmidpoint) {
+        if (q1_packed_router_serial_f32) {
+            hipLaunchKernelGGL(qrt_sm121_packed_dense::router_projection_serial_f32,
+                dim3(1u), dim3(256u), 0, q1_moe_router_stream,
+                device_input_bf16, router_weights_row_major, device_router_logits_bf16);
+        } else if (q1_packed_router_exact_nearmidpoint) {
             hipLaunchKernelGGL(qrt_sm121_packed_dense::router_projection_exact_nearmidpoint,
                 dim3(16u), dim3(256u), 0, q1_moe_router_stream,
                 device_input_bf16, router_weights_row_major, device_router_logits_bf16);

@@ -64,6 +64,15 @@ QRT_PACKED_DENSE_HD inline float gate_lane_dot(const Input* input,
     return qrt_sm121_q1::add(first, second);
 }
 
+QRT_PACKED_DENSE_HD inline float router_serial_dot(
+    const uint16_t* input, const uint16_t* weight) {
+    float sum = 0.0f;
+    for (unsigned index = 0; index < 2048u; ++index) {
+        sum = fma(operand(input[index]), operand(weight[index]), sum);
+    }
+    return sum;
+}
+
 #if defined(__HIPCC__) || defined(__CUDACC__)
 template<unsigned K, class Input, bool Gate = false>
 __device__ inline float dot(const Input* input, const uint16_t* weight) {
@@ -114,6 +123,18 @@ __global__ void router_projection_exact_nearmidpoint(
     if (threadIdx.x % 16u == 0u) {
         output[expert] = qrt_router_nearmidpoint::select(input, weight, kHidden, sum).selected;
     }
+}
+
+// The reference batch-one gate uses a single-row GEMV accumulation order.
+// A two-row gate takes the 16-lane reduction above and can round a different
+// BF16 endpoint. Keep this opt-in kernel separate from batch-two routing.
+__global__ void router_projection_serial_f32(
+    const uint16_t* input, const uint16_t* weights, uint16_t* output) {
+    constexpr unsigned kHidden = 2048u, kExperts = 256u;
+    const unsigned expert = blockIdx.x * blockDim.x + threadIdx.x;
+    if (expert >= kExperts) return;
+    const uint16_t* weight = weights + size_t(expert) * kHidden;
+    output[expert] = qrt_sm121_q1::bf16(router_serial_dot(input, weight));
 }
 
 __global__ void shared_activation(const uint16_t* input, const uint16_t* gate,

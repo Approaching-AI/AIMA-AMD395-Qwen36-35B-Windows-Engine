@@ -67,6 +67,8 @@ constexpr unsigned int router = 103;
 }
 namespace qrt_sm121_packed_dense {
 template<unsigned int, class, class> constexpr unsigned int projection = 104;
+constexpr unsigned int router_projection_exact_nearmidpoint = 105;
+constexpr unsigned int router_projection_serial_f32 = 106;
 }
 template<class... Args>
 void launch(unsigned int kernel, dim3, dim3, int, hipStream_t stream, Args...) {
@@ -78,12 +80,16 @@ void launch(unsigned int kernel, dim3, dim3, int, hipStream_t stream, Args...) {
 bool check_launch(const char *) { return launches != fail_launch; }
 ''' + enum + helper + r'''
 bool run(Qwen36ResidentDecodeActivationWorkspace *workspace, unsigned int layer, Lease *lease,
-         bool q1_sm121_packed_dense) {
+         bool q1_sm121_packed_dense, unsigned int router_mode) {
     struct { unsigned int layer_index; } descriptor{layer};
     std::string stage, error;
     std::string *failure_stage = &stage, *failure = &error;
     hipStream_t q1_moe_router_stream = expected_stream;
     bool q1_sm121_moe_requested = true;
+    bool q1_packed_router_exact_nearmidpoint =
+        q1_sm121_packed_dense && (router_mode == 1u || router_mode == 3u);
+    bool q1_packed_router_serial_f32 =
+        q1_sm121_packed_dense && (router_mode == 2u || router_mode == 3u);
     float *device_post_attention = nullptr;
     uint16_t *device_input_bf16 = nullptr, *router_weights_row_major = nullptr;
     uint16_t *device_router_logits_bf16 = nullptr;
@@ -97,6 +103,7 @@ bool run(Qwen36ResidentDecodeActivationWorkspace *workspace, unsigned int layer,
 int main() {
     for (bool cache : {false, true}) for (bool profile : {false, true})
     for (bool packed : {false, true})
+    for (unsigned int router_mode : {0u, 1u, 2u, 3u})
     for (unsigned int layer : {0u, 1u, 2u, 39u})
     for (unsigned int fault : {0u, 1u, 2u, 17u, 18u}) {
         cached = cache; profiling = profile;
@@ -111,7 +118,7 @@ int main() {
             workspace.q1_layer_profile_events[18][layer - 2] = &projection;
         }
         Lease lease;
-        bool result = run(&workspace, layer, &lease, packed);
+        bool result = run(&workspace, layer, &lease, packed, router_mode);
         bool event_fault = events_active && fault > 2;
         assert(result == (fault == 0 || (fault > 2 && !events_active)));
         assert(lease.invalid == event_fault);
@@ -119,7 +126,8 @@ int main() {
         if (fault != 1) {
             if (events_active) expected.push_back(17);
             if (!(events_active && fault == 17)) {
-                expected.push_back(packed ? 104 : 102);
+                expected.push_back(!packed ? 102 :
+                    router_mode >= 2u ? 106 : router_mode == 1u ? 105 : 104);
                 if (fault != 2) {
                     if (events_active) expected.push_back(18);
                     if (!(events_active && fault == 18)) expected.push_back(103);
