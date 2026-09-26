@@ -29,7 +29,7 @@ struct Device {
 struct State {
   Device reciprocal, scratch;
   std::size_t capacity = 0, score_capacity = 0;
-  bool terminal_only = false;
+  bool terminal_only = false, decode_enabled = false;
 };
 State* active = nullptr;
 std::vector<unsigned char> read_reciprocal(const std::filesystem::path& path) {
@@ -83,7 +83,10 @@ Gb10DecodeAttentionOwner::Gb10DecodeAttentionOwner(std::size_t capacity)
     if (terminal_only) throw std::invalid_argument("Terminal prefill requires the attention owner");
     return;
   }
-  if (std::string(setting) != "1") throw std::invalid_argument("Unsupported decode attention mode");
+  if (std::string(setting) != "0" && std::string(setting) != "1")
+    throw std::invalid_argument("Unsupported decode attention mode");
+  const bool decode_enabled = std::string(setting) == "1";
+  if (!decode_enabled && !terminal_only) return;
   if (terminal_only && capacity < 8192)
     throw std::invalid_argument("Terminal prefill requires a complete q8192 cache");
   (void)gb10_exp2_table();
@@ -92,6 +95,7 @@ Gb10DecodeAttentionOwner::Gb10DecodeAttentionOwner(std::size_t capacity)
   const auto bytes = read_reciprocal(std::filesystem::u8path(path));
   auto& s = impl_->state;
   s.terminal_only = terminal_only;
+  s.decode_enabled = decode_enabled;
   s.capacity = capacity;
   s.score_capacity = (capacity + 31u) & ~std::size_t(31u);
   s.reciprocal.allocate(bytes.size());
@@ -103,7 +107,7 @@ Gb10DecodeAttentionOwner::Gb10DecodeAttentionOwner(std::size_t capacity)
 Gb10DecodeAttentionOwner::~Gb10DecodeAttentionOwner() {
   if (active == &impl_->state) { hipDeviceSynchronize(); active = nullptr; }
 }
-bool gb10_decode_attention_enabled() { return active != nullptr; }
+bool gb10_decode_attention_enabled() { return active && active->decode_enabled; }
 const unsigned char* gb10_attention_reciprocal_table() {
   if (!active || !active->reciprocal.data)
     throw std::logic_error("Attention reciprocal owner is absent");
@@ -143,7 +147,7 @@ void gb10_prefill_terminal_attention(const void* query, const void* key,
 }
 void gb10_decode_attention(const void* query, const void* key, const void* value,
     void* output, std::size_t cache_end, void* stream) {
-  if (!active || !cache_end || cache_end > active->capacity || stream)
+  if (!gb10_decode_attention_enabled() || !cache_end || cache_end > active->capacity || stream)
     throw std::invalid_argument("Invalid decode attention owner, extent or stream");
   const std::array<Span,4> spans{{{query,8192u}, {key,cache_end*1024u},
                                 {value,cache_end*1024u}, {output,8192u}}};

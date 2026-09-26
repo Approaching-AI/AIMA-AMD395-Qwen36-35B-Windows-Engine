@@ -48,6 +48,8 @@ int main(int argc,char** argv) {
   reject([&]{gb10_attention_reciprocal_table();});
   fake_gdn_alive=false;
   {Gb10DecodeAttentionOwner disabled(8193);assert(!active && allocations==0);}
+  setting("AIMA_PORT_DECODE_ATTENTION","0");
+  {Gb10DecodeAttentionOwner disabled(8193);assert(!active && allocations==0);}
   reject([&]{Gb10DecodeAttentionOwner bad(0);});
   reject([&]{Gb10DecodeAttentionOwner bad(262145);});
   setting("AIMA_PORT_DECODE_ATTENTION","x");reject([&]{Gb10DecodeAttentionOwner bad(8193);});
@@ -125,6 +127,18 @@ int main(int argc,char** argv) {
   setting("AIMA_PORT_PREFILL_TERMINAL_ONLY","1");
   setting("AIMA_PORT_DECODE_ATTENTION","");
   reject([&]{Gb10DecodeAttentionOwner missing_attention(8193);});
+  setting("AIMA_PORT_DECODE_ATTENTION","0");
+  {
+    Gb10DecodeAttentionOwner terminal_only(8193);
+    assert(active && gb10_prefill_terminal_only_enabled() &&
+           !gb10_decode_attention_enabled() && allocations==2);
+    const auto before=launches.size();
+    reject([&]{call(8192);});
+    assert(launches.size()==before);
+    terminal_call();
+    assert(launches.size()==before+2);
+  }
+  assert(!active && allocations==0 && drains==2);
   setting("AIMA_PORT_DECODE_ATTENTION","1");
   reject([&]{Gb10DecodeAttentionOwner short_cache(8191);});
   {
@@ -160,14 +174,14 @@ int main(int argc,char** argv) {
       assert(launches.size()==fail_launch);fail_launch=0;
     }
   }
-  assert(!active && allocations==0 && drains==2);
+  assert(!active && allocations==0 && drains==3);
   assert(std::all_of(terminal_output.begin(),terminal_output.end(),[](float x){return x==-123.0f;}));
   setting("AIMA_PORT_PREFILL_TERMINAL_ONLY","0");
   for(const auto& pair:{std::make_pair(&q,uint16_t(0x1234)),std::make_pair(&k,uint16_t(0x2345)),
       std::make_pair(&v,uint16_t(0x3456)),std::make_pair(&out,uint16_t(0x4567))})
     assert(std::all_of(pair.first->begin(),pair.first->end(),[&](uint16_t x){return x==pair.second;}));
   {Gb10DecodeAttentionOwner maximum(262144);assert(active->score_capacity==262144);}
-  assert(!active && allocations==0 && drains==3);
+  assert(!active && allocations==0 && drains==4);
   reject([&]{gb10_attention_reciprocal_table();});
   std::cout << "{\"complete_bindings\":" << complete_calls << ",\"rejected_controls\":" << rejected
       << ",\"terminal_prefill_binding\":true,\"buffers_unchanged\":true,\"all_allocations_released\":true,\"kernel_arithmetic_executed\":false}" << std::endl;

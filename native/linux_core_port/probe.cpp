@@ -334,6 +334,8 @@ int run(const std::vector<std::string>& argv) {
             << ",\"request_wall_ms\":" << result.request_wall_ms
             << ",\"command_to_ready_ms\":" << ready_ms
             << ",\"oracle_tensor_reads\":" << result.oracle_tensor_reads
+            << ",\"decode_aot_launches\":" << result.decode_aot_launches
+            << ",\"decode_native_launches\":" << result.decode_native_launches
             << ",\"callback_count\":" << callbacks.size()
             << ",\"first_token_certified\":" << (result.first_token_certified ? "true" : "false")
             << ",\"all_decode_tokens_certified\":" << (result.all_decode_tokens_certified ? "true" : "false")

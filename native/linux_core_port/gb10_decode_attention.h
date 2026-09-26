@@ -6,6 +6,8 @@
 namespace aima_port {
 // Optional batch-one, default-stream owner. Construct after Gb10GdnOwner and
 // before READY; its immutable exp2 table is borrowed for the complete lifetime.
+// AIMA_PORT_PREFILL_TERMINAL_ONLY=1 may retain the terminal prefill owner with
+// AIMA_PORT_DECODE_ATTENTION=0 so decode uses the resident unified AOT plan.
 class Gb10DecodeAttentionOwner {
  public:
   explicit Gb10DecodeAttentionOwner(std::size_t cache_capacity);
