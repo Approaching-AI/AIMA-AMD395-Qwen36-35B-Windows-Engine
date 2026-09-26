@@ -59708,8 +59708,9 @@ struct Qwen36ResidentPrefixCheckpoint {
 };
 
 // Session metadata is copied by shadow transactions. Shared ownership keeps
-// immutable checkpoints alive through rollback and failed-stream quarantine.
-// Full-attention prefix K/V stays owned by the original session.
+// immutable checkpoints, or a long owner's exact-token index with count zero,
+// alive through rollback and failed-stream quarantine. Full-attention prefix
+// K/V stays owned by the original session.
 struct Qwen36ResidentPrefixCheckpointStore {
     std::array<Qwen36ResidentPrefixCheckpoint, qrt_prefix_checkpoint::kCapacity>
         checkpoints{};
@@ -63608,6 +63609,7 @@ std::vector<unsigned int> begin_qwen36_prefix_checkpoints(
     std::vector<unsigned int> final_rows;
     if (!qwen36_resident_session_capture_is_active() ||
         !raw_env_flag_enabled("QRT_QWEN36_PREFIX_CHECKPOINTS") ||
+        g_qwen36_chunked_prefill_total_tokens != 0u ||
         g_qwen36_direct_final_target_tokens_override != nullptr) {
         return final_rows;
     }

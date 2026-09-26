@@ -238,7 +238,6 @@ int run_qwen36_chunked_prefill(
     // its true extent, including one-token tails; no synthetic input is added.
     if (!request.resident_engine || total <= 8192u || total > qrt_sm121_attention_capacity::kTokens ||
         g_qwen36_chunked_prefill_total_tokens || ScopedQwen36PrefixBatchSuffix::active ||
-        raw_env_flag_enabled("QRT_QWEN36_PREFIX_CHECKPOINTS") ||
         !env_flag_enabled("QRT_QWEN36_WHOLE_PROVIDER_RESIDENT_SESSION") ||
         !env_flag_enabled("QRT_QWEN36_WHOLE_PROVIDER_DIRECT_ORCHESTRATION") ||
         !env_flag_enabled("QRT_QWEN36_WHOLE_PROVIDER_FUSED_LAYER_STACK"))
@@ -262,6 +261,16 @@ int run_qwen36_chunked_prefill(
         return fail_request(stage, message);
     };
     try {
+        // This chunked path does not capture the 64-token FLA checkpoints used
+        // by short prefill. Keep the original token IDs so the prefix query can
+        // still prove an exact full-owner hit before starting a suffix. The
+        // store has no partial checkpoints and is published only after every
+        // chunk and the final resident frontier have completed.
+        auto exact_owner_index =
+            std::make_shared<Qwen36ResidentPrefixCheckpointStore>();
+        exact_owner_index->owner_tokens.assign(
+            request.input_tokens, request.input_tokens + total);
+        exact_owner_index->owner_digest = prompt_digest;
         qrt_sm121_mtp_runtime::ChunkedPrefillSeed mtp_seed;
         std::vector<uint32_t> mtp_processed_inputs;
         if (native_mtp) mtp_processed_inputs.assign(request.input_tokens,request.input_tokens+total);
@@ -436,6 +445,8 @@ int run_qwen36_chunked_prefill(
         if (owner.prefix_tokens != total || owner.prompt_token_ids_fnv1a64 != prompt_digest ||
             !owner.current_token_valid || !owner.last_decode_top2_valid ||
             owner.last_decode_top2_position != total - 1u ||
+            !owner.provider_completed || owner.owner_engine != request.resident_engine ||
+            owner.generation == UINT64_C(0) || owner.prefix_checkpoints != nullptr ||
             !qwen36_resident_decode_activation_workspace_layout_valid(owner.activation_workspace) ||
             owner.activation_workspace.full_attention_score_scratch_token_capacity < total + kQwen36ResidentDecodeTailCapacityTokens + 1u)
             return fail("qwen36_chunked_prefill_publication", "the completed chunk owner does not cover the requested prompt and decode workspace");
@@ -450,6 +461,14 @@ int run_qwen36_chunked_prefill(
                       << " exact_target_frontier=1 immutable_checkpoint=1 chunked_prefill=1"
                       << " mtp_acceptance_enabled=0 numerical_correctness_claimed=0" << std::endl;
         }
+        exact_owner_index->owner_engine = owner.owner_engine;
+        exact_owner_index->owner_generation = owner.generation;
+        owner.prefix_checkpoints = std::move(exact_owner_index);
+        std::cerr << "BATCH_MARK qwen36_chunked_prefill_exact_owner_index"
+                  << " owner_tokens=" << total
+                  << " generation=" << owner.generation
+                  << " partial_checkpoints=0 complete=1"
+                  << " numerical_correctness_claimed=0" << std::endl;
         *result = *chunk_result;
         result->output_token_capacity = request.output_token_capacity;
         result->preload_wall_clock_ns = preload_ns;
