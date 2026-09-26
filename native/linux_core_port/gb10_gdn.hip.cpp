@@ -18,6 +18,7 @@ namespace {
 struct Asset { const char* name; std::size_t bytes; const char* sha256; };
 #include "gb10_gdn_assets.inc"
 #include "gb10_gdn_ordered_images.inc"
+#include "gb10_gdn_persistent_images.inc"
 using Launch = qrt_fla_checkpoint::SeededLaunch;
 using Prepare = int (*)(const char*);
 using Release = void (*)();
@@ -40,6 +41,12 @@ bool native_prefill_setting(const char* value) {
   if (!value || std::string(value) == "0") return false;
   if (std::string(value) == "1") return true;
   throw std::invalid_argument("Native GDN prefill setting must be 0 or 1");
+}
+bool persistent_prefill_setting(const char* value, bool native_prefill) {
+  const bool selected = native_prefill_setting(value);
+  if (selected && !native_prefill)
+    throw std::invalid_argument("Persistent GDN requires native prefill");
+  return selected;
 }
 std::vector<unsigned char> read(const std::filesystem::path& path, const Asset& asset) {
   if (std::filesystem::file_size(path) != asset.bytes)
@@ -75,11 +82,13 @@ struct State {
   Device beta, prefill_beta, exp2, rsqrt, raw, gates, output, decode_ab;
   Device native_matrix, native_inverse;
   std::array<std::unique_ptr<aima::AotKernel>, static_cast<unsigned>(OrderedStage::Count)> ordered;
+  std::array<std::unique_ptr<aima::AotKernel>, static_cast<unsigned>(PersistentStage::Count)> persistent;
   GdnPrefillObserver observer = nullptr;
   void* observer_context = nullptr;
   std::size_t observer_layer = 0;
   bool observer_first64 = false;
   bool native_prefill = false;
+  bool persistent_prefill = false;
   ~State() {
     if (library) {
       hipDeviceSynchronize();
@@ -183,6 +192,8 @@ Gb10GdnOwner::Gb10GdnOwner() : impl_(std::make_unique<Impl>()) {
   check(hipSetDevice(0), "GDN device");
   auto& s = impl_->state;
   s.native_prefill = native_prefill_setting(std::getenv("AIMA_PORT_NATIVE_GDN_PREFILL"));
+  s.persistent_prefill = persistent_prefill_setting(
+      std::getenv("AIMA_PORT_NATIVE_GDN_PERSISTENT"), s.native_prefill);
   const auto directory = selected("AIMA_PORT_GDN_PROVIDER_DIR");
   for (const auto& asset : provider_assets) read(directory / asset.name, asset);
   s.library = dlopen((directory / "qrt_fla_chunk_gdn_provider.dll").c_str(), RTLD_NOW | RTLD_LOCAL);
@@ -211,12 +222,22 @@ Gb10GdnOwner::Gb10GdnOwner() : impl_(std::make_unique<Impl>()) {
   if (s.native_prefill) {
     s.native_matrix.allocate(8192ull * 32 * 64 * sizeof(float));
     s.native_inverse.allocate(8192ull * 32 * 64 * sizeof(uint16_t));
-    for (unsigned i = 0; i < s.ordered.size(); ++i) {
-      const auto& image = ordered_images[i];
-      if (aima::sha256_bytes(image.data, image.bytes) != image.sha256)
-        throw std::runtime_error("Native GDN ordered embedded image identity differs");
-      s.ordered[i] = std::make_unique<aima::AotKernel>(
-          std::vector<unsigned char>(image.data, image.data + image.bytes), image.name);
+    if (s.persistent_prefill) {
+      for (unsigned i = 0; i < s.persistent.size(); ++i) {
+        const auto& image = persistent_images[i];
+        if (aima::sha256_bytes(image.data, image.bytes) != image.sha256)
+          throw std::runtime_error("Native GDN persistent embedded image identity differs");
+        s.persistent[i] = std::make_unique<aima::AotKernel>(
+            std::vector<unsigned char>(image.data, image.data + image.bytes), image.name);
+      }
+    } else {
+      for (unsigned i = 0; i < s.ordered.size(); ++i) {
+        const auto& image = ordered_images[i];
+        if (aima::sha256_bytes(image.data, image.bytes) != image.sha256)
+          throw std::runtime_error("Native GDN ordered embedded image identity differs");
+        s.ordered[i] = std::make_unique<aima::AotKernel>(
+            std::vector<unsigned char>(image.data, image.data + image.bytes), image.name);
+      }
     }
   }
   active = &s;
@@ -298,6 +319,10 @@ bool gb10_native_gdn_prefill_enabled(std::size_t tokens, bool has_initial) {
     throw std::invalid_argument("Native GDN prefill comparison requires cold q8192");
   return true;
 }
+bool gb10_persistent_gdn_prefill_enabled() {
+  if (!active) throw std::runtime_error("Persistent GDN prefill requires its owner");
+  return active->native_prefill && active->persistent_prefill;
+}
 NativeGdnMatrices gb10_prepare_native_gdn(std::size_t layer, const void* conv,
     const void* a, const void* b, void* q, void* k, void* v, void* g, void* beta,
     std::size_t tokens) {
@@ -336,8 +361,13 @@ std::size_t gb10_native_gdn_pipeline(const void* q, const void* k, const void* v
   if (!active || !active->native_prefill || tokens != 8192)
     throw std::invalid_argument("Native GDN pipeline owner or geometry is invalid");
   auto& s = *active;
-  for (const auto& kernel : s.ordered)
-    if (!kernel) throw std::runtime_error("Native GDN ordered module is absent");
+  if (s.persistent_prefill) {
+    for (const auto& kernel : s.persistent)
+      if (!kernel) throw std::runtime_error("Native GDN persistent module is absent");
+  } else {
+    for (const auto& kernel : s.ordered)
+      if (!kernel) throw std::runtime_error("Native GDN ordered module is absent");
+  }
   constexpr std::size_t state_bytes = 32ull * 128 * 128 * sizeof(float);
   constexpr std::size_t chunk_bytes = 64ull * 32 * 128 * sizeof(uint16_t);
   const void* pointers[] = {q, k, v, g, beta, w, u, output, state,
@@ -362,8 +392,15 @@ std::size_t gb10_native_gdn_pipeline(const void* q, const void* k, const void* v
   auto launch = [&](OrderedStage stage, unsigned x, unsigned y, unsigned z,
                     const std::vector<void*>& parameters) {
     const auto index = static_cast<unsigned>(stage);
-    const auto& image = ordered_images[index];
-    s.ordered[index]->launch(aima::AotLaunchConfig{x, y, z, image.warps, 32, image.shared}, parameters);
+    if (s.persistent_prefill) {
+      if (index >= static_cast<unsigned>(PersistentStage::Recurrence))
+        throw std::logic_error("Persistent GDN upstream stage is invalid");
+      const auto& image = persistent_images[index];
+      s.persistent[index]->launch(aima::AotLaunchConfig{x, y, z, image.warps, 32, image.shared}, parameters);
+    } else {
+      const auto& image = ordered_images[index];
+      s.ordered[index]->launch(aima::AotLaunchConfig{x, y, z, image.warps, 32, image.shared}, parameters);
+    }
     ++launches;
   };
   void* matrix = s.native_matrix.data;
@@ -399,12 +436,24 @@ std::size_t gb10_native_gdn_pipeline(const void* q, const void* k, const void* v
     const void* chunk_scores = static_cast<const uint16_t*>(scores) + first * 32 * 64;
     void* chunk_output = static_cast<uint16_t*>(output) + first * 4096;
     void* next = chunk + 1 == tokens / 64 ? state : states[(chunk + 1) % 2];
-    launch(OrderedStage::Residual, 8, 16, 32,
-        {&chunk_w, &chunk_u, &incoming, &chunk_g, &table, &v_new, &residual, &chunk_tokens});
-    launch(OrderedStage::State, 16, 16, 32,
-        {&chunk_k, &residual, &incoming, &chunk_g, &table, &next, &chunk_tokens});
-    launch(OrderedStage::Output, 8, 16, 32,
-        {&chunk_q, &v_new, &incoming, &chunk_g, &chunk_scores, &table, &chunk_output, &chunk_tokens});
+    if (s.persistent_prefill) {
+      // A launch boundary commits the complete FP32 state before the next
+      // chunk. The unchanged fused image performs only one 64-token chunk.
+      constexpr auto index = static_cast<unsigned>(PersistentStage::Recurrence);
+      const auto& image = persistent_images[index];
+      s.persistent[index]->launch(aima::AotLaunchConfig{32, 16, 1, image.warps, 32, image.shared},
+          {&chunk_q, &chunk_k, &chunk_w, &chunk_u, &chunk_g, &chunk_scores,
+           &table, &incoming, &next, &chunk_output, &unused_debug,
+           &unused_debug, &chunk_tokens});
+      ++launches;
+    } else {
+      launch(OrderedStage::Residual, 8, 16, 32,
+          {&chunk_w, &chunk_u, &incoming, &chunk_g, &table, &v_new, &residual, &chunk_tokens});
+      launch(OrderedStage::State, 16, 16, 32,
+          {&chunk_k, &residual, &incoming, &chunk_g, &table, &next, &chunk_tokens});
+      launch(OrderedStage::Output, 8, 16, 32,
+          {&chunk_q, &v_new, &incoming, &chunk_g, &chunk_scores, &table, &chunk_output, &chunk_tokens});
+    }
     incoming = next;
   }
   return launches;

@@ -25,6 +25,8 @@ void gb10_prefill_gdn(std::size_t layer, const void* convolution,
 // Optional ordered integer-accumulator chunk-64 prefill core.
 // Cold q8192 only; the resident state binding and decode arithmetic stay intact.
 bool gb10_native_gdn_prefill_enabled(std::size_t tokens, bool has_initial_state);
+// Reports the selected owner's optional fused recurrence for runtime evidence.
+bool gb10_persistent_gdn_prefill_enabled();
 struct NativeGdnMatrices { void* matrix_f32; void* inverse_bf16; };
 // Prepare original Q/K normalization, BF16 beta and FP32 decay values into
 // the engine's live token-major tensors. Returned matrices belong to this owner.
