@@ -5,7 +5,8 @@
 
 struct qrt_engine { int unused; };
 static struct qrt_engine native_engine;
-static uint32_t input[8192];
+static uint32_t input[263168];
+static size_t input_count = 294u, output_capacity = 32u;
 static size_t matched_prefix, query_calls, prefix_calls, cold_calls, callbacks;
 static size_t prefix_callbacks, prefix_output_count;
 static qrt_status_t query_status, prefix_status;
@@ -24,7 +25,8 @@ qrt_status_t qrt_engine_prefix_checkpoint_match_v1(
     qrt_engine_t *engine, const uint32_t *tokens, size_t count,
     size_t capacity, size_t *prefix
 ) {
-    assert(engine == &native_engine && tokens == input && count == 294u && capacity == 32u);
+    assert(engine == &native_engine && tokens == input && count == input_count &&
+           capacity == output_capacity);
     ++query_calls;
     *prefix = matched_prefix;
     return query_status;
@@ -43,7 +45,8 @@ qrt_status_t qrt_engine_request_tokens_stream_v1(
     uint32_t *output, size_t capacity, size_t *output_count,
     qrt_token_stream_callback_v1_t callback, void *user_data
 ) {
-    assert(engine == &native_engine && tokens == input && count == 294u && capacity == 32u);
+    assert(engine == &native_engine && tokens == input && count == input_count &&
+           capacity == output_capacity);
     assert(*output_count == 0u);
     ++cold_calls;
     output[0] = 144u;
@@ -58,7 +61,8 @@ qrt_status_t qrt_engine_request_tokens_prefix_stream_v1(
     qrt_token_stream_callback_v1_t callback, void *user_data
 ) {
     size_t i;
-    assert(engine == &native_engine && tokens == input && count == 294u && capacity == 32u);
+    assert(engine == &native_engine && tokens == input && count == input_count &&
+           capacity == output_capacity);
     assert(prefix == matched_prefix && result->output_token_count == 0u);
     ++prefix_calls;
     output[0] = 144u;
@@ -76,6 +80,8 @@ static int QRT_CDECL observe(void *user_data, const qrt_token_stream_event_v1_t 
 }
 
 static void reset(void) {
+    input_count = 294u;
+    output_capacity = 32u;
     matched_prefix = query_calls = prefix_calls = cold_calls = callbacks = 0u;
     prefix_callbacks = prefix_output_count = 0u;
     query_status = prefix_status = QRT_STATUS_OK;
@@ -87,10 +93,10 @@ static void reset(void) {
 static void request(qrt_status_t expected, size_t expected_output) {
     qrt_server_engine_t engine = {&native_engine};
     qrt_server_request_report_v1_t report;
-    uint32_t output[32];
+    uint32_t output[QRT_QWEN36_WHOLE_PROVIDER_MAX_OUTPUT_TOKENS];
     size_t output_count = 999u;
     assert(qrt_server_engine_request_tokens_stream_v1(
-        &engine, input, 294u, output, 32u, &output_count,
+        &engine, input, input_count, output, output_capacity, &output_count,
         observe, &callbacks, &report) == expected);
     assert(output_count == expected_output && report.output_token_count == expected_output);
     assert(report.ttft_ns == 123u && report.abi_version == QRT_SERVER_BRIDGE_ABI_VERSION);
@@ -162,6 +168,11 @@ int main(void) {
     reset(); matched_prefix = 294u;
     request(QRT_STATUS_OK, 1u);
     assert(prefix_calls == 0u && cold_calls == 1u);
-    puts("11 bridge checkpoint routing and callback cases passed");
+
+    reset(); input_count = 263168u; output_capacity = 512u;
+    matched_prefix = 262144u; prefix_callbacks = prefix_output_count = 1u;
+    request(QRT_STATUS_OK, 1u);
+    assert(query_calls == 1u && prefix_calls == 1u && cold_calls == 0u && callbacks == 1u);
+    puts("12 bridge checkpoint routing and callback cases passed");
     return 0;
 }

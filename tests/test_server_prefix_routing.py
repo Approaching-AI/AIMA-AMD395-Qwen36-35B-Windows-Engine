@@ -22,9 +22,9 @@ class ServerPrefixRoutingTests(unittest.TestCase):
             )
             result = subprocess.run([executable], capture_output=True, text=True,
                                     check=True, timeout=5)
-        self.assertIn("11 bridge checkpoint routing and callback cases passed", result.stdout)
+        self.assertIn("12 bridge checkpoint routing and callback cases passed", result.stdout)
         self.assertEqual(result.stderr.count("prefix_cache_fallback"), 1)
-        self.assertEqual(result.stderr.count("prefix_cache_hit"), 1)
+        self.assertEqual(result.stderr.count("prefix_cache_hit"), 2)
 
 
 if __name__ == "__main__":
