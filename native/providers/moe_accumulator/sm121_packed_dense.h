@@ -1,5 +1,6 @@
 #pragma once
 #include "../gdn/sm121_q1_math.h"
+#include "router_nearmidpoint_exact.h"
 #include <type_traits>
 
 #if defined(__HIPCC__) || defined(__CUDACC__)
@@ -97,6 +98,21 @@ __global__ void projection(const Input* input, const uint16_t* weights,
         const uint16_t rounded = qrt_sm121_q1::bf16(sum);
         if constexpr (std::is_same<Output,uint16_t>::value) output[cell] = rounded;
         else output[cell] = qrt_sm121_q1::widen(rounded);
+    }
+}
+
+// The 256K resident decode uses this packed single-row router. Its FP32
+// reduction can land exactly on a BF16 midpoint even when the exact BF16
+// operand dot is just across it. Revisit only those sparse rows before top-k.
+__global__ void router_projection_exact_nearmidpoint(
+    const uint16_t* input, const uint16_t* weights, uint16_t* output) {
+    constexpr unsigned kHidden = 2048u, kExperts = 256u;
+    const size_t expert = (size_t(blockIdx.x) * blockDim.x + threadIdx.x) / 16u;
+    if (expert >= kExperts) return;
+    const uint16_t* weight = weights + expert * kHidden;
+    const float sum = dot<kHidden>(input, weight);
+    if (threadIdx.x % 16u == 0u) {
+        output[expert] = qrt_router_nearmidpoint::select(input, weight, kHidden, sum).selected;
     }
 }
 
