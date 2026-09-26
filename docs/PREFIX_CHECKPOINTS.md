@@ -168,8 +168,10 @@ For native qualification, qrt-product run accepts --checkpoint-owner FILE
 together with --prefix-tokens N. It first runs the complete owner prompt,
 reports its first token/logit and time, requires a query hit at N, and then
 executes the usual repeated prefix/stream/negative-guard checks. The owner must
-be longer than N and match the requested prefix token-for-token. Owner prefill
-time is reported separately and is never a cold TTFT improvement.
+cover at least N tokens and match the requested prefix token-for-token. An
+owner of exactly N tokens probes the chunked cold owner's exact-token index;
+a longer owner can hit only if a complete partial checkpoint was saved. Owner
+prefill time is reported separately and is never a cold TTFT improvement.
 
 The host tests execute the actual query, publication and shadow transaction
 code with guarded host allocations, including each allocation failure, both

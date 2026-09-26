@@ -141,7 +141,9 @@ qrt_status_t qrt_engine_request_tokens_prefix_v1(qrt_engine_t *e, const uint32_t
 }
 qrt_status_t qrt_engine_request_tokens(qrt_engine_t *e, const uint32_t *i,
     size_t n, uint32_t *o, size_t c, size_t *r) {
-    (void)e; (void)i; (void)n; (void)o; (void)c; (void)r; abort();
+    if (n != 2 || c != 1 || i[0] != 1 || i[1] != 2 || e->cache) abort();
+    e->cache = 1; ++e->seed_calls; e->first = o[0] = 16; *r = 1;
+    return QRT_STATUS_OK;
 }
 qrt_status_t qrt_engine_request_tokens_stream_v1(qrt_engine_t *e, const uint32_t *i,
     size_t n, uint32_t *o, size_t c, size_t *r, qrt_token_stream_callback_v1_t cb, void *u) {
@@ -149,7 +151,9 @@ qrt_status_t qrt_engine_request_tokens_stream_v1(qrt_engine_t *e, const uint32_t
 }
 qrt_status_t qrt_engine_prefix_checkpoint_match_v1(qrt_engine_t *e,
     const uint32_t *i, size_t n, size_t c, size_t *p) {
-    (void)e; (void)i; (void)n; (void)c; (void)p; abort();
+    if (e->cache != 1 || n != 4 || c != 4 || i[0] != 1 || i[1] != 2) abort();
+    *p = 2;
+    return QRT_STATUS_OK;
 }
 '''
 
@@ -287,6 +291,18 @@ static int qrt_product_preload_provider(const char *path, const char *model,
         self.assertEqual(result.returncode, 2, result.stderr)
         self.assertEqual(rows, [])
         self.assertNotIn("TEST_BACKEND", result.stderr)
+
+    def test_equal_length_checkpoint_owner_queries_exact_prefix(self):
+        owner_path = self.directory / "exact-checkpoint-owner.json"
+        owner_path.write_text("[1,2]")
+        result, rows = self.run_case(enabled=False,
+                                     extra=("--checkpoint-owner", str(owner_path)))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        summary = next(row for row in rows if row["type"] == "summary")
+        self.assertEqual(summary["checkpoint_owner_tokens"], 2)
+        self.assertEqual(summary["checkpoint_owner_first_token"], 16)
+        self.assertEqual(summary["output_token_ids"], [100, 101, 102, 103])
+        self.assertIn("seed=1 owner=0 hit=1 cache=1", result.stderr)
 
 
 if __name__ == "__main__":

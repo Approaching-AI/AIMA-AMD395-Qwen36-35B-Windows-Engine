@@ -1110,10 +1110,10 @@ static int qrt_product_run(const qrt_product_options_t *options) {
         (!qrt_product_parse_token_array(
             options->checkpoint_owner_path, &checkpoint_owner_tokens,
             &checkpoint_owner_count) ||
-         checkpoint_owner_count <= options->prefix_token_count ||
+         checkpoint_owner_count < options->prefix_token_count ||
          memcmp(checkpoint_owner_tokens, input_tokens,
                 options->prefix_token_count * sizeof(*input_tokens)) != 0)) {
-        fputs("checkpoint owner must extend the declared actual prefix\n", stderr);
+        fputs("checkpoint owner must cover the declared actual prefix\n", stderr);
         free(checkpoint_owner_tokens);
         free(expected_output_tokens);
         free(input_tokens);
