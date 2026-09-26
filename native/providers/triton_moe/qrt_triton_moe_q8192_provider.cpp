@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "../moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
+#include "../moe_accumulator/router_nearmidpoint_exact.h"
 #include "../moe_accumulator/sm121_wave16.h"
 #include "../moe_accumulator/sm121_subgroup.h"
 #include "../moe_accumulator/sm121_prepared_projection.h"
@@ -1877,6 +1878,7 @@ struct ProviderState {
     float *router_logits_f32 = nullptr;
     uint32_t *cuda_router_ex2_fraction_lut = nullptr;
     uint32_t router_hawkeye_midpoint_radius = 0u;
+    bool router_exact_nearmidpoint = false;
 #if QRT_TRITON_MOE_ROCBLAS_ROUTER
     rocblas_handle router_handle = nullptr;
 #endif
@@ -3933,6 +3935,7 @@ void router_hawkeye_midpoint_correction_kernel(
     uint16_t *corrected_logits,
     uint32_t token_count,
     uint32_t midpoint_radius,
+    bool exact_nearmidpoint,
     MoeCorrectionBounds bounds
 ) {
 #if QRT_TRITON_MOE_BATCHED_HAWKEYE
@@ -3979,7 +3982,12 @@ void router_hawkeye_midpoint_correction_kernel(
                     input_bf16 + static_cast<size_t>(token) * kHidden,
                     router_weights + static_cast<size_t>(expert) * kHidden,
                     kHidden);
-            corrected_logits[index] = float_to_bf16(exact);
+            corrected_logits[index] = exact_nearmidpoint && token_count <= 16u
+                ? qrt_router_nearmidpoint::select(
+                    input_bf16 + static_cast<size_t>(token) * kHidden,
+                    router_weights + static_cast<size_t>(expert) * kHidden,
+                    kHidden, exact).selected
+                : float_to_bf16(exact);
 #endif
         }
     }
@@ -4006,7 +4014,12 @@ void router_hawkeye_midpoint_correction_kernel(
                 router_weights + static_cast<size_t>(expert) * kHidden,
                 kHidden);
         if (lane == 0u) {
-            corrected_logits[candidate] = float_to_bf16(exact);
+            corrected_logits[candidate] = exact_nearmidpoint && token_count <= 16u
+                ? qrt_router_nearmidpoint::select(
+                    input_bf16 + static_cast<size_t>(token) * kHidden,
+                    router_weights + static_cast<size_t>(expert) * kHidden,
+                    kHidden, exact).selected
+                : float_to_bf16(exact);
         }
     }
 #endif
@@ -13067,6 +13080,11 @@ uint32_t requested_router_hawkeye_midpoint_radius() {
         : 0u;
 }
 
+bool requested_router_exact_nearmidpoint() {
+    const char *value = std::getenv("QRT_QWEN36_CUDA_VLLM_ROUTER_EXACT_NEARMIDPOINT");
+    return value != nullptr && std::strcmp(value, "1") == 0;
+}
+
 uint32_t requested_routed_down_contribution_hawkeye_midpoint_radius() {
     const char *value = std::getenv(
         "QRT_QWEN36_CUDA_VLLM_ROUTED_DOWN_CONTRIBUTION_HAWKEYE_"
@@ -15358,7 +15376,8 @@ bool launch_router(
                     router_bf16,
                     g_state.router_logits_bf16,
                     token_count,
-                    g_state.router_hawkeye_midpoint_radius
+                    g_state.router_hawkeye_midpoint_radius,
+                    g_state.router_exact_nearmidpoint
                 );
                 const hipError_t hawkeye_status = correction_status;
                 if (hawkeye_status != hipSuccess) {
@@ -17210,6 +17229,8 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
 #endif
     g_state.router_hawkeye_midpoint_radius =
         requested_router_hawkeye_midpoint_radius();
+    g_state.router_exact_nearmidpoint =
+        requested_router_exact_nearmidpoint();
     g_state.routed_down_contribution_hawkeye_midpoint_radius =
         requested_routed_down_contribution_hawkeye_midpoint_radius();
     g_state.routed_down_hawkeye_low_exponent_threshold =
