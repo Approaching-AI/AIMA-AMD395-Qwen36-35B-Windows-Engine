@@ -2,7 +2,7 @@
   "schema": 1,
   "source_base_commit": "01d1418b28f55339f28c29b6b47821c29626c984",
   "upstream_source_commit": "e15c6cd1a0e91243ebd330fa55ac24348603e151",
-  "recurrence_source_commit": "51e10e570bb6397846341c0cb8132df39c172fb6",
+  "recurrence_source_commit": "9fa966fc92458dd2f292c633ff6d82f30254229f",
   "source_files": {
     "native/providers/gdn_persistent/exp2.py": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf",
     "native/providers/gdn_persistent/group16.py": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef",
@@ -452,8 +452,8 @@
       "name": "global-h0-runtime",
       "capture": false,
       "file": "global-h0-runtime.hsaco",
-      "bytes": 108480,
-      "sha256": "382619195a9c40ce0896c0ec71bea296c38538521253913753d24ed93d120df9",
+      "bytes": 108528,
+      "sha256": "ab5d309965f6ee3ce5714c19152d884c880756fb86046d918a24d687549a32f0",
       "signature": {
         "Q": "*bf16",
         "K": "*bf16",
@@ -500,7 +500,7 @@
             "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
           ]
         ],
-        "hash": "88cf7f7ac737f4373c485324d338b299ad772f092e8ccf497f922da92e3859e2",
+        "hash": "68571eb5c3d7273c9a53b76d6cf73997bc8d34d4a8656de78bc318cb61f780d9",
         "instrumentation_mode": "",
         "kpack": 1,
         "launch_cooperative_grid": false,
@@ -542,8 +542,8 @@
       "shared_memory_bytes": 2048
     }
   },
-  "embedded_include_sha256": "357f864a57992872d1882e84977ac736f97c022cc775a33b2ba7d341cc66f768",
-  "embedded_include_bytes": 3080840,
+  "embedded_include_sha256": "561b160251d1b8a3d6e2addffbde3a9bbcdbe5abac2631fd1c63205e7e0dab26",
+  "embedded_include_bytes": 3081134,
   "compiler_sha256": "3e23c1001d5e1d366cda0d1b1c77bf43e564a213a218caf846c1834b542f1d1a",
   "native_plan_sha256": "e2a6d2ded1f2a6213944b6912ff326d4cfd4e8dd68e588162cb70bcdcd2cd186",
   "native_execution": false,
@@ -561,11 +561,22 @@
       "native/providers/gdn_persistent/global_h0/persistent.py": "d4aaa2fe4c7bbd5a3fdd0079db28fba2180485a7dbc276008c671322e63c95bf",
       "native/providers/gdn_persistent/global_h0/compile_worker.py": "3e23c1001d5e1d366cda0d1b1c77bf43e564a213a218caf846c1834b542f1d1a",
       "native/providers/gdn_persistent/global_h0/group16.py": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef",
-      "native/providers/gdn_persistent/global_h0/exp2.py": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf",
+      "native/providers/gdn_persistent/global_h0/exp2.py": "27619b5cd352827e2cca890bcc9770ee85fa56f016f590496b5f785606c03747",
       "native/providers/gdn_persistent/global_h0/ordered_pipeline.py": "1e1fe71515f51552160c4e02e3aa03cc27af68dd390c241218381e227c913fae"
     },
     "component_only": true,
     "native_execution": false,
     "model_qualified": false
+  },
+  "global_h0_uint8_replacement": {
+    "prior_native_commit": "b49065f1bf8f7dc0265592d7ea14280bdb0aade7",
+    "prior_recurrence_image_sha256": "382619195a9c40ce0896c0ec71bea296c38538521253913753d24ed93d120df9",
+    "candidate_source_commit": "9fa966fc92458dd2f292c633ff6d82f30254229f",
+    "compile_result_sha256": "76a4e0f12caf7ec8aaaa09e1a28b7f621785fc5bc8f48af5b74e1da7d57b8960",
+    "compile_source_manifest_sha256": "f0e6b01c33c054e1f912bf50b493c167e671c1b535a9b51db455335bbc6bdc34",
+    "amd_component_report_sha256": "41cdf5a8af7010f7371a209bbb1cc52be2ead4241357f64510b8c159ad38668f",
+    "amd_component_run_sha256": "4fb4bbb436faa230b3dccfb7d9c376cfd78a6baa23abd59f2ccbce48e9d1e99a",
+    "first_two_chunks_exact": true,
+    "real_model_qualified": false
   }
 }

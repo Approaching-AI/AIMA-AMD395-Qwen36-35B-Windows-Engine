@@ -16,7 +16,8 @@ def _exp(Table, x):
     kind = tag >> 30
     payload = Table + 10272816 + (tag & 0x3fffffff)
     cell = relative & 255
-    d1 = tl.load(payload + cell, valid & (kind == 1), other=0).to(tl.uint32)
+    d1 = tl.load(payload.to(tl.pointer_type(tl.uint8)) + cell,
+                 valid & (kind == 1), other=0).to(tl.uint32)
     d2 = tl.load(payload.to(tl.pointer_type(tl.uint16)) + cell, valid & (kind == 2), other=0).to(tl.uint32)
     d4 = tl.load(payload.to(tl.pointer_type(tl.uint32)) + cell, valid & (kind == 3), other=0)
     result = base + d1 + d2 + d4
@@ -24,5 +25,4 @@ def _exp(Table, x):
     result = tl.where(magnitude >= 0x43180000, 0, result)
     result = tl.where((magnitude > 0x7f800000) | (~negative), 0x7fc00000, result)
     return tl.where(small, 0x3f800000, result).to(tl.uint32).to(tl.float32, bitcast=True)
-
 

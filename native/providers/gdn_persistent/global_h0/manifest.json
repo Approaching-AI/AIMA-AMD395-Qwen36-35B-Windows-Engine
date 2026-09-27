@@ -8,12 +8,12 @@
     "persistent.py": "d4aaa2fe4c7bbd5a3fdd0079db28fba2180485a7dbc276008c671322e63c95bf",
     "compile_worker.py": "3e23c1001d5e1d366cda0d1b1c77bf43e564a213a218caf846c1834b542f1d1a",
     "group16.py": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef",
-    "exp2.py": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf",
+    "exp2.py": "27619b5cd352827e2cca890bcc9770ee85fa56f016f590496b5f785606c03747",
     "ordered_pipeline.py": "1e1fe71515f51552160c4e02e3aa03cc27af68dd390c241218381e227c913fae"
   },
   "upstream_compact_source_hashes": {
     "group16.py": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef",
-    "exp2.py": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf",
+    "exp2.py": "27619b5cd352827e2cca890bcc9770ee85fa56f016f590496b5f785606c03747",
     "ordered_pipeline.py": "1e1fe71515f51552160c4e02e3aa03cc27af68dd390c241218381e227c913fae"
   },
   "hypothesis": "Read the nonzero incoming FP32 state directly from global memory in every phase of one fused 64-token invocation",
