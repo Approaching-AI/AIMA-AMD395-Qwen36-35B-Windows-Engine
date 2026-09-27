@@ -2,7 +2,7 @@
   "schema": 1,
   "source_base_commit": "01d1418b28f55339f28c29b6b47821c29626c984",
   "upstream_source_commit": "e15c6cd1a0e91243ebd330fa55ac24348603e151",
-  "recurrence_source_commit": "d9958548527efeae90bc893c4ed3c0ce56c9cd71",
+  "recurrence_source_commit": "51e10e570bb6397846341c0cb8132df39c172fb6",
   "source_files": {
     "native/providers/gdn_persistent/exp2.py": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf",
     "native/providers/gdn_persistent/group16.py": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef",
@@ -449,11 +449,11 @@
       "compile_seconds": 1.7861190210096538
     },
     "recurrence": {
-      "name": "persistent-runtime",
+      "name": "global-h0-runtime",
       "capture": false,
-      "file": "recurrence.hsaco",
-      "bytes": 115752,
-      "sha256": "d74aa694ebc68bb0c48ffeffd7f2c0a65742f3ef1bac28c8ee89931d23ddb820",
+      "file": "global-h0-runtime.hsaco",
+      "bytes": 108480,
+      "sha256": "382619195a9c40ce0896c0ec71bea296c38538521253913753d24ed93d120df9",
       "signature": {
         "Q": "*bf16",
         "K": "*bf16",
@@ -500,13 +500,13 @@
             "/usr/local/lib/python3.12/dist-packages/triton/backends/amd/lib/ockl.bc"
           ]
         ],
-        "hash": "009e6c71a3d62a4d78e938a5f7132c99944e7248cc29ac9c4fd70bb5d4163d5d",
+        "hash": "88cf7f7ac737f4373c485324d338b299ad772f092e8ccf497f922da92e3859e2",
         "instrumentation_mode": "",
         "kpack": 1,
         "launch_cooperative_grid": false,
         "matrix_instr_nonkdim": 0,
         "max_num_imprecise_acc_default": 0,
-        "name": "persistent_kernel",
+        "name": "global_h0_kernel",
         "num_ctas": 1,
         "num_stages": 2,
         "num_warps": 4,
@@ -514,7 +514,7 @@
         "profile_scratch_size": 0,
         "sanitize_overflow": true,
         "schedule_hint": "none",
-        "shared": 6144,
+        "shared": 2048,
         "supported_fp8_dtypes": [
           "fp8e4b8",
           "fp8e4nv",
@@ -529,7 +529,7 @@
       },
       "resources": {
         ".vgpr_count": [
-          "158"
+          "179"
         ],
         ".vgpr_spill_count": [
           "0"
@@ -539,15 +539,33 @@
         ]
       },
       "layout_conversion_count": 0,
-      "shared_memory_bytes": 6144
+      "shared_memory_bytes": 2048
     }
   },
-  "embedded_include_sha256": "8a29c8fe83c31b6406c7bd8bb2f616773c3a6f962cf728e4087ac5f98baed6d3",
-  "embedded_include_bytes": 3125383,
-  "compiler_sha256": "1d70207bbf43cd9e5055c830902fa09df86212afd2b890bcc46ca522a07b862a",
+  "embedded_include_sha256": "357f864a57992872d1882e84977ac736f97c022cc775a33b2ba7d341cc66f768",
+  "embedded_include_bytes": 3080840,
+  "compiler_sha256": "3e23c1001d5e1d366cda0d1b1c77bf43e564a213a218caf846c1834b542f1d1a",
   "native_plan_sha256": "e2a6d2ded1f2a6213944b6912ff326d4cfd4e8dd68e588162cb70bcdcd2cd186",
   "native_execution": false,
   "inference_acceptance": false,
   "performance_acceptance": false,
-  "parent_compile_manifest_sha256": "01c9f8e5e6e8ad331143a6724b7d59719cbc5032c5e08b5b68264309f5e09cc8"
+  "parent_compile_manifest_sha256": "01c9f8e5e6e8ad331143a6724b7d59719cbc5032c5e08b5b68264309f5e09cc8",
+  "global_h0_replacement": {
+    "base_native_commit": "55d54b523d4ded87e163b91988d972ac559ee637",
+    "base_native_manifest_sha256": "1a737a48a4dc2a9fd8637dcc2e0dc9e88e0d95b50517650cf00df2035e9dea47",
+    "prior_compiler_sha256": "1d70207bbf43cd9e5055c830902fa09df86212afd2b890bcc46ca522a07b862a",
+    "offline_component_report_sha256": "c8bbeeb36a7a5c3f6068a3b31a7e8f320c00db8a554c1708429c8274a6b9b610",
+    "compile_result_sha256": "25a6bb029c3d4f22cb7f08b0e3fa46d57346ae8c7fb1bcd5e76b425057279f82",
+    "compile_source_manifest_sha256": "5778f50c7c957cafc05e092da95813914a50b9c5c93e8451a22d45749f87f2b1",
+    "source_files": {
+      "native/providers/gdn_persistent/global_h0/persistent.py": "d4aaa2fe4c7bbd5a3fdd0079db28fba2180485a7dbc276008c671322e63c95bf",
+      "native/providers/gdn_persistent/global_h0/compile_worker.py": "3e23c1001d5e1d366cda0d1b1c77bf43e564a213a218caf846c1834b542f1d1a",
+      "native/providers/gdn_persistent/global_h0/group16.py": "5ef27b14537a8390b7faeacbfd1debb1901675d15c3d5f77748119716859aaef",
+      "native/providers/gdn_persistent/global_h0/exp2.py": "afe7dff1557e9dc57213f21b573a62782dde672db8b63b7ab9ab883db6ad79bf",
+      "native/providers/gdn_persistent/global_h0/ordered_pipeline.py": "1e1fe71515f51552160c4e02e3aa03cc27af68dd390c241218381e227c913fae"
+    },
+    "component_only": true,
+    "native_execution": false,
+    "model_qualified": false
+  }
 }

@@ -93,12 +93,12 @@ inline int hipModuleLaunchKernel(void* function,unsigned x,unsigned y,unsigned z
  else if(name=="integer_u_kernel")count=5;
  else if(name=="gram_kernel"||name=="w_kernel"||name=="state_kernel")count=6;
  else if(name=="residual_kernel"||name=="output_kernel")count=7;
- else if(name=="persistent_kernel")count=12;
+ else if(name=="global_h0_kernel")count=12;
  else assert(false);
  assert(bx==128&&by==1&&bz==1&&stream==nullptr&&extra==nullptr);
  const bool persistent=i-1>=fake_persistent_module_first;
- assert(shared==(name=="persistent_kernel"?6144u:name=="native_ordered_64_inverse_kernel"?1024u:persistent?512u:0u));
- if(name=="persistent_kernel")assert(persistent&&x==32&&y==16&&z==1);
+ assert(shared==(name=="global_h0_kernel"?2048u:name=="native_ordered_64_inverse_kernel"?1024u:persistent?512u:0u));
+ if(name=="global_h0_kernel")assert(persistent&&x==32&&y==16&&z==1);
  FakeModuleLaunch item{name,static_cast<unsigned>(i-1),x,y,z,bx,shared,*static_cast<std::int32_t*>(args[count]),{}};
  for(unsigned j=0;j<count;++j){std::uintptr_t p;std::memcpy(&p,args[j],sizeof(p));item.pointers.push_back(p);}
  assert(*static_cast<hipDeviceptr_t*>(args[count+1])==0&&*static_cast<hipDeviceptr_t*>(args[count+2])==0);

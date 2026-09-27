@@ -1236,6 +1236,14 @@ def main():
             state_commit="last chunk writes the engine's resident FP32 state directly",
             model_qualified=False)
         persistent = json.loads((ROOT / "native/linux_core_port/gb10_gdn_persistent_compile.json").read_text())
+        replacement = persistent["global_h0_replacement"]
+        for relative, expected in replacement["source_files"].items():
+            path = (ROOT / relative).resolve()
+            if ROOT not in path.parents or digest(path.read_bytes()) != expected:
+                raise ValueError(f"Global-H0 compiled source identity differs: {relative}")
+        if digest((ROOT / "native/linux_core_port/gb10_gdn_persistent_images.inc").read_bytes()) != \
+                persistent["embedded_include_sha256"]:
+            raise ValueError("Global-H0 embedded image identity differs")
         report["optional_adaptations"]["gb10_gdn"]["native_split64_opt_in"] = dict(
             setting="AIMA_PORT_NATIVE_GDN_PERSISTENT=1",
             requires="AIMA_PORT_NATIVE_GDN_PREFILL=1",
@@ -1248,6 +1256,7 @@ def main():
             embedded_image_bytes=sum(item["bytes"] for item in persistent["compiled"].values()),
             embedded_include_sha256=digest((ROOT / "native/linux_core_port/gb10_gdn_persistent_images.inc").read_bytes()),
             recurrence_image_sha256=persistent["compiled"]["recurrence"]["sha256"],
+            candidate_source_files_verified=len(replacement["source_files"]),
             model_qualified=False)
     if args.gb10_projections:
         report["optional_adaptations"]["gb10_projections"] = dict(

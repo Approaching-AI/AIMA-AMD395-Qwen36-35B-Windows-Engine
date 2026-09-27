@@ -438,7 +438,7 @@ std::size_t gb10_native_gdn_pipeline(const void* q, const void* k, const void* v
     void* next = chunk + 1 == tokens / 64 ? state : states[(chunk + 1) % 2];
     if (s.persistent_prefill) {
       // A launch boundary commits the complete FP32 state before the next
-      // chunk. The unchanged fused image performs only one 64-token chunk.
+      // chunk. Global-H0 reads that state in each phase of one 64-token chunk.
       constexpr auto index = static_cast<unsigned>(PersistentStage::Recurrence);
       const auto& image = persistent_images[index];
       s.persistent[index]->launch(aima::AotLaunchConfig{32, 16, 1, image.warps, 32, image.shared},

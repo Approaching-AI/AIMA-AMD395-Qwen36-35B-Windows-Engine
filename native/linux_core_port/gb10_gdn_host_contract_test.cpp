@@ -263,7 +263,7 @@ int main(int argc,char**argv) {
     const auto first_row=chunk*64ull;
     const auto next=chunk==127?final:scratch+((chunk+1)%2)*state_extent;
     assert(fused.index==fake_persistent_module_first+5&&fused.tokens==64);
-    assert(fused.x==32&&fused.y==16&&fused.z==1&&fused.block==128&&fused.shared==6144);
+    assert(fused.x==32&&fused.y==16&&fused.z==1&&fused.block==128&&fused.shared==2048);
     assert(fused.pointers==std::vector<std::uintptr_t>({
         q+first_row*2048*2,k+first_row*2048*2,w+first_row*4096*2,u+first_row*4096*2,
         g+first_row*32*4,matrix+first_row*32*64*2,table,incoming,next,

@@ -117,6 +117,9 @@ def main():
                 "sm121_rsqrt_table.h", "sm121_sqrt_table.h", "sm121_attention_rcp.h",
                 "ordered_inverse.py", "integer_u.py", "ordered_pipeline.py")]
             source_paths.append(ROOT / "tools/compile_linux_core_gdn_ordered.py")
+            persistent = json.loads((ROOT / "native/linux_core_port/gb10_gdn_persistent_compile.json").read_text())
+            source_paths += [ROOT / relative for relative in
+                             persistent["global_h0_replacement"]["source_files"]]
         if args.gb10_projections:
             source_paths += [ROOT / "native/providers/moe_accumulator" / name for name in (
                 "sm121_wave16.h", "q1_moe_hawkeye_bf16_accumulator.h", "sm121_group16_modulo.h",
